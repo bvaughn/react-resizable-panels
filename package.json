@@ -20,14 +20,14 @@
     "@parcel/packager-ts": "2.8.2",
     "@parcel/transformer-typescript-types": "2.8.2",
     "parcel": "latest",
-    "react": "latest",
-    "react-dom": "latest",
+    "react": "^18",
+    "react-dom": "^18",
     "typescript": ">=3.0.0"
   },
   "dependencies": {
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
-    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
+    "react": "^16.14.0 || ^17.0.0 || ^18.0.0",
+    "react-dom": "^16.14.0 || ^17.0.0 || ^18.0.0"
   }
 }

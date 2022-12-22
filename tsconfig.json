@@ -1,0 +1,6 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2015", "DOM"],
+    "jsx": "react-jsx"
+  }
+}
