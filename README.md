@@ -1,6 +1,8 @@
 # react-panel-group
 React components for resizable panel groups/layouts
 
+[Try a demo on Code Sandbox](https://codesandbox.io/s/react-panel-group-demo-ts9xqk)
+
 ```jsx
 import { Panel, PanelGroup, PanelResizeHandle } from "react-panel-group";
 
