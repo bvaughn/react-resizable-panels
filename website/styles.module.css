@@ -1,0 +1,77 @@
+.FullHeightAndWidth {
+  width: calc(100vw - 1rem);
+  height: calc(100vh - 1rem);
+  margin: 0.5rem;
+}
+
+.Grower {
+  width: 100%;
+  height: 100%;
+}
+
+.HorizontalFiller,
+.HorizontalFillerLeft,
+.HorizontalFillerRight,
+.VerticalFillerBottom,
+.VerticalFillerTop {
+  height: 100%;
+  width: 100%;
+  background-color: #192230;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.HorizontalFiller {
+  border-radius: 0.5rem;
+}
+.VerticalFillerTop {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+.VerticalFillerBottom {
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.PanelRow {
+  display: flex;
+  flex-direction: row;
+}
+.PanelColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+.HorizontalResizeHandle {
+  padding: 0 0.25rem;
+}
+
+.VerticalResizeBar {
+  height: 4px;
+  width: 100%;
+  background-color: #2a3343;
+  border-bottom: 1px solid #454950;
+  border-top: 1px solid #454950;
+}
+
+.HorizontalResizeBar {
+  height: 100%;
+  width: 4px;
+  background-color: #2a3343;
+  border-left: 1px solid #454950;
+  border-right: 1px solid #454950;
+}
+
+.ResetButton {
+  color: #ffffff;
+  background: #2a3343;
+  border: 1px solid #18181a;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+.ResetButton:hover {
+  background: #454950;
+}

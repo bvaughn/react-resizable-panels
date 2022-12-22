@@ -1,0 +1,15 @@
+:root, html, body {
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+
+  background-color: #081120;
+  color: #ffffff;
+}
+
+#root {
+  width: calc(100vw - 1rem);
+  height: calc(100vh - 1rem);
+}
