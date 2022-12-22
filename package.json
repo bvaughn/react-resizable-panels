@@ -1,0 +1,33 @@
+{
+  "name": "react-panel-group",
+  "version": "0.0.1",
+  "description": "React components for resizable panel groups/layouts",
+  "author": "Brian Vaughn <brian.david.vaughn@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bvaughn/react-panel-group.git"
+  },
+  "source": "src/index.ts",
+  "main": "dist/react-panel-group.js",
+  "module": "dist/react-panel-group.module.js",
+  "types": "dist/react-panel-group.d.ts",
+  "scripts": {
+    "watch": "parcel watch",
+    "build": "parcel build"
+  },
+  "devDependencies": {
+    "@parcel/packager-ts": "2.8.2",
+    "@parcel/transformer-typescript-types": "2.8.2",
+    "parcel": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "typescript": ">=3.0.0"
+  },
+  "dependencies": {
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
+  }
+}
