@@ -36,12 +36,15 @@ export function VerticalGroup() {
             It uses the <code>minSize</code> prop to prevent it from shrinking
             to less than 35% of the total height.
           </p>
+
           {isPanelHidden && (
-            <p className={styles.ParagraphOfText}>
-              <button className={styles.Button} onClick={showPanel}>
-                Show the bottom panel
-              </button>
-            </p>
+            <button
+              className={styles.ButtonBottom}
+              onClick={showPanel}
+              id="blah"
+            >
+              Show panel
+            </button>
           )}
         </div>
       </Panel>
@@ -64,7 +67,7 @@ export function VerticalGroup() {
             </p>
             <p className={styles.ParagraphOfText}>
               <button className={styles.Button} onClick={hidePanel}>
-                Hide this panel
+                Hide panel
               </button>
             </p>
           </div>

@@ -61,7 +61,8 @@
   border-top: 1px solid #4a4c50;
 }
 
-.Button {
+.Button,
+.ButtonBottom {
   color: #ffffff;
   background: #2a3343;
   border: 1px solid #18181a;
@@ -69,7 +70,8 @@
   padding: 0.25rem 0.5rem;
   cursor: pointer;
 }
-.Button:hover {
+.Button:hover,
+.ButtonBottom:hover {
   background: #454950;
 }
 
@@ -92,4 +94,10 @@
 }
 .VerticalDot {
   background-color: var(--color-vertical);
+}
+
+.ButtonBottom {
+  position: absolute;
+  bottom: 1ch;
+  right: 1ch;
 }

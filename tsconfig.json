@@ -7,11 +7,7 @@
     "jsx": "react-jsx"
   },
   "exclude": ["node_modules"],
-  "include": [
-    "declaration.d.ts",
-    "packages/**/*.ts",
-    "packages/**/*.tsx"
-  ],
+  "include": ["declaration.d.ts", "packages/**/*.ts", "packages/**/*.tsx"],
   "strict": true,
   "target": "es2015"
 }
