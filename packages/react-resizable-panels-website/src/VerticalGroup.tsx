@@ -22,7 +22,7 @@ export function VerticalGroup() {
             This is a "<em>vertical</em>" <code>PanelGroup</code>.
           </p>
           <p className={styles.ParagraphOfText}>
-            It has a solid resize bar, similar to Chrome devtools or Code.
+            It has a solid resize bar, similar to Chrome devtools or VS Code.
           </p>
           <p className={styles.ParagraphOfText}>
             It won't shrink beyond 35% of the total height.
