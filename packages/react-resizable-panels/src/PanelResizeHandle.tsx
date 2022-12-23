@@ -1,34 +1,44 @@
 import { ReactNode, useContext, useEffect, useState } from "react";
 
 import useUniqueId from "./hooks/useUniqueId";
-import { PanelGroupContext } from "./PanelContexts";
+import { PanelContext, PanelGroupContext } from "./PanelContexts";
 import { ResizeHandler } from "./types";
 
 export default function PanelResizeHandle({
   children = null,
   className = "",
   disabled = false,
+  id: idProp = null,
 }: {
   children?: ReactNode;
   className?: string;
   disabled?: boolean;
+  id?: string | null;
 }) {
-  const context = useContext(PanelGroupContext);
-  if (context === null) {
+  const panelContext = useContext(PanelContext);
+  const panelGroupContext = useContext(PanelGroupContext);
+  if (panelContext === null || panelGroupContext === null) {
     throw Error(
       `PanelResizeHandle components must be rendered within a PanelGroup container`
     );
   }
 
-  const id = useUniqueId();
+  const id = useUniqueId(idProp);
 
-  const { direction, groupId, registerResizeHandle } = context;
+  const { activeHandleId } = panelContext;
+  const {
+    direction,
+    groupId,
+    registerResizeHandle,
+    startDragging,
+    stopDragging,
+  } = panelGroupContext;
 
-  const setGroupId = useState<string | null>(null);
+  const isDragging = activeHandleId === id;
+
   const [resizeHandler, setResizeHandler] = useState<ResizeHandler | null>(
     null
   );
-  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     if (disabled) {
@@ -47,38 +57,34 @@ export default function PanelResizeHandle({
     document.body.style.cursor =
       direction === "horizontal" ? "ew-resize" : "ns-resize";
 
-    const onMouseLeave = (_: MouseEvent) => {
-      setIsDragging(false);
-    };
-
     const onMouseMove = (event: MouseEvent) => {
       resizeHandler(event);
     };
 
-    const onMouseUp = (_: MouseEvent) => {
-      setIsDragging(false);
-    };
-
-    document.body.addEventListener("mouseleave", onMouseLeave);
+    document.body.addEventListener("mouseleave", stopDragging);
     document.body.addEventListener("mousemove", onMouseMove);
-    document.body.addEventListener("mouseup", onMouseUp);
+    document.body.addEventListener("touchmove", onMouseMove);
+    document.body.addEventListener("mouseup", stopDragging);
 
     return () => {
       document.body.style.cursor = "";
 
-      document.body.removeEventListener("mouseleave", onMouseLeave);
+      document.body.removeEventListener("mouseleave", stopDragging);
       document.body.removeEventListener("mousemove", onMouseMove);
-      document.body.removeEventListener("mouseup", onMouseUp);
+      document.body.removeEventListener("touchmove", onMouseMove);
+      document.body.removeEventListener("mouseup", stopDragging);
     };
-  }, [direction, disabled, isDragging, resizeHandler]);
+  }, [direction, disabled, isDragging, resizeHandler, stopDragging]);
 
   return (
     <div
       className={className}
       data-panel-group-id={groupId}
       data-panel-resize-handle-id={id}
-      onMouseDown={() => setIsDragging(true)}
-      onMouseUp={() => setIsDragging(false)}
+      onMouseDown={() => startDragging(id)}
+      onMouseUp={stopDragging}
+      onTouchStart={() => startDragging(id)}
+      onTouchEnd={stopDragging}
       style={{
         cursor: direction === "horizontal" ? "ew-resize" : "ns-resize",
       }}

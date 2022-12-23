@@ -1,4 +1,5 @@
-import { Panel, PanelResizeHandle } from "react-resizable-panels";
+import { useContext } from "react";
+import { Panel, PanelContext, PanelResizeHandle } from "react-resizable-panels";
 
 import PanelGroup from "./AutoSizedPanelGroup";
 import styles from "./styles.module.css";
@@ -40,7 +41,7 @@ export default function HorizontalGroup({
         id="middle"
         minSize={0.25}
       >
-        <PanelResizeHandle className={styles.HorizontalResizeHandle} />
+        <DragHandle id="left-handle" />
         <div
           className={styles.HorizontalFiller}
           style={{ backgroundColor: "var(--color-horizontal)" }}
@@ -82,7 +83,7 @@ export default function HorizontalGroup({
             It won't shrink beyond 25% of the total width.
           </p>
         </div>
-        <PanelResizeHandle className={styles.HorizontalResizeHandle} />
+        <DragHandle id="middle-handle" />
       </Panel>
       <Panel className={styles.PanelRow} defaultSize={0.3} id="stacked">
         <div className={styles.Grower}>
@@ -90,7 +91,7 @@ export default function HorizontalGroup({
         </div>
       </Panel>
       <Panel className={styles.PanelRow} defaultSize={0.2} id="right">
-        <PanelResizeHandle className={styles.HorizontalResizeHandle} />
+        <DragHandle id="right-handle" />
         <div
           className={styles.HorizontalFiller}
           style={{ backgroundColor: "var(--color-horizontal)" }}
@@ -109,5 +110,18 @@ export default function HorizontalGroup({
         </div>
       </Panel>
     </PanelGroup>
+  );
+}
+
+function DragHandle({ id }: { id: string }) {
+  const { activeHandleId } = useContext(PanelContext);
+  const isDragging = activeHandleId === id;
+
+  return (
+    <PanelResizeHandle className={styles.HorizontalResizeHandle} id={id}>
+      <div
+        className={isDragging ? styles.ActiveResizeHandle : styles.ResizeHandle}
+      />
+    </PanelResizeHandle>
   );
 }

@@ -10,8 +10,9 @@ import {
 } from "react";
 import useUniqueId from "./hooks/useUniqueId";
 
-import { PanelGroupContext } from "./PanelContexts";
+import { PanelContext, PanelGroupContext } from "./PanelContexts";
 import { Direction, PanelData } from "./types";
+import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
 
 type Props = {
   autoSaveId?: string;
@@ -38,6 +39,7 @@ export default function PanelGroup({
 }: Props) {
   const groupId = useUniqueId();
 
+  const [activeHandleId, setActiveHandleId] = useState<string | null>(null);
   const [panels, setPanels] = useState<Map<string, PanelData>>(new Map());
 
   // 0-1 values representing the relative size of each panel.
@@ -81,14 +83,8 @@ export default function PanelGroup({
     // default size should be restored from local storage if possible.
     let defaultSizes: number[] | undefined = undefined;
     if (autoSaveId) {
-      try {
-        const value = localStorage.getItem(
-          createLocalStorageKey(autoSaveId, panels)
-        );
-        if (value) {
-          defaultSizes = JSON.parse(value);
-        }
-      } catch (error) {}
+      const panelIds = panelsMapToSortedArray(panels).map((panel) => panel.id);
+      defaultSizes = loadPanelLayout(autoSaveId, panelIds);
     }
 
     if (defaultSizes != null) {
@@ -104,16 +100,14 @@ export default function PanelGroup({
   }, [autoSaveId, panels]);
 
   useEffect(() => {
+    // If this panel has been configured to persist sizing information, save sizes to local storage.
     if (autoSaveId) {
       if (sizes.length === 0 || sizes.length !== panels.size) {
         return;
       }
 
-      // If this panel has been configured to persist sizing information, save sizes to local storage.
-      localStorage.setItem(
-        createLocalStorageKey(autoSaveId, panels),
-        JSON.stringify(sizes)
-      );
+      const panelIds = panelsMapToSortedArray(panels).map((panel) => panel.id);
+      savePanelGroupLayout(autoSaveId, panelIds, sizes);
     }
   }, [autoSaveId, panels, sizes]);
 
@@ -219,13 +213,15 @@ export default function PanelGroup({
     });
   }, []);
 
-  const context = useMemo(
+  const panelGroupContext = useMemo(
     () => ({
       direction,
       getPanelStyle,
       groupId,
       registerPanel,
       registerResizeHandle,
+      startDragging: (id: string) => setActiveHandleId(id),
+      stopDragging: () => setActiveHandleId(null),
       unregisterPanel,
     }),
     [
@@ -238,10 +234,19 @@ export default function PanelGroup({
     ]
   );
 
+  const panelContext = useMemo(
+    () => ({
+      activeHandleId,
+    }),
+    [activeHandleId]
+  );
+
   return (
-    <PanelGroupContext.Provider value={context}>
-      <div className={className}>{children}</div>
-    </PanelGroupContext.Provider>
+    <PanelContext.Provider value={panelContext}>
+      <PanelGroupContext.Provider value={panelGroupContext}>
+        <div className={className}>{children}</div>
+      </PanelGroupContext.Provider>
+    </PanelContext.Provider>
   );
 }
 
@@ -308,16 +313,6 @@ function adjustByDelta(
   nextSizes[index] = prevSizes[index] + deltaApplied;
 
   return nextSizes;
-}
-
-function createLocalStorageKey(
-  autoSaveId: string,
-  panels: Map<string, PanelData>
-): string {
-  const panelsArray = panelsMapToSortedArray(panels);
-  const panelIds = panelsArray.map((panel) => panel.id);
-
-  return `PanelGroup:sizes:${autoSaveId}${panelIds.join("|")}`;
 }
 
 function getOffset(

@@ -39,15 +39,36 @@
 }
 
 .HorizontalResizeHandle {
-  padding: 0 0.25rem;
+  width: 0.5rem;
+  position: relative;
+}
+.ResizeHandle,
+.ActiveResizeHandle {
+  position: absolute;
+  top: 0.125rem;
+  bottom: 0.125rem;
+  left: 0.125rem;
+  right: 0.125rem;
+  border-radius: 0.125rem;
+  background-color: transparent;
+  transition: background-color 0.2s linear;
+}
+.ActiveResizeHandle,
+.HorizontalResizeHandle:hover .ResizeHandle {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .VerticalResizeBar {
-  height: 3px;
   width: 100%;
-  background-color: #2b2b2b;
-  border-bottom: 1px solid #4a4c50;
-  border-top: 1px solid #4a4c50;
+  position: relative;
+  padding: 0.25rem 0;
+}
+.VerticalResizeBar::after {
+  content: " ";
+  display: block;
+  height: 1px;
+  width: 100%;
+  background-color: #4a4c50;
 }
 
 .Button,
