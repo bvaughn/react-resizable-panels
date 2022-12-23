@@ -4,12 +4,14 @@
     "packages/*"
   ],
   "scripts": {
-    "docs": "cd packages/react-resizable-panels-website && yarn build"
+    "docs": "cd packages/react-resizable-panels-website && yarn build",
+    "prettier": "prettier --write \"**/*.{css,html,js,json,jsx,ts,tsx}\""
   },
   "dependencies": {
     "@parcel/packager-ts": "2.8.2",
     "@parcel/transformer-typescript-types": "2.8.2",
     "parcel": "latest",
+    "prettier": "latest",
     "process": "^0.11.10",
     "typescript": ">=3.0.0"
   }

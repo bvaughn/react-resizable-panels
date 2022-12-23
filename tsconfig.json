@@ -3,9 +3,7 @@
     "lib": ["ES2015", "DOM"],
     "jsx": "react-jsx"
   },
-  "exclude": [
-    "node_modules"
-  ],
+  "exclude": ["node_modules"],
   "include": ["**/*.ts", "**/*.tsx"],
   "strict": true,
   "target": "es2015"

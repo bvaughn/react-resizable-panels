@@ -1,4 +1,6 @@
-:root, html, body {
+:root,
+html,
+body {
   width: 100vw;
   height: 100vh;
   padding: 0;
@@ -28,7 +30,7 @@ p {
 
 code {
   color: #c67bff;
-  background-color: rgba(0,0,0,.35);
+  background-color: rgba(0, 0, 0, 0.35);
   padding: 0 0.25em;
   border-radius: 0.25em;
 }

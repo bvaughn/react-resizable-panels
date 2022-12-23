@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "parcel build 'src/index.html'",
-    "watch": "parcel 'src/index.html'"
+    "build": "parcel build 'index.html'",
+    "watch": "parcel 'index.html'"
   },
   "dependencies": {
     "react": "latest",

@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 
-import PanelGroups from "./PanelGroups";
+import HorizontalGroup from "./HorizontalGroup";
+import styles from "./styles.module.css";
 
 export default function DemoApp() {
   const [key, setKey] = useState(0);
@@ -13,5 +14,9 @@ export default function DemoApp() {
     setKey((prevKey) => prevKey + 1);
   }, []);
 
-  return <PanelGroups clearSavedSizes={clearSavedSizes} key={key} />;
+  return (
+    <div className={styles.FullHeightAndWidth}>
+      <HorizontalGroup clearSavedSizes={clearSavedSizes} key={key} />
+    </div>
+  );
 }
