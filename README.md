@@ -29,7 +29,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `autoSaveId` | `?string`                   | Unique id used to auto-save group arrangement via `localStorage`
 | `children`   | `ReactNode[]`               | Arbitrary React element(s)
 | `className`  | `?string`                   | Class name
-| `direction`  | `"horizontal" | "vertical"` | Group orientation
+| `direction`  | `"horizontal" \| "vertical"` | Group orientation
 | `height`     | `number`                    | Height of group (in pixels)
 | `width`      | `number`                    | Width of group (in pixels)
 
