@@ -10,7 +10,7 @@ import {
 } from "react";
 
 import { PanelGroupContext } from "./PanelContexts";
-import { Direction, Panel, PanelId } from "./types";
+import { Direction, PanelData, PanelId } from "./types";
 
 type Props = {
   autoSaveId?: string;
@@ -27,8 +27,15 @@ const PRECISION = 5;
 // Within an active drag, remember original positions to refine more easily on expand.
 // Look at what the Chrome devtools Sources does.
 
-export default function PanelGroup({ autoSaveId, children, className = "", direction, height, width }: Props) {
-  const panelsRef = useRef<Panel[]>([]);
+export default function PanelGroup({
+  autoSaveId,
+  children,
+  className = "",
+  direction,
+  height,
+  width,
+}: Props) {
+  const panelsRef = useRef<PanelData[]>([]);
 
   // 0-1 values representing the relative size of each panel.
   const [sizes, setSizes] = useState<number[]>([]);
@@ -62,6 +69,9 @@ export default function PanelGroup({ autoSaveId, children, className = "", direc
       return;
     }
 
+    // TODO [panels]
+    // Validate that the total minSize is <= 1.
+
     // If this panel has been configured to persist sizing information,
     // default size should be restored from local storage if possible.
     let defaultSizes: number[] | undefined = undefined;
@@ -74,21 +84,28 @@ export default function PanelGroup({ autoSaveId, children, className = "", direc
       } catch (error) {}
     }
 
-    if (sizes.length === 0 && defaultSizes != null && defaultSizes.length === panels.length) {
+    if (
+      sizes.length === 0 &&
+      defaultSizes != null &&
+      defaultSizes.length === panels.length
+    ) {
       setSizes(defaultSizes);
     } else {
       const totalWeight = panels.reduce((weight, panel) => {
         return weight + panel.defaultSize;
       }, 0);
 
-      setSizes(panels.map(panel => panel.defaultSize / totalWeight));
+      setSizes(panels.map((panel) => panel.defaultSize / totalWeight));
     }
   }, [autoSaveId]);
 
   useEffect(() => {
     if (autoSaveId && sizes.length > 0) {
       // If this panel has been configured to persist sizing information, save sizes to local storage.
-      localStorage.setItem(`PanelGroup:sizes:${autoSaveId}`, JSON.stringify(sizes));
+      localStorage.setItem(
+        `PanelGroup:sizes:${autoSaveId}`,
+        JSON.stringify(sizes)
+      );
     }
   }, [autoSaveId, sizes]);
 
@@ -120,32 +137,46 @@ export default function PanelGroup({ autoSaveId, children, className = "", direc
     [direction, height, sizes, width]
   );
 
-  const registerPanel = useCallback((id: PanelId, panel: Panel) => {
+  const registerPanel = useCallback((id: PanelId, panel: PanelData) => {
     const panels = panelsRef.current;
-    const index = panels.findIndex(panel => panel.id === id);
+    const index = panels.findIndex((panel) => panel.id === id);
     if (index >= 0) {
       panels.splice(index, 1);
     }
     panels.push(panel);
   }, []);
 
-  const registerResizeHandle = useCallback((idBefore: PanelId, idAfter: PanelId) => {
-    return (event: MouseEvent) => {
-      event.preventDefault();
+  const registerResizeHandle = useCallback(
+    (idBefore: PanelId, idAfter: PanelId) => {
+      return (event: MouseEvent) => {
+        event.preventDefault();
 
-      const panels = panelsRef.current;
-      const { direction, height, sizes: prevSizes, width } = committedValuesRef.current;
+        const panels = panelsRef.current;
+        const {
+          direction,
+          height,
+          sizes: prevSizes,
+          width,
+        } = committedValuesRef.current;
 
-      const isHorizontal = direction === "horizontal";
-      const movement = isHorizontal ? event.movementX : event.movementY;
-      const delta = isHorizontal ? movement / width : movement / height;
+        const isHorizontal = direction === "horizontal";
+        const movement = isHorizontal ? event.movementX : event.movementY;
+        const delta = isHorizontal ? movement / width : movement / height;
 
-      const nextSizes = adjustByDelta(panels, idBefore, idAfter, delta, prevSizes);
-      if (prevSizes !== nextSizes) {
-        setSizes(nextSizes);
-      }
-    };
-  }, []);
+        const nextSizes = adjustByDelta(
+          panels,
+          idBefore,
+          idAfter,
+          delta,
+          prevSizes
+        );
+        if (prevSizes !== nextSizes) {
+          setSizes(nextSizes);
+        }
+      };
+    },
+    []
+  );
 
   const context = useMemo(
     () => ({
@@ -159,15 +190,13 @@ export default function PanelGroup({ autoSaveId, children, className = "", direc
 
   return (
     <PanelGroupContext.Provider value={context}>
-      <div className={className}>
-        {children}
-      </div>
+      <div className={className}>{children}</div>
     </PanelGroupContext.Provider>
   );
 }
 
 function adjustByDelta(
-  panels: Panel[],
+  panels: PanelData[],
   idBefore: PanelId,
   idAfter: PanelId,
   delta: number,
@@ -189,7 +218,7 @@ function adjustByDelta(
   // A positive delta means the panel immediately before the resizer should "expand".
   // This is accomplished by shrinking/contracting (and shifting) one or more of the panels after the resizer.
   let pivotId = delta < 0 ? idBefore : idAfter;
-  let index = panels.findIndex(panel => panel.id === pivotId);
+  let index = panels.findIndex((panel) => panel.id === pivotId);
   while (true) {
     const panel = panels[index];
     const prevSize = prevSizes[index];
@@ -223,21 +252,21 @@ function adjustByDelta(
 
   // Adjust the pivot panel before, but only by the amount that surrounding panels were able to shrink/contract.
   pivotId = delta < 0 ? idAfter : idBefore;
-  index = panels.findIndex(panel => panel.id === pivotId);
+  index = panels.findIndex((panel) => panel.id === pivotId);
   nextSizes[index] = prevSizes[index] + deltaApplied;
 
   return nextSizes;
 }
 
 function getOffset(
-  panels: Panel[],
+  panels: PanelData[],
   id: PanelId,
   direction: Direction,
   sizes: number[],
   height: number,
   width: number
 ): number {
-  let index = panels.findIndex(panel => panel.id === id);
+  let index = panels.findIndex((panel) => panel.id === id);
   if (index < 0) {
     return 0;
   }
@@ -253,14 +282,14 @@ function getOffset(
 }
 
 function getSize(
-  panels: Panel[],
+  panels: PanelData[],
   id: PanelId,
   direction: Direction,
   sizes: number[],
   height: number,
   width: number
 ): number {
-  const index = panels.findIndex(panel => panel.id === id);
+  const index = panels.findIndex((panel) => panel.id === id);
   const size = sizes[index];
   if (size == null) {
     return 0;

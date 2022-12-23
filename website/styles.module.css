@@ -2,6 +2,9 @@
   width: calc(100vw - 1rem);
   height: calc(100vh - 1rem);
   margin: 0.5rem;
+
+  --color-horizontal: #192230;
+  --color-vertical: #202124;
 }
 
 .Grower {
@@ -49,19 +52,11 @@
 }
 
 .VerticalResizeBar {
-  height: 4px;
+  height: 3px;
   width: 100%;
-  background-color: #2a3343;
-  border-bottom: 1px solid #454950;
-  border-top: 1px solid #454950;
-}
-
-.HorizontalResizeBar {
-  height: 100%;
-  width: 4px;
-  background-color: #2a3343;
-  border-left: 1px solid #454950;
-  border-right: 1px solid #454950;
+  background-color: #2b2b2b;
+  border-bottom: 1px solid #4a4c50;
+  border-top: 1px solid #4a4c50;
 }
 
 .ResetButton {
@@ -74,4 +69,25 @@
 }
 .ResetButton:hover {
   background: #454950;
+}
+
+.ParagraphOfText {
+  margin-right: 1rem;
+  margin-left: 1rem;
+  text-align: center;
+}
+
+.HorizontalDot,
+.VerticalDot {
+  margin-left: 1ch;
+  display: inline-block;
+  height: 1ch;
+  width: 1ch;
+  border-radius: 1ch;
+}
+.HorizontalDot {
+  background-color: var(--color-horizontal);
+}
+.VerticalDot {
+  background-color: var(--color-vertical);
 }

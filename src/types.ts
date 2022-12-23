@@ -2,7 +2,7 @@ export type Direction = "horizontal" | "vertical";
 
 export type PanelId = string;
 
-export type Panel = {
+export type PanelData = {
   defaultSize: number;
   id: PanelId;
   minSize: number;

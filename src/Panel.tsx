@@ -21,7 +21,17 @@ export default function Panel({
 }) {
   const context = useContext(PanelGroupContext);
   if (context === null) {
-    throw Error(`Panel components must be rendered within a PanelGroup container`);
+    throw Error(
+      `Panel components must be rendered within a PanelGroup container`
+    );
+  }
+
+  if (minSize > defaultSize) {
+    console.error(
+      `Panel minSize ${minSize} cannot be greater than defaultSize ${defaultSize}`
+    );
+
+    defaultSize = minSize;
   }
 
   const { getPanelStyle, registerPanel } = context;
