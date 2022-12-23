@@ -2,7 +2,7 @@ import {
   Panel,
   PanelGroup as PanelGroupWithSizes,
   PanelResizeHandle,
-} from "../src";
+} from "react-resizable-panels";
 
 import styles from "./styles.module.css";
 import withAutoSizer from "./withAutoSizer";

@@ -1,0 +1,12 @@
+{
+  "name": "react-resizable-panels-website",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "parcel build 'src/index.html'",
+    "watch": "parcel 'src/index.html'"
+  },
+  "dependencies": {
+    "react-virtualized-auto-sizer": "latest"
+  }
+}

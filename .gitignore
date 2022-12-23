@@ -3,7 +3,7 @@
 example/bundle.js
 example/.nojekyll
 dist
-dist-docs
+website/dist
 node_modules
 .cache
 .parcel-cache

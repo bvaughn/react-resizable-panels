@@ -18,12 +18,16 @@ export default function PanelResizeHandle({
 }) {
   const context = useContext(PanelGroupContext);
   if (context === null) {
-    throw Error(`PanelResizeHandle components must be rendered within a PanelGroup container`);
+    throw Error(
+      `PanelResizeHandle components must be rendered within a PanelGroup container`
+    );
   }
 
   const { direction, registerResizeHandle } = context;
 
-  const [resizeHandler, setResizeHandler] = useState<ResizeHandler | null>(null);
+  const [resizeHandler, setResizeHandler] = useState<ResizeHandler | null>(
+    null
+  );
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
@@ -39,7 +43,8 @@ export default function PanelResizeHandle({
       return;
     }
 
-    document.body.style.cursor = direction === "horizontal" ? "ew-resize" : "ns-resize";
+    document.body.style.cursor =
+      direction === "horizontal" ? "ew-resize" : "ns-resize";
 
     const onMouseLeave = (_: MouseEvent) => {
       setIsDragging(false);
@@ -72,7 +77,7 @@ export default function PanelResizeHandle({
       onMouseDown={() => setIsDragging(true)}
       onMouseUp={() => setIsDragging(false)}
       style={{
-        cursor: direction === 'horizontal' ? 'ew-resize' : 'ns-resize'
+        cursor: direction === "horizontal" ? "ew-resize" : "ns-resize",
       }}
     >
       {children}

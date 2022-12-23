@@ -1,35 +1,15 @@
 {
-  "name": "react-resizable-panels",
-  "version": "0.0.2",
-  "description": "React components for resizable panel groups/layouts",
-  "author": "Brian Vaughn <brian.david.vaughn@gmail.com>",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bvaughn/react-resizable-panels.git"
-  },
-  "source": "src/index.ts",
-  "main": "dist/react-resizable-panels.js",
-  "module": "dist/react-resizable-panels.module.js",
-  "types": "dist/react-resizable-panels.d.ts",
-  "scripts": {
-    "docs": "parcel 'website/index.html' --dist-dir dist-docs",
-    "watch": "parcel watch",
-    "build": "parcel build"
-  },
-  "devDependencies": {
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "dependencies": {
     "@parcel/packager-ts": "2.8.2",
     "@parcel/transformer-typescript-types": "2.8.2",
     "parcel": "latest",
     "process": "^0.11.10",
     "react": "latest",
     "react-dom": "latest",
-    "react-virtualized-auto-sizer": "latest",
     "typescript": ">=3.0.0"
-  },
-  "dependencies": {},
-  "peerDependencies": {
-    "react": "^16.14.0 || ^17.0.0 || ^18.0.0",
-    "react-dom": "^16.14.0 || ^17.0.0 || ^18.0.0"
   }
 }
