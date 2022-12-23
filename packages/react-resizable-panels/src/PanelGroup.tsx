@@ -91,7 +91,7 @@ export default function PanelGroup({
     if (defaultSizes != null) {
       setSizes(defaultSizes);
     } else {
-      const panelsArray: PanelData[] = Array.from(panels.values());
+      const panelsArray = panelsMapToSortedArray(panels);
       const totalWeight = panelsArray.reduce((weight, panel) => {
         return weight + panel.defaultSize;
       }, 0);
@@ -237,7 +237,7 @@ function adjustByDelta(
     return prevSizes;
   }
 
-  const panelsArray: PanelData[] = Array.from(panels.values());
+  const panelsArray = panelsMapToSortedArray(panels);
 
   const nextSizes = prevSizes.concat();
 
@@ -295,7 +295,8 @@ function createLocalStorageKey(
   autoSaveId: string,
   panels: Map<string, PanelData>
 ): string {
-  const panelIds = Array.from(panels.keys()).sort();
+  const panelsArray = panelsMapToSortedArray(panels);
+  const panelIds = panelsArray.map((panel) => panel.id);
 
   return `PanelGroup:sizes:${autoSaveId}${panelIds.join("|")}`;
 }
@@ -308,7 +309,7 @@ function getOffset(
   height: number,
   width: number
 ): number {
-  const panelsArray: PanelData[] = Array.from(panels.values());
+  const panelsArray = panelsMapToSortedArray(panels);
 
   let index = panelsArray.findIndex((panel) => panel.id === id);
   if (index < 0) {
@@ -339,7 +340,7 @@ function getSize(
     return totalSize;
   }
 
-  const panelsArray: PanelData[] = Array.from(panels.values());
+  const panelsArray = panelsMapToSortedArray(panels);
 
   const index = panelsArray.findIndex((panel) => panel.id === id);
   const size = sizes[index];
@@ -348,4 +349,8 @@ function getSize(
   }
 
   return Math.round(size * totalSize);
+}
+
+function panelsMapToSortedArray(panels: Map<string, PanelData>): PanelData[] {
+  return Array.from(panels.values()).sort((a, b) => a.order - b.order);
 }

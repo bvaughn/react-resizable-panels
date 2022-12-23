@@ -72,7 +72,7 @@ export default function HorizontalGroup({
               reset vertical sizes
               <div className={styles.VerticalDot} />
             </button>
-            <hr />
+            <span className={styles.HorizontalDivider} />
             <button
               className={styles.Button}
               onClick={() => clearSavedSizes(GROUP_ID, GROUP_ID_VERTICAL)}

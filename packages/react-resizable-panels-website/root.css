@@ -35,13 +35,6 @@ code {
   border-radius: 0.25em;
 }
 
-hr {
-  width: 100%;
-  height: 1px;
-  border: none;
-  background-color: #454950;
-}
-
 h2 {
   font-weight: normal;
   margin: 0.5rem 0;

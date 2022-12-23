@@ -15,12 +15,9 @@
 .HorizontalFiller,
 .HorizontalFillerLeft,
 .HorizontalFillerRight,
-.VerticalFiller,
-.VerticalFillerBottom,
-.VerticalFillerTop {
+.VerticalFiller {
   height: 100%;
   width: 100%;
-  background-color: #192230;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -30,14 +27,6 @@
 .HorizontalFiller,
 .VerticalFiller {
   border-radius: 0.5rem;
-}
-.VerticalFillerTop {
-  border-top-left-radius: 0.5rem;
-  border-top-right-radius: 0.5rem;
-}
-.VerticalFillerBottom {
-  border-bottom-left-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
 }
 
 .PanelRow {
@@ -62,7 +51,8 @@
 }
 
 .Button,
-.ButtonBottom {
+.ButtonBottom,
+.ButtonTop {
   color: #ffffff;
   background: #2a3343;
   border: 1px solid #18181a;
@@ -71,7 +61,8 @@
   cursor: pointer;
 }
 .Button:hover,
-.ButtonBottom:hover {
+.ButtonBottom:hover,
+.ButtonTop:hover {
   background: #454950;
 }
 
@@ -100,4 +91,18 @@
   position: absolute;
   bottom: 1ch;
   right: 1ch;
+}
+.ButtonTop {
+  position: absolute;
+  top: 1ch;
+  right: 1ch;
+}
+
+.HorizontalDivider {
+  display: block;
+  width: 100%;
+  height: 1px;
+  border: none;
+  background-color: #454950;
+  margin: 0.5rem 0;
 }

@@ -7,72 +7,101 @@ import styles from "./styles.module.css";
 export const GROUP_ID = "vertical";
 
 export function VerticalGroup() {
-  const [isPanelHidden, setIsPanelHidden] = useState(false);
-
-  const hidePanel = () => setIsPanelHidden(true);
-  const showPanel = () => setIsPanelHidden(false);
+  const [showTopPanel, setShowTopPanel] = useState(true);
+  const [showBottomPanel, setShowBottomPanel] = useState(true);
 
   return (
-    <PanelGroup autoSaveId={GROUP_ID} direction="vertical">
-      <Panel
-        className={styles.PanelRow}
-        defaultSize={0.35}
-        id="top"
-        minSize={0.25}
-      >
-        <div
-          className={
-            isPanelHidden ? styles.VerticalFiller : styles.VerticalFillerTop
-          }
-          style={{ backgroundColor: "var(--color-vertical)" }}
-        >
-          <p className={styles.ParagraphOfText}>
-            This is a "<em>vertical</em>" <code>PanelGroup</code>.
-          </p>
-          <p className={styles.ParagraphOfText}>
-            It has a solid resize bar, similar to Chrome devtools or VS Code.
-          </p>
-          <p className={styles.ParagraphOfText}>
-            It uses the <code>minSize</code> prop to prevent it from shrinking
-            to less than 35% of the total height.
-          </p>
-
-          {isPanelHidden && (
-            <button
-              className={styles.ButtonBottom}
-              onClick={showPanel}
-              id="blah"
-            >
-              Show panel
-            </button>
-          )}
-        </div>
-      </Panel>
-      {isPanelHidden || (
+    <div
+      className={styles.VerticalFiller}
+      style={{ backgroundColor: "var(--color-vertical)" }}
+    >
+      <PanelGroup autoSaveId={GROUP_ID} direction="vertical">
+        {showTopPanel && (
+          <Panel
+            className={styles.PanelColumn}
+            defaultSize={0.35}
+            id="top"
+            minSize={0.2}
+            order={1}
+          >
+            <div className={styles.VerticalFiller}>
+              <p className={styles.ParagraphOfText}>
+                This is a "<em>vertical</em>" <code>PanelGroup</code>.
+              </p>
+              <p className={styles.ParagraphOfText}>
+                <button
+                  className={styles.Button}
+                  onClick={() => setShowTopPanel(false)}
+                >
+                  Hide panel
+                </button>
+              </p>
+            </div>
+            <PanelResizeHandle panelBefore="top" panelAfter="middle">
+              <div className={styles.VerticalResizeBar} />
+            </PanelResizeHandle>
+          </Panel>
+        )}
         <Panel
           className={styles.PanelColumn}
-          defaultSize={0.65}
-          id="bottom"
+          defaultSize={0.35}
+          id="middle"
           minSize={0.35}
+          order={2}
         >
-          <PanelResizeHandle panelBefore="top" panelAfter="bottom">
-            <div className={styles.VerticalResizeBar} />
-          </PanelResizeHandle>
-          <div
-            className={styles.VerticalFillerBottom}
-            style={{ backgroundColor: "var(--color-vertical)" }}
-          >
+          <div className={styles.VerticalFiller}>
             <p className={styles.ParagraphOfText}>
-              This panel's visibility can be toggled on or off.
+              This panel uses the <code>minSize</code> prop to prevent it from
+              shrinking to less than 35% of the total height.
             </p>
-            <p className={styles.ParagraphOfText}>
-              <button className={styles.Button} onClick={hidePanel}>
-                Hide panel
+
+            {!showTopPanel && (
+              <button
+                className={styles.ButtonTop}
+                onClick={() => setShowTopPanel(true)}
+              >
+                Show top panel
               </button>
-            </p>
+            )}
+
+            {!showBottomPanel && (
+              <button
+                className={styles.ButtonBottom}
+                onClick={() => setShowBottomPanel(true)}
+              >
+                Show bottom panel
+              </button>
+            )}
           </div>
         </Panel>
-      )}
-    </PanelGroup>
+        {showBottomPanel && (
+          <Panel
+            className={styles.PanelColumn}
+            defaultSize={0.65}
+            id="bottom"
+            minSize={0.2}
+            order={3}
+          >
+            <PanelResizeHandle panelBefore="middle" panelAfter="bottom">
+              <div className={styles.VerticalResizeBar} />
+            </PanelResizeHandle>
+            <div className={styles.VerticalFiller}>
+              <p className={styles.ParagraphOfText}>
+                This group uses a solid resize bar, similar to Chrome devtools
+                or VS Code.
+              </p>
+              <p className={styles.ParagraphOfText}>
+                <button
+                  className={styles.Button}
+                  onClick={() => setShowBottomPanel(false)}
+                >
+                  Hide panel
+                </button>
+              </p>
+            </div>
+          </Panel>
+        )}
+      </PanelGroup>
+    </div>
   );
 }

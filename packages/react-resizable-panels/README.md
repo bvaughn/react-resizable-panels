@@ -39,6 +39,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `defaultSize` | `?number`   | Initial size of panel (relative to other panels within the group)
 | `id`          | `string`    | Panel id (must be unique within the current group)
 | `minSize`     | `?number`   | Minum allowable size of panel (0.0 - 1.0)
+| `order`       | `?number`   | Order of panel within group; required for groups with conditionally rendered panels
 
 ### `PanelResizeHandle`
 | prop          | type         | description

@@ -11,12 +11,14 @@ export default function Panel({
   defaultSize = 0.1,
   id,
   minSize = 0.1,
+  order = null,
 }: {
   children?: ReactNode;
   className?: string;
   defaultSize?: number;
   id: string;
   minSize?: number;
+  order?: number | null;
 }) {
   const context = useContext(PanelGroupContext);
   if (context === null) {
@@ -40,6 +42,7 @@ export default function Panel({
       defaultSize,
       id,
       minSize,
+      order,
     };
 
     registerPanel(id, panel);
@@ -47,7 +50,7 @@ export default function Panel({
     return () => {
       unregisterPanel(id);
     };
-  }, [defaultSize, id, minSize, registerPanel, unregisterPanel]);
+  }, [defaultSize, id, minSize, order, registerPanel, unregisterPanel]);
 
   const style = getPanelStyle(id);
 
