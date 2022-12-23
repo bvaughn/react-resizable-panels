@@ -10,11 +10,11 @@ import {
 } from "react";
 
 import { PanelGroupContext } from "./PanelContexts";
-import { Direction, PanelData, PanelId } from "./types";
+import { Direction, PanelData } from "./types";
 
 type Props = {
   autoSaveId?: string;
-  children: ReactNode[];
+  children?: ReactNode[];
   className?: string;
   direction: Direction;
   height: number;
@@ -29,13 +29,13 @@ const PRECISION = 5;
 
 export default function PanelGroup({
   autoSaveId,
-  children,
+  children = null,
   className = "",
   direction,
   height,
   width,
 }: Props) {
-  const panelsRef = useRef<PanelData[]>([]);
+  const [panels, setPanels] = useState<Map<string, PanelData>>(new Map());
 
   // 0-1 values representing the relative size of each panel.
   const [sizes, setSizes] = useState<number[]>([]);
@@ -44,17 +44,20 @@ export default function PanelGroup({
   const committedValuesRef = useRef<{
     direction: Direction;
     height: number;
+    panels: Map<string, PanelData>;
     sizes: number[];
     width: number;
   }>({
     direction,
     height,
+    panels,
     sizes,
     width,
   });
   useLayoutEffect(() => {
     committedValuesRef.current.direction = direction;
     committedValuesRef.current.height = height;
+    committedValuesRef.current.panels = panels;
     committedValuesRef.current.sizes = sizes;
     committedValuesRef.current.width = width;
   });
@@ -63,9 +66,8 @@ export default function PanelGroup({
   // Compute the initial sizes based on default weights.
   // This assumes that panels register during initial mount (no conditional rendering)!
   useLayoutEffect(() => {
-    const panels = panelsRef.current;
     const sizes = committedValuesRef.current.sizes;
-    if (sizes.length === panels.length) {
+    if (sizes.length === panels.size) {
       return;
     }
 
@@ -77,41 +79,44 @@ export default function PanelGroup({
     let defaultSizes: number[] | undefined = undefined;
     if (autoSaveId) {
       try {
-        const value = localStorage.getItem(`PanelGroup:sizes:${autoSaveId}`);
+        const value = localStorage.getItem(
+          createLocalStorageKey(autoSaveId, panels)
+        );
         if (value) {
           defaultSizes = JSON.parse(value);
         }
       } catch (error) {}
     }
 
-    if (
-      sizes.length === 0 &&
-      defaultSizes != null &&
-      defaultSizes.length === panels.length
-    ) {
+    if (defaultSizes != null) {
       setSizes(defaultSizes);
     } else {
-      const totalWeight = panels.reduce((weight, panel) => {
+      const panelsArray: PanelData[] = Array.from(panels.values());
+      const totalWeight = panelsArray.reduce((weight, panel) => {
         return weight + panel.defaultSize;
       }, 0);
 
-      setSizes(panels.map((panel) => panel.defaultSize / totalWeight));
+      setSizes(panelsArray.map((panel) => panel.defaultSize / totalWeight));
     }
-  }, [autoSaveId]);
+  }, [autoSaveId, panels]);
 
   useEffect(() => {
-    if (autoSaveId && sizes.length > 0) {
+    if (autoSaveId) {
+      if (sizes.length === 0 || sizes.length !== panels.size) {
+        return;
+      }
+
       // If this panel has been configured to persist sizing information, save sizes to local storage.
       localStorage.setItem(
-        `PanelGroup:sizes:${autoSaveId}`,
+        createLocalStorageKey(autoSaveId, panels),
         JSON.stringify(sizes)
       );
     }
-  }, [autoSaveId, sizes]);
+  }, [autoSaveId, panels, sizes]);
 
   const getPanelStyle = useCallback(
-    (id: PanelId): CSSProperties => {
-      const panels = panelsRef.current;
+    (id: string): CSSProperties => {
+      const { panels } = committedValuesRef.current;
 
       const offset = getOffset(panels, id, direction, sizes, height, width);
       const size = getSize(panels, id, direction, sizes, height, width);
@@ -137,24 +142,28 @@ export default function PanelGroup({
     [direction, height, sizes, width]
   );
 
-  const registerPanel = useCallback((id: PanelId, panel: PanelData) => {
-    const panels = panelsRef.current;
-    const index = panels.findIndex((panel) => panel.id === id);
-    if (index >= 0) {
-      panels.splice(index, 1);
-    }
-    panels.push(panel);
+  const registerPanel = useCallback((id: string, panel: PanelData) => {
+    setPanels((prevPanels) => {
+      if (prevPanels.has(id)) {
+        return prevPanels;
+      }
+
+      const nextPanels = new Map(prevPanels);
+      nextPanels.set(id, panel);
+
+      return nextPanels;
+    });
   }, []);
 
   const registerResizeHandle = useCallback(
-    (idBefore: PanelId, idAfter: PanelId) => {
+    (idBefore: string, idAfter: string) => {
       return (event: MouseEvent) => {
         event.preventDefault();
 
-        const panels = panelsRef.current;
         const {
           direction,
           height,
+          panels,
           sizes: prevSizes,
           width,
         } = committedValuesRef.current;
@@ -174,9 +183,24 @@ export default function PanelGroup({
           setSizes(nextSizes);
         }
       };
+
+      // TODO [issues/5] Add to Map
     },
     []
   );
+
+  const unregisterPanel = useCallback((id: string) => {
+    setPanels((prevPanels) => {
+      if (!prevPanels.has(id)) {
+        return prevPanels;
+      }
+
+      const nextPanels = new Map(prevPanels);
+      nextPanels.delete(id);
+
+      return nextPanels;
+    });
+  }, []);
 
   const context = useMemo(
     () => ({
@@ -184,8 +208,15 @@ export default function PanelGroup({
       getPanelStyle,
       registerPanel,
       registerResizeHandle,
+      unregisterPanel,
     }),
-    [direction, getPanelStyle, registerPanel, registerResizeHandle]
+    [
+      direction,
+      getPanelStyle,
+      registerPanel,
+      registerResizeHandle,
+      unregisterPanel,
+    ]
   );
 
   return (
@@ -196,15 +227,17 @@ export default function PanelGroup({
 }
 
 function adjustByDelta(
-  panels: PanelData[],
-  idBefore: PanelId,
-  idAfter: PanelId,
+  panels: Map<string, PanelData>,
+  idBefore: string,
+  idAfter: string,
   delta: number,
   prevSizes: number[]
 ): number[] {
   if (delta === 0) {
     return prevSizes;
   }
+
+  const panelsArray: PanelData[] = Array.from(panels.values());
 
   const nextSizes = prevSizes.concat();
 
@@ -218,9 +251,9 @@ function adjustByDelta(
   // A positive delta means the panel immediately before the resizer should "expand".
   // This is accomplished by shrinking/contracting (and shifting) one or more of the panels after the resizer.
   let pivotId = delta < 0 ? idBefore : idAfter;
-  let index = panels.findIndex((panel) => panel.id === pivotId);
+  let index = panelsArray.findIndex((panel) => panel.id === pivotId);
   while (true) {
-    const panel = panels[index];
+    const panel = panelsArray[index];
     const prevSize = prevSizes[index];
     const nextSize = Math.max(prevSize - Math.abs(delta), panel.minSize);
     if (prevSize !== nextSize) {
@@ -238,7 +271,7 @@ function adjustByDelta(
         break;
       }
     } else {
-      if (++index >= panels.length) {
+      if (++index >= panelsArray.length) {
         break;
       }
     }
@@ -252,21 +285,32 @@ function adjustByDelta(
 
   // Adjust the pivot panel before, but only by the amount that surrounding panels were able to shrink/contract.
   pivotId = delta < 0 ? idAfter : idBefore;
-  index = panels.findIndex((panel) => panel.id === pivotId);
+  index = panelsArray.findIndex((panel) => panel.id === pivotId);
   nextSizes[index] = prevSizes[index] + deltaApplied;
 
   return nextSizes;
 }
 
+function createLocalStorageKey(
+  autoSaveId: string,
+  panels: Map<string, PanelData>
+): string {
+  const panelIds = Array.from(panels.keys()).sort();
+
+  return `PanelGroup:sizes:${autoSaveId}${panelIds.join("|")}`;
+}
+
 function getOffset(
-  panels: PanelData[],
-  id: PanelId,
+  panels: Map<string, PanelData>,
+  id: string,
   direction: Direction,
   sizes: number[],
   height: number,
   width: number
 ): number {
-  let index = panels.findIndex((panel) => panel.id === id);
+  const panelsArray: PanelData[] = Array.from(panels.values());
+
+  let index = panelsArray.findIndex((panel) => panel.id === id);
   if (index < 0) {
     return 0;
   }
@@ -274,7 +318,7 @@ function getOffset(
   let scaledOffset = 0;
 
   for (index = index - 1; index >= 0; index--) {
-    const panel = panels[index];
+    const panel = panelsArray[index];
     scaledOffset += getSize(panels, panel.id, direction, sizes, height, width);
   }
 
@@ -282,24 +326,26 @@ function getOffset(
 }
 
 function getSize(
-  panels: PanelData[],
-  id: PanelId,
+  panels: Map<string, PanelData>,
+  id: string,
   direction: Direction,
   sizes: number[],
   height: number,
   width: number
 ): number {
-  const index = panels.findIndex((panel) => panel.id === id);
+  const totalSize = direction === "horizontal" ? width : height;
+
+  if (panels.size === 1) {
+    return totalSize;
+  }
+
+  const panelsArray: PanelData[] = Array.from(panels.values());
+
+  const index = panelsArray.findIndex((panel) => panel.id === id);
   const size = sizes[index];
   if (size == null) {
     return 0;
   }
 
-  const totalSize = direction === "horizontal" ? width : height;
-
-  if (panels.length === 1) {
-    return totalSize;
-  } else {
-    return Math.round(size * totalSize);
-  }
+  return Math.round(size * totalSize);
 }

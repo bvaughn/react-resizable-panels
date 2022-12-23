@@ -1,22 +1,21 @@
 import { ReactNode, useContext, useLayoutEffect } from "react";
 
 import { PanelGroupContext } from "./PanelContexts";
-import { PanelId } from "./types";
 
 // TODO [panels]
 // Support min pixel size too.
 // PanelGroup should warn if total width is less min pixel widths.
 export default function Panel({
-  children,
+  children = null,
   className = "",
   defaultSize = 0.1,
   id,
   minSize = 0.1,
 }: {
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
   defaultSize?: number;
-  id: PanelId;
+  id: string;
   minSize?: number;
 }) {
   const context = useContext(PanelGroupContext);
@@ -34,7 +33,7 @@ export default function Panel({
     defaultSize = minSize;
   }
 
-  const { getPanelStyle, registerPanel } = context;
+  const { getPanelStyle, registerPanel, unregisterPanel } = context;
 
   useLayoutEffect(() => {
     const panel = {
@@ -44,7 +43,11 @@ export default function Panel({
     };
 
     registerPanel(id, panel);
-  }, [defaultSize, minSize, registerPanel, id]);
+
+    return () => {
+      unregisterPanel(id);
+    };
+  }, [defaultSize, id, minSize, registerPanel, unregisterPanel]);
 
   const style = getPanelStyle(id);
 
