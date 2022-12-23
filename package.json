@@ -13,7 +13,7 @@
   "module": "dist/react-resizable-panels.module.js",
   "types": "dist/react-resizable-panels.d.ts",
   "scripts": {
-    "dev": "parcel 'website/index.html'",
+    "docs": "parcel 'website/index.html' --dist-dir dist-docs",
     "watch": "parcel watch",
     "build": "parcel build"
   },
