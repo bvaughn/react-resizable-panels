@@ -7,6 +7,8 @@
     "watch": "parcel 'src/index.html'"
   },
   "dependencies": {
+    "react": "latest",
+    "react-dom": "latest",
     "react-virtualized-auto-sizer": "latest"
   }
 }

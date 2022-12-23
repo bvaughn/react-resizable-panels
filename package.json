@@ -11,8 +11,6 @@
     "@parcel/transformer-typescript-types": "2.8.2",
     "parcel": "latest",
     "process": "^0.11.10",
-    "react": "latest",
-    "react-dom": "latest",
     "typescript": ">=3.0.0"
   }
 }
