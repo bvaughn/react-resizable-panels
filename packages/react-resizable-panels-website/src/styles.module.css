@@ -15,6 +15,7 @@
 .HorizontalFiller,
 .HorizontalFillerLeft,
 .HorizontalFillerRight,
+.VerticalFiller,
 .VerticalFillerBottom,
 .VerticalFillerTop {
   height: 100%;
@@ -26,7 +27,8 @@
   justify-content: center;
   overflow: hidden;
 }
-.HorizontalFiller {
+.HorizontalFiller,
+.VerticalFiller {
   border-radius: 0.5rem;
 }
 .VerticalFillerTop {

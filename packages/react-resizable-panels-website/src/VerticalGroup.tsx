@@ -21,7 +21,9 @@ export function VerticalGroup() {
         minSize={0.25}
       >
         <div
-          className={styles.VerticalFillerTop}
+          className={
+            isPanelHidden ? styles.VerticalFiller : styles.VerticalFillerTop
+          }
           style={{ backgroundColor: "var(--color-vertical)" }}
         >
           <p className={styles.ParagraphOfText}>
