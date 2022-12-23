@@ -1,10 +1,17 @@
 {
   "compilerOptions": {
     "lib": ["ES2015", "DOM"],
+    "module": "es6",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
     "jsx": "react-jsx"
   },
   "exclude": ["node_modules"],
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": [
+    "declaration.d.ts",
+    "packages/**/*.ts",
+    "packages/**/*.tsx"
+  ],
   "strict": true,
   "target": "es2015"
 }

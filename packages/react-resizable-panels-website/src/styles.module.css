@@ -59,7 +59,7 @@
   border-top: 1px solid #4a4c50;
 }
 
-.ResetButton {
+.Button {
   color: #ffffff;
   background: #2a3343;
   border: 1px solid #18181a;
@@ -67,7 +67,7 @@
   padding: 0.25rem 0.5rem;
   cursor: pointer;
 }
-.ResetButton:hover {
+.Button:hover {
   background: #454950;
 }
 

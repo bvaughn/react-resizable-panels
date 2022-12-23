@@ -48,5 +48,5 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `children`    | `?ReactNode` | Custom drag UI; can be any arbitrary React element(s)
 | `className`   | `?string`    | Class name
 | `disabled`    | `?boolean`   | Disable drag handle
-| `panelAfter`  | `PanelId`    | Id of panel after (below or to the right of) the drag handle
-| `panelBefore` | `PanelId`    | Id of panel before (above or to the left of) the drag handle
+| `panelAfter`  | `string`     | Id of panel after (below or to the right of) the drag handle
+| `panelBefore` | `string`     | Id of panel before (above or to the left of) the drag handle

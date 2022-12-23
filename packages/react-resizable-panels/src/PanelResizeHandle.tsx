@@ -1,7 +1,7 @@
 import { ReactNode, useContext, useEffect, useState } from "react";
 
 import { PanelGroupContext } from "./PanelContexts";
-import { PanelId, ResizeHandler } from "./types";
+import { ResizeHandler } from "./types";
 
 export default function PanelResizeHandle({
   children = null,
@@ -13,8 +13,8 @@ export default function PanelResizeHandle({
   children?: ReactNode;
   className?: string;
   disabled?: boolean;
-  panelAfter: PanelId;
-  panelBefore: PanelId;
+  panelAfter: string;
+  panelBefore: string;
 }) {
   const context = useContext(PanelGroupContext);
   if (context === null) {

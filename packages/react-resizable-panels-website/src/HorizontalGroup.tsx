@@ -1,8 +1,4 @@
-import {
-  Panel,
-  PanelGroup as PanelGroupWithSizes,
-  PanelResizeHandle,
-} from "react-resizable-panels";
+import { Panel, PanelResizeHandle } from "react-resizable-panels";
 
 import PanelGroup from "./AutoSizedPanelGroup";
 import styles from "./styles.module.css";
@@ -62,7 +58,7 @@ export default function HorizontalGroup({
           </p>
           <p className={styles.ParagraphOfText}>
             <button
-              className={styles.ResetButton}
+              className={styles.Button}
               onClick={() => clearSavedSizes(GROUP_ID)}
             >
               reset horizontal sizes
@@ -70,7 +66,7 @@ export default function HorizontalGroup({
             </button>
             <br />
             <button
-              className={styles.ResetButton}
+              className={styles.Button}
               onClick={() => clearSavedSizes(GROUP_ID_VERTICAL)}
             >
               reset vertical sizes
@@ -78,7 +74,7 @@ export default function HorizontalGroup({
             </button>
             <hr />
             <button
-              className={styles.ResetButton}
+              className={styles.Button}
               onClick={() => clearSavedSizes(GROUP_ID, GROUP_ID_VERTICAL)}
             >
               reset both
