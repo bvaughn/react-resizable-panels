@@ -3,6 +3,9 @@
   "workspaces": [
     "packages/*"
   ],
+  "scripts": {
+    "docs": "cd packages/react-resizable-panels-website && yarn build"
+  },
   "dependencies": {
     "@parcel/packager-ts": "2.8.2",
     "@parcel/transformer-typescript-types": "2.8.2",
