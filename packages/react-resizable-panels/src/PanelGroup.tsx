@@ -14,7 +14,7 @@ import { Direction, PanelData } from "./types";
 
 type Props = {
   autoSaveId?: string;
-  children?: ReactNode[];
+  children?: ReactNode;
   className?: string;
   direction: Direction;
   height: number;
