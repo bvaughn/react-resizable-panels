@@ -37,7 +37,7 @@ export function VerticalGroup() {
                 </button>
               </p>
             </div>
-            <PanelResizeHandle panelBefore="top" panelAfter="middle">
+            <PanelResizeHandle>
               <div className={styles.VerticalResizeBar} />
             </PanelResizeHandle>
           </Panel>
@@ -82,7 +82,7 @@ export function VerticalGroup() {
             minSize={0.2}
             order={3}
           >
-            <PanelResizeHandle panelBefore="middle" panelAfter="bottom">
+            <PanelResizeHandle>
               <div className={styles.VerticalResizeBar} />
             </PanelResizeHandle>
             <div className={styles.VerticalFiller}>

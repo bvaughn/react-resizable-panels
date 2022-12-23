@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
+import useUniqueId from "./hooks/useUniqueId";
 
 import { PanelGroupContext } from "./PanelContexts";
 import { Direction, PanelData } from "./types";
@@ -35,6 +36,8 @@ export default function PanelGroup({
   height,
   width,
 }: Props) {
+  const groupId = useUniqueId();
+
   const [panels, setPanels] = useState<Map<string, PanelData>>(new Map());
 
   // 0-1 values representing the relative size of each panel.
@@ -156,8 +159,8 @@ export default function PanelGroup({
   }, []);
 
   const registerResizeHandle = useCallback(
-    (idBefore: string, idAfter: string) => {
-      return (event: MouseEvent) => {
+    (id: string) => {
+      const resizeHandler = (event: MouseEvent) => {
         event.preventDefault();
 
         const {
@@ -167,6 +170,20 @@ export default function PanelGroup({
           sizes: prevSizes,
           width,
         } = committedValuesRef.current;
+
+        const handle = document.querySelector(
+          `[data-panel-resize-handle-id="${id}"]`
+        );
+        const handles = Array.from(
+          document.querySelectorAll(`[data-panel-group-id="${groupId}"]`)
+        );
+        const index = handles.indexOf(handle);
+        const panelsArray = panelsMapToSortedArray(panels);
+        const idBefore: string | null = panelsArray[index]?.id ?? null;
+        const idAfter: string | null = panelsArray[index + 1]?.id ?? null;
+        if (idBefore == null || idAfter == null) {
+          return;
+        }
 
         const isHorizontal = direction === "horizontal";
         const movement = isHorizontal ? event.movementX : event.movementY;
@@ -184,9 +201,9 @@ export default function PanelGroup({
         }
       };
 
-      // TODO [issues/5] Add to Map
+      return resizeHandler;
     },
-    []
+    [groupId]
   );
 
   const unregisterPanel = useCallback((id: string) => {
@@ -206,6 +223,7 @@ export default function PanelGroup({
     () => ({
       direction,
       getPanelStyle,
+      groupId,
       registerPanel,
       registerResizeHandle,
       unregisterPanel,
@@ -213,6 +231,7 @@ export default function PanelGroup({
     [
       direction,
       getPanelStyle,
+      groupId,
       registerPanel,
       registerResizeHandle,
       unregisterPanel,

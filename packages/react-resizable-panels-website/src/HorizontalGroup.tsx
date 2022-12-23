@@ -40,11 +40,7 @@ export default function HorizontalGroup({
         id="middle"
         minSize={0.25}
       >
-        <PanelResizeHandle
-          className={styles.HorizontalResizeHandle}
-          panelBefore="left"
-          panelAfter="middle"
-        />
+        <PanelResizeHandle className={styles.HorizontalResizeHandle} />
         <div
           className={styles.HorizontalFiller}
           style={{ backgroundColor: "var(--color-horizontal)" }}
@@ -86,11 +82,7 @@ export default function HorizontalGroup({
             It won't shrink beyond 25% of the total width.
           </p>
         </div>
-        <PanelResizeHandle
-          className={styles.HorizontalResizeHandle}
-          panelBefore="middle"
-          panelAfter="stacked"
-        />
+        <PanelResizeHandle className={styles.HorizontalResizeHandle} />
       </Panel>
       <Panel className={styles.PanelRow} defaultSize={0.3} id="stacked">
         <div className={styles.Grower}>
@@ -98,11 +90,7 @@ export default function HorizontalGroup({
         </div>
       </Panel>
       <Panel className={styles.PanelRow} defaultSize={0.2} id="right">
-        <PanelResizeHandle
-          className={styles.HorizontalResizeHandle}
-          panelBefore="stacked"
-          panelAfter="right"
-        />
+        <PanelResizeHandle className={styles.HorizontalResizeHandle} />
         <div
           className={styles.HorizontalFiller}
           style={{ backgroundColor: "var(--color-horizontal)" }}
