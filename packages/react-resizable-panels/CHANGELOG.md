@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.0.6
+* [#5](https://github.com/bvaughn/react-resizable-panels/issues/5): Removed `panelBefore` and `panelAfter` props from `PanelResizeHandle`. `PanelGroup` now infers this based on position within the group.
 ## 0.0.5
 * TypeScript props type fix
 

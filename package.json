@@ -5,7 +5,9 @@
   ],
   "scripts": {
     "docs": "cd packages/react-resizable-panels-website && yarn build",
-    "prettier": "prettier --write \"**/*.{css,html,js,json,jsx,ts,tsx}\""
+    "prettier": "prettier --write \"**/*.{css,html,js,json,jsx,ts,tsx}\"",
+    "typescript": "tsc --noEmit",
+    "typescript:watch": "tsc --noEmit --watch"
   },
   "dependencies": {
     "@parcel/packager-ts": "2.8.2",

@@ -4,16 +4,16 @@ React components for resizable panel groups/layouts
 ```jsx
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-<PanelGroup autoSaveId="horizontal-panel" direction="horizontal">
-  <Panel defaultSize={0.3} id="sources-explorer-panel">
+<PanelGroup autoSaveId="example" direction="horizontal">
+  <Panel defaultSize={0.3} id="left">
     <SourcesExplorer />
   </Panel>
-  <Panel defaultSize={0.5} id="source-viewer-panel">
-    <PanelResizeHandle panelBefore="sources-explorer-panel" panelAfter="source-viewer-panel" />
+  <Panel defaultSize={0.5} id="middle">
+    <PanelResizeHandle />
     <SourceViewer />
-    <PanelResizeHandle panelBefore="source-viewer-panel" panelAfter="console-panel" />
+    <PanelResizeHandle />
   </Panel>
-  <Panel defaultSize={0.2} id="console-panel">
+  <Panel defaultSize={0.2} id="right">
     <Console />
   </Panel>
 </PanelGroup>
@@ -25,7 +25,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | prop         | type                        | description
 | :----------- | :-------------------------- | :---
 | `autoSaveId` | `?string`                   | Unique id used to auto-save group arrangement via `localStorage`
-| `children`   | `ReactNode[]`               | Arbitrary React element(s)
+| `children`   | `ReactNode`                 | Arbitrary React element(s)
 | `className`  | `?string`                   | Class name
 | `direction`  | `"horizontal" \| "vertical"` | Group orientation
 | `height`     | `number`                    | Height of group (in pixels)
@@ -47,5 +47,3 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `children`    | `?ReactNode` | Custom drag UI; can be any arbitrary React element(s)
 | `className`   | `?string`    | Class name
 | `disabled`    | `?boolean`   | Disable drag handle
-| `panelAfter`  | `string`     | Id of panel after (below or to the right of) the drag handle
-| `panelBefore` | `string`     | Id of panel before (above or to the left of) the drag handle

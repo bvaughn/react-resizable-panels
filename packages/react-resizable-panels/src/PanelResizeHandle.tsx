@@ -1,5 +1,6 @@
 import { ReactNode, useContext, useEffect, useState } from "react";
 
+import useUniqueId from "./hooks/useUniqueId";
 import { PanelGroupContext } from "./PanelContexts";
 import { ResizeHandler } from "./types";
 
@@ -7,14 +8,10 @@ export default function PanelResizeHandle({
   children = null,
   className = "",
   disabled = false,
-  panelAfter,
-  panelBefore,
 }: {
   children?: ReactNode;
   className?: string;
   disabled?: boolean;
-  panelAfter: string;
-  panelBefore: string;
 }) {
   const context = useContext(PanelGroupContext);
   if (context === null) {
@@ -23,8 +20,11 @@ export default function PanelResizeHandle({
     );
   }
 
-  const { direction, registerResizeHandle } = context;
+  const id = useUniqueId();
 
+  const { direction, groupId, registerResizeHandle } = context;
+
+  const setGroupId = useState<string | null>(null);
   const [resizeHandler, setResizeHandler] = useState<ResizeHandler | null>(
     null
   );
@@ -34,9 +34,10 @@ export default function PanelResizeHandle({
     if (disabled) {
       setResizeHandler(null);
     } else {
-      setResizeHandler(() => registerResizeHandle(panelBefore, panelAfter));
+      const resizeHandler = registerResizeHandle(id);
+      setResizeHandler(() => resizeHandler);
     }
-  }, [disabled, panelAfter, panelBefore, registerResizeHandle]);
+  }, [disabled, groupId, id, registerResizeHandle]);
 
   useEffect(() => {
     if (disabled || resizeHandler == null || !isDragging) {
@@ -74,6 +75,8 @@ export default function PanelResizeHandle({
   return (
     <div
       className={className}
+      data-panel-group-id={groupId}
+      data-panel-resize-handle-id={id}
       onMouseDown={() => setIsDragging(true)}
       onMouseUp={() => setIsDragging(false)}
       style={{
