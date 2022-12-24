@@ -8,5 +8,4 @@ export type PanelData = {
 };
 
 export type ResizeEvent = MouseEvent | TouchEvent;
-export type DragCoordinates = { prevX: number, prevY: number };
 export type ResizeHandler = (event: ResizeEvent) => void;
