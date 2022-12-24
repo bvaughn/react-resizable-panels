@@ -1,7 +1,7 @@
-import { useContext } from "react";
-import { Panel, PanelContext, PanelResizeHandle } from "react-resizable-panels";
+import { Panel } from "react-resizable-panels";
 
-import PanelGroup from "./AutoSizedPanelGroup";
+import PanelGroup from "../AutoSizedPanelGroup";
+import DragHandle from "./DragHandle";
 import styles from "./styles.module.css";
 import { GROUP_ID as GROUP_ID_VERTICAL, VerticalGroup } from "./VerticalGroup";
 
@@ -114,18 +114,5 @@ export default function HorizontalGroup({
         </div>
       </Panel>
     </PanelGroup>
-  );
-}
-
-function DragHandle({ id }: { id: string }) {
-  const { activeHandleId } = useContext(PanelContext);
-  const isDragging = activeHandleId === id;
-
-  return (
-    <PanelResizeHandle className={styles.HorizontalResizeHandle} id={id}>
-      <div
-        className={isDragging ? styles.ActiveResizeHandle : styles.ResizeHandle}
-      />
-    </PanelResizeHandle>
   );
 }

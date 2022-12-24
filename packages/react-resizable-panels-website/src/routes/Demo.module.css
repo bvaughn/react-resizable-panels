@@ -1,0 +1,8 @@
+.FullHeightAndWidth {
+  width: calc(100vw - 1rem);
+  height: calc(100vh - 1rem);
+  margin: 0.5rem;
+
+  --color-horizontal: #192230;
+  --color-vertical: #202124;
+}

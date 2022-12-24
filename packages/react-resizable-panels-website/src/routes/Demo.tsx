@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 
-import HorizontalGroup from "./HorizontalGroup";
-import styles from "./styles.module.css";
+import HorizontalGroup from "../components/Demo/HorizontalGroup";
+import styles from "./Demo.module.css";
 
 export default function DemoApp() {
   const [key, setKey] = useState(0);

@@ -1,6 +1,6 @@
 import { PanelGroup } from "react-resizable-panels";
 
-import withAutoSizer from "./withAutoSizer";
+import withAutoSizer from "../utils/withAutoSizer";
 
 const AutoSizedPanelGroup = withAutoSizer(PanelGroup);
 

@@ -1,7 +1,7 @@
 import { Panel, PanelResizeHandle } from "react-resizable-panels";
 import { useState } from "react";
 
-import PanelGroup from "./AutoSizedPanelGroup";
+import PanelGroup from "../AutoSizedPanelGroup";
 import styles from "./styles.module.css";
 
 export const GROUP_ID = "vertical";
