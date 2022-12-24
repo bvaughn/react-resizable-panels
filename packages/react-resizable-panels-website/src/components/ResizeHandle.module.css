@@ -17,5 +17,5 @@
 
 .ResizeHandleActive,
 .ResizeHandle:hover .ResizeHandleInactive {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: var(--color-solid-resize-bar-handle);
 }

@@ -10,7 +10,13 @@ export default function MobileRoute() {
     <div className={styles.Route}>
       <div className={styles.Container}>
         <PanelGroup autoSaveId="mobile-group" direction="horizontal">
-          <Panel className={styles.Panel} defaultSize={0.2} id="left" order={1}>
+          <Panel
+            className={styles.Panel}
+            defaultSize={0.2}
+            id="left"
+            minSize={0.2}
+            order={1}
+          >
             <div className={styles.PanelContent}>left</div>
             <ResizeHandle className={styles.ResizeHandle} id="left" />
           </Panel>
@@ -18,6 +24,7 @@ export default function MobileRoute() {
             className={styles.Panel}
             defaultSize={0.4}
             id="middle"
+            minSize={0.2}
             order={2}
           >
             <div className={styles.PanelContent}>middle</div>
@@ -26,6 +33,7 @@ export default function MobileRoute() {
             className={styles.Panel}
             defaultSize={0.2}
             id="right"
+            minSize={0.2}
             order={3}
           >
             <ResizeHandle className={styles.ResizeHandle} id="right" />

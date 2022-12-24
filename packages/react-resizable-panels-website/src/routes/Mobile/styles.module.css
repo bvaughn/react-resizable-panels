@@ -17,7 +17,7 @@
 .PanelContent {
   height: 100%;
   width: 100%;
-  background-color: #192230;
+  background-color: var(--color-panel-background);
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -17,7 +17,7 @@ export default function HorizontalGroup({
       <Panel className={styles.PanelRow} defaultSize={0.2} id="left">
         <div
           className={styles.HorizontalFiller}
-          style={{ backgroundColor: "var(--color-horizontal)" }}
+          style={{ backgroundColor: "var(--color-panel-background)" }}
         >
           <p className={styles.ParagraphOfText}>
             This is a "<em>horizontal</em>" <code>PanelGroup</code>
@@ -48,7 +48,7 @@ export default function HorizontalGroup({
         <ResizeHandle id="left-handle" />
         <div
           className={styles.HorizontalFiller}
-          style={{ backgroundColor: "var(--color-horizontal)" }}
+          style={{ backgroundColor: "var(--color-panel-background)" }}
         >
           <h2>Auto Save</h2>
           <p className={styles.ParagraphOfText}>
@@ -98,7 +98,7 @@ export default function HorizontalGroup({
         <ResizeHandle id="right-handle" />
         <div
           className={styles.HorizontalFiller}
-          style={{ backgroundColor: "var(--color-horizontal)" }}
+          style={{ backgroundColor: "var(--color-panel-background)" }}
         >
           <p className={styles.ParagraphOfText}>
             Read more on{" "}
