@@ -2,7 +2,7 @@ import { ReactNode, useContext, useEffect, useState } from "react";
 
 import useUniqueId from "./hooks/useUniqueId";
 import { PanelContext, PanelGroupContext } from "./PanelContexts";
-import { ResizeHandler } from "./types";
+import type { ResizeHandler, ResizeEvent } from "./types";
 
 export default function PanelResizeHandle({
   children = null,
@@ -57,21 +57,21 @@ export default function PanelResizeHandle({
     document.body.style.cursor =
       direction === "horizontal" ? "ew-resize" : "ns-resize";
 
-    const onMouseMove = (event: MouseEvent) => {
+    const onMove = (event: ResizeEvent) => {
       resizeHandler(event);
     };
 
     document.body.addEventListener("mouseleave", stopDragging);
-    document.body.addEventListener("mousemove", onMouseMove);
-    document.body.addEventListener("touchmove", onMouseMove);
+    document.body.addEventListener("mousemove", onMove);
+    document.body.addEventListener("touchmove", onMove);
     document.body.addEventListener("mouseup", stopDragging);
 
     return () => {
       document.body.style.cursor = "";
 
       document.body.removeEventListener("mouseleave", stopDragging);
-      document.body.removeEventListener("mousemove", onMouseMove);
-      document.body.removeEventListener("touchmove", onMouseMove);
+      document.body.removeEventListener("mousemove", onMove);
+      document.body.removeEventListener("touchmove", onMove);
       document.body.removeEventListener("mouseup", stopDragging);
     };
   }, [direction, disabled, isDragging, resizeHandler, stopDragging]);
