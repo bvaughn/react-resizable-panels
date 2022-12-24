@@ -11,8 +11,9 @@ import {
 import useUniqueId from "./hooks/useUniqueId";
 
 import { PanelContext, PanelGroupContext } from "./PanelContexts";
-import { Direction, PanelData } from "./types";
+import { Direction, PanelData, ResizeEvent } from "./types";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
+import { Coordinates, getUpdatedCoordinates } from "./utils/touch";
 
 type Props = {
   autoSaveId?: string;
@@ -59,6 +60,14 @@ export default function PanelGroup({
     sizes,
     width,
   });
+
+  // Tracks the most recent coordinates of a touch/mouse event.
+  // This is needed to calculate movement (because TouchEvent doesn't support movementX and movementY).
+  const prevCoordinatesRef = useRef<Coordinates>({
+    screenX: 0,
+    screenY: 0,
+  });
+
   useLayoutEffect(() => {
     committedValuesRef.current.direction = direction;
     committedValuesRef.current.height = height;
@@ -154,7 +163,7 @@ export default function PanelGroup({
 
   const registerResizeHandle = useCallback(
     (id: string) => {
-      const resizeHandler = (event: MouseEvent) => {
+      const resizeHandler = (event: ResizeEvent) => {
         event.preventDefault();
 
         const {
@@ -179,8 +188,19 @@ export default function PanelGroup({
           return;
         }
 
+        const nextCoordinates = getUpdatedCoordinates(
+          event,
+          prevCoordinatesRef.current
+        );
+        prevCoordinatesRef.current = {
+          screenX: nextCoordinates.screenX,
+          screenY: nextCoordinates.screenY,
+        };
+
         const isHorizontal = direction === "horizontal";
-        const movement = isHorizontal ? event.movementX : event.movementY;
+        const movement = isHorizontal
+          ? nextCoordinates.movementX
+          : nextCoordinates.movementY;
         const delta = isHorizontal ? movement / width : movement / height;
 
         const nextSizes = adjustByDelta(
@@ -221,7 +241,13 @@ export default function PanelGroup({
       registerPanel,
       registerResizeHandle,
       startDragging: (id: string) => setActiveHandleId(id),
-      stopDragging: () => setActiveHandleId(null),
+      stopDragging: () => {
+        setActiveHandleId(null);
+        prevCoordinatesRef.current = {
+          screenX: 0,
+          screenY: 0,
+        };
+      },
       unregisterPanel,
     }),
     [

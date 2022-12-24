@@ -7,4 +7,5 @@ export type PanelData = {
   order: number | null;
 };
 
-export type ResizeHandler = (event: MouseEvent) => void;
+export type ResizeEvent = MouseEvent | TouchEvent;
+export type ResizeHandler = (event: ResizeEvent) => void;
