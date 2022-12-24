@@ -33,6 +33,10 @@ export default function HorizontalGroup({
             </a>
             .
           </p>
+          <p className={styles.ParagraphOfText}>
+            It uses the <code>PanelContext</code> to show a highlight when
+            dragging.
+          </p>
         </div>
       </Panel>
       <Panel
