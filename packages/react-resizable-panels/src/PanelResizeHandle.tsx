@@ -1,6 +1,7 @@
 import { ReactNode, useContext, useEffect, useState } from "react";
 
 import useUniqueId from "./hooks/useUniqueId";
+import { useWindowSplitterResizeHandlerBehavior } from "./hooks/useWindowSplitterBehavior";
 import { PanelContext, PanelGroupContext } from "./PanelContexts";
 import type { ResizeHandler, ResizeEvent } from "./types";
 
@@ -47,7 +48,7 @@ export default function PanelResizeHandle({
       const resizeHandler = registerResizeHandle(id);
       setResizeHandler(() => resizeHandler);
     }
-  }, [disabled, groupId, id, registerResizeHandle]);
+  }, [disabled, id, registerResizeHandle]);
 
   useEffect(() => {
     if (disabled || resizeHandler == null || !isDragging) {
@@ -76,20 +77,29 @@ export default function PanelResizeHandle({
     };
   }, [direction, disabled, isDragging, resizeHandler, stopDragging]);
 
+  useWindowSplitterResizeHandlerBehavior({
+    disabled,
+    handleId: id,
+    resizeHandler,
+  });
+
   return (
     <div
       className={className}
       data-panel-group-id={groupId}
+      data-panel-resize-handle-enabled={!disabled}
       data-panel-resize-handle-id={id}
       onMouseDown={() => startDragging(id)}
       onMouseUp={stopDragging}
       onTouchCancel={stopDragging}
       onTouchEnd={stopDragging}
       onTouchStart={() => startDragging(id)}
+      role="separator"
       style={{
         cursor: direction === "horizontal" ? "ew-resize" : "ns-resize",
         touchAction: "none",
       }}
+      tabIndex={0}
     >
       {children}
     </div>

@@ -1,21 +1,23 @@
 .ResizeHandle {
-  flex: 0 0 0.5rem;
+  flex: 0 0 1em;
   position: relative;
+  outline: none;
 }
 
 .ResizeHandleActive,
 .ResizeHandleInactive {
   position: absolute;
-  top: 0.125rem;
-  bottom: 0.125rem;
-  left: 0.125rem;
-  right: 0.125rem;
-  border-radius: 0.125rem;
+  top: 0.25em;
+  bottom: 0.25em;
+  left: 0.25em;
+  right: 0.25em;
+  border-radius: 0.25em;
   background-color: transparent;
   transition: background-color 0.2s linear;
 }
 
 .ResizeHandleActive,
+.ResizeHandle:focus .ResizeHandleInactive,
 .ResizeHandle:hover .ResizeHandleInactive {
   background-color: var(--color-solid-resize-bar-handle);
 }

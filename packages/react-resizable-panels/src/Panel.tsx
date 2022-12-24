@@ -55,7 +55,12 @@ export default function Panel({
   const style = getPanelStyle(id);
 
   return (
-    <div className={className} style={style}>
+    <div
+      className={className}
+      data-panel-id={id}
+      id={`data-panel-id-${id}`}
+      style={style}
+    >
       {children}
     </div>
   );
