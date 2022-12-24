@@ -13,6 +13,7 @@ import useUniqueId from "./hooks/useUniqueId";
 import { PanelContext, PanelGroupContext } from "./PanelContexts";
 import { Direction, PanelData, ResizeEvent } from "./types";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
+import { Coordinates, getUpdatedCoordinates } from "./utils/touch";
 
 type Props = {
   autoSaveId?: string;
@@ -60,12 +61,12 @@ export default function PanelGroup({
     width,
   });
 
-  // store active handle last drag coordinates to calculate movementX and movementY for both MouseEvent and TouchEvent
-  // because TouchEvent doesn't support movementX and movementY
-  const activeHandlePrevDragCoordinatesRef = useRef<{ prevX: number, prevY: number }>({
-    prevX: 0,
-    prevY: 0,
-  })
+  // Tracks the most recent coordinates of a touch/mouse event.
+  // This is needed to calculate movement (because TouchEvent doesn't support movementX and movementY).
+  const prevCoordinatesRef = useRef<Coordinates>({
+    screenX: 0,
+    screenY: 0,
+  });
 
   useLayoutEffect(() => {
     committedValuesRef.current.direction = direction;
@@ -187,14 +188,19 @@ export default function PanelGroup({
           return;
         }
 
-        const movementCoordinates = getEventMovementCoordinates(event, activeHandlePrevDragCoordinatesRef.current);
-        activeHandlePrevDragCoordinatesRef.current = {
-          prevX: movementCoordinates.prevX,
-          prevY: movementCoordinates.prevY,
-        }
+        const nextCoordinates = getUpdatedCoordinates(
+          event,
+          prevCoordinatesRef.current
+        );
+        prevCoordinatesRef.current = {
+          screenX: nextCoordinates.screenX,
+          screenY: nextCoordinates.screenY,
+        };
 
         const isHorizontal = direction === "horizontal";
-        const movement = isHorizontal ? movementCoordinates.movementX : movementCoordinates.movementY;
+        const movement = isHorizontal
+          ? nextCoordinates.movementX
+          : nextCoordinates.movementY;
         const delta = isHorizontal ? movement / width : movement / height;
 
         const nextSizes = adjustByDelta(
@@ -237,10 +243,10 @@ export default function PanelGroup({
       startDragging: (id: string) => setActiveHandleId(id),
       stopDragging: () => {
         setActiveHandleId(null);
-        activeHandlePrevDragCoordinatesRef.current = {
-          prevX: 0,
-          prevY: 0,
-        }
+        prevCoordinatesRef.current = {
+          screenX: 0,
+          screenY: 0,
+        };
       },
       unregisterPanel,
     }),
@@ -268,34 +274,6 @@ export default function PanelGroup({
       </PanelGroupContext.Provider>
     </PanelContext.Provider>
   );
-}
-
-// https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/movementX
-function getEventMovementCoordinates(event: ResizeEvent, { prevX, prevY }: { prevX: number, prevY: number }) {
-  const getMovementBetween = (current: number, prev: number) =>
-      prev === 0 ? 0 : current - prev;
-
-  if(isTouchMoveEvent(event)) {
-    const firstTouch = event.touches[0];
-
-    return {
-      movementX: getMovementBetween(firstTouch.screenX, prevX),
-      movementY: getMovementBetween(firstTouch.screenY, prevY),
-      prevX: firstTouch.screenX,
-      prevY: firstTouch.screenY,
-    }
-  }
-
-  return {
-    movementX: getMovementBetween(event.screenX, prevX),
-    movementY: getMovementBetween(event.screenY, prevY),
-    prevX: event.screenX,
-    prevY: event.screenY
-  }
-}
-
-function isTouchMoveEvent(event: ResizeEvent): event is TouchEvent {
-  return event.type === 'touchmove'
 }
 
 function adjustByDelta(
