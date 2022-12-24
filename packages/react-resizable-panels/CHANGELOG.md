@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.8
+* [#7](https://github.com/bvaughn/react-resizable-panels/issues/7): Support "touch" events for mobile compatibility.
+
 ## 0.0.7
 * Add `PanelContext` with `activeHandleId` property identifying the resize handle currently being dragged (or `null`). This enables more customized UI/UX when resizing is in progress.
 ## 0.0.6
