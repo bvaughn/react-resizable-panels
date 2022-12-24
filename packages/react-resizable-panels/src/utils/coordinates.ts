@@ -49,7 +49,7 @@ export function getUpdatedCoordinates(
       case "ArrowRight":
         movementX = delta;
         break;
-      case "ArrowTop":
+      case "ArrowUp":
         movementY = -delta;
         break;
       case "End":

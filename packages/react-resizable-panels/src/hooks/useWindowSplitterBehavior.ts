@@ -151,7 +151,7 @@ export function useWindowSplitterResizeHandlerBehavior({
         case "ArrowDown":
         case "ArrowLeft":
         case "ArrowRight":
-        case "ArrowTop":
+        case "ArrowUp":
         case "End":
         case "Home": {
           resizeHandler(event);
