@@ -83,8 +83,9 @@ export default function PanelResizeHandle({
       data-panel-resize-handle-id={id}
       onMouseDown={() => startDragging(id)}
       onMouseUp={stopDragging}
-      onTouchStart={() => startDragging(id)}
+      onTouchCancel={stopDragging}
       onTouchEnd={stopDragging}
+      onTouchStart={() => startDragging(id)}
       style={{
         cursor: direction === "horizontal" ? "ew-resize" : "ns-resize",
       }}
