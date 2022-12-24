@@ -3,6 +3,7 @@ import { ReactNode, useContext, useEffect, useState } from "react";
 import useUniqueId from "./hooks/useUniqueId";
 import { PanelContext, PanelGroupContext } from "./PanelContexts";
 import type { ResizeHandler, ResizeEvent } from "./types";
+import { getResizeHandleIndex, getResizeHandles } from "./utils/group";
 
 export default function PanelResizeHandle({
   children = null,
@@ -96,13 +97,8 @@ export default function PanelResizeHandle({
           break;
         }
         case "F6": {
-          const handles = Array.from(
-            document.querySelectorAll(`[data-panel-resize-handle-id]`)
-          );
-          const index = handles.findIndex(
-            (handle) =>
-              handle.getAttribute("data-panel-resize-handle-id") === id
-          );
+          const handles = getResizeHandles();
+          const index = getResizeHandleIndex(id);
 
           const nextIndex = event.shiftKey
             ? index > 0

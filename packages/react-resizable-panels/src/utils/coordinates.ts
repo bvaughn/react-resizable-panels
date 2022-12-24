@@ -93,7 +93,7 @@ export function getUpdatedCoordinates(
       screenX: firstTouch.screenX,
       screenY: firstTouch.screenY,
     };
-  } else if (isMousMoveEvent(event)) {
+  } else if (isMouseMoveEvent(event)) {
     return {
       movementX: getMovementBetween(event.screenX, prevScreenX),
       movementY: getMovementBetween(event.screenY, prevScreenY),
@@ -109,7 +109,7 @@ export function isKeyDown(event: ResizeEvent): event is KeyboardEvent {
   return event.type === "keydown";
 }
 
-export function isMousMoveEvent(event: ResizeEvent): event is MouseEvent {
+export function isMouseMoveEvent(event: ResizeEvent): event is MouseEvent {
   return event.type === "mousemove";
 }
 

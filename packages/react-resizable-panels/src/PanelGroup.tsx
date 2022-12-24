@@ -14,6 +14,24 @@ import { PanelContext, PanelGroupContext } from "./PanelContexts";
 import { Direction, PanelData, ResizeEvent } from "./types";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
 import { Coordinates, getUpdatedCoordinates } from "./utils/coordinates";
+import {
+  adjustByDelta,
+  getOffset,
+  getResizeHandlePanelIds,
+  getSize,
+  panelsMapToSortedArray,
+} from "./utils/group";
+import useWindowSplitterAriaAttributes from "./hooks/useWindowSplitterAriaAttributes";
+
+export type CommittedValues = {
+  direction: Direction;
+  height: number;
+  panels: Map<string, PanelData>;
+  sizes: number[];
+  width: number;
+};
+
+export type PanelDataMap = Map<string, PanelData>;
 
 type Props = {
   autoSaveId?: string;
@@ -23,8 +41,6 @@ type Props = {
   height: number;
   width: number;
 };
-
-const PRECISION = 5;
 
 // TODO [panels]
 // Within an active drag, remember original positions to refine more easily on expand.
@@ -41,19 +57,13 @@ export default function PanelGroup({
   const groupId = useUniqueId();
 
   const [activeHandleId, setActiveHandleId] = useState<string | null>(null);
-  const [panels, setPanels] = useState<Map<string, PanelData>>(new Map());
+  const [panels, setPanels] = useState<PanelDataMap>(new Map());
 
   // 0-1 values representing the relative size of each panel.
   const [sizes, setSizes] = useState<number[]>([]);
 
   // Store committed values to avoid unnecessarily re-running memoization/effects functions.
-  const committedValuesRef = useRef<{
-    direction: Direction;
-    height: number;
-    panels: Map<string, PanelData>;
-    sizes: number[];
-    width: number;
-  }>({
+  const committedValuesRef = useRef<CommittedValues>({
     direction,
     height,
     panels,
@@ -74,6 +84,13 @@ export default function PanelGroup({
     committedValuesRef.current.panels = panels;
     committedValuesRef.current.sizes = sizes;
     committedValuesRef.current.width = width;
+  });
+
+  useWindowSplitterAriaAttributes({
+    committedValuesRef,
+    groupId,
+    panels,
+    sizes,
   });
 
   // Once all panels have registered themselves,
@@ -162,7 +179,7 @@ export default function PanelGroup({
   }, []);
 
   const registerResizeHandle = useCallback(
-    (id: string) => {
+    (handleId: string) => {
       const resizeHandler = (event: ResizeEvent) => {
         event.preventDefault();
 
@@ -174,16 +191,13 @@ export default function PanelGroup({
           width,
         } = committedValuesRef.current;
 
-        const handle = document.querySelector(
-          `[data-panel-resize-handle-id="${id}"]`
-        );
-        const handles = Array.from(
-          document.querySelectorAll(`[data-panel-group-id="${groupId}"]`)
-        );
-        const index = handles.indexOf(handle);
         const panelsArray = panelsMapToSortedArray(panels);
-        const idBefore: string | null = panelsArray[index]?.id ?? null;
-        const idAfter: string | null = panelsArray[index + 1]?.id ?? null;
+
+        const [idBefore, idAfter] = getResizeHandlePanelIds(
+          groupId,
+          handleId,
+          panelsArray
+        );
         if (idBefore == null || idAfter == null) {
           return;
         }
@@ -276,123 +290,4 @@ export default function PanelGroup({
       </PanelGroupContext.Provider>
     </PanelContext.Provider>
   );
-}
-
-function adjustByDelta(
-  panels: Map<string, PanelData>,
-  idBefore: string,
-  idAfter: string,
-  delta: number,
-  prevSizes: number[]
-): number[] {
-  if (delta === 0) {
-    return prevSizes;
-  }
-
-  const panelsArray = panelsMapToSortedArray(panels);
-
-  const nextSizes = prevSizes.concat();
-
-  let deltaApplied = 0;
-
-  // A resizing panel affects the panels before or after it.
-  //
-  // A negative delta means the panel immediately after the resizer should grow/expand by decreasing its offset.
-  // Other panels may also need to shrink/contract (and shift) to make room, depending on the min weights.
-  //
-  // A positive delta means the panel immediately before the resizer should "expand".
-  // This is accomplished by shrinking/contracting (and shifting) one or more of the panels after the resizer.
-  let pivotId = delta < 0 ? idBefore : idAfter;
-  let index = panelsArray.findIndex((panel) => panel.id === pivotId);
-  while (true) {
-    const panel = panelsArray[index];
-    const prevSize = prevSizes[index];
-    const nextSize = Math.max(prevSize - Math.abs(delta), panel.minSize);
-    if (prevSize !== nextSize) {
-      deltaApplied += prevSize - nextSize;
-
-      nextSizes[index] = nextSize;
-
-      if (deltaApplied.toPrecision(PRECISION) >= delta.toPrecision(PRECISION)) {
-        break;
-      }
-    }
-
-    if (delta < 0) {
-      if (--index < 0) {
-        break;
-      }
-    } else {
-      if (++index >= panelsArray.length) {
-        break;
-      }
-    }
-  }
-
-  // If we were unable to resize any of the panels panels, return the previous state.
-  // This will essentially bailout and ignore the "mousemove" event.
-  if (deltaApplied === 0) {
-    return prevSizes;
-  }
-
-  // Adjust the pivot panel before, but only by the amount that surrounding panels were able to shrink/contract.
-  pivotId = delta < 0 ? idAfter : idBefore;
-  index = panelsArray.findIndex((panel) => panel.id === pivotId);
-  nextSizes[index] = prevSizes[index] + deltaApplied;
-
-  return nextSizes;
-}
-
-function getOffset(
-  panels: Map<string, PanelData>,
-  id: string,
-  direction: Direction,
-  sizes: number[],
-  height: number,
-  width: number
-): number {
-  const panelsArray = panelsMapToSortedArray(panels);
-
-  let index = panelsArray.findIndex((panel) => panel.id === id);
-  if (index < 0) {
-    return 0;
-  }
-
-  let scaledOffset = 0;
-
-  for (index = index - 1; index >= 0; index--) {
-    const panel = panelsArray[index];
-    scaledOffset += getSize(panels, panel.id, direction, sizes, height, width);
-  }
-
-  return Math.round(scaledOffset);
-}
-
-function getSize(
-  panels: Map<string, PanelData>,
-  id: string,
-  direction: Direction,
-  sizes: number[],
-  height: number,
-  width: number
-): number {
-  const totalSize = direction === "horizontal" ? width : height;
-
-  if (panels.size === 1) {
-    return totalSize;
-  }
-
-  const panelsArray = panelsMapToSortedArray(panels);
-
-  const index = panelsArray.findIndex((panel) => panel.id === id);
-  const size = sizes[index];
-  if (size == null) {
-    return 0;
-  }
-
-  return Math.round(size * totalSize);
-}
-
-function panelsMapToSortedArray(panels: Map<string, PanelData>): PanelData[] {
-  return Array.from(panels.values()).sort((a, b) => a.order - b.order);
 }
