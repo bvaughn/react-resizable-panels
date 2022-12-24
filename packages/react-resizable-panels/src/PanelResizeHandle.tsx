@@ -1,9 +1,9 @@
 import { ReactNode, useContext, useEffect, useState } from "react";
 
 import useUniqueId from "./hooks/useUniqueId";
+import { useWindowSplitterResizeHandlerBehavior } from "./hooks/useWindowSplitterBehavior";
 import { PanelContext, PanelGroupContext } from "./PanelContexts";
 import type { ResizeHandler, ResizeEvent } from "./types";
-import { getResizeHandleIndex, getResizeHandles } from "./utils/group";
 
 export default function PanelResizeHandle({
   children = null,
@@ -23,8 +23,6 @@ export default function PanelResizeHandle({
       `PanelResizeHandle components must be rendered within a PanelGroup container`
     );
   }
-
-  const [isFocused, setFocused] = useState(false);
 
   const id = useUniqueId(idProp);
 
@@ -50,7 +48,7 @@ export default function PanelResizeHandle({
       const resizeHandler = registerResizeHandle(id);
       setResizeHandler(() => resizeHandler);
     }
-  }, [disabled, groupId, id, registerResizeHandle]);
+  }, [disabled, id, registerResizeHandle]);
 
   useEffect(() => {
     if (disabled || resizeHandler == null || !isDragging) {
@@ -79,57 +77,18 @@ export default function PanelResizeHandle({
     };
   }, [direction, disabled, isDragging, resizeHandler, stopDragging]);
 
-  // https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/
-  useEffect(() => {
-    if (disabled || resizeHandler == null || !isFocused) {
-      return;
-    }
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      switch (event.key) {
-        case "ArrowDown":
-        case "ArrowLeft":
-        case "ArrowRight":
-        case "ArrowTop":
-        case "End":
-        case "Home": {
-          resizeHandler(event);
-          break;
-        }
-        case "F6": {
-          const handles = getResizeHandles();
-          const index = getResizeHandleIndex(id);
-
-          const nextIndex = event.shiftKey
-            ? index > 0
-              ? index - 1
-              : handles.length - 1
-            : index + 1 < handles.length
-            ? index + 1
-            : 0;
-
-          const nextHandle = handles[nextIndex] as HTMLDivElement;
-          nextHandle.focus();
-
-          break;
-        }
-      }
-    };
-
-    document.body.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      document.body.removeEventListener("keydown", onKeyDown);
-    };
-  }, [direction, disabled, id, isFocused, resizeHandler, stopDragging]);
+  useWindowSplitterResizeHandlerBehavior({
+    disabled,
+    handleId: id,
+    resizeHandler,
+  });
 
   return (
     <div
       className={className}
       data-panel-group-id={groupId}
+      data-panel-resize-handle-enabled={!disabled}
       data-panel-resize-handle-id={id}
-      onBlur={() => setFocused(false)}
-      onFocus={() => setFocused(true)}
       onMouseDown={() => startDragging(id)}
       onMouseUp={stopDragging}
       onTouchCancel={stopDragging}

@@ -21,7 +21,7 @@ import {
   getSize,
   panelsMapToSortedArray,
 } from "./utils/group";
-import useWindowSplitterAriaAttributes from "./hooks/useWindowSplitterAriaAttributes";
+import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterBehavior";
 
 export type CommittedValues = {
   direction: Direction;
@@ -86,10 +86,11 @@ export default function PanelGroup({
     committedValuesRef.current.width = width;
   });
 
-  useWindowSplitterAriaAttributes({
+  useWindowSplitterPanelGroupBehavior({
     committedValuesRef,
     groupId,
     panels,
+    setSizes,
     sizes,
   });
 

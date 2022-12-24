@@ -1,6 +1,5 @@
+import { PRECISION } from "../constants";
 import { Direction, PanelData } from "../types";
-
-const PRECISION = 5;
 
 export function adjustByDelta(
   panels: Map<string, PanelData>,
