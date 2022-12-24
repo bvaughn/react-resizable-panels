@@ -3,11 +3,16 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import DemoRoute from "./src/routes/Demo";
+import MobileRoute from "./src/routes/Mobile";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <DemoRoute />,
+  },
+  {
+    path: "/mobile",
+    element: <MobileRoute />,
   },
 ]);
 

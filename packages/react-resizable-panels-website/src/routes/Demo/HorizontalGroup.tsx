@@ -1,7 +1,7 @@
 import { Panel } from "react-resizable-panels";
 
-import PanelGroup from "../AutoSizedPanelGroup";
-import DragHandle from "./DragHandle";
+import PanelGroup from "../../components/AutoSizedPanelGroup";
+import ResizeHandle from "../../components/ResizeHandle";
 import styles from "./styles.module.css";
 import { GROUP_ID as GROUP_ID_VERTICAL, VerticalGroup } from "./VerticalGroup";
 
@@ -45,7 +45,7 @@ export default function HorizontalGroup({
         id="middle"
         minSize={0.25}
       >
-        <DragHandle id="left-handle" />
+        <ResizeHandle id="left-handle" />
         <div
           className={styles.HorizontalFiller}
           style={{ backgroundColor: "var(--color-horizontal)" }}
@@ -87,7 +87,7 @@ export default function HorizontalGroup({
             It won't shrink beyond 25% of the total width.
           </p>
         </div>
-        <DragHandle id="middle-handle" />
+        <ResizeHandle id="middle-handle" />
       </Panel>
       <Panel className={styles.PanelRow} defaultSize={0.3} id="stacked">
         <div className={styles.Grower}>
@@ -95,7 +95,7 @@ export default function HorizontalGroup({
         </div>
       </Panel>
       <Panel className={styles.PanelRow} defaultSize={0.2} id="right">
-        <DragHandle id="right-handle" />
+        <ResizeHandle id="right-handle" />
         <div
           className={styles.HorizontalFiller}
           style={{ backgroundColor: "var(--color-horizontal)" }}

@@ -1,0 +1,21 @@
+.ResizeHandle {
+  flex: 0 0 0.5rem;
+  position: relative;
+}
+
+.ResizeHandleActive,
+.ResizeHandleInactive {
+  position: absolute;
+  top: 0.125rem;
+  bottom: 0.125rem;
+  left: 0.125rem;
+  right: 0.125rem;
+  border-radius: 0.125rem;
+  background-color: transparent;
+  transition: background-color 0.2s linear;
+}
+
+.ResizeHandleActive,
+.ResizeHandle:hover .ResizeHandleInactive {
+  background-color: rgba(255, 255, 255, 0.2);
+}

@@ -1,6 +1,7 @@
 :root,
 html,
-body {
+body,
+#root {
   width: 100vw;
   height: 100vh;
   padding: 0;
@@ -17,11 +18,6 @@ body {
 * {
   box-sizing: border-box;
   line-height: 1.5em;
-}
-
-#root {
-  width: calc(100vw - 1rem);
-  height: calc(100vh - 1rem);
 }
 
 p {
