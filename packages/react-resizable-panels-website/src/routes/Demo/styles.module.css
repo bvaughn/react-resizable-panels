@@ -1,0 +1,120 @@
+.FullHeightAndWidth {
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  right: 0.5rem;
+}
+
+.PanelRow {
+  display: flex;
+  flex-direction: row;
+}
+
+.HorizontalFiller {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.ParagraphOfText {
+  margin-right: 1rem;
+  margin-left: 1rem;
+  text-align: center;
+}
+
+.HorizontalDot,
+.VerticalDot {
+  margin-left: 1ch;
+  display: inline-block;
+  height: 1ch;
+  width: 1ch;
+  border-radius: 1ch;
+}
+.HorizontalDot {
+  background-color: var(--color-panel-background);
+}
+.VerticalDot {
+  background-color: var(--color-panel-background-alternate);
+}
+
+.Grower {
+  width: 100%;
+  height: 100%;
+}
+
+.VerticalFiller {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.PanelColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+.ParagraphOfText {
+  margin-right: 1rem;
+  margin-left: 1rem;
+  text-align: center;
+}
+
+.Button,
+.ButtonBottom,
+.ButtonTop {
+  color: var(--color-default);
+  background-color: var(--color-button-background);
+  border: 1px solid var(--color-button-border);
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+.Button:hover,
+.ButtonBottom:hover,
+.ButtonTop:hover {
+  background-color: var(--color-button-background-hover);
+}
+
+.ButtonBottom {
+  position: absolute;
+  bottom: 1ch;
+  right: 1ch;
+}
+.ButtonTop {
+  position: absolute;
+  top: 1ch;
+  right: 1ch;
+}
+
+.VerticalResizeBar {
+  width: 100%;
+  position: relative;
+  padding: 0.25rem 0;
+}
+.VerticalResizeBar::after {
+  content: " ";
+  display: block;
+  height: 1px;
+  width: 100%;
+  background-color: var(--color-solid-resize-bar);
+}
+
+.HorizontalDivider {
+  display: block;
+  width: 100%;
+  height: 1px;
+  border: none;
+  background-color: var(--color-horizontal-rule);
+  margin: 0.5rem 0;
+}

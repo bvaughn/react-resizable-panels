@@ -1,7 +1,7 @@
 import { Panel, PanelResizeHandle } from "react-resizable-panels";
 import { useState } from "react";
 
-import PanelGroup from "./AutoSizedPanelGroup";
+import PanelGroup from "../../components/AutoSizedPanelGroup";
 import styles from "./styles.module.css";
 
 export const GROUP_ID = "vertical";
@@ -13,7 +13,7 @@ export function VerticalGroup() {
   return (
     <div
       className={styles.VerticalFiller}
-      style={{ backgroundColor: "var(--color-vertical)" }}
+      style={{ backgroundColor: "var(--color-panel-background-alternate)" }}
     >
       <PanelGroup autoSaveId={GROUP_ID} direction="vertical">
         {showTopPanel && (

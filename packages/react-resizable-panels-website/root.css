@@ -1,14 +1,30 @@
+:root {
+  --color-background-code: rgba(0, 0, 0, 0.35);
+  --color-background-default: #081120;
+  --color-button-background: #2a3343;
+  --color-button-background-hover: #454950;
+  --color-button-border: #18181a;
+  --color-code: #c67bff;
+  --color-default: #ffffff;
+  --color-horizontal-rule: #454950;
+  --color-link: #dcadff;
+  --color-panel-background: #192230;
+  --color-panel-background-alternate: #202124;
+  --color-solid-resize-bar: #454950;
+  --color-solid-resize-bar-handle: rgba(255, 255, 255, 0.2);
+}
+
 :root,
 html,
-body {
+body,
+#root {
   width: 100vw;
   height: 100vh;
   padding: 0;
   margin: 0;
-  overflow: hidden;
 
-  background-color: #081120;
-  color: #ffffff;
+  background-color: var(--color-background-default);
+  color: var(--color-default);
 
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
@@ -19,18 +35,13 @@ body {
   line-height: 1.5em;
 }
 
-#root {
-  width: calc(100vw - 1rem);
-  height: calc(100vh - 1rem);
-}
-
 p {
   margin: 0.5rem 0;
 }
 
 code {
-  color: #c67bff;
-  background-color: rgba(0, 0, 0, 0.35);
+  color: var(--color-code);
+  background-color: var(--color-background-code);
   padding: 0 0.25em;
   border-radius: 0.25em;
 }
@@ -41,5 +52,5 @@ h2 {
 }
 
 a {
-  color: #dcadff;
+  color: var(--color-link);
 }
