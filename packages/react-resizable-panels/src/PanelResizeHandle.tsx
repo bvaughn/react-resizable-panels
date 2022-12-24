@@ -23,6 +23,8 @@ export default function PanelResizeHandle({
     );
   }
 
+  const [isFocused, setFocused] = useState(false);
+
   const id = useUniqueId(idProp);
 
   const { activeHandleId } = panelContext;
@@ -76,20 +78,73 @@ export default function PanelResizeHandle({
     };
   }, [direction, disabled, isDragging, resizeHandler, stopDragging]);
 
+  // https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/
+  useEffect(() => {
+    if (disabled || resizeHandler == null || !isFocused) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      switch (event.key) {
+        case "ArrowDown":
+        case "ArrowLeft":
+        case "ArrowRight":
+        case "ArrowTop":
+        case "End":
+        case "Home": {
+          resizeHandler(event);
+          break;
+        }
+        case "F6": {
+          const handles = Array.from(
+            document.querySelectorAll(`[data-panel-resize-handle-id]`)
+          );
+          const index = handles.findIndex(
+            (handle) =>
+              handle.getAttribute("data-panel-resize-handle-id") === id
+          );
+
+          const nextIndex = event.shiftKey
+            ? index > 0
+              ? index - 1
+              : handles.length - 1
+            : index + 1 < handles.length
+            ? index + 1
+            : 0;
+
+          const nextHandle = handles[nextIndex] as HTMLDivElement;
+          nextHandle.focus();
+
+          break;
+        }
+      }
+    };
+
+    document.body.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.removeEventListener("keydown", onKeyDown);
+    };
+  }, [direction, disabled, id, isFocused, resizeHandler, stopDragging]);
+
   return (
     <div
       className={className}
       data-panel-group-id={groupId}
       data-panel-resize-handle-id={id}
+      onBlur={() => setFocused(false)}
+      onFocus={() => setFocused(true)}
       onMouseDown={() => startDragging(id)}
       onMouseUp={stopDragging}
       onTouchCancel={stopDragging}
       onTouchEnd={stopDragging}
       onTouchStart={() => startDragging(id)}
+      role="separator"
       style={{
         cursor: direction === "horizontal" ? "ew-resize" : "ns-resize",
         touchAction: "none",
       }}
+      tabIndex={0}
     >
       {children}
     </div>

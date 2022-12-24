@@ -13,7 +13,7 @@ import useUniqueId from "./hooks/useUniqueId";
 import { PanelContext, PanelGroupContext } from "./PanelContexts";
 import { Direction, PanelData, ResizeEvent } from "./types";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
-import { Coordinates, getUpdatedCoordinates } from "./utils/touch";
+import { Coordinates, getUpdatedCoordinates } from "./utils/coordinates";
 
 type Props = {
   autoSaveId?: string;
@@ -190,7 +190,9 @@ export default function PanelGroup({
 
         const nextCoordinates = getUpdatedCoordinates(
           event,
-          prevCoordinatesRef.current
+          prevCoordinatesRef.current,
+          { height, width },
+          direction
         );
         prevCoordinatesRef.current = {
           screenX: nextCoordinates.screenX,
