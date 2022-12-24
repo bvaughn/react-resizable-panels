@@ -88,6 +88,7 @@ export default function PanelResizeHandle({
       onTouchStart={() => startDragging(id)}
       style={{
         cursor: direction === "horizontal" ? "ew-resize" : "ns-resize",
+        touchAction: "none",
       }}
     >
       {children}
