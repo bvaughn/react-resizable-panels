@@ -1,4 +1,11 @@
-import { ReactNode, useContext, useEffect, useState } from "react";
+import {
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import useUniqueId from "./hooks/useUniqueId";
 import { useWindowSplitterResizeHandlerBehavior } from "./hooks/useWindowSplitterBehavior";
@@ -16,6 +23,8 @@ export default function PanelResizeHandle({
   disabled?: boolean;
   id?: string | null;
 }) {
+  const divElementRef = useRef<HTMLDivElement>(null);
+
   const panelContext = useContext(PanelContext);
   const panelGroupContext = useContext(PanelGroupContext);
   if (panelContext === null || panelGroupContext === null) {
@@ -41,6 +50,15 @@ export default function PanelResizeHandle({
     null
   );
 
+  const stopDraggingAndBlur = useCallback(() => {
+    // Clicking on the drag handle shouldn't leave it focused;
+    // That would cause the PanelGroup to think it was still active.
+    const div = divElementRef.current!;
+    div.blur();
+
+    stopDragging();
+  }, [stopDragging]);
+
   useEffect(() => {
     if (disabled) {
       setResizeHandler(null);
@@ -62,20 +80,20 @@ export default function PanelResizeHandle({
       resizeHandler(event);
     };
 
-    document.body.addEventListener("mouseleave", stopDragging);
+    document.body.addEventListener("mouseleave", stopDraggingAndBlur);
     document.body.addEventListener("mousemove", onMove);
     document.body.addEventListener("touchmove", onMove);
-    document.body.addEventListener("mouseup", stopDragging);
+    document.body.addEventListener("mouseup", stopDraggingAndBlur);
 
     return () => {
       document.body.style.cursor = "";
 
-      document.body.removeEventListener("mouseleave", stopDragging);
+      document.body.removeEventListener("mouseleave", stopDraggingAndBlur);
       document.body.removeEventListener("mousemove", onMove);
       document.body.removeEventListener("touchmove", onMove);
-      document.body.removeEventListener("mouseup", stopDragging);
+      document.body.removeEventListener("mouseup", stopDraggingAndBlur);
     };
-  }, [direction, disabled, isDragging, resizeHandler, stopDragging]);
+  }, [direction, disabled, isDragging, resizeHandler, stopDraggingAndBlur]);
 
   useWindowSplitterResizeHandlerBehavior({
     disabled,
@@ -90,10 +108,11 @@ export default function PanelResizeHandle({
       data-panel-resize-handle-enabled={!disabled}
       data-panel-resize-handle-id={id}
       onMouseDown={() => startDragging(id)}
-      onMouseUp={stopDragging}
-      onTouchCancel={stopDragging}
-      onTouchEnd={stopDragging}
+      onMouseUp={stopDraggingAndBlur}
+      onTouchCancel={stopDraggingAndBlur}
+      onTouchEnd={stopDraggingAndBlur}
       onTouchStart={() => startDragging(id)}
+      ref={divElementRef}
       role="separator"
       style={{
         cursor: direction === "horizontal" ? "ew-resize" : "ns-resize",

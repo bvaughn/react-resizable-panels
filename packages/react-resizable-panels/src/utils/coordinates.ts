@@ -1,18 +1,13 @@
 import { Direction, ResizeEvent } from "../types";
 
 export type Coordinates = {
-  screenX: number;
-  screenY: number;
+  movement: number;
+  offset: number;
 };
 
-export type Dimensions = {
+export type Size = {
   height: number;
   width: number;
-};
-
-export type Movement = {
-  movementX: number;
-  movementY: number;
 };
 
 const element = document.createElement("div");
@@ -21,85 +16,77 @@ element.getBoundingClientRect();
 // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/movementX
 export function getUpdatedCoordinates(
   event: ResizeEvent,
-  prevCoordinates: Coordinates,
-  dimensions: Dimensions,
+  prevOffset: number,
+  { height, width }: Size,
   direction: Direction
-): Coordinates & Movement {
-  const { screenX: prevScreenX, screenY: prevScreenY } = prevCoordinates;
-  const { height, width } = dimensions;
+): Coordinates {
+  const isHorizontal = direction === "horizontal";
+  const size = isHorizontal ? width : height;
 
   const getMovementBetween = (current: number, prev: number) =>
     prev === 0 ? 0 : current - prev;
 
   if (isKeyDown(event)) {
-    let movementX = 0;
-    let movementY = 0;
+    let movement = 0;
 
-    const size = direction === "horizontal" ? width : height;
     const denominator = event.shiftKey ? 10 : 100;
     const delta = size / denominator;
 
     switch (event.key) {
       case "ArrowDown":
-        movementY = delta;
+        movement = delta;
         break;
       case "ArrowLeft":
-        movementX = -delta;
+        movement = -delta;
         break;
       case "ArrowRight":
-        movementX = delta;
+        movement = delta;
         break;
       case "ArrowUp":
-        movementY = -delta;
+        movement = -delta;
         break;
       case "End":
-        if (direction === "horizontal") {
-          movementX = size;
+        if (isHorizontal) {
+          movement = size;
         } else {
-          movementY = size;
+          movement = size;
         }
         break;
       case "Home":
-        if (direction === "horizontal") {
-          movementX = -size;
+        if (isHorizontal) {
+          movement = -size;
         } else {
-          movementY = -size;
+          movement = -size;
         }
         break;
     }
 
     // Estimate screen X/Y to be the center of the resize handle.
     // Otherwise the first mouse/touch event after a keyboard event will appear to "jump"
-    let screenX = 0;
-    let screenY = 0;
+    let offset = 0;
     if (document.activeElement) {
       const rect = document.activeElement.getBoundingClientRect();
-      screenX = rect.left + rect.width / 2;
-      screenY = rect.top + rect.height / 2;
+      offset = isHorizontal
+        ? rect.left + rect.width / 2
+        : rect.top + rect.height / 2;
     }
 
     return {
-      movementX,
-      movementY,
-      screenX,
-      screenY,
+      movement,
+      offset,
     };
   } else if (isTouchMoveEvent(event)) {
     const firstTouch = event.touches[0];
 
-    return {
-      movementX: getMovementBetween(firstTouch.screenX, prevScreenX),
-      movementY: getMovementBetween(firstTouch.screenY, prevScreenY),
-      screenX: firstTouch.screenX,
-      screenY: firstTouch.screenY,
-    };
+    const offset = isHorizontal ? firstTouch.screenX : firstTouch.screenY;
+    const movement = getMovementBetween(offset, prevOffset);
+
+    return { movement, offset };
   } else if (isMouseMoveEvent(event)) {
-    return {
-      movementX: getMovementBetween(event.screenX, prevScreenX),
-      movementY: getMovementBetween(event.screenY, prevScreenY),
-      screenX: event.screenX,
-      screenY: event.screenY,
-    };
+    const offset = isHorizontal ? event.screenX : event.screenY;
+    const movement = getMovementBetween(offset, prevOffset);
+
+    return { movement, offset };
   } else {
     throw Error(`Unsupported event type: "${(event as any).type}"`);
   }
