@@ -13,7 +13,7 @@ import useUniqueId from "./hooks/useUniqueId";
 import { PanelContext, PanelGroupContext } from "./PanelContexts";
 import { Direction, PanelData, ResizeEvent } from "./types";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
-import { Coordinates, getUpdatedCoordinates } from "./utils/coordinates";
+import { getMovement } from "./utils/coordinates";
 import {
   adjustByDelta,
   getOffset,
@@ -70,10 +70,6 @@ export default function PanelGroup({
     sizes,
     width,
   });
-
-  // Tracks the most recent coordinates of a touch/mouse event.
-  // This is needed to calculate movement (because TouchEvent doesn't support movementX and movementY).
-  const prevOffsetRef = useRef<number>(0);
 
   useLayoutEffect(() => {
     committedValuesRef.current.direction = direction;
@@ -200,16 +196,14 @@ export default function PanelGroup({
           return;
         }
 
-        const nextCoordinates = getUpdatedCoordinates(
+        const movement = getMovement(
           event,
-          prevOffsetRef.current,
+          handleId,
           { height, width },
           direction
         );
-        prevOffsetRef.current = nextCoordinates.offset;
 
         const isHorizontal = direction === "horizontal";
-        const movement = nextCoordinates.movement;
         const delta = isHorizontal ? movement / width : movement / height;
 
         const nextSizes = adjustByDelta(
@@ -252,7 +246,6 @@ export default function PanelGroup({
       startDragging: (id: string) => setActiveHandleId(id),
       stopDragging: () => {
         setActiveHandleId(null);
-        prevOffsetRef.current = 0;
       },
       unregisterPanel,
     }),

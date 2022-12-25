@@ -1,4 +1,5 @@
 import { Direction, ResizeEvent } from "../types";
+import { getResizeHandle } from "./group";
 
 export type Coordinates = {
   movement: number;
@@ -14,81 +15,55 @@ const element = document.createElement("div");
 element.getBoundingClientRect();
 
 // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/movementX
-export function getUpdatedCoordinates(
+export function getMovement(
   event: ResizeEvent,
-  prevOffset: number,
+  handleId: string,
   { height, width }: Size,
   direction: Direction
-): Coordinates {
+): number {
   const isHorizontal = direction === "horizontal";
   const size = isHorizontal ? width : height;
 
-  const getMovementBetween = (current: number, prev: number) =>
-    prev === 0 ? 0 : current - prev;
-
   if (isKeyDown(event)) {
-    let movement = 0;
-
     const denominator = event.shiftKey ? 10 : 100;
     const delta = size / denominator;
 
     switch (event.key) {
       case "ArrowDown":
-        movement = delta;
-        break;
+        return delta;
       case "ArrowLeft":
-        movement = -delta;
-        break;
+        return -delta;
       case "ArrowRight":
-        movement = delta;
-        break;
+        return delta;
       case "ArrowUp":
-        movement = -delta;
-        break;
+        return -delta;
       case "End":
         if (isHorizontal) {
-          movement = size;
+          return size;
         } else {
-          movement = size;
+          return size;
         }
-        break;
       case "Home":
         if (isHorizontal) {
-          movement = -size;
+          return -size;
         } else {
-          movement = -size;
+          return -size;
         }
-        break;
     }
-
-    // Estimate screen X/Y to be the center of the resize handle.
-    // Otherwise the first mouse/touch event after a keyboard event will appear to "jump"
-    let offset = 0;
-    if (document.activeElement) {
-      const rect = document.activeElement.getBoundingClientRect();
-      offset = isHorizontal
-        ? rect.left + rect.width / 2
-        : rect.top + rect.height / 2;
-    }
-
-    return {
-      movement,
-      offset,
-    };
-  } else if (isTouchMoveEvent(event)) {
-    const firstTouch = event.touches[0];
-
-    const offset = isHorizontal ? firstTouch.screenX : firstTouch.screenY;
-    const movement = getMovementBetween(offset, prevOffset);
-
-    return { movement, offset };
-  } else if (isMouseMoveEvent(event)) {
-    const offset = isHorizontal ? event.screenX : event.screenY;
-    const movement = getMovementBetween(offset, prevOffset);
-
-    return { movement, offset };
   } else {
-    throw Error(`Unsupported event type: "${(event as any).type}"`);
+    const handleElement = getResizeHandle(handleId)!;
+    const rect = handleElement.getBoundingClientRect();
+    const elementOffset = isHorizontal ? rect.left : rect.top;
+
+    let pointerOffset = 0;
+    if (isMouseMoveEvent(event)) {
+      pointerOffset = isHorizontal ? event.clientX : event.clientY;
+    } else {
+      const firstTouch = event.touches[0];
+      pointerOffset = isHorizontal ? firstTouch.screenX : firstTouch.screenY;
+    }
+
+    return pointerOffset - elementOffset;
   }
 }
 
