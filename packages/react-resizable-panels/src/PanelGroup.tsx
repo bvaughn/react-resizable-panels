@@ -13,7 +13,7 @@ import useUniqueId from "./hooks/useUniqueId";
 import { PanelContext, PanelGroupContext } from "./PanelContexts";
 import { Direction, PanelData, ResizeEvent } from "./types";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
-import { getMovement } from "./utils/coordinates";
+import { getDragOffset, getMovement } from "./utils/coordinates";
 import {
   adjustByDelta,
   getOffset,
@@ -61,6 +61,8 @@ export default function PanelGroup({
 
   // 0-1 values representing the relative size of each panel.
   const [sizes, setSizes] = useState<number[]>([]);
+
+  const dragOffsetRef = useRef<number>(0);
 
   // Store committed values to avoid unnecessarily re-running memoization/effects functions.
   const committedValuesRef = useRef<CommittedValues>({
@@ -200,7 +202,8 @@ export default function PanelGroup({
           event,
           handleId,
           { height, width },
-          direction
+          direction,
+          dragOffsetRef.current
         );
 
         const isHorizontal = direction === "horizontal";
@@ -243,7 +246,11 @@ export default function PanelGroup({
       groupId,
       registerPanel,
       registerResizeHandle,
-      startDragging: (id: string) => setActiveHandleId(id),
+      startDragging: (id: string, event: ResizeEvent) => {
+        setActiveHandleId(id);
+
+        dragOffsetRef.current = getDragOffset(event, id, direction);
+      },
       stopDragging: () => {
         setActiveHandleId(null);
       },

@@ -109,11 +109,11 @@ export default function PanelResizeHandle({
       data-panel-group-id={groupId}
       data-panel-resize-handle-enabled={!disabled}
       data-panel-resize-handle-id={id}
-      onMouseDown={() => startDragging(id)}
+      onMouseDown={(event) => startDragging(id, event.nativeEvent)}
       onMouseUp={stopDraggingAndBlur}
       onTouchCancel={stopDraggingAndBlur}
       onTouchEnd={stopDraggingAndBlur}
-      onTouchStart={() => startDragging(id)}
+      onTouchStart={(event) => startDragging(id, event.nativeEvent)}
       ref={divElementRef}
       role="separator"
       style={{
