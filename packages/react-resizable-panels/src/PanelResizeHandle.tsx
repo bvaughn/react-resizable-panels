@@ -80,6 +80,7 @@ export default function PanelResizeHandle({
       resizeHandler(event);
     };
 
+    document.body.addEventListener("contextmenu", stopDraggingAndBlur);
     document.body.addEventListener("mouseleave", stopDraggingAndBlur);
     document.body.addEventListener("mousemove", onMove);
     document.body.addEventListener("touchmove", onMove);
@@ -88,6 +89,7 @@ export default function PanelResizeHandle({
     return () => {
       document.body.style.cursor = "";
 
+      document.body.removeEventListener("contextmenu", stopDraggingAndBlur);
       document.body.removeEventListener("mouseleave", stopDraggingAndBlur);
       document.body.removeEventListener("mousemove", onMove);
       document.body.removeEventListener("touchmove", onMove);
