@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.10
+* Drag UX change: Reversing drag after dragging past the min/max size of a panel will no longer have an effect until the pointer overlaps with the resize handle. (Thanks @davidkpiano for the suggestion!)
+* Bug fix: Resize handles are no longer left in a "focused" state after a touch/mouse event.
+
 ## 0.0.9
 * [#13](https://github.com/bvaughn/react-resizable-panels/issues/13): `PanelResizeHandle` should declare "separator" role and implement the recommended ["Window Splitter" pattern](https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/)
 
