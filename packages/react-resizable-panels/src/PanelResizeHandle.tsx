@@ -117,6 +117,7 @@ export default function PanelResizeHandle({
       style={{
         cursor: direction === "horizontal" ? "ew-resize" : "ns-resize",
         touchAction: "none",
+        userSelect: "none",
       }}
       tabIndex={0}
     >
