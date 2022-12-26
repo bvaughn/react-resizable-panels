@@ -5,6 +5,7 @@
   ],
   "scripts": {
     "docs": "cd packages/react-resizable-panels-website && yarn build",
+    "prerelease": "rm -rf ./.parcel-cache && cd packages/react-resizable-panels && rm -rf ./dist && yarn build",
     "prettier": "prettier --write \"**/*.{css,html,js,json,jsx,ts,tsx}\"",
     "typescript": "tsc --noEmit",
     "typescript:watch": "tsc --noEmit --watch"
