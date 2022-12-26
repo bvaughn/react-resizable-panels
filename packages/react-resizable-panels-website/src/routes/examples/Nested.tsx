@@ -1,10 +1,10 @@
 import { Panel } from "react-resizable-panels";
 
-import PanelGroup from "../../../components/AutoSizedPanelGroup";
-import ResizeHandle from "../../../components/ResizeHandle";
-import Example from "../Example";
+import PanelGroup from "../../components/AutoSizedPanelGroup";
+import ResizeHandle from "../../components/ResizeHandle";
 
-import styles from "./styles.module.css";
+import Example from "./Example";
+import styles from "./shared.module.css";
 
 export default function NestedRoute() {
   return (
@@ -20,14 +20,14 @@ function Content() {
   return (
     <div className={styles.PanelGroupWrapper}>
       <PanelGroup className={styles.PanelGroup} direction="horizontal">
-        <Panel className={styles.PanelColumn} defaultSize={0.2} minSize={0.2}>
+        <Panel className={styles.PanelRow} defaultSize={0.2} minSize={0.2}>
           <div className={styles.Centered}>left</div>
           <ResizeHandle className={styles.ResizeHandle} />
         </Panel>
-        <Panel className={styles.PanelColumn} defaultSize={0.4} minSize={0.2}>
+        <Panel className={styles.PanelRow} defaultSize={0.4} minSize={0.2}>
           <PanelGroup className={styles.PanelGroup} direction="vertical">
             <Panel
-              className={styles.PanelRow}
+              className={styles.PanelColumn}
               defaultSize={0.35}
               minSize={0.35}
             >
@@ -35,13 +35,13 @@ function Content() {
               <ResizeHandle className={styles.ResizeHandle} />
             </Panel>
             <Panel
-              className={styles.PanelRow}
+              className={styles.PanelColumn}
               defaultSize={0.35}
               minSize={0.35}
             >
               <PanelGroup className={styles.PanelGroup} direction="horizontal">
                 <Panel
-                  className={styles.PanelColumn}
+                  className={styles.PanelRow}
                   defaultSize={0.2}
                   minSize={0.2}
                 >
@@ -49,7 +49,7 @@ function Content() {
                   <ResizeHandle className={styles.ResizeHandle} />
                 </Panel>
                 <Panel
-                  className={styles.PanelColumn}
+                  className={styles.PanelRow}
                   defaultSize={0.2}
                   minSize={0.2}
                 >
@@ -59,7 +59,7 @@ function Content() {
             </Panel>
           </PanelGroup>
         </Panel>
-        <Panel className={styles.PanelColumn} defaultSize={0.2} minSize={0.2}>
+        <Panel className={styles.PanelRow} defaultSize={0.2} minSize={0.2}>
           <ResizeHandle className={styles.ResizeHandle} />
           <div className={styles.Centered}>right</div>
         </Panel>

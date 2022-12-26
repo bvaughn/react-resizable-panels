@@ -3,15 +3,8 @@
   overflow-x: hidden;
 }
 
-.HeaderContainer {
-  margin-bottom: 2rem;
-}
-
 .ExampleContainer {
-}
-
-.CodeContainer {
-  margin-top: 2rem;
+  margin: 2rem 0;
 }
 
 .Code {

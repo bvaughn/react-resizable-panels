@@ -3,7 +3,7 @@
 }
 
 .PanelGroup {
-  font-size: 5rem;
+  font-size: 2rem;
 }
 
 .Panel {
@@ -12,18 +12,25 @@
   font-size: 2rem;
 }
 
-.PanelContent {
-  height: 100%;
-  width: 100%;
-  background-color: var(--color-panel-background);
+.PanelColumn,
+.PanelRow {
   display: flex;
+}
+.PanelColumn {
   flex-direction: column;
+}
+.PanelRow {
+  flex-direction: row;
+}
+
+.Centered {
+  flex: 1 1 auto;
+  display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  background-color: var(--color-panel-background);
   border-radius: 0.5rem;
 }
 
 .ResizeHandle {
-  flex: 0 0 2rem !important;
 }

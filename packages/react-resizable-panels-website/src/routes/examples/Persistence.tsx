@@ -1,10 +1,10 @@
 import { Panel } from "react-resizable-panels";
 
-import PanelGroup from "../../../components/AutoSizedPanelGroup";
-import ResizeHandle from "../../../components/ResizeHandle";
-import Example from "../Example";
+import PanelGroup from "../../components/AutoSizedPanelGroup";
+import ResizeHandle from "../../components/ResizeHandle";
 
-import styles from "./styles.module.css";
+import Example from "./Example";
+import styles from "./shared.module.css";
 
 export default function NestedRoute() {
   return (
@@ -33,7 +33,7 @@ function Content() {
         <Panel className={styles.PanelColumn} defaultSize={0.2} minSize={0.2}>
           <div className={styles.Centered}>left</div>
         </Panel>
-        <Panel className={styles.PanelColumn} defaultSize={0.2} minSize={0.2}>
+        <Panel className={styles.PanelRow} defaultSize={0.2} minSize={0.2}>
           <ResizeHandle className={styles.ResizeHandle} />
           <div className={styles.Centered}>middle</div>
           <ResizeHandle className={styles.ResizeHandle} />

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Panel } from "react-resizable-panels";
 
-import PanelGroup from "../../../components/AutoSizedPanelGroup";
-import ResizeHandle from "../../../components/ResizeHandle";
-import Example from "../Example";
+import PanelGroup from "../../components/AutoSizedPanelGroup";
+import ResizeHandle from "../../components/ResizeHandle";
 
-import styles from "./styles.module.css";
+import Example from "./Example";
+import styles from "./shared.module.css";
 
 export default function ConditionalRoute() {
   const [showLeftPanel, setShowLeftPanel] = useState(true);
@@ -33,7 +33,7 @@ export default function ConditionalRoute() {
           <p>
             <button onClick={() => setShowLeftPanel(!showLeftPanel)}>
               {showLeftPanel ? "Hide" : "Show"} left panel
-            </button>
+            </button>{" "}
             <button onClick={() => setShowRightPanel(!showRightPanel)}>
               {showLeftPanel ? "Hide" : "Show"} right panel
             </button>
@@ -65,7 +65,7 @@ function Content({
             minSize={0.2}
             order={1}
           >
-            <div className={styles.PanelContent}>left</div>
+            <div className={styles.Centered}>left</div>
             <ResizeHandle className={styles.ResizeHandle} />
           </Panel>
         )}
@@ -75,7 +75,7 @@ function Content({
           minSize={0.3}
           order={2}
         >
-          <div className={styles.PanelContent}>middle</div>
+          <div className={styles.Centered}>middle</div>
         </Panel>
         {showRightPanel && (
           <Panel
@@ -85,7 +85,7 @@ function Content({
             order={3}
           >
             <ResizeHandle className={styles.ResizeHandle} />
-            <div className={styles.PanelContent}>right</div>
+            <div className={styles.Centered}>right</div>
           </Panel>
         )}
       </PanelGroup>

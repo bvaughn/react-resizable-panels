@@ -1,10 +1,10 @@
 import { Panel } from "react-resizable-panels";
 
-import PanelGroup from "../../../components/AutoSizedPanelGroup";
-import ResizeHandle from "../../../components/ResizeHandle";
-import Example from "../Example";
+import PanelGroup from "../../components/AutoSizedPanelGroup";
+import ResizeHandle from "../../components/ResizeHandle";
 
-import styles from "./styles.module.css";
+import Example from "./Example";
+import styles from "./shared.module.css";
 
 export default function HorizontalRoute() {
   return (
@@ -26,16 +26,16 @@ function Content() {
   return (
     <div className={styles.PanelGroupWrapper}>
       <PanelGroup className={styles.PanelGroup} direction="horizontal">
-        <Panel className={styles.Panel} defaultSize={0.2} minSize={0.2}>
-          <div className={styles.PanelContent}>left</div>
+        <Panel className={styles.PanelRow} defaultSize={0.2} minSize={0.2}>
+          <div className={styles.Centered}>left</div>
           <ResizeHandle className={styles.ResizeHandle} />
         </Panel>
-        <Panel className={styles.Panel} defaultSize={0.4} minSize={0.2}>
-          <div className={styles.PanelContent}>middle</div>
+        <Panel className={styles.PanelRow} defaultSize={0.4} minSize={0.2}>
+          <div className={styles.Centered}>middle</div>
         </Panel>
-        <Panel className={styles.Panel} defaultSize={0.2} minSize={0.2}>
+        <Panel className={styles.PanelRow} defaultSize={0.2} minSize={0.2}>
           <ResizeHandle className={styles.ResizeHandle} />
-          <div className={styles.PanelContent}>right</div>
+          <div className={styles.Centered}>right</div>
         </Panel>
       </PanelGroup>
     </div>

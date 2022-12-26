@@ -1,10 +1,10 @@
 import { Panel } from "react-resizable-panels";
 
-import PanelGroup from "../../../components/AutoSizedPanelGroup";
-import ResizeHandle from "../../../components/ResizeHandle";
-import Example from "../Example";
+import PanelGroup from "../../components/AutoSizedPanelGroup";
+import ResizeHandle from "../../components/ResizeHandle";
 
-import styles from "./styles.module.css";
+import Example from "./Example";
+import styles from "./shared.module.css";
 
 export default function VerticalRoute() {
   return (
@@ -26,12 +26,12 @@ function Content() {
   return (
     <div className={styles.PanelGroupWrapper}>
       <PanelGroup className={styles.PanelGroup} direction="vertical">
-        <Panel className={styles.Panel} defaultSize={0.35} minSize={0.35}>
-          <div className={styles.PanelContent}>top</div>
+        <Panel className={styles.PanelColumn} defaultSize={0.35} minSize={0.35}>
+          <div className={styles.Centered}>top</div>
           <ResizeHandle className={styles.ResizeHandle} />
         </Panel>
-        <Panel className={styles.Panel} defaultSize={0.35} minSize={0.35}>
-          <div className={styles.PanelContent}>bottom</div>
+        <Panel className={styles.PanelColumn} defaultSize={0.35} minSize={0.35}>
+          <div className={styles.Centered}>bottom</div>
         </Panel>
       </PanelGroup>
     </div>

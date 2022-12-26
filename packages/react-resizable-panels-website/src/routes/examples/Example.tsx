@@ -19,16 +19,12 @@ export default function Example({
 }) {
   return (
     <div className={styles.Route}>
-      <div className={styles.HeaderContainer}>
-        <p>{headerNode}</p>
-        <p>
-          <Link to="/">Back to home</Link>
-        </p>
-      </div>
+      {headerNode}
+      <p>
+        <Link to="/">Back to home</Link>
+      </p>
       <div className={styles.ExampleContainer}>{exampleNode}</div>
-      <div className={styles.CodeContainer}>
-        <Code className={styles.Code} code={code.trim()} language={language} />
-      </div>
+      <Code className={styles.Code} code={code.trim()} language={language} />
     </div>
   );
 }
