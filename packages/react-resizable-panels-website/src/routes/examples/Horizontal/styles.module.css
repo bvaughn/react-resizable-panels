@@ -1,11 +1,9 @@
-.Route {
-  padding: 2rem;
-  font-size: 5rem;
+.PanelGroupWrapper {
+  height: 15rem;
 }
 
-.Container {
-  width: 100%;
-  height: 15rem;
+.PanelGroup {
+  font-size: 5rem;
 }
 
 .Panel {

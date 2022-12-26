@@ -8,7 +8,7 @@ export default function ResizeHandle({
   id,
 }: {
   className?: string;
-  id: string;
+  id?: string;
 }) {
   const { activeHandleId } = useContext(PanelContext);
   const isDragging = activeHandleId === id;

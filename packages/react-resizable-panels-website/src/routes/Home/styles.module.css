@@ -1,0 +1,14 @@
+.HomeRoute {
+  padding: 2rem;
+}
+
+.Header,
+.SubHeader {
+  margin: 0;
+  margin-bottom: 1rem;
+}
+
+.Code {
+  padding: 1rem;
+  border-radius: 1rem;
+}
