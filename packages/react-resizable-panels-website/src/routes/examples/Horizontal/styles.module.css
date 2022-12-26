@@ -1,15 +1,4 @@
-.Route {
-  padding: 2rem;
-  overflow-x: hidden;
-}
-
-.HeaderContainer {
-  width: 100%;
-  margin-bottom: 2rem;
-}
-
-.PanelGroupContainer {
-  width: 100%;
+.PanelGroupWrapper {
   height: 15rem;
 }
 
@@ -37,16 +26,4 @@
 
 .ResizeHandle {
   flex: 0 0 2rem !important;
-}
-
-.CodeContainer {
-  width: 100%;
-  margin-top: 2rem;
-}
-
-.Code {
-  display: block;
-  white-space: pre;
-  padding: 1rem;
-  border-radius: 1rem;
 }

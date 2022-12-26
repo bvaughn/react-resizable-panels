@@ -2,17 +2,22 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import DemoRoute from "./src/routes/Demo";
-import MobileRoute from "./src/routes/Mobile";
+import HomeRoute from "./src/routes/Home";
+import HorizontalExampleRoute from "./src/routes/examples/Horizontal";
+import VerticalExampleRoute from "./src/routes/examples/Vertical";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <DemoRoute />,
+    element: <HomeRoute />,
   },
   {
-    path: "/mobile",
-    element: <MobileRoute />,
+    path: "/examples/horizontal",
+    element: <HorizontalExampleRoute />,
+  },
+  {
+    path: "/examples/vertical",
+    element: <VerticalExampleRoute />,
   },
 ]);
 

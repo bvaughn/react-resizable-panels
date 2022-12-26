@@ -1,0 +1,22 @@
+.Route {
+  padding: 2rem;
+  overflow-x: hidden;
+}
+
+.HeaderContainer {
+  margin-bottom: 2rem;
+}
+
+.ExampleContainer {
+}
+
+.CodeContainer {
+  margin-top: 2rem;
+}
+
+.Code {
+  display: block;
+  white-space: pre;
+  padding: 1rem;
+  border-radius: 1rem;
+}
