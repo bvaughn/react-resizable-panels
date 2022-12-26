@@ -6,7 +6,9 @@ export default function HomeRoute() {
   return (
     <div className={styles.HomeRoute}>
       <h1 className={styles.Header}>
-        react-resizable-panels
+        <a href="https://github.com/bvaughn/react-resizable-panels">
+          react-resizable-panels
+        </a>
         <small className={styles.HeaderTagLine}>
           React components for resizable panels.
         </small>
@@ -33,13 +35,6 @@ export default function HomeRoute() {
           <Link to="/examples/conditional">Conditional panels</Link>
         </li>
       </ul>
-      <p>
-        Report issues on GitHub at{" "}
-        <a href="https://github.com/bvaughn/react-resizable-panels">
-          github.com/bvaughn/react-resizable-panels
-        </a>
-        .
-      </p>
     </div>
   );
 }
