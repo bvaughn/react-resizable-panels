@@ -5,15 +5,15 @@ React components for resizable panel groups/layouts
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 <PanelGroup autoSaveId="example" direction="horizontal">
-  <Panel defaultSize={0.3} id="left">
+  <Panel defaultSize={0.3}>
     <SourcesExplorer />
   </Panel>
-  <Panel defaultSize={0.5} id="middle">
+  <Panel defaultSize={0.5}>
     <PanelResizeHandle />
     <SourceViewer />
     <PanelResizeHandle />
   </Panel>
-  <Panel defaultSize={0.2} id="right">
+  <Panel defaultSize={0.2}>
     <Console />
   </Panel>
 </PanelGroup>
