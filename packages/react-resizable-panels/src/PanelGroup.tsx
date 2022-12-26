@@ -281,7 +281,7 @@ export default function PanelGroup({
         <div
           className={className}
           data-panel-group-id={groupId}
-          style={{ position: "relative" }}
+          style={{ height, position: "relative", width }}
         >
           {children}
         </div>
