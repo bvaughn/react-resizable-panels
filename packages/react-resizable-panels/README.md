@@ -29,6 +29,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `className`  | `?string`                   | Class name
 | `direction`  | `"horizontal" \| "vertical"` | Group orientation
 | `height`     | `number`                    | Height of group (in pixels)
+| `id`         | `?string`                   | Optional group id; falls back to `useId` when not provided
 | `width`      | `number`                    | Width of group (in pixels)
 
 ### `Panel`
@@ -37,7 +38,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `children`    | `ReactNode` | Arbitrary React element(s)
 | `className`   | `?string`   | Class name
 | `defaultSize` | `?number`   | Initial size of panel (relative to other panels within the group)
-| `id`          | `string`    | Panel id (must be unique within the current group)
+| `id`          | `?string`   | Optional panel id (unique within group); falls back to `useId` when not provided
 | `minSize`     | `?number`   | Minum allowable size of panel (0.0 - 1.0)
 | `order`       | `?number`   | Order of panel within group; required for groups with conditionally rendered panels
 
@@ -47,7 +48,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `children`    | `?ReactNode` | Custom drag UI; can be any arbitrary React element(s)
 | `className`   | `?string`    | Class name
 | `disabled`    | `?boolean`   | Disable drag handle
-| `id`          | `?string`    | Optional resize handle id (must be unique within the current group)
+| `id`          | `?string`    | Optional resize handle id (unique within group); falls back to `useId` when not provided
 
 ### `PanelContext`
 | prop         | type                 | description
