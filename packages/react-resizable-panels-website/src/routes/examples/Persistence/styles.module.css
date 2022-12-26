@@ -1,0 +1,36 @@
+.PanelGroupWrapper {
+  height: 15rem;
+}
+
+.PanelGroup {
+  font-size: 2rem;
+}
+
+.Panel {
+  display: flex;
+  flex-direction: row;
+  font-size: 2rem;
+}
+
+.PanelColumn,
+.PanelRow {
+  display: flex;
+}
+.PanelColumn {
+  flex-direction: row;
+}
+.PanelRow {
+  flex-direction: column;
+}
+
+.Centered {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-panel-background);
+  border-radius: 0.5rem;
+}
+
+.ResizeHandle {
+}

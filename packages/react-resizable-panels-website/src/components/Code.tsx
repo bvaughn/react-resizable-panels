@@ -51,12 +51,6 @@ function TokenRenderer({
     );
     return html.join("<br/>");
   }, [tokens]);
-  console.group("tokens");
-  console.log(tokens);
-  console.groupEnd();
-  console.group("html");
-  console.log(html);
-  console.groupEnd();
 
   return (
     <code

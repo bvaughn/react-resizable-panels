@@ -25,11 +25,7 @@ export default function HorizontalRoute() {
 function Content() {
   return (
     <div className={styles.PanelGroupWrapper}>
-      <PanelGroup
-        autoSaveId="mobile-group"
-        className={styles.PanelGroup}
-        direction="horizontal"
-      >
+      <PanelGroup className={styles.PanelGroup} direction="horizontal">
         <Panel className={styles.Panel} defaultSize={0.2} minSize={0.2}>
           <div className={styles.PanelContent}>left</div>
           <ResizeHandle className={styles.ResizeHandle} />

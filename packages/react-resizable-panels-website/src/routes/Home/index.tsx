@@ -5,10 +5,12 @@ import styles from "./styles.module.css";
 export default function HomeRoute() {
   return (
     <div className={styles.HomeRoute}>
-      <h1 className={styles.Header}>react-resizable-panels</h1>
-      <h2 className={styles.SubHeader}>
-        React components for resizable panels.
-      </h2>
+      <h1 className={styles.Header}>
+        react-resizable-panels
+        <small className={styles.HeaderTagLine}>
+          React components for resizable panels.
+        </small>
+      </h1>
       <p>To get started:</p>
       <pre>
         <code className={styles.Code}>npm install react-resizable-panels</code>
@@ -22,13 +24,13 @@ export default function HomeRoute() {
           <Link to="/examples/vertical">Vertical layouts</Link>
         </li>
         <li>
-          Nested groups <small>(coming soon)</small>
+          <Link to="/examples/nested">Nested groups</Link>
         </li>
         <li>
-          Conditional panels <small>(coming soon)</small>
+          <Link to="/examples/persistence">Persistent layouts</Link>
         </li>
         <li>
-          Persistent layouts <small>(coming soon)</small>
+          <Link to="/examples/conditional">Conditional panels</Link>
         </li>
       </ul>
       <p>

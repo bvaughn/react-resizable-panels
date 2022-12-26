@@ -25,11 +25,7 @@ export default function VerticalRoute() {
 function Content() {
   return (
     <div className={styles.PanelGroupWrapper}>
-      <PanelGroup
-        autoSaveId="mobile-group"
-        className={styles.PanelGroup}
-        direction="vertical"
-      >
+      <PanelGroup className={styles.PanelGroup} direction="vertical">
         <Panel className={styles.Panel} defaultSize={0.35} minSize={0.35}>
           <div className={styles.PanelContent}>top</div>
           <ResizeHandle className={styles.ResizeHandle} />
@@ -49,7 +45,6 @@ const CODE = `
     <ResizeHandle />
   </Panel>
   <Panel>
-    <ResizeHandle />
     <div>bottom</div>
   </Panel>
 </PanelGroup>
