@@ -6,8 +6,8 @@ import {
   useRef,
   useState,
 } from "react";
-
 import useUniqueId from "./hooks/useUniqueId";
+
 import { useWindowSplitterResizeHandlerBehavior } from "./hooks/useWindowSplitterBehavior";
 import { PanelContext, PanelGroupContext } from "./PanelContexts";
 import type { ResizeHandler, ResizeEvent } from "./types";
@@ -16,7 +16,7 @@ export default function PanelResizeHandle({
   children = null,
   className = "",
   disabled = false,
-  id: idProp = null,
+  id: idFromProps = null,
 }: {
   children?: ReactNode;
   className?: string;
@@ -33,8 +33,6 @@ export default function PanelResizeHandle({
     );
   }
 
-  const id = useUniqueId(idProp);
-
   const { activeHandleId } = panelContext;
   const {
     direction,
@@ -44,7 +42,8 @@ export default function PanelResizeHandle({
     stopDragging,
   } = panelGroupContext;
 
-  const isDragging = activeHandleId === id;
+  const resizeHandleId = useUniqueId(idFromProps);
+  const isDragging = activeHandleId === resizeHandleId;
 
   const [resizeHandler, setResizeHandler] = useState<ResizeHandler | null>(
     null
@@ -63,10 +62,10 @@ export default function PanelResizeHandle({
     if (disabled) {
       setResizeHandler(null);
     } else {
-      const resizeHandler = registerResizeHandle(id);
+      const resizeHandler = registerResizeHandle(resizeHandleId);
       setResizeHandler(() => resizeHandler);
     }
-  }, [disabled, id, registerResizeHandle]);
+  }, [disabled, resizeHandleId, registerResizeHandle]);
 
   useEffect(() => {
     if (disabled || resizeHandler == null || !isDragging) {
@@ -99,7 +98,7 @@ export default function PanelResizeHandle({
 
   useWindowSplitterResizeHandlerBehavior({
     disabled,
-    handleId: id,
+    handleId: resizeHandleId,
     resizeHandler,
   });
 
@@ -108,12 +107,12 @@ export default function PanelResizeHandle({
       className={className}
       data-panel-group-id={groupId}
       data-panel-resize-handle-enabled={!disabled}
-      data-panel-resize-handle-id={id}
-      onMouseDown={(event) => startDragging(id, event.nativeEvent)}
+      data-panel-resize-handle-id={resizeHandleId}
+      onMouseDown={(event) => startDragging(resizeHandleId, event.nativeEvent)}
       onMouseUp={stopDraggingAndBlur}
       onTouchCancel={stopDraggingAndBlur}
       onTouchEnd={stopDraggingAndBlur}
-      onTouchStart={(event) => startDragging(id, event.nativeEvent)}
+      onTouchStart={(event) => startDragging(resizeHandleId, event.nativeEvent)}
       ref={divElementRef}
       role="separator"
       style={{

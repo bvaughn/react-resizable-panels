@@ -8,7 +8,6 @@ import {
   useRef,
   useState,
 } from "react";
-import useUniqueId from "./hooks/useUniqueId";
 
 import { PanelContext, PanelGroupContext } from "./PanelContexts";
 import { Direction, PanelData, ResizeEvent } from "./types";
@@ -22,6 +21,7 @@ import {
   panelsMapToSortedArray,
 } from "./utils/group";
 import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterBehavior";
+import useUniqueId from "./hooks/useUniqueId";
 
 export type CommittedValues = {
   direction: Direction;
@@ -39,6 +39,7 @@ type Props = {
   className?: string;
   direction: Direction;
   height: number;
+  id?: string | null;
   width: number;
 };
 
@@ -52,9 +53,10 @@ export default function PanelGroup({
   className = "",
   direction,
   height,
+  id: idFromProps = null,
   width,
 }: Props) {
-  const groupId = useUniqueId();
+  const groupId = useUniqueId(idFromProps);
 
   const [activeHandleId, setActiveHandleId] = useState<string | null>(null);
   const [panels, setPanels] = useState<PanelDataMap>(new Map());
@@ -276,7 +278,13 @@ export default function PanelGroup({
   return (
     <PanelContext.Provider value={panelContext}>
       <PanelGroupContext.Provider value={panelGroupContext}>
-        <div className={className}>{children}</div>
+        <div
+          className={className}
+          data-panel-group-id={groupId}
+          style={{ position: "relative" }}
+        >
+          {children}
+        </div>
       </PanelGroupContext.Provider>
     </PanelContext.Provider>
   );

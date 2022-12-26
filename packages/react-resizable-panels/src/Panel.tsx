@@ -1,4 +1,5 @@
 import { ReactNode, useContext, useLayoutEffect } from "react";
+import useUniqueId from "./hooks/useUniqueId";
 
 import { PanelGroupContext } from "./PanelContexts";
 
@@ -9,14 +10,14 @@ export default function Panel({
   children = null,
   className = "",
   defaultSize = 0.1,
-  id,
+  id: idFromProps = null,
   minSize = 0.1,
   order = null,
 }: {
   children?: ReactNode;
   className?: string;
   defaultSize?: number;
-  id: string;
+  id?: string | null;
   minSize?: number;
   order?: number | null;
 }) {
@@ -26,6 +27,8 @@ export default function Panel({
       `Panel components must be rendered within a PanelGroup container`
     );
   }
+
+  const panelId = useUniqueId(idFromProps);
 
   if (minSize > defaultSize) {
     console.error(
@@ -40,25 +43,25 @@ export default function Panel({
   useLayoutEffect(() => {
     const panel = {
       defaultSize,
-      id,
+      id: panelId,
       minSize,
       order,
     };
 
-    registerPanel(id, panel);
+    registerPanel(panelId, panel);
 
     return () => {
-      unregisterPanel(id);
+      unregisterPanel(panelId);
     };
-  }, [defaultSize, id, minSize, order, registerPanel, unregisterPanel]);
+  }, [defaultSize, panelId, minSize, order, registerPanel, unregisterPanel]);
 
-  const style = getPanelStyle(id);
+  const style = getPanelStyle(panelId);
 
   return (
     <div
       className={className}
-      data-panel-id={id}
-      id={`data-panel-id-${id}`}
+      data-panel-id={panelId}
+      id={`data-panel-id-${panelId}`}
       style={style}
     >
       {children}
