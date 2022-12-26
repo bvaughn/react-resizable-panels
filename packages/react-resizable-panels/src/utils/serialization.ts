@@ -2,6 +2,17 @@ import { PanelData } from "../types";
 
 type SerializedPanelGroupState = { [panelIds: string]: number[] };
 
+// Note that Panel ids might be user-provided (stable) or useId generated (non-deterministic)
+// so they should not be used as part of the serialization key.
+// Using an attribute like minSize instead should work well enough.
+// Pre-sorting by minSize allows remembering layouts even if panels are re-ordered/dragged.
+function getSerializationKey(panels: PanelData[]): string {
+  return panels
+    .map((panel) => panel.minSize.toPrecision(2))
+    .sort()
+    .join(",");
+}
+
 function loadSerializedPanelGroupState(
   autoSaveId: string
 ): SerializedPanelGroupState | null {
@@ -20,11 +31,12 @@ function loadSerializedPanelGroupState(
 
 export function loadPanelLayout(
   autoSaveId: string,
-  panelIds: string[]
+  panels: PanelData[]
 ): number[] | null {
   const state = loadSerializedPanelGroupState(autoSaveId);
   if (state) {
-    return state[panelIds.join(",")] ?? null;
+    const key = getSerializationKey(panels);
+    return state[key] ?? null;
   }
 
   return null;
@@ -32,11 +44,12 @@ export function loadPanelLayout(
 
 export function savePanelGroupLayout(
   autoSaveId: string,
-  panelIds: string[],
+  panels: PanelData[],
   sizes: number[]
 ): void {
+  const key = getSerializationKey(panels);
   const state = loadSerializedPanelGroupState(autoSaveId) || {};
-  state[panelIds.join(",")] = sizes;
+  state[key] = sizes;
 
   try {
     localStorage.setItem(
