@@ -56,7 +56,14 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-radius: 0.5rem;
+}
+.PanelColumn:first-of-type .VerticalFiller {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+.PanelColumn:last-of-type .VerticalFiller {
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
 }
 
 .PanelColumn {
@@ -101,6 +108,7 @@
   width: 100%;
   position: relative;
   padding: 0.25rem 0;
+  background-color: var(--color-panel-background-alternate);
 }
 .VerticalResizeBar::after {
   content: " ";
