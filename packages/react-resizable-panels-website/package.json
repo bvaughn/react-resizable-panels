@@ -7,6 +7,10 @@
     "watch": "parcel 'index.html'"
   },
   "dependencies": {
+    "@codemirror/lang-javascript": "latest",
+    "@codemirror/language": "latest",
+    "@codemirror/state": "latest",
+    "@lezer/highlight": "latest",
     "localforage": "latest",
     "match-sorter": "latest",
     "react": "latest",

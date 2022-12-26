@@ -1,0 +1,59 @@
+:root {
+  --token-comment-color: #8237bb;
+  --token-definition-color: #fefefe;
+  --token-local-color: #fefefe;
+  --token-keyword-color: #ff7aad;
+  --token-meta-color: #8237bb;
+  --token-number-color: #ffdc7a;
+  --token-operator-color: #fefefe;
+  --token-propertyName-color: #ff98eb;
+  --token-punctuation-color: #dcadff;
+  --token-string-color: #7ac1ff;
+  --token-string2-color: #7ac1ff;
+  --token-typeName-color: #c67bff;
+  --token-variableName-color: #c67bff;
+  --token-variableName2-color: #c67bff;
+}
+
+.tok-comment {
+  color: var(--token-comment-color);
+}
+.tok-definition {
+  color: var(--token-definition-color);
+}
+.tok-local {
+  color: var(--token-local-color);
+}
+.tok-keyword {
+  color: var(--token-keyword-color);
+}
+.tok-meta {
+  color: var(--token-meta-color);
+}
+.tok-number {
+  color: var(--token-number-color);
+}
+.tok-operator {
+  color: var(--token-operator-color);
+}
+.tok-propertyName {
+  color: var(--token-propertyName-color);
+}
+.tok-punctuation {
+  color: var(--token-punctuation-color);
+}
+.tok-string {
+  color: var(--token-string-color);
+}
+.tok-string2 {
+  color: var(--token-string2-color);
+}
+.tok-typeName {
+  color: var(--token-typeName-color);
+}
+.tok-variableName:not(.tok-definition) {
+  color: var(--token-variableName-color);
+}
+.tok-variableName2 {
+  color: var(--token-variableName2-color);
+}
