@@ -107,8 +107,8 @@ export default function PanelGroup({
     // default size should be restored from local storage if possible.
     let defaultSizes: number[] | undefined = undefined;
     if (autoSaveId) {
-      const panelIds = panelsMapToSortedArray(panels).map((panel) => panel.id);
-      defaultSizes = loadPanelLayout(autoSaveId, panelIds);
+      const panelsArray = panelsMapToSortedArray(panels);
+      defaultSizes = loadPanelLayout(autoSaveId, panelsArray);
     }
 
     if (defaultSizes != null) {
@@ -130,8 +130,8 @@ export default function PanelGroup({
         return;
       }
 
-      const panelIds = panelsMapToSortedArray(panels).map((panel) => panel.id);
-      savePanelGroupLayout(autoSaveId, panelIds, sizes);
+      const panelsArray = panelsMapToSortedArray(panels);
+      savePanelGroupLayout(autoSaveId, panelsArray, sizes);
     }
   }, [autoSaveId, panels, sizes]);
 

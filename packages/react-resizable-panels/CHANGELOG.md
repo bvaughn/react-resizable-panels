@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.14
+* [#23](https://github.com/bvaughn/react-resizable-panels/issues/23): Fix small regression with `autoSaveId` that was introduced with non-deterministic `useId` ids.
+
 ## 0.0.13
 * [#18](https://github.com/bvaughn/react-resizable-panels/issues/18): Support server-side rendering (e.g. Next JS) by using `useId` (when available). `Panel` components no longer _require_ a user-provided `id` prop and will also fall back to using `useId` when none is provided.
 * `PanelGroup` component now sets `position: relative` style by default, as well as an explicit `height` and `width` style.
