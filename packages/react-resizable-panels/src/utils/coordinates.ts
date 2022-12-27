@@ -56,13 +56,13 @@ export function getMovement(
 
     switch (event.key) {
       case "ArrowDown":
-        return delta;
+        return isHorizontal ? 0 : delta;
       case "ArrowLeft":
-        return -delta;
+        return isHorizontal ? -delta : 0;
       case "ArrowRight":
-        return delta;
+        return isHorizontal ? delta : 0;
       case "ArrowUp":
-        return -delta;
+        return isHorizontal ? 0 : -delta;
       case "End":
         if (isHorizontal) {
           return size;

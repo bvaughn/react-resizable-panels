@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "parcel build 'index.html'",
+    "test": "playwright test",
     "watch": "parcel 'index.html'"
   },
   "dependencies": {
