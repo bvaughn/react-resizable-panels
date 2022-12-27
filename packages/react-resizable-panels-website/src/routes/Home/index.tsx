@@ -34,6 +34,9 @@ export default function HomeRoute() {
         <li>
           <Link to="/examples/conditional">Conditional panels</Link>
         </li>
+        <li>
+          <Link to="/examples/overflow">Overflow content</Link>
+        </li>
       </ul>
     </div>
   );

@@ -6,6 +6,7 @@ import HomeRoute from "./src/routes/Home";
 import ConditionalExampleRoute from "./src/routes/examples/Conditional";
 import HorizontalExampleRoute from "./src/routes/examples/Horizontal";
 import NestedExampleRoute from "./src/routes/examples/Nested";
+import OverflowExampleRoute from "./src/routes/examples/Overflow";
 import PersistenceExampleRoute from "./src/routes/examples/Persistence";
 import VerticalExampleRoute from "./src/routes/examples/Vertical";
 
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
   {
     path: "/examples/nested",
     element: <NestedExampleRoute />,
+  },
+  {
+    path: "/examples/overflow",
+    element: <OverflowExampleRoute />,
   },
   {
     path: "/examples/persistence",

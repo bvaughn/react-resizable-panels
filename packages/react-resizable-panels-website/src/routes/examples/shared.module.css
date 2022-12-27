@@ -30,7 +30,20 @@
   justify-content: center;
   background-color: var(--color-panel-background);
   border-radius: 0.5rem;
+  overflow: auto;
+  font-size: 1rem;
 }
 
 .ResizeHandle {
+}
+
+.Overflow {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  padding: 1rem;
+
+  /* Firefox fixes */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scroll-thumb) transparent;
 }

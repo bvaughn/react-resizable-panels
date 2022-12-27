@@ -12,6 +12,7 @@
   --color-panel-background-alternate: #202124;
   --color-solid-resize-bar: #454950;
   --color-solid-resize-bar-handle: rgba(255, 255, 255, 0.2);
+  --color-scroll-thumb: #454950;
 }
 
 :root,
@@ -51,4 +52,24 @@ h2 {
 
 a {
   color: var(--color-link);
+}
+
+::-webkit-scrollbar {
+  width: 0.75rem;
+  height: 0.75rem;
+  background: transparent;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 0.75rem;
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 0.75rem;
+  background: var(--color-scroll-thumb);
 }
