@@ -117,7 +117,11 @@ export default function PanelGroup({
         }
       });
 
-      if (totalMinSize > 100) {
+      if (totalDefaultSize > 100) {
+        throw new Error(
+          `The sum of the defaultSize of all panels in a group cannot exceed 100.`
+        );
+      } else if (totalMinSize > 100) {
         throw new Error(
           `The sum of the minSize of all panels in a group cannot exceed 100.`
         );
