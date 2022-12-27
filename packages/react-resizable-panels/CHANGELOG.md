@@ -2,6 +2,7 @@
 
 ## 0.0.16 (unreleased)
 * Bug fix: Resize handle ARIA attributes now rendering proper min/max/now values for Window Splitter.
+* Bug fix: Up/down arrows are ignored for _horizontal_ layouts and left/right arrows are ignored for _vertical_ layouts as per Window Splitter spec.
 
 ## 0.0.15
 * [#30](https://github.com/bvaughn/react-resizable-panels/issues/30): `PanelGroup` uses `display: flex` rather than absolute positioning. This provides several benefits: (a) more responsive resizing for nested groups, (b) no explicit `width`/`height` props, and (c) `PanelResizeHandle` components can now be rendered directly within `PanelGroup` (rather than as children of `Panel`s).

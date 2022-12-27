@@ -1,21 +1,6 @@
-import { Locator, Page, test, expect } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
-async function verifyAriaValues(
-  locator: Locator,
-  expectedValues: { max?: number; min?: number; now?: number }
-) {
-  const { max, min, now } = expectedValues;
-
-  if (max != null) {
-    await expect(await locator.getAttribute("aria-valuemax")).toBe("" + max);
-  }
-  if (min != null) {
-    await expect(await locator.getAttribute("aria-valuemin")).toBe("" + min);
-  }
-  if (now != null) {
-    await expect(await locator.getAttribute("aria-valuenow")).toBe("" + now);
-  }
-}
+import { verifyAriaValues } from "./utils/aria";
 
 // https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/
 test.describe("Window Splitter", () => {
@@ -40,7 +25,7 @@ test.describe("Window Splitter", () => {
   });
 
   test("implements arrow key functionality", async ({ page }) => {
-    let resizeHandle = page.locator("[data-panel-resize-handle-id]").first();
+    const resizeHandle = page.locator("[data-panel-resize-handle-id]").first();
     await resizeHandle.focus();
 
     await page.keyboard.press("ArrowRight");
@@ -82,7 +67,6 @@ test.describe("Window Splitter", () => {
 
     await page.goto("http://localhost:1234/examples/vertical");
 
-    resizeHandle = page.locator("[data-panel-resize-handle-id]").first();
     await resizeHandle.focus();
 
     await verifyAriaValues(resizeHandle, {
