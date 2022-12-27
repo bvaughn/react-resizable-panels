@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 
-import { PanelContext, PanelGroupContext } from "./PanelContexts";
+import { PanelGroupContext } from "./PanelContexts";
 import { Direction, PanelData, ResizeEvent } from "./types";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
 import { getDragOffset, getMovement } from "./utils/coordinates";
@@ -244,8 +244,9 @@ export default function PanelGroup({
     });
   }, []);
 
-  const panelGroupContext = useMemo(
+  const context = useMemo(
     () => ({
+      activeHandleId,
       direction,
       getPanelStyle,
       groupId,
@@ -262,6 +263,7 @@ export default function PanelGroup({
       unregisterPanel,
     }),
     [
+      activeHandleId,
       direction,
       getPanelStyle,
       groupId,
@@ -269,13 +271,6 @@ export default function PanelGroup({
       registerResizeHandle,
       unregisterPanel,
     ]
-  );
-
-  const panelContext = useMemo(
-    () => ({
-      activeHandleId,
-    }),
-    [activeHandleId]
   );
 
   const style: CSSProperties = {
@@ -286,12 +281,10 @@ export default function PanelGroup({
   };
 
   return (
-    <PanelContext.Provider value={panelContext}>
-      <PanelGroupContext.Provider value={panelGroupContext}>
-        <div className={className} data-panel-group-id={groupId} style={style}>
-          {children}
-        </div>
-      </PanelGroupContext.Provider>
-    </PanelContext.Provider>
+    <PanelGroupContext.Provider value={context}>
+      <div className={className} data-panel-group-id={groupId} style={style}>
+        {children}
+      </div>
+    </PanelGroupContext.Provider>
   );
 }

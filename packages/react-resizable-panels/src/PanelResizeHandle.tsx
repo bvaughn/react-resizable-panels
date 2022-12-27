@@ -9,7 +9,7 @@ import {
 import useUniqueId from "./hooks/useUniqueId";
 
 import { useWindowSplitterResizeHandlerBehavior } from "./hooks/useWindowSplitterBehavior";
-import { PanelContext, PanelGroupContext } from "./PanelContexts";
+import { PanelGroupContext } from "./PanelContexts";
 import type { ResizeHandler, ResizeEvent } from "./types";
 
 export default function PanelResizeHandle({
@@ -25,16 +25,15 @@ export default function PanelResizeHandle({
 }) {
   const divElementRef = useRef<HTMLDivElement>(null);
 
-  const panelContext = useContext(PanelContext);
   const panelGroupContext = useContext(PanelGroupContext);
-  if (panelContext === null || panelGroupContext === null) {
+  if (panelGroupContext === null) {
     throw Error(
       `PanelResizeHandle components must be rendered within a PanelGroup container`
     );
   }
 
-  const { activeHandleId } = panelContext;
   const {
+    activeHandleId,
     direction,
     groupId,
     registerResizeHandle,
@@ -44,6 +43,8 @@ export default function PanelResizeHandle({
 
   const resizeHandleId = useUniqueId(idFromProps);
   const isDragging = activeHandleId === resizeHandleId;
+
+  const [isFocused, setIsFocused] = useState(false);
 
   const [resizeHandler, setResizeHandler] = useState<ResizeHandler | null>(
     null
@@ -105,9 +106,14 @@ export default function PanelResizeHandle({
   return (
     <div
       className={className}
+      data-resize-handle-active={
+        isDragging ? "pointer" : isFocused ? "keyboard" : undefined
+      }
       data-panel-group-id={groupId}
       data-panel-resize-handle-enabled={!disabled}
       data-panel-resize-handle-id={resizeHandleId}
+      onBlur={() => setIsFocused(false)}
+      onFocus={() => setIsFocused(true)}
       onMouseDown={(event) => startDragging(resizeHandleId, event.nativeEvent)}
       onMouseUp={stopDraggingAndBlur}
       onTouchCancel={stopDraggingAndBlur}

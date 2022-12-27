@@ -47,8 +47,3 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `className`   | `?string`    | Class name
 | `disabled`    | `?boolean`   | Disable drag handle
 | `id`          | `?string`    | Optional resize handle id (unique within group); falls back to `useId` when not provided
-
-### `PanelContext`
-| prop         | type                 | description
-| :----------- | :------------------- | :---
-| `activeHandleId` | `string \| null` | Resize handle currently being dragged (or `null`)
