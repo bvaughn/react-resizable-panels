@@ -6,12 +6,13 @@ import { ResizeHandler } from "../types";
 import {
   adjustByDelta,
   getPanel,
+  getPanelGroup,
   getResizeHandle,
   getResizeHandleIndex,
   getResizeHandlePanelIds,
   getResizeHandles,
   getResizeHandlesForGroup,
-  getSize,
+  getFlexGrow,
   panelsMapToSortedArray,
 } from "../utils/group";
 
@@ -31,7 +32,10 @@ export function useWindowSplitterPanelGroupBehavior({
   sizes: number[];
 }): void {
   useEffect(() => {
-    const { direction, height, panels, width } = committedValuesRef.current;
+    const { direction, panels } = committedValuesRef.current;
+
+    const groupElement = getPanelGroup(groupId);
+    const { height, width } = groupElement.getBoundingClientRect();
 
     const handles = getResizeHandlesForGroup(groupId);
     const cleanupFunctions = handles.map((handle) => {
@@ -57,12 +61,11 @@ export function useWindowSplitterPanelGroupBehavior({
       const ariaValueMin =
         panelsArray.find((panel) => panel.id == idBefore)?.minSize ?? 0;
 
-      const size = getSize(panels, idBefore, direction, sizes, height, width);
-      const ariaValueNow = size / (direction === "horizontal" ? width : height);
+      const size = getFlexGrow(panels, idBefore, sizes);
 
       handle.setAttribute("aria-valuemax", "" + Math.round(100 * ariaValueMax));
       handle.setAttribute("aria-valuemin", "" + Math.round(100 * ariaValueMin));
-      handle.setAttribute("aria-valuenow", "" + Math.round(100 * ariaValueNow));
+      handle.setAttribute("aria-valuenow", "" + size);
 
       const onKeyDown = (event: KeyboardEvent) => {
         switch (event.key) {

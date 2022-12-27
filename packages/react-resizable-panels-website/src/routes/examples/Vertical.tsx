@@ -1,6 +1,5 @@
-import { Panel } from "react-resizable-panels";
+import { Panel, PanelGroup } from "react-resizable-panels";
 
-import PanelGroup from "../../components/AutoSizedPanelGroup";
 import ResizeHandle from "../../components/ResizeHandle";
 
 import Example from "./Example";
@@ -26,11 +25,11 @@ function Content() {
   return (
     <div className={styles.PanelGroupWrapper}>
       <PanelGroup className={styles.PanelGroup} direction="vertical">
-        <Panel className={styles.PanelColumn} defaultSize={0.35} minSize={0.35}>
+        <Panel className={styles.PanelColumn} defaultSize={50}>
           <div className={styles.Centered}>top</div>
-          <ResizeHandle className={styles.ResizeHandle} />
         </Panel>
-        <Panel className={styles.PanelColumn} defaultSize={0.35} minSize={0.35}>
+        <ResizeHandle className={styles.ResizeHandle} />
+        <Panel className={styles.PanelColumn}>
           <div className={styles.Centered}>bottom</div>
         </Panel>
       </PanelGroup>
@@ -41,11 +40,11 @@ function Content() {
 const CODE = `
 <PanelGroup direction="vertical">
   <Panel>
-    <div>top</div>
-    <ResizeHandle />
+    top
   </Panel>
+  <ResizeHandle />
   <Panel>
-    <div>bottom</div>
+    bottom
   </Panel>
 </PanelGroup>
 `;

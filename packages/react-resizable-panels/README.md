@@ -5,15 +5,15 @@ React components for resizable panel groups/layouts
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 <PanelGroup autoSaveId="example" direction="horizontal">
-  <Panel defaultSize={0.3}>
+  <Panel defaultSize={25}>
     <SourcesExplorer />
   </Panel>
-  <Panel defaultSize={0.5}>
-    <PanelResizeHandle />
+  <PanelResizeHandle />
+  <Panel>
     <SourceViewer />
-    <PanelResizeHandle />
   </Panel>
-  <Panel defaultSize={0.2}>
+  <PanelResizeHandle />
+  <Panel defaultSize={25}>
     <Console />
   </Panel>
 </PanelGroup>
@@ -28,18 +28,16 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `children`   | `ReactNode`                 | Arbitrary React element(s)
 | `className`  | `?string`                   | Class name
 | `direction`  | `"horizontal" \| "vertical"` | Group orientation
-| `height`     | `number`                    | Height of group (in pixels)
 | `id`         | `?string`                   | Optional group id; falls back to `useId` when not provided
-| `width`      | `number`                    | Width of group (in pixels)
 
 ### `Panel`
 | prop          | type        | description
 | :------------ | :---------- | :---
 | `children`    | `ReactNode` | Arbitrary React element(s)
 | `className`   | `?string`   | Class name
-| `defaultSize` | `?number`   | Initial size of panel (relative to other panels within the group)
+| `defaultSize` | `?number`   | Initial size of panel (numeric value between 1-100)
 | `id`          | `?string`   | Optional panel id (unique within group); falls back to `useId` when not provided
-| `minSize`     | `?number`   | Minum allowable size of panel (0.0 - 1.0)
+| `minSize`     | `?number`   | Minimum allowable size of panel (numeric value between 1-100)
 | `order`       | `?number`   | Order of panel within group; required for groups with conditionally rendered panels
 
 ### `PanelResizeHandle`

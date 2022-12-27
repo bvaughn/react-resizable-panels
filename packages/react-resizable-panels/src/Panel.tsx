@@ -9,14 +9,14 @@ import { PanelGroupContext } from "./PanelContexts";
 export default function Panel({
   children = null,
   className = "",
-  defaultSize = 0.1,
+  defaultSize = null,
   id: idFromProps = null,
-  minSize = 0.1,
+  minSize = 10,
   order = null,
 }: {
   children?: ReactNode;
   className?: string;
-  defaultSize?: number;
+  defaultSize?: number | null;
   id?: string | null;
   minSize?: number;
   order?: number | null;
@@ -30,12 +30,22 @@ export default function Panel({
 
   const panelId = useUniqueId(idFromProps);
 
-  if (minSize > defaultSize) {
-    console.error(
-      `Panel minSize ${minSize} cannot be greater than defaultSize ${defaultSize}`
-    );
+  if (minSize < 0 || minSize > 100) {
+    throw Error(`Panel minSize must be between 0 and 100, but was ${minSize}`);
+  }
 
-    defaultSize = minSize;
+  if (defaultSize !== null) {
+    if (defaultSize < 0 || defaultSize > 100) {
+      throw Error(
+        `Panel defaultSize must be between 0 and 100, but was ${defaultSize}`
+      );
+    } else if (minSize > defaultSize) {
+      console.error(
+        `Panel minSize ${minSize} cannot be greater than defaultSize ${defaultSize}`
+      );
+
+      defaultSize = minSize;
+    }
   }
 
   const { getPanelStyle, registerPanel, unregisterPanel } = context;

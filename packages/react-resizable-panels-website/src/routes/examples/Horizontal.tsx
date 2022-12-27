@@ -1,6 +1,5 @@
-import { Panel } from "react-resizable-panels";
+import { Panel, PanelGroup } from "react-resizable-panels";
 
-import PanelGroup from "../../components/AutoSizedPanelGroup";
 import ResizeHandle from "../../components/ResizeHandle";
 
 import Example from "./Example";
@@ -26,15 +25,15 @@ function Content() {
   return (
     <div className={styles.PanelGroupWrapper}>
       <PanelGroup className={styles.PanelGroup} direction="horizontal">
-        <Panel className={styles.PanelRow} defaultSize={0.2} minSize={0.2}>
+        <Panel className={styles.PanelRow} defaultSize={20} minSize={20}>
           <div className={styles.Centered}>left</div>
-          <ResizeHandle className={styles.ResizeHandle} />
         </Panel>
-        <Panel className={styles.PanelRow} defaultSize={0.4} minSize={0.2}>
+        <ResizeHandle className={styles.ResizeHandle} />
+        <Panel className={styles.PanelRow} minSize={30}>
           <div className={styles.Centered}>middle</div>
         </Panel>
-        <Panel className={styles.PanelRow} defaultSize={0.2} minSize={0.2}>
-          <ResizeHandle className={styles.ResizeHandle} />
+        <ResizeHandle className={styles.ResizeHandle} />
+        <Panel className={styles.PanelRow} defaultSize={20} minSize={20}>
           <div className={styles.Centered}>right</div>
         </Panel>
       </PanelGroup>
@@ -44,16 +43,16 @@ function Content() {
 
 const CODE = `
 <PanelGroup direction="horizontal">
-  <Panel>
-    <div>left</div>
-    <ResizeHandle />
+  <Panel defaultSize={20} minSize={20}>
+    left
   </Panel>
-  <Panel>
-    <div>middle</div>
+  <ResizeHandle />
+  <Panel minSize={30}>
+    middle
   </Panel>
-  <Panel>
-    <ResizeHandle />
-    <div>right</div>
+  <ResizeHandle />
+  <Panel defaultSize={20} minSize={20}>
+    right
   </Panel>
 </PanelGroup>
 `;

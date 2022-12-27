@@ -1,5 +1,5 @@
 import { PRECISION } from "../constants";
-import { Direction, PanelData } from "../types";
+import { PanelData } from "../types";
 
 export function adjustByDelta(
   panels: Map<string, PanelData>,
@@ -66,33 +66,38 @@ export function adjustByDelta(
   return nextSizes;
 }
 
-export function getOffset(
+// This method returns a number between 1 and 100 representing
+// the % of the group's overall space this panel should occupy.
+export function getFlexGrow(
   panels: Map<string, PanelData>,
   id: string,
-  direction: Direction,
-  sizes: number[],
-  height: number,
-  width: number
-): number {
+  sizes: number[]
+): string {
+  if (panels.size === 1) {
+    return "100";
+  }
+
   const panelsArray = panelsMapToSortedArray(panels);
 
-  let index = panelsArray.findIndex((panel) => panel.id === id);
-  if (index < 0) {
-    return 0;
+  const index = panelsArray.findIndex((panel) => panel.id === id);
+  const size = sizes[index];
+  if (size == null) {
+    return "0";
   }
 
-  let scaledOffset = 0;
-
-  for (index = index - 1; index >= 0; index--) {
-    const panel = panelsArray[index];
-    scaledOffset += getSize(panels, panel.id, direction, sizes, height, width);
-  }
-
-  return Math.round(scaledOffset);
+  return size.toPrecision(PRECISION);
 }
 
 export function getPanel(id: string): HTMLDivElement | null {
   const element = document.querySelector(`[data-panel-id="${id}"]`);
+  if (element) {
+    return element as HTMLDivElement;
+  }
+  return null;
+}
+
+export function getPanelGroup(id: string): HTMLDivElement | null {
+  const element = document.querySelector(`[data-panel-group-id="${id}"]`);
   if (element) {
     return element as HTMLDivElement;
   }
@@ -148,29 +153,4 @@ export function panelsMapToSortedArray(
   panels: Map<string, PanelData>
 ): PanelData[] {
   return Array.from(panels.values()).sort((a, b) => a.order - b.order);
-}
-
-export function getSize(
-  panels: Map<string, PanelData>,
-  id: string,
-  direction: Direction,
-  sizes: number[],
-  height: number,
-  width: number
-): number {
-  const totalSize = direction === "horizontal" ? width : height;
-
-  if (panels.size === 1) {
-    return totalSize;
-  }
-
-  const panelsArray = panelsMapToSortedArray(panels);
-
-  const index = panelsArray.findIndex((panel) => panel.id === id);
-  const size = sizes[index];
-  if (size == null) {
-    return 0;
-  }
-
-  return Math.round(size * totalSize);
 }
