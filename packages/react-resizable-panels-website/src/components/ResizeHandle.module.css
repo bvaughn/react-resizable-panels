@@ -1,23 +1,21 @@
-.ResizeHandle {
+.ResizeHandleOuter {
   flex: 0 0 1em;
   position: relative;
   outline: none;
+
+  --background-color: transparent;
+}
+.ResizeHandleOuter[data-resize-handle-active] {
+  --background-color: var(--color-solid-resize-bar-handle);
 }
 
-.ResizeHandleActive,
-.ResizeHandleInactive {
+.ResizeHandleInner {
   position: absolute;
   top: 0.25em;
   bottom: 0.25em;
   left: 0.25em;
   right: 0.25em;
   border-radius: 0.25em;
-  background-color: transparent;
+  background-color: var(--background-color);
   transition: background-color 0.2s linear;
-}
-
-.ResizeHandleActive,
-.ResizeHandle:focus .ResizeHandleInactive,
-.ResizeHandle:hover .ResizeHandleInactive {
-  background-color: var(--color-solid-resize-bar-handle);
 }
