@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "parcel build 'index.html'",
+    "test:e2e": "playwright test",
     "watch": "parcel 'index.html'"
   },
   "dependencies": {
@@ -11,8 +12,10 @@
     "@codemirror/language": "latest",
     "@codemirror/state": "latest",
     "@lezer/highlight": "latest",
+    "@playwright/test": "latest",
     "localforage": "latest",
     "match-sorter": "latest",
+    "playwright": "latest",
     "react": "latest",
     "react-dom": "latest",
     "react-router-dom": "latest",
