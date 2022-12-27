@@ -155,9 +155,16 @@ export default function PanelGroup({
     (id: string): CSSProperties => {
       const { panels } = committedValuesRef.current;
 
-      const size = getFlexGrow(panels, id, sizes);
+      const flexGrow = getFlexGrow(panels, id, sizes);
 
-      return { flexGrow: size };
+      return {
+        flexBasis: 0,
+        flexGrow,
+        flexShrink: 1,
+
+        // Without this, Panel sizes may be unintentionally overridden by their content.
+        overflow: "auto",
+      };
     },
     [direction, sizes]
   );

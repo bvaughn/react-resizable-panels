@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.0.16 (unreleased)
+## 0.0.17
+* Bug fix: `Panel` styles include `flex-basis`, `flex-shrink`, and `overflow` so that their sizes are not unintentionally impacted by their content.
+
+## 0.0.16
 * Bug fix: Resize handle ARIA attributes now rendering proper min/max/now values for Window Splitter.
 * Bug fix: Up/down arrows are ignored for _horizontal_ layouts and left/right arrows are ignored for _vertical_ layouts as per Window Splitter spec.
 * [#36](https://github.com/bvaughn/react-resizable-panels/issues/36): Removed `PanelContext` in favor of adding `data-resize-handle-active` attribute to active resize handles. This attribute can be used to update the style for active handles.

@@ -26,7 +26,9 @@ function Content() {
     <div className={styles.PanelGroupWrapper}>
       <PanelGroup className={styles.PanelGroup} direction="horizontal">
         <Panel className={styles.PanelRow} defaultSize={20} minSize={20}>
-          <div className={styles.Centered}>left</div>
+          <div className={styles.Centered}>
+            leftleftleftleftleftleftleftleftleftleftleftleftleftleft
+          </div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
         <Panel className={styles.PanelRow} minSize={30}>
@@ -34,7 +36,9 @@ function Content() {
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
         <Panel className={styles.PanelRow} defaultSize={20} minSize={20}>
-          <div className={styles.Centered}>right</div>
+          <div className={styles.Centered}>
+            rightrightrightrightrightrightrightrightrightrightrightrightrightrightrightrightrightrightrightrightrightrightrightright
+          </div>
         </Panel>
       </PanelGroup>
     </div>
