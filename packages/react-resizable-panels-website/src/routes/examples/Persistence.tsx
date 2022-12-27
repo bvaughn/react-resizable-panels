@@ -32,11 +32,11 @@ function Content() {
         <Panel className={styles.PanelColumn}>
           <div className={styles.Centered}>left</div>
         </Panel>
+        <ResizeHandle className={styles.ResizeHandle} />
         <Panel className={styles.PanelRow}>
-          <ResizeHandle className={styles.ResizeHandle} />
           <div className={styles.Centered}>middle</div>
-          <ResizeHandle className={styles.ResizeHandle} />
         </Panel>
+        <ResizeHandle className={styles.ResizeHandle} />
         <Panel className={styles.PanelColumn}>
           <div className={styles.Centered}>right</div>
         </Panel>
