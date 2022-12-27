@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.18
+* `Panel` and `PanelGroup` now use `overflow: hidden` style by default to avoid potential scrollbar flickers while resizing.
+
 ## 0.0.17
 * Bug fix: `Panel` styles include `flex-basis`, `flex-shrink`, and `overflow` so that their sizes are not unintentionally impacted by their content.
 

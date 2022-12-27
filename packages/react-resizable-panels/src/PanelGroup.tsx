@@ -163,7 +163,7 @@ export default function PanelGroup({
         flexShrink: 1,
 
         // Without this, Panel sizes may be unintentionally overridden by their content.
-        overflow: "auto",
+        overflow: "hidden",
       };
     },
     [direction, sizes]
@@ -284,6 +284,7 @@ export default function PanelGroup({
     display: "flex",
     flexDirection: direction === "horizontal" ? "row" : "column",
     height: "100%",
+    overflow: "hidden",
     width: "100%",
   };
 
