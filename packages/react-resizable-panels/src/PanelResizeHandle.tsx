@@ -106,7 +106,9 @@ export default function PanelResizeHandle({
   return (
     <div
       className={className}
-      data-resize-handle-active={isDragging || isFocused || undefined}
+      data-resize-handle-active={
+        isDragging ? "pointer" : isFocused ? "keyboard" : undefined
+      }
       data-panel-group-id={groupId}
       data-panel-resize-handle-enabled={!disabled}
       data-panel-resize-handle-id={resizeHandleId}
