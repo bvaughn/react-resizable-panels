@@ -35,7 +35,7 @@ export default function ConditionalRoute() {
               {showLeftPanel ? "Hide" : "Show"} left panel
             </button>{" "}
             <button onClick={() => setShowRightPanel(!showRightPanel)}>
-              {showLeftPanel ? "Hide" : "Show"} right panel
+              {showRightPanel ? "Hide" : "Show"} right panel
             </button>
           </p>
         </>
