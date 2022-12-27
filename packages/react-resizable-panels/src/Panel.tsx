@@ -30,6 +30,10 @@ export default function Panel({
 
   const panelId = useUniqueId(idFromProps);
 
+  if (minSize < 0 || minSize > 100) {
+    throw Error(`Panel minSize must be between 0 and 100, but was ${minSize}`);
+  }
+
   if (defaultSize !== null) {
     if (defaultSize < 0 || defaultSize > 100) {
       throw Error(
