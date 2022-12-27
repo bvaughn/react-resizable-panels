@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Panel } from "react-resizable-panels";
+import { Panel, PanelGroup } from "react-resizable-panels";
 
-import PanelGroup from "../../components/AutoSizedPanelGroup";
 import ResizeHandle from "../../components/ResizeHandle";
 
 import Example from "./Example";
@@ -59,34 +58,23 @@ function Content({
         direction="horizontal"
       >
         {showLeftPanel && (
-          <Panel
-            className={styles.Panel}
-            defaultSize={0.2}
-            minSize={0.2}
-            order={1}
-          >
-            <div className={styles.Centered}>left</div>
+          <>
+            <Panel className={styles.Panel} order={1}>
+              <div className={styles.Centered}>left</div>
+            </Panel>
             <ResizeHandle className={styles.ResizeHandle} />
-          </Panel>
+          </>
         )}
-        <Panel
-          className={styles.Panel}
-          defaultSize={0.3}
-          minSize={0.3}
-          order={2}
-        >
+        <Panel className={styles.Panel} order={2}>
           <div className={styles.Centered}>middle</div>
         </Panel>
         {showRightPanel && (
-          <Panel
-            className={styles.Panel}
-            defaultSize={0.21}
-            minSize={0.21}
-            order={3}
-          >
+          <>
             <ResizeHandle className={styles.ResizeHandle} />
-            <div className={styles.Centered}>right</div>
-          </Panel>
+            <Panel className={styles.Panel} order={3}>
+              <div className={styles.Centered}>right</div>
+            </Panel>
+          </>
         )}
       </PanelGroup>
     </div>
@@ -96,19 +84,23 @@ function Content({
 const CODE = `
 <PanelGroup autoSaveId="conditional" direction="horizontal">
   {showLeftPanel && (
-    <Panel order={1}>
-      <div>left</div>
+    <>
+      <Panel order={1}>
+        left
+      </Panel>
       <ResizeHandle />
-    </Panel>
+    </>
   )}
   <Panel order={2}>
-    <div>middle</div>
+    middle
   </Panel>
   {showRightPanel && (
-    <Panel order={3}>
+    <>
       <ResizeHandle />
-      <div>right</div>
-    </Panel>
+      <Panel order={3}>
+        right
+      </Panel>
+    </>
   )}
 </PanelGroup>
 `;

@@ -1,5 +1,5 @@
 import { Direction, ResizeEvent } from "../types";
-import { getResizeHandle } from "./group";
+import { getPanelGroup, getResizeHandle } from "./group";
 
 export type Coordinates = {
   movement: number;
@@ -39,13 +39,16 @@ export function getDragOffset(
 // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/movementX
 export function getMovement(
   event: ResizeEvent,
+  groupId: string,
   handleId: string,
-  { height, width }: Size,
   direction: Direction,
   initialOffset: number
 ): number {
   const isHorizontal = direction === "horizontal";
-  const size = isHorizontal ? width : height;
+
+  const groupElement = getPanelGroup(groupId);
+  const rect = groupElement.getBoundingClientRect();
+  const size = isHorizontal ? rect.width : rect.height;
 
   if (isKeyDown(event)) {
     const denominator = event.shiftKey ? 10 : 100;

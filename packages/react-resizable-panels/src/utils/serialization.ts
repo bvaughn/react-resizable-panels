@@ -8,8 +8,11 @@ type SerializedPanelGroupState = { [panelIds: string]: number[] };
 // Pre-sorting by minSize allows remembering layouts even if panels are re-ordered/dragged.
 function getSerializationKey(panels: PanelData[]): string {
   return panels
-    .map((panel) => panel.minSize.toPrecision(2))
-    .sort()
+    .map((panel) => {
+      const { minSize, order } = panel;
+      return order ? `${order}:${minSize}` : `${minSize}`;
+    })
+    .sort((a, b) => a.localeCompare(b))
     .join(",");
 }
 

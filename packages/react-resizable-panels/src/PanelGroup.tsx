@@ -15,9 +15,9 @@ import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
 import { getDragOffset, getMovement } from "./utils/coordinates";
 import {
   adjustByDelta,
-  getOffset,
+  getFlexGrow,
+  getPanelGroup,
   getResizeHandlePanelIds,
-  getSize,
   panelsMapToSortedArray,
 } from "./utils/group";
 import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterBehavior";
@@ -25,10 +25,8 @@ import useUniqueId from "./hooks/useUniqueId";
 
 export type CommittedValues = {
   direction: Direction;
-  height: number;
   panels: Map<string, PanelData>;
   sizes: number[];
-  width: number;
 };
 
 export type PanelDataMap = Map<string, PanelData>;
@@ -38,9 +36,7 @@ type Props = {
   children?: ReactNode;
   className?: string;
   direction: Direction;
-  height: number;
   id?: string | null;
-  width: number;
 };
 
 // TODO [panels]
@@ -52,9 +48,7 @@ export default function PanelGroup({
   children = null,
   className = "",
   direction,
-  height,
   id: idFromProps = null,
-  width,
 }: Props) {
   const groupId = useUniqueId(idFromProps);
 
@@ -69,18 +63,14 @@ export default function PanelGroup({
   // Store committed values to avoid unnecessarily re-running memoization/effects functions.
   const committedValuesRef = useRef<CommittedValues>({
     direction,
-    height,
     panels,
     sizes,
-    width,
   });
 
   useLayoutEffect(() => {
     committedValuesRef.current.direction = direction;
-    committedValuesRef.current.height = height;
     committedValuesRef.current.panels = panels;
     committedValuesRef.current.sizes = sizes;
-    committedValuesRef.current.width = width;
   });
 
   useWindowSplitterPanelGroupBehavior({
@@ -100,8 +90,7 @@ export default function PanelGroup({
       return;
     }
 
-    // TODO [panels]
-    // Validate that the total minSize is <= 1.
+    // TODO [issues/30] Validate that the total minSize is <= 100.
 
     // If this panel has been configured to persist sizing information,
     // default size should be restored from local storage if possible.
@@ -115,11 +104,27 @@ export default function PanelGroup({
       setSizes(defaultSizes);
     } else {
       const panelsArray = panelsMapToSortedArray(panels);
-      const totalWeight = panelsArray.reduce((weight, panel) => {
-        return weight + panel.defaultSize;
-      }, 0);
 
-      setSizes(panelsArray.map((panel) => panel.defaultSize / totalWeight));
+      let panelsWithNullDefaultSize = 0;
+      let totalDefaultSize = 0;
+
+      panelsArray.forEach((panel) => {
+        if (panel.defaultSize === null) {
+          panelsWithNullDefaultSize++;
+        } else {
+          totalDefaultSize += panel.defaultSize;
+        }
+      });
+
+      setSizes(
+        panelsArray.map((panel) => {
+          if (panel.defaultSize === null) {
+            return (100 - totalDefaultSize) / panelsWithNullDefaultSize;
+          }
+
+          return panel.defaultSize;
+        })
+      );
     }
   }, [autoSaveId, panels]);
 
@@ -139,28 +144,11 @@ export default function PanelGroup({
     (id: string): CSSProperties => {
       const { panels } = committedValuesRef.current;
 
-      const offset = getOffset(panels, id, direction, sizes, height, width);
-      const size = getSize(panels, id, direction, sizes, height, width);
+      const size = getFlexGrow(panels, id, sizes);
 
-      if (direction === "horizontal") {
-        return {
-          height: "100%",
-          position: "absolute",
-          left: offset,
-          top: 0,
-          width: size,
-        };
-      } else {
-        return {
-          height: size,
-          position: "absolute",
-          left: 0,
-          top: offset,
-          width: "100%",
-        };
-      }
+      return { flexGrow: size };
     },
-    [direction, height, sizes, width]
+    [direction, sizes]
   );
 
   const registerPanel = useCallback((id: string, panel: PanelData) => {
@@ -183,10 +171,8 @@ export default function PanelGroup({
 
         const {
           direction,
-          height,
           panels,
           sizes: prevSizes,
-          width,
         } = committedValuesRef.current;
 
         const panelsArray = panelsMapToSortedArray(panels);
@@ -202,14 +188,20 @@ export default function PanelGroup({
 
         const movement = getMovement(
           event,
+          groupId,
           handleId,
-          { height, width },
           direction,
           dragOffsetRef.current
         );
+        if (movement === 0) {
+          return;
+        }
 
+        const groupElement = getPanelGroup(groupId);
+        const rect = groupElement.getBoundingClientRect();
         const isHorizontal = direction === "horizontal";
-        const delta = isHorizontal ? movement / width : movement / height;
+        const size = isHorizontal ? rect.width : rect.height;
+        const delta = (movement / size) * 100;
 
         const nextSizes = adjustByDelta(
           panels,
@@ -275,14 +267,17 @@ export default function PanelGroup({
     [activeHandleId]
   );
 
+  const style: CSSProperties = {
+    display: "flex",
+    flexDirection: direction === "horizontal" ? "row" : "column",
+    height: "100%",
+    width: "100%",
+  };
+
   return (
     <PanelContext.Provider value={panelContext}>
       <PanelGroupContext.Provider value={panelGroupContext}>
-        <div
-          className={className}
-          data-panel-group-id={groupId}
-          style={{ height, position: "relative", width }}
-        >
+        <div className={className} data-panel-group-id={groupId} style={style}>
           {children}
         </div>
       </PanelGroupContext.Provider>
