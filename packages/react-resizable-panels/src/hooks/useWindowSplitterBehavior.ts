@@ -56,16 +56,16 @@ export function useWindowSplitterPanelGroupBehavior({
           return difference - panel.minSize;
         }
         return difference;
-      }, 1);
+      }, 100);
 
       const ariaValueMin =
         panelsArray.find((panel) => panel.id == idBefore)?.minSize ?? 0;
 
-      const size = getFlexGrow(panels, idBefore, sizes);
+      const flexGrow = getFlexGrow(panels, idBefore, sizes);
 
-      handle.setAttribute("aria-valuemax", "" + Math.round(100 * ariaValueMax));
-      handle.setAttribute("aria-valuemin", "" + Math.round(100 * ariaValueMin));
-      handle.setAttribute("aria-valuenow", "" + size);
+      handle.setAttribute("aria-valuemax", "" + Math.round(ariaValueMax));
+      handle.setAttribute("aria-valuemin", "" + Math.round(ariaValueMin));
+      handle.setAttribute("aria-valuenow", "" + Math.round(parseInt(flexGrow)));
 
       const onKeyDown = (event: KeyboardEvent) => {
         switch (event.key) {
