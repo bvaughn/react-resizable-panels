@@ -90,8 +90,6 @@ export default function PanelGroup({
       return;
     }
 
-    // TODO [issues/30] Validate that the total minSize is <= 100.
-
     // If this panel has been configured to persist sizing information,
     // default size should be restored from local storage if possible.
     let defaultSizes: number[] | undefined = undefined;
@@ -107,14 +105,23 @@ export default function PanelGroup({
 
       let panelsWithNullDefaultSize = 0;
       let totalDefaultSize = 0;
+      let totalMinSize = 0;
 
       panelsArray.forEach((panel) => {
+        totalMinSize += panel.minSize;
+
         if (panel.defaultSize === null) {
           panelsWithNullDefaultSize++;
         } else {
           totalDefaultSize += panel.defaultSize;
         }
       });
+
+      if (totalMinSize > 100) {
+        throw new Error(
+          `The sum of the minSize of all panels in a group cannot exceed 100.`
+        );
+      }
 
       setSizes(
         panelsArray.map((panel) => {
