@@ -304,3 +304,6 @@ export default function PanelGroup({
     </PanelGroupContext.Provider>
   );
 }
+
+// Workaround for Parcel scope hoisting (which renames objects/functions)
+PanelGroup.displayName = "PanelGroup";

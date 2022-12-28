@@ -150,3 +150,6 @@ export default function PanelResizeHandle({
     </Type>
   );
 }
+
+// Workaround for Parcel scope hoisting (which renames objects/functions)
+PanelResizeHandle.displayName = "PanelResizeHandle";

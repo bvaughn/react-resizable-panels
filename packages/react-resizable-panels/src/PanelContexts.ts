@@ -13,3 +13,6 @@ export const PanelGroupContext = createContext<{
   stopDragging: () => void;
   unregisterPanel: (id: string) => void;
 } | null>(null);
+
+// Workaround for Parcel scope hoisting (which renames objects/functions)
+PanelGroupContext.displayName = "PanelGroupContext";

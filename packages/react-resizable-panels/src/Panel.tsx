@@ -91,3 +91,6 @@ export default function Panel({
     </Type>
   );
 }
+
+// Workaround for Parcel scope hoisting (which renames objects/functions)
+Panel.displayName = "Panel";
