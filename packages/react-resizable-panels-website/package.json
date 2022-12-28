@@ -5,7 +5,10 @@
   "scripts": {
     "build": "parcel build 'index.html'",
     "test:e2e": "playwright test",
-    "watch": "parcel 'index.html'"
+    "watch": "kill-port 1234 && parcel 'index.html'"
+  },
+  "devDependencies": {
+    "kill-port": "latest"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "latest",
