@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.21
+* [#39](https://github.com/bvaughn/react-resizable-panels/issues/39): Fixed regression in TypeScript defs introduced in `0.0.20`
+
 ## 0.0.20
 * Add `displayName` to `Panel`, `PanelGroup`, `PanelGroupContext`, and `PanelResizeHandle` to work around ParcelJS scope hoisting renaming.
 
