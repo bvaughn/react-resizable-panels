@@ -27,7 +27,10 @@ function Content() {
     <div className={styles.PanelGroupWrapper}>
       <PanelGroup className={styles.PanelGroup} direction="horizontal">
         <Panel className={styles.PanelColumn} defaultSize={50} minSize={25}>
-          <div className={styles.Centered}>
+          <div
+            className={styles.Centered}
+            style={{ backgroundColor: "var(--color-background-code)" }}
+          >
             <Code
               className={styles.Overflow}
               code={TUTORIAL_CODE_LEFT.trim()}
@@ -37,7 +40,10 @@ function Content() {
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
         <Panel className={styles.PanelColumn} defaultSize={50} minSize={25}>
-          <div className={styles.Centered}>
+          <div
+            className={styles.Centered}
+            style={{ backgroundColor: "var(--color-background-code)" }}
+          >
             <Code
               className={styles.Overflow}
               code={TUTORIAL_CODE_RIGHT.trim()}

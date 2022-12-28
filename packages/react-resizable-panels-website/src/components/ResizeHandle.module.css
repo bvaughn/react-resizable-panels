@@ -1,6 +1,9 @@
 .ResizeHandleOuter {
-  flex: 0 0 1em;
-  position: relative;
+  flex: 0 0 1.75rem;
+  display: flex;
+  justify-content: stretch;
+  align-items: stretch;
+  padding: 0.5rem;
   outline: none;
 
   --background-color: transparent;
@@ -10,12 +13,8 @@
 }
 
 .ResizeHandleInner {
-  position: absolute;
-  top: 0.25em;
-  bottom: 0.25em;
-  left: 0.25em;
-  right: 0.25em;
-  border-radius: 0.25em;
+  flex: 1;
+  border-radius: 0.75rem;
   background-color: var(--background-color);
   transition: background-color 0.2s linear;
 }

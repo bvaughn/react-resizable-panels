@@ -31,12 +31,14 @@ export default function ConditionalRoute() {
           </p>
           <p>
             <button
+              className={styles.Button}
               id="toggleLeftPanelButton"
               onClick={() => setShowLeftPanel(!showLeftPanel)}
             >
               {showLeftPanel ? "Hide" : "Show"} left panel
             </button>{" "}
             <button
+              className={styles.Button}
               id="toggleRightPanelButton"
               onClick={() => setShowRightPanel(!showRightPanel)}
             >
