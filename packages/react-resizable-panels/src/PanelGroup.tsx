@@ -1,5 +1,6 @@
 import {
   CSSProperties,
+  ElementType,
   ReactNode,
   useCallback,
   useEffect,
@@ -31,14 +32,6 @@ export type CommittedValues = {
 
 export type PanelDataMap = Map<string, PanelData>;
 
-type Props = {
-  autoSaveId?: string;
-  children?: ReactNode;
-  className?: string;
-  direction: Direction;
-  id?: string | null;
-};
-
 // TODO [panels]
 // Within an active drag, remember original positions to refine more easily on expand.
 // Look at what the Chrome devtools Sources does.
@@ -46,10 +39,20 @@ type Props = {
 export default function PanelGroup({
   autoSaveId,
   children = null,
-  className = "",
+  className: classNameFromProps = "",
   direction,
   id: idFromProps = null,
-}: Props) {
+  style: styleFromProps = {},
+  tagName: Type = "div",
+}: {
+  autoSaveId?: string;
+  children?: ReactNode;
+  className?: string;
+  direction: Direction;
+  id?: string | null;
+  style?: CSSProperties;
+  tagName?: ElementType;
+}) {
   const groupId = useUniqueId(idFromProps);
 
   const [activeHandleId, setActiveHandleId] = useState<string | null>(null);
@@ -290,9 +293,14 @@ export default function PanelGroup({
 
   return (
     <PanelGroupContext.Provider value={context}>
-      <div className={className} data-panel-group-id={groupId} style={style}>
+      <Type
+        className={classNameFromProps}
+        data-panel-group-direction={direction}
+        data-panel-group-id={groupId}
+        style={{ ...style, ...styleFromProps }}
+      >
         {children}
-      </div>
+      </Type>
     </PanelGroupContext.Provider>
   );
 }

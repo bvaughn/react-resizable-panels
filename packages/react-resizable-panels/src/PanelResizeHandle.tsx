@@ -1,5 +1,9 @@
 import {
+  CSSProperties,
+  ElementType,
+  MouseEvent,
   ReactNode,
+  TouchEvent,
   useCallback,
   useContext,
   useEffect,
@@ -14,14 +18,18 @@ import type { ResizeHandler, ResizeEvent } from "./types";
 
 export default function PanelResizeHandle({
   children = null,
-  className = "",
+  className: classNameFromProps = "",
   disabled = false,
   id: idFromProps = null,
+  style: styleFromProps = {},
+  tagName: Type = "div",
 }: {
   children?: ReactNode;
   className?: string;
   disabled?: boolean;
   id?: string | null;
+  style?: CSSProperties;
+  tagName?: ElementType;
 }) {
   const divElementRef = useRef<HTMLDivElement>(null);
 
@@ -103,32 +111,42 @@ export default function PanelResizeHandle({
     resizeHandler,
   });
 
+  const style: CSSProperties = {
+    cursor: direction === "horizontal" ? "ew-resize" : "ns-resize",
+    touchAction: "none",
+    userSelect: "none",
+  };
+
   return (
-    <div
-      className={className}
+    <Type
+      className={classNameFromProps}
       data-resize-handle-active={
         isDragging ? "pointer" : isFocused ? "keyboard" : undefined
       }
+      data-panel-group-direction={direction}
       data-panel-group-id={groupId}
       data-panel-resize-handle-enabled={!disabled}
       data-panel-resize-handle-id={resizeHandleId}
       onBlur={() => setIsFocused(false)}
       onFocus={() => setIsFocused(true)}
-      onMouseDown={(event) => startDragging(resizeHandleId, event.nativeEvent)}
+      onMouseDown={(event: MouseEvent) =>
+        startDragging(resizeHandleId, event.nativeEvent)
+      }
       onMouseUp={stopDraggingAndBlur}
       onTouchCancel={stopDraggingAndBlur}
       onTouchEnd={stopDraggingAndBlur}
-      onTouchStart={(event) => startDragging(resizeHandleId, event.nativeEvent)}
+      onTouchStart={(event: TouchEvent) =>
+        startDragging(resizeHandleId, event.nativeEvent)
+      }
       ref={divElementRef}
       role="separator"
       style={{
-        cursor: direction === "horizontal" ? "ew-resize" : "ns-resize",
-        touchAction: "none",
-        userSelect: "none",
+        ...style,
+        ...styleFromProps,
       }}
       tabIndex={0}
     >
       {children}
-    </div>
+    </Type>
   );
 }

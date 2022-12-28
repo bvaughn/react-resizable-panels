@@ -1,4 +1,10 @@
-import { ReactNode, useContext, useLayoutEffect } from "react";
+import {
+  CSSProperties,
+  ElementType,
+  ReactNode,
+  useContext,
+  useLayoutEffect,
+} from "react";
 import useUniqueId from "./hooks/useUniqueId";
 
 import { PanelGroupContext } from "./PanelContexts";
@@ -8,11 +14,13 @@ import { PanelGroupContext } from "./PanelContexts";
 // PanelGroup should warn if total width is less min pixel widths.
 export default function Panel({
   children = null,
-  className = "",
+  className: classNameFromProps = "",
   defaultSize = null,
   id: idFromProps = null,
   minSize = 10,
   order = null,
+  style: styleFromProps = {},
+  tagName: Type = "div",
 }: {
   children?: ReactNode;
   className?: string;
@@ -20,6 +28,8 @@ export default function Panel({
   id?: string | null;
   minSize?: number;
   order?: number | null;
+  style?: CSSProperties;
+  tagName?: ElementType;
 }) {
   const context = useContext(PanelGroupContext);
   if (context === null) {
@@ -68,13 +78,16 @@ export default function Panel({
   const style = getPanelStyle(panelId);
 
   return (
-    <div
-      className={className}
+    <Type
+      className={classNameFromProps}
       data-panel-id={panelId}
       id={`data-panel-id-${panelId}`}
-      style={style}
+      style={{
+        ...style,
+        ...styleFromProps,
+      }}
     >
       {children}
-    </div>
+    </Type>
   );
 }
