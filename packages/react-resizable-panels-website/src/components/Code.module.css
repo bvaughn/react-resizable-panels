@@ -1,4 +1,4 @@
 .Code {
   color: var(--color-default);
-  white-space: pre;
+  white-space: pre-wrap;
 }
