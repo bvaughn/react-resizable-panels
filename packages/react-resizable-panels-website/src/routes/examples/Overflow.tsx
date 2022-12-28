@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import { Panel, PanelGroup } from "react-resizable-panels";
 
 import Code from "../../components/Code";
@@ -23,9 +24,35 @@ export default function OverflowRoute() {
 }
 
 function Content() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    const div = ref.current!;
+
+    const observer = new ResizeObserver(() => {
+      setWidth(div.offsetWidth);
+    });
+    observer.observe(div);
+
+    return () => {
+      observer.unobserve(div);
+      observer.disconnect();
+    };
+  }, []);
+
+  const useVerticalLayout = width < 800;
+
   return (
-    <div className={styles.PanelGroupWrapper}>
-      <PanelGroup className={styles.PanelGroup} direction="horizontal">
+    <div
+      className={styles.PanelGroupWrapper}
+      ref={ref}
+      style={{ height: useVerticalLayout ? "30rem" : undefined }}
+    >
+      <PanelGroup
+        className={styles.PanelGroup}
+        direction={useVerticalLayout ? "vertical" : "horizontal"}
+      >
         <Panel className={styles.PanelColumn} defaultSize={50} minSize={25}>
           <div
             className={styles.Centered}
