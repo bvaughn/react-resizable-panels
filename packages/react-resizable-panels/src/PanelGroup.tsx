@@ -305,5 +305,7 @@ export default function PanelGroup({
   );
 }
 
-// Workaround for Parcel scope hoisting (which renames objects/functions)
-PanelGroup.displayName = "PanelGroup";
+// Workaround for Parcel scope hoisting (which renames objects/functions).
+// Casting to :any is required to avoid corrupting the generated TypeScript types.
+// See github.com/parcel-bundler/parcel/issues/8724
+(PanelGroup as any).displayName = "PanelGroup";

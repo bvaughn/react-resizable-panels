@@ -151,5 +151,7 @@ export default function PanelResizeHandle({
   );
 }
 
-// Workaround for Parcel scope hoisting (which renames objects/functions)
-PanelResizeHandle.displayName = "PanelResizeHandle";
+// Workaround for Parcel scope hoisting (which renames objects/functions).
+// Casting to :any is required to avoid corrupting the generated TypeScript types.
+// See github.com/parcel-bundler/parcel/issues/8724
+(PanelResizeHandle as any).displayName = "PanelResizeHandle";

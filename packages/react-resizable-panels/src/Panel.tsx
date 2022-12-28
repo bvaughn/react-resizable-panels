@@ -92,5 +92,7 @@ export default function Panel({
   );
 }
 
-// Workaround for Parcel scope hoisting (which renames objects/functions)
-Panel.displayName = "Panel";
+// Workaround for Parcel scope hoisting (which renames objects/functions).
+// Casting to :any is required to avoid corrupting the generated TypeScript types.
+// See github.com/parcel-bundler/parcel/issues/8724
+(Panel as any).displayName = "Panel";

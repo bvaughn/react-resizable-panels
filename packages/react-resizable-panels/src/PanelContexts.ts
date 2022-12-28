@@ -14,5 +14,7 @@ export const PanelGroupContext = createContext<{
   unregisterPanel: (id: string) => void;
 } | null>(null);
 
-// Workaround for Parcel scope hoisting (which renames objects/functions)
-PanelGroupContext.displayName = "PanelGroupContext";
+// Workaround for Parcel scope hoisting (which renames objects/functions).
+// Casting to :any is required to avoid corrupting the generated TypeScript types.
+// See github.com/parcel-bundler/parcel/issues/8724
+(PanelGroupContext as any).displayName = "PanelGroupContext";
