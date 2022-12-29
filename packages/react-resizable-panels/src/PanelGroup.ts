@@ -93,6 +93,7 @@ export default function PanelGroup({
   useLayoutEffect(() => {
     const sizes = committedValuesRef.current.sizes;
     if (sizes.length === panels.size) {
+      // Only compute (or restore) default sizes once per panel configuration.
       return;
     }
 
@@ -240,6 +241,17 @@ export default function PanelGroup({
           prevSizes
         );
         if (prevSizes !== nextSizes) {
+          // If resize change handlers have been declared, this is the time to call them.
+          nextSizes.forEach((nextSize, index) => {
+            const prevSize = prevSizes[index];
+            if (prevSize !== nextSize) {
+              const onResize = panelsArray[index].onResizeRef.current;
+              if (onResize) {
+                onResize(nextSize);
+              }
+            }
+          });
+
           setSizes(nextSizes);
         }
       };

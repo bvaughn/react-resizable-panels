@@ -5,10 +5,12 @@ import {
   ReactNode,
   useContext,
   useLayoutEffect,
+  useRef,
 } from "react";
 import useUniqueId from "./hooks/useUniqueId";
 
 import { PanelGroupContext } from "./PanelContexts";
+import { PanelOnResize } from "./types";
 
 export type PanelProps = {
   children?: ReactNode;
@@ -17,6 +19,7 @@ export type PanelProps = {
   id?: string | null;
   maxSize?: number;
   minSize?: number;
+  onResize?: PanelOnResize | null;
   order?: number | null;
   style?: CSSProperties;
   tagName?: ElementType;
@@ -29,6 +32,7 @@ export default function Panel({
   id: idFromProps = null,
   maxSize = 100,
   minSize = 10,
+  onResize = null,
   order = null,
   style: styleFromProps = {},
   tagName: Type = "div",
@@ -39,6 +43,8 @@ export default function Panel({
       `Panel components must be rendered within a PanelGroup container`
     );
   }
+
+  const onResizeRef = useRef<PanelOnResize | null>(onResize);
 
   // Basic props validation
   if (minSize < 0 || minSize > 100) {
@@ -71,6 +77,7 @@ export default function Panel({
       id: panelId,
       maxSize,
       minSize,
+      onResizeRef,
       order,
     };
 
