@@ -37,6 +37,9 @@ export default function HomeRoute() {
         <li>
           <Link to="/examples/overflow">Overflow content</Link>
         </li>
+        <li>
+          <Link to="/examples/external-persistence">External persistence</Link>
+        </li>
       </ul>
     </div>
   );
