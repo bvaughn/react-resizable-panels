@@ -1,4 +1,5 @@
 import {
+  createElement,
   CSSProperties,
   ElementType,
   ReactNode,
@@ -32,9 +33,19 @@ export type CommittedValues = {
 
 export type PanelDataMap = Map<string, PanelData>;
 
-// TODO [panels]
+// TODO
 // Within an active drag, remember original positions to refine more easily on expand.
 // Look at what the Chrome devtools Sources does.
+
+export type PanelGroupProps = {
+  autoSaveId?: string;
+  children?: ReactNode;
+  className?: string;
+  direction: Direction;
+  id?: string | null;
+  style?: CSSProperties;
+  tagName?: ElementType;
+};
 
 export default function PanelGroup({
   autoSaveId,
@@ -44,15 +55,7 @@ export default function PanelGroup({
   id: idFromProps = null,
   style: styleFromProps = {},
   tagName: Type = "div",
-}: {
-  autoSaveId?: string;
-  children?: ReactNode;
-  className?: string;
-  direction: Direction;
-  id?: string | null;
-  style?: CSSProperties;
-  tagName?: ElementType;
-}) {
+}: PanelGroupProps) {
   const groupId = useUniqueId(idFromProps);
 
   const [activeHandleId, setActiveHandleId] = useState<string | null>(null);
@@ -109,6 +112,11 @@ export default function PanelGroup({
       let panelsWithNullDefaultSize = 0;
       let totalDefaultSize = 0;
       let totalMinSize = 0;
+
+      // TODO
+      // Implicit default size calculations below do not account for inferred min/max size values.
+      // e.g. if Panel A has a maxSize of 40 then Panels A and B can't both have an implicit default size of 50.
+      // For now, these logic edge cases are left to the user to handle via props.
 
       panelsArray.forEach((panel) => {
         totalMinSize += panel.minSize;
@@ -291,18 +299,16 @@ export default function PanelGroup({
     width: "100%",
   };
 
-  return (
-    <PanelGroupContext.Provider value={context}>
-      <Type
-        className={classNameFromProps}
-        data-panel-group-direction={direction}
-        data-panel-group-id={groupId}
-        style={{ ...style, ...styleFromProps }}
-      >
-        {children}
-      </Type>
-    </PanelGroupContext.Provider>
-  );
+  return createElement(PanelGroupContext.Provider, {
+    children: createElement(Type, {
+      children,
+      className: classNameFromProps,
+      "data-panel-group-direction": direction,
+      "data-panel-group-id": groupId,
+      style: { ...style, ...styleFromProps },
+    }),
+    value: context,
+  });
 }
 
 // Workaround for Parcel scope hoisting (which renames objects/functions).

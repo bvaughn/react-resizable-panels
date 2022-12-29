@@ -1,182 +1,305 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
+import { createElement } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import { verifyAriaValues } from "./utils/aria";
+import { goToUrl } from "./utils/url";
+
+async function goToDefaultUrl(
+  page: Page,
+  direction: "horizontal" | "vertical" = "horizontal"
+) {
+  await goToUrl(
+    page,
+    createElement(
+      PanelGroup,
+      { direction },
+      createElement(Panel),
+      createElement(PanelResizeHandle),
+      createElement(Panel)
+    )
+  );
+}
 
 // https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/
 test.describe("Window Splitter", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:1234/examples/horizontal");
-  });
+  test.describe("initial ARIA value attributes", () => {
+    test("scenario: own minSize", async ({ page }) => {
+      await goToUrl(
+        page,
+        createElement(
+          PanelGroup,
+          { direction: "horizontal" },
+          createElement(Panel, { defaultSize: 35, minSize: 20 }),
+          createElement(PanelResizeHandle),
+          createElement(Panel, { minSize: 5 })
+        )
+      );
 
-  test("display the correct initial ARIA value attributes", async ({
-    page,
-  }) => {
-    const resizeHandles = page.locator("[data-panel-resize-handle-id]");
-    await verifyAriaValues(resizeHandles.first(), {
-      min: 20,
-      max: 50,
-      now: 20,
-    });
-    await verifyAriaValues(resizeHandles.last(), {
-      min: 30,
-      max: 60,
-      now: 60,
-    });
-  });
-
-  test("implements arrow key functionality", async ({ page }) => {
-    const resizeHandle = page.locator("[data-panel-resize-handle-id]").first();
-    await resizeHandle.focus();
-
-    await page.keyboard.press("ArrowRight");
-    await verifyAriaValues(resizeHandle, {
-      now: 21,
+      const resizeHandles = page.locator("[data-panel-resize-handle-id]");
+      await verifyAriaValues(resizeHandles.first(), {
+        min: 20,
+        max: 95,
+        now: 35,
+      });
     });
 
-    await page.keyboard.press("ArrowRight");
-    await verifyAriaValues(resizeHandle, {
-      now: 22,
+    test("scenario: other minSize(s)", async ({ page }) => {
+      await goToUrl(
+        page,
+        createElement(
+          PanelGroup,
+          { direction: "horizontal" },
+          createElement(Panel, { minSize: 20 }),
+          createElement(PanelResizeHandle),
+          createElement(Panel, { minSize: 50 })
+        )
+      );
+
+      const resizeHandles = page.locator("[data-panel-resize-handle-id]");
+      await verifyAriaValues(resizeHandles.first(), {
+        min: 20,
+        max: 50,
+        now: 50,
+      });
     });
 
-    // This isn't officially part of the spec but it seems like a nice tweak
-    await page.keyboard.press("Shift+ArrowRight");
-    await verifyAriaValues(resizeHandle, {
-      now: 32,
+    test("scenario: own maxSize", async ({ page }) => {
+      await goToUrl(
+        page,
+        createElement(
+          PanelGroup,
+          { direction: "horizontal" },
+          createElement(Panel, { maxSize: 50 }),
+          createElement(PanelResizeHandle),
+          createElement(Panel)
+        )
+      );
+
+      const resizeHandles = page.locator("[data-panel-resize-handle-id]");
+      await verifyAriaValues(resizeHandles.first(), {
+        min: 10,
+        max: 50,
+        now: 50,
+      });
     });
 
-    await page.keyboard.press("ArrowLeft");
-    await verifyAriaValues(resizeHandle, {
-      now: 31,
-    });
+    test("scenario: other maxSize(s)", async ({ page }) => {
+      await goToUrl(
+        page,
+        createElement(
+          PanelGroup,
+          { direction: "horizontal" },
+          createElement(Panel, { defaultSize: 65 }),
+          createElement(PanelResizeHandle),
+          createElement(Panel, { maxSize: 40 })
+        )
+      );
 
-    // This isn't officially part of the spec but it seems like a nice tweak
-    await page.keyboard.press("Shift+ArrowLeft");
-    await verifyAriaValues(resizeHandle, {
-      now: 21,
-    });
-
-    // Up and down arrows should not affect a "horizontal" list
-    await page.keyboard.press("ArrowUp");
-    await verifyAriaValues(resizeHandle, {
-      now: 21,
-    });
-    await page.keyboard.press("ArrowDown");
-    await verifyAriaValues(resizeHandle, {
-      now: 21,
-    });
-
-    await page.goto("http://localhost:1234/examples/vertical");
-
-    await resizeHandle.focus();
-
-    await verifyAriaValues(resizeHandle, {
-      min: 25, // minValue prop is 10, but given maxSize prop– the effective minSize is 25
-      max: 75,
-      now: 50,
-    });
-
-    // Up and down arrows should affect a "vertical" list
-    await page.keyboard.press("ArrowUp");
-    await verifyAriaValues(resizeHandle, {
-      now: 49,
-    });
-    await page.keyboard.press("Shift+ArrowDown");
-    await verifyAriaValues(resizeHandle, {
-      now: 59,
-    });
-
-    // But Left and right arrows should be ignored
-    await page.keyboard.press("ArrowLeft");
-    await verifyAriaValues(resizeHandle, {
-      now: 59,
-    });
-    await page.keyboard.press("ArrowRight");
-    await verifyAriaValues(resizeHandle, {
-      now: 59,
+      const resizeHandles = page.locator("[data-panel-resize-handle-id]");
+      await verifyAriaValues(resizeHandles.first(), {
+        min: 60,
+        max: 90,
+        now: 65,
+      });
     });
   });
 
-  test("implements Enter key functionality", async ({ page }) => {
-    const resizeHandle = page.locator("[data-panel-resize-handle-id]").first();
-    await resizeHandle.focus();
+  test.describe("arrow keys", () => {
+    test("horizontal lists", async ({ page }) => {
+      await goToDefaultUrl(page);
 
-    await page.keyboard.press("ArrowRight");
-    await verifyAriaValues(resizeHandle, {
-      min: 20,
-      max: 50,
-      now: 21,
+      const resizeHandle = page.locator("[data-panel-resize-handle-id]");
+      await resizeHandle.focus();
+
+      await verifyAriaValues(resizeHandle, {
+        now: 50,
+      });
+
+      await page.keyboard.press("ArrowRight");
+      await verifyAriaValues(resizeHandle, {
+        now: 51,
+      });
+
+      await page.keyboard.press("ArrowRight");
+      await verifyAriaValues(resizeHandle, {
+        now: 52,
+      });
+
+      // This isn't officially part of the spec but it seems like a nice tweak
+      await page.keyboard.press("Shift+ArrowRight");
+      await verifyAriaValues(resizeHandle, {
+        now: 62,
+      });
+
+      await page.keyboard.press("ArrowLeft");
+      await verifyAriaValues(resizeHandle, {
+        now: 61,
+      });
+
+      // This isn't officially part of the spec but it seems like a nice tweak
+      await page.keyboard.press("Shift+ArrowLeft");
+      await verifyAriaValues(resizeHandle, {
+        now: 51,
+      });
+
+      // Up and down arrows should not affect a "horizontal" list
+      await page.keyboard.press("ArrowUp");
+      await verifyAriaValues(resizeHandle, {
+        now: 51,
+      });
+      await page.keyboard.press("ArrowDown");
+      await verifyAriaValues(resizeHandle, {
+        now: 51,
+      });
     });
 
-    await page.keyboard.press("Enter");
-    await verifyAriaValues(resizeHandle, {
-      min: 20,
-      max: 50,
-      now: 20,
-    });
+    test("vertical lists", async ({ page }) => {
+      await goToDefaultUrl(page, "vertical");
 
-    await page.keyboard.press("Enter");
-    await verifyAriaValues(resizeHandle, {
-      min: 20,
-      max: 50,
-      now: 50,
+      const resizeHandle = page.locator("[data-panel-resize-handle-id]");
+      await resizeHandle.focus();
+
+      await verifyAriaValues(resizeHandle, {
+        now: 50,
+      });
+
+      // Up and down arrows should affect a "vertical" list
+      await page.keyboard.press("ArrowUp");
+      await verifyAriaValues(resizeHandle, {
+        now: 49,
+      });
+
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("ArrowDown");
+      await verifyAriaValues(resizeHandle, {
+        now: 51,
+      });
+
+      await page.keyboard.press("Shift+ArrowDown");
+      await verifyAriaValues(resizeHandle, {
+        now: 61,
+      });
+      await page.keyboard.press("Shift+ArrowUp");
+      await page.keyboard.press("Shift+ArrowUp");
+      await verifyAriaValues(resizeHandle, {
+        now: 41,
+      });
+
+      // But Left and right arrows should be ignored
+      await page.keyboard.press("ArrowLeft");
+      await verifyAriaValues(resizeHandle, {
+        now: 41,
+      });
+      await page.keyboard.press("ArrowRight");
+      await verifyAriaValues(resizeHandle, {
+        now: 41,
+      });
     });
   });
 
-  test("implements optional Home and End key functionality", async ({
-    page,
-  }) => {
-    const resizeHandle = page.locator("[data-panel-resize-handle-id]").first();
-    await resizeHandle.focus();
+  test.describe("other keys", () => {
+    test("Enter key", async ({ page }) => {
+      await goToDefaultUrl(page);
 
-    // Verify Home/End keys respect minSize prop
+      const resizeHandle = page.locator("[data-panel-resize-handle-id]");
+      await resizeHandle.focus();
+      await verifyAriaValues(resizeHandle, {
+        min: 10,
+        max: 90,
+        now: 50,
+      });
 
-    await page.keyboard.press("End");
-    await verifyAriaValues(resizeHandle, {
-      min: 20,
-      max: 50,
-      now: 50,
+      await page.keyboard.press("Enter");
+      await verifyAriaValues(resizeHandle, {
+        now: 10,
+      });
+
+      await page.keyboard.press("Enter");
+      await verifyAriaValues(resizeHandle, {
+        now: 90,
+      });
+
+      await page.keyboard.press("Enter");
+      await verifyAriaValues(resizeHandle, {
+        now: 10,
+      });
     });
 
-    await page.keyboard.press("Home");
-    await verifyAriaValues(resizeHandle, {
-      min: 20,
-      max: 50,
-      now: 20,
+    test("Home and End keys", async ({ page }) => {
+      await goToUrl(
+        page,
+        createElement(
+          PanelGroup,
+          { direction: "horizontal" },
+          createElement(Panel, { defaultSize: 40, maxSize: 70, minSize: 20 }),
+          createElement(PanelResizeHandle),
+          createElement(Panel)
+        )
+      );
+
+      const resizeHandle = page.locator("[data-panel-resize-handle-id]");
+      await resizeHandle.focus();
+
+      await verifyAriaValues(resizeHandle, {
+        now: 40,
+      });
+
+      // Verify Home/End keys respect maxSize/minSize props
+
+      await page.keyboard.press("End");
+      await verifyAriaValues(resizeHandle, {
+        now: 70,
+      });
+
+      await page.keyboard.press("Home");
+      await verifyAriaValues(resizeHandle, {
+        now: 20,
+      });
     });
 
-    // Verify Home/End keys respect maxSize prop
+    test("implements optional F6 key functionality", async ({ page }) => {
+      await goToUrl(
+        page,
+        createElement(
+          PanelGroup,
+          { direction: "horizontal" },
+          createElement(Panel),
+          createElement(PanelResizeHandle),
+          createElement(Panel),
+          createElement(PanelResizeHandle),
+          createElement(Panel),
+          createElement(PanelResizeHandle),
+          createElement(Panel)
+        )
+      );
 
-    await page.goto("http://localhost:1234/examples/vertical");
+      const resizeHandles = page.locator("[data-panel-resize-handle-id]");
+      const first = resizeHandles.nth(0);
+      const second = resizeHandles.nth(1);
+      const third = resizeHandles.nth(2);
 
-    await resizeHandle.focus();
+      await first.focus();
+      await expect(first).toBeFocused();
 
-    await page.keyboard.press("End");
-    await verifyAriaValues(resizeHandle, {
-      min: 25, // minValue prop is 10, but given maxSize prop– the effective minSize is 25
-      max: 75,
-      now: 75,
+      await page.keyboard.press("F6");
+      await expect(second).toBeFocused();
+
+      await page.keyboard.press("F6");
+      await expect(third).toBeFocused();
+
+      await page.keyboard.press("F6");
+      await expect(first).toBeFocused();
+
+      // Should be focused on the next (first) resize handle
+      await page.keyboard.press("Shift+F6");
+      await expect(third).toBeFocused();
+
+      await page.keyboard.press("Shift+F6");
+      await expect(second).toBeFocused();
+
+      await page.keyboard.press("Shift+F6");
+      await expect(first).toBeFocused();
     });
-
-    await page.keyboard.press("Home");
-    await verifyAriaValues(resizeHandle, {
-      min: 25, // minValue prop is 10, but given maxSize prop– the effective minSize is 25
-      max: 75,
-      now: 25,
-    });
-  });
-
-  test("implements optional F6 key functionality", async ({ page }) => {
-    const resizeHandles = page.locator("[data-panel-resize-handle-id]");
-
-    await resizeHandles.first().focus();
-    await expect(resizeHandles.first()).toBeFocused();
-
-    // Should be focused on the next (last) resize handle
-    await page.keyboard.press("F6");
-    await expect(resizeHandles.last()).toBeFocused();
-
-    // Should be focused on the next (first) resize handle
-    await page.keyboard.press("F6");
-    await expect(resizeHandles.first()).toBeFocused();
   });
 });

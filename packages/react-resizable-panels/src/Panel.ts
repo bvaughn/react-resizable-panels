@@ -1,4 +1,5 @@
 import {
+  createElement,
   CSSProperties,
   ElementType,
   ReactNode,
@@ -9,9 +10,18 @@ import useUniqueId from "./hooks/useUniqueId";
 
 import { PanelGroupContext } from "./PanelContexts";
 
-// TODO [panels]
-// Support min pixel size too.
-// PanelGroup should warn if total width is less min pixel widths.
+export type PanelProps = {
+  children?: ReactNode;
+  className?: string;
+  defaultSize?: number | null;
+  id?: string | null;
+  maxSize?: number;
+  minSize?: number;
+  order?: number | null;
+  style?: CSSProperties;
+  tagName?: ElementType;
+};
+
 export default function Panel({
   children = null,
   className: classNameFromProps = "",
@@ -22,17 +32,7 @@ export default function Panel({
   order = null,
   style: styleFromProps = {},
   tagName: Type = "div",
-}: {
-  children?: ReactNode;
-  className?: string;
-  defaultSize?: number | null;
-  id?: string | null;
-  maxSize?: number;
-  minSize?: number;
-  order?: number | null;
-  style?: CSSProperties;
-  tagName?: ElementType;
-}) {
+}: PanelProps) {
   const context = useContext(PanelGroupContext);
   if (context === null) {
     throw Error(
@@ -91,19 +91,16 @@ export default function Panel({
 
   const style = getPanelStyle(panelId);
 
-  return (
-    <Type
-      className={classNameFromProps}
-      data-panel-id={panelId}
-      id={`data-panel-id-${panelId}`}
-      style={{
-        ...style,
-        ...styleFromProps,
-      }}
-    >
-      {children}
-    </Type>
-  );
+  return createElement(Type, {
+    children,
+    className: classNameFromProps,
+    "data-panel-id": panelId,
+    id: `data-panel-id-${panelId}`,
+    style: {
+      ...style,
+      ...styleFromProps,
+    },
+  });
 }
 
 // Workaround for Parcel scope hoisting (which renames objects/functions).

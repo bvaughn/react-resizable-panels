@@ -9,6 +9,7 @@ import NestedExampleRoute from "./src/routes/examples/Nested";
 import OverflowExampleRoute from "./src/routes/examples/Overflow";
 import PersistenceExampleRoute from "./src/routes/examples/Persistence";
 import VerticalExampleRoute from "./src/routes/examples/Vertical";
+import EndToEndTestingRoute from "./src/routes/EndToEndTesting";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +39,12 @@ const router = createBrowserRouter([
   {
     path: "/examples/vertical",
     element: <VerticalExampleRoute />,
+  },
+
+  // Special route used by e2e tests
+  {
+    path: "/__e2e",
+    element: <EndToEndTestingRoute />,
   },
 ]);
 
