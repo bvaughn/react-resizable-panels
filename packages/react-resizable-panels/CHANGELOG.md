@@ -2,6 +2,7 @@
 
 ## 0.0.23
 * [#40](https://github.com/bvaughn/react-resizable-panels/issues/40): Add optional `maxSize` prop to `Panel`.
+* [#42](https://github.com/bvaughn/react-resizable-panels/issues/42): Don't cancel resize operations when exiting the window. Only cancel when a `"mouseup"` (or `"touchend"`) event is fired.
 
 ## 0.0.22
 * Replaced the `"ew-resize"` and `"ns-resize"` cursor style with `"col-resize"` and `"row-resize"`.

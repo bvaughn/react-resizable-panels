@@ -92,19 +92,19 @@ export default function PanelResizeHandle({
     };
 
     document.body.addEventListener("contextmenu", stopDraggingAndBlur);
-    document.body.addEventListener("mouseleave", stopDraggingAndBlur);
     document.body.addEventListener("mousemove", onMove);
     document.body.addEventListener("touchmove", onMove);
-    document.body.addEventListener("mouseup", stopDraggingAndBlur);
+    window.addEventListener("mouseup", stopDraggingAndBlur);
+    window.addEventListener("touchend", stopDraggingAndBlur);
 
     return () => {
       document.body.style.cursor = "";
 
       document.body.removeEventListener("contextmenu", stopDraggingAndBlur);
-      document.body.removeEventListener("mouseleave", stopDraggingAndBlur);
       document.body.removeEventListener("mousemove", onMove);
       document.body.removeEventListener("touchmove", onMove);
-      document.body.removeEventListener("mouseup", stopDraggingAndBlur);
+      window.removeEventListener("mouseup", stopDraggingAndBlur);
+      window.removeEventListener("touchend", stopDraggingAndBlur);
     };
   }, [direction, disabled, isDragging, resizeHandler, stopDraggingAndBlur]);
 
