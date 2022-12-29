@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.22
+* Replaced the `"ew-resize"` and `"ns-resize"` cursor style with `"col-resize"` and `"row-resize"`.
+
 ## 0.0.21
 * [#39](https://github.com/bvaughn/react-resizable-panels/issues/39): Fixed regression in TypeScript defs introduced in `0.0.20`
 

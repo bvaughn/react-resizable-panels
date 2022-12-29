@@ -82,7 +82,7 @@ export default function PanelResizeHandle({
     }
 
     document.body.style.cursor =
-      direction === "horizontal" ? "ew-resize" : "ns-resize";
+      direction === "horizontal" ? "col-resize" : "row-resize";
 
     const onMove = (event: ResizeEvent) => {
       resizeHandler(event);
@@ -112,7 +112,7 @@ export default function PanelResizeHandle({
   });
 
   const style: CSSProperties = {
-    cursor: direction === "horizontal" ? "ew-resize" : "ns-resize",
+    cursor: direction === "horizontal" ? "col-resize" : "row-resize",
     touchAction: "none",
     userSelect: "none",
   };
