@@ -3,6 +3,7 @@ export type Direction = "horizontal" | "vertical";
 export type PanelData = {
   defaultSize: number;
   id: string;
+  maxSize: number;
   minSize: number;
   order: number | null;
 };

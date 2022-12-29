@@ -17,6 +17,7 @@ export default function Panel({
   className: classNameFromProps = "",
   defaultSize = null,
   id: idFromProps = null,
+  maxSize = 100,
   minSize = 10,
   order = null,
   style: styleFromProps = {},
@@ -26,6 +27,7 @@ export default function Panel({
   className?: string;
   defaultSize?: number | null;
   id?: string | null;
+  maxSize?: number;
   minSize?: number;
   order?: number | null;
   style?: CSSProperties;
@@ -38,25 +40,28 @@ export default function Panel({
     );
   }
 
-  const panelId = useUniqueId(idFromProps);
-
+  // Basic props validation
   if (minSize < 0 || minSize > 100) {
     throw Error(`Panel minSize must be between 0 and 100, but was ${minSize}`);
-  }
+  } else if (maxSize < 0 || maxSize > 100) {
+    throw Error(`Panel maxSize must be between 0 and 100, but was ${maxSize}`);
+  } else {
+    if (defaultSize !== null) {
+      if (defaultSize < 0 || defaultSize > 100) {
+        throw Error(
+          `Panel defaultSize must be between 0 and 100, but was ${defaultSize}`
+        );
+      } else if (minSize > defaultSize) {
+        console.error(
+          `Panel minSize ${minSize} cannot be greater than defaultSize ${defaultSize}`
+        );
 
-  if (defaultSize !== null) {
-    if (defaultSize < 0 || defaultSize > 100) {
-      throw Error(
-        `Panel defaultSize must be between 0 and 100, but was ${defaultSize}`
-      );
-    } else if (minSize > defaultSize) {
-      console.error(
-        `Panel minSize ${minSize} cannot be greater than defaultSize ${defaultSize}`
-      );
-
-      defaultSize = minSize;
+        defaultSize = minSize;
+      }
     }
   }
+
+  const panelId = useUniqueId(idFromProps);
 
   const { getPanelStyle, registerPanel, unregisterPanel } = context;
 
@@ -64,6 +69,7 @@ export default function Panel({
     const panel = {
       defaultSize,
       id: panelId,
+      maxSize,
       minSize,
       order,
     };
@@ -73,7 +79,15 @@ export default function Panel({
     return () => {
       unregisterPanel(panelId);
     };
-  }, [defaultSize, panelId, minSize, order, registerPanel, unregisterPanel]);
+  }, [
+    defaultSize,
+    panelId,
+    maxSize,
+    minSize,
+    order,
+    registerPanel,
+    unregisterPanel,
+  ]);
 
   const style = getPanelStyle(panelId);
 

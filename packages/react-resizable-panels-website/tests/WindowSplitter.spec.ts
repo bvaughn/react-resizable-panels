@@ -70,8 +70,8 @@ test.describe("Window Splitter", () => {
     await resizeHandle.focus();
 
     await verifyAriaValues(resizeHandle, {
-      min: 10,
-      max: 90,
+      min: 25, // minValue prop is 10, but given maxSize prop– the effective minSize is 25
+      max: 75,
       now: 50,
     });
 
@@ -128,6 +128,8 @@ test.describe("Window Splitter", () => {
     const resizeHandle = page.locator("[data-panel-resize-handle-id]").first();
     await resizeHandle.focus();
 
+    // Verify Home/End keys respect minSize prop
+
     await page.keyboard.press("End");
     await verifyAriaValues(resizeHandle, {
       min: 20,
@@ -140,6 +142,26 @@ test.describe("Window Splitter", () => {
       min: 20,
       max: 50,
       now: 20,
+    });
+
+    // Verify Home/End keys respect maxSize prop
+
+    await page.goto("http://localhost:1234/examples/vertical");
+
+    await resizeHandle.focus();
+
+    await page.keyboard.press("End");
+    await verifyAriaValues(resizeHandle, {
+      min: 25, // minValue prop is 10, but given maxSize prop– the effective minSize is 25
+      max: 75,
+      now: 75,
+    });
+
+    await page.keyboard.press("Home");
+    await verifyAriaValues(resizeHandle, {
+      min: 25, // minValue prop is 10, but given maxSize prop– the effective minSize is 25
+      max: 75,
+      now: 25,
     });
   });
 

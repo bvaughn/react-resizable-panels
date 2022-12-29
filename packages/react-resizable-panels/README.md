@@ -39,6 +39,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `className`   | `?string`         | Optional class name to attach to root element
 | `defaultSize` | `?number`         | Initial size of panel (numeric value between 1-100)
 | `id`          | `?string`         | Optional panel id (unique within group); falls back to `useId` when not provided
+| `maxSize`     | `?number`         | Maximum allowable size of panel (numeric value between 1-100)
 | `minSize`     | `?number`         | Minimum allowable size of panel (numeric value between 1-100)
 | `order`       | `?number`         | Order of panel within group; required for groups with conditionally rendered panels
 | `style`       | `?CSSProperties`  | Optional CSS style to attach to root element

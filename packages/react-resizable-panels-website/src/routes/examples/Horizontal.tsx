@@ -12,9 +12,16 @@ export default function HorizontalRoute() {
       exampleNode={<Content />}
       headerNode={
         <>
-          This example is a 3-column horizontal <code>PanelGroup</code>.
-          Click/touch the empty space between the panels and drag to resize.
-          Arrow keys can also be used to resize panels.
+          <p>
+            This example is a 3-column horizontal <code>PanelGroup</code>.
+            Click/touch the empty space between the panels and drag to resize.
+            Arrow keys can also be used to resize panels.
+          </p>
+          <p>
+            These panels use the <code>minSize</code> property to prevent them
+            from being resized smaller than a minimal percentage of the overall
+            group.
+          </p>
         </>
       }
     />
