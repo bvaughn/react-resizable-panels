@@ -51,15 +51,27 @@ export function useWindowSplitterPanelGroupBehavior({
         return () => {};
       }
 
-      const ariaValueMax = panelsArray.reduce((difference, panel) => {
-        if (panel.id !== idBefore) {
-          return difference - panel.minSize;
-        }
-        return difference;
-      }, 100);
+      let minSize = 0;
+      let maxSize = 100;
+      let totalMinSize = 0;
+      let totalMaxSize = 0;
 
-      const ariaValueMin =
-        panelsArray.find((panel) => panel.id == idBefore)?.minSize ?? 0;
+      // A panel's effective min/max sizes also need to account for other panel's sizes.
+      panelsArray.forEach((panelData) => {
+        if (panelData.id === idBefore) {
+          maxSize = panelData.maxSize;
+          minSize = panelData.minSize;
+        } else {
+          totalMinSize += panelData.minSize;
+          totalMaxSize += panelData.maxSize;
+        }
+      });
+
+      const ariaValueMax = Math.min(maxSize, 100 - totalMinSize);
+      const ariaValueMin = Math.max(
+        minSize,
+        (panelsArray.length - 1) * 100 - totalMaxSize
+      );
 
       const flexGrow = getFlexGrow(panels, idBefore, sizes);
 

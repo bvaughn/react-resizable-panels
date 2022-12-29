@@ -25,12 +25,29 @@ export function adjustByDelta(
   //
   // A positive delta means the panel immediately before the resizer should "expand".
   // This is accomplished by shrinking/contracting (and shifting) one or more of the panels after the resizer.
+
+  // Max-bounds check the panel being expanded first.
+  {
+    const pivotId = delta < 0 ? idAfter : idBefore;
+    const index = panelsArray.findIndex((panel) => panel.id === pivotId);
+    const panel = panelsArray[index];
+    const prevSize = prevSizes[index];
+
+    const nextSize = safeResizePanel(panel, Math.abs(delta), prevSize);
+    if (prevSize === nextSize) {
+      return prevSizes;
+    } else {
+      delta = delta < 0 ? prevSize - nextSize : nextSize - prevSize;
+    }
+  }
+
   let pivotId = delta < 0 ? idBefore : idAfter;
   let index = panelsArray.findIndex((panel) => panel.id === pivotId);
   while (true) {
     const panel = panelsArray[index];
     const prevSize = prevSizes[index];
-    const nextSize = Math.max(prevSize - Math.abs(delta), panel.minSize);
+
+    const nextSize = safeResizePanel(panel, 0 - Math.abs(delta), prevSize);
     if (prevSize !== nextSize) {
       deltaApplied += prevSize - nextSize;
 
@@ -153,4 +170,17 @@ export function panelsMapToSortedArray(
   panels: Map<string, PanelData>
 ): PanelData[] {
   return Array.from(panels.values()).sort((a, b) => a.order - b.order);
+}
+
+function safeResizePanel(
+  panel: PanelData,
+  delta: number,
+  prevSize: number
+): number {
+  const nextSizeUnsafe = prevSize + delta;
+  const nextSize = Math.min(
+    panel.maxSize,
+    Math.max(panel.minSize, nextSizeUnsafe)
+  );
+  return nextSize;
 }

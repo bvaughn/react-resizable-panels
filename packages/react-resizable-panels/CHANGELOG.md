@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.23
+* [#40](https://github.com/bvaughn/react-resizable-panels/issues/40): Add optional `maxSize` prop to `Panel`.
+
 ## 0.0.22
 * Replaced the `"ew-resize"` and `"ns-resize"` cursor style with `"col-resize"` and `"row-resize"`.
 

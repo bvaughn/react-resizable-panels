@@ -64,17 +64,9 @@ export function getMovement(
       case "ArrowUp":
         return isHorizontal ? 0 : -delta;
       case "End":
-        if (isHorizontal) {
-          return size;
-        } else {
-          return size;
-        }
+        return size;
       case "Home":
-        if (isHorizontal) {
-          return -size;
-        } else {
-          return -size;
-        }
+        return -size;
     }
   } else {
     return getDragOffset(event, handleId, direction, initialOffset);

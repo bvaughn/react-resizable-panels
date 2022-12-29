@@ -1,4 +1,5 @@
 import {
+  createElement,
   CSSProperties,
   ElementType,
   MouseEvent,
@@ -16,6 +17,15 @@ import { useWindowSplitterResizeHandlerBehavior } from "./hooks/useWindowSplitte
 import { PanelGroupContext } from "./PanelContexts";
 import type { ResizeHandler, ResizeEvent } from "./types";
 
+export type PanelResizeHandleProps = {
+  children?: ReactNode;
+  className?: string;
+  disabled?: boolean;
+  id?: string | null;
+  style?: CSSProperties;
+  tagName?: ElementType;
+};
+
 export default function PanelResizeHandle({
   children = null,
   className: classNameFromProps = "",
@@ -23,14 +33,7 @@ export default function PanelResizeHandle({
   id: idFromProps = null,
   style: styleFromProps = {},
   tagName: Type = "div",
-}: {
-  children?: ReactNode;
-  className?: string;
-  disabled?: boolean;
-  id?: string | null;
-  style?: CSSProperties;
-  tagName?: ElementType;
-}) {
+}: PanelResizeHandleProps) {
   const divElementRef = useRef<HTMLDivElement>(null);
 
   const panelGroupContext = useContext(PanelGroupContext);
@@ -117,38 +120,35 @@ export default function PanelResizeHandle({
     userSelect: "none",
   };
 
-  return (
-    <Type
-      className={classNameFromProps}
-      data-resize-handle-active={
-        isDragging ? "pointer" : isFocused ? "keyboard" : undefined
-      }
-      data-panel-group-direction={direction}
-      data-panel-group-id={groupId}
-      data-panel-resize-handle-enabled={!disabled}
-      data-panel-resize-handle-id={resizeHandleId}
-      onBlur={() => setIsFocused(false)}
-      onFocus={() => setIsFocused(true)}
-      onMouseDown={(event: MouseEvent) =>
-        startDragging(resizeHandleId, event.nativeEvent)
-      }
-      onMouseUp={stopDraggingAndBlur}
-      onTouchCancel={stopDraggingAndBlur}
-      onTouchEnd={stopDraggingAndBlur}
-      onTouchStart={(event: TouchEvent) =>
-        startDragging(resizeHandleId, event.nativeEvent)
-      }
-      ref={divElementRef}
-      role="separator"
-      style={{
-        ...style,
-        ...styleFromProps,
-      }}
-      tabIndex={0}
-    >
-      {children}
-    </Type>
-  );
+  return createElement(Type, {
+    children,
+    className: classNameFromProps,
+    "data-resize-handle-active": isDragging
+      ? "pointer"
+      : isFocused
+      ? "keyboard"
+      : undefined,
+    "data-panel-group-direction": direction,
+    "data-panel-group-id": groupId,
+    "data-panel-resize-handle-enabled": !disabled,
+    "data-panel-resize-handle-id": resizeHandleId,
+    onBlur: () => setIsFocused(false),
+    onFocus: () => setIsFocused(true),
+    onMouseDown: (event: MouseEvent) =>
+      startDragging(resizeHandleId, event.nativeEvent),
+    onMouseUp: stopDraggingAndBlur,
+    onTouchCancel: stopDraggingAndBlur,
+    onTouchEnd: stopDraggingAndBlur,
+    onTouchStart: (event: TouchEvent) =>
+      startDragging(resizeHandleId, event.nativeEvent),
+    ref: divElementRef,
+    role: "separator",
+    style: {
+      ...style,
+      ...styleFromProps,
+    },
+    tabIndex: 0,
+  });
 }
 
 // Workaround for Parcel scope hoisting (which renames objects/functions).

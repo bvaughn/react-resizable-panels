@@ -1,36 +1,63 @@
-import { Locator, test } from "@playwright/test";
+import { test } from "@playwright/test";
+import { createElement } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import { verifyAriaValues } from "./utils/aria";
+import { goToUrl } from "./utils/url";
 
 test.describe("Nested groups", () => {
-  let outerHorizontalFirstHandle: Locator;
-  let outerHorizontalLastHandle: Locator;
-  let verticalHandle: Locator;
-  let innerHorizontalHandle: Locator;
-
-  test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:1234/examples/nested");
+  test("should resize and maintain layouts independently", async ({ page }) => {
+    await goToUrl(
+      page,
+      createElement(
+        PanelGroup,
+        { direction: "horizontal" },
+        createElement(Panel),
+        createElement(PanelResizeHandle),
+        createElement(
+          Panel,
+          undefined,
+          createElement(
+            PanelGroup,
+            { direction: "vertical" },
+            createElement(Panel),
+            createElement(PanelResizeHandle),
+            createElement(
+              Panel,
+              undefined,
+              createElement(
+                PanelGroup,
+                { direction: "horizontal" },
+                createElement(Panel),
+                createElement(PanelResizeHandle),
+                createElement(Panel)
+              )
+            )
+          )
+        ),
+        createElement(PanelResizeHandle),
+        createElement(Panel)
+      )
+    );
 
     const resizeHandles = page.locator("[data-panel-resize-handle-id]");
-    outerHorizontalFirstHandle = resizeHandles.nth(0);
-    outerHorizontalLastHandle = resizeHandles.nth(3);
-    verticalHandle = resizeHandles.nth(1);
-    innerHorizontalHandle = resizeHandles.nth(2);
-  });
+    const outerHorizontalFirstHandle = resizeHandles.nth(0);
+    const verticalHandle = resizeHandles.nth(1);
+    const innerHorizontalHandle = resizeHandles.nth(2);
+    const outerHorizontalLastHandle = resizeHandles.nth(3);
 
-  test("should resize and maintain layouts independently", async ({ page }) => {
     // Verify initial values
     await verifyAriaValues(outerHorizontalFirstHandle, {
       min: 10,
-      max: 55,
-      now: 20,
+      max: 80,
+      now: 33,
     });
     await verifyAriaValues(outerHorizontalLastHandle, {
-      min: 35,
+      min: 10,
       max: 80,
-      now: 60,
+      now: 33,
     });
-    await verifyAriaValues(verticalHandle, { min: 10, max: 90, now: 35 });
+    await verifyAriaValues(verticalHandle, { min: 10, max: 90, now: 50 });
     await verifyAriaValues(innerHorizontalHandle, {
       min: 10,
       max: 90,
@@ -45,11 +72,21 @@ test.describe("Nested groups", () => {
     await verifyAriaValues(verticalHandle, { now: 10 });
     await verifyAriaValues(innerHorizontalHandle, { now: 90 });
 
+    // Verify the outer panels still have the same relative sizes
+    await verifyAriaValues(outerHorizontalFirstHandle, {
+      now: 33,
+    });
+    await verifyAriaValues(outerHorizontalLastHandle, {
+      now: 33,
+    });
+
     // Resize the outer panel
     await outerHorizontalFirstHandle.focus();
-    await page.keyboard.press("Home");
+    await page.keyboard.press("Shift+ArrowLeft");
+    await verifyAriaValues(outerHorizontalFirstHandle, { now: 23 });
     await outerHorizontalLastHandle.focus();
-    await page.keyboard.press("End");
+    await page.keyboard.press("Shift+ArrowRight");
+    await verifyAriaValues(outerHorizontalLastHandle, { now: 53 });
 
     // Verify the inner panels still have the same relative sizes
     await verifyAriaValues(verticalHandle, { now: 10 });
