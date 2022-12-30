@@ -47,9 +47,10 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  margin-top: -0.75rem;
 }
 .Text {
-  font-size: 3em;
+  font-size: 3.25em;
   line-height: 1em;
   color: #fff;
 }
