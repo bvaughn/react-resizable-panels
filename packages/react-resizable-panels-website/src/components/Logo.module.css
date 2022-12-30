@@ -1,0 +1,55 @@
+.Row {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 1em;
+  padding: 1em;
+
+  border-radius: 1em;
+  background-color: var(--color-logo-background);
+}
+
+.Column {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 1em;
+}
+.Column:nth-of-type(1) {
+  width: 3em;
+}
+.Column:nth-of-type(2) {
+  width: 6em;
+}
+
+.ColorChip {
+  border-radius: 0.5em;
+}
+.Column:nth-of-type(1) .ColorChip:nth-of-type(1) {
+  background-color: var(--color-logo-chip-1);
+  height: 6em;
+}
+.Column:nth-of-type(1) .ColorChip:nth-of-type(2) {
+  background-color: var(--color-logo-chip-2);
+  height: 3em;
+}
+.Column:nth-of-type(2) .ColorChip:nth-of-type(1) {
+  background-color: var(--color-logo-chip-3);
+  height: 3em;
+}
+.Column:nth-of-type(2) .ColorChip:nth-of-type(2) {
+  background-color: var(--color-logo-chip-4);
+  height: 6em;
+}
+
+.Texts {
+  font-family: sans-serif;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.Text {
+  font-size: 3em;
+  line-height: 1em;
+  color: #fff;
+}

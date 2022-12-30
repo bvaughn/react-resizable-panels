@@ -1,24 +1,34 @@
 import { Link } from "react-router-dom";
 
+import Logo from "../../components/Logo";
+
 import styles from "./styles.module.css";
 
 export default function HomeRoute() {
   return (
     <div className={styles.HomeRoute}>
-      <h1 className={styles.Header}>
-        <a href="https://github.com/bvaughn/react-resizable-panels">
-          react-resizable-panels
-        </a>
-        <small className={styles.HeaderTagLine}>
-          React components for resizable panels.
-        </small>
-      </h1>
-      <p>To get started:</p>
-      <pre>
-        <code className={styles.Code}>npm install react-resizable-panels</code>
-      </pre>
-      <h2 className={styles.SubHeader}>Usage examples</h2>
-      <ul>
+      <a
+        className={styles.Link}
+        href="https://github.com/bvaughn/react-resizable-panels"
+      >
+        <Logo />
+      </a>
+      <p>React components for resizable panels</p>
+      <h2 className={styles.SubHeader}>Installation</h2>
+      <div className={styles.Code}>
+        <span className="tok-comment"># npm</span>
+        <br />
+        <span className="tok-operator">npm install </span>
+        <span className="tok-variableName">react-resizable-panels</span>
+        <br />
+        <br />
+        <span className="tok-comment"># yarn</span>
+        <br />
+        <span className="tok-operator">yarn add </span>
+        <span className="tok-variableName">react-resizable-panels</span>
+      </div>
+      <h2 className={styles.SubHeader}>Examples</h2>
+      <ul className={styles.List}>
         <li>
           <Link to="/examples/horizontal">Horizontal layouts</Link>
         </li>

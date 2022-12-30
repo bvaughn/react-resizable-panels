@@ -2,20 +2,24 @@
   padding: 2rem;
 }
 
-.Header,
 .SubHeader {
-  margin: 0;
-  margin-bottom: 1rem;
-}
-
-.HeaderTagLine {
-  display: block;
-  font-size: 1rem;
-  font-style: italic;
-  font-weight: normal;
+  margin: 1rem 0;
 }
 
 .Code {
+  display: inline-block;
+  background-color: var(--color-background-code);
+  font-family: monospace;
   padding: 1rem;
   border-radius: 1rem;
+}
+
+.List {
+  margin: 0;
+  padding: 0;
+  padding-left: 1.5rem;
+}
+
+.Link {
+  text-decoration: none;
 }

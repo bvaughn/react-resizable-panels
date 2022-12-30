@@ -1,20 +1,3 @@
-:root {
-  --token-comment-color: #666;
-  --token-definition-color: #fefefe;
-  --token-local-color: #fefefe;
-  --token-keyword-color: #ff7aad;
-  --token-meta-color: #8237bb;
-  --token-number-color: #ffdc7a;
-  --token-operator-color: #fefefe;
-  --token-propertyName-color: #ff98eb;
-  --token-punctuation-color: #dcadff;
-  --token-string-color: #7ac1ff;
-  --token-string2-color: #7ac1ff;
-  --token-typeName-color: #c67bff;
-  --token-variableName-color: #c67bff;
-  --token-variableName2-color: #c67bff;
-}
-
 .tok-comment {
   color: var(--token-comment-color);
 }
