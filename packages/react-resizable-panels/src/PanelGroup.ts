@@ -24,6 +24,7 @@ import {
 } from "./utils/group";
 import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterBehavior";
 import useUniqueId from "./hooks/useUniqueId";
+import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
 
 export type CommittedValues = {
   direction: Direction;
@@ -245,14 +246,17 @@ export default function PanelGroup({
           // update the cursor style for a visual clue.
           // This mimics VS Code behavior.
           if (isHorizontal) {
-            document.body.style.cursor = movement < 0 ? "e-resize" : "w-resize";
+            setGlobalCursorStyle(
+              movement < 0 ? "horizontal-min" : "horizontal-max"
+            );
           } else {
-            document.body.style.cursor = movement < 0 ? "s-resize" : "n-resize";
+            setGlobalCursorStyle(
+              movement < 0 ? "vertical-min" : "vertical-max"
+            );
           }
         } else {
           // Reset the cursor style to the the normal resize cursor.
-          document.body.style.cursor =
-            direction === "horizontal" ? "col-resize" : "row-resize";
+          setGlobalCursorStyle(isHorizontal ? "horizontal" : "vertical");
 
           // If resize change handlers have been declared, this is the time to call them.
           nextSizes.forEach((nextSize, index) => {
@@ -301,6 +305,7 @@ export default function PanelGroup({
         dragOffsetRef.current = getDragOffset(event, id, direction);
       },
       stopDragging: () => {
+        resetGlobalCursorStyle();
         setActiveHandleId(null);
       },
       unregisterPanel,

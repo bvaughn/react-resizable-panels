@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.25
+* While a resize is active, the global cursor style now reliably overrides per-element styles (to avoid flickering if you drag over e.g. an anchor element).
+
 ## 0.0.24
 * [#49](https://github.com/bvaughn/react-resizable-panels/issues/49): Change cursor based on min/max boundaries.
 

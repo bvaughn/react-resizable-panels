@@ -16,6 +16,7 @@ import useUniqueId from "./hooks/useUniqueId";
 import { useWindowSplitterResizeHandlerBehavior } from "./hooks/useWindowSplitterBehavior";
 import { PanelGroupContext } from "./PanelContexts";
 import type { ResizeHandler, ResizeEvent } from "./types";
+import { getCursorStyle } from "./utils/cursor";
 
 export type PanelResizeHandleProps = {
   children?: ReactNode;
@@ -84,9 +85,6 @@ export default function PanelResizeHandle({
       return;
     }
 
-    document.body.style.cursor =
-      direction === "horizontal" ? "col-resize" : "row-resize";
-
     const onMove = (event: ResizeEvent) => {
       resizeHandler(event);
     };
@@ -98,8 +96,6 @@ export default function PanelResizeHandle({
     window.addEventListener("touchend", stopDraggingAndBlur);
 
     return () => {
-      document.body.style.cursor = "";
-
       document.body.removeEventListener("contextmenu", stopDraggingAndBlur);
       document.body.removeEventListener("mousemove", onMove);
       document.body.removeEventListener("touchmove", onMove);
@@ -115,7 +111,7 @@ export default function PanelResizeHandle({
   });
 
   const style: CSSProperties = {
-    cursor: direction === "horizontal" ? "col-resize" : "row-resize",
+    cursor: getCursorStyle(direction),
     touchAction: "none",
     userSelect: "none",
   };
