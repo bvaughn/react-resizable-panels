@@ -6,6 +6,7 @@ type CursorState =
   | "vertical-max"
   | "vertical-min";
 
+let currentState: CursorState | null = null;
 let element: HTMLStyleElement | null = null;
 
 export function getCursorStyle(state: CursorState): string {
@@ -29,11 +30,18 @@ export function resetGlobalCursorStyle() {
   if (element !== null) {
     document.head.removeChild(element);
 
+    currentState = null;
     element = null;
   }
 }
 
 export function setGlobalCursorStyle(state: CursorState) {
+  if (currentState === state) {
+    return;
+  }
+
+  currentState = state;
+
   const style = getCursorStyle(state);
 
   if (element === null) {

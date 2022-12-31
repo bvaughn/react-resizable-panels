@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.26
+* Reduce style re-calc from resize-in-progress cursor style.
+
 ## 0.0.25
 * While a resize is active, the global cursor style now reliably overrides per-element styles (to avoid flickering if you drag over e.g. an anchor element).
 
