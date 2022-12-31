@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.24
+* [#49](https://github.com/bvaughn/react-resizable-panels/issues/49): Change cursor based on min/max boundaries.
+
 ## 0.0.23
 * [#40](https://github.com/bvaughn/react-resizable-panels/issues/40): Add optional `maxSize` prop to `Panel`.
 * [#41](https://github.com/bvaughn/react-resizable-panels/issues/41): Add optional `onResize` prop to `Panel`. This prop can be used (along with `defaultSize`) to persistence layouts somewhere externally.

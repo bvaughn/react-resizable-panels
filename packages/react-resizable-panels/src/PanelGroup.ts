@@ -240,7 +240,20 @@ export default function PanelGroup({
           delta,
           prevSizes
         );
-        if (prevSizes !== nextSizes) {
+        if (prevSizes === nextSizes) {
+          // If the pointer has moved too far to resize the panel any further,
+          // update the cursor style for a visual clue.
+          // This mimics VS Code behavior.
+          if (isHorizontal) {
+            document.body.style.cursor = movement < 0 ? "e-resize" : "w-resize";
+          } else {
+            document.body.style.cursor = movement < 0 ? "s-resize" : "n-resize";
+          }
+        } else {
+          // Reset the cursor style to the the normal resize cursor.
+          document.body.style.cursor =
+            direction === "horizontal" ? "col-resize" : "row-resize";
+
           // If resize change handlers have been declared, this is the time to call them.
           nextSizes.forEach((nextSize, index) => {
             const prevSize = prevSizes[index];
