@@ -24,7 +24,12 @@ export default function Example({
         <Link to="/">Back to home</Link>
       </p>
       <div className={styles.ExampleContainer}>{exampleNode}</div>
-      <Code className={styles.Code} code={code.trim()} language={language} />
+      <Code
+        className={styles.Code}
+        code={code.trim()}
+        language={language}
+        showLineNumbers
+      />
     </div>
   );
 }

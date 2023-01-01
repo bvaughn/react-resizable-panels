@@ -1,4 +1,13 @@
 .Code {
   color: var(--color-default);
-  white-space: pre-wrap;
+  white-space: pre;
+}
+
+.LineNumber {
+  color: var(--token-comment-color);
+  border-right: 1px solid var(--color-panel-background);
+  display: inline-block;
+  padding-right: 1ch;
+  margin-right: 1ch;
+  min-width: calc(var(--max-line-number-length) + 1ch + 1px);
 }

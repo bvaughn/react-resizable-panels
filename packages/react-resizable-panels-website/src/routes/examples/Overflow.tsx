@@ -62,6 +62,7 @@ function Content() {
               className={styles.Overflow}
               code={TUTORIAL_CODE_LEFT.trim()}
               language="jsx"
+              showLineNumbers
             />
           </div>
         </Panel>
@@ -75,6 +76,7 @@ function Content() {
               className={styles.Overflow}
               code={TUTORIAL_CODE_RIGHT.trim()}
               language="jsx"
+              showLineNumbers
             />
           </div>
         </Panel>
