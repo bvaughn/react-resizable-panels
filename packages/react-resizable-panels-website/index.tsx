@@ -9,6 +9,7 @@ import HorizontalExampleRoute from "./src/routes/examples/Horizontal";
 import NestedExampleRoute from "./src/routes/examples/Nested";
 import OverflowExampleRoute from "./src/routes/examples/Overflow";
 import PersistenceExampleRoute from "./src/routes/examples/Persistence";
+import CollapsibleExampleRoute from "./src/routes/examples/Collapsible";
 import VerticalExampleRoute from "./src/routes/examples/Vertical";
 import EndToEndTestingRoute from "./src/routes/EndToEndTesting";
 
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
   {
     path: "/examples/persistence",
     element: <PersistenceExampleRoute />,
+  },
+  {
+    path: "/examples/collapsible",
+    element: <CollapsibleExampleRoute />,
   },
   {
     path: "/examples/vertical",

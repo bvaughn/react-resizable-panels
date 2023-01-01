@@ -42,10 +42,13 @@ export default function HomeRoute() {
           <Link to="/examples/persistence">Persistent layouts</Link>
         </li>
         <li>
-          <Link to="/examples/conditional">Conditional panels</Link>
+          <Link to="/examples/collapsible">Collapsible</Link>
         </li>
         <li>
           <Link to="/examples/overflow">Overflow content</Link>
+        </li>
+        <li>
+          <Link to="/examples/conditional">Conditional panels</Link>
         </li>
         <li>
           <Link to="/examples/external-persistence">External persistence</Link>

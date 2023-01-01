@@ -8,7 +8,8 @@
 
   --background-color: transparent;
 }
-.ResizeHandleOuter[data-resize-handle-active] {
+.ResizeHandleOuter[data-resize-handle-active],
+.ResizeHandleInner[data-collapsed] {
   --background-color: var(--color-solid-resize-bar);
 }
 
