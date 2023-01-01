@@ -1,0 +1,65 @@
+.ResizeHandle,
+.ResizeHandleCollapsed {
+  width: 0.25rem;
+  transition: 250ms linear background-color;
+  background-color: var(--color-background-code);
+  outline: none;
+}
+.ResizeHandle:hover,
+.ResizeHandle[data-resize-handle-active],
+.ResizeHandleCollapsed:hover,
+.ResizeHandleCollapsed[data-resize-handle-active] {
+  background-color: var(--color-brand);
+}
+.ResizeHandleCollapsed {
+  background-color: var(--color-button-background-hover);
+}
+
+.IDE {
+  background-color: var(--color-panel-background);
+  border-radius: 0.5rem;
+}
+
+.Toolbar {
+  width: 3rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--color-button-background);
+}
+
+.ToolbarIcon {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+}
+
+.FileList {
+  flex: 1 1 auto;
+
+  font-size: 1rem;
+  font-family: monospace;
+  white-space: pre;
+}
+
+.DirectoryEntry {
+  padding-left: 1ch;
+}
+
+.FileEntry {
+  padding-left: 3ch;
+}
+.FileEntry[data-current] {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.FileIcon {
+  width: 2ch;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  color: var(--color-brand);
+  font-weight: bold;
+  font-size: 0.75em;
+}
