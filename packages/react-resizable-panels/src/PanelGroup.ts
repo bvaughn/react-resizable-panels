@@ -221,7 +221,9 @@ export default function PanelGroup({
           event,
           groupId,
           handleId,
+          panelsArray,
           direction,
+          prevSizes,
           dragOffsetRef.current
         );
         if (movement === 0) {

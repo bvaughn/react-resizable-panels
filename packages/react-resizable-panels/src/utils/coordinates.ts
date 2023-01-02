@@ -1,5 +1,10 @@
-import { Direction, ResizeEvent } from "../types";
-import { getPanelGroup, getResizeHandle } from "./group";
+import { PRECISION } from "../constants";
+import { Direction, PanelData, ResizeEvent } from "../types";
+import {
+  getPanelGroup,
+  getResizeHandle,
+  getResizeHandlePanelIds,
+} from "./group";
 
 export type Coordinates = {
   movement: number;
@@ -41,33 +46,72 @@ export function getMovement(
   event: ResizeEvent,
   groupId: string,
   handleId: string,
+  panelsArray: PanelData[],
   direction: Direction,
+  sizes: number[],
   initialOffset: number
 ): number {
-  const isHorizontal = direction === "horizontal";
-
-  const groupElement = getPanelGroup(groupId);
-  const rect = groupElement.getBoundingClientRect();
-  const size = isHorizontal ? rect.width : rect.height;
-
   if (isKeyDown(event)) {
-    const denominator = event.shiftKey ? 10 : 100;
-    const delta = size / denominator;
+    const isHorizontal = direction === "horizontal";
 
+    const groupElement = getPanelGroup(groupId);
+    const rect = groupElement.getBoundingClientRect();
+    const groupSizeInPixels = isHorizontal ? rect.width : rect.height;
+
+    const denominator = event.shiftKey ? 10 : 100;
+    const delta = groupSizeInPixels / denominator;
+
+    let movement = 0;
     switch (event.key) {
       case "ArrowDown":
-        return isHorizontal ? 0 : delta;
+        movement = isHorizontal ? 0 : delta;
+        break;
       case "ArrowLeft":
-        return isHorizontal ? -delta : 0;
+        movement = isHorizontal ? -delta : 0;
+        break;
       case "ArrowRight":
-        return isHorizontal ? delta : 0;
+        movement = isHorizontal ? delta : 0;
+        break;
       case "ArrowUp":
-        return isHorizontal ? 0 : -delta;
+        movement = isHorizontal ? 0 : -delta;
+        break;
       case "End":
-        return size;
+        movement = groupSizeInPixels;
+        break;
       case "Home":
-        return -size;
+        movement = -groupSizeInPixels;
+        break;
     }
+
+    // If the Panel being resized is collapsible,
+    // we need to special case resizing around the minSize boundary.
+    // If contracting, Panels should shrink to their minSize and then snap to fully collapsed.
+    // If expanding from collapsed, they should snap back to their minSize.
+    const [idBefore, idAfter] = getResizeHandlePanelIds(
+      groupId,
+      handleId,
+      panelsArray
+    );
+    const targetPanelId = movement < 0 ? idBefore : idAfter;
+    const targetPanelIndex = panelsArray.findIndex(
+      (panel) => panel.id === targetPanelId
+    );
+    const targetPanel = panelsArray[targetPanelIndex];
+    if (targetPanel.collapsible) {
+      const prevSize = sizes[targetPanelIndex];
+      if (
+        prevSize === 0 ||
+        prevSize.toPrecision(PRECISION) ===
+          targetPanel.minSize.toPrecision(PRECISION)
+      ) {
+        movement =
+          movement < 0
+            ? -targetPanel.minSize * groupSizeInPixels
+            : targetPanel.minSize * groupSizeInPixels;
+      }
+    }
+
+    return movement;
   } else {
     return getDragOffset(event, handleId, direction, initialOffset);
   }

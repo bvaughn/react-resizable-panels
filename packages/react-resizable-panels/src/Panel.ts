@@ -116,7 +116,10 @@ export default function Panel({
   return createElement(Type, {
     children,
     className: classNameFromProps,
+    "data-panel": "",
+    "data-panel-collapsible": collapsible || undefined,
     "data-panel-id": panelId,
+    "data-panel-size": parseFloat("" + style.flexGrow).toFixed(1),
     id: `data-panel-id-${panelId}`,
     style: {
       ...style,
