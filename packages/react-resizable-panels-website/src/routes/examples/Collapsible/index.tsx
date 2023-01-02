@@ -47,13 +47,14 @@ function Content() {
     <div className={sharedStyles.PanelGroupWrapper}>
       <PanelGroup className={styles.IDE} direction="horizontal">
         <div className={styles.Toolbar}>
-          <Icon className={styles.ToolbarIcon} type="files" />
+          <Icon className={styles.ToolbarIconActive} type="files" />
           <Icon className={styles.ToolbarIcon} type="search" />
         </div>
         <Panel
           className={sharedStyles.PanelColumn}
           collapsible={true}
           defaultSize={20}
+          maxSize={25}
           onCollapse={setFileListCollapsed}
         >
           <div className={styles.FileList}>

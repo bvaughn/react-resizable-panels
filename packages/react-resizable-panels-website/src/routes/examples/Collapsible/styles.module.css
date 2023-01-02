@@ -2,7 +2,7 @@
 .ResizeHandleCollapsed {
   width: 0.25rem;
   transition: 250ms linear background-color;
-  background-color: var(--color-background-code);
+  background-color: var(--color-button-background);
   outline: none;
 }
 .ResizeHandle:hover,
@@ -22,17 +22,26 @@
 
 .Toolbar {
   width: 3rem;
-  padding: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
   background-color: var(--color-button-background);
+  padding-top: 0.5rem;
 }
 
+.ToolbarIcon,
+.ToolbarIconActive {
+  flex: 0 0 2.5rem !important;
+  width: 3rem !important;
+  height: 2.5rem !important;
+  padding: 0 0.75rem;
+}
 .ToolbarIcon {
-  width: 1.5rem !important;
-  height: 1.5rem !important;
+  color: var(--color-dim);
+}
+.ToolbarIconActive {
+  color: var(--color-default);
+  border-left: 2px solid var(--color-default);
 }
 
 .FileList {
