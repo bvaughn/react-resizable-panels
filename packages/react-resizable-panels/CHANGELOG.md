@@ -1,4 +1,6 @@
 # Changelog
+## 0.0.28
+* [#53](https://github.com/bvaughn/react-resizable-panels/issues/53): Avoid `useLayoutEffect` warning when server rendering. Render panels with default style of `flex: 1 1 auto` during initial render.
 
 ## 0.0.27
 * [#4](https://github.com/bvaughn/react-resizable-panels/issues/4): Add `collapsible` and `onCollapse` props to `Panel` to support auto-collapsing panels that resize beyond their `minSize` value (similar to VS Code's panel UX).

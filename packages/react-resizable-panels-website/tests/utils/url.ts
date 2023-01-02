@@ -8,7 +8,7 @@ export async function goToUrl(
   element: ReactElement<PanelGroupProps>
 ) {
   const encodedString = UrlPanelGroupToEncodedString(element);
-  const url = `http://localhost:1234/__e2e?urlPanelGroup=${encodedString}`;
+  const url = `http://localhost:2345/__e2e?urlPanelGroup=${encodedString}`;
 
   await page.goto(url);
 }

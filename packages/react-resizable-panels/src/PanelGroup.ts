@@ -5,7 +5,6 @@ import {
   ReactNode,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -22,8 +21,9 @@ import {
   getResizeHandlePanelIds,
   panelsMapToSortedArray,
 } from "./utils/group";
-import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterBehavior";
+import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
+import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterBehavior";
 import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
 
 export type CommittedValues = {
@@ -74,7 +74,7 @@ export default function PanelGroup({
     sizes,
   });
 
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     committedValuesRef.current.direction = direction;
     committedValuesRef.current.panels = panels;
     committedValuesRef.current.sizes = sizes;
@@ -91,7 +91,7 @@ export default function PanelGroup({
   // Once all panels have registered themselves,
   // Compute the initial sizes based on default weights.
   // This assumes that panels register during initial mount (no conditional rendering)!
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const sizes = committedValuesRef.current.sizes;
     if (sizes.length === panels.size) {
       // Only compute (or restore) default sizes once per panel configuration.
@@ -167,6 +167,20 @@ export default function PanelGroup({
   const getPanelStyle = useCallback(
     (id: string): CSSProperties => {
       const { panels } = committedValuesRef.current;
+
+      // Before mounting, Panels will not yet have registered themselves.
+      // This includes server rendering.
+      // At this point the best we can do is render everything with the same size.
+      if (panels.size === 0) {
+        return {
+          flexBasis: "auto",
+          flexGrow: 1,
+          flexShrink: 1,
+
+          // Without this, Panel sizes may be unintentionally overridden by their content.
+          overflow: "hidden",
+        };
+      }
 
       const flexGrow = getFlexGrow(panels, id, sizes);
 
