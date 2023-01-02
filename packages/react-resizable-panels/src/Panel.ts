@@ -4,21 +4,24 @@ import {
   ElementType,
   ReactNode,
   useContext,
+  useEffect,
   useLayoutEffect,
   useRef,
 } from "react";
 import useUniqueId from "./hooks/useUniqueId";
 
 import { PanelGroupContext } from "./PanelContexts";
-import { PanelOnResize } from "./types";
+import { PanelOnCollapse, PanelOnResize } from "./types";
 
 export type PanelProps = {
   children?: ReactNode;
   className?: string;
+  collapsible?: boolean;
   defaultSize?: number | null;
   id?: string | null;
   maxSize?: number;
   minSize?: number;
+  onCollapse?: PanelOnCollapse | null;
   onResize?: PanelOnResize | null;
   order?: number | null;
   style?: CSSProperties;
@@ -28,10 +31,12 @@ export type PanelProps = {
 export default function Panel({
   children = null,
   className: classNameFromProps = "",
+  collapsible = false,
   defaultSize = null,
   id: idFromProps = null,
   maxSize = 100,
   minSize = 10,
+  onCollapse = null,
   onResize = null,
   order = null,
   style: styleFromProps = {},
@@ -44,7 +49,15 @@ export default function Panel({
     );
   }
 
-  const onResizeRef = useRef<PanelOnResize | null>(onResize);
+  // Use a ref to guard against users passing inline props
+  const callbacksRef = useRef<{
+    onCollapse: PanelOnCollapse | null;
+    onResize: PanelOnResize | null;
+  }>({ onCollapse, onResize });
+  useEffect(() => {
+    callbacksRef.current.onCollapse = onCollapse;
+    callbacksRef.current.onResize = onResize;
+  });
 
   // Basic props validation
   if (minSize < 0 || minSize > 100) {
@@ -57,7 +70,7 @@ export default function Panel({
         throw Error(
           `Panel defaultSize must be between 0 and 100, but was ${defaultSize}`
         );
-      } else if (minSize > defaultSize) {
+      } else if (minSize > defaultSize && !collapsible) {
         console.error(
           `Panel minSize ${minSize} cannot be greater than defaultSize ${defaultSize}`
         );
@@ -73,11 +86,12 @@ export default function Panel({
 
   useLayoutEffect(() => {
     const panel = {
+      callbacksRef,
+      collapsible,
       defaultSize,
       id: panelId,
       maxSize,
       minSize,
-      onResizeRef,
       order,
     };
 
@@ -87,6 +101,7 @@ export default function Panel({
       unregisterPanel(panelId);
     };
   }, [
+    collapsible,
     defaultSize,
     panelId,
     maxSize,
@@ -101,7 +116,10 @@ export default function Panel({
   return createElement(Type, {
     children,
     className: classNameFromProps,
+    "data-panel": "",
+    "data-panel-collapsible": collapsible || undefined,
     "data-panel-id": panelId,
+    "data-panel-size": parseFloat("" + style.flexGrow).toFixed(1),
     id: `data-panel-id-${panelId}`,
     style: {
       ...style,

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.27
+* [#4](https://github.com/bvaughn/react-resizable-panels/issues/4): Add `collapsible` and `onCollapse` props to `Panel` to support auto-collapsing panels that resize beyond their `minSize` value (similar to VS Code's panel UX).
+
 ## 0.0.26
 * Reduce style re-calc from resize-in-progress cursor style.
 

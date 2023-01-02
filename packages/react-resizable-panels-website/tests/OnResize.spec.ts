@@ -32,9 +32,9 @@ test.describe("onResize prop", () => {
 
     await first.focus();
     await page.keyboard.press("Home");
-    await resizeHandles.last().focus();
+    await last.focus();
     await page.keyboard.press("End");
     await page.keyboard.press("Shift+ArrowLeft");
-    await verifySizes(page, 10, 70, 20);
+    await verifySizes(page, 0, 90, 10);
   });
 });

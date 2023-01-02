@@ -221,7 +221,9 @@ export default function PanelGroup({
           event,
           groupId,
           handleId,
+          panelsArray,
           direction,
+          prevSizes,
           dragOffsetRef.current
         );
         if (movement === 0) {
@@ -262,9 +264,18 @@ export default function PanelGroup({
           nextSizes.forEach((nextSize, index) => {
             const prevSize = prevSizes[index];
             if (prevSize !== nextSize) {
-              const onResize = panelsArray[index].onResizeRef.current;
+              const { onCollapse, onResize } =
+                panelsArray[index].callbacksRef.current;
               if (onResize) {
                 onResize(nextSize);
+              }
+
+              if (onCollapse) {
+                if (prevSize === 0 && nextSize !== 0) {
+                  onCollapse(false);
+                } else if (prevSize !== 0 && nextSize === 0) {
+                  onCollapse(true);
+                }
               }
             }
           });

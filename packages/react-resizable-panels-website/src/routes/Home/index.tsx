@@ -29,28 +29,23 @@ export default function HomeRoute() {
       </div>
       <h2 className={styles.SubHeader}>Examples</h2>
       <ul className={styles.List}>
-        <li>
-          <Link to="/examples/horizontal">Horizontal layouts</Link>
-        </li>
-        <li>
-          <Link to="/examples/vertical">Vertical layouts</Link>
-        </li>
-        <li>
-          <Link to="/examples/nested">Nested groups</Link>
-        </li>
-        <li>
-          <Link to="/examples/persistence">Persistent layouts</Link>
-        </li>
-        <li>
-          <Link to="/examples/conditional">Conditional panels</Link>
-        </li>
-        <li>
-          <Link to="/examples/overflow">Overflow content</Link>
-        </li>
-        <li>
-          <Link to="/examples/external-persistence">External persistence</Link>
-        </li>
+        <Example path="horizontal" title="Horizontal layouts" />
+        <Example path="vertical" title="Vertical layouts" />
+        <Example path="nested" title="Nested groups" />
+        <Example path="persistence" title="Persistent layouts" />
+        <Example path="overflow" title="Overflow content" />
+        <Example path="collapsible" title="Collapsible panels" />
+        <Example path="conditional" title="Conditional panels" />
+        <Example path="external-persistence" title="External persistence" />
       </ul>
     </div>
+  );
+}
+
+function Example({ path, title }: { path: string; title: string }) {
+  return (
+    <li>
+      <Link to={`/examples/${path}`}>{title}</Link>
+    </li>
   );
 }

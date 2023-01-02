@@ -16,6 +16,7 @@ import {
 
 type UrlPanel = {
   children: Array<string | UrlPanelGroup>;
+  collapsible?: boolean;
   defaultSize?: number;
   maxSize?: number;
   minSize?: number;
@@ -85,6 +86,7 @@ function UrlPanelToData(urlPanel: ReactElement<PanelProps>): UrlPanel {
         return child;
       }
     }),
+    collapsible: urlPanel.props.collapsible,
     defaultSize: urlPanel.props.defaultSize,
     maxSize: urlPanel.props.maxSize,
     minSize: urlPanel.props.minSize,
@@ -128,6 +130,7 @@ function urlPanelToPanel(urlPanel: UrlPanel, key?: any): ReactElement {
   return createElement(
     Panel,
     {
+      collapsible: urlPanel.collapsible,
       defaultSize: urlPanel.defaultSize,
       key: key,
       maxSize: urlPanel.maxSize,

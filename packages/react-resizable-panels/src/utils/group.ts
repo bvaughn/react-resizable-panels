@@ -178,9 +178,17 @@ function safeResizePanel(
   prevSize: number
 ): number {
   const nextSizeUnsafe = prevSize + delta;
+
+  if (panel.collapsible) {
+    if (nextSizeUnsafe <= 0) {
+      return 0;
+    }
+  }
+
   const nextSize = Math.min(
     panel.maxSize,
     Math.max(panel.minSize, nextSizeUnsafe)
   );
+
   return nextSize;
 }
