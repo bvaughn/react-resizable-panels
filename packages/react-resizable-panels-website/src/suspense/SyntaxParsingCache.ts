@@ -1,13 +1,4 @@
-import { cssLanguage } from "@codemirror/lang-css";
-import { htmlLanguage } from "@codemirror/lang-html";
-import {
-  javascriptLanguage,
-  jsxLanguage,
-  tsxLanguage,
-  typescriptLanguage,
-} from "@codemirror/lang-javascript";
 import { ensureSyntaxTree } from "@codemirror/language";
-import { markdownLanguage } from "@codemirror/lang-markdown";
 import { EditorState, Extension } from "@codemirror/state";
 import { classHighlighter, highlightTree } from "@lezer/highlight";
 import createWakeable from "./createWakeable";
@@ -18,6 +9,7 @@ import {
   STATUS_RESOLVED,
   Wakeable,
 } from "./types";
+import { importModule } from "./ImportCache";
 
 export type Language =
   | "css"
@@ -64,6 +56,8 @@ export const DEFAULT_MAX_TIME = 5_000;
 const records: Map<string, Record<ParsedTokens[]>> = new Map();
 
 export function parse(code: string, language: Language): ParsedTokens[] | null {
+  const languageExtension = getLanguageExtension(language);
+
   let record = records.get(language + code);
   if (record == null) {
     record = {
@@ -76,7 +70,7 @@ export function parse(code: string, language: Language): ParsedTokens[] | null {
     records.set(code, record);
 
     // Suspense caches fire and forget; errors will be handled within the fetch function.
-    parseCode(code, language, record, record.value);
+    parseCode(code, languageExtension, record, record.value);
   }
 
   if (record!.status === STATUS_RESOLVED) {
@@ -88,12 +82,12 @@ export function parse(code: string, language: Language): ParsedTokens[] | null {
 
 async function parseCode(
   code: string,
-  language: Language,
+  languageExtension: Extension,
   record: Record<ParsedTokens[]>,
   wakeable: Wakeable<ParsedTokens[]>
 ) {
   try {
-    const parser = incrementalParser(language);
+    const parser = incrementalParser(languageExtension);
     if (parser == null) {
       record.status = STATUS_REJECTED;
       record.value = `Could not instantiate parser`;
@@ -115,7 +109,9 @@ async function parseCode(
   }
 }
 
-function incrementalParser(language: Language): IncrementalParser | null {
+function incrementalParser(
+  languageExtension: Extension
+): IncrementalParser | null {
   let complete: boolean = false;
 
   const parsedTokens: ParsedTokens[] = [];
@@ -126,33 +122,6 @@ function incrementalParser(language: Language): IncrementalParser | null {
   };
 
   let parsedCharacterIndex = 0;
-
-  let languageExtension: Extension | null = null;
-  switch (language) {
-    case "css":
-      languageExtension = cssLanguage.extension;
-      break;
-    case "html":
-      languageExtension = htmlLanguage.extension;
-      break;
-    case "javascript":
-      languageExtension = javascriptLanguage.extension;
-      break;
-    case "jsx":
-      languageExtension = jsxLanguage.extension;
-      break;
-    case "markdown":
-      languageExtension = markdownLanguage.extension;
-      break;
-    case "tsx":
-      languageExtension = tsxLanguage.extension;
-      break;
-    case "typescript":
-      languageExtension = typescriptLanguage.extension;
-      break;
-    default:
-      throw Error(`Unsupported language: "${language}"`);
-  }
 
   function parseChunk(
     code: string,
@@ -342,4 +311,36 @@ function escapeHtmlEntities(rawString: string): string {
     /[\u00A0-\u9999<>\&]/g,
     (substring) => "&#" + substring.charCodeAt(0) + ";"
   );
+}
+
+function getLanguageExtension(language: Language): Extension {
+  switch (language) {
+    case "css":
+      const { cssLanguage } = importModule("@codemirror/lang-css");
+      return cssLanguage.extension;
+    case "html":
+      const { htmlLanguage } = importModule("@codemirror/lang-html");
+      return htmlLanguage.extension;
+    case "javascript":
+      const { javascriptLanguage } = importModule(
+        "@codemirror/lang-javascript"
+      );
+      return javascriptLanguage.extension;
+    case "jsx":
+      const { jsxLanguage } = importModule("@codemirror/lang-javascript");
+      return jsxLanguage.extension;
+    case "markdown":
+      const { markdownLanguage } = importModule("@codemirror/lang-markdown");
+      return markdownLanguage.extension;
+    case "tsx":
+      const { tsxLanguage } = importModule("@codemirror/lang-javascript");
+      return tsxLanguage.extension;
+    case "typescript":
+      const { typescriptLanguage } = importModule(
+        "@codemirror/lang-javascript"
+      );
+      return typescriptLanguage.extension;
+    default:
+      throw Error(`Unsupported language: "${language}"`);
+  }
 }
