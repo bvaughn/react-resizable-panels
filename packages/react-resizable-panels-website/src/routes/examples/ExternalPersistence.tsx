@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Panel, PanelGroup } from "react-resizable-panels";
 
 import ResizeHandle from "../../components/ResizeHandle";
@@ -17,11 +17,12 @@ export default function ExternalPersistence() {
             By default, <code>PanelGroup</code>s can be configured to remember
             layouts using <code>localStorage</code>. This example shows how the{" "}
             <code>defaultSize</code> and <code>onResize</code> props can be used
-            to persist layouts somewhere custom/external.
+            to persist layouts somewhere custom/external. In this case, sizes
+            are saved as part of the URL hash.
           </p>
           <p>
-            Note that when the <code>onResize</code> prop is used, the{" "}
-            <code>order</code> prop should always be provided as well.
+            Note that when the <code>onResize</code> prop is used, the
+            <code>order</code> prop should also be specified.
           </p>
         </>
       }
@@ -29,18 +30,50 @@ export default function ExternalPersistence() {
   );
 }
 
+type Sizes = {
+  left: number;
+  middle: number;
+  right: number;
+};
+
+const DefaultSizes: Sizes = {
+  left: 33,
+  middle: 34,
+  right: 33,
+};
+
 function Content() {
-  const [sizes, saveSizes] = useState({ left: 33, middle: 34, right: 33 });
+  const [sizes, saveSizes] = useState<Sizes>(() => {
+    if (window.location.hash) {
+      try {
+        return JSON.parse(decodeURI(window.location.hash.substring(1)));
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    return DefaultSizes;
+  });
+
+  const onResize = (partialSizes: Partial<Sizes>) => {
+    saveSizes((prevSizes) => ({
+      ...prevSizes,
+      ...partialSizes,
+    }));
+  };
+
+  useEffect(() => {
+    window.location.hash = encodeURI(JSON.stringify(sizes));
+  }, [sizes]);
 
   return (
     <div className={styles.PanelGroupWrapper}>
       <PanelGroup className={styles.PanelGroup} direction="horizontal">
         <Panel
           className={styles.PanelRow}
+          collapsible={true}
           defaultSize={sizes.left}
-          onResize={(left) =>
-            saveSizes((prevSizes) => ({ ...prevSizes, left }))
-          }
+          onResize={(left) => onResize({ left })}
           order={1}
         >
           <div className={styles.Centered}>left: {Math.round(sizes.left)}</div>
@@ -49,9 +82,7 @@ function Content() {
         <Panel
           className={styles.PanelRow}
           defaultSize={sizes.middle}
-          onResize={(middle) =>
-            saveSizes((prevSizes) => ({ ...prevSizes, middle }))
-          }
+          onResize={(middle) => onResize({ middle })}
           order={2}
         >
           <div className={styles.Centered}>
@@ -61,10 +92,9 @@ function Content() {
         <ResizeHandle className={styles.ResizeHandle} />
         <Panel
           className={styles.PanelRow}
+          collapsible={true}
           defaultSize={sizes.right}
-          onResize={(right) =>
-            saveSizes((prevSizes) => ({ ...prevSizes, right }))
-          }
+          onResize={(right) => onResize({ right })}
           order={3}
         >
           <div className={styles.Centered}>

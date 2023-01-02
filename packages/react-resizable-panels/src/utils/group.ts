@@ -179,22 +179,10 @@ function safeResizePanel(
 ): number {
   const nextSizeUnsafe = prevSize + delta;
 
-  // TODO [issues/4] This doesn't feel as nice as VS Code's collapse,
-  // but to do what it does we'd have to track prev position and offset.
   if (panel.collapsible) {
     if (nextSizeUnsafe <= 0) {
       return 0;
     }
-    // if (prevSize === 0) {
-    //   if (delta < 0) {
-    //     return prevSize;
-    //   }
-    // } else {
-    //   // TODO [issues/4] Threshold
-    //   if (nextSizeUnsafe < panel.minSize) {
-    //     return 0;
-    //   }
-    // }
   }
 
   const nextSize = Math.min(

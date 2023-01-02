@@ -70,7 +70,7 @@ export default function Panel({
         throw Error(
           `Panel defaultSize must be between 0 and 100, but was ${defaultSize}`
         );
-      } else if (minSize > defaultSize) {
+      } else if (minSize > defaultSize && !collapsible) {
         console.error(
           `Panel minSize ${minSize} cannot be greater than defaultSize ${defaultSize}`
         );
