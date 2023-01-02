@@ -50,6 +50,9 @@
   font-size: 1rem;
   font-family: monospace;
   white-space: pre;
+
+  container-type: inline-size;
+  container-name: filelist;
 }
 
 .SourceIcon {
@@ -61,6 +64,7 @@
   align-items: center;
   padding-left: 1ch;
   gap: 1ch;
+  height: 1.5em;
 }
 
 .FileEntry {
@@ -80,6 +84,19 @@
   color: var(--color-brand);
   font-weight: bold;
   font-size: 0.75em;
+}
+
+@container filelist (max-width: 50px) {
+  .FileList .DirectoryEntry,
+  .FileList .FileEntry {
+    padding-left: 0;
+    justify-content: center;
+  }
+
+  .FileList .DirectoryName,
+  .FileList .FileName {
+    display: none;
+  }
 }
 
 .SourceTabs {

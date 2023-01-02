@@ -55,12 +55,13 @@ function Content() {
           collapsible={true}
           defaultSize={20}
           maxSize={25}
+          minSize={5}
           onCollapse={setFileListCollapsed}
         >
           <div className={styles.FileList}>
             <div className={styles.DirectoryEntry}>
               <Icon className={styles.SourceIcon} type="chevron-down" />
-              source
+              <div className={styles.DirectoryName}>source</div>
             </div>
 
             {FILES.map((file) => (
@@ -77,9 +78,10 @@ function Content() {
 
                   setCurrentFile(file);
                 }}
+                title={file.fileName}
               >
                 <Icon className={styles.FileIcon} type={file.type} />
-                {file.fileName}
+                <div className={styles.FileName}>{file.fileName}</div>
               </div>
             ))}
           </div>
