@@ -2,12 +2,19 @@ import { useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import Code from "../../../components/Code";
-import Icon from "../../../components/Icon";
+import Icon, { IconType } from "../../../components/Icon";
+import {
+  TUTORIAL_CODE_CSS,
+  TUTORIAL_CODE_HTML,
+  TUTORIAL_CODE_JAVASCRIPT,
+  TUTORIAL_CODE_README,
+} from "../../../code";
 
 import Example from "../Example";
 import sharedStyles from "../shared.module.css";
 
 import styles from "./styles.module.css";
+import { Language } from "../../../suspense/SyntaxParsingCache";
 
 export default function CollapsibleRoute() {
   return (
@@ -32,6 +39,8 @@ export default function CollapsibleRoute() {
 }
 
 function Content() {
+  const [openFiles, setOpenFiles] = useState(new Set([DEFAULT_FILE]));
+  const [currentFile, setCurrentFile] = useState(DEFAULT_FILE);
   const [fileListCollapsed, setFileListCollapsed] = useState(false);
 
   return (
@@ -48,16 +57,30 @@ function Content() {
           onCollapse={setFileListCollapsed}
         >
           <div className={styles.FileList}>
-            <div className={styles.DirectoryEntry}>src</div>
-            <div className={styles.FileEntry} data-current>
-              <div className={styles.FileIcon}>TS</div> Demo.tsx
+            <div className={styles.DirectoryEntry}>
+              <Icon className={styles.SourceIcon} type="chevron-down" />
+              source
             </div>
-            <div className={styles.FileEntry}>
-              <div className={styles.FileIcon}>#</div> Demo.module.css
-            </div>
-            <div className={styles.FileEntry}>
-              <div className={styles.FileIcon}>{"<>"}</div> index.html
-            </div>
+
+            {FILES.map((file) => (
+              <div
+                className={styles.FileEntry}
+                data-current={currentFile === file || undefined}
+                key={file.fileName}
+                onClick={() => {
+                  setOpenFiles(() => {
+                    const newOpenFiles = new Set(openFiles);
+                    newOpenFiles.add(file);
+                    return newOpenFiles;
+                  });
+
+                  setCurrentFile(file);
+                }}
+              >
+                <Icon className={styles.FileIcon} type={file.type} />
+                {file.fileName}
+              </div>
+            ))}
           </div>
         </Panel>
         <PanelResizeHandle
@@ -67,11 +90,24 @@ function Content() {
               : styles.ResizeHandle
           }
         />
-        <Panel className={sharedStyles.PanelRow}>
+        <Panel className={sharedStyles.PanelColumn}>
+          <div className={styles.SourceTabs}>
+            {Array.from(openFiles).map((file) => (
+              <div
+                className={styles.SourceTab}
+                data-current={currentFile === file || undefined}
+                key={file.fileName}
+                onClick={() => setCurrentFile(file)}
+              >
+                <Icon className={styles.FileIcon} type={file.type} />
+                <span>{file.fileName}</span>
+              </div>
+            ))}
+          </div>
           <Code
             className={sharedStyles.Overflow}
-            code={TUTORIAL_CODE.trim()}
-            language="jsx"
+            code={currentFile.code.trim()}
+            language={currentFile.language}
             showLineNumbers
           />
         </Panel>
@@ -79,6 +115,40 @@ function Content() {
     </div>
   );
 }
+
+const FILES: Array<{
+  language: Language;
+  type: IconType;
+  fileName: string;
+  code: string;
+}> = [
+  {
+    language: "html",
+    type: "html",
+    fileName: "index.html",
+    code: TUTORIAL_CODE_HTML,
+  },
+  {
+    language: "markdown",
+    type: "markdown",
+    fileName: "README.md",
+    code: TUTORIAL_CODE_README,
+  },
+  {
+    language: "css",
+    type: "css",
+    fileName: "styles.css",
+    code: TUTORIAL_CODE_CSS,
+  },
+  {
+    language: "tsx",
+    type: "typescript",
+    fileName: "TicTacToe.ts",
+    code: TUTORIAL_CODE_JAVASCRIPT,
+  },
+];
+
+const DEFAULT_FILE = FILES[0];
 
 const CODE = `
 <PanelGroup direction="horizontal">
@@ -91,30 +161,4 @@ const CODE = `
     <SourceViewer />
   </Panel>
 </PanelGroup>
-`;
-
-const TUTORIAL_CODE = `
-// https://reactjs.org/tutorial/tutorial.html#completing-the-game
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<Game />);
-
-function calculateWinner(squares) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
-  return null;
-}
 `;

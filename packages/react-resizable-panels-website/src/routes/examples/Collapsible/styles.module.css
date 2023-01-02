@@ -43,23 +43,56 @@
   white-space: pre;
 }
 
-.DirectoryEntry {
+.SourceIcon {
+}
+
+.DirectoryEntry,
+.FileEntry {
+  display: flex;
+  align-items: center;
   padding-left: 1ch;
+  gap: 1ch;
 }
 
 .FileEntry {
   padding-left: 3ch;
+  cursor: pointer;
+  transition: 250ms linear background-color;
 }
+.FileEntry:hover,
 .FileEntry[data-current] {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--color-button-background);
 }
 .FileIcon {
-  width: 2ch;
+  flex: 0 0 3ch;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.25rem;
   color: var(--color-brand);
   font-weight: bold;
   font-size: 0.75em;
+}
+
+.SourceTabs {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  overflow: auto;
+  background-color: var(--color-button-background);
+}
+
+.SourceTab {
+  flex: 0 0 auto;
+  padding: 0.5rem 1ch;
+  gap: 1ch;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  white-space: nowrap;
+  background-color: var(--color-panel-background);
+  border-right: 1px solid var(--color-background-default);
+  cursor: pointer;
+}
+.SourceTab[data-current] {
+  background-color: var(--color-background-code);
 }

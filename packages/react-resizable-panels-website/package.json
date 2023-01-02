@@ -11,8 +11,11 @@
     "kill-port": "latest"
   },
   "dependencies": {
+    "@codemirror/lang-css": "latest",
+    "@codemirror/lang-html": "latest",
     "@codemirror/lang-javascript": "latest",
     "@codemirror/language": "latest",
+    "@codemirror/lang-markdown": "latest",
     "@codemirror/state": "latest",
     "@lezer/highlight": "latest",
     "@playwright/test": "latest",

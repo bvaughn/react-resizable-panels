@@ -1,3 +1,5 @@
+import { cssLanguage } from "@codemirror/lang-css";
+import { htmlLanguage } from "@codemirror/lang-html";
 import {
   javascriptLanguage,
   jsxLanguage,
@@ -5,6 +7,7 @@ import {
   typescriptLanguage,
 } from "@codemirror/lang-javascript";
 import { ensureSyntaxTree } from "@codemirror/language";
+import { markdownLanguage } from "@codemirror/lang-markdown";
 import { EditorState, Extension } from "@codemirror/state";
 import { classHighlighter, highlightTree } from "@lezer/highlight";
 import createWakeable from "./createWakeable";
@@ -16,7 +19,14 @@ import {
   Wakeable,
 } from "./types";
 
-export type Language = "javascript" | "jsx" | "tsx" | "typescript";
+export type Language =
+  | "css"
+  | "html"
+  | "javascript"
+  | "jsx"
+  | "markdown"
+  | "tsx"
+  | "typescript";
 
 export type ParsedToken = {
   columnIndex: number;
@@ -119,11 +129,20 @@ function incrementalParser(language: Language): IncrementalParser | null {
 
   let languageExtension: Extension | null = null;
   switch (language) {
+    case "css":
+      languageExtension = cssLanguage.extension;
+      break;
+    case "html":
+      languageExtension = htmlLanguage.extension;
+      break;
     case "javascript":
       languageExtension = javascriptLanguage.extension;
       break;
     case "jsx":
       languageExtension = jsxLanguage.extension;
+      break;
+    case "markdown":
+      languageExtension = markdownLanguage.extension;
       break;
     case "tsx":
       languageExtension = tsxLanguage.extension;
