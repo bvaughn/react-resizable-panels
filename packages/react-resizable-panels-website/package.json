@@ -5,7 +5,7 @@
   "scripts": {
     "build": "parcel build 'index.html'",
     "test:e2e": "playwright test",
-    "watch": "kill-port 1234 && parcel 'index.html'"
+    "watch": "kill-port ${PORT:-1234} && parcel 'index.html'"
   },
   "devDependencies": {
     "kill-port": "latest"

@@ -5,9 +5,9 @@ import {
   ReactNode,
   useContext,
   useEffect,
-  useLayoutEffect,
   useRef,
 } from "react";
+import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
 
 import { PanelGroupContext } from "./PanelContexts";
@@ -84,7 +84,7 @@ export default function Panel({
 
   const { getPanelStyle, registerPanel, unregisterPanel } = context;
 
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const panel = {
       callbacksRef,
       collapsible,

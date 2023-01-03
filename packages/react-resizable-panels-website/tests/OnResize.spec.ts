@@ -22,7 +22,7 @@ async function verifySizes(
 
 test.describe("onResize prop", () => {
   test("should call onResize when panels are resized", async ({ page }) => {
-    await page.goto("http://localhost:1234/examples/external-persistence");
+    await page.goto("http://localhost:2345/examples/external-persistence");
 
     const resizeHandles = page.locator("[data-panel-resize-handle-id]");
     const first = resizeHandles.first();
