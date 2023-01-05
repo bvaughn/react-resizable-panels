@@ -4,8 +4,9 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import HomeRoute from "./src/routes/Home";
 import ConditionalExampleRoute from "./src/routes/examples/Conditional";
-import ExternalPersistence from "./src/routes/examples/ExternalPersistence";
+import ExternalPersistenceExampleRoute from "./src/routes/examples/ExternalPersistence";
 import HorizontalExampleRoute from "./src/routes/examples/Horizontal";
+import ImperativeApiExampleRoute from "./src/routes/examples/ImperativeApi";
 import NestedExampleRoute from "./src/routes/examples/Nested";
 import OverflowExampleRoute from "./src/routes/examples/Overflow";
 import PersistenceExampleRoute from "./src/routes/examples/Persistence";
@@ -24,11 +25,15 @@ const router = createBrowserRouter([
   },
   {
     path: "/examples/external-persistence",
-    element: <ExternalPersistence />,
+    element: <ExternalPersistenceExampleRoute />,
   },
   {
     path: "/examples/horizontal",
     element: <HorizontalExampleRoute />,
+  },
+  {
+    path: "/examples/imperative-api",
+    element: <ImperativeApiExampleRoute />,
   },
   {
     path: "/examples/nested",

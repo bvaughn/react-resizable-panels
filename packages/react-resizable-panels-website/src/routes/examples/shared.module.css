@@ -60,3 +60,10 @@
 .Button:hover {
   background-color: var(--color-button-background-hover);
 }
+
+.Buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1ch;
+}

@@ -29,17 +29,15 @@ export default function ConditionalRoute() {
             If an <code>autoSaveId</code> is provided, layouts will be stored
             separately for each panel combination.
           </p>
-          <p>
+          <p className={styles.Buttons}>
             <button
               className={styles.Button}
-              id="toggleLeftPanelButton"
               onClick={() => setShowLeftPanel(!showLeftPanel)}
             >
               {showLeftPanel ? "Hide" : "Show"} left panel
-            </button>{" "}
+            </button>
             <button
               className={styles.Button}
-              id="toggleRightPanelButton"
               onClick={() => setShowRightPanel(!showRightPanel)}
             >
               {showRightPanel ? "Hide" : "Show"} right panel

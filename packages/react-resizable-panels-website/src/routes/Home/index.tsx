@@ -37,6 +37,7 @@ export default function HomeRoute() {
         <Example path="collapsible" title="Collapsible panels" />
         <Example path="conditional" title="Conditional panels" />
         <Example path="external-persistence" title="External persistence" />
+        <Example path="imperative-api" title="Imperative API" />
       </ul>
     </div>
   );

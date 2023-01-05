@@ -48,7 +48,7 @@ export type PanelGroupProps = {
   tagName?: ElementType;
 };
 
-export default function PanelGroup({
+export function PanelGroup({
   autoSaveId,
   children = null,
   className: classNameFromProps = "",
@@ -316,14 +316,29 @@ export default function PanelGroup({
     });
   }, []);
 
+  const collapsePanel = useCallback((id: string) => {
+    // TODO [issues/58]
+  }, []);
+
+  const expandPanel = useCallback((id: string) => {
+    // TODO [issues/58]
+  }, []);
+
+  const resizePanel = useCallback((id: string, size: number) => {
+    // TODO [issues/58]
+  }, []);
+
   const context = useMemo(
     () => ({
       activeHandleId,
+      collapsePanel,
       direction,
+      expandPanel,
       getPanelStyle,
       groupId,
       registerPanel,
       registerResizeHandle,
+      resizePanel,
       startDragging: (id: string, event: ResizeEvent) => {
         setActiveHandleId(id);
 
@@ -337,11 +352,14 @@ export default function PanelGroup({
     }),
     [
       activeHandleId,
+      collapsePanel,
       direction,
+      expandPanel,
       getPanelStyle,
       groupId,
       registerPanel,
       registerResizeHandle,
+      resizePanel,
       unregisterPanel,
     ]
   );

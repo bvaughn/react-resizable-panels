@@ -40,7 +40,7 @@ type UrlPanelResizeHandle = {
 };
 
 function isPanelElement(value: any): value is ReactElement<PanelProps> {
-  return value?.type?.displayName === "Panel";
+  return value?.type?.displayName === "forwardRef(Panel)";
 }
 
 function isPanelGroupElement(
