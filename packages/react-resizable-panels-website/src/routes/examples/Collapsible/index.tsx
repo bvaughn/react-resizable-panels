@@ -112,6 +112,7 @@ function Content() {
             code={currentFile.code.trim()}
             language={currentFile.language}
             showLineNumbers
+            copyHidden
           />
         </Panel>
       </PanelGroup>

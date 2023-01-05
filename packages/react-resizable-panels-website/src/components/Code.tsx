@@ -6,6 +6,7 @@ import {
   parsedTokensToHtml,
 } from "../suspense/SyntaxParsingCache";
 import { ParsedTokens } from "../suspense/SyntaxParsingCache";
+import Copy from "./Copy";
 
 import styles from "./Code.module.css";
 
@@ -14,11 +15,13 @@ export default function Code({
   code,
   language = "jsx",
   showLineNumbers = false,
+  copyHidden = false,
 }: {
   className?: string;
   code: string;
   language: Language;
   showLineNumbers?: boolean;
+  copyHidden?: boolean;
 }) {
   return (
     <Suspense>
@@ -27,6 +30,7 @@ export default function Code({
         code={code}
         language={language}
         showLineNumbers={showLineNumbers}
+        copyHidden={copyHidden}
       />
     </Suspense>
   );
@@ -37,11 +41,13 @@ function Parser({
   code,
   language,
   showLineNumbers,
+  copyHidden = false,
 }: {
   className: string;
   code: string;
   language: Language;
   showLineNumbers: boolean;
+  copyHidden?: boolean;
 }) {
   const tokens = parse(code, language);
   return (
@@ -49,6 +55,8 @@ function Parser({
       className={className}
       tokens={tokens}
       showLineNumbers={showLineNumbers}
+      code={code}
+      copyHidden={copyHidden}
     />
   );
 }
@@ -57,10 +65,14 @@ function TokenRenderer({
   className,
   showLineNumbers,
   tokens,
+  code,
+  copyHidden = false,
 }: {
   className?: string;
   showLineNumbers: boolean;
   tokens: ParsedTokens[];
+  code: string;
+  copyHidden?: boolean;
 }) {
   const maxLineNumberLength = `${tokens.length + 1}`.length;
 
@@ -81,13 +93,15 @@ function TokenRenderer({
   }, [showLineNumbers, tokens]);
 
   return (
-    <code
-      className={[styles.Code, className].join(" ")}
+    <>
+      <Copy code={code} hidden={copyHidden} />
+      <code
+      className={[styles.Code, 'code', className].join(" ")}
       dangerouslySetInnerHTML={{ __html: html }}
       style={{
         // @ts-ignore
-        "--max-line-number-length": `${maxLineNumberLength}ch`,
-      }}
-    />
+        "--max-line-number-length": `${maxLineNumberLength}ch`
+      }}/>
+    </>
   );
 }

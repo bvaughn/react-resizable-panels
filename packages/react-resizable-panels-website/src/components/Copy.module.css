@@ -1,0 +1,30 @@
+.Copy {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  float: right;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+  background-color: var(--color-button-background);
+  color: #fff;
+  border-color: transparent;
+  border-radius: 0.5rem;
+}
+
+/* temporary fix for making it look right with the overflow panels */
+div[class*="Centered"] > button {
+  display: none;
+}
+
+.Copy:hover {
+  background-color: var(--color-button-background-hover);
+}
+
+.Copy svg {
+  fill: #fff;
+}
+
+.Copy span {
+  font-size: 1rem;
+  word-break: keep-all;
+}
