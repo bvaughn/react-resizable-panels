@@ -17,6 +17,7 @@ div[class*="Centered"] > button {
 }
 
 .Copy:hover {
+  cursor: pointer;
   background-color: var(--color-button-background-hover);
 }
 
