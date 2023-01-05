@@ -5,6 +5,8 @@ export type IconType =
   | "close"
   | "css"
   | "files"
+  | "horizontal-collapse"
+  | "horizontal-expand"
   | "html"
   | "markdown"
   | "resize-horizontal"
@@ -35,6 +37,14 @@ export default function Icon({
     case "files":
       path =
         "M15,7H20.5L15,1.5V7M8,0H16L22,6V18A2,2 0 0,1 20,20H8C6.89,20 6,19.1 6,18V2A2,2 0 0,1 8,0M4,4V22H20V24H4A2,2 0 0,1 2,22V4H4Z";
+      break;
+    case "horizontal-collapse":
+      path =
+        "M13,20V4H15.03V20H13M10,20V4H12.03V20H10M5,8L9.03,12L5,16V13H2V11H5V8M20,16L16,12L20,8V11H23V13H20V16Z";
+      break;
+    case "horizontal-expand":
+      path =
+        "M9,11H15V8L19,12L15,16V13H9V16L5,12L9,8V11M2,20V4H4V20H2M20,20V4H22V20H20Z";
       break;
     case "html":
       path =

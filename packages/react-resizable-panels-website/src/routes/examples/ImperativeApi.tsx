@@ -4,17 +4,35 @@ import {
   Panel,
   PanelGroup,
 } from "react-resizable-panels";
+import Icon from "../../components/Icon";
 
 import ResizeHandle from "../../components/ResizeHandle";
 
 import Example from "./Example";
 import styles from "./shared.module.css";
 
+type Sizes = {
+  left: number;
+  middle: number;
+  right: number;
+};
+
 export default function ImperativeApiRoute() {
-  const [leftPanelSize, setLeftPanelSize] = useState(20);
-  const [rightPanelSize, setRightPanelSize] = useState(20);
+  const [sizes, setSizes] = useState<Sizes>({
+    left: 20,
+    middle: 60,
+    right: 20,
+  });
+
+  const onResize = (partialSizes: Partial<Sizes>) => {
+    setSizes((prevSizes: Sizes) => ({
+      ...prevSizes,
+      ...partialSizes,
+    }));
+  };
 
   const leftPanelRef = useRef<ImperativePanelHandle>(null);
+  const middlePanelRef = useRef<ImperativePanelHandle>(null);
   const rightPanelRef = useRef<ImperativePanelHandle>(null);
 
   return (
@@ -23,9 +41,10 @@ export default function ImperativeApiRoute() {
       exampleNode={
         <Content
           leftPanelRef={leftPanelRef}
-          leftPanelOnResize={setLeftPanelSize}
+          middlePanelRef={middlePanelRef}
           rightPanelRef={rightPanelRef}
-          rightPanelOnResize={setRightPanelSize}
+          onResize={onResize}
+          sizes={sizes}
         />
       }
       headerNode={
@@ -52,14 +71,19 @@ export default function ImperativeApiRoute() {
             </li>
           </ul>
           <ButtonsRow
-            label="Left panel"
+            id="left"
             panelRef={leftPanelRef}
-            panelSize={leftPanelSize}
+            panelSize={sizes.left}
           />
           <ButtonsRow
-            label="Right panel"
+            id="middle"
+            panelRef={middlePanelRef}
+            panelSize={sizes.middle}
+          />
+          <ButtonsRow
+            id="right"
             panelRef={rightPanelRef}
-            panelSize={rightPanelSize}
+            panelSize={sizes.right}
           />
         </>
       }
@@ -69,16 +93,15 @@ export default function ImperativeApiRoute() {
 }
 
 function ButtonsRow({
-  label,
+  id,
   panelRef,
   panelSize,
 }: {
-  label: string;
+  id: string;
   panelRef: RefObject<ImperativePanelHandle>;
   panelSize: number;
 }) {
   const [size, setSize] = useState(20);
-  console.log(label, "size:", size, "panelSize:", panelSize);
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget as HTMLInputElement;
@@ -87,32 +110,37 @@ function ButtonsRow({
 
   return (
     <span className={styles.Buttons}>
-      {label}:
+      <span className={styles.Capitalize}>{id}</span>
       <button
         className={panelSize === 0 ? styles.ButtonDisabled : styles.Button}
+        data-test-id={`collapse-button-${id}`}
         onClick={() => panelRef.current.collapse()}
+        title="Collapse panel"
       >
-        Collapse
+        <Icon type="horizontal-collapse" />
       </button>
       <button
         className={panelSize !== 0 ? styles.ButtonDisabled : styles.Button}
+        data-test-id={`expand-button-${id}`}
         onClick={() => panelRef.current.expand()}
+        title="Expand panel"
       >
-        Expand
+        <Icon type="horizontal-expand" />
       </button>
-      |
       <form
         className={styles.ResizeForm}
         onSubmit={(event) => event.preventDefault()}
       >
         <button
           className={panelSize === size ? styles.ButtonDisabled : styles.Button}
+          data-test-id={`resize-button-${id}`}
           onClick={() => panelRef.current.resize(size)}
         >
           Resize to:
         </button>
         <input
           className={styles.SizeInput}
+          data-test-id={`size-input-${id}`}
           onChange={onChange}
           min={0}
           max={100}
@@ -128,14 +156,16 @@ function ButtonsRow({
 
 function Content({
   leftPanelRef,
-  leftPanelOnResize,
+  middlePanelRef,
   rightPanelRef,
-  rightPanelOnResize,
+  onResize,
+  sizes,
 }: {
   leftPanelRef: RefObject<ImperativePanelHandle>;
-  leftPanelOnResize: (size: number) => void;
+  middlePanelRef: RefObject<ImperativePanelHandle>;
   rightPanelRef: RefObject<ImperativePanelHandle>;
-  rightPanelOnResize: (size: number) => void;
+  onResize: (partialSizes: Partial<Sizes>) => void;
+  sizes: Sizes;
 }) {
   return (
     <div className={styles.PanelGroupWrapper}>
@@ -143,29 +173,43 @@ function Content({
         <Panel
           className={styles.PanelRow}
           collapsible
-          defaultSize={20}
+          defaultSize={sizes.left}
           maxSize={30}
           minSize={10}
-          onResize={leftPanelOnResize}
+          onResize={(left: number) => onResize({ left })}
+          order={1}
           ref={leftPanelRef}
         >
-          <div className={styles.Centered}>left</div>
-        </Panel>
-        <ResizeHandle className={styles.ResizeHandle} />
-        <Panel className={styles.PanelRow}>
-          <div className={styles.Centered}>middle</div>
+          <div className={styles.Centered}>left: {Math.round(sizes.left)}</div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
         <Panel
           className={styles.PanelRow}
           collapsible
-          defaultSize={20}
-          maxSize={30}
+          maxSize={100}
           minSize={10}
-          onResize={rightPanelOnResize}
+          onResize={(middle: number) => onResize({ middle })}
+          order={2}
+          ref={middlePanelRef}
+        >
+          <div className={styles.Centered}>
+            middle: {Math.round(sizes.middle)}
+          </div>
+        </Panel>
+        <ResizeHandle className={styles.ResizeHandle} />
+        <Panel
+          className={styles.PanelRow}
+          collapsible
+          defaultSize={sizes.right}
+          maxSize={100}
+          minSize={10}
+          onResize={(right: number) => onResize({ right })}
+          order={3}
           ref={rightPanelRef}
         >
-          <div className={styles.Centered}>right</div>
+          <div className={styles.Centered}>
+            right: {Math.round(sizes.right)}
+          </div>
         </Panel>
       </PanelGroup>
     </div>

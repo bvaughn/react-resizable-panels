@@ -70,6 +70,7 @@
   flex-direction: row;
   align-items: center;
   gap: 1ch;
+  margin-bottom: 1rem;
 }
 
 .SizeInput {
@@ -92,4 +93,8 @@
   align-items: center;
   gap: 1ch;
   margin: 0;
+}
+
+.Capitalize {
+  text-transform: capitalize;
 }
