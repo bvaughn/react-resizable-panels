@@ -196,9 +196,13 @@ export function PanelGroup({
 
         // Without this, Panel sizes may be unintentionally overridden by their content.
         overflow: "hidden",
+
+        // Disable pointer events inside of a panel during resize.
+        // This avoid edge cases like nested iframes.
+        pointerEvents: activeHandleId !== null ? "none" : undefined,
       };
     },
-    [direction, sizes]
+    [activeHandleId, direction, sizes]
   );
 
   const registerPanel = useCallback((id: string, panel: PanelData) => {
