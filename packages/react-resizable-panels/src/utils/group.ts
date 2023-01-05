@@ -83,6 +83,26 @@ export function adjustByDelta(
   return nextSizes;
 }
 
+export function getBeforeAndAfterIds(
+  id: string,
+  panelsArray: PanelData[]
+): [idBefore: string | null, idAFter: string | null] {
+  if (panelsArray.length < 2) {
+    return [null, null];
+  }
+
+  const index = panelsArray.findIndex((panel) => panel.id === id);
+  if (index < 0) {
+    return [null, null];
+  }
+
+  const isLastPanel = index === panelsArray.length - 1;
+  const idBefore = isLastPanel ? panelsArray[index - 1].id : id;
+  const idAfter = isLastPanel ? id : panelsArray[index + 1].id;
+
+  return [idBefore, idAfter];
+}
+
 // This method returns a number between 1 and 100 representing
 // the % of the group's overall space this panel should occupy.
 export function getFlexGrow(

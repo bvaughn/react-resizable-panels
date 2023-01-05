@@ -11,33 +11,15 @@ import Example from "./Example";
 import styles from "./shared.module.css";
 
 export default function ImperativeApiRoute() {
-  const panelRef = useRef<ImperativePanelHandle>(null);
-
-  const collapsePanel = () => {
-    const panel = panelRef.current;
-    if (panel) {
-      panel.collapse();
-    }
-  };
-
-  const expandPanel = () => {
-    const panel = panelRef.current;
-    if (panel) {
-      panel.expand();
-    }
-  };
-
-  const resizePanel = (size: number) => {
-    const panel = panelRef.current;
-    if (panel) {
-      panel.resize(size);
-    }
-  };
+  const leftPanelRef = useRef<ImperativePanelHandle>(null);
+  const rightPanelRef = useRef<ImperativePanelHandle>(null);
 
   return (
     <Example
       code={CODE}
-      exampleNode={<Content panelRef={panelRef} />}
+      exampleNode={
+        <Content leftPanelRef={leftPanelRef} rightPanelRef={rightPanelRef} />
+      }
       headerNode={
         <>
           <p>
@@ -56,31 +38,66 @@ export default function ImperativeApiRoute() {
               <code>resize(size)</code>: Resize the panel to the specified size.
             </li>
           </ul>
-          <p className={styles.Buttons}>
-            <button className={styles.Button} onClick={collapsePanel}>
-              Collapse
-            </button>
-            <button className={styles.Button} onClick={expandPanel}>
-              Expand
-            </button>
-            |
-            <button className={styles.Button} onClick={() => resizePanel(10)}>
-              Resize: 10
-            </button>
-            <button className={styles.Button} onClick={() => resizePanel(20)}>
-              Resize: 20
-            </button>
-            <button className={styles.Button} onClick={() => resizePanel(30)}>
-              Resize: 30
-            </button>
-          </p>
+          <ButtonsRow label="Left panel" panelRef={leftPanelRef} />
+          <ButtonsRow label="Right panel" panelRef={rightPanelRef} />
         </>
       }
     />
   );
 }
 
-function Content({ panelRef }: { panelRef: RefObject<ImperativePanelHandle> }) {
+function ButtonsRow({
+  label,
+  panelRef,
+}: {
+  label: string;
+  panelRef: RefObject<ImperativePanelHandle>;
+}) {
+  return (
+    <p className={styles.Buttons}>
+      {label}:
+      <button
+        className={styles.Button}
+        onClick={() => panelRef.current.collapse()}
+      >
+        Collapse
+      </button>
+      <button
+        className={styles.Button}
+        onClick={() => panelRef.current.expand()}
+      >
+        Expand
+      </button>
+      |
+      <button
+        className={styles.Button}
+        onClick={() => panelRef.current.resize(10)}
+      >
+        Resize: 10
+      </button>
+      <button
+        className={styles.Button}
+        onClick={() => panelRef.current.resize(20)}
+      >
+        Resize: 20
+      </button>
+      <button
+        className={styles.Button}
+        onClick={() => panelRef.current.resize(30)}
+      >
+        Resize: 30
+      </button>
+    </p>
+  );
+}
+
+function Content({
+  leftPanelRef,
+  rightPanelRef,
+}: {
+  leftPanelRef: RefObject<ImperativePanelHandle>;
+  rightPanelRef: RefObject<ImperativePanelHandle>;
+}) {
   return (
     <div className={styles.PanelGroupWrapper}>
       <PanelGroup className={styles.PanelGroup} direction="horizontal">
@@ -90,12 +107,23 @@ function Content({ panelRef }: { panelRef: RefObject<ImperativePanelHandle> }) {
           defaultSize={20}
           maxSize={30}
           minSize={10}
-          ref={panelRef}
+          ref={leftPanelRef}
         >
           <div className={styles.Centered}>left</div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
         <Panel className={styles.PanelRow}>
+          <div className={styles.Centered}>middle</div>
+        </Panel>
+        <ResizeHandle className={styles.ResizeHandle} />
+        <Panel
+          className={styles.PanelRow}
+          collapsible
+          defaultSize={20}
+          maxSize={30}
+          minSize={10}
+          ref={rightPanelRef}
+        >
           <div className={styles.Centered}>right</div>
         </Panel>
       </PanelGroup>

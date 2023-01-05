@@ -16,6 +16,7 @@ import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
 import { getDragOffset, getMovement } from "./utils/coordinates";
 import {
   adjustByDelta,
+  getBeforeAndAfterIds,
   getFlexGrow,
   getPanelGroup,
   getResizeHandlePanelIds,
@@ -66,6 +67,9 @@ export function PanelGroup({
   const [sizes, setSizes] = useState<number[]>([]);
 
   const dragOffsetRef = useRef<number>(0);
+
+  // Used to support imperative collapse/expand API.
+  const panelSizeBeforeCollapse = useRef<Map<string, number>>(new Map());
 
   // Store committed values to avoid unnecessarily re-running memoization/effects functions.
   const committedValuesRef = useRef<CommittedValues>({
@@ -317,15 +321,132 @@ export function PanelGroup({
   }, []);
 
   const collapsePanel = useCallback((id: string) => {
-    // TODO [issues/58]
+    const { panels, sizes: prevSizes } = committedValuesRef.current;
+
+    const panel = panels.get(id);
+    if (panel == null) {
+      return;
+    }
+
+    const panelsArray = panelsMapToSortedArray(panels);
+
+    const index = panelsArray.indexOf(panel);
+    if (index < 0) {
+      return;
+    }
+
+    const currentSize = prevSizes[index];
+    if (currentSize === 0) {
+      // Panel is already collapsed.
+      return;
+    }
+
+    panelSizeBeforeCollapse.current.set(id, currentSize);
+
+    const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
+    if (idBefore == null || idAfter == null) {
+      return;
+    }
+
+    const isLastPanel = index === panelsArray.length - 1;
+    const delta = isLastPanel ? currentSize : 0 - currentSize;
+
+    const nextSizes = adjustByDelta(
+      panels,
+      idBefore,
+      idAfter,
+      delta,
+      prevSizes
+    );
+    if (prevSizes !== nextSizes) {
+      setSizes(nextSizes);
+    }
   }, []);
 
   const expandPanel = useCallback((id: string) => {
-    // TODO [issues/58]
+    const { panels, sizes: prevSizes } = committedValuesRef.current;
+
+    const panel = panels.get(id);
+    if (panel == null) {
+      return;
+    }
+
+    const sizeBeforeCollapse = panelSizeBeforeCollapse.current.get(id);
+    if (!sizeBeforeCollapse) {
+      return;
+    }
+
+    const panelsArray = panelsMapToSortedArray(panels);
+
+    const index = panelsArray.indexOf(panel);
+    if (index < 0) {
+      return;
+    }
+
+    const currentSize = prevSizes[index];
+    if (currentSize !== 0) {
+      // Panel is already expanded.
+      return;
+    }
+
+    const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
+    if (idBefore == null || idAfter == null) {
+      return;
+    }
+
+    const isLastPanel = index === panelsArray.length - 1;
+    const delta = isLastPanel ? 0 - sizeBeforeCollapse : sizeBeforeCollapse;
+
+    const nextSizes = adjustByDelta(
+      panels,
+      idBefore,
+      idAfter,
+      delta,
+      prevSizes
+    );
+    if (prevSizes !== nextSizes) {
+      setSizes(nextSizes);
+    }
   }, []);
 
   const resizePanel = useCallback((id: string, size: number) => {
-    // TODO [issues/58]
+    const { panels, sizes: prevSizes } = committedValuesRef.current;
+
+    const panel = panels.get(id);
+    if (panel == null) {
+      return;
+    }
+
+    const panelsArray = panelsMapToSortedArray(panels);
+
+    const index = panelsArray.indexOf(panel);
+    if (index < 0) {
+      return;
+    }
+
+    const currentSize = prevSizes[index];
+    if (currentSize === size) {
+      return;
+    }
+
+    const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
+    if (idBefore == null || idAfter == null) {
+      return;
+    }
+
+    const isLastPanel = index === panelsArray.length - 1;
+    const delta = isLastPanel ? currentSize - size : size - currentSize;
+
+    const nextSizes = adjustByDelta(
+      panels,
+      idBefore,
+      idAfter,
+      delta,
+      prevSizes
+    );
+    if (prevSizes !== nextSizes) {
+      setSizes(nextSizes);
+    }
   }, []);
 
   const context = useMemo(
