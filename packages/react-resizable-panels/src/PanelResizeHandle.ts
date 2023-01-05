@@ -27,7 +27,7 @@ export type PanelResizeHandleProps = {
   tagName?: ElementType;
 };
 
-export default function PanelResizeHandle({
+export function PanelResizeHandle({
   children = null,
   className: classNameFromProps = "",
   disabled = false,

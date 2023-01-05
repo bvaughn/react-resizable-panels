@@ -73,7 +73,7 @@ function Content() {
           className={styles.PanelRow}
           collapsible={true}
           defaultSize={sizes.left}
-          onResize={(left) => onResize({ left })}
+          onResize={(left: number) => onResize({ left })}
           order={1}
         >
           <div className={styles.Centered}>left: {Math.round(sizes.left)}</div>
@@ -82,7 +82,7 @@ function Content() {
         <Panel
           className={styles.PanelRow}
           defaultSize={sizes.middle}
-          onResize={(middle) => onResize({ middle })}
+          onResize={(middle: number) => onResize({ middle })}
           order={2}
         >
           <div className={styles.Centered}>
@@ -94,7 +94,7 @@ function Content() {
           className={styles.PanelRow}
           collapsible={true}
           defaultSize={sizes.right}
-          onResize={(right) => onResize({ right })}
+          onResize={(right: number) => onResize({ right })}
           order={3}
         >
           <div className={styles.Centered}>

@@ -1,7 +1,5 @@
 import { expect, Page, test } from "@playwright/test";
 
-import { verifyAriaValues } from "./utils/aria";
-
 async function verifySizes(
   page: Page,
   expectedSizeLeft: number,

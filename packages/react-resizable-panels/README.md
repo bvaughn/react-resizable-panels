@@ -48,6 +48,14 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `style`       | `?CSSProperties`                | Optional CSS style to attach to root element
 | `tagName`     | `?string = "div"`               | Optional HTML element tag name for root element
 
+`Panel` components also expose an imperative API for manual resizing:
+| method                       | description
+| :--------------------------- | :---
+| `collapse`                   | If panel is `collapsible`, collapse it fully.
+| `expand`                     | If panel is currently _collapsed_, expand it to its most recent size.
+| `resize(percentage: number)` | Resize panel to the specified _percentage_ (`1 - 100`).
+
+
 ### `PanelResizeHandle`
 | prop          | type              | description
 | :------------ | :---------------- | :---

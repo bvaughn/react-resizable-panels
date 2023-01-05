@@ -50,7 +50,8 @@
   scrollbar-color: var(--color-scroll-thumb) transparent;
 }
 
-.Button {
+.Button,
+.ButtonDisabled {
   background-color: var(--color-button-background);
   color: var(--color-default);
   border: none;
@@ -59,4 +60,41 @@
 }
 .Button:hover {
   background-color: var(--color-button-background-hover);
+}
+.ButtonDisabled {
+  opacity: 0.5;
+}
+
+.Buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1ch;
+  margin-bottom: 1rem;
+}
+
+.SizeInput {
+  width: 8ch;
+  background-color: var(--color-input-background);
+  border: 2px solid var(--color-input-border);
+  color: var(--color-input);
+  border-radius: 0.5rem;
+  outline: none;
+  padding: 0 1ch;
+}
+.SizeInput:focus {
+  outline: none;
+  border-color: var(--color-input-border-focused);
+}
+
+.ResizeForm {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1ch;
+  margin: 0;
+}
+
+.Capitalize {
+  text-transform: capitalize;
 }

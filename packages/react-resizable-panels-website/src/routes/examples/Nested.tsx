@@ -56,19 +56,19 @@ const CODE = `
   <Panel>
     left
   </Panel>
-  <ResizeHandle />
+  <PanelResizeHandle />
   <Panel>
     <PanelGroup direction="vertical">
       <Panel>
         top
       </Panel>
-      <ResizeHandle />
+      <PanelResizeHandle />
       <Panel>
         <PanelGroup direction="horizontal">
           <Panel>
             left
           </Panel>
-          <ResizeHandle />
+          <PanelResizeHandle />
           <Panel>
             right
           </Panel>
@@ -76,7 +76,7 @@ const CODE = `
       </Panel>
     </PanelGroup>
   </Panel>
-  <ResizeHandle />
+  <PanelResizeHandle />
   <Panel>
     right
   </Panel>

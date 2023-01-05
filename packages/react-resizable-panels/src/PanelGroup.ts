@@ -16,6 +16,8 @@ import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
 import { getDragOffset, getMovement } from "./utils/coordinates";
 import {
   adjustByDelta,
+  callPanelCallbacks,
+  getBeforeAndAfterIds,
   getFlexGrow,
   getPanelGroup,
   getResizeHandlePanelIds,
@@ -48,7 +50,7 @@ export type PanelGroupProps = {
   tagName?: ElementType;
 };
 
-export default function PanelGroup({
+export function PanelGroup({
   autoSaveId,
   children = null,
   className: classNameFromProps = "",
@@ -66,6 +68,9 @@ export default function PanelGroup({
   const [sizes, setSizes] = useState<number[]>([]);
 
   const dragOffsetRef = useRef<number>(0);
+
+  // Used to support imperative collapse/expand API.
+  const panelSizeBeforeCollapse = useRef<Map<string, number>>(new Map());
 
   // Store committed values to avoid unnecessarily re-running memoization/effects functions.
   const committedValuesRef = useRef<CommittedValues>({
@@ -275,24 +280,7 @@ export default function PanelGroup({
           setGlobalCursorStyle(isHorizontal ? "horizontal" : "vertical");
 
           // If resize change handlers have been declared, this is the time to call them.
-          nextSizes.forEach((nextSize, index) => {
-            const prevSize = prevSizes[index];
-            if (prevSize !== nextSize) {
-              const { onCollapse, onResize } =
-                panelsArray[index].callbacksRef.current;
-              if (onResize) {
-                onResize(nextSize);
-              }
-
-              if (onCollapse) {
-                if (prevSize === 0 && nextSize !== 0) {
-                  onCollapse(false);
-                } else if (prevSize !== 0 && nextSize === 0) {
-                  onCollapse(true);
-                }
-              }
-            }
-          });
+          callPanelCallbacks(panelsArray, prevSizes, nextSizes);
 
           setSizes(nextSizes);
         }
@@ -316,14 +304,156 @@ export default function PanelGroup({
     });
   }, []);
 
+  const collapsePanel = useCallback((id: string) => {
+    const { panels, sizes: prevSizes } = committedValuesRef.current;
+
+    const panel = panels.get(id);
+    if (panel == null || !panel.collapsible) {
+      return;
+    }
+
+    const panelsArray = panelsMapToSortedArray(panels);
+
+    const index = panelsArray.indexOf(panel);
+    if (index < 0) {
+      return;
+    }
+
+    const currentSize = prevSizes[index];
+    if (currentSize === 0) {
+      // Panel is already collapsed.
+      return;
+    }
+
+    panelSizeBeforeCollapse.current.set(id, currentSize);
+
+    const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
+    if (idBefore == null || idAfter == null) {
+      return;
+    }
+
+    const isLastPanel = index === panelsArray.length - 1;
+    const delta = isLastPanel ? currentSize : 0 - currentSize;
+
+    const nextSizes = adjustByDelta(
+      panels,
+      idBefore,
+      idAfter,
+      delta,
+      prevSizes
+    );
+    if (prevSizes !== nextSizes) {
+      // If resize change handlers have been declared, this is the time to call them.
+      callPanelCallbacks(panelsArray, prevSizes, nextSizes);
+
+      setSizes(nextSizes);
+    }
+  }, []);
+
+  const expandPanel = useCallback((id: string) => {
+    const { panels, sizes: prevSizes } = committedValuesRef.current;
+
+    const panel = panels.get(id);
+    if (panel == null) {
+      return;
+    }
+
+    const sizeBeforeCollapse =
+      panelSizeBeforeCollapse.current.get(id) || panel.minSize;
+    if (!sizeBeforeCollapse) {
+      return;
+    }
+
+    const panelsArray = panelsMapToSortedArray(panels);
+
+    const index = panelsArray.indexOf(panel);
+    if (index < 0) {
+      return;
+    }
+
+    const currentSize = prevSizes[index];
+    if (currentSize !== 0) {
+      // Panel is already expanded.
+      return;
+    }
+
+    const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
+    if (idBefore == null || idAfter == null) {
+      return;
+    }
+
+    const isLastPanel = index === panelsArray.length - 1;
+    const delta = isLastPanel ? 0 - sizeBeforeCollapse : sizeBeforeCollapse;
+
+    const nextSizes = adjustByDelta(
+      panels,
+      idBefore,
+      idAfter,
+      delta,
+      prevSizes
+    );
+    if (prevSizes !== nextSizes) {
+      // If resize change handlers have been declared, this is the time to call them.
+      callPanelCallbacks(panelsArray, prevSizes, nextSizes);
+
+      setSizes(nextSizes);
+    }
+  }, []);
+
+  const resizePanel = useCallback((id: string, nextSize: number) => {
+    const { panels, sizes: prevSizes } = committedValuesRef.current;
+
+    const panel = panels.get(id);
+    if (panel == null) {
+      return;
+    }
+
+    const panelsArray = panelsMapToSortedArray(panels);
+
+    const index = panelsArray.indexOf(panel);
+    if (index < 0) {
+      return;
+    }
+
+    const currentSize = prevSizes[index];
+    if (currentSize === nextSize) {
+      return;
+    }
+
+    const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
+    if (idBefore == null || idAfter == null) {
+      return;
+    }
+
+    const isLastPanel = index === panelsArray.length - 1;
+    const delta = isLastPanel ? currentSize - nextSize : nextSize - currentSize;
+
+    const nextSizes = adjustByDelta(
+      panels,
+      idBefore,
+      idAfter,
+      delta,
+      prevSizes
+    );
+    if (prevSizes !== nextSizes) {
+      // If resize change handlers have been declared, this is the time to call them.
+      callPanelCallbacks(panelsArray, prevSizes, nextSizes);
+
+      setSizes(nextSizes);
+    }
+  }, []);
+
   const context = useMemo(
     () => ({
       activeHandleId,
+      collapsePanel,
       direction,
+      expandPanel,
       getPanelStyle,
       groupId,
       registerPanel,
       registerResizeHandle,
+      resizePanel,
       startDragging: (id: string, event: ResizeEvent) => {
         setActiveHandleId(id);
 
@@ -337,11 +467,14 @@ export default function PanelGroup({
     }),
     [
       activeHandleId,
+      collapsePanel,
       direction,
+      expandPanel,
       getPanelStyle,
       groupId,
       registerPanel,
       registerResizeHandle,
+      resizePanel,
       unregisterPanel,
     ]
   );

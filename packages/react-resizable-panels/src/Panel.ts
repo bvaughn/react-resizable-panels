@@ -2,9 +2,12 @@ import {
   createElement,
   CSSProperties,
   ElementType,
+  ForwardedRef,
+  forwardRef,
   ReactNode,
   useContext,
   useEffect,
+  useImperativeHandle,
   useRef,
 } from "react";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
@@ -28,11 +31,18 @@ export type PanelProps = {
   tagName?: ElementType;
 };
 
-export default function Panel({
+export type ImperativePanelHandle = {
+  collapse: () => void;
+  expand: () => void;
+  resize: (percentage: number) => void;
+};
+
+function PanelWithForwardedRef({
   children = null,
   className: classNameFromProps = "",
   collapsible = false,
   defaultSize = null,
+  forwardedRef,
   id: idFromProps = null,
   maxSize = 100,
   minSize = 10,
@@ -41,13 +51,36 @@ export default function Panel({
   order = null,
   style: styleFromProps = {},
   tagName: Type = "div",
-}: PanelProps) {
+}: PanelProps & {
+  forwardedRef: ForwardedRef<ImperativePanelHandle>;
+}) {
   const context = useContext(PanelGroupContext);
   if (context === null) {
     throw Error(
       `Panel components must be rendered within a PanelGroup container`
     );
   }
+
+  const panelId = useUniqueId(idFromProps);
+
+  const {
+    collapsePanel,
+    expandPanel,
+    getPanelStyle,
+    registerPanel,
+    resizePanel,
+    unregisterPanel,
+  } = context;
+
+  useImperativeHandle(
+    forwardedRef,
+    () => ({
+      collapse: () => collapsePanel(panelId),
+      expand: () => expandPanel(panelId),
+      resize: (percentage: number) => resizePanel(panelId, percentage),
+    }),
+    [collapsePanel, expandPanel, panelId, resizePanel]
+  );
 
   // Use a ref to guard against users passing inline props
   const callbacksRef = useRef<{
@@ -79,10 +112,6 @@ export default function Panel({
       }
     }
   }
-
-  const panelId = useUniqueId(idFromProps);
-
-  const { getPanelStyle, registerPanel, unregisterPanel } = context;
 
   useIsomorphicLayoutEffect(() => {
     const panel = {
@@ -128,7 +157,13 @@ export default function Panel({
   });
 }
 
+export const Panel = forwardRef<ImperativePanelHandle, PanelProps>(
+  (props: PanelProps, ref: ForwardedRef<ImperativePanelHandle>) =>
+    createElement(PanelWithForwardedRef, { ...props, forwardedRef: ref })
+);
+
 // Workaround for Parcel scope hoisting (which renames objects/functions).
 // Casting to :any is required to avoid corrupting the generated TypeScript types.
 // See github.com/parcel-bundler/parcel/issues/8724
-(Panel as any).displayName = "Panel";
+(PanelWithForwardedRef as any).displayName = "Panel";
+(Panel as any).displayName = "forwardRef(Panel)";
