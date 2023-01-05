@@ -53,11 +53,11 @@ const CODE = `
   <Panel defaultSize={20} minSize={20}>
     left
   </Panel>
-  <ResizeHandle />
+  <PanelResizeHandle />
   <Panel minSize={30}>
     middle
   </Panel>
-  <ResizeHandle />
+  <PanelResizeHandle />
   <Panel defaultSize={20} minSize={20}>
     right
   </Panel>

@@ -159,7 +159,7 @@ const CODE = `
   <Panel collapsible={true}>
     <SourceBrowser />
   </Panel>
-  <ResizeHandle />
+  <PanelResizeHandle />
   <Panel>
     <SourceViewer />
   </Panel>

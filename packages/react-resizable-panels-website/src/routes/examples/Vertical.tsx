@@ -49,7 +49,7 @@ const CODE = `
   <Panel maxSize={75}>
     top
   </Panel>
-  <ResizeHandle />
+  <PanelResizeHandle />
   <Panel maxSize={75}>
     bottom
   </Panel>

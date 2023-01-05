@@ -24,7 +24,11 @@ export default function ImperativeApiRoute() {
         <>
           <p>
             Sometimes panels need to resize or collapse/expand in response to
-            user actions. This can be accomplished using <code>Panel</code>'s
+            user actions. For example, double-clicking on a resize bar in VS
+            Code resizes the panel to a size that fits all file names.
+          </p>
+          <p>
+            This type of interaction can be supported using <code>Panel</code>'s
             imperative API, consisting of three methods:
           </p>
           <ul>
@@ -42,6 +46,7 @@ export default function ImperativeApiRoute() {
           <ButtonsRow label="Right panel" panelRef={rightPanelRef} />
         </>
       }
+      language="tsx"
     />
   );
 }
@@ -132,7 +137,16 @@ function Content({
 }
 
 const CODE = `
-const ref = useRef();
+// TypeScript syntax shown below
+
+import {
+  ImperativePanelHandle,
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+} from "react-resizable-panels";
+
+const ref = useRef<ImperativePanelHandle>(null);
 
 const collapsePanel = () => {
   const panel = ref.current;
@@ -145,7 +159,7 @@ const collapsePanel = () => {
   <Panel collapsible ref={ref}>
     left
   </Panel>
-  <ResizeHandle />
+  <PanelResizeHandle />
   <Panel>
     right
   </Panel>

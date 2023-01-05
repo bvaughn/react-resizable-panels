@@ -50,11 +50,11 @@ const CODE = `
   <Panel>
     left
   </Panel>
-  <ResizeHandle />
+  <PanelResizeHandle />
   <Panel>
     middle
   </Panel>
-  <ResizeHandle />
+  <PanelResizeHandle />
   <Panel>
     right
   </Panel>

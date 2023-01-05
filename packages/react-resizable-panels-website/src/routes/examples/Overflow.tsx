@@ -92,7 +92,7 @@ const CODE = `
       {/* Content */}
     </div>
   </Panel>
-  <ResizeHandle />
+  <PanelResizeHandle />
   <Panel>
     <div style="overflow: auto">
       {/* Content */}
