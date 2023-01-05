@@ -83,6 +83,32 @@ export function adjustByDelta(
   return nextSizes;
 }
 
+export function callPanelCallbacks(
+  panelsArray: PanelData[],
+  prevSizes: number[],
+  nextSizes: number[]
+) {
+  nextSizes.forEach((nextSize, index) => {
+    const prevSize = prevSizes[index];
+    if (prevSize !== nextSize) {
+      const { callbacksRef } = panelsArray[index];
+      const { onCollapse, onResize } = callbacksRef.current;
+
+      if (onResize) {
+        onResize(nextSize);
+      }
+
+      if (onCollapse) {
+        if (prevSize === 0 && nextSize !== 0) {
+          onCollapse(false);
+        } else if (prevSize !== 0 && nextSize === 0) {
+          onCollapse(true);
+        }
+      }
+    }
+  });
+}
+
 export function getBeforeAndAfterIds(
   id: string,
   panelsArray: PanelData[]

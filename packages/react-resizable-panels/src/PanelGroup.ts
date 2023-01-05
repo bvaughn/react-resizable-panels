@@ -16,6 +16,7 @@ import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
 import { getDragOffset, getMovement } from "./utils/coordinates";
 import {
   adjustByDelta,
+  callPanelCallbacks,
   getBeforeAndAfterIds,
   getFlexGrow,
   getPanelGroup,
@@ -279,24 +280,7 @@ export function PanelGroup({
           setGlobalCursorStyle(isHorizontal ? "horizontal" : "vertical");
 
           // If resize change handlers have been declared, this is the time to call them.
-          nextSizes.forEach((nextSize, index) => {
-            const prevSize = prevSizes[index];
-            if (prevSize !== nextSize) {
-              const { onCollapse, onResize } =
-                panelsArray[index].callbacksRef.current;
-              if (onResize) {
-                onResize(nextSize);
-              }
-
-              if (onCollapse) {
-                if (prevSize === 0 && nextSize !== 0) {
-                  onCollapse(false);
-                } else if (prevSize !== 0 && nextSize === 0) {
-                  onCollapse(true);
-                }
-              }
-            }
-          });
+          callPanelCallbacks(panelsArray, prevSizes, nextSizes);
 
           setSizes(nextSizes);
         }
@@ -324,7 +308,7 @@ export function PanelGroup({
     const { panels, sizes: prevSizes } = committedValuesRef.current;
 
     const panel = panels.get(id);
-    if (panel == null) {
+    if (panel == null || !panel.collapsible) {
       return;
     }
 
@@ -359,6 +343,9 @@ export function PanelGroup({
       prevSizes
     );
     if (prevSizes !== nextSizes) {
+      // If resize change handlers have been declared, this is the time to call them.
+      callPanelCallbacks(panelsArray, prevSizes, nextSizes);
+
       setSizes(nextSizes);
     }
   }, []);
@@ -371,7 +358,8 @@ export function PanelGroup({
       return;
     }
 
-    const sizeBeforeCollapse = panelSizeBeforeCollapse.current.get(id);
+    const sizeBeforeCollapse =
+      panelSizeBeforeCollapse.current.get(id) || panel.minSize;
     if (!sizeBeforeCollapse) {
       return;
     }
@@ -405,11 +393,14 @@ export function PanelGroup({
       prevSizes
     );
     if (prevSizes !== nextSizes) {
+      // If resize change handlers have been declared, this is the time to call them.
+      callPanelCallbacks(panelsArray, prevSizes, nextSizes);
+
       setSizes(nextSizes);
     }
   }, []);
 
-  const resizePanel = useCallback((id: string, size: number) => {
+  const resizePanel = useCallback((id: string, nextSize: number) => {
     const { panels, sizes: prevSizes } = committedValuesRef.current;
 
     const panel = panels.get(id);
@@ -425,7 +416,7 @@ export function PanelGroup({
     }
 
     const currentSize = prevSizes[index];
-    if (currentSize === size) {
+    if (currentSize === nextSize) {
       return;
     }
 
@@ -435,7 +426,7 @@ export function PanelGroup({
     }
 
     const isLastPanel = index === panelsArray.length - 1;
-    const delta = isLastPanel ? currentSize - size : size - currentSize;
+    const delta = isLastPanel ? currentSize - nextSize : nextSize - currentSize;
 
     const nextSizes = adjustByDelta(
       panels,
@@ -445,6 +436,9 @@ export function PanelGroup({
       prevSizes
     );
     if (prevSizes !== nextSizes) {
+      // If resize change handlers have been declared, this is the time to call them.
+      callPanelCallbacks(panelsArray, prevSizes, nextSizes);
+
       setSizes(nextSizes);
     }
   }, []);

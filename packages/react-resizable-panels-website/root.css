@@ -9,6 +9,10 @@
   --color-default: #ffffff;
   --color-dim: #91a0ba;
   --color-horizontal-rule: #39414d;
+  --color-input: #ffffff;
+  --color-input-background: #18181a;
+  --color-input-border: #39414d;
+  --color-input-border-focused: #dcadff;
   --color-link: #dcadff;
   --color-panel-background: #192230;
   --color-panel-background-alternate: #202124;

@@ -34,7 +34,7 @@ export type PanelProps = {
 export type ImperativePanelHandle = {
   collapse: () => void;
   expand: () => void;
-  resize: (size: number) => void;
+  resize: (percentage: number) => void;
 };
 
 function PanelWithForwardedRef({
@@ -77,7 +77,7 @@ function PanelWithForwardedRef({
     () => ({
       collapse: () => collapsePanel(panelId),
       expand: () => expandPanel(panelId),
-      resize: (size: number) => resizePanel(panelId, size),
+      resize: (percentage: number) => resizePanel(panelId, percentage),
     }),
     [collapsePanel, expandPanel, panelId, resizePanel]
   );

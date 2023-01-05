@@ -11,7 +11,7 @@ export const PanelGroupContext = createContext<{
   groupId: string;
   registerPanel: (id: string, panel: PanelData) => void;
   registerResizeHandle: (id: string) => ResizeHandler;
-  resizePanel: (id: string, size: number) => void;
+  resizePanel: (id: string, percentage: number) => void;
   startDragging: (id: string, event: ResizeEvent) => void;
   stopDragging: () => void;
   unregisterPanel: (id: string) => void;

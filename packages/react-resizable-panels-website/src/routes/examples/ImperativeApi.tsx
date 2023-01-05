@@ -1,4 +1,4 @@
-import { RefObject, useRef } from "react";
+import { ChangeEvent, RefObject, useRef, useState } from "react";
 import {
   ImperativePanelHandle,
   Panel,
@@ -11,6 +11,9 @@ import Example from "./Example";
 import styles from "./shared.module.css";
 
 export default function ImperativeApiRoute() {
+  const [leftPanelSize, setLeftPanelSize] = useState(20);
+  const [rightPanelSize, setRightPanelSize] = useState(20);
+
   const leftPanelRef = useRef<ImperativePanelHandle>(null);
   const rightPanelRef = useRef<ImperativePanelHandle>(null);
 
@@ -18,7 +21,12 @@ export default function ImperativeApiRoute() {
     <Example
       code={CODE}
       exampleNode={
-        <Content leftPanelRef={leftPanelRef} rightPanelRef={rightPanelRef} />
+        <Content
+          leftPanelRef={leftPanelRef}
+          leftPanelOnResize={setLeftPanelSize}
+          rightPanelRef={rightPanelRef}
+          rightPanelOnResize={setRightPanelSize}
+        />
       }
       headerNode={
         <>
@@ -39,11 +47,20 @@ export default function ImperativeApiRoute() {
               <code>expand()</code>: Expand the panel to its previous size.
             </li>
             <li>
-              <code>resize(size)</code>: Resize the panel to the specified size.
+              <code>resize(percentage)</code>: Resize the panel to the specified
+              percentage.
             </li>
           </ul>
-          <ButtonsRow label="Left panel" panelRef={leftPanelRef} />
-          <ButtonsRow label="Right panel" panelRef={rightPanelRef} />
+          <ButtonsRow
+            label="Left panel"
+            panelRef={leftPanelRef}
+            panelSize={leftPanelSize}
+          />
+          <ButtonsRow
+            label="Right panel"
+            panelRef={rightPanelRef}
+            panelSize={rightPanelSize}
+          />
         </>
       }
       language="tsx"
@@ -54,54 +71,71 @@ export default function ImperativeApiRoute() {
 function ButtonsRow({
   label,
   panelRef,
+  panelSize,
 }: {
   label: string;
   panelRef: RefObject<ImperativePanelHandle>;
+  panelSize: number;
 }) {
+  const [size, setSize] = useState(20);
+  console.log(label, "size:", size, "panelSize:", panelSize);
+
+  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const input = event.currentTarget as HTMLInputElement;
+    setSize(parseInt(input.value));
+  };
+
   return (
-    <p className={styles.Buttons}>
+    <span className={styles.Buttons}>
       {label}:
       <button
-        className={styles.Button}
+        className={panelSize === 0 ? styles.ButtonDisabled : styles.Button}
         onClick={() => panelRef.current.collapse()}
       >
         Collapse
       </button>
       <button
-        className={styles.Button}
+        className={panelSize !== 0 ? styles.ButtonDisabled : styles.Button}
         onClick={() => panelRef.current.expand()}
       >
         Expand
       </button>
       |
-      <button
-        className={styles.Button}
-        onClick={() => panelRef.current.resize(10)}
+      <form
+        className={styles.ResizeForm}
+        onSubmit={(event) => event.preventDefault()}
       >
-        Resize: 10
-      </button>
-      <button
-        className={styles.Button}
-        onClick={() => panelRef.current.resize(20)}
-      >
-        Resize: 20
-      </button>
-      <button
-        className={styles.Button}
-        onClick={() => panelRef.current.resize(30)}
-      >
-        Resize: 30
-      </button>
-    </p>
+        <button
+          className={panelSize === size ? styles.ButtonDisabled : styles.Button}
+          onClick={() => panelRef.current.resize(size)}
+        >
+          Resize to:
+        </button>
+        <input
+          className={styles.SizeInput}
+          onChange={onChange}
+          min={0}
+          max={100}
+          size={2}
+          type="number"
+          value={size}
+        />
+        %
+      </form>
+    </span>
   );
 }
 
 function Content({
   leftPanelRef,
+  leftPanelOnResize,
   rightPanelRef,
+  rightPanelOnResize,
 }: {
   leftPanelRef: RefObject<ImperativePanelHandle>;
+  leftPanelOnResize: (size: number) => void;
   rightPanelRef: RefObject<ImperativePanelHandle>;
+  rightPanelOnResize: (size: number) => void;
 }) {
   return (
     <div className={styles.PanelGroupWrapper}>
@@ -112,6 +146,7 @@ function Content({
           defaultSize={20}
           maxSize={30}
           minSize={10}
+          onResize={leftPanelOnResize}
           ref={leftPanelRef}
         >
           <div className={styles.Centered}>left</div>
@@ -127,6 +162,7 @@ function Content({
           defaultSize={20}
           maxSize={30}
           minSize={10}
+          onResize={rightPanelOnResize}
           ref={rightPanelRef}
         >
           <div className={styles.Centered}>right</div>

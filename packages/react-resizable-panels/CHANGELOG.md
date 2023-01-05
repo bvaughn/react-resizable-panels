@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.30
+* [#58](https://github.com/bvaughn/react-resizable-panels/pull/58): Add imperative `collapse`, `expand`, and `resize` methods to `Panel`.
+
 ## 0.0.29
 * [#57](https://github.com/bvaughn/react-resizable-panels/pull/57): Improve server rendering check to include `window.document`. This more closely matches React's own check and avoids false positives for environments that alias `window` to some global object.
 
