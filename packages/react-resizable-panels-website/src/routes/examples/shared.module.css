@@ -98,3 +98,10 @@
 .Capitalize {
   text-transform: capitalize;
 }
+
+.WarningBlock {
+  display: inline-block;
+  background: var(--color-warning-background);
+  padding: 0.25em 1ch;
+  border-radius: 0.5rem;
+}

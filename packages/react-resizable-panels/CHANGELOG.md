@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.30
+* [#68](https://github.com/bvaughn/react-resizable-panels/pull/68): Reduce volume/frequency of local storage writes for `PanelGroup`s configured to _auto-save_.
+* Added `onLayout` prop to `PanelGroup` to be called when group layout changes. Note that some form of debouncing is recommended before processing these values (e.g. saving to a database).
+
 ## 0.0.29
 * [#58](https://github.com/bvaughn/react-resizable-panels/pull/58): Add imperative `collapse`, `expand`, and `resize` methods to `Panel`.
 * [#64](https://github.com/bvaughn/react-resizable-panels/pull/64): Disable `pointer-events` inside of `Panel`s during resize. This avoid edge cases like nested iframes.

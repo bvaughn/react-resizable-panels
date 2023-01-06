@@ -11,7 +11,7 @@ import {
 } from "react";
 
 import { PanelGroupContext } from "./PanelContexts";
-import { Direction, PanelData, ResizeEvent } from "./types";
+import { Direction, PanelData, PanelGroupOnLayout, ResizeEvent } from "./types";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
 import { getDragOffset, getMovement } from "./utils/coordinates";
 import {
@@ -27,6 +27,10 @@ import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
 import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterBehavior";
 import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
+import debounce from "./utils/debounce";
+
+// Limit the frequency of localStorage updates.
+const savePanelGroupLayoutDebounced = debounce(savePanelGroupLayout, 100);
 
 export type CommittedValues = {
   direction: Direction;
@@ -46,6 +50,7 @@ export type PanelGroupProps = {
   className?: string;
   direction: Direction;
   id?: string | null;
+  onLayout?: PanelGroupOnLayout;
   style?: CSSProperties;
   tagName?: ElementType;
 };
@@ -56,6 +61,7 @@ export function PanelGroup({
   className: classNameFromProps = "",
   direction,
   id: idFromProps = null,
+  onLayout = null,
   style: styleFromProps = {},
   tagName: Type = "div",
 }: PanelGroupProps) {
@@ -63,6 +69,14 @@ export function PanelGroup({
 
   const [activeHandleId, setActiveHandleId] = useState<string | null>(null);
   const [panels, setPanels] = useState<PanelDataMap>(new Map());
+
+  // Use a ref to guard against users passing inline props
+  const callbacksRef = useRef<{
+    onLayout: PanelGroupOnLayout | null;
+  }>({ onLayout });
+  useEffect(() => {
+    callbacksRef.current.onLayout = onLayout;
+  });
 
   // 0-1 values representing the relative size of each panel.
   const [sizes, setSizes] = useState<number[]>([]);
@@ -92,6 +106,15 @@ export function PanelGroup({
     setSizes,
     sizes,
   });
+
+  // Notify external code when sizes have changed.
+  useEffect(() => {
+    const { onLayout } = callbacksRef.current;
+    if (onLayout) {
+      const { sizes } = committedValuesRef.current;
+      onLayout(sizes);
+    }
+  }, [sizes]);
 
   // Once all panels have registered themselves,
   // Compute the initial sizes based on default weights.
@@ -165,7 +188,8 @@ export function PanelGroup({
       }
 
       const panelsArray = panelsMapToSortedArray(panels);
-      savePanelGroupLayout(autoSaveId, panelsArray, sizes);
+
+      savePanelGroupLayoutDebounced(autoSaveId, panelsArray, sizes);
     }
   }, [autoSaveId, panels, sizes]);
 
