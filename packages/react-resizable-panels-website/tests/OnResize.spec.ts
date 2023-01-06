@@ -18,7 +18,7 @@ async function verifySizes(
   );
 }
 
-test.describe("onResize prop", () => {
+test.describe("Panel onResize prop", () => {
   test("should call onResize when panels are resized", async ({ page }) => {
     await page.goto("http://localhost:2345/examples/external-persistence");
 

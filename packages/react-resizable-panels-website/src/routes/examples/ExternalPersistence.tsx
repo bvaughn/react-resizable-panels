@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Panel, PanelGroup } from "react-resizable-panels";
 
 import ResizeHandle from "../../components/ResizeHandle";
+import useDebouncedCallback from "../../hooks/useDebouncedCallback";
 
 import Example from "./Example";
 import styles from "./shared.module.css";
@@ -18,11 +19,12 @@ export default function ExternalPersistence() {
             layouts using <code>localStorage</code>. This example shows how the{" "}
             <code>defaultSize</code> and <code>onResize</code> props can be used
             to persist layouts somewhere custom/external. In this case, sizes
-            are saved as part of the URL hash.
+            are saved as part of the URL hash after a debounce duration of{" "}
+            <strong>500ms</strong>.
           </p>
-          <p>
-            Note that when the <code>onResize</code> prop is used, the
-            <code>order</code> prop should also be specified.
+          <p className={styles.WarningBlock}>
+            ⚠ Note that when the <code>onResize</code> prop is used, the
+            <code>order</code> prop must also be provided.
           </p>
         </>
       }
@@ -62,13 +64,26 @@ function Content() {
     }));
   };
 
-  useEffect(() => {
-    window.location.hash = encodeURI(JSON.stringify(sizes));
-  }, [sizes]);
+  const onLayout = useDebouncedCallback((sizesArray: number[]) => {
+    const sizesObject: Sizes = {
+      left: sizesArray[0],
+      middle: sizesArray[1],
+      right: sizesArray[2],
+    };
+
+    const encoded = encodeURI(JSON.stringify(sizesObject));
+
+    // Update the hash without interfering with the browser's Back button.
+    history.replaceState(undefined, undefined, `#${encoded}`);
+  }, 500);
 
   return (
     <div className={styles.PanelGroupWrapper}>
-      <PanelGroup className={styles.PanelGroup} direction="horizontal">
+      <PanelGroup
+        className={styles.PanelGroup}
+        direction="horizontal"
+        onLayout={onLayout}
+      >
         <Panel
           className={styles.PanelRow}
           collapsible={true}

@@ -4,7 +4,8 @@
     "module": "es2020",
     "moduleResolution": "node",
     "noImplicitAny": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": ["node"]
   },
   "exclude": ["node_modules"],
   "include": ["declaration.d.ts", "packages/**/*.ts", "packages/**/*.tsx"],

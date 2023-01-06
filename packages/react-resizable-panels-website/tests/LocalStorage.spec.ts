@@ -64,6 +64,9 @@ test.describe("localStorage", () => {
       now: 70,
     });
 
+    // Wait for localStorage write debounce
+    await new Promise((resolve) => setTimeout(resolve, 250));
+
     // Values should be remembered after a page reload
     await page.reload();
     await verifyAriaValues(first, {
@@ -90,6 +93,9 @@ test.describe("localStorage", () => {
       now: 33,
     });
 
+    // Wait for localStorage write debounce
+    await new Promise((resolve) => setTimeout(resolve, 250));
+
     // Hide the first panel and then resize things
     await goToUrl(page, panelGroupBC);
     await first.focus();
@@ -97,6 +103,9 @@ test.describe("localStorage", () => {
     await verifyAriaValues(first, {
       now: 10,
     });
+
+    // Wait for localStorage write debounce
+    await new Promise((resolve) => setTimeout(resolve, 250));
 
     // Hide the last panel and then resize things
     await goToUrl(page, panelGroupAB);
@@ -106,8 +115,10 @@ test.describe("localStorage", () => {
       now: 90,
     });
 
-    // Reload and verify all of the different layouts are remembered individually
+    // Wait for localStorage write debounce
+    await new Promise((resolve) => setTimeout(resolve, 250));
 
+    // Reload and verify all of the different layouts are remembered individually
     await goToUrl(page, panelGroupABC);
     await verifyAriaValues(first, {
       now: 33,
