@@ -1,3 +1,19 @@
+@media (min-width: 326px) and (max-width: 425px) {
+  .Logo {
+    font-size: 12px;
+  }
+}
+@media (min-width: 301px) and (max-width: 325px) {
+  .Logo {
+    font-size: 10px;
+  }
+}
+@media (max-width: 300px) {
+  .Logo {
+    font-size: 8px;
+  }
+}
+
 .Row {
   display: inline-flex;
   flex-direction: row;
@@ -47,7 +63,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-top: -0.75rem;
+  margin-top: -0.75em;
 }
 .Text {
   font-size: 3.25em;

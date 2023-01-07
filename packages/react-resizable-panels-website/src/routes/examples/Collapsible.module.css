@@ -15,6 +15,13 @@
   background-color: var(--color-button-background-hover);
 }
 
+@media (max-width: 500px) {
+  .ResizeHandle,
+  .ResizeHandleCollapsed {
+    width: 1rem;
+  }
+}
+
 .IDE {
   background-color: var(--color-panel-background);
   border-radius: 0.5rem;

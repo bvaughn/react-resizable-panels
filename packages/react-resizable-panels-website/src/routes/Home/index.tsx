@@ -5,6 +5,18 @@ import Logo from "../../components/Logo";
 
 import styles from "./styles.module.css";
 
+const LINKS = [
+  { path: "horizontal", title: "Horizontal layouts" },
+  { path: "vertical", title: "Vertical layouts" },
+  { path: "nested", title: "Nested groups" },
+  { path: "persistence", title: "Persistent layouts" },
+  { path: "overflow", title: "Overflow content" },
+  { path: "collapsible", title: "Collapsible panels" },
+  { path: "conditional", title: "Conditional panels" },
+  { path: "external-persistence", title: "External persistence" },
+  { path: "imperative-api", title: "Imperative API" },
+];
+
 export default function HomeRoute() {
   return (
     <Container className={styles.Container}>
@@ -19,9 +31,18 @@ export default function HomeRoute() {
   );
 }
 
-function ExampleLink({ path, title }: { path: string; title: string }) {
+function ExampleLink({
+  index,
+  path,
+  title,
+}: {
+  index: number;
+  path: string;
+  title: string;
+}) {
   return (
     <li className={styles.ExamplesListItem}>
+      <div className={styles.ListItemNumber}>{index + 1}</div>
       <Link className={styles.ExampleLink} to={`/examples/${path}`}>
         {title}
       </Link>
@@ -34,15 +55,14 @@ function ExamplesPanel() {
     <div className={styles.ExamplesPanel}>
       <h2 className={styles.SubHeader}>Examples</h2>
       <ul className={styles.ExamplesList}>
-        <ExampleLink path="horizontal" title="Horizontal layouts" />
-        <ExampleLink path="vertical" title="Vertical layouts" />
-        <ExampleLink path="nested" title="Nested groups" />
-        <ExampleLink path="persistence" title="Persistent layouts" />
-        <ExampleLink path="overflow" title="Overflow content" />
-        <ExampleLink path="collapsible" title="Collapsible panels" />
-        <ExampleLink path="conditional" title="Conditional panels" />
-        <ExampleLink path="external-persistence" title="External persistence" />
-        <ExampleLink path="imperative-api" title="Imperative API" />
+        {LINKS.map((link, index) => (
+          <ExampleLink
+            index={index}
+            key={index}
+            path={link.path}
+            title={link.title}
+          />
+        ))}
       </ul>
     </div>
   );
@@ -50,15 +70,14 @@ function ExamplesPanel() {
 
 function HeaderPanel() {
   return (
-    <div className={styles.HeaderPanel}>
-      <a
-        className={styles.HeaderLink}
-        href="https://github.com/bvaughn/react-resizable-panels"
-      >
-        <Logo />
-      </a>
-      <p className={styles.TagLine}>React components for resizable panels</p>
-    </div>
+    <a
+      className={styles.HeaderLink}
+      href="https://github.com/bvaughn/react-resizable-panels"
+    >
+      <Logo>
+        <p className={styles.TagLine}>React components for resizable panels</p>
+      </Logo>
+    </a>
   );
 }
 

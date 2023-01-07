@@ -10,7 +10,8 @@ export default function NestedRoute() {
     <Example
       code={CODE}
       exampleNode={<Content />}
-      headerNode={<>This example shows nested groups.</>}
+      headerNode={<p>This example shows nested groups.</p>}
+      title="Nested groups"
     />
   );
 }

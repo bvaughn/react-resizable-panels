@@ -45,6 +45,7 @@ export default function ConditionalRoute() {
           </p>
         </>
       }
+      title="Conditional panels"
     />
   );
 }

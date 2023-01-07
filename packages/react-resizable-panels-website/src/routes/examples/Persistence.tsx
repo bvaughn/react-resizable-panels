@@ -11,12 +11,13 @@ export default function NestedRoute() {
       code={CODE}
       exampleNode={<Content />}
       headerNode={
-        <>
+        <p>
           Layouts are automatically saved when an <code>autoSaveId</code> prop
           is provided. Try this by editing the layout below and then reloading
           the page.
-        </>
+        </p>
       }
+      title="Persistent layouts"
     />
   );
 }

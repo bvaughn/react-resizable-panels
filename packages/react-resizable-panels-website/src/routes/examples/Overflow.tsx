@@ -13,12 +13,13 @@ export default function OverflowRoute() {
       code={CODE}
       exampleNode={<Content />}
       headerNode={
-        <>
+        <p>
           Panels clip their content by default, to avoid showing scrollbars
           while resizing. Content can still be configured to overflow within a
           panel though. This example shows how.
-        </>
+        </p>
       }
+      title="Overflow content"
     />
   );
 }

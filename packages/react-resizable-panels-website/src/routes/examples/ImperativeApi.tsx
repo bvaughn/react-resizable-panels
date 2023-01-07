@@ -74,6 +74,7 @@ export default function ImperativeApiRoute() {
         </>
       }
       language="tsx"
+      title="Imperative API"
     />
   );
 }

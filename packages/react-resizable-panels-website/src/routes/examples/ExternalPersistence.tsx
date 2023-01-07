@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Panel, PanelGroup } from "react-resizable-panels";
+import { useNavigate } from "react-router-dom";
 
 import ResizeHandle from "../../components/ResizeHandle";
 import useDebouncedCallback from "../../hooks/useDebouncedCallback";
@@ -28,6 +29,7 @@ export default function ExternalPersistence() {
           </p>
         </>
       }
+      title="External persistence"
     />
   );
 }
@@ -45,6 +47,8 @@ const DefaultSizes: Sizes = {
 };
 
 function Content() {
+  const navigate = useNavigate();
+
   const [sizes, saveSizes] = useState<Sizes>(() => {
     if (window.location.hash) {
       try {
@@ -74,7 +78,7 @@ function Content() {
     const encoded = encodeURI(JSON.stringify(sizesObject));
 
     // Update the hash without interfering with the browser's Back button.
-    history.replaceState(undefined, undefined, `#${encoded}`);
+    navigate(`#${encoded}`, { replace: true });
   }, 500);
 
   return (

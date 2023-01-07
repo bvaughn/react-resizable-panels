@@ -13,6 +13,12 @@
   --background-color: var(--color-solid-resize-bar);
 }
 
+@media (max-width: 500px) {
+  .ResizeHandleOuter {
+    flex: 0 0 2.5rem;
+  }
+}
+
 .ResizeHandleInner {
   flex: 1;
   border-radius: 0.75rem;

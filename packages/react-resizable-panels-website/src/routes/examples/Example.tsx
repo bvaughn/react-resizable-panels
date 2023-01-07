@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useLayoutEffect } from "react";
 import { Link } from "react-router-dom";
 
 import Code from "../../components/Code";
@@ -11,18 +11,27 @@ export default function Example({
   exampleNode,
   headerNode,
   language = "jsx",
+  title,
 }: {
   code: string;
   exampleNode: ReactNode;
   headerNode: ReactNode;
   language?: Language;
+  title: string;
 }) {
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className={styles.Route}>
+      <h1 className={styles.Header}>
+        <Link className={styles.HomeLink} to="/">
+          Home
+        </Link>
+        →<span className={styles.Title}>{title}</span>
+      </h1>
       {headerNode}
-      <p>
-        <Link to="/">Back to home</Link>
-      </p>
       <div className={styles.ExampleContainer}>{exampleNode}</div>
       <Code
         className={styles.Code}

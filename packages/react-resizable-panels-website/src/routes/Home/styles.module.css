@@ -12,7 +12,11 @@
   gap: 1rem;
 }
 
-@media only screen and (max-width: 1024px) {
+@media (max-width: 1000px) {
+  .Container {
+    font-size: 1.2em;
+  }
+
   .BottomRow {
     flex-direction: column;
   }
@@ -24,23 +28,27 @@
   }
 }
 
-.SubHeader {
-  margin: 0 0 0.5rem;
-  font-size: 1.25rem;
+@media (max-width: 500px) {
+  .ExamplesList {
+    font-size: 1.2em;
+  }
 }
 
-.HeaderPanel {
-  background-color: var(--color-logo-background);
-  border-radius: 0.5em;
-  padding: 0;
+.SubHeader {
+  margin: 0 0 0.5rem;
+  font-size: 1.2em;
 }
 
 .HeaderLink {
   text-decoration: none;
+  background-color: var(--color-logo-background);
+  border-radius: 0.5em;
+  padding: 0;
+  color: inherit;
 }
 
 .TagLine {
-  font-size: 1.2rem;
+  font-size: 1.2em;
   text-align: center;
   margin: 0 0 0.5rem;
 }
@@ -65,10 +73,14 @@
 }
 
 .ExamplesListItem {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
   line-height: 1.75em;
+  min-height: 1.75em;
 }
-.ExamplesListItem::before {
-  content: counter(list-item) "  ";
+.ListItemNumber {
+  display: inline-block;
   color: var(--token-comment-color);
   font-family: monospace;
   display: inline-block;

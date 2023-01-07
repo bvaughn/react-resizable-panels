@@ -1,20 +1,19 @@
 import { useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import Code from "../../../components/Code";
-import Icon, { IconType } from "../../../components/Icon";
+import Code from "../../components/Code";
+import Icon, { IconType } from "../../components/Icon";
 import {
   TUTORIAL_CODE_CSS,
   TUTORIAL_CODE_HTML,
   TUTORIAL_CODE_JAVASCRIPT,
   TUTORIAL_CODE_README,
-} from "../../../code";
+} from "../../code";
+import { Language } from "../../suspense/SyntaxParsingCache";
 
-import Example from "../Example";
-import sharedStyles from "../shared.module.css";
-
-import styles from "./styles.module.css";
-import { Language } from "../../../suspense/SyntaxParsingCache";
+import styles from "./Collapsible.module.css";
+import Example from "./Example";
+import sharedStyles from "./shared.module.css";
 
 export default function CollapsibleRoute() {
   return (
@@ -34,6 +33,7 @@ export default function CollapsibleRoute() {
           </p>
         </>
       }
+      title="Collapsible panels"
     />
   );
 }

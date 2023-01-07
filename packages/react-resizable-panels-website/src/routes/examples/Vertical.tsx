@@ -24,6 +24,7 @@ export default function VerticalRoute() {
           </p>
         </>
       }
+      title="Vertical layouts"
     />
   );
 }

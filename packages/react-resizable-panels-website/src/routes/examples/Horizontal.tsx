@@ -24,6 +24,7 @@ export default function HorizontalRoute() {
           </p>
         </>
       }
+      title="Horizontal layouts"
     />
   );
 }
