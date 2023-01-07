@@ -152,7 +152,7 @@ function Content({
   sizes: Sizes;
 }) {
   return (
-    <div className={sharedStyles.PanelGroupWrapper}>
+    <>
       <div className={styles.ToggleRow}>
         <TogglesRow id="left" panelRef={leftPanelRef} panelSize={sizes.left} />
         <TogglesRow
@@ -166,52 +166,54 @@ function Content({
           panelSize={sizes.right}
         />
       </div>
-      <PanelGroup className={sharedStyles.PanelGroup} direction="horizontal">
-        <Panel
-          className={sharedStyles.PanelRow}
-          collapsible
-          defaultSize={sizes.left}
-          maxSize={30}
-          minSize={10}
-          onResize={(left: number) => onResize({ left })}
-          order={1}
-          ref={leftPanelRef}
-        >
-          <div className={sharedStyles.Centered}>
-            left: {Math.round(sizes.left)}
-          </div>
-        </Panel>
-        <ResizeHandle className={sharedStyles.ResizeHandle} />
-        <Panel
-          className={sharedStyles.PanelRow}
-          collapsible
-          maxSize={100}
-          minSize={10}
-          onResize={(middle: number) => onResize({ middle })}
-          order={2}
-          ref={middlePanelRef}
-        >
-          <div className={sharedStyles.Centered}>
-            middle: {Math.round(sizes.middle)}
-          </div>
-        </Panel>
-        <ResizeHandle className={sharedStyles.ResizeHandle} />
-        <Panel
-          className={sharedStyles.PanelRow}
-          collapsible
-          defaultSize={sizes.right}
-          maxSize={100}
-          minSize={10}
-          onResize={(right: number) => onResize({ right })}
-          order={3}
-          ref={rightPanelRef}
-        >
-          <div className={sharedStyles.Centered}>
-            right: {Math.round(sizes.right)}
-          </div>
-        </Panel>
-      </PanelGroup>
-    </div>
+      <div className={sharedStyles.PanelGroupWrapper}>
+        <PanelGroup className={sharedStyles.PanelGroup} direction="horizontal">
+          <Panel
+            className={sharedStyles.PanelRow}
+            collapsible
+            defaultSize={sizes.left}
+            maxSize={30}
+            minSize={10}
+            onResize={(left: number) => onResize({ left })}
+            order={1}
+            ref={leftPanelRef}
+          >
+            <div className={sharedStyles.Centered}>
+              left: {Math.round(sizes.left)}
+            </div>
+          </Panel>
+          <ResizeHandle className={sharedStyles.ResizeHandle} />
+          <Panel
+            className={sharedStyles.PanelRow}
+            collapsible
+            maxSize={100}
+            minSize={10}
+            onResize={(middle: number) => onResize({ middle })}
+            order={2}
+            ref={middlePanelRef}
+          >
+            <div className={sharedStyles.Centered}>
+              middle: {Math.round(sizes.middle)}
+            </div>
+          </Panel>
+          <ResizeHandle className={sharedStyles.ResizeHandle} />
+          <Panel
+            className={sharedStyles.PanelRow}
+            collapsible
+            defaultSize={sizes.right}
+            maxSize={100}
+            minSize={10}
+            onResize={(right: number) => onResize({ right })}
+            order={3}
+            ref={rightPanelRef}
+          >
+            <div className={sharedStyles.Centered}>
+              right: {Math.round(sizes.right)}
+            </div>
+          </Panel>
+        </PanelGroup>
+      </div>
+    </>
   );
 }
 
