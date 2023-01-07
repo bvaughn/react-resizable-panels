@@ -1,4 +1,4 @@
-import { ChangeEvent, RefObject, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, RefObject, useRef, useState } from "react";
 import {
   ImperativePanelHandle,
   Panel,
@@ -9,7 +9,8 @@ import Icon from "../../components/Icon";
 import ResizeHandle from "../../components/ResizeHandle";
 
 import Example from "./Example";
-import styles from "./shared.module.css";
+import styles from "./ImperativeApi.module.css";
+import sharedStyles from "./shared.module.css";
 
 type Sizes = {
   left: number;
@@ -70,21 +71,6 @@ export default function ImperativeApiRoute() {
               percentage.
             </li>
           </ul>
-          <ButtonsRow
-            id="left"
-            panelRef={leftPanelRef}
-            panelSize={sizes.left}
-          />
-          <ButtonsRow
-            id="middle"
-            panelRef={middlePanelRef}
-            panelSize={sizes.middle}
-          />
-          <ButtonsRow
-            id="right"
-            panelRef={rightPanelRef}
-            panelSize={sizes.right}
-          />
         </>
       }
       language="tsx"
@@ -92,7 +78,7 @@ export default function ImperativeApiRoute() {
   );
 }
 
-function ButtonsRow({
+function TogglesRow({
   id,
   panelRef,
   panelSize,
@@ -103,54 +89,52 @@ function ButtonsRow({
 }) {
   const [size, setSize] = useState(20);
 
-  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const onInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget as HTMLInputElement;
     setSize(parseInt(input.value));
   };
 
+  const onFormSubmit = (event: FormEvent) => {
+    event.preventDefault();
+
+    panelRef.current.resize(size);
+  };
+
   return (
-    <span className={styles.Buttons}>
-      <span className={styles.Capitalize}>{id}</span>
+    <div className={styles.Toggles}>
       <button
-        className={panelSize === 0 ? styles.ButtonDisabled : styles.Button}
+        className={
+          panelSize === 0 ? sharedStyles.ButtonDisabled : sharedStyles.Button
+        }
         data-test-id={`collapse-button-${id}`}
         onClick={() => panelRef.current.collapse()}
-        title="Collapse panel"
+        title={`Collapse ${id} panel`}
       >
         <Icon type="horizontal-collapse" />
       </button>
       <button
-        className={panelSize !== 0 ? styles.ButtonDisabled : styles.Button}
+        className={
+          panelSize !== 0 ? sharedStyles.ButtonDisabled : sharedStyles.Button
+        }
         data-test-id={`expand-button-${id}`}
         onClick={() => panelRef.current.expand()}
-        title="Expand panel"
+        title={`Expand ${id} panel`}
       >
         <Icon type="horizontal-expand" />
       </button>
-      <form
-        className={styles.ResizeForm}
-        onSubmit={(event) => event.preventDefault()}
-      >
-        <button
-          className={panelSize === size ? styles.ButtonDisabled : styles.Button}
-          data-test-id={`resize-button-${id}`}
-          onClick={() => panelRef.current.resize(size)}
-        >
-          Resize to:
-        </button>
+      <form className={styles.ResizeForm} onSubmit={onFormSubmit}>
         <input
           className={styles.SizeInput}
           data-test-id={`size-input-${id}`}
-          onChange={onChange}
+          onChange={onInputChange}
           min={0}
           max={100}
           size={2}
           type="number"
           value={size}
         />
-        %
       </form>
-    </span>
+    </div>
   );
 }
 
@@ -168,10 +152,23 @@ function Content({
   sizes: Sizes;
 }) {
   return (
-    <div className={styles.PanelGroupWrapper}>
-      <PanelGroup className={styles.PanelGroup} direction="horizontal">
+    <div className={sharedStyles.PanelGroupWrapper}>
+      <div className={styles.ToggleRow}>
+        <TogglesRow id="left" panelRef={leftPanelRef} panelSize={sizes.left} />
+        <TogglesRow
+          id="middle"
+          panelRef={middlePanelRef}
+          panelSize={sizes.middle}
+        />
+        <TogglesRow
+          id="right"
+          panelRef={rightPanelRef}
+          panelSize={sizes.right}
+        />
+      </div>
+      <PanelGroup className={sharedStyles.PanelGroup} direction="horizontal">
         <Panel
-          className={styles.PanelRow}
+          className={sharedStyles.PanelRow}
           collapsible
           defaultSize={sizes.left}
           maxSize={30}
@@ -180,11 +177,13 @@ function Content({
           order={1}
           ref={leftPanelRef}
         >
-          <div className={styles.Centered}>left: {Math.round(sizes.left)}</div>
+          <div className={sharedStyles.Centered}>
+            left: {Math.round(sizes.left)}
+          </div>
         </Panel>
-        <ResizeHandle className={styles.ResizeHandle} />
+        <ResizeHandle className={sharedStyles.ResizeHandle} />
         <Panel
-          className={styles.PanelRow}
+          className={sharedStyles.PanelRow}
           collapsible
           maxSize={100}
           minSize={10}
@@ -192,13 +191,13 @@ function Content({
           order={2}
           ref={middlePanelRef}
         >
-          <div className={styles.Centered}>
+          <div className={sharedStyles.Centered}>
             middle: {Math.round(sizes.middle)}
           </div>
         </Panel>
-        <ResizeHandle className={styles.ResizeHandle} />
+        <ResizeHandle className={sharedStyles.ResizeHandle} />
         <Panel
-          className={styles.PanelRow}
+          className={sharedStyles.PanelRow}
           collapsible
           defaultSize={sizes.right}
           maxSize={100}
@@ -207,7 +206,7 @@ function Content({
           order={3}
           ref={rightPanelRef}
         >
-          <div className={styles.Centered}>
+          <div className={sharedStyles.Centered}>
             right: {Math.round(sizes.right)}
           </div>
         </Panel>

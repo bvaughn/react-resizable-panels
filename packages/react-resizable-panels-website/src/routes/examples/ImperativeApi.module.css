@@ -1,0 +1,34 @@
+.ToggleRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.Toggles {
+  display: flex;
+  flex-direction: row;
+  gap: 1ch;
+}
+
+.SizeInput {
+  width: 7ch;
+  padding: 0 0 0 1ch;
+  background-color: var(--color-input-background);
+  border: 2px solid var(--color-input-border);
+  color: var(--color-input);
+  border-radius: 0.5rem;
+  outline: none;
+}
+.SizeInput:focus {
+  outline: none;
+  border-color: var(--color-input-border-focused);
+}
+
+.ResizeForm {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1ch;
+  margin: 0;
+}
