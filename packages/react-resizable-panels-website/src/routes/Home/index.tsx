@@ -7,17 +7,15 @@ import styles from "./styles.module.css";
 
 export default function HomeRoute() {
   return (
-    <div className={styles.HomeRoute}>
-      <Container className={styles.Container}>
-        <div className={styles.TopRow}>
-          <HeaderPanel />
-        </div>
-        <div className={styles.BottomRow}>
-          <ExamplesPanel />
-          <InstallationPanel />
-        </div>
-      </Container>
-    </div>
+    <Container className={styles.Container}>
+      <div className={styles.TopRow}>
+        <HeaderPanel />
+      </div>
+      <div className={styles.BottomRow}>
+        <ExamplesPanel />
+        <InstallationPanel />
+      </div>
+    </Container>
   );
 }
 
