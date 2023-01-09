@@ -129,3 +129,20 @@
 .SourceTab[data-current] {
   background-color: var(--color-background-code);
 }
+
+.CloseButton {
+  cursor: pointer;
+  background: none;
+  padding: 0.25em;
+  border-radius: 0.25em;
+  outline: none;
+  border: none;
+}
+.CloseButton:hover {
+  background-color: var(--color-button-background);
+}
+.CloseIcon {
+  height: 0.75rem !important;
+  width: 0.75rem !important;
+  color: var(--color-default);
+}

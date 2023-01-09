@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useReducer } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import Code from "../../components/Code";
@@ -39,9 +39,23 @@ export default function CollapsibleRoute() {
 }
 
 function Content() {
-  const [openFiles, setOpenFiles] = useState(new Set([DEFAULT_FILE]));
-  const [currentFile, setCurrentFile] = useState(DEFAULT_FILE);
-  const [fileListCollapsed, setFileListCollapsed] = useState(false);
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const { currentFileIndex, fileListCollapsed, openFiles } = state;
+
+  const currentFile = openFiles[currentFileIndex] ?? null;
+
+  const closeFile = (file: File) => {
+    dispatch({ type: "close", file });
+  };
+
+  const openFile = (file: File) => {
+    dispatch({ type: "open", file });
+  };
+
+  const toggleCollapsed = (collapsed: boolean) => {
+    dispatch({ type: "toggleCollapsed", collapsed });
+  };
 
   return (
     <div className={sharedStyles.PanelGroupWrapper}>
@@ -56,7 +70,7 @@ function Content() {
           defaultSize={20}
           maxSize={25}
           minSize={5}
-          onCollapse={setFileListCollapsed}
+          onCollapse={toggleCollapsed}
         >
           <div className={styles.FileList}>
             <div className={styles.DirectoryEntry}>
@@ -69,18 +83,10 @@ function Content() {
                 className={styles.FileEntry}
                 data-current={currentFile === file || undefined}
                 key={file.fileName}
-                onClick={() => {
-                  setOpenFiles(() => {
-                    const newOpenFiles = new Set(openFiles);
-                    newOpenFiles.add(file);
-                    return newOpenFiles;
-                  });
-
-                  setCurrentFile(file);
-                }}
+                onClick={(event) => openFile(file)}
                 title={file.fileName}
               >
-                <Icon className={styles.FileIcon} type={file.type} />
+                <Icon className={styles.FileIcon} type={file.language as any} />
                 <div className={styles.FileName}>{file.fileName}</div>
               </div>
             ))}
@@ -100,58 +106,61 @@ function Content() {
                 className={styles.SourceTab}
                 data-current={currentFile === file || undefined}
                 key={file.fileName}
-                onClick={() => setCurrentFile(file)}
+                onClick={() => openFile(file)}
               >
-                <Icon className={styles.FileIcon} type={file.type} />
+                <Icon className={styles.FileIcon} type={file.language as any} />
                 <span>{file.fileName}</span>
+                <button
+                  className={styles.CloseButton}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    closeFile(file);
+                  }}
+                >
+                  <Icon className={styles.CloseIcon} type="close" />
+                </button>
               </div>
             ))}
           </div>
-          <Code
-            className={sharedStyles.Overflow}
-            code={currentFile.code.trim()}
-            language={currentFile.language}
-            showLineNumbers
-          />
+          {currentFile && (
+            <Code
+              className={sharedStyles.Overflow}
+              code={currentFile.code.trim()}
+              language={currentFile.language}
+              showLineNumbers
+            />
+          )}
         </Panel>
       </PanelGroup>
     </div>
   );
 }
 
-const FILES: Array<{
-  language: Language;
-  type: IconType;
-  fileName: string;
+type File = {
   code: string;
-}> = [
-  {
-    language: "html",
-    type: "html",
-    fileName: "index.html",
-    code: TUTORIAL_CODE_HTML,
-  },
-  {
-    language: "markdown",
-    type: "markdown",
-    fileName: "README.md",
-    code: TUTORIAL_CODE_README,
-  },
-  {
-    language: "css",
-    type: "css",
-    fileName: "styles.css",
-    code: TUTORIAL_CODE_CSS,
-  },
-  {
-    language: "tsx",
-    type: "typescript",
-    fileName: "TicTacToe.ts",
-    code: TUTORIAL_CODE_JAVASCRIPT,
-  },
+  language: Language;
+  fileName: string;
+  path: string[];
+};
+
+const FILE_PATHS: Array<[path: string, code: string]> = [
+  ["source/index.html", TUTORIAL_CODE_HTML],
+  ["source/README.md", TUTORIAL_CODE_README],
+  ["source/styles.css", TUTORIAL_CODE_CSS],
+  ["source/TicTacToe.ts", TUTORIAL_CODE_JAVASCRIPT],
 ];
 
-const DEFAULT_FILE = FILES[0];
+const FILES: File[] = FILE_PATHS.map(([path, code]) => {
+  const pathArray = path.split("/");
+  const fileName = pathArray.pop();
+
+  return {
+    code,
+    fileName,
+    language: inferLanguageFromFileName(fileName),
+    path: pathArray,
+  };
+});
 
 const CODE = `
 <PanelGroup direction="horizontal">
@@ -165,3 +174,103 @@ const CODE = `
   </Panel>
 </PanelGroup>
 `;
+
+type CloseAction = { type: "close"; file: File };
+type OpenAction = { type: "open"; file: File };
+type ToggleCollapsedAction = { type: "toggleCollapsed"; collapsed: boolean };
+
+export type FilesAction = CloseAction | OpenAction | ToggleCollapsedAction;
+
+type FilesState = {
+  currentFileIndex: number;
+  fileListCollapsed: boolean;
+  openFiles: File[];
+};
+
+const initialState: FilesState = {
+  currentFileIndex: 0,
+  fileListCollapsed: false,
+  openFiles: [FILES[0]],
+};
+
+function reducer(state: FilesState, action: FilesAction): FilesState {
+  switch (action.type) {
+    case "close": {
+      const { file } = action;
+      const { currentFileIndex, openFiles } = state;
+
+      let fileIndex = openFiles.findIndex(
+        ({ fileName }) => fileName === file.fileName
+      );
+      if (fileIndex === -1) {
+        // File not open; this shouldn't happen.
+        return state;
+      }
+
+      const newOpenFiles = openFiles.concat();
+      newOpenFiles.splice(fileIndex, 1);
+
+      let newCurrentFileIndex = currentFileIndex;
+      if (newCurrentFileIndex >= newOpenFiles.length) {
+        newCurrentFileIndex = newOpenFiles.length - 1;
+      }
+
+      return {
+        ...state,
+        currentFileIndex: newCurrentFileIndex,
+        openFiles: newOpenFiles,
+      };
+    }
+    case "open": {
+      const { file } = action;
+      const { openFiles } = state;
+      const fileIndex = openFiles.findIndex(
+        ({ fileName }) => fileName === file.fileName
+      );
+      if (fileIndex >= 0) {
+        return {
+          ...state,
+          currentFileIndex: fileIndex,
+        };
+      } else {
+        const newOpenFiles = [...openFiles, file];
+
+        return {
+          ...state,
+          currentFileIndex: openFiles.length,
+          openFiles: newOpenFiles,
+        };
+      }
+    }
+    case "toggleCollapsed": {
+      return { ...state, fileListCollapsed: action.collapsed };
+    }
+    default: {
+      throw `Unknown action type: ${(action as any).type}`;
+    }
+  }
+}
+
+function inferLanguageFromFileName(fileName: string): Language {
+  const extension = fileName.split(".").pop();
+
+  switch (extension) {
+    case "css":
+      return "css";
+    case "htm":
+    case "html":
+      return "html";
+    case "js":
+      return "javascript";
+    case "jsx":
+      return "jsx";
+    case "md":
+      return "markdown";
+    case "tsx":
+      return "tsx";
+    case "ts":
+      return "typescript";
+    default:
+      throw Error(`Unsupported extension "${extension}"`);
+  }
+}
