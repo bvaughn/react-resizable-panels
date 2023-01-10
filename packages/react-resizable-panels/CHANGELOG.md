@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.32
+* [#75](https://github.com/bvaughn/react-resizable-panels/issues/75): Ensure `Panel` and `PanelGroup` callbacks are always called after mounting.
+
 ## 0.0.31
 * [#71](https://github.com/bvaughn/react-resizable-panels/issues/71): Added `getSize` and `getCollapsed` to imperative API exposed by `Panel`.
 * [#67](https://github.com/bvaughn/react-resizable-panels/issues/67), [#72](https://github.com/bvaughn/react-resizable-panels/issues/72): Removed nullish coalescing operator (`??`) because it caused problems with default create-react-app configuration.
