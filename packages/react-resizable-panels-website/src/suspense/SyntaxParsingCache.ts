@@ -260,7 +260,7 @@ function processSection(
   section: string,
   className: string
 ) {
-  const tokenType = className?.substring(4) ?? null; // Remove "tok-" prefix;
+  const tokenType = className?.substring(4) || null; // Remove "tok-" prefix;
 
   let index = 0;
   let nextIndex = section.indexOf("\n");
