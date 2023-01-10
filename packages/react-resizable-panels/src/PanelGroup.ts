@@ -81,6 +81,8 @@ export function PanelGroup({
   // 0-1 values representing the relative size of each panel.
   const [sizes, setSizes] = useState<number[]>([]);
 
+  // Resize is calculated by the distance between the current pointer event and the resize handle being "dragged"
+  // This value accounts for the initial offset when the touch/click starts, so the handle doesn't appear to "jump"
   const dragOffsetRef = useRef<number>(0);
 
   // Used to support imperative collapse/expand API.
