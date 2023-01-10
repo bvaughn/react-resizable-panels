@@ -24,12 +24,14 @@ export function useWindowSplitterPanelGroupBehavior({
   panels,
   setSizes,
   sizes,
+  panelSizeBeforeCollapse,
 }: {
   committedValuesRef: RefObject<CommittedValues>;
   groupId: string;
   panels: PanelDataMap;
   setSizes: (sizes: number[]) => void;
   sizes: number[];
+  panelSizeBeforeCollapse: RefObject<Map<string, number>>;
 }): void {
   useEffect(() => {
     const { direction, panels } = committedValuesRef.current;
@@ -104,7 +106,8 @@ export function useWindowSplitterPanelGroupBehavior({
                   idBefore,
                   idAfter,
                   delta,
-                  sizes
+                  sizes,
+                  panelSizeBeforeCollapse.current
                 );
                 if (sizes !== nextSizes) {
                   setSizes(nextSizes);

@@ -105,6 +105,7 @@ export function PanelGroup({
     panels,
     setSizes,
     sizes,
+    panelSizeBeforeCollapse,
   });
 
   // Notify external code when sizes have changed.
@@ -288,7 +289,8 @@ export function PanelGroup({
           idBefore,
           idAfter,
           delta,
-          prevSizes
+          prevSizes,
+          panelSizeBeforeCollapse.current
         );
         if (prevSizes === nextSizes) {
           // If the pointer has moved too far to resize the panel any further,
@@ -368,7 +370,8 @@ export function PanelGroup({
       idBefore,
       idAfter,
       delta,
-      prevSizes
+      prevSizes,
+      panelSizeBeforeCollapse.current
     );
     if (prevSizes !== nextSizes) {
       // If resize change handlers have been declared, this is the time to call them.
@@ -418,7 +421,8 @@ export function PanelGroup({
       idBefore,
       idAfter,
       delta,
-      prevSizes
+      prevSizes,
+      panelSizeBeforeCollapse.current
     );
     if (prevSizes !== nextSizes) {
       // If resize change handlers have been declared, this is the time to call them.
@@ -461,7 +465,8 @@ export function PanelGroup({
       idBefore,
       idAfter,
       delta,
-      prevSizes
+      prevSizes,
+      panelSizeBeforeCollapse.current
     );
     if (prevSizes !== nextSizes) {
       // If resize change handlers have been declared, this is the time to call them.

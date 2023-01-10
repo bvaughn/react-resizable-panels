@@ -6,7 +6,8 @@ export function adjustByDelta(
   idBefore: string,
   idAfter: string,
   delta: number,
-  prevSizes: number[]
+  prevSizes: number[],
+  panelSizeBeforeCollapse: Map<string, number>
 ): number[] {
   if (delta === 0) {
     return prevSizes;
@@ -37,6 +38,10 @@ export function adjustByDelta(
     if (prevSize === nextSize) {
       return prevSizes;
     } else {
+      if (nextSize === 0 && prevSize > 0) {
+        panelSizeBeforeCollapse.set(pivotId, prevSize);
+      }
+
       delta = delta < 0 ? prevSize - nextSize : nextSize - prevSize;
     }
   }
@@ -49,6 +54,10 @@ export function adjustByDelta(
 
     const nextSize = safeResizePanel(panel, 0 - Math.abs(delta), prevSize);
     if (prevSize !== nextSize) {
+      if (nextSize === 0 && prevSize > 0) {
+        panelSizeBeforeCollapse.set(panel.id, prevSize);
+      }
+
       deltaApplied += prevSize - nextSize;
 
       nextSizes[index] = nextSize;

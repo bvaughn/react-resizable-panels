@@ -3,6 +3,8 @@
 ## 0.0.31
 * [#71](https://github.com/bvaughn/react-resizable-panels/issues/71): Added `getSize` and `getCollapsed` to imperative API exposed by `Panel`.
 * [#67](https://github.com/bvaughn/react-resizable-panels/issues/67), [#72](https://github.com/bvaughn/react-resizable-panels/issues/72): Removed nullish coalescing operator (`??`) because it caused problems with default create-react-app configuration.
+* Fix edge case when expanding a panel via imperative API that was collapsed by user drag
+
 ## 0.0.30
 * [#68](https://github.com/bvaughn/react-resizable-panels/pull/68): Reduce volume/frequency of local storage writes for `PanelGroup`s configured to _auto-save_.
 * Added `onLayout` prop to `PanelGroup` to be called when group layout changes. Note that some form of debouncing is recommended before processing these values (e.g. saving to a database).

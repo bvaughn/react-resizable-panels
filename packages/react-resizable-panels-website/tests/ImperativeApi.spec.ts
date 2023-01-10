@@ -108,9 +108,17 @@ test.describe("Imperative Panel API", () => {
     await verifySizes(page, 15, 60, 25);
   });
 
-  test("should expand drag collapsed panels to min size", async ({ page }) => {
+  test("should expand drag collapsed panels to their most recent size", async ({
+    page,
+  }) => {
+    await verifySizes(page, 20, 60, 20);
+
     const leftInput = page.locator('[data-test-id="size-input-left"]');
     await leftInput.focus();
+    await leftInput.fill("15");
+    await page.keyboard.press("Enter");
+    await verifySizes(page, 15, 65, 20);
+
     await leftInput.fill("0");
     await page.keyboard.press("Enter");
     await verifySizes(page, 0, 80, 20);
@@ -119,6 +127,6 @@ test.describe("Imperative Panel API", () => {
       '[data-test-id="expand-button-left"]'
     );
     await leftExpandButton.click();
-    await verifySizes(page, 10, 70, 20);
+    await verifySizes(page, 15, 65, 20);
   });
 });
