@@ -235,8 +235,14 @@ function safeResizePanel(
   const nextSizeUnsafe = prevSize + delta;
 
   if (panel.collapsible) {
-    if (nextSizeUnsafe <= 0) {
-      return 0;
+    if (prevSize > 0) {
+      if (nextSizeUnsafe <= 0) {
+        return 0;
+      }
+    } else {
+      if (nextSizeUnsafe < panel.minSize) {
+        return 0;
+      }
     }
   }
 
