@@ -123,6 +123,23 @@ export function PanelGroup({
     }
   }, [sizes]);
 
+  // Notify Panel listeners about their initial sizes and collapsed state after mount.
+  // Subsequent changes will be called by the resizeHandler.
+  const didNotifyCallbacksAfterMountRef = useRef(false);
+  useIsomorphicLayoutEffect(() => {
+    if (didNotifyCallbacksAfterMountRef.current) {
+      return;
+    }
+
+    const { panels, sizes } = committedValuesRef.current;
+    if (sizes.length > 0) {
+      didNotifyCallbacksAfterMountRef.current = true;
+
+      const panelsArray = panelsMapToSortedArray(panels);
+      callPanelCallbacks(panelsArray, [], sizes);
+    }
+  }, [sizes]);
+
   // Once all panels have registered themselves,
   // Compute the initial sizes based on default weights.
   // This assumes that panels register during initial mount (no conditional rendering)!

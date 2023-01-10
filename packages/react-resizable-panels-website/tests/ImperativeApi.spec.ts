@@ -129,4 +129,22 @@ test.describe("Imperative Panel API", () => {
     await leftExpandButton.click();
     await verifySizes(page, 15, 65, 20);
   });
+
+  test("should expand to the panel's minSize if collapsed by default", async ({
+    page,
+  }) => {
+    await page.goto("http://localhost:2345/examples/imperative-api?collapse");
+
+    const resizeHandles = page.locator("[data-panel-resize-handle-id]");
+    const first = resizeHandles.first();
+    const last = resizeHandles.last();
+
+    await first.focus();
+    await page.keyboard.press("ArrowRight");
+
+    await last.focus();
+    await page.keyboard.press("Shift+ArrowLeft");
+
+    await verifySizes(page, 10, 80, 10);
+  });
 });

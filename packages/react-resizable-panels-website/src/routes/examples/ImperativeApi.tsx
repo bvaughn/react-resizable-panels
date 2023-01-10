@@ -20,6 +20,9 @@ import styles from "./ImperativeApi.module.css";
 import sharedStyles from "./shared.module.css";
 import { LogEntry } from "./types";
 
+const url = new URL(location.href);
+const collapseByDefault = url.searchParams.has("collapse");
+
 type Sizes = {
   left: number;
   middle: number;
@@ -28,9 +31,9 @@ type Sizes = {
 
 export default function ImperativeApiRoute() {
   const [sizes, setSizes] = useState<Sizes>({
-    left: 20,
-    middle: 60,
-    right: 20,
+    left: collapseByDefault ? 0 : 20,
+    middle: collapseByDefault ? 100 : 60,
+    right: collapseByDefault ? 0 : 20,
   });
 
   const onResize = (partialSizes: Partial<Sizes>) => {

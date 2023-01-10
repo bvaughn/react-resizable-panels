@@ -19,7 +19,7 @@ export async function clearLogEntries(
       );
       div.textContent = JSON.stringify(filteredEntries);
     } else {
-      div.textContent = "";
+      div.textContent = "[]";
     }
   }, logEntryType);
 }
@@ -34,7 +34,9 @@ export async function getLogEntries<Type extends LogEntry>(
       throw Error("Could not find debug div");
     }
 
-    const logEntries = JSON.parse(div.textContent) as LogEntry[];
+    const textContent = div.textContent;
+    console.log(`"${textContent}"`);
+    const logEntries = JSON.parse(textContent) as LogEntry[];
     if (logEntryType === null) {
       return logEntries as Type[];
     }
