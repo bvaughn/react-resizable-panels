@@ -1,4 +1,11 @@
-import { ChangeEvent, FormEvent, RefObject, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  RefObject,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import {
   ImperativePanelHandle,
   Panel,
@@ -11,6 +18,7 @@ import ResizeHandle from "../../components/ResizeHandle";
 import Example from "./Example";
 import styles from "./ImperativeApi.module.css";
 import sharedStyles from "./shared.module.css";
+import { LogEntry } from "./types";
 
 type Sizes = {
   left: number;
@@ -139,11 +147,17 @@ function TogglesRow({
   );
 }
 
+// Used for e2e testing only
+function logDebug(div: HTMLDivElement, data: Object) {
+  try {
+  } catch (error) {}
+}
+
 function Content({
   leftPanelRef,
   middlePanelRef,
   rightPanelRef,
-  onResize,
+  onResize: onResizeProp,
   sizes,
 }: {
   leftPanelRef: RefObject<ImperativePanelHandle>;
@@ -152,8 +166,45 @@ function Content({
   onResize: (partialSizes: Partial<Sizes>) => void;
   sizes: Sizes;
 }) {
+  // Used for e2e testing only
+  const debugRef = useRef<ImperativeDebugApi>(null);
+
+  const onLayout = (sizes: []) => {
+    const debug = debugRef.current;
+    if (debug) {
+      debug.log({ type: "onLayout", sizes });
+    }
+  };
+
+  const onCollapse = (id: string, collapsed: boolean) => {
+    const debug = debugRef.current;
+    if (debug) {
+      debug.log({
+        collapsed,
+        panelId: id,
+        type: "onCollapse",
+      });
+    }
+  };
+
+  const onResize = (partialSizes: Partial<Sizes>) => {
+    const id = Object.keys(partialSizes)[0];
+    const size = Object.values(partialSizes)[0];
+    const debug = debugRef.current;
+    if (debug) {
+      debug.log({
+        panelId: id,
+        size,
+        type: "onResize",
+      });
+    }
+
+    onResizeProp(partialSizes);
+  };
+
   return (
     <>
+      <Debug apiRef={debugRef} />
       <div className={styles.ToggleRow}>
         <TogglesRow id="left" panelRef={leftPanelRef} panelSize={sizes.left} />
         <TogglesRow
@@ -168,13 +219,19 @@ function Content({
         />
       </div>
       <div className={sharedStyles.PanelGroupWrapper}>
-        <PanelGroup className={sharedStyles.PanelGroup} direction="horizontal">
+        <PanelGroup
+          className={sharedStyles.PanelGroup}
+          direction="horizontal"
+          onLayout={onLayout}
+        >
           <Panel
             className={sharedStyles.PanelRow}
             collapsible
             defaultSize={sizes.left}
+            id="left"
             maxSize={30}
             minSize={10}
+            onCollapse={(collapsed: boolean) => onCollapse("left", collapsed)}
             onResize={(left: number) => onResize({ left })}
             order={1}
             ref={leftPanelRef}
@@ -187,8 +244,10 @@ function Content({
           <Panel
             className={sharedStyles.PanelRow}
             collapsible
+            id="middle"
             maxSize={100}
             minSize={10}
+            onCollapse={(collapsed: boolean) => onCollapse("middle", collapsed)}
             onResize={(middle: number) => onResize({ middle })}
             order={2}
             ref={middlePanelRef}
@@ -202,8 +261,10 @@ function Content({
             className={sharedStyles.PanelRow}
             collapsible
             defaultSize={sizes.right}
+            id="right"
             maxSize={100}
             minSize={10}
+            onCollapse={(collapsed: boolean) => onCollapse("right", collapsed)}
             onResize={(right: number) => onResize({ right })}
             order={3}
             ref={rightPanelRef}
@@ -216,6 +277,37 @@ function Content({
       </div>
     </>
   );
+}
+
+type ImperativeDebugApi = {
+  log: (logEntry: LogEntry) => void;
+};
+
+// Used for e2e testing only
+function Debug({ apiRef }: { apiRef: RefObject<ImperativeDebugApi> }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useImperativeHandle(apiRef, () => ({
+    log: (logEntry: LogEntry) => {
+      const div = ref.current;
+      if (div) {
+        try {
+          let objectsArray: LogEntry[] = [];
+
+          const textContent = div.textContent.trim();
+          if (textContent !== "") {
+            objectsArray = JSON.parse(textContent) as LogEntry[];
+          }
+
+          objectsArray.push(logEntry);
+
+          div.textContent = JSON.stringify(objectsArray);
+        } catch (error) {}
+      }
+    },
+  }));
+
+  return <div id="debug" ref={ref} style={{ display: "none" }}></div>;
 }
 
 const CODE = `
