@@ -115,7 +115,11 @@ export function PanelGroup({
     const { onLayout } = callbacksRef.current;
     if (onLayout) {
       const { sizes } = committedValuesRef.current;
-      onLayout(sizes);
+
+      // Don't commit layout until all panels have registered and re-rendered with their actual sizes.
+      if (sizes.length > 0) {
+        onLayout(sizes);
+      }
     }
   }, [sizes]);
 
