@@ -34,6 +34,8 @@ export type PanelProps = {
 export type ImperativePanelHandle = {
   collapse: () => void;
   expand: () => void;
+  getCollapsed(): boolean;
+  getSize(): number;
   resize: (percentage: number) => void;
 };
 
@@ -71,16 +73,6 @@ function PanelWithForwardedRef({
     resizePanel,
     unregisterPanel,
   } = context;
-
-  useImperativeHandle(
-    forwardedRef,
-    () => ({
-      collapse: () => collapsePanel(panelId),
-      expand: () => expandPanel(panelId),
-      resize: (percentage: number) => resizePanel(panelId, percentage),
-    }),
-    [collapsePanel, expandPanel, panelId, resizePanel]
-  );
 
   // Use a ref to guard against users passing inline props
   const callbacksRef = useRef<{
@@ -142,6 +134,31 @@ function PanelWithForwardedRef({
 
   const style = getPanelStyle(panelId);
 
+  const committedValuesRef = useRef<{
+    size: number;
+  }>({
+    size: parseSizeFromStyle(style),
+  });
+  useIsomorphicLayoutEffect(() => {
+    committedValuesRef.current.size = parseSizeFromStyle(style);
+  });
+
+  useImperativeHandle(
+    forwardedRef,
+    () => ({
+      collapse: () => collapsePanel(panelId),
+      expand: () => expandPanel(panelId),
+      getCollapsed() {
+        return committedValuesRef.current.size === 0;
+      },
+      getSize() {
+        return committedValuesRef.current.size;
+      },
+      resize: (percentage: number) => resizePanel(panelId, percentage),
+    }),
+    [collapsePanel, expandPanel, panelId, resizePanel]
+  );
+
   return createElement(Type, {
     children,
     className: classNameFromProps,
@@ -167,3 +184,13 @@ export const Panel = forwardRef<ImperativePanelHandle, PanelProps>(
 // See github.com/parcel-bundler/parcel/issues/8724
 (PanelWithForwardedRef as any).displayName = "Panel";
 (Panel as any).displayName = "forwardRef(Panel)";
+
+// HACK
+function parseSizeFromStyle(style: CSSProperties): number {
+  const { flexGrow } = style;
+  if (typeof flexGrow === "string") {
+    return parseFloat(flexGrow);
+  } else {
+    return flexGrow;
+  }
+}
