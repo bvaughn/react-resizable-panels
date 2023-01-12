@@ -28,7 +28,7 @@ async function verifyEntries(
 
 test.describe("Panel onCollapse prop", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:2345/examples/imperative-api");
+    await page.goto("http://localhost:2345/examples/imperative-api?onCollapse");
   });
 
   test("should be called once on-mount", async ({ page }) => {
@@ -36,7 +36,9 @@ test.describe("Panel onCollapse prop", () => {
     await verifyEntries(page, []);
 
     // If we override via URL parameters, we should be notified though.
-    await page.goto("http://localhost:2345/examples/imperative-api?collapse");
+    await page.goto(
+      "http://localhost:2345/examples/imperative-api?collapse&onCollapse"
+    );
     await verifyEntries(page, [
       { panelId: "left", collapsed: true },
       { panelId: "right", collapsed: true },

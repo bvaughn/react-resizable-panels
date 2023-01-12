@@ -21,7 +21,7 @@ async function verifyEntries(page: Page, expectedSizes: number[][]) {
 
 test.describe("PanelGroup onLayout prop", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:2345/examples/imperative-api");
+    await page.goto("http://localhost:2345/examples/imperative-api?onLayout");
   });
 
   test("should be called once on-mount", async ({ page }) => {
