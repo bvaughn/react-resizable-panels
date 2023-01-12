@@ -108,7 +108,7 @@ export function callPanelCallbacks(
       }
 
       if (onCollapse) {
-        if (prevSize === 0 && nextSize !== 0) {
+        if ((prevSize === 0 || prevSize == null) && nextSize !== 0) {
           onCollapse(false);
         } else if (prevSize !== 0 && nextSize === 0) {
           onCollapse(true);
