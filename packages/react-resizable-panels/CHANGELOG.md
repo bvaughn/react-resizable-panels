@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.33
+* Collapsible `Panel`s will always call `onCollapse` on-mount regardless of their collapsed state.
+* Fixed regression in b5d3ec1 where arrow keys may fail to expand a collapsed panel.
+
 ## 0.0.32
 * [#75](https://github.com/bvaughn/react-resizable-panels/issues/75): Ensure `Panel` and `PanelGroup` callbacks are always called after mounting.
 

@@ -24,7 +24,7 @@ async function verifyEntries(
 
 test.describe("Panel onResize prop", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:2345/examples/imperative-api");
+    await page.goto("http://localhost:2345/examples/imperative-api?onResize");
   });
 
   test("should be called once on-mount", async ({ page }) => {

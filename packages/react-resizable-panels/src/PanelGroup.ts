@@ -308,6 +308,7 @@ export function PanelGroup({
         const delta = (movement / size) * 100;
 
         const nextSizes = adjustByDelta(
+          event,
           panels,
           idBefore,
           idAfter,
@@ -389,6 +390,7 @@ export function PanelGroup({
     const delta = isLastPanel ? currentSize : 0 - currentSize;
 
     const nextSizes = adjustByDelta(
+      null,
       panels,
       idBefore,
       idAfter,
@@ -440,6 +442,7 @@ export function PanelGroup({
     const delta = isLastPanel ? 0 - sizeBeforeCollapse : sizeBeforeCollapse;
 
     const nextSizes = adjustByDelta(
+      null,
       panels,
       idBefore,
       idAfter,
@@ -484,6 +487,7 @@ export function PanelGroup({
     const delta = isLastPanel ? currentSize - nextSize : nextSize - currentSize;
 
     const nextSizes = adjustByDelta(
+      null,
       panels,
       idBefore,
       idAfter,

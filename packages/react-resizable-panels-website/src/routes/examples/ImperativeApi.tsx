@@ -20,8 +20,13 @@ import styles from "./ImperativeApi.module.css";
 import sharedStyles from "./shared.module.css";
 import { LogEntry } from "./types";
 
+// Optional API params passed by e2e tests
 const url = new URL(location.href);
 const collapseByDefault = url.searchParams.has("collapse");
+const logOnCollapse = url.searchParams.has("onCollapse");
+const logOnLayout = url.searchParams.has("onLayout");
+const logOnResize = url.searchParams.has("onResize");
+const noMiddleCollapse = url.searchParams.has("noMiddleCollapse");
 
 type Sizes = {
   left: number;
@@ -173,33 +178,39 @@ function Content({
   const debugRef = useRef<ImperativeDebugApi>(null);
 
   const onLayout = (sizes: []) => {
-    const debug = debugRef.current;
-    if (debug) {
-      debug.log({ type: "onLayout", sizes });
+    if (logOnLayout) {
+      const debug = debugRef.current;
+      if (debug) {
+        debug.log({ type: "onLayout", sizes });
+      }
     }
   };
 
   const onCollapse = (id: string, collapsed: boolean) => {
-    const debug = debugRef.current;
-    if (debug) {
-      debug.log({
-        collapsed,
-        panelId: id,
-        type: "onCollapse",
-      });
+    if (logOnCollapse) {
+      const debug = debugRef.current;
+      if (debug) {
+        debug.log({
+          collapsed,
+          panelId: id,
+          type: "onCollapse",
+        });
+      }
     }
   };
 
   const onResize = (partialSizes: Partial<Sizes>) => {
-    const id = Object.keys(partialSizes)[0];
-    const size = Object.values(partialSizes)[0];
-    const debug = debugRef.current;
-    if (debug) {
-      debug.log({
-        panelId: id,
-        size,
-        type: "onResize",
-      });
+    if (logOnResize) {
+      const id = Object.keys(partialSizes)[0];
+      const size = Object.values(partialSizes)[0];
+      const debug = debugRef.current;
+      if (debug) {
+        debug.log({
+          panelId: id,
+          size,
+          type: "onResize",
+        });
+      }
     }
 
     onResizeProp(partialSizes);
@@ -246,7 +257,7 @@ function Content({
           <ResizeHandle className={sharedStyles.ResizeHandle} />
           <Panel
             className={sharedStyles.PanelRow}
-            collapsible
+            collapsible={!noMiddleCollapse}
             id="middle"
             maxSize={100}
             minSize={10}
@@ -310,7 +321,11 @@ function Debug({ apiRef }: { apiRef: RefObject<ImperativeDebugApi> }) {
     },
   }));
 
-  return <div id="debug" ref={ref} style={{ display: "none" }}></div>;
+  return (
+    <div id="debug" ref={ref} style={{ display: "none" }}>
+      []
+    </div>
+  );
 }
 
 const CODE = `

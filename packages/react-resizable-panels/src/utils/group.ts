@@ -1,7 +1,8 @@
 import { PRECISION } from "../constants";
-import { PanelData } from "../types";
+import { PanelData, ResizeEvent } from "../types";
 
 export function adjustByDelta(
+  event: ResizeEvent | null,
   panels: Map<string, PanelData>,
   idBefore: string,
   idAfter: string,
@@ -34,7 +35,7 @@ export function adjustByDelta(
     const panel = panelsArray[index];
     const prevSize = prevSizes[index];
 
-    const nextSize = safeResizePanel(panel, Math.abs(delta), prevSize);
+    const nextSize = safeResizePanel(panel, Math.abs(delta), prevSize, event);
     if (prevSize === nextSize) {
       return prevSizes;
     } else {
@@ -52,7 +53,12 @@ export function adjustByDelta(
     const panel = panelsArray[index];
     const prevSize = prevSizes[index];
 
-    const nextSize = safeResizePanel(panel, 0 - Math.abs(delta), prevSize);
+    const nextSize = safeResizePanel(
+      panel,
+      0 - Math.abs(delta),
+      prevSize,
+      event
+    );
     if (prevSize !== nextSize) {
       if (nextSize === 0 && prevSize > 0) {
         panelSizeBeforeCollapse.set(panel.id, prevSize);
@@ -100,15 +106,17 @@ export function callPanelCallbacks(
   nextSizes.forEach((nextSize, index) => {
     const prevSize = prevSizes[index];
     if (prevSize !== nextSize) {
-      const { callbacksRef } = panelsArray[index];
+      const { callbacksRef, collapsible } = panelsArray[index];
       const { onCollapse, onResize } = callbacksRef.current;
 
       if (onResize) {
         onResize(nextSize);
       }
 
-      if (onCollapse) {
-        if (prevSize === 0 && nextSize !== 0) {
+      if (collapsible && onCollapse) {
+        // Falsy check handles both previous size of 0
+        // and initial size of undefined (when mounting)
+        if (!prevSize && nextSize !== 0) {
           onCollapse(false);
         } else if (prevSize !== 0 && nextSize === 0) {
           onCollapse(true);
@@ -230,7 +238,8 @@ export function panelsMapToSortedArray(
 function safeResizePanel(
   panel: PanelData,
   delta: number,
-  prevSize: number
+  prevSize: number,
+  event: ResizeEvent | null
 ): number {
   const nextSizeUnsafe = prevSize + delta;
 
@@ -240,8 +249,14 @@ function safeResizePanel(
         return 0;
       }
     } else {
-      if (nextSizeUnsafe < panel.minSize) {
-        return 0;
+      const isKeyboardEvent = event?.type?.startsWith("key");
+      if (!isKeyboardEvent) {
+        // Keyboard events should expand a collapsed panel to the min size,
+        // but mouse events should wait until the panel has reached its min size
+        // to avoid a visual flickering when dragging between collapsed and min size.
+        if (nextSizeUnsafe < panel.minSize) {
+          return 0;
+        }
       }
     }
   }
