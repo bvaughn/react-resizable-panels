@@ -106,15 +106,17 @@ export function callPanelCallbacks(
   nextSizes.forEach((nextSize, index) => {
     const prevSize = prevSizes[index];
     if (prevSize !== nextSize) {
-      const { callbacksRef } = panelsArray[index];
+      const { callbacksRef, collapsible } = panelsArray[index];
       const { onCollapse, onResize } = callbacksRef.current;
 
       if (onResize) {
         onResize(nextSize);
       }
 
-      if (onCollapse) {
-        if (prevSize === 0 && nextSize !== 0) {
+      if (collapsible && onCollapse) {
+        // Falsy check handles both previous size of 0
+        // and initial size of undefined (when mounting)
+        if (!prevSize && nextSize !== 0) {
           onCollapse(false);
         } else if (prevSize !== 0 && nextSize === 0) {
           onCollapse(true);
