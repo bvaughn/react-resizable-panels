@@ -102,6 +102,7 @@ export function useWindowSplitterPanelGroupBehavior({
                 }
 
                 const nextSizes = adjustByDelta(
+                  event,
                   panels,
                   idBefore,
                   idAfter,
