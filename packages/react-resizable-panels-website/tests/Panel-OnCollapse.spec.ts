@@ -50,7 +50,8 @@ test.describe("Panel onCollapse prop", () => {
     ]);
   });
 
-  test("should not call onCollapse for panels that are not collapsible once on-mount", async ({
+  // Edge case
+  test("should only call onCollapse for panels that are collapsible", async ({
     page,
   }) => {
     await page.goto(
