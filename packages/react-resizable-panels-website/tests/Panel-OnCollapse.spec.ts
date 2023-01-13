@@ -28,7 +28,6 @@ async function openPage(
     createElement(PanelResizeHandle, { id: "left-handle" }),
     createElement(Panel, {
       collapsible: middleCollapsible,
-      defaultSize: 60,
       id: "middle",
       order: 2,
     }),

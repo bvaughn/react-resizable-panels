@@ -1,11 +1,4 @@
-import {
-  ChangeEvent,
-  FormEvent,
-  RefObject,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
+import { ChangeEvent, FormEvent, RefObject, useRef, useState } from "react";
 import {
   ImperativePanelHandle,
   Panel,
@@ -15,18 +8,9 @@ import Icon from "../../components/Icon";
 
 import ResizeHandle from "../../components/ResizeHandle";
 
-import DebugLog, { ImperativeDebugLogHandle } from "./DebugLog";
 import Example from "./Example";
 import styles from "./ImperativeApi.module.css";
 import sharedStyles from "./shared.module.css";
-
-// Optional API params passed by e2e tests
-const url = new URL(location.href);
-const collapseByDefault = url.searchParams.has("collapse");
-const logOnCollapse = url.searchParams.has("onCollapse");
-const logOnLayout = url.searchParams.has("onLayout");
-const logOnResize = url.searchParams.has("onResize");
-const noMiddleCollapse = url.searchParams.has("noMiddleCollapse");
 
 type Sizes = {
   left: number;
@@ -36,9 +20,9 @@ type Sizes = {
 
 export default function ImperativeApiRoute() {
   const [sizes, setSizes] = useState<Sizes>({
-    left: collapseByDefault ? 0 : 20,
-    middle: collapseByDefault ? 100 : 60,
-    right: collapseByDefault ? 0 : 20,
+    left: 20,
+    middle: 60,
+    right: 20,
   });
 
   const onResize = (partialSizes: Partial<Sizes>) => {
@@ -168,55 +152,12 @@ function Content({
   onResize: (partialSizes: Partial<Sizes>) => void;
   sizes: Sizes;
 }) {
-  // Used for e2e testing only
-  const debugRef = useRef<ImperativeDebugLogHandle>(null);
-
-  const onLayout = (sizes: []) => {
-    if (logOnLayout) {
-      const debug = debugRef.current;
-      if (debug) {
-        debug.log({
-          groupId: "horizontal-group",
-          type: "onLayout",
-          sizes,
-        });
-      }
-    }
-  };
-
-  const onCollapse = (id: string, collapsed: boolean) => {
-    if (logOnCollapse) {
-      const debug = debugRef.current;
-      if (debug) {
-        debug.log({
-          collapsed,
-          panelId: id,
-          type: "onCollapse",
-        });
-      }
-    }
-  };
-
   const onResize = (partialSizes: Partial<Sizes>) => {
-    if (logOnResize) {
-      const id = Object.keys(partialSizes)[0];
-      const size = Object.values(partialSizes)[0];
-      const debug = debugRef.current;
-      if (debug) {
-        debug.log({
-          panelId: id,
-          size,
-          type: "onResize",
-        });
-      }
-    }
-
     onResizeProp(partialSizes);
   };
 
   return (
     <>
-      <DebugLog apiRef={debugRef} />
       <div className={styles.ToggleRow}>
         <TogglesRow id="left" panelRef={leftPanelRef} panelSize={sizes.left} />
         <TogglesRow
@@ -235,7 +176,6 @@ function Content({
           className={sharedStyles.PanelGroup}
           direction="horizontal"
           id="horizontal-group"
-          onLayout={onLayout}
         >
           <Panel
             className={sharedStyles.PanelRow}
@@ -244,7 +184,6 @@ function Content({
             id="left"
             maxSize={30}
             minSize={10}
-            onCollapse={(collapsed: boolean) => onCollapse("left", collapsed)}
             onResize={(left: number) => onResize({ left })}
             order={1}
             ref={leftPanelRef}
@@ -256,11 +195,10 @@ function Content({
           <ResizeHandle className={sharedStyles.ResizeHandle} />
           <Panel
             className={sharedStyles.PanelRow}
-            collapsible={!noMiddleCollapse}
+            collapsible={true}
             id="middle"
             maxSize={100}
             minSize={10}
-            onCollapse={(collapsed: boolean) => onCollapse("middle", collapsed)}
             onResize={(middle: number) => onResize({ middle })}
             order={2}
             ref={middlePanelRef}
@@ -277,7 +215,6 @@ function Content({
             id="right"
             maxSize={100}
             minSize={10}
-            onCollapse={(collapsed: boolean) => onCollapse("right", collapsed)}
             onResize={(right: number) => onResize({ right })}
             order={3}
             ref={rightPanelRef}
