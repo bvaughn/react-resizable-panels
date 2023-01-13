@@ -1,8 +1,35 @@
 import { expect, Page, test } from "@playwright/test";
+import { createElement } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import { PanelResizeLogEntry } from "../src/routes/examples/types";
 
 import { clearLogEntries, getLogEntries } from "./utils/debug";
+import { goToUrl } from "./utils/url";
+
+async function openPage(page: Page) {
+  const panelGroup = createElement(
+    PanelGroup,
+    { direction: "horizontal" },
+    createElement(Panel, {
+      collapsible: true,
+      defaultSize: 20,
+      id: "left",
+      order: 1,
+    }),
+    createElement(PanelResizeHandle, { id: "left-handle" }),
+    createElement(Panel, { defaultSize: 60, id: "middle", order: 2 }),
+    createElement(PanelResizeHandle, { id: "right-handle" }),
+    createElement(Panel, {
+      collapsible: true,
+      defaultSize: 20,
+      id: "right",
+      order: 3,
+    })
+  );
+
+  await goToUrl(page, panelGroup);
+}
 
 async function verifyEntries(
   page: Page,
@@ -24,7 +51,7 @@ async function verifyEntries(
 
 test.describe("Panel onResize prop", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:2345/examples/imperative-api?onResize");
+    await openPage(page);
   });
 
   test("should be called once on-mount", async ({ page }) => {
@@ -36,13 +63,16 @@ test.describe("Panel onResize prop", () => {
   });
 
   test("should be called when panels are resized", async ({ page }) => {
-    const resizeHandles = page.locator("[data-panel-resize-handle-id]");
-    const first = resizeHandles.first();
-    const last = resizeHandles.last();
+    const leftHandle = page.locator(
+      '[data-panel-resize-handle-id="left-handle"]'
+    );
+    const rightHandle = page.locator(
+      '[data-panel-resize-handle-id="right-handle"]'
+    );
 
     await clearLogEntries(page);
 
-    await first.focus();
+    await leftHandle.focus();
     await page.keyboard.press("Home");
     await verifyEntries(page, [
       { panelId: "left", size: 0 },
@@ -51,7 +81,7 @@ test.describe("Panel onResize prop", () => {
 
     await clearLogEntries(page);
 
-    await last.focus();
+    await rightHandle.focus();
     await page.keyboard.press("End");
     await verifyEntries(page, [
       { panelId: "middle", size: 100 },

@@ -1,4 +1,51 @@
 import { Page, expect, test } from "@playwright/test";
+import { createElement } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { PanelGroupLayoutLogEntry } from "../src/routes/examples/types";
+import { getLogEntries } from "./utils/debug";
+
+import { goToUrl } from "./utils/url";
+
+async function openPage(
+  page: Page,
+  options: {
+    collapsedByDefault?: boolean;
+  } = {}
+) {
+  const { collapsedByDefault = false } = options;
+
+  const panelGroup = createElement(
+    PanelGroup,
+    { direction: "horizontal", id: "group" },
+    createElement(Panel, {
+      collapsible: true,
+      defaultSize: collapsedByDefault ? 0 : 20,
+      id: "left",
+      maxSize: 30,
+      minSize: 10,
+      order: 1,
+    }),
+    createElement(PanelResizeHandle, { id: "left-handle" }),
+    createElement(Panel, {
+      collapsible: true,
+      id: "middle",
+      maxSize: 100,
+      minSize: 10,
+      order: 2,
+    }),
+    createElement(PanelResizeHandle, { id: "right-handle" }),
+    createElement(Panel, {
+      collapsible: true,
+      defaultSize: collapsedByDefault ? 0 : 20,
+      id: "right",
+      maxSize: 100,
+      minSize: 10,
+      order: 3,
+    })
+  );
+
+  await goToUrl(page, panelGroup);
+}
 
 async function verifySizes(
   page: Page,
@@ -6,105 +53,111 @@ async function verifySizes(
   expectedSizeMiddle: number,
   expectedSizeRight: number
 ) {
-  const panels = page.locator("[data-panel-id]");
-  await expect(await panels.nth(0).textContent()).toBe(
-    `left: ${expectedSizeLeft}`
+  const logEntries = await getLogEntries<PanelGroupLayoutLogEntry>(
+    page,
+    "onLayout"
   );
-  await expect(await panels.nth(1).textContent()).toBe(
-    `middle: ${expectedSizeMiddle}`
-  );
-  await expect(await panels.nth(2).textContent()).toBe(
-    `right: ${expectedSizeRight}`
-  );
+  const mostRecentLayout = logEntries[logEntries.length - 1];
+  const [actualSizeLeft, actualSizeMiddle, actualSizeRight] =
+    mostRecentLayout.sizes;
+
+  expect(actualSizeLeft).toBe(expectedSizeLeft);
+  expect(actualSizeMiddle).toBe(expectedSizeMiddle);
+  expect(actualSizeRight).toBe(expectedSizeRight);
 }
 
 test.describe("Imperative Panel API", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:2345/examples/imperative-api");
+    await openPage(page);
   });
 
   test("should resize panels within min/max boundaries", async ({ page }) => {
     await verifySizes(page, 20, 60, 20);
 
-    const leftInput = page.locator('[data-test-id="size-input-left"]');
-    const middleInput = page.locator('[data-test-id="size-input-middle"]');
-    const rightInput = page.locator('[data-test-id="size-input-right"]');
+    const panelIdInput = page.locator("#panelIdInput");
+    const resizeButton = page.locator("#resizeButton");
+    const sizeInput = page.locator("#sizeInput");
 
     // Left panel
-    await leftInput.focus();
-    await leftInput.fill("15");
-    await page.keyboard.press("Enter");
+    await panelIdInput.focus();
+    await panelIdInput.fill("left");
+    await sizeInput.focus();
+    await sizeInput.fill("15");
+    await resizeButton.click();
     await verifySizes(page, 15, 65, 20);
 
-    await leftInput.focus();
-    await leftInput.fill("5");
-    await page.keyboard.press("Enter");
+    await sizeInput.focus();
+    await sizeInput.fill("5");
+    await resizeButton.click();
     await verifySizes(page, 10, 70, 20);
 
-    await leftInput.focus();
-    await leftInput.fill("55");
-    await page.keyboard.press("Enter");
+    await sizeInput.focus();
+    await sizeInput.fill("55");
+    await resizeButton.click();
     await verifySizes(page, 30, 50, 20);
 
     // Middle panel
-    await middleInput.focus();
-    await middleInput.fill("15");
-    await page.keyboard.press("Enter");
+    await panelIdInput.focus();
+    await panelIdInput.fill("middle");
+    await sizeInput.focus();
+    await sizeInput.fill("15");
+    await resizeButton.click();
     await verifySizes(page, 30, 15, 55);
 
-    await middleInput.focus();
-    await middleInput.fill("5");
-    await page.keyboard.press("Enter");
+    await sizeInput.focus();
+    await sizeInput.fill("5");
+    await resizeButton.click();
     await verifySizes(page, 30, 10, 60);
 
     // Right panel
-    await rightInput.focus();
-    await rightInput.fill("15");
-    await page.keyboard.press("Enter");
+    await panelIdInput.focus();
+    await panelIdInput.fill("right");
+    await sizeInput.focus();
+    await sizeInput.fill("15");
+    await resizeButton.click();
     await verifySizes(page, 30, 55, 15);
 
-    await rightInput.focus();
-    await rightInput.fill("5");
-    await page.keyboard.press("Enter");
+    await sizeInput.focus();
+    await sizeInput.fill("5");
+    await resizeButton.click();
     await verifySizes(page, 30, 60, 10);
   });
 
   test("should expand imperatively collapsed panels to size before collapse", async ({
     page,
   }) => {
-    const leftInput = page.locator('[data-test-id="size-input-left"]');
-    const rightInput = page.locator('[data-test-id="size-input-right"]');
+    const collapseButton = page.locator("#collapseButton");
+    const expandButton = page.locator("#expandButton");
+    const panelIdInput = page.locator("#panelIdInput");
+    const resizeButton = page.locator("#resizeButton");
+    const sizeInput = page.locator("#sizeInput");
 
-    await leftInput.focus();
-    await leftInput.fill("15");
-    await page.keyboard.press("Enter");
-    await rightInput.fill("25");
-    await page.keyboard.press("Enter");
+    await panelIdInput.focus();
+    await panelIdInput.fill("left");
+    await sizeInput.focus();
+    await sizeInput.fill("15");
+    await resizeButton.click();
+
+    await panelIdInput.focus();
+    await panelIdInput.fill("right");
+    await sizeInput.focus();
+    await sizeInput.fill("25");
+    await resizeButton.click();
+
     await verifySizes(page, 15, 60, 25);
 
-    const leftCollapseButton = page.locator(
-      '[data-test-id="collapse-button-left"]'
-    );
-    const leftExpandButton = page.locator(
-      '[data-test-id="expand-button-left"]'
-    );
-    const rightCollapseButton = page.locator(
-      '[data-test-id="collapse-button-right"]'
-    );
-    const rightExpandButton = page.locator(
-      '[data-test-id="expand-button-right"]'
-    );
-
-    await leftCollapseButton.click();
+    await panelIdInput.focus();
+    await panelIdInput.fill("left");
+    await collapseButton.click();
     await verifySizes(page, 0, 75, 25);
-
-    await leftExpandButton.click();
+    await expandButton.click();
     await verifySizes(page, 15, 60, 25);
 
-    await rightCollapseButton.click();
+    await panelIdInput.focus();
+    await panelIdInput.fill("right");
+    await collapseButton.click();
     await verifySizes(page, 15, 85, 0);
-
-    await rightExpandButton.click();
+    await expandButton.click();
     await verifySizes(page, 15, 60, 25);
   });
 
@@ -113,36 +166,43 @@ test.describe("Imperative Panel API", () => {
   }) => {
     await verifySizes(page, 20, 60, 20);
 
-    const leftInput = page.locator('[data-test-id="size-input-left"]');
-    await leftInput.focus();
-    await leftInput.fill("15");
-    await page.keyboard.press("Enter");
+    const expandButton = page.locator("#expandButton");
+    const panelIdInput = page.locator("#panelIdInput");
+    const resizeButton = page.locator("#resizeButton");
+    const sizeInput = page.locator("#sizeInput");
+
+    await panelIdInput.focus();
+    await panelIdInput.fill("left");
+
+    await sizeInput.focus();
+    await sizeInput.fill("15");
+    await resizeButton.click();
     await verifySizes(page, 15, 65, 20);
 
-    await leftInput.fill("0");
-    await page.keyboard.press("Enter");
+    await sizeInput.fill("0");
+    await resizeButton.click();
     await verifySizes(page, 0, 80, 20);
 
-    const leftExpandButton = page.locator(
-      '[data-test-id="expand-button-left"]'
-    );
-    await leftExpandButton.click();
+    await expandButton.click();
     await verifySizes(page, 15, 65, 20);
   });
 
   test("should expand to the panel's minSize if collapsed by default", async ({
     page,
   }) => {
-    await page.goto("http://localhost:2345/examples/imperative-api?collapse");
+    await openPage(page, { collapsedByDefault: true });
 
-    const resizeHandles = page.locator("[data-panel-resize-handle-id]");
-    const first = resizeHandles.first();
-    const last = resizeHandles.last();
+    const leftHandle = page.locator(
+      '[data-panel-resize-handle-id="left-handle"]'
+    );
+    const rightHandle = page.locator(
+      '[data-panel-resize-handle-id="right-handle"]'
+    );
 
-    await first.focus();
+    await leftHandle.focus();
     await page.keyboard.press("ArrowRight");
 
-    await last.focus();
+    await rightHandle.focus();
     await page.keyboard.press("Shift+ArrowLeft");
 
     await verifySizes(page, 10, 80, 10);

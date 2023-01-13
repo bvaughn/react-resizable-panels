@@ -1,0 +1,16 @@
+.Container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.FormRow {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+}
+
+.Children {
+  flex: 1 1 auto;
+}
