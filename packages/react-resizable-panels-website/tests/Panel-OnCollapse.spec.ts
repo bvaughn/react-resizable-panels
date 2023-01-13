@@ -1,8 +1,48 @@
 import { expect, Page, test } from "@playwright/test";
+import { createElement } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import { PanelCollapseLogEntry } from "../src/routes/examples/types";
 
 import { clearLogEntries, getLogEntries } from "./utils/debug";
+import { goToUrl } from "./utils/url";
+
+async function openPage(
+  page: Page,
+  options: {
+    collapsedByDefault?: boolean;
+    middleCollapsible?: boolean;
+  } = {}
+) {
+  const { collapsedByDefault = false, middleCollapsible = true } = options;
+
+  const panelGroup = createElement(
+    PanelGroup,
+    { direction: "horizontal" },
+    createElement(Panel, {
+      collapsible: true,
+      defaultSize: collapsedByDefault ? 0 : 20,
+      id: "left",
+      order: 1,
+    }),
+    createElement(PanelResizeHandle, { id: "left-handle" }),
+    createElement(Panel, {
+      collapsible: middleCollapsible,
+      defaultSize: 60,
+      id: "middle",
+      order: 2,
+    }),
+    createElement(PanelResizeHandle, { id: "right-handle" }),
+    createElement(Panel, {
+      collapsible: true,
+      defaultSize: collapsedByDefault ? 0 : 20,
+      id: "right",
+      order: 3,
+    })
+  );
+
+  await goToUrl(page, panelGroup);
+}
 
 async function verifyEntries(
   page: Page,
@@ -28,7 +68,7 @@ async function verifyEntries(
 
 test.describe("Panel onCollapse prop", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:2345/examples/imperative-api?onCollapse");
+    await openPage(page);
   });
 
   test("should be called once on-mount", async ({ page }) => {
@@ -40,9 +80,7 @@ test.describe("Panel onCollapse prop", () => {
     ]);
 
     // If we override via URL parameters, left and right panels should be collapsed by default.
-    await page.goto(
-      "http://localhost:2345/examples/imperative-api?collapse&onCollapse"
-    );
+    await openPage(page, { collapsedByDefault: true });
     await verifyEntries(page, [
       { panelId: "left", collapsed: true },
       { panelId: "middle", collapsed: false },
@@ -54,9 +92,7 @@ test.describe("Panel onCollapse prop", () => {
   test("should only call onCollapse for panels that are collapsible", async ({
     page,
   }) => {
-    await page.goto(
-      "http://localhost:2345/examples/imperative-api?noMiddleCollapse&onCollapse"
-    );
+    await openPage(page, { middleCollapsible: false });
     await verifyEntries(page, [
       { panelId: "left", collapsed: false },
       { panelId: "right", collapsed: false },
@@ -64,14 +100,17 @@ test.describe("Panel onCollapse prop", () => {
   });
 
   test("should be called when panels are resized", async ({ page }) => {
-    const resizeHandles = page.locator("[data-panel-resize-handle-id]");
-    const first = resizeHandles.first();
-    const last = resizeHandles.last();
+    const leftHandle = page.locator(
+      '[data-panel-resize-handle-id="left-handle"]'
+    );
+    const rightHandle = page.locator(
+      '[data-panel-resize-handle-id="right-handle"]'
+    );
 
     await clearLogEntries(page);
 
     // Resizing should not trigger onCollapse unless the panel's collapsed state changes.
-    await first.focus();
+    await leftHandle.focus();
     await page.keyboard.press("ArrowLeft");
     await page.keyboard.press("Shift+ArrowLeft");
     await verifyEntries(page, []);
@@ -81,7 +120,7 @@ test.describe("Panel onCollapse prop", () => {
 
     await clearLogEntries(page);
 
-    await last.focus();
+    await rightHandle.focus();
     await page.keyboard.press("End");
     await verifyEntries(page, [{ panelId: "right", collapsed: true }]);
 

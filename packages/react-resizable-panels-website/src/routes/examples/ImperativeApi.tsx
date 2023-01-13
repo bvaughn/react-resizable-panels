@@ -15,10 +15,10 @@ import Icon from "../../components/Icon";
 
 import ResizeHandle from "../../components/ResizeHandle";
 
+import DebugLog, { ImperativeDebugLogHandle } from "./DebugLog";
 import Example from "./Example";
 import styles from "./ImperativeApi.module.css";
 import sharedStyles from "./shared.module.css";
-import { LogEntry } from "./types";
 
 // Optional API params passed by e2e tests
 const url = new URL(location.href);
@@ -155,12 +155,6 @@ function TogglesRow({
   );
 }
 
-// Used for e2e testing only
-function logDebug(div: HTMLDivElement, data: Object) {
-  try {
-  } catch (error) {}
-}
-
 function Content({
   leftPanelRef,
   middlePanelRef,
@@ -175,13 +169,17 @@ function Content({
   sizes: Sizes;
 }) {
   // Used for e2e testing only
-  const debugRef = useRef<ImperativeDebugApi>(null);
+  const debugRef = useRef<ImperativeDebugLogHandle>(null);
 
   const onLayout = (sizes: []) => {
     if (logOnLayout) {
       const debug = debugRef.current;
       if (debug) {
-        debug.log({ type: "onLayout", sizes });
+        debug.log({
+          groupId: "horizontal-group",
+          type: "onLayout",
+          sizes,
+        });
       }
     }
   };
@@ -218,7 +216,7 @@ function Content({
 
   return (
     <>
-      <Debug apiRef={debugRef} />
+      <DebugLog apiRef={debugRef} />
       <div className={styles.ToggleRow}>
         <TogglesRow id="left" panelRef={leftPanelRef} panelSize={sizes.left} />
         <TogglesRow
@@ -236,6 +234,7 @@ function Content({
         <PanelGroup
           className={sharedStyles.PanelGroup}
           direction="horizontal"
+          id="horizontal-group"
           onLayout={onLayout}
         >
           <Panel
@@ -290,41 +289,6 @@ function Content({
         </PanelGroup>
       </div>
     </>
-  );
-}
-
-type ImperativeDebugApi = {
-  log: (logEntry: LogEntry) => void;
-};
-
-// Used for e2e testing only
-function Debug({ apiRef }: { apiRef: RefObject<ImperativeDebugApi> }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useImperativeHandle(apiRef, () => ({
-    log: (logEntry: LogEntry) => {
-      const div = ref.current;
-      if (div) {
-        try {
-          let objectsArray: LogEntry[] = [];
-
-          const textContent = div.textContent.trim();
-          if (textContent !== "") {
-            objectsArray = JSON.parse(textContent) as LogEntry[];
-          }
-
-          objectsArray.push(logEntry);
-
-          div.textContent = JSON.stringify(objectsArray);
-        } catch (error) {}
-      }
-    },
-  }));
-
-  return (
-    <div id="debug" ref={ref} style={{ display: "none" }}>
-      []
-    </div>
   );
 }
 

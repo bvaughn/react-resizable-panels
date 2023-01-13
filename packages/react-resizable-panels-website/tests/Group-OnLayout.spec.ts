@@ -1,8 +1,25 @@
 import { expect, Page, test } from "@playwright/test";
+import { createElement } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import { PanelGroupLayoutLogEntry } from "../src/routes/examples/types";
 
 import { clearLogEntries, getLogEntries } from "./utils/debug";
+import { goToUrl } from "./utils/url";
+
+async function openPage(page: Page) {
+  const panelGroup = createElement(
+    PanelGroup,
+    { direction: "horizontal", id: "group" },
+    createElement(Panel, { collapsible: true, defaultSize: 20, order: 1 }),
+    createElement(PanelResizeHandle, { id: "left-handle" }),
+    createElement(Panel, { defaultSize: 60, order: 2 }),
+    createElement(PanelResizeHandle, { id: "right-handle" }),
+    createElement(Panel, { collapsible: true, defaultSize: 20, order: 3 })
+  );
+
+  await goToUrl(page, panelGroup);
+}
 
 async function verifyEntries(page: Page, expectedSizes: number[][]) {
   const logEntries = await getLogEntries<PanelGroupLayoutLogEntry>(
@@ -21,7 +38,7 @@ async function verifyEntries(page: Page, expectedSizes: number[][]) {
 
 test.describe("PanelGroup onLayout prop", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:2345/examples/imperative-api?onLayout");
+    await openPage(page);
   });
 
   test("should be called once on-mount", async ({ page }) => {
@@ -29,15 +46,18 @@ test.describe("PanelGroup onLayout prop", () => {
   });
 
   test("should be called when the panel group is resized", async ({ page }) => {
-    const resizeHandles = page.locator("[data-panel-resize-handle-id]");
-    const first = resizeHandles.first();
-    const last = resizeHandles.last();
+    const leftHandle = page.locator(
+      '[data-panel-resize-handle-id="left-handle"]'
+    );
+    const rightHandle = page.locator(
+      '[data-panel-resize-handle-id="right-handle"]'
+    );
 
     await clearLogEntries(page, "onLayout");
 
-    await first.focus();
+    await leftHandle.focus();
     await page.keyboard.press("Home");
-    await last.focus();
+    await rightHandle.focus();
     await page.keyboard.press("End");
     await page.keyboard.press("Shift+ArrowLeft");
 

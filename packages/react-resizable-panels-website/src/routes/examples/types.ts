@@ -8,6 +8,7 @@ export type PanelCollapseLogEntry = {
   type: PanelCollapseLogEntryType;
 };
 export type PanelGroupLayoutLogEntry = {
+  groupId: string;
   type: PanelGroupLayoutLogEntryType;
   sizes: number[];
 };
