@@ -37,6 +37,7 @@ export function adjustByDelta(
 
     const nextSize = safeResizePanel(panel, Math.abs(delta), prevSize, event);
     if (prevSize === nextSize) {
+      // If there's no room for the pivot panel to grow, we can ignore this drag update.
       return prevSizes;
     } else {
       if (nextSize === 0 && prevSize > 0) {
@@ -53,9 +54,11 @@ export function adjustByDelta(
     const panel = panelsArray[index];
     const prevSize = prevSizes[index];
 
+    const deltaRemaining = Math.abs(delta) - Math.abs(deltaApplied);
+
     const nextSize = safeResizePanel(
       panel,
-      0 - Math.abs(delta),
+      0 - deltaRemaining,
       prevSize,
       event
     );
@@ -68,7 +71,13 @@ export function adjustByDelta(
 
       nextSizes[index] = nextSize;
 
-      if (deltaApplied.toPrecision(PRECISION) >= delta.toPrecision(PRECISION)) {
+      if (
+        deltaApplied
+          .toPrecision(PRECISION)
+          .localeCompare(Math.abs(delta).toPrecision(PRECISION), undefined, {
+            numeric: true,
+          }) >= 0
+      ) {
         break;
       }
     }

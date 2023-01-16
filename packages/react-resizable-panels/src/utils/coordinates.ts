@@ -20,7 +20,8 @@ export function getDragOffset(
   event: ResizeEvent,
   handleId: string,
   direction: Direction,
-  initialOffset: number = 0
+  initialOffset: number = 0,
+  initialHandleElementRect: DOMRect | null = null
 ): number {
   const isHorizontal = direction === "horizontal";
 
@@ -35,7 +36,8 @@ export function getDragOffset(
   }
 
   const handleElement = getResizeHandle(handleId);
-  const rect = handleElement.getBoundingClientRect();
+  const rect =
+    initialHandleElementRect || handleElement.getBoundingClientRect();
   const elementOffset = isHorizontal ? rect.left : rect.top;
 
   return pointerOffset - elementOffset - initialOffset;
@@ -49,7 +51,8 @@ export function getMovement(
   panelsArray: PanelData[],
   direction: Direction,
   sizes: number[],
-  initialOffset: number
+  initialOffset: number,
+  initialHandleElementRect: DOMRect | null = null
 ): number {
   if (isKeyDown(event)) {
     const isHorizontal = direction === "horizontal";
@@ -113,7 +116,13 @@ export function getMovement(
 
     return movement;
   } else {
-    return getDragOffset(event, handleId, direction, initialOffset);
+    return getDragOffset(
+      event,
+      handleId,
+      direction,
+      initialOffset,
+      initialHandleElementRect
+    );
   }
 }
 
