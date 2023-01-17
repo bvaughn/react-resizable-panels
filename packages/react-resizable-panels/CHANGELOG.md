@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.34
+* [#70](https://github.com/bvaughn/react-resizable-panels/issues/70): When resizing is done via mouse/touch event– some initial state is stored so that any panels that contract will also expand if drag direction is reversed.
+
 ## 0.0.33
 * Collapsible `Panel`s will always call `onCollapse` on-mount regardless of their collapsed state.
 * Fixed regression in b5d3ec1 where arrow keys may fail to expand a collapsed panel.
