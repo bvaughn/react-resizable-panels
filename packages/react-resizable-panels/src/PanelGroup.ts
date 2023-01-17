@@ -34,6 +34,7 @@ import useUniqueId from "./hooks/useUniqueId";
 import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterBehavior";
 import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
 import debounce from "./utils/debounce";
+import { areEqual } from "./utils/arrays";
 
 // Limit the frequency of localStorage updates.
 const savePanelGroupLayoutDebounced = debounce(savePanelGroupLayout, 100);
@@ -308,24 +309,14 @@ export function PanelGroup({
           return;
         }
 
-        // If we're resizing by mouse or touch, use the initial sizes as a base.
-        // This has the benefit of causing force-collapsed panels to spring back open if drag is reversed.
-        const {
-          dragHandleRect,
-          dragOffset = 0,
-          sizes: initialSizes,
-        } = initialDragStateRef.current || {};
-        const baseSizes = initialSizes || prevSizes;
-
         const movement = getMovement(
           event,
           groupId,
           handleId,
           panelsArray,
           direction,
-          baseSizes,
-          dragOffset,
-          dragHandleRect
+          prevSizes,
+          initialDragStateRef.current
         );
         if (movement === 0) {
           return;
@@ -343,12 +334,15 @@ export function PanelGroup({
           idBefore,
           idAfter,
           delta,
-          baseSizes,
-          panelSizeBeforeCollapse.current
+          prevSizes,
+          panelSizeBeforeCollapse.current,
+          initialDragStateRef.current
         );
 
+        const sizesChanged = !areEqual(prevSizes, nextSizes);
+
         if (isMouseEvent(event) || isTouchEvent(event)) {
-          if (prevSizes === nextSizes) {
+          if (!sizesChanged) {
             // If the pointer has moved too far to resize the panel any further,
             // update the cursor style for a visual clue.
             // This mimics VS Code behavior.
@@ -368,7 +362,7 @@ export function PanelGroup({
           }
         }
 
-        if (prevSizes !== nextSizes) {
+        if (sizesChanged) {
           // If resize change handlers have been declared, this is the time to call them.
           callPanelCallbacks(panelsArray, prevSizes, nextSizes);
 
