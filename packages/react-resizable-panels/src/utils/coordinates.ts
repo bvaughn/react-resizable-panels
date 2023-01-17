@@ -1,4 +1,5 @@
 import { PRECISION } from "../constants";
+import { InitialDragState } from "../PanelGroup";
 import { Direction, PanelData, ResizeEvent } from "../types";
 import {
   getPanelGroup,
@@ -50,10 +51,19 @@ export function getMovement(
   handleId: string,
   panelsArray: PanelData[],
   direction: Direction,
-  sizes: number[],
-  initialOffset: number,
-  initialHandleElementRect: DOMRect | null = null
+  prevSizes: number[],
+  initialDragState: InitialDragState | null
 ): number {
+  const {
+    dragOffset = 0,
+    dragHandleRect,
+    sizes: initialSizes,
+  } = initialDragState || {};
+
+  // If we're resizing by mouse or touch, use the initial sizes as a base.
+  // This has the benefit of causing force-collapsed panels to spring back open if drag is reversed.
+  const baseSizes = initialSizes || prevSizes;
+
   if (isKeyDown(event)) {
     const isHorizontal = direction === "horizontal";
 
@@ -101,10 +111,10 @@ export function getMovement(
     );
     const targetPanel = panelsArray[targetPanelIndex];
     if (targetPanel.collapsible) {
-      const prevSize = sizes[targetPanelIndex];
+      const baseSize = baseSizes[targetPanelIndex];
       if (
-        prevSize === 0 ||
-        prevSize.toPrecision(PRECISION) ===
+        baseSize === 0 ||
+        baseSize.toPrecision(PRECISION) ===
           targetPanel.minSize.toPrecision(PRECISION)
       ) {
         movement =
@@ -120,8 +130,8 @@ export function getMovement(
       event,
       handleId,
       direction,
-      initialOffset,
-      initialHandleElementRect
+      dragOffset,
+      dragHandleRect
     );
   }
 }

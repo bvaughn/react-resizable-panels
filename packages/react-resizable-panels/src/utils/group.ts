@@ -1,4 +1,5 @@
 import { PRECISION } from "../constants";
+import { InitialDragState } from "../PanelGroup";
 import { PanelData, ResizeEvent } from "../types";
 
 export function adjustByDelta(
@@ -8,15 +9,22 @@ export function adjustByDelta(
   idAfter: string,
   delta: number,
   prevSizes: number[],
-  panelSizeBeforeCollapse: Map<string, number>
+  panelSizeBeforeCollapse: Map<string, number>,
+  initialDragState: InitialDragState | null
 ): number[] {
+  const { sizes: initialSizes } = initialDragState || {};
+
+  // If we're resizing by mouse or touch, use the initial sizes as a base.
+  // This has the benefit of causing force-collapsed panels to spring back open if drag is reversed.
+  const baseSizes = initialSizes || prevSizes;
+
   if (delta === 0) {
-    return prevSizes;
+    return baseSizes;
   }
 
   const panelsArray = panelsMapToSortedArray(panels);
 
-  const nextSizes = prevSizes.concat();
+  const nextSizes = baseSizes.concat();
 
   let deltaApplied = 0;
 
@@ -33,18 +41,18 @@ export function adjustByDelta(
     const pivotId = delta < 0 ? idAfter : idBefore;
     const index = panelsArray.findIndex((panel) => panel.id === pivotId);
     const panel = panelsArray[index];
-    const prevSize = prevSizes[index];
+    const baseSize = baseSizes[index];
 
-    const nextSize = safeResizePanel(panel, Math.abs(delta), prevSize, event);
-    if (prevSize === nextSize) {
+    const nextSize = safeResizePanel(panel, Math.abs(delta), baseSize, event);
+    if (baseSize === nextSize) {
       // If there's no room for the pivot panel to grow, we can ignore this drag update.
-      return prevSizes;
+      return baseSizes;
     } else {
-      if (nextSize === 0 && prevSize > 0) {
-        panelSizeBeforeCollapse.set(pivotId, prevSize);
+      if (nextSize === 0 && baseSize > 0) {
+        panelSizeBeforeCollapse.set(pivotId, baseSize);
       }
 
-      delta = delta < 0 ? prevSize - nextSize : nextSize - prevSize;
+      delta = delta < 0 ? baseSize - nextSize : nextSize - baseSize;
     }
   }
 
@@ -52,22 +60,22 @@ export function adjustByDelta(
   let index = panelsArray.findIndex((panel) => panel.id === pivotId);
   while (true) {
     const panel = panelsArray[index];
-    const prevSize = prevSizes[index];
+    const baseSize = baseSizes[index];
 
     const deltaRemaining = Math.abs(delta) - Math.abs(deltaApplied);
 
     const nextSize = safeResizePanel(
       panel,
       0 - deltaRemaining,
-      prevSize,
+      baseSize,
       event
     );
-    if (prevSize !== nextSize) {
-      if (nextSize === 0 && prevSize > 0) {
-        panelSizeBeforeCollapse.set(panel.id, prevSize);
+    if (baseSize !== nextSize) {
+      if (nextSize === 0 && baseSize > 0) {
+        panelSizeBeforeCollapse.set(panel.id, baseSize);
       }
 
-      deltaApplied += prevSize - nextSize;
+      deltaApplied += baseSize - nextSize;
 
       nextSizes[index] = nextSize;
 
@@ -96,13 +104,13 @@ export function adjustByDelta(
   // If we were unable to resize any of the panels panels, return the previous state.
   // This will essentially bailout and ignore the "mousemove" event.
   if (deltaApplied === 0) {
-    return prevSizes;
+    return baseSizes;
   }
 
   // Adjust the pivot panel before, but only by the amount that surrounding panels were able to shrink/contract.
   pivotId = delta < 0 ? idAfter : idBefore;
   index = panelsArray.findIndex((panel) => panel.id === pivotId);
-  nextSizes[index] = prevSizes[index] + deltaApplied;
+  nextSizes[index] = baseSizes[index] + deltaApplied;
 
   return nextSizes;
 }
