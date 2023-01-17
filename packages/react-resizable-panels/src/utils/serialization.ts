@@ -1,4 +1,4 @@
-import { PanelData } from "../types";
+import { PanelData, PanelGroupStorage } from "../types";
 
 type SerializedPanelGroupState = { [panelIds: string]: number[] };
 
@@ -17,10 +17,11 @@ function getSerializationKey(panels: PanelData[]): string {
 }
 
 function loadSerializedPanelGroupState(
-  autoSaveId: string
+  autoSaveId: string,
+  storage: PanelGroupStorage
 ): SerializedPanelGroupState | null {
   try {
-    const serialized = localStorage.getItem(`PanelGroup:sizes:${autoSaveId}`);
+    const serialized = storage.getItem(`PanelGroup:sizes:${autoSaveId}`);
     if (serialized) {
       const parsed = JSON.parse(serialized);
       if (typeof parsed === "object" && parsed != null) {
@@ -34,9 +35,10 @@ function loadSerializedPanelGroupState(
 
 export function loadPanelLayout(
   autoSaveId: string,
-  panels: PanelData[]
+  panels: PanelData[],
+  storage: PanelGroupStorage
 ): number[] | null {
-  const state = loadSerializedPanelGroupState(autoSaveId);
+  const state = loadSerializedPanelGroupState(autoSaveId, storage);
   if (state) {
     const key = getSerializationKey(panels);
     return state[key] || null;
@@ -48,17 +50,15 @@ export function loadPanelLayout(
 export function savePanelGroupLayout(
   autoSaveId: string,
   panels: PanelData[],
-  sizes: number[]
+  sizes: number[],
+  storage: PanelGroupStorage
 ): void {
   const key = getSerializationKey(panels);
-  const state = loadSerializedPanelGroupState(autoSaveId) || {};
+  const state = loadSerializedPanelGroupState(autoSaveId, storage) || {};
   state[key] = sizes;
 
   try {
-    localStorage.setItem(
-      `PanelGroup:sizes:${autoSaveId}`,
-      JSON.stringify(state)
-    );
+    storage.setItem(`PanelGroup:sizes:${autoSaveId}`, JSON.stringify(state));
   } catch (error) {
     console.error(error);
   }
