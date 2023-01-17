@@ -1,10 +1,17 @@
 import { Locator, expect, Page } from "@playwright/test";
+import { getBodyCursorStyle } from "./cursor";
 import { verifyFuzzySizes } from "./verify";
+
+type Operation = {
+  expectedCursor?: string;
+  expectedSizes?: number[];
+  size: number;
+};
 
 export async function dragResizeTo(
   page: Page,
   panelId: string,
-  ...tuples: [nextSize: number, expectexSizes: number[]][]
+  ...operations: Operation[]
 ) {
   const panels = page.locator("[data-panel-id]");
 
@@ -47,11 +54,20 @@ export async function dragResizeTo(
   await page.mouse.move(pageX, pageY);
   await page.mouse.down();
 
-  for (let i = 0; i < tuples.length; i++) {
-    const [nextSize, expectedSizes] = tuples[i];
+  for (let i = 0; i < operations.length; i++) {
+    pageX = Math.min(pageXMax - 1, Math.max(pageXMin + 1, pageX));
+    pageY = Math.min(pageYMax - 1, Math.max(pageYMin + 1, pageY));
+
+    const { expectedSizes, expectedCursor, size: nextSize } = operations[i];
 
     const prevSize = await panel.getAttribute("data-panel-size");
     const isExpanding = parseFloat(prevSize) < nextSize;
+
+    console.log(
+      `${
+        isExpanding ? "Expanding" : "Contracting"
+      } panel "${panelId}" from ${prevSize} to ${nextSize}`
+    );
 
     // Last panel should drag the handle before it back (left/up)
     // All other panels should drag the handle after it forward (right/down)
@@ -92,9 +108,17 @@ export async function dragResizeTo(
       }
     }
 
-    // This resizing approach isn't incredibly precise,
-    // so we should allow for minor variations in panel sizes.
-    await verifyFuzzySizes(page, 0.25, ...expectedSizes);
+    if (expectedSizes != null) {
+      // This resizing approach isn't incredibly precise,
+      // so we should allow for minor variations in panel sizes.
+      await verifyFuzzySizes(page, 0.25, ...expectedSizes);
+    }
+
+    if (expectedCursor != null) {
+      const actualCursor = await getBodyCursorStyle(page);
+
+      expect(actualCursor).toBe(expectedCursor);
+    }
   }
 
   await page.mouse.up();

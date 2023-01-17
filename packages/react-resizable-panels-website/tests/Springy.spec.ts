@@ -43,11 +43,11 @@ test.describe("springy panels", () => {
     await dragResizeTo(
       page,
       "left-panel",
-      [80, [80, 10, 10]],
+      { size: 80, expectedSizes: [80, 10, 10] },
       // Items should re-expand to their initial sizes
-      [25, [25, 50, 25]],
+      { size: 25, expectedSizes: [25, 50, 25] },
       // But they should not expand past those sizes
-      [10, [10, 65, 25]]
+      { size: 10, expectedSizes: [10, 65, 25] }
     );
   });
 
@@ -60,11 +60,11 @@ test.describe("springy panels", () => {
     await dragResizeTo(
       page,
       "right-panel",
-      [80, [10, 10, 80]],
+      { size: 80, expectedSizes: [10, 10, 80] },
       // Items should re-expand to their initial sizes
-      [25, [25, 50, 25]],
+      { size: 25, expectedSizes: [25, 50, 25] },
       // But they should not expand past those sizes
-      [10, [25, 65, 10]]
+      { size: 10, expectedSizes: [25, 65, 10] }
     );
   });
 
@@ -73,14 +73,17 @@ test.describe("springy panels", () => {
   }) => {
     await verifySizes(page, 25, 50, 25);
 
-    await dragResizeTo(page, "left-panel", [70, [70, 10, 20]]);
+    await dragResizeTo(page, "left-panel", {
+      size: 70,
+      expectedSizes: [70, 10, 20],
+    });
 
     await dragResizeTo(
       page,
       "left-panel",
-      [80, [80, 10, 10]],
-      [70, [70, 10, 20]],
-      [10, [10, 70, 20]]
+      { size: 80, expectedSizes: [80, 10, 10] },
+      { size: 70, expectedSizes: [70, 10, 20] },
+      { size: 10, expectedSizes: [10, 70, 20] }
     );
   });
 });

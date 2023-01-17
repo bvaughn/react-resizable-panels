@@ -109,6 +109,8 @@ export function PanelGroup({
   // Used to support imperative collapse/expand API.
   const panelSizeBeforeCollapse = useRef<Map<string, number>>(new Map());
 
+  const prevDeltaRef = useRef<number>(0);
+
   // Store committed values to avoid unnecessarily re-running memoization/effects functions.
   const committedValuesRef = useRef<CommittedValues>({
     direction,
@@ -341,24 +343,30 @@ export function PanelGroup({
 
         const sizesChanged = !areEqual(prevSizes, nextSizes);
 
+        // Don't update cursor for resizes triggered by keyboard interactions.
         if (isMouseEvent(event) || isTouchEvent(event)) {
-          if (!sizesChanged) {
-            // If the pointer has moved too far to resize the panel any further,
-            // update the cursor style for a visual clue.
-            // This mimics VS Code behavior.
+          // Watch for multiple subsequent deltas; this might occur for tiny cursor movements.
+          // In this case, Panel sizes might not change–
+          // but updating cursor in this scenario would cause a flicker.
+          if (prevDeltaRef.current != delta) {
+            if (!sizesChanged) {
+              // If the pointer has moved too far to resize the panel any further,
+              // update the cursor style for a visual clue.
+              // This mimics VS Code behavior.
 
-            if (isHorizontal) {
-              setGlobalCursorStyle(
-                movement < 0 ? "horizontal-min" : "horizontal-max"
-              );
+              if (isHorizontal) {
+                setGlobalCursorStyle(
+                  movement < 0 ? "horizontal-min" : "horizontal-max"
+                );
+              } else {
+                setGlobalCursorStyle(
+                  movement < 0 ? "vertical-min" : "vertical-max"
+                );
+              }
             } else {
-              setGlobalCursorStyle(
-                movement < 0 ? "vertical-min" : "vertical-max"
-              );
+              // Reset the cursor style to the the normal resize cursor.
+              setGlobalCursorStyle(isHorizontal ? "horizontal" : "vertical");
             }
-          } else {
-            // Reset the cursor style to the the normal resize cursor.
-            setGlobalCursorStyle(isHorizontal ? "horizontal" : "vertical");
           }
         }
 
@@ -368,6 +376,8 @@ export function PanelGroup({
 
           setSizes(nextSizes);
         }
+
+        prevDeltaRef.current = delta;
       };
 
       return resizeHandler;
@@ -426,7 +436,8 @@ export function PanelGroup({
       idAfter,
       delta,
       prevSizes,
-      panelSizeBeforeCollapse.current
+      panelSizeBeforeCollapse.current,
+      null
     );
     if (prevSizes !== nextSizes) {
       // If resize change handlers have been declared, this is the time to call them.
@@ -478,7 +489,8 @@ export function PanelGroup({
       idAfter,
       delta,
       prevSizes,
-      panelSizeBeforeCollapse.current
+      panelSizeBeforeCollapse.current,
+      null
     );
     if (prevSizes !== nextSizes) {
       // If resize change handlers have been declared, this is the time to call them.
@@ -529,7 +541,8 @@ export function PanelGroup({
       idAfter,
       delta,
       prevSizes,
-      panelSizeBeforeCollapse.current
+      panelSizeBeforeCollapse.current,
+      null
     );
     if (prevSizes !== nextSizes) {
       // If resize change handlers have been declared, this is the time to call them.
