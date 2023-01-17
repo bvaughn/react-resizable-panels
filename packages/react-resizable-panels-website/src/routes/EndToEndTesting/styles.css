@@ -1,6 +1,5 @@
 .Panel {
   background-color: rgba(0, 0, 0, 0.25);
-  border-radius: 0.5rem;
 }
 
 .PanelGroup {
@@ -10,5 +9,4 @@
 .PanelResizeHandle {
   flex: 0 0 1em;
   background: rgba(255, 255, 255, 0.25);
-  border-radius: 0.5rem;
 }
