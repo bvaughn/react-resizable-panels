@@ -508,6 +508,12 @@ export function PanelGroup({
       return;
     }
 
+    if (panel.collapsible && nextSize === 0) {
+      // This is a valid resize state.
+    } else {
+      nextSize = Math.min(panel.maxSize, Math.max(panel.minSize, nextSize));
+    }
+
     const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
     if (idBefore == null || idAfter == null) {
       return;
