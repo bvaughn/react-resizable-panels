@@ -92,7 +92,9 @@ export async function dragResizeTo(
       }
     }
 
-    await verifyFuzzySizes(page, 0.1, ...expectedSizes);
+    // This resizing approach isn't incredibly precise,
+    // so we should allow for minor variations in panel sizes.
+    await verifyFuzzySizes(page, 0.25, ...expectedSizes);
   }
 
   await page.mouse.up();

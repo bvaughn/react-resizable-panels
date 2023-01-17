@@ -7,6 +7,6 @@
 }
 
 .PanelResizeHandle {
-  flex: 0 0 1em;
+  flex: 0 0 2px;
   background: rgba(255, 255, 255, 0.25);
 }
