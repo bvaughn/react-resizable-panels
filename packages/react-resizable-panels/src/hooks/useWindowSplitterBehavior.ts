@@ -108,7 +108,8 @@ export function useWindowSplitterPanelGroupBehavior({
                   idAfter,
                   delta,
                   sizes,
-                  panelSizeBeforeCollapse.current
+                  panelSizeBeforeCollapse.current,
+                  null
                 );
                 if (sizes !== nextSizes) {
                   setSizes(nextSizes);
