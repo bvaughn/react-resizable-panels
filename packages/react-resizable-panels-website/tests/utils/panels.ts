@@ -37,6 +37,13 @@ export async function dragResizeTo(
   let pageX = dragHandleRect.x + dragHandleRect.width / 2;
   let pageY = dragHandleRect.y + dragHandleRect.height / 2;
 
+  const moveIncrement = 1;
+
+  const pageXMin = panelGroupRect.x;
+  const pageXMax = panelGroupRect.x + panelGroupRect.width;
+  const pageYMin = panelGroupRect.y;
+  const pageYMax = panelGroupRect.y + panelGroupRect.height;
+
   await page.mouse.move(pageX, pageY);
   await page.mouse.down();
 
@@ -50,18 +57,15 @@ export async function dragResizeTo(
     // All other panels should drag the handle after it forward (right/down)
     let dragIncrement = 0;
     if (isExpanding) {
-      dragIncrement = panelIndex === panelCount - 1 ? -1 : 1;
+      dragIncrement =
+        panelIndex === panelCount - 1 ? -moveIncrement : moveIncrement;
     } else {
-      dragIncrement = panelIndex === panelCount - 1 ? 1 : -1;
+      dragIncrement =
+        panelIndex === panelCount - 1 ? moveIncrement : -moveIncrement;
     }
 
     const deltaX = direction === "horizontal" ? dragIncrement : 0;
     const deltaY = direction === "vertical" ? dragIncrement : 0;
-
-    const pageXMin = panelGroupRect.x;
-    const pageXMax = panelGroupRect.x + panelGroupRect.width;
-    const pageYMin = panelGroupRect.y;
-    const pageYMax = panelGroupRect.y + panelGroupRect.height;
 
     while (
       pageX > pageXMin &&

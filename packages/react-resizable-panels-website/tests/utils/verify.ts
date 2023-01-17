@@ -31,7 +31,7 @@ export async function verifyFuzzySizes(
     const actualSize = actualSizes[index];
     const expectedSize = expectedSizes[index];
 
-    expect(actualSize).toBeGreaterThan(expectedSize - precision);
-    expect(actualSize).toBeLessThan(expectedSize + precision);
+    expect(actualSize).toBeGreaterThanOrEqual(expectedSize - precision);
+    expect(actualSize).toBeLessThanOrEqual(expectedSize + precision);
   }
 }

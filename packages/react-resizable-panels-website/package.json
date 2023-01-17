@@ -6,6 +6,7 @@
     "build": "parcel build 'index.html'",
     "kill-port": "kill-port ${PORT:-1234}",
     "test:e2e": "playwright test",
+    "test:e2e:debug": "DEBUG=true playwright test",
     "watch": "parcel 'index.html'"
   },
   "devDependencies": {
