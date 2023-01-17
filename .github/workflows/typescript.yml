@@ -1,0 +1,13 @@
+name: "TypeScript"
+on: [pull_request]
+jobs:
+  tests_e2e:
+    name: Check types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - name: Install package dependencies
+        run: yarn install
+      - name: Run TSC
+        run: yarn typescript
