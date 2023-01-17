@@ -10,4 +10,6 @@ jobs:
       - name: Initialize Yarn and install package dependencies
         run: yarn
       - name: Run TSC
-        run: yarn typescript
+        run: cd packages/react-resizable-panels && npx tsc --noEmit
+      - name: Run TSC on website
+        run: cd packages/react-resizable-panels-website && npx tsc --noEmit
