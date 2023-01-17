@@ -30,8 +30,13 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `direction`  | `"horizontal" \| "vertical"` | Group orientation
 | `id`         | `?string`                   | Group id; falls back to `useId` when not provided
 | `onLayout`  | `?(sizes: number[]) => void` | Called when group layout changes
+| `storage`    | `?PanelGroupStorage`        | Custom storage API; defaults to `localStorage` <sup>1</sup>
 | `style`      | `?CSSProperties`            | CSS style to attach to root element
 | `tagName`    | `?string = "div"`           | HTML element tag name for root element
+
+<sup>1</sup>: Storage API must define the following _synchronous_ methods:
+* `getItem: (name:string) => string`
+* `setItem: (name: string, value: string) => void`
 
 ### `Panel`
 | prop          | type                            | description
@@ -44,10 +49,12 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `maxSize`     | `?number = 100`                 | Maximum allowable size of panel (numeric value between 1-100); defaults to `100`
 | `minSize`     | `?number = 10`                  | Minimum allowable size of panel (numeric value between 1-100); defaults to `10`
 | `onCollapse`  | `?(collapsed: boolean) => void` | Called when panel is collapsed; `collapsed` boolean parameter reflecting the new state
-| `onResize`    | `?(size: number) => void`       | Called when panel is resized; `size` parameter is a numeric value between 1-100
+| `onResize`    | `?(size: number) => void`       | Called when panel is resized; `size` parameter is a numeric value between 1-100. <sup>1</sup>
 | `order`       | `?number`                       | Order of panel within group; required for groups with conditionally rendered panels
 | `style`       | `?CSSProperties`                | CSS style to attach to root element
 | `tagName`     | `?string = "div"`               | HTML element tag name for root element
+
+<sup>1</sup>: If any `Panel` has an `onResize` callback, the `order` prop should be provided for all `Panel`s.
 
 `Panel` components also expose an imperative API for manual resizing:
 | method                       | description

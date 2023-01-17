@@ -95,7 +95,7 @@ const CODE = `
       <Panel order={1}>
         left
       </Panel>
-      <ResizeHandle />
+      <PanelResizeHandle />
     </>
   )}
   <Panel order={2}>
@@ -103,7 +103,7 @@ const CODE = `
   </Panel>
   {showRightPanel && (
     <>
-      <ResizeHandle />
+      <PanelResizeHandle />
       <Panel order={3}>
         right
       </Panel>

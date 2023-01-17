@@ -5,6 +5,7 @@ import { PanelResizeHandle } from "./PanelResizeHandle";
 import type { ImperativePanelHandle, PanelProps } from "./Panel";
 import type { PanelGroupProps } from "./PanelGroup";
 import type { PanelResizeHandleProps } from "./PanelResizeHandle";
+import type { PanelGroupStorage } from "./types";
 
 export {
   Panel,
@@ -14,6 +15,7 @@ export {
   // TypeScript types
   ImperativePanelHandle,
   PanelGroupProps,
+  PanelGroupStorage,
   PanelProps,
   PanelResizeHandleProps,
 };

@@ -35,7 +35,6 @@ export async function getLogEntries<Type extends LogEntry>(
     }
 
     const textContent = div.textContent;
-    console.log(`"${textContent}"`);
     const logEntries = JSON.parse(textContent) as LogEntry[];
     if (logEntryType === null) {
       return logEntries as Type[];

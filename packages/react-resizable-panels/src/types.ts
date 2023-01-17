@@ -2,6 +2,11 @@ import { RefObject } from "react";
 
 export type Direction = "horizontal" | "vertical";
 
+export type PanelGroupStorage = {
+  getItem(name: string): string | null;
+  setItem(name: string, value: string): void;
+};
+
 export type PanelGroupOnLayout = (sizes: number[]) => void;
 export type PanelOnCollapse = (collapsed: boolean) => void;
 export type PanelOnResize = (size: number) => void;

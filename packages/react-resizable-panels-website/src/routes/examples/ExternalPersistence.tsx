@@ -1,9 +1,8 @@
-import { useState } from "react";
-import { Panel, PanelGroup } from "react-resizable-panels";
+import { useMemo } from "react";
+import { Panel, PanelGroup, PanelGroupStorage } from "react-resizable-panels";
 import { useNavigate } from "react-router-dom";
 
 import ResizeHandle from "../../components/ResizeHandle";
-import useDebouncedCallback from "../../hooks/useDebouncedCallback";
 
 import Example from "./Example";
 import styles from "./shared.module.css";
@@ -16,16 +15,22 @@ export default function ExternalPersistence() {
       headerNode={
         <>
           <p>
-            By default, <code>PanelGroup</code>s can be configured to remember
-            layouts using <code>localStorage</code>. This example shows how the{" "}
-            <code>defaultSize</code> and <code>onResize</code> props can be used
-            to persist layouts somewhere custom/external. In this case, sizes
-            are saved as part of the URL hash after a debounce duration of{" "}
-            <strong>500ms</strong>.
+            By default, a <code>PanelGroup</code> with an{" "}
+            <code>autoSaveId</code> will store layout information in{" "}
+            <code>localStorage</code>. This example shows how the how to use the{" "}
+            <code>storage</code> prop to override that behavior. For this demo,
+            layout is saved as part of the URL hash, after a{" "}
+            <strong>500ms</strong> debounce interval.
           </p>
           <p className={styles.WarningBlock}>
-            ⚠ Note that when the <code>onResize</code> prop is used, the
-            <code>order</code> prop must also be provided.
+            Note the <code>storage</code> API is <em>synchronous</em>. If an
+            async source is used (e.g. a database) then values should be
+            pre-fetched during the initial render (e.g. using Suspense).
+          </p>
+          <p className={styles.WarningBlock}>
+            Note calls to <code>storage.setItem</code> are debounced by{" "}
+            <strong>100ms</strong>. Depending on your implementation, you may
+            wish to use a larger interval than that.
           </p>
         </>
       }
@@ -34,91 +39,55 @@ export default function ExternalPersistence() {
   );
 }
 
-type Sizes = {
-  left: number;
-  middle: number;
-  right: number;
-};
-
-const DefaultSizes: Sizes = {
-  left: 33,
-  middle: 34,
-  right: 33,
-};
-
 function Content() {
   const navigate = useNavigate();
 
-  const [sizes, saveSizes] = useState<Sizes>(() => {
-    if (window.location.hash) {
-      try {
-        return JSON.parse(decodeURI(window.location.hash.substring(1)));
-      } catch (error) {
-        console.error(error);
-      }
-    }
+  const urlStorage = useMemo<PanelGroupStorage>(
+    () => ({
+      getItem(name: string) {
+        try {
+          const parsed = JSON.parse(
+            decodeURI(window.location.hash.substring(1))
+          );
+          return parsed[name] || "";
+        } catch (error) {
+          console.error(error);
 
-    return DefaultSizes;
-  });
+          return "";
+        }
+      },
+      setItem(name: string, value: string) {
+        const encoded = encodeURI(
+          JSON.stringify({
+            [name]: value,
+          })
+        );
 
-  const onResize = (partialSizes: Partial<Sizes>) => {
-    saveSizes((prevSizes) => ({
-      ...prevSizes,
-      ...partialSizes,
-    }));
-  };
-
-  const onLayout = useDebouncedCallback((sizesArray: number[]) => {
-    const sizesObject: Sizes = {
-      left: sizesArray[0],
-      middle: sizesArray[1],
-      right: sizesArray[2],
-    };
-
-    const encoded = encodeURI(JSON.stringify(sizesObject));
-
-    // Update the hash without interfering with the browser's Back button.
-    navigate(`#${encoded}`, { replace: true });
-  }, 500);
+        // Update the hash without interfering with the browser's Back button.
+        navigate("#" + encoded, { replace: true });
+      },
+    }),
+    [navigate]
+  );
 
   return (
     <div className={styles.PanelGroupWrapper}>
       <PanelGroup
+        autoSaveId="example"
         className={styles.PanelGroup}
         direction="horizontal"
-        onLayout={onLayout}
+        storage={urlStorage}
       >
-        <Panel
-          className={styles.PanelRow}
-          collapsible={true}
-          defaultSize={sizes.left}
-          onResize={(left: number) => onResize({ left })}
-          order={1}
-        >
-          <div className={styles.Centered}>left: {Math.round(sizes.left)}</div>
+        <Panel className={styles.PanelRow} collapsible={true}>
+          <div className={styles.Centered}>left</div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
-        <Panel
-          className={styles.PanelRow}
-          defaultSize={sizes.middle}
-          onResize={(middle: number) => onResize({ middle })}
-          order={2}
-        >
-          <div className={styles.Centered}>
-            middle: {Math.round(sizes.middle)}
-          </div>
+        <Panel className={styles.PanelRow}>
+          <div className={styles.Centered}>middle</div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
-        <Panel
-          className={styles.PanelRow}
-          collapsible={true}
-          defaultSize={sizes.right}
-          onResize={(right: number) => onResize({ right })}
-          order={3}
-        >
-          <div className={styles.Centered}>
-            right: {Math.round(sizes.right)}
-          </div>
+        <Panel className={styles.PanelRow} collapsible={true}>
+          <div className={styles.Centered}>right</div>
         </Panel>
       </PanelGroup>
     </div>
@@ -126,17 +95,33 @@ function Content() {
 }
 
 const CODE = `
-<PanelGroup direction="horizontal">
-  <Panel defaultSize={sizeLeft} onResize={saveSizeLeft} order={1}>
-    left
-  </Panel>
-  <ResizeHandle />
-  <Panel defaultSize={sizeMiddle} onResize={saveSizeMiddle} order={2}>
-    left
-  </Panel>
-  <ResizeHandle />
-  <Panel defaultSize={sizeRight} onResize={saveSizeRight} order={3}>
-    right
-  </Panel>
+const navigate = useNavigate();
+
+const urlStorage = useMemo(() => ({
+  getItem(name) {
+    try {
+      const parsed = JSON.parse(decodeURI(window.location.hash.substring(1)));
+      return parsed[name] || "";
+    } catch (error) {
+      console.error(error);
+      return "";
+    }
+  },
+  setItem(name, value) {
+    const encoded = encodeURI(JSON.stringify({
+      [name]: value
+    }));
+
+    // Update the hash without interfering with the browser's Back button.
+    navigate('#' + encoded, { replace: true });
+  }
+}, [navigate]);
+
+<PanelGroup autoSaveId="example" direction="horizontal" storage={urlStorage}>
+  <Panel>left</Panel>
+  <PanelResizeHandle />
+  <Panel>left</Panel>
+  <PanelResizeHandle />
+  <Panel>right</Panel>
 </PanelGroup>
 `;

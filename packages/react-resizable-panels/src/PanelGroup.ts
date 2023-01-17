@@ -11,7 +11,13 @@ import {
 } from "react";
 
 import { PanelGroupContext } from "./PanelContexts";
-import { Direction, PanelData, PanelGroupOnLayout, ResizeEvent } from "./types";
+import {
+  Direction,
+  PanelData,
+  PanelGroupOnLayout,
+  ResizeEvent,
+  PanelGroupStorage,
+} from "./types";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
 import {
   getDragOffset,
@@ -38,6 +44,21 @@ import { areEqual } from "./utils/arrays";
 
 // Limit the frequency of localStorage updates.
 const savePanelGroupLayoutDebounced = debounce(savePanelGroupLayout, 100);
+
+function throwServerError() {
+  throw new Error('PanelGroup "storage" prop required for server rendering.');
+}
+
+const defaultStorage: PanelGroupStorage = {
+  getItem:
+    typeof localStorage !== "undefined"
+      ? (name: string) => localStorage.getItem(name)
+      : (throwServerError as any),
+  setItem:
+    typeof localStorage !== "undefined"
+      ? (name: string, value: string) => localStorage.setItem(name, value)
+      : (throwServerError as any),
+};
 
 export type CommittedValues = {
   direction: Direction;
@@ -71,6 +92,7 @@ export type PanelGroupProps = {
   direction: Direction;
   id?: string | null;
   onLayout?: PanelGroupOnLayout;
+  storage?: PanelGroupStorage;
   style?: CSSProperties;
   tagName?: ElementType;
 };
@@ -82,6 +104,7 @@ export function PanelGroup({
   direction,
   id: idFromProps = null,
   onLayout = null,
+  storage = defaultStorage,
   style: styleFromProps = {},
   tagName: Type = "div",
 }: PanelGroupProps) {
@@ -178,7 +201,7 @@ export function PanelGroup({
     let defaultSizes: number[] | undefined = undefined;
     if (autoSaveId) {
       const panelsArray = panelsMapToSortedArray(panels);
-      defaultSizes = loadPanelLayout(autoSaveId, panelsArray);
+      defaultSizes = loadPanelLayout(autoSaveId, panelsArray, storage);
     }
 
     if (defaultSizes != null) {
@@ -236,7 +259,7 @@ export function PanelGroup({
 
       const panelsArray = panelsMapToSortedArray(panels);
 
-      savePanelGroupLayoutDebounced(autoSaveId, panelsArray, sizes);
+      savePanelGroupLayoutDebounced(autoSaveId, panelsArray, sizes, storage);
     }
   }, [autoSaveId, panels, sizes]);
 
