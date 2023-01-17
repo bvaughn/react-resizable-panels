@@ -597,6 +597,7 @@ export function PanelGroup({
     children: createElement(Type, {
       children,
       className: classNameFromProps,
+      "data-panel-group": "",
       "data-panel-group-direction": direction,
       "data-panel-group-id": groupId,
       style: { ...style, ...styleFromProps },

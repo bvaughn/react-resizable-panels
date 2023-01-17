@@ -5,6 +5,7 @@ import { PanelGroupLayoutLogEntry } from "../src/routes/examples/types";
 import { getLogEntries } from "./utils/debug";
 
 import { goToUrl } from "./utils/url";
+import { verifySizes } from "./utils/verify";
 
 async function openPage(
   page: Page,
@@ -45,25 +46,6 @@ async function openPage(
   );
 
   await goToUrl(page, panelGroup);
-}
-
-async function verifySizes(
-  page: Page,
-  expectedSizeLeft: number,
-  expectedSizeMiddle: number,
-  expectedSizeRight: number
-) {
-  const logEntries = await getLogEntries<PanelGroupLayoutLogEntry>(
-    page,
-    "onLayout"
-  );
-  const mostRecentLayout = logEntries[logEntries.length - 1];
-  const [actualSizeLeft, actualSizeMiddle, actualSizeRight] =
-    mostRecentLayout.sizes;
-
-  expect(actualSizeLeft).toBe(expectedSizeLeft);
-  expect(actualSizeMiddle).toBe(expectedSizeMiddle);
-  expect(actualSizeRight).toBe(expectedSizeRight);
 }
 
 test.describe("Imperative Panel API", () => {
