@@ -14,8 +14,9 @@ const config: PlaywrightTestConfig = {
     video: "on-first-retry",
   },
   webServer: {
-    command: "PORT=2345 npm run watch",
-    url: "http://localhost:2345",
+    command: "npm run watch",
+    reuseExistingServer: true,
+    url: "http://localhost:1234",
   },
 };
 

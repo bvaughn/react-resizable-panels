@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "build": "parcel build 'index.html'",
+    "kill-port": "kill-port ${PORT:-1234}",
     "test:e2e": "playwright test",
-    "watch": "kill-port ${PORT:-1234} && parcel 'index.html'"
+    "watch": "parcel 'index.html'"
   },
   "devDependencies": {
     "kill-port": "latest"
