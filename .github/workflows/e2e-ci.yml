@@ -7,8 +7,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-      - name: Install package dependencies
-        run: yarn install
+      - name: Initialize Yarn and install package dependencies
+        run: yarn
       - name: Build NPM package
         run: yarn prerelease
       - name: Run Playwright tests
