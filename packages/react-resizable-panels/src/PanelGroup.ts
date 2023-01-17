@@ -13,13 +13,19 @@ import {
 import { PanelGroupContext } from "./PanelContexts";
 import { Direction, PanelData, PanelGroupOnLayout, ResizeEvent } from "./types";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
-import { getDragOffset, getMovement } from "./utils/coordinates";
+import {
+  getDragOffset,
+  getMovement,
+  isMouseEvent,
+  isTouchEvent,
+} from "./utils/coordinates";
 import {
   adjustByDelta,
   callPanelCallbacks,
   getBeforeAndAfterIds,
   getFlexGrow,
   getPanelGroup,
+  getResizeHandle,
   getResizeHandlePanelIds,
   panelsMapToSortedArray,
 } from "./utils/group";
@@ -39,6 +45,19 @@ export type CommittedValues = {
 };
 
 export type PanelDataMap = Map<string, PanelData>;
+
+// Initial drag state serves a few purposes:
+// * dragOffset:
+//   Resize is calculated by the distance between the current pointer event and the resize handle being "dragged"
+//   This value accounts for the initial offset when the touch/click starts, so the handle doesn't appear to "jump"
+// * dragHandleRect, sizes:
+//   When resizing is done via mouse/touch event– some initial state is stored
+//   so that any panels that contract will also expand if drag direction is reversed.
+export type InitialDragState = {
+  dragHandleRect: DOMRect;
+  dragOffset: number;
+  sizes: number[];
+};
 
 // TODO
 // Within an active drag, remember original positions to refine more easily on expand.
@@ -70,6 +89,11 @@ export function PanelGroup({
   const [activeHandleId, setActiveHandleId] = useState<string | null>(null);
   const [panels, setPanels] = useState<PanelDataMap>(new Map());
 
+  // When resizing is done via mouse/touch event–
+  // We store the initial Panel sizes in this ref, and apply move deltas to them instead of to the current sizes.
+  // This has the benefit of causing force-collapsed panels to spring back open if drag is reversed.
+  const initialDragStateRef = useRef<InitialDragState | null>(null);
+
   // Use a ref to guard against users passing inline props
   const callbacksRef = useRef<{
     onLayout: PanelGroupOnLayout | null;
@@ -80,10 +104,6 @@ export function PanelGroup({
 
   // 0-1 values representing the relative size of each panel.
   const [sizes, setSizes] = useState<number[]>([]);
-
-  // Resize is calculated by the distance between the current pointer event and the resize handle being "dragged"
-  // This value accounts for the initial offset when the touch/click starts, so the handle doesn't appear to "jump"
-  const dragOffsetRef = useRef<number>(0);
 
   // Used to support imperative collapse/expand API.
   const panelSizeBeforeCollapse = useRef<Map<string, number>>(new Map());
@@ -288,14 +308,24 @@ export function PanelGroup({
           return;
         }
 
+        // If we're resizing by mouse or touch, use the initial sizes as a base.
+        // This has the benefit of causing force-collapsed panels to spring back open if drag is reversed.
+        const {
+          dragHandleRect,
+          dragOffset = 0,
+          sizes: initialSizes,
+        } = initialDragStateRef.current || {};
+        const baseSizes = initialSizes || prevSizes;
+
         const movement = getMovement(
           event,
           groupId,
           handleId,
           panelsArray,
           direction,
-          prevSizes,
-          dragOffsetRef.current
+          baseSizes,
+          dragOffset,
+          dragHandleRect
         );
         if (movement === 0) {
           return;
@@ -313,7 +343,7 @@ export function PanelGroup({
           idBefore,
           idAfter,
           delta,
-          prevSizes,
+          baseSizes,
           panelSizeBeforeCollapse.current
         );
         if (prevSizes === nextSizes) {
@@ -478,6 +508,12 @@ export function PanelGroup({
       return;
     }
 
+    if (panel.collapsible && nextSize === 0) {
+      // This is a valid resize state.
+    } else {
+      nextSize = Math.min(panel.maxSize, Math.max(panel.minSize, nextSize));
+    }
+
     const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
     if (idBefore == null || idAfter == null) {
       return;
@@ -517,11 +553,21 @@ export function PanelGroup({
       startDragging: (id: string, event: ResizeEvent) => {
         setActiveHandleId(id);
 
-        dragOffsetRef.current = getDragOffset(event, id, direction);
+        if (isMouseEvent(event) || isTouchEvent(event)) {
+          const handleElement = getResizeHandle(id);
+
+          initialDragStateRef.current = {
+            dragHandleRect: handleElement.getBoundingClientRect(),
+            dragOffset: getDragOffset(event, id, direction),
+            sizes: committedValuesRef.current.sizes,
+          };
+        }
       },
       stopDragging: () => {
         resetGlobalCursorStyle();
         setActiveHandleId(null);
+
+        initialDragStateRef.current = null;
       },
       unregisterPanel,
     }),
@@ -551,6 +597,7 @@ export function PanelGroup({
     children: createElement(Type, {
       children,
       className: classNameFromProps,
+      "data-panel-group": "",
       "data-panel-group-direction": direction,
       "data-panel-group-id": groupId,
       style: { ...style, ...styleFromProps },

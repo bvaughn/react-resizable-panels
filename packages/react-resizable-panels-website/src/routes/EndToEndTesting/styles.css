@@ -1,0 +1,12 @@
+.Panel {
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+.PanelGroup {
+  align-items: stretch;
+}
+
+.PanelResizeHandle {
+  flex: 0 0 2px;
+  background: rgba(255, 255, 255, 0.25);
+}

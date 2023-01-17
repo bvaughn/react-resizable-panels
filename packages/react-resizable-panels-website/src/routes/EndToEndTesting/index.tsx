@@ -5,6 +5,7 @@ import { urlToUrlData, urlPanelGroupToPanelGroup } from "../../utils/UrlData";
 
 import DebugLog, { ImperativeDebugLogHandle } from "../examples/DebugLog";
 
+import "./styles.css";
 import styles from "./styles.module.css";
 
 // Special route that can be configured via URL parameters.

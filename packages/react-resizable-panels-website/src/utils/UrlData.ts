@@ -182,6 +182,7 @@ function urlPanelToPanel(
   return createElement(
     Panel,
     {
+      className: "Panel",
       collapsible: urlPanel.collapsible,
       defaultSize: urlPanel.defaultSize,
       id: urlPanel.id,
@@ -229,6 +230,7 @@ export function urlPanelGroupToPanelGroup(
     PanelGroup,
     {
       autoSaveId: urlPanelGroup.autoSaveId,
+      className: "PanelGroup",
       direction: urlPanelGroup.direction,
       id: urlPanelGroup.id,
       key: key,
@@ -252,6 +254,7 @@ function urlPanelResizeHandleToPanelResizeHandle(
   key?: any
 ): ReactElement {
   return createElement(PanelResizeHandle, {
+    className: "PanelResizeHandle",
     disabled: urlPanelResizeHandle.disabled,
     id: urlPanelResizeHandle.id,
     key,
