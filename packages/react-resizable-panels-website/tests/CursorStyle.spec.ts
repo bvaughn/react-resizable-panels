@@ -27,7 +27,7 @@ test.describe("cursor style", () => {
 
     await handle.focus();
     await page.keyboard.press("ArrowLeft");
-    await expect(await body.evaluate(getCursorStyle)).toBe("col-resize");
+    await expect(await body.evaluate(getCursorStyle)).toBe("auto");
 
     await page.keyboard.press("Shift+Tab");
     await expect(await body.evaluate(getCursorStyle)).toBe("auto");

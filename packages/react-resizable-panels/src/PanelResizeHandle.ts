@@ -16,7 +16,7 @@ import useUniqueId from "./hooks/useUniqueId";
 import { useWindowSplitterResizeHandlerBehavior } from "./hooks/useWindowSplitterBehavior";
 import { PanelGroupContext } from "./PanelContexts";
 import type { ResizeHandler, ResizeEvent } from "./types";
-import { getCursorStyle, resetGlobalCursorStyle } from "./utils/cursor";
+import { getCursorStyle } from "./utils/cursor";
 
 export type PanelResizeHandleProps = {
   children?: ReactNode;
@@ -128,10 +128,7 @@ export function PanelResizeHandle({
     "data-panel-group-id": groupId,
     "data-panel-resize-handle-enabled": !disabled,
     "data-panel-resize-handle-id": resizeHandleId,
-    onBlur: () => {
-      setIsFocused(false);
-      resetGlobalCursorStyle();
-    },
+    onBlur: () => setIsFocused(false),
     onFocus: () => setIsFocused(true),
     onMouseDown: (event: MouseEvent) =>
       startDragging(resizeHandleId, event.nativeEvent),

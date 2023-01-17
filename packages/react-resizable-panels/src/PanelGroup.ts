@@ -346,23 +346,29 @@ export function PanelGroup({
           baseSizes,
           panelSizeBeforeCollapse.current
         );
-        if (prevSizes === nextSizes) {
-          // If the pointer has moved too far to resize the panel any further,
-          // update the cursor style for a visual clue.
-          // This mimics VS Code behavior.
-          if (isHorizontal) {
-            setGlobalCursorStyle(
-              movement < 0 ? "horizontal-min" : "horizontal-max"
-            );
-          } else {
-            setGlobalCursorStyle(
-              movement < 0 ? "vertical-min" : "vertical-max"
-            );
-          }
-        } else {
-          // Reset the cursor style to the the normal resize cursor.
-          setGlobalCursorStyle(isHorizontal ? "horizontal" : "vertical");
 
+        if (isMouseEvent(event) || isTouchEvent(event)) {
+          if (prevSizes === nextSizes) {
+            // If the pointer has moved too far to resize the panel any further,
+            // update the cursor style for a visual clue.
+            // This mimics VS Code behavior.
+
+            if (isHorizontal) {
+              setGlobalCursorStyle(
+                movement < 0 ? "horizontal-min" : "horizontal-max"
+              );
+            } else {
+              setGlobalCursorStyle(
+                movement < 0 ? "vertical-min" : "vertical-max"
+              );
+            }
+          } else {
+            // Reset the cursor style to the the normal resize cursor.
+            setGlobalCursorStyle(isHorizontal ? "horizontal" : "vertical");
+          }
+        }
+
+        if (prevSizes !== nextSizes) {
           // If resize change handlers have been declared, this is the time to call them.
           callPanelCallbacks(panelsArray, prevSizes, nextSizes);
 
