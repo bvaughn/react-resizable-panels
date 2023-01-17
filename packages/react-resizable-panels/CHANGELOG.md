@@ -2,6 +2,8 @@
 
 ## 0.0.34
 * [#70](https://github.com/bvaughn/react-resizable-panels/issues/70): When resizing is done via mouse/touch event– some initial state is stored so that any panels that contract will also expand if drag direction is reversed.
+* [#86](https://github.com/bvaughn/react-resizable-panels/issues/86): Layout changes triggered by keyboard no longer affect the global cursor.
+* Fixed small cursor regression introduced in 0.0.33.
 
 ## 0.0.33
 * Collapsible `Panel`s will always call `onCollapse` on-mount regardless of their collapsed state.
