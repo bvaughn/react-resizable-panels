@@ -19,8 +19,7 @@ export default function ExternalPersistence() {
             <code>autoSaveId</code> will store layout information in{" "}
             <code>localStorage</code>. This example shows how the how to use the{" "}
             <code>storage</code> prop to override that behavior. For this demo,
-            layout is saved as part of the URL hash, after a{" "}
-            <strong>500ms</strong> debounce interval.
+            layout is saved as part of the URL hash.
           </p>
           <p className={styles.WarningBlock}>
             Note the <code>storage</code> API is <em>synchronous</em>. If an
