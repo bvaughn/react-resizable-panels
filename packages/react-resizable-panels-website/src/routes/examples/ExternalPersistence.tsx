@@ -119,7 +119,7 @@ const urlStorage = useMemo(() => ({
 <PanelGroup autoSaveId="example" direction="horizontal" storage={urlStorage}>
   <Panel>left</Panel>
   <PanelResizeHandle />
-  <Panel>left</Panel>
+  <Panel>middle</Panel>
   <PanelResizeHandle />
   <Panel>right</Panel>
 </PanelGroup>
