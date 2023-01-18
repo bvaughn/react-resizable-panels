@@ -41,7 +41,7 @@ export function loadPanelLayout(
   const state = loadSerializedPanelGroupState(autoSaveId, storage);
   if (state) {
     const key = getSerializationKey(panels);
-    return state[key] || null;
+    return state[key] ?? null;
   }
 
   return null;

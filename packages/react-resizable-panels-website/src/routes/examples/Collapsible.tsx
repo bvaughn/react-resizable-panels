@@ -43,7 +43,7 @@ function Content() {
 
   const { currentFileIndex, fileListCollapsed, openFiles } = state;
 
-  const currentFile = openFiles[currentFileIndex] || null;
+  const currentFile = openFiles[currentFileIndex] ?? null;
 
   const closeFile = (file: File) => {
     dispatch({ type: "close", file });

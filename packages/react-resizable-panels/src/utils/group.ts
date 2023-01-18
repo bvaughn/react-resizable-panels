@@ -216,7 +216,7 @@ export function getResizeHandleIndex(id: string): number | null {
   const index = handles.findIndex(
     (handle) => handle.getAttribute("data-panel-resize-handle-id") === id
   );
-  return index || null;
+  return index ?? null;
 }
 
 export function getResizeHandles(): HTMLDivElement[] {
@@ -240,8 +240,8 @@ export function getResizeHandlePanelIds(
   const handles = getResizeHandlesForGroup(groupId);
   const index = handles.indexOf(handle);
 
-  const idBefore: string | null = panelsArray[index]?.id || null;
-  const idAfter: string | null = panelsArray[index + 1]?.id || null;
+  const idBefore: string | null = panelsArray[index]?.id ?? null;
+  const idAfter: string | null = panelsArray[index + 1]?.id ?? null;
 
   return [idBefore, idAfter];
 }
