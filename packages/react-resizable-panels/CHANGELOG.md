@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.0.35
+* [#92](https://github.com/bvaughn/react-resizable-panels/pull/92): Change `browserslist` so compiled module works with CRA 4.0.3 Babel config out of the box.
 ## 0.0.34
 * [#85](https://github.com/bvaughn/react-resizable-panels/issues/85): Add optional `storage` prop to `PanelGroup` to make it easier to persist layouts somewhere other than `localStorage` (e.g. like a Cookie).
 * [#70](https://github.com/bvaughn/react-resizable-panels/issues/70): When resizing is done via mouse/touch event– some initial state is stored so that any panels that contract will also expand if drag direction is reversed.
