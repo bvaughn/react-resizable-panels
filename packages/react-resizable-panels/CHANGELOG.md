@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.36
+* [#96](https://github.com/bvaughn/react-resizable-panels/issues/96): No longer disable `pointer-events` during resize by default. This behavior can be re-enabled using the newly added `PanelGroup` prop `disablePointerEventsDuringResize`.
+
 ## 0.0.35
 * [#92](https://github.com/bvaughn/react-resizable-panels/pull/92): Change `browserslist` so compiled module works with CRA 4.0.3 Babel config out of the box.
 ## 0.0.34

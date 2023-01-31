@@ -90,6 +90,7 @@ export type PanelGroupProps = {
   children?: ReactNode;
   className?: string;
   direction: Direction;
+  disablePointerEventsDuringResize?: boolean;
   id?: string | null;
   onLayout?: PanelGroupOnLayout;
   storage?: PanelGroupStorage;
@@ -102,6 +103,7 @@ export function PanelGroup({
   children = null,
   className: classNameFromProps = "",
   direction,
+  disablePointerEventsDuringResize = false,
   id: idFromProps = null,
   onLayout = null,
   storage = defaultStorage,
@@ -293,7 +295,10 @@ export function PanelGroup({
 
         // Disable pointer events inside of a panel during resize.
         // This avoid edge cases like nested iframes.
-        pointerEvents: activeHandleId !== null ? "none" : undefined,
+        pointerEvents:
+          disablePointerEventsDuringResize && activeHandleId !== null
+            ? "none"
+            : undefined,
       };
     },
     [activeHandleId, direction, sizes]
