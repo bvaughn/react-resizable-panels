@@ -114,7 +114,7 @@ const urlStorage = useMemo(() => ({
     // Update the hash without interfering with the browser's Back button.
     navigate('#' + encoded, { replace: true });
   }
-}, [navigate]);
+}), [navigate]);
 
 <PanelGroup autoSaveId="example" direction="horizontal" storage={urlStorage}>
   <Panel>left</Panel>
