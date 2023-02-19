@@ -426,8 +426,10 @@ export function PanelGroup({
     });
   }, []);
 
-  const collapsePanel = useCallback((id: string) => {
+  const collapsePanel = useCallback((id: string, affectDirection = 'after') => {
     const { panels, sizes: prevSizes } = committedValuesRef.current;
+
+    if (!affectDirection) affectDirection = 'after'
 
     const panel = panels.get(id);
     if (panel == null || !panel.collapsible) {
@@ -449,13 +451,21 @@ export function PanelGroup({
 
     panelSizeBeforeCollapse.current.set(id, currentSize);
 
-    const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
+    const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray, affectDirection === 'before');
     if (idBefore == null || idAfter == null) {
       return;
     }
 
     const isLastPanel = index === panelsArray.length - 1;
-    const delta = isLastPanel ? currentSize : 0 - currentSize;
+    const isFirstPanel = index === 0;
+    // let delta = isLastPanel ? currentSize : 0 - currentSize;
+    let delta 
+
+    if (affectDirection === 'before' || isLastPanel) {
+      delta = currentSize
+    } else if (affectDirection === 'after' || isFirstPanel) {
+      delta = -currentSize
+    }
 
     const nextSizes = adjustByDelta(
       null,
@@ -475,8 +485,9 @@ export function PanelGroup({
     }
   }, []);
 
-  const expandPanel = useCallback((id: string) => {
+  const expandPanel = useCallback((id: string, affectDirection = 'after') => {
     const { panels, sizes: prevSizes } = committedValuesRef.current;
+    if (!affectDirection) affectDirection = 'after'
 
     const panel = panels.get(id);
     if (panel == null) {
@@ -495,20 +506,30 @@ export function PanelGroup({
     if (index < 0) {
       return;
     }
-
     const currentSize = prevSizes[index];
     if (currentSize !== 0) {
       // Panel is already expanded.
       return;
     }
 
-    const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
+    const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray,
+      affectDirection === 'before'
+    );
     if (idBefore == null || idAfter == null) {
       return;
     }
 
     const isLastPanel = index === panelsArray.length - 1;
-    const delta = isLastPanel ? 0 - sizeBeforeCollapse : sizeBeforeCollapse;
+    const isFirstPanel = index === 0;
+
+    let delta;
+
+    if (affectDirection === 'before' || isLastPanel) {
+      delta = -sizeBeforeCollapse;
+    } else if (affectDirection === 'after' || isFirstPanel) {
+      delta = sizeBeforeCollapse;
+    }
+    // delta = isLastPanel ? 0 - sizeBeforeCollapse : sizeBeforeCollapse;
 
     const nextSizes = adjustByDelta(
       null,

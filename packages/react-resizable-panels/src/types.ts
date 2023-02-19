@@ -2,6 +2,8 @@ import { RefObject } from "react";
 
 export type Direction = "horizontal" | "vertical";
 
+export type AffectDirection = 'before' | 'after'
+
 export type PanelGroupStorage = {
   getItem(name: string): string | null;
   setItem(name: string, value: string): void;

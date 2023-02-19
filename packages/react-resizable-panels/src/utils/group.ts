@@ -145,7 +145,8 @@ export function callPanelCallbacks(
 
 export function getBeforeAndAfterIds(
   id: string,
-  panelsArray: PanelData[]
+  panelsArray: PanelData[],
+  shouldOffsetForward = false,
 ): [idBefore: string | null, idAFter: string | null] {
   if (panelsArray.length < 2) {
     return [null, null];
@@ -156,11 +157,17 @@ export function getBeforeAndAfterIds(
     return [null, null];
   }
 
+  const isFirstPanel = index === 0;
   const isLastPanel = index === panelsArray.length - 1;
-  const idBefore = isLastPanel ? panelsArray[index - 1].id : id;
-  const idAfter = isLastPanel ? id : panelsArray[index + 1].id;
-
-  return [idBefore, idAfter];
+  if (!isFirstPanel && shouldOffsetForward) {
+    const idBefore = panelsArray[index - 1].id;
+    const idAfter = id;
+    return [idBefore, idAfter];
+  } else {
+    const idBefore = isLastPanel ? panelsArray[index - 1].id : id;
+    const idAfter = isLastPanel ? id : panelsArray[index + 1].id; 
+    return [idBefore, idAfter];
+  }
 }
 
 // This method returns a number between 1 and 100 representing

@@ -1,12 +1,12 @@
 import { CSSProperties, createContext } from "react";
 
-import { PanelData, ResizeEvent, ResizeHandler } from "./types";
+import { PanelData, ResizeEvent, ResizeHandler, AffectDirection } from './types';
 
 export const PanelGroupContext = createContext<{
   activeHandleId: string | null;
-  collapsePanel: (id: string) => void;
+  collapsePanel: (id: string, direction: AffectDirection) => void;
   direction: "horizontal" | "vertical";
-  expandPanel: (id: string) => void;
+  expandPanel: (id: string, direction: AffectDirection) => void;
   getPanelStyle: (id: string) => CSSProperties;
   groupId: string;
   registerPanel: (id: string, panel: PanelData) => void;

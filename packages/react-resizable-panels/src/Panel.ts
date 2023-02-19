@@ -146,8 +146,8 @@ function PanelWithForwardedRef({
   useImperativeHandle(
     forwardedRef,
     () => ({
-      collapse: () => collapsePanel(panelId),
-      expand: () => expandPanel(panelId),
+      collapse: (affectDirection = 'after') => collapsePanel(panelId, affectDirection),
+      expand: (affectDirection = 'after') => expandPanel(panelId, affectDirection),
       getCollapsed() {
         return committedValuesRef.current.size === 0;
       },
