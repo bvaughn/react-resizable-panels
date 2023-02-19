@@ -90,6 +90,8 @@ function TogglesRow({
 }) {
   const [size, setSize] = useState(20);
 
+  const [isCollapseReverse, setCollapseReverse] = useState(false);
+
   const onInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget as HTMLInputElement;
     setSize(parseInt(input.value));
@@ -108,7 +110,7 @@ function TogglesRow({
           panelSize === 0 ? sharedStyles.ButtonDisabled : sharedStyles.Button
         }
         data-test-id={`collapse-button-${id}`}
-        onClick={() => panelRef.current.collapse()}
+        onClick={() => panelRef.current.collapse(isCollapseReverse && 'before')}
         title={`Collapse ${id} panel`}
       >
         <Icon type="horizontal-collapse" />
@@ -118,7 +120,7 @@ function TogglesRow({
           panelSize !== 0 ? sharedStyles.ButtonDisabled : sharedStyles.Button
         }
         data-test-id={`expand-button-${id}`}
-        onClick={() => panelRef.current.expand()}
+        onClick={() => panelRef.current.expand(isCollapseReverse && 'before')}
         title={`Expand ${id} panel`}
       >
         <Icon type="horizontal-expand" />
@@ -135,6 +137,16 @@ function TogglesRow({
           value={size}
         />
       </form>
+      <label>
+        collapse to reverse direction
+        <input type='checkbox' checked={isCollapseReverse}
+          onChange={
+            event => {
+              setCollapseReverse(event.target.checked)
+            }
+          }
+        />
+      </label>
     </div>
   );
 }
@@ -182,7 +194,7 @@ function Content({
             collapsible
             defaultSize={sizes.left}
             id="left"
-            maxSize={30}
+            // maxSize={50}
             minSize={10}
             onResize={(left: number) => onResize({ left })}
             order={1}
