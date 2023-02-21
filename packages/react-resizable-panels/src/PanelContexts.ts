@@ -1,6 +1,11 @@
 import { CSSProperties, createContext } from "react";
 
-import { PanelData, ResizeEvent, ResizeHandler, AffectDirection } from './types';
+import {
+  PanelData,
+  ResizeEvent,
+  ResizeHandler,
+  AffectDirection,
+} from "./types";
 
 export const PanelGroupContext = createContext<{
   activeHandleId: string | null;

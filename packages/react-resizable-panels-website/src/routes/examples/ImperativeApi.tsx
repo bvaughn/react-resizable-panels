@@ -110,7 +110,9 @@ function TogglesRow({
           panelSize === 0 ? sharedStyles.ButtonDisabled : sharedStyles.Button
         }
         data-test-id={`collapse-button-${id}`}
-        onClick={() => panelRef.current.collapse(isCollapseReverse ? 'before' : null)}
+        onClick={() =>
+          panelRef.current.collapse(isCollapseReverse ? "before" : null)
+        }
         title={`Collapse ${id} panel`}
       >
         <Icon type="horizontal-collapse" />
@@ -120,7 +122,9 @@ function TogglesRow({
           panelSize !== 0 ? sharedStyles.ButtonDisabled : sharedStyles.Button
         }
         data-test-id={`expand-button-${id}`}
-        onClick={() => panelRef.current.expand(isCollapseReverse ? 'before' : null)}
+        onClick={() =>
+          panelRef.current.expand(isCollapseReverse ? "before" : null)
+        }
         title={`Expand ${id} panel`}
       >
         <Icon type="horizontal-expand" />
@@ -139,12 +143,12 @@ function TogglesRow({
       </form>
       <label>
         collapse to reverse direction
-        <input type='checkbox' checked={isCollapseReverse}
-          onChange={
-            event => {
-              setCollapseReverse(event.target.checked)
-            }
-          }
+        <input
+          type="checkbox"
+          checked={isCollapseReverse}
+          onChange={(event) => {
+            setCollapseReverse(event.target.checked);
+          }}
         />
       </label>
     </div>

@@ -426,10 +426,10 @@ export function PanelGroup({
     });
   }, []);
 
-  const collapsePanel = useCallback((id: string, affectDirection = 'after') => {
+  const collapsePanel = useCallback((id: string, affectDirection = "after") => {
     const { panels, sizes: prevSizes } = committedValuesRef.current;
 
-    if (!affectDirection) affectDirection = 'after'
+    if (!affectDirection) affectDirection = "after";
 
     const panel = panels.get(id);
     if (panel == null || !panel.collapsible) {
@@ -451,7 +451,11 @@ export function PanelGroup({
 
     panelSizeBeforeCollapse.current.set(id, currentSize);
 
-    const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray, affectDirection === 'before');
+    const [idBefore, idAfter] = getBeforeAndAfterIds(
+      id,
+      panelsArray,
+      affectDirection === "before"
+    );
     if (idBefore == null || idAfter == null) {
       return;
     }
@@ -459,12 +463,12 @@ export function PanelGroup({
     const isLastPanel = index === panelsArray.length - 1;
     const isFirstPanel = index === 0;
     // let delta = isLastPanel ? currentSize : 0 - currentSize;
-    let delta 
+    let delta;
 
-    if (affectDirection === 'before' || isLastPanel) {
-      delta = currentSize
-    } else if (affectDirection === 'after' || isFirstPanel) {
-      delta = -currentSize
+    if (affectDirection === "before" || isLastPanel) {
+      delta = currentSize;
+    } else if (affectDirection === "after" || isFirstPanel) {
+      delta = -currentSize;
     }
 
     const nextSizes = adjustByDelta(
@@ -485,9 +489,9 @@ export function PanelGroup({
     }
   }, []);
 
-  const expandPanel = useCallback((id: string, affectDirection = 'after') => {
+  const expandPanel = useCallback((id: string, affectDirection = "after") => {
     const { panels, sizes: prevSizes } = committedValuesRef.current;
-    if (!affectDirection) affectDirection = 'after'
+    if (!affectDirection) affectDirection = "after";
 
     const panel = panels.get(id);
     if (panel == null) {
@@ -512,8 +516,10 @@ export function PanelGroup({
       return;
     }
 
-    const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray,
-      affectDirection === 'before'
+    const [idBefore, idAfter] = getBeforeAndAfterIds(
+      id,
+      panelsArray,
+      affectDirection === "before"
     );
     if (idBefore == null || idAfter == null) {
       return;
@@ -524,9 +530,9 @@ export function PanelGroup({
 
     let delta;
 
-    if (affectDirection === 'before' || isLastPanel) {
+    if (affectDirection === "before" || isLastPanel) {
       delta = -sizeBeforeCollapse;
-    } else if (affectDirection === 'after' || isFirstPanel) {
+    } else if (affectDirection === "after" || isFirstPanel) {
       delta = sizeBeforeCollapse;
     }
     // delta = isLastPanel ? 0 - sizeBeforeCollapse : sizeBeforeCollapse;

@@ -18,7 +18,6 @@ export default function EndToEndTesting() {
   const [size, setSize] = useState(0);
   const [checked, setChecked] = useState(false);
 
-
   const debugLogRef = useRef<ImperativeDebugLogHandle>(null);
   const idToPanelMapRef = useRef<Map<string, ImperativePanelHandle>>(new Map());
 
@@ -40,7 +39,7 @@ export default function EndToEndTesting() {
     const idToPanelMap = idToPanelMapRef.current;
     const panel = idToPanelMap.get(panelId);
     if (panel) {
-      panel.collapse(checked ? 'before': 'after');
+      panel.collapse(checked ? "before" : "after");
     }
   };
 
@@ -48,7 +47,7 @@ export default function EndToEndTesting() {
     const idToPanelMap = idToPanelMapRef.current;
     const panel = idToPanelMap.get(panelId);
     if (panel) {
-      panel.expand(checked ? 'before': 'after');
+      panel.expand(checked ? "before" : "after");
     }
   };
 
@@ -89,7 +88,7 @@ export default function EndToEndTesting() {
           <input
             id="direction"
             checked={checked}
-            onChange={event => setChecked(event.target.checked)}
+            onChange={(event) => setChecked(event.target.checked)}
             type="checkbox"
           />
         </label>

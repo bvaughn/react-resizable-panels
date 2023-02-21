@@ -146,7 +146,7 @@ export function callPanelCallbacks(
 export function getBeforeAndAfterIds(
   id: string,
   panelsArray: PanelData[],
-  shouldOffsetForward = false,
+  shouldOffsetForward = false
 ): [idBefore: string | null, idAFter: string | null] {
   if (panelsArray.length < 2) {
     return [null, null];
@@ -165,7 +165,7 @@ export function getBeforeAndAfterIds(
     return [idBefore, idAfter];
   } else {
     const idBefore = isLastPanel ? panelsArray[index - 1].id : id;
-    const idAfter = isLastPanel ? id : panelsArray[index + 1].id; 
+    const idAfter = isLastPanel ? id : panelsArray[index + 1].id;
     return [idBefore, idAfter];
   }
 }
