@@ -14,7 +14,7 @@ import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
 
 import { PanelGroupContext } from "./PanelContexts";
-import { PanelOnCollapse, PanelOnResize } from "./types";
+import { PanelOnCollapse, PanelOnResize, AffectDirection } from './types';
 
 export type PanelProps = {
   children?: ReactNode;
@@ -32,8 +32,8 @@ export type PanelProps = {
 };
 
 export type ImperativePanelHandle = {
-  collapse: () => void;
-  expand: () => void;
+  collapse: (direction?: AffectDirection) => void;
+  expand: (direction?: AffectDirection) => void;
   getCollapsed(): boolean;
   getSize(): number;
   resize: (percentage: number) => void;
@@ -146,8 +146,8 @@ function PanelWithForwardedRef({
   useImperativeHandle(
     forwardedRef,
     () => ({
-      collapse: (affectDirection = 'after') => collapsePanel(panelId, affectDirection),
-      expand: (affectDirection = 'after') => expandPanel(panelId, affectDirection),
+      collapse: (affectDirection = 'after') => collapsePanel(panelId, affectDirection as AffectDirection),
+      expand: (affectDirection = 'after') => expandPanel(panelId, affectDirection as AffectDirection),
       getCollapsed() {
         return committedValuesRef.current.size === 0;
       },
