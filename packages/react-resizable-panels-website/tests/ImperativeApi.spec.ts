@@ -105,7 +105,7 @@ test.describe("Imperative Panel API", () => {
     await verifySizes(page, 30, 60, 10);
   });
 
-  test("should expand imperatively collapsed panels to size before collapse", async ({
+  test("should expand imperatively collapsed panels to size before collapse @test2", async ({
     page,
   }) => {
     const collapseButton = page.locator("#collapseButton");
@@ -113,6 +113,7 @@ test.describe("Imperative Panel API", () => {
     const panelIdInput = page.locator("#panelIdInput");
     const resizeButton = page.locator("#resizeButton");
     const sizeInput = page.locator("#sizeInput");
+    const directionCheckbox = page.locator("#direction");
 
     await panelIdInput.focus();
     await panelIdInput.fill("left");
@@ -141,6 +142,25 @@ test.describe("Imperative Panel API", () => {
     await verifySizes(page, 15, 85, 0);
     await expandButton.click();
     await verifySizes(page, 15, 60, 25);
+
+    // Middle pane collapse/expand with direction
+
+    // reset size to 20 10 70
+    await panelIdInput.focus();
+    await panelIdInput.fill("right");
+    await sizeInput.fill("70");
+    await resizeButton.click();
+    await panelIdInput.fill("left");
+    await sizeInput.fill("20");
+    await resizeButton.click();
+    await panelIdInput.fill("middle");
+
+    // reverse case
+    await directionCheckbox.click()
+    await collapseButton.click()
+    await verifySizes(page, 30, 0, 70);
+    await expandButton.click()
+    await verifySizes(page, 20, 10, 70);
   });
 
   test("should expand drag collapsed panels to their most recent size", async ({

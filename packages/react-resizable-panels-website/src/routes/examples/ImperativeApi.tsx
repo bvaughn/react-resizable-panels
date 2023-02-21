@@ -110,7 +110,7 @@ function TogglesRow({
           panelSize === 0 ? sharedStyles.ButtonDisabled : sharedStyles.Button
         }
         data-test-id={`collapse-button-${id}`}
-        onClick={() => panelRef.current.collapse(isCollapseReverse && 'before')}
+        onClick={() => panelRef.current.collapse(isCollapseReverse ? 'before' : null)}
         title={`Collapse ${id} panel`}
       >
         <Icon type="horizontal-collapse" />
@@ -120,7 +120,7 @@ function TogglesRow({
           panelSize !== 0 ? sharedStyles.ButtonDisabled : sharedStyles.Button
         }
         data-test-id={`expand-button-${id}`}
-        onClick={() => panelRef.current.expand(isCollapseReverse && 'before')}
+        onClick={() => panelRef.current.expand(isCollapseReverse ? 'before' : null)}
         title={`Expand ${id} panel`}
       >
         <Icon type="horizontal-expand" />
