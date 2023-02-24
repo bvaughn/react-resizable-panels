@@ -77,3 +77,6 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `id`          | `?string`         | Resize handle id (unique within group); falls back to `useId` when not provided
 | `style`       | `?CSSProperties`  | CSS style to attach to root element
 | `tagName`     | `?string = "div"` | HTML element tag name for root element
+---
+
+#### If you like this project, [buy me a coffee](http://givebrian.coffee/).
