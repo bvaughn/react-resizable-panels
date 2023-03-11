@@ -6,8 +6,11 @@ type CursorState =
   | "vertical-max"
   | "vertical-min";
 
+const WINDOW_EDGE_THRESHOLD = 25;
+
 let currentState: CursorState | null = null;
 let element: HTMLStyleElement | null = null;
+let previousState: CursorState | null = null;
 
 export function getCursorStyle(state: CursorState): string {
   switch (state) {
@@ -26,6 +29,51 @@ export function getCursorStyle(state: CursorState): string {
   }
 }
 
+function onDocumentMove(event: MouseEvent) {
+  if (previousState !== null) {
+    const { clientX, clientY } = event;
+    const { clientHeight, clientWidth } = document.body;
+
+    switch (previousState) {
+      case "horizontal":
+      case "horizontal-max":
+      case "horizontal-min": {
+        if (
+          clientX >= WINDOW_EDGE_THRESHOLD &&
+          clientX <= clientWidth - WINDOW_EDGE_THRESHOLD
+        ) {
+          setGlobalCursorStyle(previousState);
+
+          previousState = null;
+        }
+        break;
+      }
+
+      case "vertical":
+      case "vertical-max":
+      case "vertical-min": {
+        if (
+          clientY >= WINDOW_EDGE_THRESHOLD &&
+          clientY <= clientHeight - WINDOW_EDGE_THRESHOLD
+        ) {
+          setGlobalCursorStyle(previousState);
+
+          previousState = null;
+        }
+        break;
+      }
+    }
+  }
+}
+
+function onDocumentLeave() {
+  if (currentState !== null) {
+    previousState = currentState;
+
+    resetGlobalCursorStyle();
+  }
+}
+
 export function resetGlobalCursorStyle() {
   if (element !== null) {
     document.head.removeChild(element);
@@ -33,6 +81,9 @@ export function resetGlobalCursorStyle() {
     currentState = null;
     element = null;
   }
+
+  document.body.removeEventListener("mouseleave", onDocumentLeave);
+  document.body.removeEventListener("mousemove", onDocumentMove);
 }
 
 export function setGlobalCursorStyle(state: CursorState) {
@@ -48,7 +99,10 @@ export function setGlobalCursorStyle(state: CursorState) {
     element = document.createElement("style");
 
     document.head.appendChild(element);
+
+    document.body.addEventListener("mouseleave", onDocumentLeave);
+    document.body.addEventListener("mousemove", onDocumentMove);
   }
 
-  element.innerHTML = `*{cursor: ${style}!important;}`;
+  element.innerHTML = `* { cursor: ${style} !important; }`;
 }
