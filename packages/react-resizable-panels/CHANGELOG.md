@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.37
+* [#94](https://github.com/bvaughn/react-resizable-panels/issues/94): Add `onDragging` prop to `PanelResizeHandle` to be notified of when dragging starts/stops.
+
 ## 0.0.36
 * [#96](https://github.com/bvaughn/react-resizable-panels/issues/96): No longer disable `pointer-events` during resize by default. This behavior can be re-enabled using the newly added `PanelGroup` prop `disablePointerEventsDuringResize`.
 

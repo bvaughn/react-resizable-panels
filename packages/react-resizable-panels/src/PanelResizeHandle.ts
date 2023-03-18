@@ -15,7 +15,11 @@ import useUniqueId from "./hooks/useUniqueId";
 
 import { useWindowSplitterResizeHandlerBehavior } from "./hooks/useWindowSplitterBehavior";
 import { PanelGroupContext } from "./PanelContexts";
-import type { ResizeHandler, ResizeEvent } from "./types";
+import type {
+  ResizeHandler,
+  ResizeEvent,
+  PanelResizeHandleOnDragging,
+} from "./types";
 import { getCursorStyle } from "./utils/cursor";
 
 export type PanelResizeHandleProps = {
@@ -23,6 +27,7 @@ export type PanelResizeHandleProps = {
   className?: string;
   disabled?: boolean;
   id?: string | null;
+  onDragging?: PanelResizeHandleOnDragging;
   style?: CSSProperties;
   tagName?: ElementType;
 };
@@ -32,10 +37,19 @@ export function PanelResizeHandle({
   className: classNameFromProps = "",
   disabled = false,
   id: idFromProps = null,
+  onDragging = null,
   style: styleFromProps = {},
   tagName: Type = "div",
 }: PanelResizeHandleProps) {
   const divElementRef = useRef<HTMLDivElement>(null);
+
+  // Use a ref to guard against users passing inline props
+  const callbacksRef = useRef<{
+    onDragging: PanelResizeHandleOnDragging | null;
+  }>({ onDragging });
+  useEffect(() => {
+    callbacksRef.current.onDragging = onDragging;
+  });
 
   const panelGroupContext = useContext(PanelGroupContext);
   if (panelGroupContext === null) {
@@ -69,6 +83,11 @@ export function PanelResizeHandle({
     div.blur();
 
     stopDragging();
+
+    const { onDragging } = callbacksRef.current;
+    if (onDragging) {
+      onDragging(false);
+    }
   }, [stopDragging]);
 
   useEffect(() => {
@@ -130,13 +149,25 @@ export function PanelResizeHandle({
     "data-panel-resize-handle-id": resizeHandleId,
     onBlur: () => setIsFocused(false),
     onFocus: () => setIsFocused(true),
-    onMouseDown: (event: MouseEvent) =>
-      startDragging(resizeHandleId, event.nativeEvent),
+    onMouseDown: (event: MouseEvent) => {
+      startDragging(resizeHandleId, event.nativeEvent);
+
+      const { onDragging } = callbacksRef.current;
+      if (onDragging) {
+        onDragging(true);
+      }
+    },
     onMouseUp: stopDraggingAndBlur,
     onTouchCancel: stopDraggingAndBlur,
     onTouchEnd: stopDraggingAndBlur,
-    onTouchStart: (event: TouchEvent) =>
-      startDragging(resizeHandleId, event.nativeEvent),
+    onTouchStart: (event: TouchEvent) => {
+      startDragging(resizeHandleId, event.nativeEvent);
+
+      const { onDragging } = callbacksRef.current;
+      if (onDragging) {
+        onDragging(true);
+      }
+    },
     ref: divElementRef,
     role: "separator",
     style: {

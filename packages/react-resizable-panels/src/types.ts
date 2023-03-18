@@ -10,6 +10,7 @@ export type PanelGroupStorage = {
 export type PanelGroupOnLayout = (sizes: number[]) => void;
 export type PanelOnCollapse = (collapsed: boolean) => void;
 export type PanelOnResize = (size: number) => void;
+export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 
 export type PanelData = {
   callbacksRef: RefObject<{
