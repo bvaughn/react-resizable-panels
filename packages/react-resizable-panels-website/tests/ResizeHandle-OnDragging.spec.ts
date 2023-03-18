@@ -12,25 +12,32 @@ async function openPage(page: Page) {
     PanelGroup,
     { direction: "horizontal", id: "group" },
     createElement(Panel, { collapsible: true, defaultSize: 20, order: 1 }),
-    createElement(PanelResizeHandle, { id: "handle" }),
+    createElement(PanelResizeHandle, { id: "left-handle" }),
+    createElement(Panel, { defaultSize: 60, order: 2 }),
+    createElement(PanelResizeHandle, { id: "right-handle" }),
     createElement(Panel, { collapsible: true, defaultSize: 20, order: 3 })
   );
 
   await goToUrl(page, panelGroup);
 }
 
-async function verifyEntries(page: Page, expectedIsDragging: boolean[]) {
+async function verifyEntries(
+  page: Page,
+  expected: Array<[handleId: string, isDragging: boolean]>
+) {
   const logEntries = await getLogEntries<PanelResizeHandleDraggingLogEntry>(
     page,
     "onDragging"
   );
 
-  expect(logEntries.length).toEqual(expectedIsDragging.length);
+  expect(logEntries.length).toEqual(expected.length);
 
-  for (let index = 0; index < expectedIsDragging.length; index++) {
-    const actual = logEntries[index].isDragging;
-    const expected = expectedIsDragging[index];
-    expect(actual).toEqual(expected);
+  for (let index = 0; index < expected.length; index++) {
+    const { isDragging: isDraggingActual, resizeHandleId: handleIdActual } =
+      logEntries[index];
+    const [handleIdExpected, isDraggingExpected] = expected[index];
+    expect(handleIdExpected).toEqual(handleIdActual);
+    expect(isDraggingExpected).toEqual(isDraggingActual);
   }
 }
 
@@ -46,21 +53,41 @@ test.describe("PanelResizeHandle onDragging prop", () => {
   test("should be called when the panel ResizeHandle starts or stops resizing", async ({
     page,
   }) => {
-    const handle = page.locator('[data-panel-resize-handle-id="handle"]');
+    const leftHandle = page.locator(
+      '[data-panel-resize-handle-id="left-handle"]'
+    );
+    const rightHandle = page.locator(
+      '[data-panel-resize-handle-id="right-handle"]'
+    );
 
     await clearLogEntries(page, "onDragging");
 
-    const bounds = await handle.boundingBox();
+    let bounds = await leftHandle.boundingBox();
     await page.mouse.move(bounds.x, bounds.y);
     await page.mouse.down();
     await page.mouse.move(5, 0);
     await page.mouse.move(10, 0);
     await page.mouse.move(15, 0);
-
-    await verifyEntries(page, [true]);
+    await verifyEntries(page, [["left-handle", true]]);
 
     await page.mouse.up();
+    await verifyEntries(page, [
+      ["left-handle", true],
+      ["left-handle", false],
+    ]);
 
-    await verifyEntries(page, [true, false]);
+    await clearLogEntries(page, "onDragging");
+
+    bounds = await rightHandle.boundingBox();
+    await page.mouse.move(bounds.x, bounds.y);
+    await page.mouse.down();
+    await page.mouse.move(25, 0);
+    await verifyEntries(page, [["right-handle", true]]);
+
+    await page.mouse.up();
+    await verifyEntries(page, [
+      ["right-handle", true],
+      ["right-handle", false],
+    ]);
   });
 });
