@@ -22,18 +22,19 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 ## Props
 
 ### `PanelGroup`
-| prop                               | type                        | description
-| :--------------------------------- | :-------------------------- | :---
-| `autoSaveId`                       | `?string`                   | Unique id used to auto-save group arrangement via `localStorage`
-| `children`                         | `ReactNode`                 | Arbitrary React element(s)
-| `className`                        | `?string`                   | Class name to attach to root element
-| `direction`                        | `"horizontal" \| "vertical"` | Group orientation
-| `disablePointerEventsDuringResize` | `?boolean = false`          | Disable pointer events inside `Panel`s during resize <sup>2</sup>
-| `id`                               | `?string`                   | Group id; falls back to `useId` when not provided
-| `onLayout`                        | `?(sizes: number[]) => void` | Called when group layout changes
-| `storage`                          | `?PanelGroupStorage`        | Custom storage API; defaults to `localStorage` <sup>1</sup>
-| `style`                            | `?CSSProperties`            | CSS style to attach to root element
-| `tagName`                          | `?string = "div"`           | HTML element tag name for root element
+| prop                               | type                           | description
+| :--------------------------------- | :----------------------------- | :---
+| `autoSaveId`                       | `?string`                      | Unique id used to auto-save group arrangement via `localStorage`
+| `children`                         | `ReactNode`                    | Arbitrary React element(s)
+| `className`                        | `?string`                      | Class name to attach to root element
+| `direction`                        | `"horizontal" \| "vertical"`   | Group orientation
+| `disablePointerEventsDuringResize` | `?boolean = false`             | Disable pointer events inside `Panel`s during resize <sup>2</sup>
+| `id`                               | `?string`                      | Group id; falls back to `useId` when not provided
+| `onDragging`                     | `?(isDragging: boolean) => void` | Called when group layout changes
+| `onLayout`                         | `?(sizes: number[]) => void`   | Called when group layout changes
+| `storage`                          | `?PanelGroupStorage`           | Custom storage API; defaults to `localStorage` <sup>1</sup>
+| `style`                            | `?CSSProperties`               | CSS style to attach to root element
+| `tagName`                          | `?string = "div"`              | HTML element tag name for root element
 
 <sup>1</sup>: Storage API must define the following _synchronous_ methods:
 * `getItem: (name:string) => string`

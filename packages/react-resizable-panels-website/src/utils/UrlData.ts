@@ -16,6 +16,7 @@ import {
   PanelOnResize,
   PanelProps,
   PanelResizeHandle,
+  PanelResizeHandleOnDragging,
   PanelResizeHandleProps,
 } from "react-resizable-panels";
 import { ImperativeDebugLogHandle } from "../routes/examples/DebugLog";
@@ -241,7 +242,11 @@ export function urlPanelGroupToPanelGroup(
       if (isUrlPanel(child)) {
         return urlPanelToPanel(child, debugLogRef, idToPanelMapRef, index);
       } else if (isUrlPanelResizeHandle(child)) {
-        return urlPanelResizeHandleToPanelResizeHandle(child, index);
+        return urlPanelResizeHandleToPanelResizeHandle(
+          child,
+          debugLogRef,
+          index
+        );
       } else {
         throw Error("Invalid child");
       }
@@ -251,13 +256,29 @@ export function urlPanelGroupToPanelGroup(
 
 function urlPanelResizeHandleToPanelResizeHandle(
   urlPanelResizeHandle: UrlPanelResizeHandle,
+  debugLogRef: RefObject<ImperativeDebugLogHandle>,
   key?: any
 ): ReactElement {
+  let onDragging: PanelResizeHandleOnDragging | undefined = undefined;
+  if (urlPanelResizeHandle.id) {
+    onDragging = (isDragging: boolean) => {
+      const debugLog = debugLogRef.current;
+      if (debugLog) {
+        debugLog.log({
+          isDragging,
+          resizeHandleId: urlPanelResizeHandle.id,
+          type: "onDragging",
+        });
+      }
+    };
+  }
+
   return createElement(PanelResizeHandle, {
     className: "PanelResizeHandle",
     disabled: urlPanelResizeHandle.disabled,
     id: urlPanelResizeHandle.id,
     key,
+    onDragging,
     style: urlPanelResizeHandle.style,
   });
 }
