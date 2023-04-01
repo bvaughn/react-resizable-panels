@@ -82,9 +82,10 @@ export function useWindowSplitterPanelGroupBehavior({
       handle.setAttribute("aria-valuenow", "" + Math.round(parseInt(flexGrow)));
 
       const onKeyDown = (event: KeyboardEvent) => {
-        event.preventDefault();
         switch (event.key) {
           case "Enter": {
+            event.preventDefault();
+
             const index = panelsArray.findIndex(
               (panel) => panel.id === idBefore
             );
