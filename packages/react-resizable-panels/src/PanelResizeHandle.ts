@@ -2,7 +2,7 @@ import {
   createElement,
   CSSProperties,
   ElementType,
-  MouseEvent,
+  MouseEvent as ReactMouseEvent,
   ReactNode,
   TouchEvent,
   useCallback,
@@ -108,16 +108,28 @@ export function PanelResizeHandle({
       resizeHandler(event);
     };
 
-    document.body.addEventListener("contextmenu", stopDraggingAndBlur);
-    document.body.addEventListener("mousemove", onMove);
-    document.body.addEventListener("touchmove", onMove);
+    const onMouseLeave = (event: MouseEvent) => {
+      resizeHandler(event);
+    };
+
+    const divElement = divElementRef.current!;
+    const targetDocument = divElement.ownerDocument;
+
+    targetDocument.body.addEventListener("contextmenu", stopDraggingAndBlur);
+    targetDocument.body.addEventListener("mousemove", onMove);
+    targetDocument.body.addEventListener("touchmove", onMove);
+    targetDocument.body.addEventListener("mouseleave", onMouseLeave);
     window.addEventListener("mouseup", stopDraggingAndBlur);
     window.addEventListener("touchend", stopDraggingAndBlur);
 
     return () => {
-      document.body.removeEventListener("contextmenu", stopDraggingAndBlur);
-      document.body.removeEventListener("mousemove", onMove);
-      document.body.removeEventListener("touchmove", onMove);
+      targetDocument.body.removeEventListener(
+        "contextmenu",
+        stopDraggingAndBlur
+      );
+      targetDocument.body.removeEventListener("mousemove", onMove);
+      targetDocument.body.removeEventListener("touchmove", onMove);
+      targetDocument.body.removeEventListener("mouseleave", onMouseLeave);
       window.removeEventListener("mouseup", stopDraggingAndBlur);
       window.removeEventListener("touchend", stopDraggingAndBlur);
     };
@@ -149,7 +161,7 @@ export function PanelResizeHandle({
     "data-panel-resize-handle-id": resizeHandleId,
     onBlur: () => setIsFocused(false),
     onFocus: () => setIsFocused(true),
-    onMouseDown: (event: MouseEvent) => {
+    onMouseDown: (event: ReactMouseEvent) => {
       startDragging(resizeHandleId, event.nativeEvent);
 
       const { onDragging } = callbacksRef.current;
