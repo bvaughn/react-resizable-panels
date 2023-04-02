@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.39
+* [#118](https://github.com/bvaughn/react-resizable-panels/issues/118): Revert `useId` change from 0.0.37 as it caused a regression.
+
 ## 0.0.38
 * [#117](https://github.com/bvaughn/react-resizable-panels/issues/117): `Panel` collapse behavior works better near viewport edges.
 * [#115](https://github.com/bvaughn/react-resizable-panels/pull/115): `PanelResizeHandle` logic calls `event.preventDefault` for events it handles.

@@ -1,4 +1,4 @@
-import { useId, useRef } from "react";
+import { useId, useRef } from "../vendor/react";
 
 const wrappedUseId: () => string | null =
   typeof useId === "function" ? useId : (): null => null;

@@ -5,7 +5,7 @@
   ],
   "scripts": {
     "docs": "cd packages/react-resizable-panels-website && yarn build",
-    "lint": "eslint \"packages/**/*.{ts,tsx}\"",
+    "lint": "cd packages/react-resizable-panels && yarn lint",
     "prerelease": "rm -rf ./.parcel-cache && cd packages/react-resizable-panels && rm -rf ./dist && yarn build",
     "prettier": "prettier --write \"**/*.{css,html,js,json,jsx,ts,tsx}\"",
     "prettier:ci": "prettier --check \"**/*.{css,html,js,json,jsx,ts,tsx}\"",
@@ -20,9 +20,6 @@
     "@types/react-virtualized-auto-sizer": "^1.0.1",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@typescript-eslint/parser": "^5.57.0",
-    "eslint": "^8.37.0",
-    "eslint-plugin-no-restricted-imports": "^0.0.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
     "parcel": "latest",
     "prettier": "latest",
     "process": "^0.11.10",

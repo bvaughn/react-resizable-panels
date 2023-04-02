@@ -1,4 +1,4 @@
-import { RefObject, useEffect } from "react";
+import { RefObject, useEffect } from "../vendor/react";
 import { PRECISION } from "../constants";
 
 import { CommittedValues, PanelDataMap } from "../PanelGroup";

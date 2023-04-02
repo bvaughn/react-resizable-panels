@@ -1,4 +1,4 @@
-import { RefObject } from "react";
+import { RefObject } from "./vendor/react";
 
 export type Direction = "horizontal" | "vertical";
 

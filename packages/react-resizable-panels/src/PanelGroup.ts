@@ -8,7 +8,7 @@ import {
   useMemo,
   useRef,
   useState,
-} from "react";
+} from "./vendor/react";
 
 import { PanelGroupContext } from "./PanelContexts";
 import {

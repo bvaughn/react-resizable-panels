@@ -10,7 +10,7 @@ import {
   useEffect,
   useRef,
   useState,
-} from "react";
+} from "./vendor/react";
 import useUniqueId from "./hooks/useUniqueId";
 
 import { useWindowSplitterResizeHandlerBehavior } from "./hooks/useWindowSplitterBehavior";

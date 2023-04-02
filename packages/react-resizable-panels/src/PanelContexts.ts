@@ -1,4 +1,4 @@
-import { CSSProperties, createContext } from "react";
+import { CSSProperties, createContext } from "./vendor/react";
 
 import { PanelData, ResizeEvent, ResizeHandler } from "./types";
 
