@@ -82,8 +82,14 @@ export function useWindowSplitterPanelGroupBehavior({
       handle.setAttribute("aria-valuenow", "" + Math.round(parseInt(flexGrow)));
 
       const onKeyDown = (event: KeyboardEvent) => {
+        if (event.defaultPrevented) {
+          return;
+        }
+
         switch (event.key) {
           case "Enter": {
+            event.preventDefault();
+
             const index = panelsArray.findIndex(
               (panel) => panel.id === idBefore
             );
@@ -167,6 +173,10 @@ export function useWindowSplitterResizeHandlerBehavior({
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) {
+        return;
+      }
+
       switch (event.key) {
         case "ArrowDown":
         case "ArrowLeft":
@@ -174,10 +184,14 @@ export function useWindowSplitterResizeHandlerBehavior({
         case "ArrowUp":
         case "End":
         case "Home": {
+          event.preventDefault();
+
           resizeHandler(event);
           break;
         }
         case "F6": {
+          event.preventDefault();
+
           const handles = getResizeHandles();
           const index = getResizeHandleIndex(handleId);
 
