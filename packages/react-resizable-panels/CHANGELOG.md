@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.38
+* [#117](https://github.com/bvaughn/react-resizable-panels/issues/117): `Panel` collapse behavior works better near viewport edges.
+* [#115](https://github.com/bvaughn/react-resizable-panels/pull/115): `PanelResizeHandle` logic calls `event.preventDefault` for events it handles.
+* [#82](https://github.com/bvaughn/react-resizable-panels/issues/82): `useId` import changed to avoid triggering errors with older versions of React. (Note this may have an impact on tree-shaking though it is presumed to be minimal, given the small `"react"` package size.)
+
 ## 0.0.37
 * [#94](https://github.com/bvaughn/react-resizable-panels/issues/94): Add `onDragging` prop to `PanelResizeHandle` to be notified of when dragging starts/stops.
 
