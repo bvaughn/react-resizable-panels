@@ -8,5 +8,7 @@ jobs:
       - uses: actions/setup-node@v3
       - name: Initialize Yarn and install package dependencies
         run: yarn
+      - name: Build NPM package
+        run: yarn prerelease
       - name: Run TypeScript
         run: yarn typescript
