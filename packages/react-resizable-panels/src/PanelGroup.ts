@@ -105,7 +105,7 @@ export function PanelGroup({
   direction,
   disablePointerEventsDuringResize = false,
   id: idFromProps = null,
-  onLayout = null,
+  onLayout,
   storage = defaultStorage,
   style: styleFromProps = {},
   tagName: Type = "div",
@@ -122,7 +122,7 @@ export function PanelGroup({
 
   // Use a ref to guard against users passing inline props
   const callbacksRef = useRef<{
-    onLayout: PanelGroupOnLayout | null;
+    onLayout: PanelGroupOnLayout | undefined;
   }>({ onLayout });
   useEffect(() => {
     callbacksRef.current.onLayout = onLayout;
@@ -160,7 +160,7 @@ export function PanelGroup({
 
   // Notify external code when sizes have changed.
   useEffect(() => {
-    const { onLayout } = callbacksRef.current;
+    const { onLayout } = callbacksRef.current!;
     if (onLayout) {
       const { sizes } = committedValuesRef.current;
 
@@ -200,7 +200,7 @@ export function PanelGroup({
 
     // If this panel has been configured to persist sizing information,
     // default size should be restored from local storage if possible.
-    let defaultSizes: number[] | undefined = undefined;
+    let defaultSizes: number[] | null = null;
     if (autoSaveId) {
       const panelsArray = panelsMapToSortedArray(panels);
       defaultSizes = loadPanelLayout(autoSaveId, panelsArray, storage);
@@ -352,7 +352,7 @@ export function PanelGroup({
           return;
         }
 
-        const groupElement = getPanelGroup(groupId);
+        const groupElement = getPanelGroup(groupId)!;
         const rect = groupElement.getBoundingClientRect();
         const isHorizontal = direction === "horizontal";
         const size = isHorizontal ? rect.width : rect.height;
@@ -595,7 +595,7 @@ export function PanelGroup({
         setActiveHandleId(id);
 
         if (isMouseEvent(event) || isTouchEvent(event)) {
-          const handleElement = getResizeHandle(id);
+          const handleElement = getResizeHandle(id)!;
 
           initialDragStateRef.current = {
             dragHandleRect: handleElement.getBoundingClientRect(),

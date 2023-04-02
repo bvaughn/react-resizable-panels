@@ -5,7 +5,9 @@ export default function debounce<T extends Function>(
   let timeoutId: NodeJS.Timeout | null = null;
 
   let callable = (...args: any) => {
-    clearTimeout(timeoutId);
+    if (timeoutId !== null) {
+      clearTimeout(timeoutId);
+    }
 
     timeoutId = setTimeout(() => {
       callback(...args);

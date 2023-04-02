@@ -7,11 +7,5 @@ website/dist
 node_modules
 .cache
 .parcel-cache
-
 .pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+.yarn

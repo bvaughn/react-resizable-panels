@@ -191,6 +191,6 @@ function parseSizeFromStyle(style: CSSProperties): number {
   if (typeof flexGrow === "string") {
     return parseFloat(flexGrow);
   } else {
-    return flexGrow;
+    return flexGrow as number;
   }
 }

@@ -98,7 +98,7 @@ function TogglesRow({
   const onFormSubmit = (event: FormEvent) => {
     event.preventDefault();
 
-    panelRef.current.resize(size);
+    panelRef.current?.resize(size);
   };
 
   return (
@@ -108,7 +108,7 @@ function TogglesRow({
           panelSize === 0 ? sharedStyles.ButtonDisabled : sharedStyles.Button
         }
         data-test-id={`collapse-button-${id}`}
-        onClick={() => panelRef.current.collapse()}
+        onClick={() => panelRef.current?.collapse()}
         title={`Collapse ${id} panel`}
       >
         <Icon type="horizontal-collapse" />
@@ -118,7 +118,7 @@ function TogglesRow({
           panelSize !== 0 ? sharedStyles.ButtonDisabled : sharedStyles.Button
         }
         data-test-id={`expand-button-${id}`}
-        onClick={() => panelRef.current.expand()}
+        onClick={() => panelRef.current?.expand()}
         title={`Expand ${id} panel`}
       >
         <Icon type="horizontal-expand" />

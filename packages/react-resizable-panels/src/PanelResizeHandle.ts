@@ -37,7 +37,7 @@ export function PanelResizeHandle({
   className: classNameFromProps = "",
   disabled = false,
   id: idFromProps = null,
-  onDragging = null,
+  onDragging,
   style: styleFromProps = {},
   tagName: Type = "div",
 }: PanelResizeHandleProps) {
@@ -45,7 +45,7 @@ export function PanelResizeHandle({
 
   // Use a ref to guard against users passing inline props
   const callbacksRef = useRef<{
-    onDragging: PanelResizeHandleOnDragging | null;
+    onDragging: PanelResizeHandleOnDragging | undefined;
   }>({ onDragging });
   useEffect(() => {
     callbacksRef.current.onDragging = onDragging;
@@ -164,7 +164,7 @@ export function PanelResizeHandle({
     onMouseDown: (event: ReactMouseEvent) => {
       startDragging(resizeHandleId, event.nativeEvent);
 
-      const { onDragging } = callbacksRef.current;
+      const { onDragging } = callbacksRef.current!;
       if (onDragging) {
         onDragging(true);
       }
@@ -175,7 +175,7 @@ export function PanelResizeHandle({
     onTouchStart: (event: TouchEvent) => {
       startDragging(resizeHandleId, event.nativeEvent);
 
-      const { onDragging } = callbacksRef.current;
+      const { onDragging } = callbacksRef.current!;
       if (onDragging) {
         onDragging(true);
       }

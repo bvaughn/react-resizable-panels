@@ -27,7 +27,8 @@
     "react": "latest",
     "react-dom": "latest",
     "react-router-dom": "latest",
-    "react-virtualized-auto-sizer": "latest",
+    "react-resizable-panels": "*",
+    "react-virtualized-auto-sizer": "^1.0.10",
     "sort-by": "latest",
     "suspense": "^0.0.2"
   }

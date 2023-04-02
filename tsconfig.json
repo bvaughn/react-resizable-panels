@@ -1,14 +1,13 @@
 {
   "compilerOptions": {
+    "jsx": "react-jsx",
     "lib": ["ES2015", "DOM"],
     "module": "es2020",
     "moduleResolution": "node",
     "noImplicitAny": true,
-    "jsx": "react-jsx",
+    "strict": true,
     "types": ["node"]
   },
   "exclude": ["node_modules"],
-  "include": ["declaration.d.ts", "packages/**/*.ts", "packages/**/*.tsx"],
-  "strict": true,
-  "target": "es2015"
+  "include": ["declaration.d.ts", "packages/**/*.ts", "packages/**/*.tsx"]
 }

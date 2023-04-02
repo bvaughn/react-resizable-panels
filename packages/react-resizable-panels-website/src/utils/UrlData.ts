@@ -24,11 +24,11 @@ import { ImperativeDebugLogHandle } from "../routes/examples/DebugLog";
 type UrlPanel = {
   children: Array<string | UrlPanelGroup>;
   collapsible?: boolean;
-  defaultSize?: number;
-  id?: string;
+  defaultSize?: number | null;
+  id?: string | null;
   maxSize?: number;
   minSize?: number;
-  order?: number;
+  order?: number | null;
   style?: CSSProperties;
   type: "UrlPanel";
 };
@@ -37,14 +37,14 @@ type UrlPanelGroup = {
   autoSaveId?: string;
   children: Array<UrlPanel | UrlPanelResizeHandle>;
   direction: "horizontal" | "vertical";
-  id?: string;
+  id?: string | null;
   style?: CSSProperties;
   type: "UrlPanelGroup";
 };
 
 type UrlPanelResizeHandle = {
   disabled?: boolean;
-  id?: string;
+  id?: string | null;
   style?: CSSProperties;
   type: "UrlPanelResizeHandle";
 };
@@ -148,13 +148,15 @@ function urlPanelToPanel(
   let onCollapse: PanelOnCollapse | undefined = undefined;
   let onResize: PanelOnResize | undefined = undefined;
   let refSetter;
-  if (urlPanel.id) {
+
+  const panelId = urlPanel.id;
+  if (panelId) {
     onCollapse = (collapsed: boolean) => {
       const debugLog = debugLogRef.current;
       if (debugLog) {
         debugLog.log({
           collapsed,
-          panelId: urlPanel.id,
+          panelId,
           type: "onCollapse",
         });
       }
@@ -164,7 +166,7 @@ function urlPanelToPanel(
       const debugLog = debugLogRef.current;
       if (debugLog) {
         debugLog.log({
-          panelId: urlPanel.id,
+          panelId,
           size,
           type: "onResize",
         });
@@ -172,10 +174,11 @@ function urlPanelToPanel(
     };
 
     refSetter = (panel: ImperativePanelHandle | null) => {
+      const idToPanelMap = idToPanelMapRef.current!;
       if (panel) {
-        idToPanelMapRef.current.set(urlPanel.id, panel);
+        idToPanelMap.set(panelId, panel);
       } else {
-        idToPanelMapRef.current.delete(urlPanel.id);
+        idToPanelMap.delete(panelId);
       }
     };
   }
@@ -218,11 +221,12 @@ export function urlPanelGroupToPanelGroup(
   key?: any
 ): ReactElement {
   let onLayout: PanelGroupOnLayout | undefined = undefined;
-  if (urlPanelGroup.id) {
-    onLayout = (sizes: []) => {
+  const groupId = urlPanelGroup.id;
+  if (groupId) {
+    onLayout = (sizes: number[]) => {
       const debugLog = debugLogRef.current;
       if (debugLog) {
-        debugLog.log({ groupId: urlPanelGroup.id, type: "onLayout", sizes });
+        debugLog.log({ groupId, type: "onLayout", sizes });
       }
     };
   }
@@ -260,13 +264,14 @@ function urlPanelResizeHandleToPanelResizeHandle(
   key?: any
 ): ReactElement {
   let onDragging: PanelResizeHandleOnDragging | undefined = undefined;
-  if (urlPanelResizeHandle.id) {
+  const resizeHandleId = urlPanelResizeHandle.id;
+  if (resizeHandleId) {
     onDragging = (isDragging: boolean) => {
       const debugLog = debugLogRef.current;
       if (debugLog) {
         debugLog.log({
           isDragging,
-          resizeHandleId: urlPanelResizeHandle.id,
+          resizeHandleId,
           type: "onDragging",
         });
       }

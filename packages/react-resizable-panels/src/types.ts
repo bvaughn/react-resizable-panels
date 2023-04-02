@@ -18,7 +18,7 @@ export type PanelData = {
     onResize: PanelOnResize | null;
   }>;
   collapsible: boolean;
-  defaultSize: number;
+  defaultSize: number | null;
   id: string;
   maxSize: number;
   minSize: number;

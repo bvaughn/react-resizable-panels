@@ -1,6 +1,9 @@
 import { FunctionComponent, createElement } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
-import type { AutoSizerProps, Size } from "react-virtualized-auto-sizer";
+import type {
+  Props as AutoSizerProps,
+  Size,
+} from "react-virtualized-auto-sizer";
 
 export default function withAutoSizer<ComponentProps>(
   Component: FunctionComponent<ComponentProps>,
