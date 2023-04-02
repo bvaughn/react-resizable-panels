@@ -1,0 +1,14 @@
+name: "TypeScript"
+on: [pull_request]
+jobs:
+  tests-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - name: Initialize Yarn and install package dependencies
+        run: yarn
+      - name: Build NPM package
+        run: yarn prerelease
+      - name: Run TypeScript
+        run: yarn typescript

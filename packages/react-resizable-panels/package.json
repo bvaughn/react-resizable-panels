@@ -14,9 +14,13 @@
   "types": "dist/react-resizable-panels.d.ts",
   "scripts": {
     "build": "parcel build",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "watch": "parcel watch"
   },
   "devDependencies": {
+    "eslint": "^8.37.0",
+    "eslint-plugin-no-restricted-imports": "^0.0.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "react": "latest",
     "react-dom": "latest"
   },

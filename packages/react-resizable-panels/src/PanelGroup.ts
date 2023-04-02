@@ -8,7 +8,7 @@ import {
   useMemo,
   useRef,
   useState,
-} from "react";
+} from "./vendor/react";
 
 import { PanelGroupContext } from "./PanelContexts";
 import {
@@ -250,7 +250,7 @@ export function PanelGroup({
         })
       );
     }
-  }, [autoSaveId, panels]);
+  }, [autoSaveId, panels, storage]);
 
   useEffect(() => {
     // If this panel has been configured to persist sizing information, save sizes to local storage.
@@ -263,7 +263,7 @@ export function PanelGroup({
 
       savePanelGroupLayoutDebounced(autoSaveId, panelsArray, sizes, storage);
     }
-  }, [autoSaveId, panels, sizes]);
+  }, [autoSaveId, panels, sizes, storage]);
 
   const getPanelStyle = useCallback(
     (id: string): CSSProperties => {
@@ -301,7 +301,7 @@ export function PanelGroup({
             : undefined,
       };
     },
-    [activeHandleId, direction, sizes]
+    [activeHandleId, disablePointerEventsDuringResize, sizes]
   );
 
   const registerPanel = useCallback((id: string, panel: PanelData) => {

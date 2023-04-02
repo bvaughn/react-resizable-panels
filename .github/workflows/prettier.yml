@@ -1,0 +1,12 @@
+name: "Prettier"
+on: [pull_request]
+jobs:
+  tests-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - name: Initialize Yarn and install package dependencies
+        run: yarn
+      - name: Run Prettier
+        run: yarn run prettier:ci

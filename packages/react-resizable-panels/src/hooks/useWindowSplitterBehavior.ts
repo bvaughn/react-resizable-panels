@@ -1,4 +1,4 @@
-import { RefObject, useEffect } from "react";
+import { RefObject, useEffect } from "../vendor/react";
 import { PRECISION } from "../constants";
 
 import { CommittedValues, PanelDataMap } from "../PanelGroup";
@@ -150,7 +150,14 @@ export function useWindowSplitterPanelGroupBehavior({
     return () => {
       cleanupFunctions.forEach((cleanupFunction) => cleanupFunction());
     };
-  }, [groupId, panels, sizes]);
+  }, [
+    committedValuesRef,
+    groupId,
+    panels,
+    panelSizeBeforeCollapse,
+    setSizes,
+    sizes,
+  ]);
 }
 
 export function useWindowSplitterResizeHandlerBehavior({

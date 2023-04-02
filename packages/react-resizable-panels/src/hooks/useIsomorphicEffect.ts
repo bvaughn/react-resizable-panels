@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect } from "react";
+import { useLayoutEffect } from "../vendor/react";
 
 const canUseEffectHooks = !!(
   typeof window !== "undefined" &&

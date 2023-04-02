@@ -9,7 +9,7 @@ import {
   useEffect,
   useImperativeHandle,
   useRef,
-} from "react";
+} from "./vendor/react";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
 
