@@ -1,11 +1,4 @@
-import { useRef } from "react";
-import * as React from "react";
-
-// Support React versions older than 18.0
-// Workaround for https://github.com/webpack/webpack/issues/14814
-const useId: undefined | (() => string) = (React as any)[
-  "useId".toString()
-] as () => string;
+import { useId, useRef } from "react";
 
 let counter = 0;
 
