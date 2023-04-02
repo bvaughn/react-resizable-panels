@@ -150,7 +150,14 @@ export function useWindowSplitterPanelGroupBehavior({
     return () => {
       cleanupFunctions.forEach((cleanupFunction) => cleanupFunction());
     };
-  }, [groupId, panels, sizes]);
+  }, [
+    committedValuesRef,
+    groupId,
+    panels,
+    panelSizeBeforeCollapse,
+    setSizes,
+    sizes,
+  ]);
 }
 
 export function useWindowSplitterResizeHandlerBehavior({

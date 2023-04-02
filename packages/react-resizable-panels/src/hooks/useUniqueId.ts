@@ -1,11 +1,14 @@
 import { useId, useRef } from "react";
 
+const wrappedUseId: () => string | null =
+  typeof useId === "function" ? useId : (): null => null;
+
 let counter = 0;
 
 export default function useUniqueId(
   idFromParams: string | null = null
 ): string {
-  const idFromUseId = typeof useId === "function" ? useId() : null;
+  const idFromUseId = wrappedUseId();
 
   const idRef = useRef<string | null>(idFromParams || idFromUseId || null);
   if (idRef.current === null) {
