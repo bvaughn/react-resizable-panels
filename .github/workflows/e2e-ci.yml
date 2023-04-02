@@ -2,14 +2,16 @@ name: "Tests: E2E"
 on: [pull_request]
 jobs:
   tests_e2e:
-    name: Run end-to-end tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-      - name: Initialize Yarn and install package dependencies
-        run: yarn
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+      - name: Install dependencies
+        run: pnpm install -r
       - name: Build NPM package
-        run: yarn prerelease
+        run: pnpm prerelease
       - name: Run Playwright tests
-        run: cd packages/react-resizable-panels-website && yarn test:e2e
+        run: cd packages/react-resizable-panels-website && pnpm test:e2e

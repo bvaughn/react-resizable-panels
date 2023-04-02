@@ -4,25 +4,35 @@
     "packages/*"
   ],
   "scripts": {
-    "docs": "cd packages/react-resizable-panels-website && yarn build",
-    "lint": "cd packages/react-resizable-panels && yarn lint",
-    "prerelease": "rm -rf ./.parcel-cache && cd packages/react-resizable-panels && rm -rf ./dist && yarn build",
+    "clear": "npm run clear:parcel-cache & npm run clear:builds & npm run clear:node_modules",
+    "clear:builds": "rm -rf ./packages/*/dist",
+    "clear:parcel-cache": "rm -rf ./.parcel-cache",
+    "clear:node_modules": "rm -rf ./node_modules && rm -rf ./packages/*/node_modules",
+    "docs": "cd packages/react-resizable-panels-website && pnpm build",
+    "lint": "cd packages/react-resizable-panels && pnpm lint",
+    "prerelease": "rm -rf ./.parcel-cache && cd packages/react-resizable-panels && rm -rf ./dist && pnpm build",
     "prettier": "prettier --write \"**/*.{css,html,js,json,jsx,ts,tsx}\"",
     "prettier:ci": "prettier --check \"**/*.{css,html,js,json,jsx,ts,tsx}\"",
     "typescript": "tsc --noEmit",
     "typescript:watch": "tsc --noEmit --watch"
   },
   "devDependencies": {
-    "@parcel/packager-ts": "2.8.2",
-    "@parcel/transformer-typescript-types": "2.8.2",
+    "@types/node": "^18.15.11",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.10",
     "@types/react-virtualized-auto-sizer": "^1.0.1",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@typescript-eslint/parser": "^5.57.0",
+    "@typescript-eslint/type-utils": "^5.57.0",
+    "eslint": "^8.37.0",
     "parcel": "latest",
     "prettier": "latest",
     "process": "^0.11.10",
     "typescript": ">=3.0.0"
+  },
+  "dependencies": {
+    "@parcel/core": "^2.8.3",
+    "@parcel/packager-ts": "^2.8.3",
+    "@parcel/transformer-typescript-types": "^2.8.3"
   }
 }

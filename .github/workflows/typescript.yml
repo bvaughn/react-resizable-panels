@@ -6,9 +6,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-      - name: Initialize Yarn and install package dependencies
-        run: yarn
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+      - name: Install dependencies
+        run: pnpm install -r
       - name: Build NPM package
-        run: yarn prerelease
+        run: pnpm prerelease
       - name: Run TypeScript
-        run: yarn typescript
+        run: pnpm typescript
