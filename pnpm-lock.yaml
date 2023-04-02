@@ -10,7 +10,6 @@ importers:
       '@types/node': ^18.15.11
       '@types/react': ^18.0.26
       '@types/react-dom': ^18.0.10
-      '@types/react-virtualized-auto-sizer': ^1.0.1
       '@typescript-eslint/eslint-plugin': ^5.57.0
       '@typescript-eslint/parser': ^5.57.0
       '@typescript-eslint/type-utils': ^5.57.0
@@ -27,7 +26,6 @@ importers:
       '@types/node': 18.15.11
       '@types/react': 18.0.32
       '@types/react-dom': 18.0.11
-      '@types/react-virtualized-auto-sizer': 1.0.1
       '@typescript-eslint/eslint-plugin': 5.57.0_z24sz2fazj3bxoipp6m4s7b2mi
       '@typescript-eslint/parser': 5.57.0_vwh6htx42aidho2qgfca5u5rwm
       '@typescript-eslint/type-utils': 5.57.0_vwh6htx42aidho2qgfca5u5rwm
@@ -67,8 +65,9 @@ importers:
       playwright: latest
       react: latest
       react-dom: latest
+      react-resizable-panels: '*'
       react-router-dom: latest
-      react-virtualized-auto-sizer: latest
+      react-virtualized-auto-sizer: ^1.0.10
       sort-by: latest
       suspense: ^0.0.2
     dependencies:
@@ -85,8 +84,9 @@ importers:
       playwright: 1.32.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+      react-resizable-panels: link:../react-resizable-panels
       react-router-dom: 6.10.0_biqbaboplfbrettd7655fr4n2y
-      react-virtualized-auto-sizer: 1.0.9_biqbaboplfbrettd7655fr4n2y
+      react-virtualized-auto-sizer: 1.0.10_biqbaboplfbrettd7655fr4n2y
       sort-by: 1.2.0
       suspense: 0.0.2_biqbaboplfbrettd7655fr4n2y
     devDependencies:
@@ -1203,12 +1203,6 @@ packages:
 
   /@types/react-dom/18.0.11:
     resolution: {integrity: sha512-O38bPbI2CWtgw/OoQoY+BRelw7uysmXbWvw3nLWO21H1HSh+GOlqPuXshJfjmpNlKiiSDG9cc1JZAaMmVdcTlw==}
-    dependencies:
-      '@types/react': 18.0.32
-    dev: true
-
-  /@types/react-virtualized-auto-sizer/1.0.1:
-    resolution: {integrity: sha512-GH8sAnBEM5GV9LTeiz56r4ZhMOUSrP43tAQNSRVxNexDjcNKLCEtnxusAItg1owFUFE6k0NslV26gqVClVvong==}
     dependencies:
       '@types/react': 18.0.32
     dev: true
@@ -2561,8 +2555,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /react-virtualized-auto-sizer/1.0.9_biqbaboplfbrettd7655fr4n2y:
-    resolution: {integrity: sha512-O1pYgygCDtFKa9GaKJtX5Ws/QRqxkx2zPlXZqEoRXCMmnNuhoMk5nhXCQqixsc1AcrUzOJwKdzEaDAU9WQ6aJQ==}
+  /react-virtualized-auto-sizer/1.0.10_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-0I2SVd0Uo6fpjI866m/QoNuh9ci+tDLxRQf18OYaMhsKQz2OpgYKyk4VH7uG50ES93Kw3JIg+dnwJtct2t5OHw==}
     peerDependencies:
       react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
       react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc

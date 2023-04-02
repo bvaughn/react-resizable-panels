@@ -62,7 +62,7 @@ test.describe("PanelResizeHandle onDragging prop", () => {
 
     await clearLogEntries(page, "onDragging");
 
-    let bounds = await leftHandle.boundingBox();
+    let bounds = (await leftHandle.boundingBox())!;
     await page.mouse.move(bounds.x, bounds.y);
     await page.mouse.down();
     await page.mouse.move(5, 0);
@@ -78,7 +78,7 @@ test.describe("PanelResizeHandle onDragging prop", () => {
 
     await clearLogEntries(page, "onDragging");
 
-    bounds = await rightHandle.boundingBox();
+    bounds = (await rightHandle.boundingBox())!;
     await page.mouse.move(bounds.x, bounds.y);
     await page.mouse.down();
     await page.mouse.move(25, 0);

@@ -36,7 +36,7 @@ export function getDragOffset(
     return 0;
   }
 
-  const handleElement = getResizeHandle(handleId);
+  const handleElement = getResizeHandle(handleId)!;
   const rect =
     initialHandleElementRect || handleElement.getBoundingClientRect();
   const elementOffset = isHorizontal ? rect.left : rect.top;
@@ -67,7 +67,7 @@ export function getMovement(
   if (isKeyDown(event)) {
     const isHorizontal = direction === "horizontal";
 
-    const groupElement = getPanelGroup(groupId);
+    const groupElement = getPanelGroup(groupId)!;
     const rect = groupElement.getBoundingClientRect();
     const groupSizeInPixels = isHorizontal ? rect.width : rect.height;
 

@@ -152,7 +152,7 @@ const FILE_PATHS: Array<[path: string, code: string]> = [
 
 const FILES: File[] = FILE_PATHS.map(([path, code]) => {
   const pathArray = path.split("/");
-  const fileName = pathArray.pop();
+  const fileName = pathArray.pop()!;
 
   return {
     code,

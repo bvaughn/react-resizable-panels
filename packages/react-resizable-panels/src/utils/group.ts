@@ -124,7 +124,7 @@ export function callPanelCallbacks(
     const prevSize = prevSizes[index];
     if (prevSize !== nextSize) {
       const { callbacksRef, collapsible } = panelsArray[index];
-      const { onCollapse, onResize } = callbacksRef.current;
+      const { onCollapse, onResize } = callbacksRef.current!;
 
       if (onResize) {
         onResize(nextSize);
@@ -238,7 +238,7 @@ export function getResizeHandlePanelIds(
 ): [idBefore: string | null, idAfter: string | null] {
   const handle = getResizeHandle(handleId);
   const handles = getResizeHandlesForGroup(groupId);
-  const index = handles.indexOf(handle);
+  const index = handle ? handles.indexOf(handle) : -1;
 
   const idBefore: string | null = panelsArray[index]?.id ?? null;
   const idAfter: string | null = panelsArray[index + 1]?.id ?? null;
@@ -249,7 +249,19 @@ export function getResizeHandlePanelIds(
 export function panelsMapToSortedArray(
   panels: Map<string, PanelData>
 ): PanelData[] {
-  return Array.from(panels.values()).sort((a, b) => a.order - b.order);
+  return Array.from(panels.values()).sort((panelA, panelB) => {
+    const orderA = panelA.order;
+    const orderB = panelB.order;
+    if (orderA == null && orderB == null) {
+      return 0;
+    } else if (orderA == null) {
+      return -1;
+    } else if (orderB == null) {
+      return 1;
+    } else {
+      return orderA - orderB;
+    }
+  });
 }
 
 function safeResizePanel(

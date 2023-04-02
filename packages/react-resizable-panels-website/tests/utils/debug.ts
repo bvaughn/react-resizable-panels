@@ -13,7 +13,8 @@ export async function clearLogEntries(
     }
 
     if (logEntryType !== null) {
-      const logEntries = JSON.parse(div.textContent) as LogEntry[];
+      const textContent = div.textContent!;
+      const logEntries = JSON.parse(textContent) as LogEntry[];
       const filteredEntries = logEntries.filter(
         ({ type }) => type !== (logEntryType as LogEntryType)
       );
@@ -34,7 +35,7 @@ export async function getLogEntries<Type extends LogEntry>(
       throw Error("Could not find debug div");
     }
 
-    const textContent = div.textContent;
+    const textContent = div.textContent!;
     const logEntries = JSON.parse(textContent) as LogEntry[];
     if (logEntryType === null) {
       return logEntries as Type[];

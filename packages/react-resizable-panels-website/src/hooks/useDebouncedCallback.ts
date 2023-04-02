@@ -14,13 +14,19 @@ export default function useDebouncedCallback<A extends any[]>(
   const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
   useLayoutEffect(() => {
     return () => {
-      clearTimeout(timeoutIdRef.current);
+      const timeoutId = timeoutIdRef.current;
+      if (timeoutId != null) {
+        clearTimeout(timeoutId);
+      }
     };
   }, []);
 
   const memoizedCallback = useMemo(() => {
     return (...args: any) => {
-      clearTimeout(timeoutIdRef.current);
+      const timeoutId = timeoutIdRef.current;
+      if (timeoutId != null) {
+        clearTimeout(timeoutId);
+      }
 
       timeoutIdRef.current = setTimeout(() => {
         const callback = callbackRef.current;

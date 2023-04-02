@@ -1,6 +1,7 @@
 import { Locator, expect, Page } from "@playwright/test";
 import { getBodyCursorStyle } from "./cursor";
 import { verifyFuzzySizes } from "./verify";
+import { assert } from "./assert";
 
 type Operation = {
   expectedCursor?: string;
@@ -27,19 +28,21 @@ export async function dragResizeTo(
     }
   }
 
+  assert(panel !== null);
+
   const dragHandles = page.locator("[data-panel-resize-handle-id]");
   const dragHandlesCount = await dragHandles.count();
   const dragHandle = dragHandles.nth(
     Math.min(dragHandlesCount - 1, panelIndex)
   );
-  const dragHandleRect = await dragHandle.boundingBox();
+  const dragHandleRect = (await dragHandle.boundingBox())!;
 
   const panelGroupId = await dragHandle.getAttribute("data-panel-group-id");
   const panelGroup = page.locator(
     `[data-panel-group][data-panel-group-id="${panelGroupId}"]`
   );
   const direction = await panelGroup.getAttribute("data-panel-group-direction");
-  const panelGroupRect = await panelGroup.boundingBox();
+  const panelGroupRect = (await panelGroup.boundingBox())!;
 
   let pageX = dragHandleRect.x + dragHandleRect.width / 2;
   let pageY = dragHandleRect.y + dragHandleRect.height / 2;
@@ -60,7 +63,7 @@ export async function dragResizeTo(
 
     const { expectedSizes, expectedCursor, size: nextSize } = operations[i];
 
-    const prevSize = await panel.getAttribute("data-panel-size");
+    const prevSize = (await panel.getAttribute("data-panel-size"))!;
     const isExpanding = parseFloat(prevSize) < nextSize;
 
     console.log(
@@ -94,7 +97,7 @@ export async function dragResizeTo(
 
       await page.mouse.move(pageX, pageY);
 
-      const currentSizeString = await panel.getAttribute("data-panel-size");
+      const currentSizeString = (await panel.getAttribute("data-panel-size"))!;
       const currentSize = parseFloat(currentSizeString);
 
       if (isExpanding) {

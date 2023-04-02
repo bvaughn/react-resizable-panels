@@ -20,7 +20,7 @@ export default function DebugLog({
         try {
           let objectsArray: LogEntry[] = [];
 
-          const textContent = div.textContent.trim();
+          const textContent = div.textContent!.trim();
           if (textContent !== "") {
             objectsArray = JSON.parse(textContent) as LogEntry[];
           }

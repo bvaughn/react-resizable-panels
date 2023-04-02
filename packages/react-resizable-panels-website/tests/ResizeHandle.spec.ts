@@ -50,7 +50,7 @@ test.describe("Resize handle", () => {
       await last.getAttribute("data-resize-handle-active")
     ).toBeNull();
 
-    const bounds = await last.boundingBox();
+    const bounds = (await last.boundingBox())!;
     await page.mouse.move(bounds.x, bounds.y);
     await page.mouse.down();
 

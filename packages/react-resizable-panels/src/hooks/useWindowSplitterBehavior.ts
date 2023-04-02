@@ -15,6 +15,7 @@ import {
   getFlexGrow,
   panelsMapToSortedArray,
 } from "../utils/group";
+import { assert } from "../utils/assert";
 
 // https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/
 
@@ -34,14 +35,14 @@ export function useWindowSplitterPanelGroupBehavior({
   panelSizeBeforeCollapse: RefObject<Map<string, number>>;
 }): void {
   useEffect(() => {
-    const { direction, panels } = committedValuesRef.current;
+    const { direction, panels } = committedValuesRef.current!;
 
-    const groupElement = getPanelGroup(groupId);
+    const groupElement = getPanelGroup(groupId)!;
     const { height, width } = groupElement.getBoundingClientRect();
 
     const handles = getResizeHandlesForGroup(groupId);
     const cleanupFunctions = handles.map((handle) => {
-      const handleId = handle.getAttribute("data-panel-resize-handle-id");
+      const handleId = handle.getAttribute("data-panel-resize-handle-id")!;
       const panelsArray = panelsMapToSortedArray(panels);
 
       const [idBefore, idAfter] = getResizeHandlePanelIds(
@@ -114,7 +115,7 @@ export function useWindowSplitterPanelGroupBehavior({
                   idAfter,
                   delta,
                   sizes,
-                  panelSizeBeforeCollapse.current,
+                  panelSizeBeforeCollapse.current!,
                   null
                 );
                 if (sizes !== nextSizes) {
@@ -201,6 +202,8 @@ export function useWindowSplitterResizeHandlerBehavior({
 
           const handles = getResizeHandles();
           const index = getResizeHandleIndex(handleId);
+
+          assert(index !== null);
 
           const nextIndex = event.shiftKey
             ? index > 0
