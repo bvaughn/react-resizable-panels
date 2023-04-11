@@ -15,7 +15,7 @@
   "scripts": {
     "build": "parcel build",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "watch": "parcel watch"
+    "watch": "parcel watch --port=2345"
   },
   "devDependencies": {
     "eslint": "^8.37.0",
