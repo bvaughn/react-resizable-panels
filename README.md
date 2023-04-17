@@ -12,4 +12,4 @@ Supported input methods include mouse, touch, and keyboard (via [Window Splitter
 
 ---
 
-#### If you like this project, [buy me a coffee](http://givebrian.coffee/).
+### If you like this project, 🎉 [become a sponsor](https://github.com/sponsors/bvaughn/) or ☕ [buy me a coffee](http://givebrian.coffee/)
