@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.40
+* README changes
+
 ## 0.0.39
 * [#118](https://github.com/bvaughn/react-resizable-panels/issues/118): Fix import regression from 0.0.38.
 
