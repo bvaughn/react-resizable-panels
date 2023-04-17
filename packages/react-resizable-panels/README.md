@@ -19,6 +19,8 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 </PanelGroup>
 ```
 
+### If you like this project, 🎉 [become a sponsor](https://github.com/sponsors/bvaughn/) or ☕ [buy me a coffee](http://givebrian.coffee/)
+
 ## Props
 
 ### `PanelGroup`
