@@ -2,6 +2,7 @@ import { Suspense, useMemo } from "react";
 
 import {
   Language,
+  escapeHtmlEntities,
   highlightSyntaxSuspense,
   parsedTokensToHtml,
 } from "../suspense/SyntaxParsingCache";
@@ -22,7 +23,15 @@ export default function Code({
   showLineNumbers?: boolean;
 }) {
   return (
-    <Suspense fallback={<Loader />}>
+    <Suspense
+      fallback={
+        <Fallback
+          className={className}
+          code={code}
+          showLineNumbers={showLineNumbers}
+        />
+      }
+    >
       <Parser
         className={className}
         code={code}
@@ -33,11 +42,40 @@ export default function Code({
   );
 }
 
-function Loader() {
+function Fallback({
+  className,
+  code,
+  showLineNumbers,
+}: {
+  className: string;
+  code: string;
+  showLineNumbers: boolean;
+}) {
+  const htmlLines = useMemo<string>(() => {
+    return code.split("\n").map((line, index) => {
+      const escaped = escapeHtmlEntities(line);
+
+      if (showLineNumbers) {
+        return `<span class="${styles.LineNumber}">${
+          index + 1
+        }</span> ${escaped}`;
+      }
+
+      return escaped;
+    });
+  }, [showLineNumbers, code]);
+
+  const maxLineNumberLength = `${htmlLines.length + 1}`.length;
+
   return (
-    <div className={styles.Loader}>
-      <Icon type="loading" /> Loading
-    </div>
+    <code
+      className={[styles.Code, className].join(" ")}
+      dangerouslySetInnerHTML={{ __html: htmlLines.join("<br/>") }}
+      style={{
+        // @ts-ignore
+        "--max-line-number-length": `${maxLineNumberLength}ch`,
+      }}
+    />
   );
 }
 
@@ -67,7 +105,7 @@ function TokenRenderer({
   showLineNumbers,
   tokens,
 }: {
-  className?: string;
+  className: string;
   showLineNumbers: boolean;
   tokens: ParsedTokens[];
 }) {

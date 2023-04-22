@@ -217,7 +217,7 @@ export function parsedTokensToHtml(tokens: ParsedToken[]): string {
     .join("");
 }
 
-function escapeHtmlEntities(rawString: string): string {
+export function escapeHtmlEntities(rawString: string): string {
   return rawString.replace(
     /[\u00A0-\u9999<>\&]/g,
     (substring) => "&#" + substring.charCodeAt(0) + ";"
