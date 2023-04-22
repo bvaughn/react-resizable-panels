@@ -51,7 +51,7 @@ function Fallback({
   code: string;
   showLineNumbers: boolean;
 }) {
-  const htmlLines = useMemo<string>(() => {
+  const htmlLines = useMemo<string[]>(() => {
     return code.split("\n").map((line, index) => {
       const escaped = escapeHtmlEntities(line);
 
