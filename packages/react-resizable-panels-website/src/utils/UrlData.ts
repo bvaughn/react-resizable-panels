@@ -7,6 +7,7 @@ import {
   RefObject,
 } from "react";
 import {
+  ImperativePanelGroupHandle,
   ImperativePanelHandle,
   Panel,
   PanelGroup,
@@ -56,7 +57,10 @@ function isPanelElement(value: any): value is ReactElement<PanelProps> {
 function isPanelGroupElement(
   value: any
 ): value is ReactElement<PanelGroupProps> {
-  return value?.type?.displayName === "PanelGroup";
+  return (
+    value?.type?.displayName === "PanelGroup" ||
+    value?.type?.displayName === "forwardRef(PanelGroup)"
+  );
 }
 
 function isPanelResizeHandleElement(
@@ -142,7 +146,9 @@ function UrlPanelResizeHandleToData(
 function urlPanelToPanel(
   urlPanel: UrlPanel,
   debugLogRef: RefObject<ImperativeDebugLogHandle>,
-  idToPanelMapRef: RefObject<Map<string, ImperativePanelHandle>>,
+  idToRefMapRef: RefObject<
+    Map<string, ImperativePanelHandle | ImperativePanelGroupHandle>
+  >,
   key?: any
 ): ReactElement {
   let onCollapse: PanelOnCollapse | undefined = undefined;
@@ -174,11 +180,11 @@ function urlPanelToPanel(
     };
 
     refSetter = (panel: ImperativePanelHandle | null) => {
-      const idToPanelMap = idToPanelMapRef.current!;
+      const idToRefMap = idToRefMapRef.current!;
       if (panel) {
-        idToPanelMap.set(panelId, panel);
+        idToRefMap.set(panelId, panel);
       } else {
-        idToPanelMap.delete(panelId);
+        idToRefMap.delete(panelId);
       }
     };
   }
@@ -204,7 +210,7 @@ function urlPanelToPanel(
         return urlPanelGroupToPanelGroup(
           child,
           debugLogRef,
-          idToPanelMapRef,
+          idToRefMapRef,
           index
         );
       } else {
@@ -217,16 +223,29 @@ function urlPanelToPanel(
 export function urlPanelGroupToPanelGroup(
   urlPanelGroup: UrlPanelGroup,
   debugLogRef: RefObject<ImperativeDebugLogHandle>,
-  idToPanelMapRef: RefObject<Map<string, ImperativePanelHandle>>,
+  idToRefMapRef: RefObject<
+    Map<string, ImperativePanelHandle | ImperativePanelGroupHandle>
+  >,
   key?: any
 ): ReactElement {
   let onLayout: PanelGroupOnLayout | undefined = undefined;
+  let refSetter;
+
   const groupId = urlPanelGroup.id;
   if (groupId) {
     onLayout = (sizes: number[]) => {
       const debugLog = debugLogRef.current;
       if (debugLog) {
         debugLog.log({ groupId, type: "onLayout", sizes });
+      }
+    };
+
+    refSetter = (panelGroup: ImperativePanelGroupHandle | null) => {
+      const idToRefMap = idToRefMapRef.current!;
+      if (panelGroup) {
+        idToRefMap.set(groupId, panelGroup);
+      } else {
+        idToRefMap.delete(groupId);
       }
     };
   }
@@ -240,11 +259,12 @@ export function urlPanelGroupToPanelGroup(
       id: urlPanelGroup.id,
       key: key,
       onLayout,
+      ref: refSetter,
       style: urlPanelGroup.style,
     },
     urlPanelGroup.children.map((child, index) => {
       if (isUrlPanel(child)) {
-        return urlPanelToPanel(child, debugLogRef, idToPanelMapRef, index);
+        return urlPanelToPanel(child, debugLogRef, idToRefMapRef, index);
       } else if (isUrlPanelResizeHandle(child)) {
         return urlPanelResizeHandleToPanelResizeHandle(
           child,

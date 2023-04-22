@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.41
+* Add imperative `setLayout` API for `PanelGroup`.
+
 ## 0.0.40
 * README changes
 
