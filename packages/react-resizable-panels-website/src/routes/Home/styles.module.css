@@ -80,6 +80,8 @@
   min-height: 1.75em;
 }
 .ListItemNumber {
+  width: 3ch;
+  text-align: right;
   display: inline-block;
   color: var(--token-comment-color);
   font-family: monospace;

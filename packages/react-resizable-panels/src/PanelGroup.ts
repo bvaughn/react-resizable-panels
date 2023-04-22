@@ -2,9 +2,12 @@ import {
   createElement,
   CSSProperties,
   ElementType,
+  ForwardedRef,
+  forwardRef,
   ReactNode,
   useCallback,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
   useState,
@@ -41,6 +44,7 @@ import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterBe
 import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
 import debounce from "./utils/debounce";
 import { areEqual } from "./utils/arrays";
+import { assert } from "./utils/assert";
 
 // Limit the frequency of localStorage updates.
 const savePanelGroupLayoutDebounced = debounce(savePanelGroupLayout, 100);
@@ -98,18 +102,25 @@ export type PanelGroupProps = {
   tagName?: ElementType;
 };
 
-export function PanelGroup({
+export type ImperativePanelGroupHandle = {
+  setLayout: (panelSizes: number[]) => void;
+};
+
+function PanelGroupWithForwardedRef({
   autoSaveId,
   children = null,
   className: classNameFromProps = "",
   direction,
   disablePointerEventsDuringResize = false,
+  forwardedRef,
   id: idFromProps = null,
   onLayout,
   storage = defaultStorage,
   style: styleFromProps = {},
   tagName: Type = "div",
-}: PanelGroupProps) {
+}: PanelGroupProps & {
+  forwardedRef: ForwardedRef<ImperativePanelGroupHandle>;
+}) {
   const groupId = useUniqueId(idFromProps);
 
   const [activeHandleId, setActiveHandleId] = useState<string | null>(null);
@@ -142,6 +153,23 @@ export function PanelGroup({
     panels,
     sizes,
   });
+
+  useImperativeHandle(
+    forwardedRef,
+    () => ({
+      setLayout: (sizes: number[]) => {
+        const total = sizes.reduce(
+          (accumulated, current) => accumulated + current,
+          0
+        );
+
+        assert(total === 100, "Panel sizes must add up to 100%");
+
+        setSizes(sizes);
+      },
+    }),
+    []
+  );
 
   useIsomorphicLayoutEffect(() => {
     committedValuesRef.current.direction = direction;
@@ -647,7 +675,15 @@ export function PanelGroup({
   });
 }
 
+export const PanelGroup = forwardRef<
+  ImperativePanelGroupHandle,
+  PanelGroupProps
+>((props: PanelGroupProps, ref: ForwardedRef<ImperativePanelGroupHandle>) =>
+  createElement(PanelGroupWithForwardedRef, { ...props, forwardedRef: ref })
+);
+
 // Workaround for Parcel scope hoisting (which renames objects/functions).
 // Casting to :any is required to avoid corrupting the generated TypeScript types.
 // See github.com/parcel-bundler/parcel/issues/8724
-(PanelGroup as any).displayName = "PanelGroup";
+(PanelGroupWithForwardedRef as any).displayName = "PanelGroup";
+(PanelGroup as any).displayName = "forwardRef(PanelGroup)";

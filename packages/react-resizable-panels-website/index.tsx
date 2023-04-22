@@ -6,7 +6,8 @@ import HomeRoute from "./src/routes/Home";
 import ConditionalExampleRoute from "./src/routes/examples/Conditional";
 import ExternalPersistenceExampleRoute from "./src/routes/examples/ExternalPersistence";
 import HorizontalExampleRoute from "./src/routes/examples/Horizontal";
-import ImperativeApiExampleRoute from "./src/routes/examples/ImperativeApi";
+import ImperativePanelApiExampleRoute from "./src/routes/examples/ImperativePanelApi";
+import ImperativePanelGroupApiExampleRoute from "./src/routes/examples/ImperativePanelGroupApi";
 import NestedExampleRoute from "./src/routes/examples/Nested";
 import OverflowExampleRoute from "./src/routes/examples/Overflow";
 import PersistenceExampleRoute from "./src/routes/examples/Persistence";
@@ -32,8 +33,12 @@ const router = createBrowserRouter([
     element: <HorizontalExampleRoute />,
   },
   {
-    path: "/examples/imperative-api",
-    element: <ImperativeApiExampleRoute />,
+    path: "/examples/imperative-panel-api",
+    element: <ImperativePanelApiExampleRoute />,
+  },
+  {
+    path: "/examples/imperative-panel-group-api",
+    element: <ImperativePanelGroupApiExampleRoute />,
   },
   {
     path: "/examples/nested",

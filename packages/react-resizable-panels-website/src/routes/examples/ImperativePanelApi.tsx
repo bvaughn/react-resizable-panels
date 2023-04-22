@@ -9,8 +9,9 @@ import Icon from "../../components/Icon";
 import ResizeHandle from "../../components/ResizeHandle";
 
 import Example from "./Example";
-import styles from "./ImperativeApi.module.css";
+import styles from "./ImperativePanelApi.module.css";
 import sharedStyles from "./shared.module.css";
+import Code from "../../components/Code";
 
 type Sizes = {
   left: number;
@@ -18,7 +19,7 @@ type Sizes = {
   right: number;
 };
 
-export default function ImperativeApiRoute() {
+export default function ImperativePanelApiRoute() {
   const [sizes, setSizes] = useState<Sizes>({
     left: 20,
     middle: 60,
@@ -53,28 +54,41 @@ export default function ImperativeApiRoute() {
           <p>
             Sometimes panels need to resize or collapse/expand in response to
             user actions. For example, double-clicking on a resize bar in VS
-            Code resizes the panel to a size that fits all file names.
+            Code resizes the panel to a size that fits all file names. This type
+            of interaction can be implemented using the imperative API.
           </p>
           <p>
-            This type of interaction can be supported using <code>Panel</code>'s
-            imperative API, consisting of three methods:
+            <code>Panel</code> provides the following imperative API methods:
           </p>
           <ul>
             <li>
-              <code>collapse()</code>: Collapse the panel to its minimum size.
+              <Code code="collapse(): void" language="typescript" />: Collapse
+              the panel to its minimum size
             </li>
             <li>
-              <code>expand()</code>: Expand the panel to its previous size.
+              <Code code="expand(): void" language="typescript" />: Expand the
+              panel to its previous size
             </li>
             <li>
-              <code>resize(percentage)</code>: Resize the panel to the specified
-              percentage.
+              <Code code="getCollapsed(): boolean" language="typescript" />:
+              Panel is currently collapsed
+            </li>
+            <li>
+              <Code code="getSize(): number" language="typescript" />: Panel's
+              current size
+            </li>
+            <li>
+              <Code
+                code="expand(percentage: number): void"
+                language="typescript"
+              />
+              : Resize the panel to the specified percentage
             </li>
           </ul>
         </>
       }
       language="tsx"
-      title="Imperative API"
+      title="Imperative Panel API"
     />
   );
 }
@@ -175,7 +189,7 @@ function Content({
         <PanelGroup
           className={sharedStyles.PanelGroup}
           direction="horizontal"
-          id="horizontal-group"
+          id="imperative-Panel-api"
         >
           <Panel
             className={sharedStyles.PanelRow}
@@ -230,8 +244,6 @@ function Content({
 }
 
 const CODE = `
-// TypeScript syntax shown below
-
 import {
   ImperativePanelHandle,
   Panel,

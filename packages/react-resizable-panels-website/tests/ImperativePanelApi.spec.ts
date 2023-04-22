@@ -1,8 +1,6 @@
-import { Page, expect, test } from "@playwright/test";
+import { Page, test } from "@playwright/test";
 import { createElement } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import { PanelGroupLayoutLogEntry } from "../src/routes/examples/types";
-import { getLogEntries } from "./utils/debug";
 
 import { goToUrl } from "./utils/url";
 import { verifySizes } from "./utils/verify";

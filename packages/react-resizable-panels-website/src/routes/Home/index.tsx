@@ -14,7 +14,8 @@ const LINKS = [
   { path: "collapsible", title: "Collapsible panels" },
   { path: "conditional", title: "Conditional panels" },
   { path: "external-persistence", title: "External persistence" },
-  { path: "imperative-api", title: "Imperative API" },
+  { path: "imperative-panel-api", title: "Imperative Panel API" },
+  { path: "imperative-panel-group-api", title: "Imperative PanelGroup API" },
 ];
 
 export default function HomeRoute() {
