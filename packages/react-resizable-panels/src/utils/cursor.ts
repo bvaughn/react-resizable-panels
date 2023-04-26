@@ -12,13 +12,13 @@ let element: HTMLStyleElement | null = null;
 export function getCursorStyle(state: CursorState): string {
   switch (state) {
     case "horizontal":
-      return "col-resize";
+      return "ew-resize";
     case "horizontal-max":
       return "w-resize";
     case "horizontal-min":
       return "e-resize";
     case "vertical":
-      return "row-resize";
+      return "ns-resize";
     case "vertical-max":
       return "n-resize";
     case "vertical-min":
