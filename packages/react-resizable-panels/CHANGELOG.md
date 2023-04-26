@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.42
+* Change cursor style from `col-resize`/`row-resize` to `ew-resize`/`ns-resize` to better match cursor style at edges of a panel.
+
 ## 0.0.41
 * Add imperative `setLayout` API for `PanelGroup`.
 
