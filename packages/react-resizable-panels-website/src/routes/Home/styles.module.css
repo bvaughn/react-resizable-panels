@@ -47,12 +47,6 @@
   color: inherit;
 }
 
-.TagLine {
-  font-size: 1.2em;
-  text-align: center;
-  margin: 0 0 0.5rem;
-}
-
 .Code {
   display: inline-block;
   background-color: var(--color-background-code);
@@ -93,4 +87,66 @@
 
 .ExampleLink:hover {
   text-decoration: none;
+}
+
+.HeaderLogo {
+  width: 12rem;
+  height: 12rem;
+}
+
+.HeaderRow {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5em;
+  padding-right: 1rem;
+
+  border-radius: 1em;
+  background-color: var(--color-logo-background);
+}
+
+.HeaderTexts {
+  font-family: sans-serif;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: -0.75em;
+}
+.HeaderText {
+  font-size: 3.25em;
+  line-height: 1em;
+  color: #fff;
+}
+
+.HeaderTagLine {
+  font-size: 1.2em;
+  text-align: center;
+  margin: 0 0 0.5rem;
+}
+
+@media (min-width: 301px) and (max-width: 325px) {
+  .HeaderText {
+    font-size: 2.5em;
+  }
+  .HeaderTagLine {
+    font-size: 1em;
+  }
+  .HeaderLogo {
+    width: 10em;
+    height: 10em;
+  }
+}
+@media (max-width: 300px) {
+  .HeaderText {
+    font-size: 2em;
+  }
+  .HeaderTagLine {
+    font-size: .8em;
+  }
+  .HeaderLogo {
+    width: 8em;
+    height: 8em;
+  }
 }
