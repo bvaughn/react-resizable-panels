@@ -8,14 +8,14 @@ import type { PanelResizeHandleProps } from "./PanelResizeHandle";
 import type { PanelGroupStorage } from "./types";
 
 export {
+  // TypeScript types
+  ImperativePanelGroupHandle,
+  ImperativePanelHandle,
   Panel,
   PanelGroup,
-  PanelResizeHandle,
-
-  // TypeScript types
-  ImperativePanelHandle,
   PanelGroupProps,
   PanelGroupStorage,
   PanelProps,
+  PanelResizeHandle,
   PanelResizeHandleProps,
 };
