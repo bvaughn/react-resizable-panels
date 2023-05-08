@@ -46,8 +46,9 @@ import debounce from "./utils/debounce";
 import { areEqual } from "./utils/arrays";
 import { assert } from "./utils/assert";
 
-// Limit the frequency of localStorage updates.
-const savePanelGroupLayoutDebounced = debounce(savePanelGroupLayout, 100);
+const debounceMap: {
+  [key: string]: (autoSaveId: string, panels: PanelData[], sizes: number[], storage: PanelGroupStorage) => void
+} = {}
 
 function throwServerError() {
   throw new Error('PanelGroup "storage" prop required for server rendering.');
@@ -289,7 +290,11 @@ function PanelGroupWithForwardedRef({
 
       const panelsArray = panelsMapToSortedArray(panels);
 
-      savePanelGroupLayoutDebounced(autoSaveId, panelsArray, sizes, storage);
+      // Limit the frequency of localStorage updates.
+      if (!debounceMap[autoSaveId]) {
+        debounceMap[autoSaveId] = debounce(savePanelGroupLayout, 100)
+      }
+      debounceMap[autoSaveId](autoSaveId, panelsArray, sizes, storage)
     }
   }, [autoSaveId, panels, sizes, storage]);
 
