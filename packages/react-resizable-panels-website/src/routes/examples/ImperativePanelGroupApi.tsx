@@ -33,7 +33,7 @@ export default function ImperativePanelGroupApiRoute() {
           <ul>
             <li>
               <Code
-                code="setLayout(sizes: number[]): void"
+                code="setLayout(panelSizes: number[]): void"
                 language="typescript"
               />
               : Resize all panels

@@ -43,6 +43,11 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
  <sup>2</sup>: This behavior is disabled by default because it can interfere with scrollbar styles, but it can be useful in the edge case where a `Panel` contains an `<iframe>`
 
+`PanelGroup` components also expose an imperative API for manual resizing:
+| method                            | description
+| :-------------------------------- | :---
+| `setLayout(panelSizes: number[])` | Resize panel group to the specified _panelSizes_ (`[1 - 100, ...]`).
+
 ### `Panel`
 | prop          | type                            | description
 | :------------ | :------------------------------ | :---
