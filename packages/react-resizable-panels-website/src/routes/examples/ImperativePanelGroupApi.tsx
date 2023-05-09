@@ -66,7 +66,9 @@ function Content() {
   return (
     <>
       <div className={styles.TopRow}>
-        <button onClick={resetLayout}>Reset layout</button>
+        <button className={sharedStyles.Button} onClick={resetLayout}>
+          Reset layout
+        </button>
       </div>
       <div className={sharedStyles.PanelGroupWrapper}>
         <PanelGroup
