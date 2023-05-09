@@ -13,21 +13,27 @@ import {
   useState,
 } from "./vendor/react";
 
+import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
+import useUniqueId from "./hooks/useUniqueId";
+import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterBehavior";
 import { PanelGroupContext } from "./PanelContexts";
 import {
   Direction,
   PanelData,
   PanelGroupOnLayout,
-  ResizeEvent,
   PanelGroupStorage,
+  ResizeEvent,
 } from "./types";
-import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
+import { areEqual } from "./utils/arrays";
+import { assert } from "./utils/assert";
 import {
   getDragOffset,
   getMovement,
   isMouseEvent,
   isTouchEvent,
 } from "./utils/coordinates";
+import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
+import debounce from "./utils/debounce";
 import {
   adjustByDelta,
   callPanelCallbacks,
@@ -38,13 +44,7 @@ import {
   getResizeHandlePanelIds,
   panelsMapToSortedArray,
 } from "./utils/group";
-import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
-import useUniqueId from "./hooks/useUniqueId";
-import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterBehavior";
-import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
-import debounce from "./utils/debounce";
-import { areEqual } from "./utils/arrays";
-import { assert } from "./utils/assert";
+import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
 
 const debounceMap: {
   [key: string]: (
@@ -109,6 +109,7 @@ export type PanelGroupProps = {
 };
 
 export type ImperativePanelGroupHandle = {
+  getLayout: () => number[];
   setLayout: (panelSizes: number[]) => void;
 };
 
@@ -163,6 +164,10 @@ function PanelGroupWithForwardedRef({
   useImperativeHandle(
     forwardedRef,
     () => ({
+      getLayout: () => {
+        const { sizes } = committedValuesRef.current;
+        return sizes;
+      },
       setLayout: (sizes: number[]) => {
         const total = sizes.reduce(
           (accumulated, current) => accumulated + current,

@@ -52,6 +52,7 @@ export function isImperativePanelGroupHandle(
   return (
     value != null &&
     typeof value === "object" &&
+    typeof value.getLayout === "function" &&
     typeof value.setLayout === "function"
   );
 }

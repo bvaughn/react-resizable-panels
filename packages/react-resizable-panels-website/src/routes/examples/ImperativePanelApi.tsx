@@ -62,27 +62,44 @@ export default function ImperativePanelApiRoute() {
           </p>
           <ul>
             <li>
-              <Code code="collapse(): void" language="typescript" />: Collapse
-              the panel to its minimum size
-            </li>
-            <li>
-              <Code code="expand(): void" language="typescript" />: Expand the
-              panel to its previous size
-            </li>
-            <li>
-              <Code code="getCollapsed(): boolean" language="typescript" />:
-              Panel is currently collapsed
-            </li>
-            <li>
-              <Code code="getSize(): number" language="typescript" />: Panel's
-              current size
+              <Code
+                className={sharedStyles.InlineCode}
+                code="collapse(): void"
+                language="typescript"
+              />
+              Collapse the panel to its minimum size
             </li>
             <li>
               <Code
+                className={sharedStyles.InlineCode}
+                code="expand(): void"
+                language="typescript"
+              />
+              Expand the panel to its previous size
+            </li>
+            <li>
+              <Code
+                className={sharedStyles.InlineCode}
+                code="getCollapsed(): boolean"
+                language="typescript"
+              />
+              Panel is currently collapsed
+            </li>
+            <li>
+              <Code
+                className={sharedStyles.InlineCode}
+                code="getSize(): number"
+                language="typescript"
+              />
+              Panel's current size
+            </li>
+            <li>
+              <Code
+                className={sharedStyles.InlineCode}
                 code="resize(percentage: number): void"
                 language="typescript"
               />
-              : Resize the panel to the specified percentage
+              Resize the panel to the specified percentage
             </li>
           </ul>
         </>

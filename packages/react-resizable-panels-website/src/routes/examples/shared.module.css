@@ -83,3 +83,7 @@
   padding: 0.25em 1ch;
   border-radius: 0.5rem;
 }
+
+.InlineCode {
+  margin-right: 1.5ch;
+}

@@ -33,10 +33,19 @@ export default function ImperativePanelGroupApiRoute() {
           <ul>
             <li>
               <Code
+                className={sharedStyles.InlineCode}
+                code="getLayout(): number[]"
+                language="typescript"
+              />
+              Current size of panels
+            </li>
+            <li>
+              <Code
+                className={sharedStyles.InlineCode}
                 code="setLayout(panelSizes: number[]): void"
                 language="typescript"
               />
-              : Resize all panels
+              Resize all panels
             </li>
           </ul>
         </>
