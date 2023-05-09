@@ -79,7 +79,7 @@ export default function ImperativePanelApiRoute() {
             </li>
             <li>
               <Code
-                code="expand(percentage: number): void"
+                code="resize(percentage: number): void"
                 language="typescript"
               />
               : Resize the panel to the specified percentage
