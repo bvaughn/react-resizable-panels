@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.43
+* Add imperative `getLayout` API to `PanelGroup`
+* [#139](https://github.com/bvaughn/react-resizable-panels/pull/139): Fix edge case bug where simultaneous `localStorage` updates to multiple saved groups would drop some values
+
 ## 0.0.42
 * Change cursor style from `col-resize`/`row-resize` to `ew-resize`/`ns-resize` to better match cursor style at edges of a panel.
 
