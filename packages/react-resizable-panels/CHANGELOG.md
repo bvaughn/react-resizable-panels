@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.44
+* [#142](https://github.com/bvaughn/react-resizable-panels/issues/142): Avoid re-registering `Panel` when props change
+
 ## 0.0.43
 * Add imperative `getLayout` API to `PanelGroup`
 * [#139](https://github.com/bvaughn/react-resizable-panels/pull/139): Fix edge case bug where simultaneous `localStorage` updates to multiple saved groups would drop some values

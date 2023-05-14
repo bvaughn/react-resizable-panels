@@ -1,6 +1,6 @@
 {
   "name": "react-resizable-panels",
-  "version": "0.0.43",
+  "version": "0.0.44",
   "description": "React components for resizable panel groups/layouts",
   "author": "Brian Vaughn <brian.david.vaughn@gmail.com>",
   "license": "MIT",
