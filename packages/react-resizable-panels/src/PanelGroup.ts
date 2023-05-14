@@ -260,12 +260,12 @@ function PanelGroupWithForwardedRef({
       // For now, these logic edge cases are left to the user to handle via props.
 
       panelsArray.forEach((panel) => {
-        totalMinSize += panel.minSize;
+        totalMinSize += panel.current.minSize;
 
-        if (panel.defaultSize === null) {
+        if (panel.current.defaultSize === null) {
           panelsWithNullDefaultSize++;
         } else {
-          totalDefaultSize += panel.defaultSize;
+          totalDefaultSize += panel.current.defaultSize;
         }
       });
 
@@ -281,11 +281,11 @@ function PanelGroupWithForwardedRef({
 
       setSizes(
         panelsArray.map((panel) => {
-          if (panel.defaultSize === null) {
+          if (panel.current.defaultSize === null) {
             return (100 - totalDefaultSize) / panelsWithNullDefaultSize;
           }
 
-          return panel.defaultSize;
+          return panel.current.defaultSize;
         })
       );
     }
@@ -347,14 +347,14 @@ function PanelGroupWithForwardedRef({
     [activeHandleId, disablePointerEventsDuringResize, sizes]
   );
 
-  const registerPanel = useCallback((id: string, panel: PanelData) => {
+  const registerPanel = useCallback((id: string, panelRef: PanelData) => {
     setPanels((prevPanels) => {
       if (prevPanels.has(id)) {
         return prevPanels;
       }
 
       const nextPanels = new Map(prevPanels);
-      nextPanels.set(id, panel);
+      nextPanels.set(id, panelRef);
 
       return nextPanels;
     });
@@ -473,7 +473,7 @@ function PanelGroupWithForwardedRef({
     const { panels, sizes: prevSizes } = committedValuesRef.current;
 
     const panel = panels.get(id);
-    if (panel == null || !panel.collapsible) {
+    if (panel == null || !panel.current.collapsible) {
       return;
     }
 
@@ -527,7 +527,7 @@ function PanelGroupWithForwardedRef({
     }
 
     const sizeBeforeCollapse =
-      panelSizeBeforeCollapse.current.get(id) || panel.minSize;
+      panelSizeBeforeCollapse.current.get(id) || panel.current.minSize;
     if (!sizeBeforeCollapse) {
       return;
     }
@@ -591,10 +591,13 @@ function PanelGroupWithForwardedRef({
       return;
     }
 
-    if (panel.collapsible && nextSize === 0) {
+    if (panel.current.collapsible && nextSize === 0) {
       // This is a valid resize state.
     } else {
-      nextSize = Math.min(panel.maxSize, Math.max(panel.minSize, nextSize));
+      nextSize = Math.min(
+        panel.current.maxSize,
+        Math.max(panel.current.minSize, nextSize)
+      );
     }
 
     const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);

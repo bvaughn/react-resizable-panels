@@ -12,17 +12,21 @@ export type PanelOnCollapse = (collapsed: boolean) => void;
 export type PanelOnResize = (size: number) => void;
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 
+export type PanelCallbackRef = RefObject<{
+  onCollapse: PanelOnCollapse | null;
+  onResize: PanelOnResize | null;
+}>;
+
 export type PanelData = {
-  callbacksRef: RefObject<{
-    onCollapse: PanelOnCollapse | null;
-    onResize: PanelOnResize | null;
-  }>;
-  collapsible: boolean;
-  defaultSize: number | null;
-  id: string;
-  maxSize: number;
-  minSize: number;
-  order: number | null;
+  current: {
+    callbacksRef: PanelCallbackRef;
+    collapsible: boolean;
+    defaultSize: number | null;
+    id: string;
+    maxSize: number;
+    minSize: number;
+    order: number | null;
+  };
 };
 
 export type ResizeEvent = KeyboardEvent | MouseEvent | TouchEvent;

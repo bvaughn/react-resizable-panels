@@ -107,20 +107,20 @@ export function getMovement(
     );
     const targetPanelId = movement < 0 ? idBefore : idAfter;
     const targetPanelIndex = panelsArray.findIndex(
-      (panel) => panel.id === targetPanelId
+      (panel) => panel.current.id === targetPanelId
     );
     const targetPanel = panelsArray[targetPanelIndex];
-    if (targetPanel.collapsible) {
+    if (targetPanel.current.collapsible) {
       const baseSize = baseSizes[targetPanelIndex];
       if (
         baseSize === 0 ||
         baseSize.toPrecision(PRECISION) ===
-          targetPanel.minSize.toPrecision(PRECISION)
+          targetPanel.current.minSize.toPrecision(PRECISION)
       ) {
         movement =
           movement < 0
-            ? -targetPanel.minSize * groupSizeInPixels
-            : targetPanel.minSize * groupSizeInPixels;
+            ? -targetPanel.current.minSize * groupSizeInPixels
+            : targetPanel.current.minSize * groupSizeInPixels;
       }
     }
 

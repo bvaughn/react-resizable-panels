@@ -1,5 +1,5 @@
-import { PRECISION } from "../constants";
 import { InitialDragState } from "../PanelGroup";
+import { PRECISION } from "../constants";
 import { PanelData, ResizeEvent } from "../types";
 
 export function adjustByDelta(
@@ -39,7 +39,9 @@ export function adjustByDelta(
   // Max-bounds check the panel being expanded first.
   {
     const pivotId = delta < 0 ? idAfter : idBefore;
-    const index = panelsArray.findIndex((panel) => panel.id === pivotId);
+    const index = panelsArray.findIndex(
+      (panel) => panel.current.id === pivotId
+    );
     const panel = panelsArray[index];
     const baseSize = baseSizes[index];
 
@@ -57,7 +59,7 @@ export function adjustByDelta(
   }
 
   let pivotId = delta < 0 ? idBefore : idAfter;
-  let index = panelsArray.findIndex((panel) => panel.id === pivotId);
+  let index = panelsArray.findIndex((panel) => panel.current.id === pivotId);
   while (true) {
     const panel = panelsArray[index];
     const baseSize = baseSizes[index];
@@ -72,7 +74,7 @@ export function adjustByDelta(
     );
     if (baseSize !== nextSize) {
       if (nextSize === 0 && baseSize > 0) {
-        panelSizeBeforeCollapse.set(panel.id, baseSize);
+        panelSizeBeforeCollapse.set(panel.current.id, baseSize);
       }
 
       deltaApplied += baseSize - nextSize;
@@ -109,7 +111,7 @@ export function adjustByDelta(
 
   // Adjust the pivot panel before, but only by the amount that surrounding panels were able to shrink/contract.
   pivotId = delta < 0 ? idAfter : idBefore;
-  index = panelsArray.findIndex((panel) => panel.id === pivotId);
+  index = panelsArray.findIndex((panel) => panel.current.id === pivotId);
   nextSizes[index] = baseSizes[index] + deltaApplied;
 
   return nextSizes;
@@ -123,7 +125,7 @@ export function callPanelCallbacks(
   nextSizes.forEach((nextSize, index) => {
     const prevSize = prevSizes[index];
     if (prevSize !== nextSize) {
-      const { callbacksRef, collapsible } = panelsArray[index];
+      const { callbacksRef, collapsible } = panelsArray[index].current;
       const { onCollapse, onResize } = callbacksRef.current!;
 
       if (onResize) {
@@ -151,14 +153,14 @@ export function getBeforeAndAfterIds(
     return [null, null];
   }
 
-  const index = panelsArray.findIndex((panel) => panel.id === id);
+  const index = panelsArray.findIndex((panel) => panel.current.id === id);
   if (index < 0) {
     return [null, null];
   }
 
   const isLastPanel = index === panelsArray.length - 1;
-  const idBefore = isLastPanel ? panelsArray[index - 1].id : id;
-  const idAfter = isLastPanel ? id : panelsArray[index + 1].id;
+  const idBefore = isLastPanel ? panelsArray[index - 1].current.id : id;
+  const idAfter = isLastPanel ? id : panelsArray[index + 1].current.id;
 
   return [idBefore, idAfter];
 }
@@ -176,7 +178,7 @@ export function getFlexGrow(
 
   const panelsArray = panelsMapToSortedArray(panels);
 
-  const index = panelsArray.findIndex((panel) => panel.id === id);
+  const index = panelsArray.findIndex((panel) => panel.current.id === id);
   const size = sizes[index];
   if (size == null) {
     return "0";
@@ -240,8 +242,8 @@ export function getResizeHandlePanelIds(
   const handles = getResizeHandlesForGroup(groupId);
   const index = handle ? handles.indexOf(handle) : -1;
 
-  const idBefore: string | null = panelsArray[index]?.id ?? null;
-  const idAfter: string | null = panelsArray[index + 1]?.id ?? null;
+  const idBefore: string | null = panelsArray[index]?.current?.id ?? null;
+  const idAfter: string | null = panelsArray[index + 1]?.current?.id ?? null;
 
   return [idBefore, idAfter];
 }
@@ -250,8 +252,8 @@ export function panelsMapToSortedArray(
   panels: Map<string, PanelData>
 ): PanelData[] {
   return Array.from(panels.values()).sort((panelA, panelB) => {
-    const orderA = panelA.order;
-    const orderB = panelB.order;
+    const orderA = panelA.current.order;
+    const orderB = panelB.current.order;
     if (orderA == null && orderB == null) {
       return 0;
     } else if (orderA == null) {
@@ -272,7 +274,7 @@ function safeResizePanel(
 ): number {
   const nextSizeUnsafe = prevSize + delta;
 
-  if (panel.collapsible) {
+  if (panel.current.collapsible) {
     if (prevSize > 0) {
       if (nextSizeUnsafe <= 0) {
         return 0;
@@ -283,7 +285,7 @@ function safeResizePanel(
         // Keyboard events should expand a collapsed panel to the min size,
         // but mouse events should wait until the panel has reached its min size
         // to avoid a visual flickering when dragging between collapsed and min size.
-        if (nextSizeUnsafe < panel.minSize) {
+        if (nextSizeUnsafe < panel.current.minSize) {
           return 0;
         }
       }
@@ -291,8 +293,8 @@ function safeResizePanel(
   }
 
   const nextSize = Math.min(
-    panel.maxSize,
-    Math.max(panel.minSize, nextSizeUnsafe)
+    panel.current.maxSize,
+    Math.max(panel.current.minSize, nextSizeUnsafe)
   );
 
   return nextSize;

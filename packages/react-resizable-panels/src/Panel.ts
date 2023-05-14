@@ -1,3 +1,5 @@
+import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
+import useUniqueId from "./hooks/useUniqueId";
 import {
   createElement,
   CSSProperties,
@@ -10,11 +12,14 @@ import {
   useImperativeHandle,
   useRef,
 } from "./vendor/react";
-import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
-import useUniqueId from "./hooks/useUniqueId";
 
 import { PanelGroupContext } from "./PanelContexts";
-import { PanelOnCollapse, PanelOnResize } from "./types";
+import {
+  PanelCallbackRef,
+  PanelData,
+  PanelOnCollapse,
+  PanelOnResize,
+} from "./types";
 
 export type PanelProps = {
   children?: ReactNode;
@@ -105,33 +110,6 @@ function PanelWithForwardedRef({
     }
   }
 
-  useIsomorphicLayoutEffect(() => {
-    const panel = {
-      callbacksRef,
-      collapsible,
-      defaultSize,
-      id: panelId,
-      maxSize,
-      minSize,
-      order,
-    };
-
-    registerPanel(panelId, panel);
-
-    return () => {
-      unregisterPanel(panelId);
-    };
-  }, [
-    collapsible,
-    defaultSize,
-    panelId,
-    maxSize,
-    minSize,
-    order,
-    registerPanel,
-    unregisterPanel,
-  ]);
-
   const style = getPanelStyle(panelId);
 
   const committedValuesRef = useRef<{
@@ -139,9 +117,42 @@ function PanelWithForwardedRef({
   }>({
     size: parseSizeFromStyle(style),
   });
+  const panelDataRef = useRef<{
+    callbacksRef: PanelCallbackRef;
+    collapsible: boolean;
+    defaultSize: number | null;
+    id: string;
+    maxSize: number;
+    minSize: number;
+    order: number | null;
+  }>({
+    callbacksRef,
+    collapsible,
+    defaultSize,
+    id: panelId,
+    maxSize,
+    minSize,
+    order,
+  });
   useIsomorphicLayoutEffect(() => {
     committedValuesRef.current.size = parseSizeFromStyle(style);
+
+    panelDataRef.current.callbacksRef = callbacksRef;
+    panelDataRef.current.collapsible = collapsible;
+    panelDataRef.current.defaultSize = defaultSize;
+    panelDataRef.current.id = panelId;
+    panelDataRef.current.maxSize = maxSize;
+    panelDataRef.current.minSize = minSize;
+    panelDataRef.current.order = order;
   });
+
+  useIsomorphicLayoutEffect(() => {
+    registerPanel(panelId, panelDataRef as PanelData);
+
+    return () => {
+      unregisterPanel(panelId);
+    };
+  }, [registerPanel, unregisterPanel]);
 
   useImperativeHandle(
     forwardedRef,
