@@ -110,7 +110,7 @@ function PanelWithForwardedRef({
     }
   }
 
-  const style = getPanelStyle(panelId);
+  const style = getPanelStyle(panelId, defaultSize);
 
   const committedValuesRef = useRef<{
     size: number;

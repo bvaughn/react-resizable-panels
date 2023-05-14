@@ -309,7 +309,7 @@ function PanelGroupWithForwardedRef({
   }, [autoSaveId, panels, sizes, storage]);
 
   const getPanelStyle = useCallback(
-    (id: string): CSSProperties => {
+    (id: string, defaultSize: number | null): CSSProperties => {
       const { panels } = committedValuesRef.current;
 
       // Before mounting, Panels will not yet have registered themselves.
@@ -317,8 +317,8 @@ function PanelGroupWithForwardedRef({
       // At this point the best we can do is render everything with the same size.
       if (panels.size === 0) {
         return {
-          flexBasis: "auto",
-          flexGrow: 1,
+          flexBasis: 0,
+          flexGrow: defaultSize != null ? defaultSize : undefined,
           flexShrink: 1,
 
           // Without this, Panel sizes may be unintentionally overridden by their content.
