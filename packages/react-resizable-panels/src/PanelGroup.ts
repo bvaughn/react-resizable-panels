@@ -109,6 +109,7 @@ export type PanelGroupProps = {
 };
 
 export type ImperativePanelGroupHandle = {
+  getElement: () => HTMLElement | null;
   getLayout: () => number[];
   setLayout: (panelSizes: number[]) => void;
 };
@@ -161,9 +162,12 @@ function PanelGroupWithForwardedRef({
     sizes,
   });
 
+  const elementRef = useRef<HTMLElement>(null);
+
   useImperativeHandle(
     forwardedRef,
     () => ({
+      getElement: () => elementRef.current,
       getLayout: () => {
         const { sizes } = committedValuesRef.current;
         return sizes;
@@ -688,6 +692,7 @@ function PanelGroupWithForwardedRef({
       "data-panel-group-direction": direction,
       "data-panel-group-id": groupId,
       style: { ...style, ...styleFromProps },
+      ref: elementRef,
     }),
     value: context,
   });

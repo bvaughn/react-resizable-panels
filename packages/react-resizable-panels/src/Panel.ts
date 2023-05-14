@@ -37,6 +37,7 @@ export type PanelProps = {
 };
 
 export type ImperativePanelHandle = {
+  getElement: () => HTMLElement | null;
   collapse: () => void;
   expand: () => void;
   getCollapsed(): boolean;
@@ -154,9 +155,12 @@ function PanelWithForwardedRef({
     };
   }, [registerPanel, unregisterPanel]);
 
+  const elementRef = useRef<HTMLElement>(null);
+
   useImperativeHandle(
     forwardedRef,
     () => ({
+      getElement: () => elementRef.current,
       collapse: () => collapsePanel(panelId),
       expand: () => expandPanel(panelId),
       getCollapsed() {
@@ -182,6 +186,7 @@ function PanelWithForwardedRef({
       ...style,
       ...styleFromProps,
     },
+    ref: elementRef,
   });
 }
 
