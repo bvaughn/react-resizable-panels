@@ -61,12 +61,12 @@ export function useWindowSplitterPanelGroupBehavior({
 
       // A panel's effective min/max sizes also need to account for other panel's sizes.
       panelsArray.forEach((panelData) => {
-        if (panelData.id === idBefore) {
-          maxSize = panelData.maxSize;
-          minSize = panelData.minSize;
+        if (panelData.current.id === idBefore) {
+          maxSize = panelData.current.maxSize;
+          minSize = panelData.current.minSize;
         } else {
-          totalMinSize += panelData.minSize;
-          totalMaxSize += panelData.maxSize;
+          totalMinSize += panelData.current.minSize;
+          totalMaxSize += panelData.current.maxSize;
         }
       });
 
@@ -92,7 +92,7 @@ export function useWindowSplitterPanelGroupBehavior({
             event.preventDefault();
 
             const index = panelsArray.findIndex(
-              (panel) => panel.id === idBefore
+              (panel) => panel.current.id === idBefore
             );
             if (index >= 0) {
               const panelData = panelsArray[index];
@@ -101,7 +101,7 @@ export function useWindowSplitterPanelGroupBehavior({
                 let delta = 0;
                 if (
                   size.toPrecision(PRECISION) <=
-                  panelData.minSize.toPrecision(PRECISION)
+                  panelData.current.minSize.toPrecision(PRECISION)
                 ) {
                   delta = direction === "horizontal" ? width : height;
                 } else {

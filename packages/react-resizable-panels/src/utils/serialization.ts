@@ -9,7 +9,7 @@ type SerializedPanelGroupState = { [panelIds: string]: number[] };
 function getSerializationKey(panels: PanelData[]): string {
   return panels
     .map((panel) => {
-      const { minSize, order } = panel;
+      const { minSize, order } = panel.current;
       return order ? `${order}:${minSize}` : `${minSize}`;
     })
     .sort((a, b) => a.localeCompare(b))
