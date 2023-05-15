@@ -1,7 +1,12 @@
 # Changelog
 
+## 0.0.45
+* SSR: Avoid layout shift by using `defaultSize` to set initial `flex-grow` style
+* SSR: Warn if `Panel` is server-rendered without a `defaultSize` prop
+* [#135](https://github.com/bvaughn/react-resizable-panels/issues/135): Support RTL layouts
+
 ## 0.0.44
-* [#142](https://github.com/bvaughn/react-resizable-panels/issues/142): Avoid re-registering `Panel` when props change
+* [#142](https://github.com/bvaughn/react-resizable-panels/pull/142): Avoid re-registering Panel when props change; this should reduce the number of scenarios requiring the `order` prop
 
 ## 0.0.43
 * Add imperative `getLayout` API to `PanelGroup`
