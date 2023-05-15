@@ -9,11 +9,33 @@
     "url": "git+https://github.com/bvaughn/react-resizable-panels.git"
   },
   "source": "src/index.ts",
-  "main": "dist/react-resizable-panels.js",
-  "module": "dist/react-resizable-panels.module.js",
-  "types": "dist/react-resizable-panels.d.ts",
+  "main": "dist/react-resizable-panels.cjs.js",
+  "module": "dist/react-resizable-panels.esm.js",
+  "exports": {
+    ".": {
+      "types": {
+        "import": "./dist/react-resizable-panels.cjs.mjs",
+        "default": "./dist/react-resizable-panels.cjs.js"
+      },
+      "development": {
+        "module": "./dist/react-resizable-panels.development.esm.js",
+        "import": "./dist/react-resizable-panels.development.cjs.mjs",
+        "default": "./dist/react-resizable-panels.development.cjs.js"
+      },
+      "module": "./dist/react-resizable-panels.esm.js",
+      "import": "./dist/react-resizable-panels.cjs.mjs",
+      "default": "./dist/react-resizable-panels.cjs.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "imports": {
+    "#is-development": {
+      "development": "./src/env-conditions/development.ts",
+      "default": "./src/env-conditions/production.ts"
+    }
+  },
+  "types": "dist/react-resizable-panels.cjs.d.ts",
   "scripts": {
-    "build": "parcel build",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "watch": "parcel watch --port=2345"
   },

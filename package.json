@@ -1,4 +1,5 @@
 {
+  "name": "react-resizable-panels-repo",
   "private": true,
   "workspaces": [
     "packages/*"
@@ -10,13 +11,14 @@
     "clear:node_modules": "rm -rf ./node_modules && rm -rf ./packages/*/node_modules",
     "docs": "cd packages/react-resizable-panels-website && pnpm build",
     "lint": "cd packages/react-resizable-panels && pnpm lint",
-    "prerelease": "rm -rf ./.parcel-cache && cd packages/react-resizable-panels && rm -rf ./dist && pnpm build",
+    "prerelease": "preconstruct build",
     "prettier": "prettier --write \"**/*.{css,html,js,json,jsx,ts,tsx}\"",
     "prettier:ci": "prettier --check \"**/*.{css,html,js,json,jsx,ts,tsx}\"",
     "typescript": "tsc --noEmit",
     "typescript:watch": "tsc --noEmit --watch"
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.21.5",
     "@types/node": "^18.15.11",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.10",
@@ -32,6 +34,21 @@
   "dependencies": {
     "@parcel/core": "^2.8.3",
     "@parcel/packager-ts": "^2.8.3",
-    "@parcel/transformer-typescript-types": "^2.8.3"
+    "@parcel/transformer-typescript-types": "^2.8.3",
+    "@preconstruct/cli": "^2.6.4"
+  },
+  "preconstruct": {
+    "packages": [
+      "packages/!(react-resizable-panels-website)"
+    ],
+    "globals": {
+      "react": "React"
+    },
+    "exports": {
+      "importConditionDefaultExport": "default"
+    },
+    "___experimentalFlags_WILL_CHANGE_IN_PATCH": {
+      "importsConditions": true
+    }
   }
 }
