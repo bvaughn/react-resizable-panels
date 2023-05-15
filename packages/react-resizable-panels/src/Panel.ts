@@ -152,7 +152,7 @@ function PanelWithForwardedRef({
     return () => {
       unregisterPanel(panelId);
     };
-  }, [registerPanel, unregisterPanel]);
+  }, [order, panelId, registerPanel, unregisterPanel]);
 
   useImperativeHandle(
     forwardedRef,
