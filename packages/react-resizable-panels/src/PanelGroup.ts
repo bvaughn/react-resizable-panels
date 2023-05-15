@@ -45,6 +45,7 @@ import {
   panelsMapToSortedArray,
 } from "./utils/group";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
+import { isServerRendering } from "./utils/ssr";
 
 const debounceMap: {
   [key: string]: (
@@ -316,6 +317,12 @@ function PanelGroupWithForwardedRef({
       // This includes server rendering.
       // At this point the best we can do is render everything with the same size.
       if (panels.size === 0) {
+        if (isServerRendering() && defaultSize == null) {
+          console.warn(
+            `WARNING: Panel defaultSize prop recommended to avoid layout shift after server rendering`
+          );
+        }
+
         return {
           flexBasis: 0,
           flexGrow: defaultSize != null ? defaultSize : undefined,
