@@ -389,7 +389,7 @@ function PanelGroupWithForwardedRef({
           return;
         }
 
-        const movement = getMovement(
+        let movement = getMovement(
           event,
           groupId,
           handleId,
@@ -405,6 +405,12 @@ function PanelGroupWithForwardedRef({
         const groupElement = getPanelGroup(groupId)!;
         const rect = groupElement.getBoundingClientRect();
         const isHorizontal = direction === "horizontal";
+
+        // Support RTL layouts
+        if (document.dir === "rtl" && isHorizontal) {
+          movement = -movement;
+        }
+
         const size = isHorizontal ? rect.width : rect.height;
         const delta = (movement / size) * 100;
 
