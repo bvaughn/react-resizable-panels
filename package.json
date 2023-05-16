@@ -44,9 +44,6 @@
     "packages": [
       "packages/!(react-resizable-panels-website)"
     ],
-    "globals": {
-      "react": "React"
-    },
     "exports": {
       "importConditionDefaultExport": "default"
     },
