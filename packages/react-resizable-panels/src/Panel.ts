@@ -34,6 +34,7 @@ export type PanelProps = {
   order?: number | null;
   style?: CSSProperties;
   tagName?: ElementType;
+  disabled?: boolean;
 };
 
 export type ImperativePanelHandle = {
@@ -58,6 +59,7 @@ function PanelWithForwardedRef({
   order = null,
   style: styleFromProps = {},
   tagName: Type = "div",
+  disabled = false,
 }: PanelProps & {
   forwardedRef: ForwardedRef<ImperativePanelHandle>;
 }) {
@@ -110,7 +112,7 @@ function PanelWithForwardedRef({
     }
   }
 
-  const style = getPanelStyle(panelId, defaultSize);
+  const style = disabled ? {} : getPanelStyle(panelId, defaultSize);
 
   const committedValuesRef = useRef<{
     size: number;
@@ -147,12 +149,13 @@ function PanelWithForwardedRef({
   });
 
   useIsomorphicLayoutEffect(() => {
-    registerPanel(panelId, panelDataRef as PanelData);
-
-    return () => {
-      unregisterPanel(panelId);
-    };
-  }, [order, panelId, registerPanel, unregisterPanel]);
+    if (!disabled) {
+      registerPanel(panelId, panelDataRef as PanelData);
+      return () => {
+        unregisterPanel(panelId);
+      };
+    }
+  }, [disabled, order, panelId, registerPanel, unregisterPanel]);
 
   useImperativeHandle(
     forwardedRef,
@@ -176,7 +179,9 @@ function PanelWithForwardedRef({
     "data-panel": "",
     "data-panel-collapsible": collapsible || undefined,
     "data-panel-id": panelId,
-    "data-panel-size": parseFloat("" + style.flexGrow).toFixed(1),
+    "data-panel-size": disabled
+      ? undefined
+      : parseFloat("" + style.flexGrow).toFixed(1),
     id: `data-panel-id-${panelId}`,
     style: {
       ...style,
