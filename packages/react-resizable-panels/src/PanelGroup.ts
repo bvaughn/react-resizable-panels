@@ -60,16 +60,24 @@ function throwServerError() {
   throw new Error('PanelGroup "storage" prop required for server rendering.');
 }
 
-const defaultStorage: PanelGroupStorage = {
-  getItem:
-    typeof localStorage !== "undefined"
-      ? (name: string) => localStorage.getItem(name)
-      : (throwServerError as any),
-  setItem:
-    typeof localStorage !== "undefined"
-      ? (name: string, value: string) => localStorage.setItem(name, value)
-      : (throwServerError as any),
-};
+let defaultStorage: null | PanelGroupStorage = null
+
+function initializeDefaultStorage(): PanelGroupStorage {
+  if (defaultStorage === null) {
+    defaultStorage = {
+      getItem:
+        typeof localStorage !== "undefined"
+          ? (name: string) => localStorage.getItem(name)
+          : (throwServerError as any),
+      setItem:
+        typeof localStorage !== "undefined"
+          ? (name: string, value: string) => localStorage.setItem(name, value)
+          : (throwServerError as any),
+    };
+  }
+
+  return defaultStorage
+}
 
 export type CommittedValues = {
   direction: Direction;
@@ -123,7 +131,7 @@ function PanelGroupWithForwardedRef({
   forwardedRef,
   id: idFromProps = null,
   onLayout,
-  storage = defaultStorage,
+  storage = initializeDefaultStorage(),
   style: styleFromProps = {},
   tagName: Type = "div",
 }: PanelGroupProps & {
