@@ -13,3 +13,57 @@ Supported input methods include mouse, touch, and keyboard (via [Window Splitter
 ---
 
 ### If you like this project, 🎉 [become a sponsor](https://github.com/sponsors/bvaughn/) or ☕ [buy me a coffee](http://givebrian.coffee/)
+
+---
+
+## FAQ
+
+### How can I use persistent layouts with SSR?
+
+By default, this library uses `localStorage` to persist layouts. With server rendering, this can cause a flicker when the default layout (rendered on the server) is replaced with the persisted layout (in `localStorage`). The way to avoid this flicker is to also persist the layout with a cookie like so:
+
+##### Server component
+```tsx
+import ResizablePanels from "@/app/ResizablePanels";
+import { cookies } from "next/headers";
+
+export function ServerComponent() {
+  const layout = cookies().get("react-resizable-panels:layout");
+
+  let defaultLayout;
+  if (layout) {
+    defaultLayout = JSON.parse(layout.value);
+  }
+
+  return <ClientComponent defaultLayout={defaultLayout} />;
+}
+```
+
+##### Client component
+```tsx
+"use client";
+
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+
+export function ClientComponent({
+  defaultLayout = [33, 67]
+}: {
+  defaultLayout: number[] | undefined
+}) {
+  const onLayout = (sizes: number[]) => {
+    document.cookie = `react-resizable-panels:layout=${JSON.stringify(sizes)}`;
+  };
+
+  return (
+    <PanelGroup direction="horizontal" onLayout={onLayout}>
+      <Panel defaultSize={defaultLayout[0]}>
+        {/* ... */}
+      </Panel>
+      <PanelResizeHandle className="w-2 bg-blue-800" />
+      <Panel defaultSize={defaultLayout[1]}>
+        {/* ... */}
+      </Panel>
+    </PanelGroup>
+  );
+}
+```
