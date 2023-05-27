@@ -1,7 +1,10 @@
 # Changelog
 
+## 0.0.47
+* Mimic VS COde behavior; collapse a panel if it's smaller than half of its min-size
+
 ## 0.0.46
-* Improved SSR support: Avoid accessing default storage (`localStorage`) during initialization; avoid throwing error in browsers that have 3rd party cookies/storage disabled.
+* SSR: Avoid accessing default storage (`localStorage`) during initialization; avoid throwing error in browsers that have 3rd party cookies/storage disabled.
 
 ## 0.0.45
 * SSR: Avoid layout shift by using `defaultSize` to set initial `flex-grow` style
