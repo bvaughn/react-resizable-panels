@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.46
+* Improved SSR support: Avoid accessing default storage (`localStorage`) during initialization; avoid throwing error in browsers that have 3rd party cookies/storage disabled.
+
 ## 0.0.45
 * SSR: Avoid layout shift by using `defaultSize` to set initial `flex-grow` style
 * SSR: Warn if `Panel` is server-rendered without a `defaultSize` prop
