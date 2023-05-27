@@ -67,3 +67,5 @@ export function ClientComponent({
   );
 }
 ```
+
+A demo of this is available [here](https://github.com/bvaughn/react-resizable-panels-demo-ssr).
