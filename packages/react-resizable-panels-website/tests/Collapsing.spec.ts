@@ -41,9 +41,10 @@ test.describe("collapsible prop", () => {
 
     await firstHandle.focus();
     await page.keyboard.press("Shift+ArrowLeft");
+    await verifyPanelSize(firstPanel, 25);
     await page.keyboard.press("Shift+ArrowLeft");
-    await page.keyboard.press("Shift+ArrowLeft");
-    await verifyPanelSize(firstPanel, 10);
+    await verifyPanelSize(firstPanel, 15);
+    // Once it drops below half, it will collapse
     await page.keyboard.press("Shift+ArrowLeft");
     await verifyPanelSize(firstPanel, 0);
     await page.keyboard.press("Shift+ArrowRight");
