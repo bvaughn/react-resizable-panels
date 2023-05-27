@@ -1,14 +1,14 @@
 import { useReducer } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import Code from "../../components/Code";
-import Icon, { IconType } from "../../components/Icon";
 import {
   TUTORIAL_CODE_CSS,
   TUTORIAL_CODE_HTML,
   TUTORIAL_CODE_JAVASCRIPT,
   TUTORIAL_CODE_README,
 } from "../../code";
+import Code from "../../components/Code";
+import Icon from "../../components/Icon";
 import { Language } from "../../suspense/SyntaxParsingCache";
 
 import styles from "./Collapsible.module.css";
@@ -69,7 +69,7 @@ function Content() {
           collapsible={true}
           defaultSize={20}
           maxSize={25}
-          minSize={5}
+          minSize={10}
           onCollapse={toggleCollapsed}
         >
           <div className={styles.FileList}>

@@ -276,7 +276,8 @@ function safeResizePanel(
 
   if (panel.current.collapsible) {
     if (prevSize > 0) {
-      if (nextSizeUnsafe <= 0) {
+      // Mimic VS COde behavior; collapse a panel if it's smaller than half of its min-size
+      if (nextSizeUnsafe <= panel.current.minSize / 2) {
         return 0;
       }
     } else {
