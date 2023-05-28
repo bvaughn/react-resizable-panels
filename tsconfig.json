@@ -3,7 +3,7 @@
     "jsx": "react-jsx",
     "lib": ["ES2015", "DOM"],
     "module": "es2020",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noImplicitAny": true,
     "strict": true,
     "types": ["node"]
