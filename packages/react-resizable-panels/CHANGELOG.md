@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.48
+* [148](https://github.com/bvaughn/react-resizable-panels/pull/148): Build release bundle with Preconstruct
+
 ## 0.0.47
 * Mimic VS COde behavior; collapse a panel if it's smaller than half of its min-size
 
