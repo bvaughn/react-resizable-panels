@@ -1,11 +1,35 @@
 import { expect, Page, test } from "@playwright/test";
 import { createElement } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import { getCursorStyle } from "react-resizable-panels/src/utils/cursor";
 import { getBodyCursorStyle } from "./utils/cursor";
 import { dragResizeTo } from "./utils/panels";
 
 import { goToUrl } from "./utils/url";
+
+type CursorState =
+  | "horizontal"
+  | "horizontal-max"
+  | "horizontal-min"
+  | "vertical"
+  | "vertical-max"
+  | "vertical-min";
+
+function getCursorStyle(state: CursorState) {
+  switch (state) {
+    case "horizontal":
+      return "ew-resize";
+    case "horizontal-max":
+      return "w-resize";
+    case "horizontal-min":
+      return "e-resize";
+    case "vertical":
+      return "ns-resize";
+    case "vertical-max":
+      return "n-resize";
+    case "vertical-min":
+      return "s-resize";
+  }
+}
 
 test.describe("cursor style", () => {
   async function openPage(page: Page, direction: "horizontal" | "vertical") {

@@ -11,7 +11,7 @@ import Example from "./Example";
 import styles from "./ImperativePanelGroupApi.module.css";
 import sharedStyles from "./shared.module.css";
 import Code from "../../components/Code";
-import { ImperativePanelGroupHandle } from "react-resizable-panels/src/PanelGroup";
+import { ImperativePanelGroupHandle } from "react-resizable-panels";
 
 type Sizes = {
   left: number;

@@ -1,5 +1,5 @@
 import { ImperativePanelGroupHandle } from "react-resizable-panels";
-import { ImperativePanelHandle } from "react-resizable-panels/src";
+import { ImperativePanelHandle } from "react-resizable-panels";
 
 export function assert(
   expectedCondition: boolean,
