@@ -9,9 +9,6 @@
     "test:e2e:debug": "DEBUG=true playwright test",
     "watch": "parcel 'index.html'"
   },
-  "devDependencies": {
-    "kill-port": "latest"
-  },
   "dependencies": {
     "@codemirror/lang-css": "latest",
     "@codemirror/lang-html": "latest",
@@ -20,10 +17,10 @@
     "@codemirror/language": "latest",
     "@codemirror/state": "latest",
     "@lezer/highlight": "latest",
-    "@playwright/test": "latest",
+    "@playwright/test": "^1.35.0",
+    "kill-port": "latest",
     "localforage": "latest",
     "match-sorter": "latest",
-    "playwright": "latest",
     "react": "latest",
     "react-dom": "latest",
     "react-resizable-panels": "*",

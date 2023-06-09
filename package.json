@@ -32,12 +32,12 @@
     "typescript": ">=3.0.0"
   },
   "dependencies": {
-    "@parcel/config-default": "^2.8.3",
-    "@parcel/core": "^2.8.3",
-    "@parcel/packager-ts": "^2.8.3",
-    "@parcel/transformer-js": "^2.8.3",
-    "@parcel/transformer-react-refresh-wrap": "^2.8.3",
-    "@parcel/transformer-typescript-types": "^2.8.3",
+    "@parcel/config-default": "^2.9.1",
+    "@parcel/core": "^2.9.1",
+    "@parcel/packager-ts": "^2.9.1",
+    "@parcel/transformer-js": "^2.9.1",
+    "@parcel/transformer-react-refresh-wrap": "^2.9.1",
+    "@parcel/transformer-typescript-types": "^2.9.1",
     "@preconstruct/cli": "^2.6.4"
   },
   "preconstruct": {
@@ -50,5 +50,8 @@
     "___experimentalFlags_WILL_CHANGE_IN_PATCH": {
       "importsConditions": true
     }
+  },
+  "@parcel/resolver-default": {
+    "packageExports": true
   }
 }
