@@ -18,9 +18,29 @@
         "default": "./dist/react-resizable-panels.cjs.js"
       },
       "development": {
+        "browser": {
+          "module": "./dist/react-resizable-panels.browser.development.esm.js",
+          "import": "./dist/react-resizable-panels.browser.development.cjs.mjs",
+          "default": "./dist/react-resizable-panels.browser.development.cjs.js"
+        },
+        "node": {
+          "module": "./dist/react-resizable-panels.development.node.esm.js",
+          "import": "./dist/react-resizable-panels.development.node.cjs.mjs",
+          "default": "./dist/react-resizable-panels.development.node.cjs.js"
+        },
         "module": "./dist/react-resizable-panels.development.esm.js",
         "import": "./dist/react-resizable-panels.development.cjs.mjs",
         "default": "./dist/react-resizable-panels.development.cjs.js"
+      },
+      "browser": {
+        "module": "./dist/react-resizable-panels.browser.esm.js",
+        "import": "./dist/react-resizable-panels.browser.cjs.mjs",
+        "default": "./dist/react-resizable-panels.browser.cjs.js"
+      },
+      "node": {
+        "module": "./dist/react-resizable-panels.node.esm.js",
+        "import": "./dist/react-resizable-panels.node.cjs.mjs",
+        "default": "./dist/react-resizable-panels.node.cjs.js"
       },
       "module": "./dist/react-resizable-panels.esm.js",
       "import": "./dist/react-resizable-panels.cjs.mjs",
@@ -32,6 +52,11 @@
     "#is-development": {
       "development": "./src/env-conditions/development.ts",
       "default": "./src/env-conditions/production.ts"
+    },
+    "#is-browser": {
+      "browser": "./src/env-conditions/browser.ts",
+      "node": "./src/env-conditions/node.ts",
+      "default": "./src/env-conditions/unknown.ts"
     }
   },
   "types": "dist/react-resizable-panels.cjs.d.ts",
