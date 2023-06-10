@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.50
+* Improved panel size validation in `PanelGroup`.
+
 ## 0.0.49
 * Improved development warnings and props validation checks in `PanelGroup`.
 
