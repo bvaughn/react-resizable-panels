@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.49
+* Improved development warnings and props validation checks in `PanelGroup`.
+
 ## 0.0.48
 * [148](https://github.com/bvaughn/react-resizable-panels/pull/148): Build release bundle with Preconstruct
 
