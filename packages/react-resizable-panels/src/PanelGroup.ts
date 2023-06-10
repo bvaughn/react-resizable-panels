@@ -292,13 +292,16 @@ function PanelGroupWithForwardedRef({
         }
       });
 
-      if (
-        totalDefaultSize > 100 ||
-        (panelsWithNullDefaultSize === 0 && totalDefaultSize !== 100)
+      if (totalDefaultSize > 100) {
+        throw new Error(`Default panel sizes cannot exceed 100%`);
+      } else if (
+        panelsArray.length > 1 &&
+        panelsWithNullDefaultSize === 0 &&
+        totalDefaultSize !== 100
       ) {
         throw new Error(`Invalid default sizes specified for panels`);
       } else if (totalMinSize > 100) {
-        throw new Error(`Invalid minimum sizes specified for panels`);
+        throw new Error(`Minimum panel sizes cannot exceed 100%`);
       }
 
       setSizes(
