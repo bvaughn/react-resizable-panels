@@ -1,3 +1,4 @@
+import { isDevelopment } from "#is-development";
 import {
   createElement,
   CSSProperties,
@@ -12,7 +13,6 @@ import {
   useRef,
   useState,
 } from "./vendor/react";
-import { isDevelopment } from "#is-development";
 
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
@@ -292,14 +292,13 @@ function PanelGroupWithForwardedRef({
         }
       });
 
-      if (totalDefaultSize > 100) {
-        throw new Error(
-          `The sum of the defaultSize of all panels in a group cannot exceed 100.`
-        );
+      if (
+        totalDefaultSize > 100 ||
+        (panelsWithNullDefaultSize === 0 && totalDefaultSize !== 100)
+      ) {
+        throw new Error(`Invalid default sizes specified for panels`);
       } else if (totalMinSize > 100) {
-        throw new Error(
-          `The sum of the minSize of all panels in a group cannot exceed 100.`
-        );
+        throw new Error(`Invalid minimum sizes specified for panels`);
       }
 
       setSizes(
