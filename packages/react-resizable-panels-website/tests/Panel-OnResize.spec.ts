@@ -5,28 +5,41 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { PanelResizeLogEntry } from "../src/routes/examples/types";
 
 import { clearLogEntries, getLogEntries } from "./utils/debug";
-import { goToUrl } from "./utils/url";
+import { goToUrl, updateUrl } from "./utils/url";
 
-async function openPage(page: Page) {
-  const panelGroup = createElement(
-    PanelGroup,
-    { direction: "horizontal", id: "group" },
+function createElements(numPanels: 2 | 3) {
+  const panels = [
     createElement(Panel, {
       collapsible: true,
-      defaultSize: 20,
+      defaultSize: numPanels === 3 ? 20 : 40,
       id: "left",
       order: 1,
     }),
     createElement(PanelResizeHandle, { id: "left-handle" }),
     createElement(Panel, { defaultSize: 60, id: "middle", order: 2 }),
-    createElement(PanelResizeHandle, { id: "right-handle" }),
-    createElement(Panel, {
-      collapsible: true,
-      defaultSize: 20,
-      id: "right",
-      order: 3,
-    })
+  ];
+
+  if (numPanels === 3) {
+    panels.push(
+      createElement(PanelResizeHandle, { id: "right-handle" }),
+      createElement(Panel, {
+        collapsible: true,
+        defaultSize: 20,
+        id: "right",
+        order: 3,
+      })
+    );
+  }
+
+  return createElement(
+    PanelGroup,
+    { direction: "horizontal", id: "group" },
+    ...panels
   );
+}
+
+async function openPage(page: Page) {
+  const panelGroup = createElements(3);
 
   await goToUrl(page, panelGroup);
 }
@@ -118,5 +131,25 @@ test.describe("Panel onResize prop", () => {
       { panelId: "middle", size: 20 },
       { panelId: "right", size: 70 },
     ]);
+  });
+
+  test("should be called when a panel is added or removed from the group", async ({
+    page,
+  }) => {
+    await verifyEntries(page, [
+      { panelId: "left", size: 20 },
+      { panelId: "middle", size: 60 },
+      { panelId: "right", size: 20 },
+    ]);
+
+    await clearLogEntries(page);
+
+    await updateUrl(page, createElements(2));
+    await verifyEntries(page, [{ panelId: "left", size: 40 }]);
+
+    await clearLogEntries(page);
+
+    await updateUrl(page, createElements(3));
+    await verifyEntries(page, [{ panelId: "left", size: 20 }]);
   });
 });

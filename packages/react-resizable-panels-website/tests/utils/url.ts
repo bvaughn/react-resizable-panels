@@ -8,7 +8,32 @@ export async function goToUrl(
   element: ReactElement<PanelGroupProps>
 ) {
   const encodedString = UrlPanelGroupToEncodedString(element);
-  const url = `http://localhost:1234/__e2e?urlPanelGroup=${encodedString}`;
 
-  await page.goto(url);
+  const url = new URL("http://localhost:1234/__e2e");
+  url.searchParams.set("urlPanelGroup", encodedString);
+
+  await page.goto(url.toString());
+}
+
+export async function updateUrl(
+  page: Page,
+  element: ReactElement<PanelGroupProps>
+) {
+  const encodedString = UrlPanelGroupToEncodedString(element);
+
+  await page.evaluate(
+    ([encodedString]) => {
+      const url = new URL(window.location.href);
+      url.searchParams.set("urlPanelGroup", encodedString);
+
+      window.history.pushState(
+        { urlPanelGroup: encodedString },
+        "",
+        url.toString()
+      );
+
+      window.dispatchEvent(new Event("popstate"));
+    },
+    [encodedString]
+  );
 }
