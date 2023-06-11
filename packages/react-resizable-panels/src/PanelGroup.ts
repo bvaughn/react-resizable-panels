@@ -199,6 +199,11 @@ function PanelGroupWithForwardedRef({
 
         assert(total === 100, "Panel sizes must add up to 100%");
 
+        const { panels, sizes: prevSizes } = committedValuesRef.current;
+        const panelsArray = panelsMapToSortedArray(panels);
+
+        callPanelCallbacks(panelsArray, prevSizes, sizes);
+
         setSizes(sizes);
       },
     }),

@@ -10,7 +10,7 @@ import { goToUrl } from "./utils/url";
 async function openPage(page: Page) {
   const panelGroup = createElement(
     PanelGroup,
-    { direction: "horizontal" },
+    { direction: "horizontal", id: "group" },
     createElement(Panel, {
       collapsible: true,
       defaultSize: 20,
@@ -94,6 +94,29 @@ test.describe("Panel onResize prop", () => {
     await verifyEntries(page, [
       { panelId: "middle", size: 90 },
       { panelId: "right", size: 10 },
+    ]);
+  });
+
+  test("should be called when triggering PanelGroup setLayout method", async ({
+    page,
+  }) => {
+    await clearLogEntries(page);
+
+    const panelGroupIdInput = page.locator("#panelGroupIdInput");
+    const setLayoutButton = page.locator("#setLayoutButton");
+    const layoutInput = page.locator("#layoutInput");
+
+    await panelGroupIdInput.focus();
+    await panelGroupIdInput.fill("group");
+
+    await layoutInput.focus();
+    await layoutInput.fill("[10, 20, 70]");
+    await setLayoutButton.click();
+
+    await verifyEntries(page, [
+      { panelId: "left", size: 10 },
+      { panelId: "middle", size: 20 },
+      { panelId: "right", size: 70 },
     ]);
   });
 });

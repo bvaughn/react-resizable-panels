@@ -18,7 +18,7 @@ async function openPage(
 
   const panelGroup = createElement(
     PanelGroup,
-    { direction: "horizontal" },
+    { direction: "horizontal", id: "group" },
     createElement(Panel, {
       collapsible: true,
       defaultSize: collapsedByDefault ? 0 : 20,
@@ -133,5 +133,36 @@ test.describe("Panel onCollapse prop", () => {
 
     await page.keyboard.press("ArrowLeft");
     await verifyEntries(page, [{ panelId: "right", collapsed: false }]);
+  });
+
+  test("should be called when triggering PanelGroup setLayout method", async ({
+    page,
+  }) => {
+    await clearLogEntries(page);
+
+    const panelGroupIdInput = page.locator("#panelGroupIdInput");
+    const setLayoutButton = page.locator("#setLayoutButton");
+    const layoutInput = page.locator("#layoutInput");
+
+    await panelGroupIdInput.focus();
+    await panelGroupIdInput.fill("group");
+
+    await layoutInput.focus();
+    await layoutInput.fill("[70, 30, 0]");
+    await setLayoutButton.click();
+
+    await verifyEntries(page, [{ panelId: "right", collapsed: true }]);
+
+    await clearLogEntries(page);
+
+    await layoutInput.focus();
+    await layoutInput.fill("[0, 0, 100]");
+    await setLayoutButton.click();
+
+    await verifyEntries(page, [
+      { panelId: "left", collapsed: true },
+      { panelId: "middle", collapsed: true },
+      { panelId: "right", collapsed: false },
+    ]);
   });
 });
