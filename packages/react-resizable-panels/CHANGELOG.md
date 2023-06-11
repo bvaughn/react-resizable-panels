@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.51
+* [154](https://github.com/bvaughn/react-resizable-panels/issues/154): `onResize` and `onCollapse` props are called in response to `PanelGroup.setLayout`
+* [123](https://github.com/bvaughn/react-resizable-panels/issues/123): `onResize` called when number of panels in a group change due to conditional rendering
+
 ## 0.0.50
 * Improved panel size validation in `PanelGroup`.
 
