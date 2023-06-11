@@ -14,12 +14,30 @@ import {
   assertImperativePanelGroupHandle,
   assertImperativePanelHandle,
 } from "../../../tests/utils/assert";
+import { useLayoutEffect } from "react";
 
 // Special route that can be configured via URL parameters.
 
 export default function EndToEndTesting() {
-  const url = new URL(typeof window !== undefined ? window.location.href : "");
-  const urlData = urlToUrlData(url);
+  const [urlData, setUrlData] = useState(() => {
+    const url = new URL(
+      typeof window !== undefined ? window.location.href : ""
+    );
+    const urlData = urlToUrlData(url);
+
+    return urlData;
+  });
+
+  useLayoutEffect(() => {
+    window.addEventListener("popstate", (event) => {
+      const url = new URL(
+        typeof window !== undefined ? window.location.href : ""
+      );
+      const urlData = urlToUrlData(url);
+
+      setUrlData(urlData);
+    });
+  }, []);
 
   const [panelId, setPanelId] = useState("");
   const [panelGroupId, setPanelGroupId] = useState("");

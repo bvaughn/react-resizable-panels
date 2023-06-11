@@ -119,25 +119,28 @@ export function adjustByDelta(
 
 export function callPanelCallbacks(
   panelsArray: PanelData[],
-  prevSizes: number[],
-  nextSizes: number[]
+  sizes: number[],
+  panelIdToLastNotifiedSizeMap: Record<string, number>
 ) {
-  nextSizes.forEach((nextSize, index) => {
-    const prevSize = prevSizes[index];
-    if (prevSize !== nextSize) {
-      const { callbacksRef, collapsible } = panelsArray[index].current;
+  sizes.forEach((size, index) => {
+    const { callbacksRef, collapsible, id } = panelsArray[index].current;
+
+    const lastNotifiedSize = panelIdToLastNotifiedSizeMap[id];
+    if (lastNotifiedSize !== size) {
+      panelIdToLastNotifiedSizeMap[id] = size;
+
       const { onCollapse, onResize } = callbacksRef.current!;
 
       if (onResize) {
-        onResize(nextSize);
+        onResize(size);
       }
 
       if (collapsible && onCollapse) {
         // Falsy check handles both previous size of 0
         // and initial size of undefined (when mounting)
-        if (!prevSize && nextSize !== 0) {
+        if (!lastNotifiedSize && size !== 0) {
           onCollapse(false);
-        } else if (prevSize !== 0 && nextSize === 0) {
+        } else if (lastNotifiedSize !== 0 && size === 0) {
           onCollapse(true);
         }
       }

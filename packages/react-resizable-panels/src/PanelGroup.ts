@@ -169,6 +169,8 @@ function PanelGroupWithForwardedRef({
     callbacksRef.current.onLayout = onLayout;
   });
 
+  const panelIdToLastNotifiedSizeMapRef = useRef<Record<string, number>>({});
+
   // 0-1 values representing the relative size of each panel.
   const [sizes, setSizes] = useState<number[]>([]);
 
@@ -199,10 +201,12 @@ function PanelGroupWithForwardedRef({
 
         assert(total === 100, "Panel sizes must add up to 100%");
 
-        const { panels, sizes: prevSizes } = committedValuesRef.current;
+        const { panels } = committedValuesRef.current;
+        const panelIdToLastNotifiedSizeMap =
+          panelIdToLastNotifiedSizeMapRef.current;
         const panelsArray = panelsMapToSortedArray(panels);
 
-        callPanelCallbacks(panelsArray, prevSizes, sizes);
+        callPanelCallbacks(panelsArray, sizes, panelIdToLastNotifiedSizeMap);
 
         setSizes(sizes);
       },
@@ -229,29 +233,23 @@ function PanelGroupWithForwardedRef({
   useEffect(() => {
     const { onLayout } = callbacksRef.current!;
     if (onLayout) {
-      const { sizes } = committedValuesRef.current;
+      const { panels, sizes } = committedValuesRef.current;
 
       // Don't commit layout until all panels have registered and re-rendered with their actual sizes.
       if (sizes.length > 0) {
         onLayout(sizes);
+
+        const panelIdToLastNotifiedSizeMap =
+          panelIdToLastNotifiedSizeMapRef.current;
+
+        // When possible, we notify before the next render so that rendering work can be batched together.
+        // Some cases are difficult to detect though,
+        // for example– panels that are conditionally rendered can affect the size of neighboring panels.
+        // In this case, the best we can do is notify on commit.
+        // The callPanelCallbacks() uses its own memoization to avoid notifying panels twice in these cases.
+        const panelsArray = panelsMapToSortedArray(panels);
+        callPanelCallbacks(panelsArray, sizes, panelIdToLastNotifiedSizeMap);
       }
-    }
-  }, [sizes]);
-
-  // Notify Panel listeners about their initial sizes and collapsed state after mount.
-  // Subsequent changes will be called by the resizeHandler.
-  const didNotifyCallbacksAfterMountRef = useRef(false);
-  useIsomorphicLayoutEffect(() => {
-    if (didNotifyCallbacksAfterMountRef.current) {
-      return;
-    }
-
-    const { panels, sizes } = committedValuesRef.current;
-    if (sizes.length > 0) {
-      didNotifyCallbacksAfterMountRef.current = true;
-
-      const panelsArray = panelsMapToSortedArray(panels);
-      callPanelCallbacks(panelsArray, [], sizes);
     }
   }, [sizes]);
 
@@ -486,8 +484,15 @@ function PanelGroupWithForwardedRef({
         }
 
         if (sizesChanged) {
+          const panelIdToLastNotifiedSizeMap =
+            panelIdToLastNotifiedSizeMapRef.current;
+
           // If resize change handlers have been declared, this is the time to call them.
-          callPanelCallbacks(panelsArray, prevSizes, nextSizes);
+          callPanelCallbacks(
+            panelsArray,
+            nextSizes,
+            panelIdToLastNotifiedSizeMap
+          );
 
           setSizes(nextSizes);
         }
@@ -555,8 +560,11 @@ function PanelGroupWithForwardedRef({
       null
     );
     if (prevSizes !== nextSizes) {
+      const panelIdToLastNotifiedSizeMap =
+        panelIdToLastNotifiedSizeMapRef.current;
+
       // If resize change handlers have been declared, this is the time to call them.
-      callPanelCallbacks(panelsArray, prevSizes, nextSizes);
+      callPanelCallbacks(panelsArray, nextSizes, panelIdToLastNotifiedSizeMap);
 
       setSizes(nextSizes);
     }
@@ -608,8 +616,11 @@ function PanelGroupWithForwardedRef({
       null
     );
     if (prevSizes !== nextSizes) {
+      const panelIdToLastNotifiedSizeMap =
+        panelIdToLastNotifiedSizeMapRef.current;
+
       // If resize change handlers have been declared, this is the time to call them.
-      callPanelCallbacks(panelsArray, prevSizes, nextSizes);
+      callPanelCallbacks(panelsArray, nextSizes, panelIdToLastNotifiedSizeMap);
 
       setSizes(nextSizes);
     }
@@ -663,8 +674,11 @@ function PanelGroupWithForwardedRef({
       null
     );
     if (prevSizes !== nextSizes) {
+      const panelIdToLastNotifiedSizeMap =
+        panelIdToLastNotifiedSizeMapRef.current;
+
       // If resize change handlers have been declared, this is the time to call them.
-      callPanelCallbacks(panelsArray, prevSizes, nextSizes);
+      callPanelCallbacks(panelsArray, nextSizes, panelIdToLastNotifiedSizeMap);
 
       setSizes(nextSizes);
     }
