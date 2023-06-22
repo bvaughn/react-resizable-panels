@@ -232,24 +232,22 @@ function PanelGroupWithForwardedRef({
   // Notify external code when sizes have changed.
   useEffect(() => {
     const { onLayout } = callbacksRef.current!;
-    if (onLayout) {
-      const { panels, sizes } = committedValuesRef.current;
+    const { panels, sizes } = committedValuesRef.current;
 
-      // Don't commit layout until all panels have registered and re-rendered with their actual sizes.
-      if (sizes.length > 0) {
-        onLayout(sizes);
+    // Don't commit layout until all panels have registered and re-rendered with their actual sizes.
+    if (sizes.length > 0) {
+      onLayout?.(sizes);
 
-        const panelIdToLastNotifiedSizeMap =
-          panelIdToLastNotifiedSizeMapRef.current;
+      const panelIdToLastNotifiedSizeMap =
+        panelIdToLastNotifiedSizeMapRef.current;
 
-        // When possible, we notify before the next render so that rendering work can be batched together.
-        // Some cases are difficult to detect though,
-        // for example– panels that are conditionally rendered can affect the size of neighboring panels.
-        // In this case, the best we can do is notify on commit.
-        // The callPanelCallbacks() uses its own memoization to avoid notifying panels twice in these cases.
-        const panelsArray = panelsMapToSortedArray(panels);
-        callPanelCallbacks(panelsArray, sizes, panelIdToLastNotifiedSizeMap);
-      }
+      // When possible, we notify before the next render so that rendering work can be batched together.
+      // Some cases are difficult to detect though,
+      // for example– panels that are conditionally rendered can affect the size of neighboring panels.
+      // In this case, the best we can do is notify on commit.
+      // The callPanelCallbacks() uses its own memoization to avoid notifying panels twice in these cases.
+      const panelsArray = panelsMapToSortedArray(panels);
+      callPanelCallbacks(panelsArray, sizes, panelIdToLastNotifiedSizeMap);
     }
   }, [sizes]);
 
