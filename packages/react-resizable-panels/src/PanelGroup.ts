@@ -236,7 +236,9 @@ function PanelGroupWithForwardedRef({
 
     // Don't commit layout until all panels have registered and re-rendered with their actual sizes.
     if (sizes.length > 0) {
-      onLayout?.(sizes);
+      if (onLayout) {
+        onLayout(sizes);
+      }
 
       const panelIdToLastNotifiedSizeMap =
         panelIdToLastNotifiedSizeMapRef.current;
