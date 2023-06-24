@@ -24,6 +24,7 @@ import { ImperativeDebugLogHandle } from "../routes/examples/DebugLog";
 
 type UrlPanel = {
   children: Array<string | UrlPanelGroup>;
+  collapsedSize?: number;
   collapsible?: boolean;
   defaultSize?: number | null;
   id?: string | null;
@@ -100,6 +101,7 @@ function UrlPanelToData(urlPanel: ReactElement<PanelProps>): UrlPanel {
         return child;
       }
     }),
+    collapsedSize: urlPanel.props.collapsedSize,
     collapsible: urlPanel.props.collapsible,
     defaultSize: urlPanel.props.defaultSize,
     id: urlPanel.props.id,
@@ -193,6 +195,7 @@ function urlPanelToPanel(
     Panel,
     {
       className: "Panel",
+      collapsedSize: urlPanel.collapsedSize,
       collapsible: urlPanel.collapsible,
       defaultSize: urlPanel.defaultSize,
       id: urlPanel.id,

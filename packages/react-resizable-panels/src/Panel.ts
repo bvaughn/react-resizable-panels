@@ -24,6 +24,7 @@ import {
 export type PanelProps = {
   children?: ReactNode;
   className?: string;
+  collapsedSize?: number;
   collapsible?: boolean;
   defaultSize?: number | null;
   id?: string | null;
@@ -47,6 +48,7 @@ export type ImperativePanelHandle = {
 function PanelWithForwardedRef({
   children = null,
   className: classNameFromProps = "",
+  collapsedSize = 0,
   collapsible = false,
   defaultSize = null,
   forwardedRef,
@@ -119,6 +121,7 @@ function PanelWithForwardedRef({
   });
   const panelDataRef = useRef<{
     callbacksRef: PanelCallbackRef;
+    collapsedSize: number;
     collapsible: boolean;
     defaultSize: number | null;
     id: string;
@@ -127,6 +130,7 @@ function PanelWithForwardedRef({
     order: number | null;
   }>({
     callbacksRef,
+    collapsedSize,
     collapsible,
     defaultSize,
     id: panelId,
@@ -138,6 +142,7 @@ function PanelWithForwardedRef({
     committedValuesRef.current.size = parseSizeFromStyle(style);
 
     panelDataRef.current.callbacksRef = callbacksRef;
+    panelDataRef.current.collapsedSize = collapsedSize;
     panelDataRef.current.collapsible = collapsible;
     panelDataRef.current.defaultSize = defaultSize;
     panelDataRef.current.id = panelId;

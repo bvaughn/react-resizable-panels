@@ -206,9 +206,9 @@ function PanelGroupWithForwardedRef({
           panelIdToLastNotifiedSizeMapRef.current;
         const panelsArray = panelsMapToSortedArray(panels);
 
-        callPanelCallbacks(panelsArray, sizes, panelIdToLastNotifiedSizeMap);
-
         setSizes(sizes);
+
+        callPanelCallbacks(panelsArray, sizes, panelIdToLastNotifiedSizeMap);
       },
     }),
     []
@@ -487,14 +487,15 @@ function PanelGroupWithForwardedRef({
           const panelIdToLastNotifiedSizeMap =
             panelIdToLastNotifiedSizeMapRef.current;
 
+          setSizes(nextSizes);
+
           // If resize change handlers have been declared, this is the time to call them.
+          // Trigger user callbacks after updating state, so that user code can override the sizes.
           callPanelCallbacks(
             panelsArray,
             nextSizes,
             panelIdToLastNotifiedSizeMap
           );
-
-          setSizes(nextSizes);
         }
 
         prevDeltaRef.current = delta;
@@ -522,7 +523,12 @@ function PanelGroupWithForwardedRef({
     const { panels, sizes: prevSizes } = committedValuesRef.current;
 
     const panel = panels.get(id);
-    if (panel == null || !panel.current.collapsible) {
+    if (panel == null) {
+      return;
+    }
+
+    const { collapsedSize, collapsible } = panel.current;
+    if (!collapsible) {
       return;
     }
 
@@ -534,7 +540,7 @@ function PanelGroupWithForwardedRef({
     }
 
     const currentSize = prevSizes[index];
-    if (currentSize === 0) {
+    if (currentSize === collapsedSize) {
       // Panel is already collapsed.
       return;
     }
@@ -547,7 +553,7 @@ function PanelGroupWithForwardedRef({
     }
 
     const isLastPanel = index === panelsArray.length - 1;
-    const delta = isLastPanel ? currentSize : 0 - currentSize;
+    const delta = isLastPanel ? currentSize : collapsedSize - currentSize;
 
     const nextSizes = adjustByDelta(
       null,
@@ -563,10 +569,11 @@ function PanelGroupWithForwardedRef({
       const panelIdToLastNotifiedSizeMap =
         panelIdToLastNotifiedSizeMapRef.current;
 
-      // If resize change handlers have been declared, this is the time to call them.
-      callPanelCallbacks(panelsArray, nextSizes, panelIdToLastNotifiedSizeMap);
-
       setSizes(nextSizes);
+
+      // If resize change handlers have been declared, this is the time to call them.
+      // Trigger user callbacks after updating state, so that user code can override the sizes.
+      callPanelCallbacks(panelsArray, nextSizes, panelIdToLastNotifiedSizeMap);
     }
   }, []);
 
@@ -578,8 +585,10 @@ function PanelGroupWithForwardedRef({
       return;
     }
 
+    const { collapsedSize, minSize } = panel.current;
+
     const sizeBeforeCollapse =
-      panelSizeBeforeCollapse.current.get(id) || panel.current.minSize;
+      panelSizeBeforeCollapse.current.get(id) || minSize;
     if (!sizeBeforeCollapse) {
       return;
     }
@@ -592,7 +601,7 @@ function PanelGroupWithForwardedRef({
     }
 
     const currentSize = prevSizes[index];
-    if (currentSize !== 0) {
+    if (currentSize !== collapsedSize) {
       // Panel is already expanded.
       return;
     }
@@ -603,7 +612,9 @@ function PanelGroupWithForwardedRef({
     }
 
     const isLastPanel = index === panelsArray.length - 1;
-    const delta = isLastPanel ? 0 - sizeBeforeCollapse : sizeBeforeCollapse;
+    const delta = isLastPanel
+      ? collapsedSize - sizeBeforeCollapse
+      : sizeBeforeCollapse;
 
     const nextSizes = adjustByDelta(
       null,
@@ -619,10 +630,11 @@ function PanelGroupWithForwardedRef({
       const panelIdToLastNotifiedSizeMap =
         panelIdToLastNotifiedSizeMapRef.current;
 
-      // If resize change handlers have been declared, this is the time to call them.
-      callPanelCallbacks(panelsArray, nextSizes, panelIdToLastNotifiedSizeMap);
-
       setSizes(nextSizes);
+
+      // If resize change handlers have been declared, this is the time to call them.
+      // Trigger user callbacks after updating state, so that user code can override the sizes.
+      callPanelCallbacks(panelsArray, nextSizes, panelIdToLastNotifiedSizeMap);
     }
   }, []);
 
@@ -633,6 +645,8 @@ function PanelGroupWithForwardedRef({
     if (panel == null) {
       return;
     }
+
+    const { collapsedSize, collapsible, maxSize, minSize } = panel.current;
 
     const panelsArray = panelsMapToSortedArray(panels);
 
@@ -646,13 +660,10 @@ function PanelGroupWithForwardedRef({
       return;
     }
 
-    if (panel.current.collapsible && nextSize === 0) {
+    if (collapsible && nextSize === collapsedSize) {
       // This is a valid resize state.
     } else {
-      nextSize = Math.min(
-        panel.current.maxSize,
-        Math.max(panel.current.minSize, nextSize)
-      );
+      nextSize = Math.min(maxSize, Math.max(minSize, nextSize));
     }
 
     const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
@@ -677,10 +688,11 @@ function PanelGroupWithForwardedRef({
       const panelIdToLastNotifiedSizeMap =
         panelIdToLastNotifiedSizeMapRef.current;
 
-      // If resize change handlers have been declared, this is the time to call them.
-      callPanelCallbacks(panelsArray, nextSizes, panelIdToLastNotifiedSizeMap);
-
       setSizes(nextSizes);
+
+      // If resize change handlers have been declared, this is the time to call them.
+      // Trigger user callbacks after updating state, so that user code can override the sizes.
+      callPanelCallbacks(panelsArray, nextSizes, panelIdToLastNotifiedSizeMap);
     }
   }, []);
 

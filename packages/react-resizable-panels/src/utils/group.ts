@@ -123,7 +123,8 @@ export function callPanelCallbacks(
   panelIdToLastNotifiedSizeMap: Record<string, number>
 ) {
   sizes.forEach((size, index) => {
-    const { callbacksRef, collapsible, id } = panelsArray[index].current;
+    const { callbacksRef, collapsedSize, collapsible, id } =
+      panelsArray[index].current;
 
     const lastNotifiedSize = panelIdToLastNotifiedSizeMap[id];
     if (lastNotifiedSize !== size) {
@@ -132,15 +133,19 @@ export function callPanelCallbacks(
       const { onCollapse, onResize } = callbacksRef.current!;
 
       if (onResize) {
-        onResize(size);
+        onResize(size, lastNotifiedSize);
       }
 
       if (collapsible && onCollapse) {
-        // Falsy check handles both previous size of 0
-        // and initial size of undefined (when mounting)
-        if (!lastNotifiedSize && size !== 0) {
+        if (
+          (lastNotifiedSize == null || lastNotifiedSize === collapsedSize) &&
+          size !== collapsedSize
+        ) {
           onCollapse(false);
-        } else if (lastNotifiedSize !== 0 && size === 0) {
+        } else if (
+          lastNotifiedSize !== collapsedSize &&
+          size === collapsedSize
+        ) {
           onCollapse(true);
         }
       }
@@ -277,11 +282,13 @@ function safeResizePanel(
 ): number {
   const nextSizeUnsafe = prevSize + delta;
 
-  if (panel.current.collapsible) {
-    if (prevSize > 0) {
+  const { collapsedSize, collapsible, maxSize, minSize } = panel.current;
+
+  if (collapsible) {
+    if (prevSize > collapsedSize) {
       // Mimic VS COde behavior; collapse a panel if it's smaller than half of its min-size
-      if (nextSizeUnsafe <= panel.current.minSize / 2) {
-        return 0;
+      if (nextSizeUnsafe <= minSize / 2 + collapsedSize) {
+        return collapsedSize;
       }
     } else {
       const isKeyboardEvent = event?.type?.startsWith("key");
@@ -289,17 +296,14 @@ function safeResizePanel(
         // Keyboard events should expand a collapsed panel to the min size,
         // but mouse events should wait until the panel has reached its min size
         // to avoid a visual flickering when dragging between collapsed and min size.
-        if (nextSizeUnsafe < panel.current.minSize) {
-          return 0;
+        if (nextSizeUnsafe < minSize) {
+          return collapsedSize;
         }
       }
     }
   }
 
-  const nextSize = Math.min(
-    panel.current.maxSize,
-    Math.max(panel.current.minSize, nextSizeUnsafe)
-  );
+  const nextSize = Math.min(maxSize, Math.max(minSize, nextSizeUnsafe));
 
   return nextSize;
 }

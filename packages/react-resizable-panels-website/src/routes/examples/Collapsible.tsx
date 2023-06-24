@@ -23,9 +23,12 @@ export default function CollapsibleRoute() {
       headerNode={
         <>
           <p>
-            The example below uses the <code>collapsible</code> and{" "}
-            <code>onCollapse</code> props to mimic the UX of apps like VS Code
-            by configuring a panel to be <em>collapsible</em>.
+            The example below uses the <code>collapsedSize</code>,{" "}
+            <code>collapsible</code>, and <code>onCollapse</code> props to mimic
+            the UX of apps like VS Code by configuring a panel to be{" "}
+            <em>collapsible</em>. Panels can be collapsed all the way (to size
+            0) but in this example, the panel is configured to collapse to a
+            size that allows the file icons to remain visible.
           </p>
           <p>
             Drag the bar between the file browser and the source viewer to
@@ -66,6 +69,7 @@ function Content() {
         </div>
         <Panel
           className={sharedStyles.PanelColumn}
+          collapsedSize={4}
           collapsible={true}
           defaultSize={20}
           maxSize={25}
@@ -165,7 +169,7 @@ const FILES: File[] = FILE_PATHS.map(([path, code]) => {
 const CODE = `
 <PanelGroup direction="horizontal">
   <SideTabBar />
-  <Panel collapsible={true}>
+  <Panel collapsedSize={5} collapsible={true} minSize={10}>
     <SourceBrowser />
   </Panel>
   <PanelResizeHandle />

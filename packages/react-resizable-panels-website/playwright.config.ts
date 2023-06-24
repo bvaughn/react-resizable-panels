@@ -1,5 +1,7 @@
 import type { PlaywrightTestConfig } from "@playwright/test";
 
+const { DEBUG } = process.env;
+
 const config: PlaywrightTestConfig = {
   use: {
     headless: true,
@@ -20,10 +22,9 @@ if (process.env.DEBUG) {
     browserName: "chromium",
     headless: false,
 
-    // Uncomment to slow down interactions if needed for visual debugging.
-    // launchOptions: {
-    //   slowMo: 100,
-    // },
+    launchOptions: {
+      slowMo: DEBUG ? 250 : undefined,
+    },
   };
 }
 
