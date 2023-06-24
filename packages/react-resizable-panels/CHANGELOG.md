@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.52
+* [162](https://github.com/bvaughn/react-resizable-panels/issues/162): Add `Panel.collapsedSize` property to allow panels to be collapsed to custom, non-0 sizes
+* [161](https://github.com/bvaughn/react-resizable-panels/pull/161): Bug fix: `onResize` should be called for the initial `Panel` size regardless of the `onLayout` prop
+
 ## 0.0.51
 * [154](https://github.com/bvaughn/react-resizable-panels/issues/154): `onResize` and `onCollapse` props are called in response to `PanelGroup.setLayout`
 * [123](https://github.com/bvaughn/react-resizable-panels/issues/123): `onResize` called when number of panels in a group change due to conditional rendering
