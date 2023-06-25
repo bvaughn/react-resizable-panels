@@ -123,8 +123,14 @@ export function callPanelCallbacks(
   panelIdToLastNotifiedSizeMap: Record<string, number>
 ) {
   sizes.forEach((size, index) => {
-    const { callbacksRef, collapsedSize, collapsible, id } =
-      panelsArray[index].current;
+    const panelRef = panelsArray[index];
+    if (!panelRef) {
+      // Handle initial mount (when panels are registered too late to be in the panels array)
+      // The subsequent render+effects will handle the resize notification
+      return;
+    }
+
+    const { callbacksRef, collapsedSize, collapsible, id } = panelRef.current;
 
     const lastNotifiedSize = panelIdToLastNotifiedSizeMap[id];
     if (lastNotifiedSize !== size) {
