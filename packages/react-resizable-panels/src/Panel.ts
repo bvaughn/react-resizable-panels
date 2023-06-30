@@ -35,6 +35,7 @@ export type PanelProps = {
   order?: number | null;
   style?: CSSProperties;
   tagName?: ElementType;
+  transition?: string;
 };
 
 export type ImperativePanelHandle = {
@@ -60,6 +61,7 @@ function PanelWithForwardedRef({
   order = null,
   style: styleFromProps = {},
   tagName: Type = "div",
+  transition = "0s",
 }: PanelProps & {
   forwardedRef: ForwardedRef<ImperativePanelHandle>;
 }) {
@@ -112,7 +114,7 @@ function PanelWithForwardedRef({
     }
   }
 
-  const style = getPanelStyle(panelId, defaultSize);
+  const style = getPanelStyle(panelId, defaultSize, transition);
 
   const committedValuesRef = useRef<{
     size: number;

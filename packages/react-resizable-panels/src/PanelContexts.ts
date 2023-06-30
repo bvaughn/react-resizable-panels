@@ -7,7 +7,11 @@ export const PanelGroupContext = createContext<{
   collapsePanel: (id: string) => void;
   direction: "horizontal" | "vertical";
   expandPanel: (id: string) => void;
-  getPanelStyle: (id: string, defaultSize: number | null) => CSSProperties;
+  getPanelStyle: (
+    id: string,
+    defaultSize: number | null,
+    transition: string
+  ) => CSSProperties;
   groupId: string;
   registerPanel: (id: string, panel: PanelData) => void;
   registerResizeHandle: (id: string) => ResizeHandler;

@@ -337,7 +337,11 @@ function PanelGroupWithForwardedRef({
   }, [autoSaveId, panels, sizes, storage]);
 
   const getPanelStyle = useCallback(
-    (id: string, defaultSize: number | null): CSSProperties => {
+    (
+      id: string,
+      defaultSize: number | null,
+      transition: string
+    ): CSSProperties => {
       const { panels } = committedValuesRef.current;
 
       // Before mounting, Panels will not yet have registered themselves.
@@ -359,6 +363,7 @@ function PanelGroupWithForwardedRef({
 
           // Without this, Panel sizes may be unintentionally overridden by their content.
           overflow: "hidden",
+          transition: `flex-grow ${transition} ease-in-out`,
         };
       }
 
@@ -371,6 +376,7 @@ function PanelGroupWithForwardedRef({
 
         // Without this, Panel sizes may be unintentionally overridden by their content.
         overflow: "hidden",
+        transition: `flex-grow ${transition} ease-in-out`,
 
         // Disable pointer events inside of a panel during resize.
         // This avoid edge cases like nested iframes.
