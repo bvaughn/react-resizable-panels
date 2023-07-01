@@ -1,3 +1,4 @@
+import { isBrowser } from "#is-browser";
 import { RefObject, useEffect } from "../vendor/react";
 import { PRECISION } from "../constants";
 
@@ -34,6 +35,9 @@ export function useWindowSplitterPanelGroupBehavior({
   sizes: number[];
   panelSizeBeforeCollapse: RefObject<Map<string, number>>;
 }): void {
+  if (!isBrowser) {
+    return;
+  }
   useEffect(() => {
     const { direction, panels } = committedValuesRef.current!;
 
@@ -170,6 +174,9 @@ export function useWindowSplitterResizeHandlerBehavior({
   handleId: string;
   resizeHandler: ResizeHandler | null;
 }): void {
+  if (!isBrowser) {
+    return;
+  }
   useEffect(() => {
     if (disabled || resizeHandler == null) {
       return;

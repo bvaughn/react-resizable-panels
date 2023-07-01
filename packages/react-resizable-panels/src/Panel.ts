@@ -1,3 +1,4 @@
+import { isBrowser } from "#is-browser";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
 import {
@@ -81,16 +82,6 @@ function PanelWithForwardedRef({
     unregisterPanel,
   } = context;
 
-  // Use a ref to guard against users passing inline props
-  const callbacksRef = useRef<{
-    onCollapse: PanelOnCollapse | null;
-    onResize: PanelOnResize | null;
-  }>({ onCollapse, onResize });
-  useEffect(() => {
-    callbacksRef.current.onCollapse = onCollapse;
-    callbacksRef.current.onResize = onResize;
-  });
-
   // Basic props validation
   if (minSize < 0 || minSize > 100) {
     throw Error(`Panel minSize must be between 0 and 100, but was ${minSize}`);
@@ -114,66 +105,78 @@ function PanelWithForwardedRef({
 
   const style = getPanelStyle(panelId, defaultSize);
 
-  const committedValuesRef = useRef<{
-    size: number;
-  }>({
-    size: parseSizeFromStyle(style),
-  });
-  const panelDataRef = useRef<{
-    callbacksRef: PanelCallbackRef;
-    collapsedSize: number;
-    collapsible: boolean;
-    defaultSize: number | null;
-    id: string;
-    maxSize: number;
-    minSize: number;
-    order: number | null;
-  }>({
-    callbacksRef,
-    collapsedSize,
-    collapsible,
-    defaultSize,
-    id: panelId,
-    maxSize,
-    minSize,
-    order,
-  });
-  useIsomorphicLayoutEffect(() => {
-    committedValuesRef.current.size = parseSizeFromStyle(style);
+  if (isBrowser) {
+    // Use a ref to guard against users passing inline props
+    const callbacksRef = useRef<{
+      onCollapse: PanelOnCollapse | null;
+      onResize: PanelOnResize | null;
+    }>({ onCollapse, onResize });
+    useEffect(() => {
+      callbacksRef.current.onCollapse = onCollapse;
+      callbacksRef.current.onResize = onResize;
+    });
 
-    panelDataRef.current.callbacksRef = callbacksRef;
-    panelDataRef.current.collapsedSize = collapsedSize;
-    panelDataRef.current.collapsible = collapsible;
-    panelDataRef.current.defaultSize = defaultSize;
-    panelDataRef.current.id = panelId;
-    panelDataRef.current.maxSize = maxSize;
-    panelDataRef.current.minSize = minSize;
-    panelDataRef.current.order = order;
-  });
+    const committedValuesRef = useRef<{
+      size: number;
+    }>({
+      size: parseSizeFromStyle(style),
+    });
+    const panelDataRef = useRef<{
+      callbacksRef: PanelCallbackRef;
+      collapsedSize: number;
+      collapsible: boolean;
+      defaultSize: number | null;
+      id: string;
+      maxSize: number;
+      minSize: number;
+      order: number | null;
+    }>({
+      callbacksRef,
+      collapsedSize,
+      collapsible,
+      defaultSize,
+      id: panelId,
+      maxSize,
+      minSize,
+      order,
+    });
+    useIsomorphicLayoutEffect(() => {
+      committedValuesRef.current.size = parseSizeFromStyle(style);
 
-  useIsomorphicLayoutEffect(() => {
-    registerPanel(panelId, panelDataRef as PanelData);
+      panelDataRef.current.callbacksRef = callbacksRef;
+      panelDataRef.current.collapsedSize = collapsedSize;
+      panelDataRef.current.collapsible = collapsible;
+      panelDataRef.current.defaultSize = defaultSize;
+      panelDataRef.current.id = panelId;
+      panelDataRef.current.maxSize = maxSize;
+      panelDataRef.current.minSize = minSize;
+      panelDataRef.current.order = order;
+    });
 
-    return () => {
-      unregisterPanel(panelId);
-    };
-  }, [order, panelId, registerPanel, unregisterPanel]);
+    useIsomorphicLayoutEffect(() => {
+      registerPanel(panelId, panelDataRef as PanelData);
 
-  useImperativeHandle(
-    forwardedRef,
-    () => ({
-      collapse: () => collapsePanel(panelId),
-      expand: () => expandPanel(panelId),
-      getCollapsed() {
-        return committedValuesRef.current.size === 0;
-      },
-      getSize() {
-        return committedValuesRef.current.size;
-      },
-      resize: (percentage: number) => resizePanel(panelId, percentage),
-    }),
-    [collapsePanel, expandPanel, panelId, resizePanel]
-  );
+      return () => {
+        unregisterPanel(panelId);
+      };
+    }, [order, panelId, registerPanel, unregisterPanel]);
+
+    useImperativeHandle(
+      forwardedRef,
+      () => ({
+        collapse: () => collapsePanel(panelId),
+        expand: () => expandPanel(panelId),
+        getCollapsed() {
+          return committedValuesRef.current.size === 0;
+        },
+        getSize() {
+          return committedValuesRef.current.size;
+        },
+        resize: (percentage: number) => resizePanel(panelId, percentage),
+      }),
+      [collapsePanel, expandPanel, panelId, resizePanel]
+    );
+  }
 
   return createElement(Type, {
     children,
