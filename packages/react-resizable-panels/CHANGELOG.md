@@ -1,5 +1,8 @@
 # Changelog
 
+## (Pending)
+* [156](https://github.com/bvaughn/react-resizable-panels/pull/156): Package exports now used to select between node (server-rendering) and browser (client-rendering) bundles
+
 ## 0.0.53
 * Fix edge case race condition for `onResize` callbacks during initial mount
 
