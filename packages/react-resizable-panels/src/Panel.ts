@@ -195,11 +195,8 @@ export const Panel = forwardRef<ImperativePanelHandle, PanelProps>(
     createElement(PanelWithForwardedRef, { ...props, forwardedRef: ref })
 );
 
-// Workaround for Parcel scope hoisting (which renames objects/functions).
-// Casting to :any is required to avoid corrupting the generated TypeScript types.
-// See github.com/parcel-bundler/parcel/issues/8724
-(PanelWithForwardedRef as any).displayName = "Panel";
-(Panel as any).displayName = "forwardRef(Panel)";
+PanelWithForwardedRef.displayName = "Panel";
+Panel.displayName = "forwardRef(Panel)";
 
 // HACK
 function parseSizeFromStyle(style: CSSProperties): number {
