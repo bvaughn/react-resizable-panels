@@ -768,8 +768,5 @@ export const PanelGroup = forwardRef<
   createElement(PanelGroupWithForwardedRef, { ...props, forwardedRef: ref })
 );
 
-// Workaround for Parcel scope hoisting (which renames objects/functions).
-// Casting to :any is required to avoid corrupting the generated TypeScript types.
-// See github.com/parcel-bundler/parcel/issues/8724
-(PanelGroupWithForwardedRef as any).displayName = "PanelGroup";
-(PanelGroup as any).displayName = "forwardRef(PanelGroup)";
+PanelGroupWithForwardedRef.displayName = "PanelGroup";
+PanelGroup.displayName = "forwardRef(PanelGroup)";
