@@ -18,6 +18,26 @@ Supported input methods include mouse, touch, and keyboard (via [Window Splitter
 
 ## FAQ
 
+### How can I fix layout/sizing problems with conditionally rendered panels?
+
+The `Panel` API doesn't _require_ `id` and `order` props because they aren't necessary for static layouts. When panels are conditionally rendered though, it's best to supply these values.
+
+```tsx
+<PanelGroup direction="horizontal">
+  {renderSideBar && (
+    <>
+      <Panel id="sidebar" minSize={25} order={1}>
+        <Sidebar />
+      </Panel>
+      <PanelResizeHandle />
+    </>
+  )}
+  <Panel minSize={25} order={2}>
+    <Main />
+  </Panel>
+</PanelGroup>
+```
+
 ### How can I use persistent layouts with SSR?
 
 By default, this library uses `localStorage` to persist layouts. With server rendering, this can cause a flicker when the default layout (rendered on the server) is replaced with the persisted layout (in `localStorage`). The way to avoid this flicker is to also persist the layout with a cookie like so:
