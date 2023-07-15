@@ -17,7 +17,6 @@
     "@codemirror/language": "latest",
     "@codemirror/state": "latest",
     "@lezer/highlight": "latest",
-    "@playwright/test": "^1.35.0",
     "kill-port": "latest",
     "localforage": "latest",
     "match-sorter": "latest",

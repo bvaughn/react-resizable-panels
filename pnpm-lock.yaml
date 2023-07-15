@@ -29,6 +29,9 @@ importers:
       '@babel/preset-typescript':
         specifier: ^7.21.5
         version: 7.21.5(@babel/core@7.21.8)
+      '@playwright/test':
+        specifier: ^1.35.0
+        version: 1.35.0
       '@types/node':
         specifier: ^18.15.11
         version: 18.16.9
@@ -104,9 +107,6 @@ importers:
       '@lezer/highlight':
         specifier: latest
         version: 1.1.6
-      '@playwright/test':
-        specifier: ^1.35.0
-        version: 1.35.0
       kill-port:
         specifier: latest
         version: 2.0.1
@@ -1489,7 +1489,7 @@ packages:
       playwright-core: 1.35.0
     optionalDependencies:
       fsevents: 2.3.2
-    dev: false
+    dev: true
 
   /@preconstruct/cli@2.8.1:
     resolution: {integrity: sha512-PX5w+au06iY/QaT+9RLmRlIfavRCRoMTC/krwtNrgPEnubR9e6P+QlywrKmwiEvkzbR9AEzGnRZL8uNRDDMzrQ==}
@@ -2510,7 +2510,6 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
     requiresBuild: true
-    dev: false
     optional: true
 
   /function-bind@1.1.1:
@@ -3334,7 +3333,7 @@ packages:
     resolution: {integrity: sha512-muMXyPmIx/2DPrCHOD1H1ePT01o7OdKxKj2ebmCAYvqhUy+Y1bpal7B0rdoxros7YrXI294JT/DWw2LqyiqTPA==}
     engines: {node: '>=16'}
     hasBin: true
-    dev: false
+    dev: true
 
   /postcss-value-parser@4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
