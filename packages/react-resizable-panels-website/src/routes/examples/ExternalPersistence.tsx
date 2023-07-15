@@ -45,10 +45,11 @@ function Content() {
     () => ({
       getItem(name: string) {
         try {
-          const parsed = JSON.parse(
-            decodeURI(window.location.hash.substring(1))
-          );
-          return parsed[name] || "";
+          const raw = decodeURI(window.location.hash.substring(1));
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            return parsed[name] || "";
+          }
         } catch (error) {
           console.error(error);
 

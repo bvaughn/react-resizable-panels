@@ -4,6 +4,7 @@ const { DEBUG } = process.env;
 
 const config: PlaywrightTestConfig = {
   use: {
+    browserName: "chromium",
     headless: true,
     viewport: { width: 400, height: 300 },
     ignoreHTTPSErrors: true,
@@ -19,7 +20,6 @@ const config: PlaywrightTestConfig = {
 if (process.env.DEBUG) {
   config.use = {
     ...config.use,
-    browserName: "chromium",
     headless: false,
 
     launchOptions: {
