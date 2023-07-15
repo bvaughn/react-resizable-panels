@@ -1,6 +1,6 @@
 # Changelog
 
-## (Pending)
+## 0.0.54
 * [172](https://github.com/bvaughn/react-resizable-panels/issues/172): Development warning added to `PanelGroup` for conditionally-rendered `Panel`(s) that don't have `id` and `order` props
 * [156](https://github.com/bvaughn/react-resizable-panels/pull/156): Package exports now used to select between node (server-rendering) and browser (client-rendering) bundles
 
