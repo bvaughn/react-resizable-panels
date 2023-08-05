@@ -1,7 +1,7 @@
-import { Locator, expect, Page } from "@playwright/test";
+import { Locator, Page, expect } from "@playwright/test";
+import { assert } from "./assert";
 import { getBodyCursorStyle } from "./cursor";
 import { verifyFuzzySizes } from "./verify";
-import { assert } from "./assert";
 
 type Operation = {
   expectedCursor?: string;
@@ -125,6 +125,40 @@ export async function dragResizeTo(
   }
 
   await page.mouse.up();
+}
+
+export async function imperativeResizePanel(
+  page: Page,
+  panelId: string,
+  size: number
+) {
+  const panelIdInput = page.locator("#panelIdInput");
+  await panelIdInput.focus();
+  await panelIdInput.fill(panelId);
+
+  const sizeInput = page.locator("#sizeInput");
+  await sizeInput.focus();
+  await sizeInput.fill("" + size);
+
+  const resizeButton = page.locator("#resizeButton");
+  await resizeButton.click();
+}
+
+export async function imperativeResizePanelGroup(
+  page: Page,
+  panelGroupId: string,
+  sizes: number[]
+) {
+  const panelGroupIdInput = page.locator("#panelGroupIdInput");
+  await panelGroupIdInput.focus();
+  await panelGroupIdInput.fill(panelGroupId);
+
+  const layoutInput = page.locator("#layoutInput");
+  await layoutInput.focus();
+  await layoutInput.fill(`[${sizes.join()}]`);
+
+  const setLayoutButton = page.locator("#setLayoutButton");
+  await setLayoutButton.click();
 }
 
 export async function verifyPanelSize(locator: Locator, expectedSize: number) {

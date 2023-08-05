@@ -4,6 +4,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import { goToUrl } from "./utils/url";
 import { verifySizes } from "./utils/verify";
+import { imperativeResizePanel } from "./utils/panels";
 
 async function openPage(
   page: Page,
@@ -54,52 +55,21 @@ test.describe("Imperative Panel API", () => {
   test("should resize panels within min/max boundaries", async ({ page }) => {
     await verifySizes(page, 20, 60, 20);
 
-    const panelIdInput = page.locator("#panelIdInput");
-    const resizeButton = page.locator("#resizeButton");
-    const sizeInput = page.locator("#sizeInput");
-
-    // Left panel
-    await panelIdInput.focus();
-    await panelIdInput.fill("left");
-    await sizeInput.focus();
-    await sizeInput.fill("15");
-    await resizeButton.click();
+    await imperativeResizePanel(page, "left", 15);
     await verifySizes(page, 15, 65, 20);
-
-    await sizeInput.focus();
-    await sizeInput.fill("5");
-    await resizeButton.click();
+    await imperativeResizePanel(page, "left", 5);
     await verifySizes(page, 10, 70, 20);
-
-    await sizeInput.focus();
-    await sizeInput.fill("55");
-    await resizeButton.click();
+    await imperativeResizePanel(page, "left", 55);
     await verifySizes(page, 30, 50, 20);
 
-    // Middle panel
-    await panelIdInput.focus();
-    await panelIdInput.fill("middle");
-    await sizeInput.focus();
-    await sizeInput.fill("15");
-    await resizeButton.click();
+    await imperativeResizePanel(page, "middle", 15);
     await verifySizes(page, 30, 15, 55);
-
-    await sizeInput.focus();
-    await sizeInput.fill("5");
-    await resizeButton.click();
+    await imperativeResizePanel(page, "middle", 5);
     await verifySizes(page, 30, 10, 60);
 
-    // Right panel
-    await panelIdInput.focus();
-    await panelIdInput.fill("right");
-    await sizeInput.focus();
-    await sizeInput.fill("15");
-    await resizeButton.click();
+    await imperativeResizePanel(page, "right", 15);
     await verifySizes(page, 30, 55, 15);
-
-    await sizeInput.focus();
-    await sizeInput.fill("5");
-    await resizeButton.click();
+    await imperativeResizePanel(page, "right", 5);
     await verifySizes(page, 30, 60, 10);
   });
 
@@ -109,21 +79,9 @@ test.describe("Imperative Panel API", () => {
     const collapseButton = page.locator("#collapseButton");
     const expandButton = page.locator("#expandButton");
     const panelIdInput = page.locator("#panelIdInput");
-    const resizeButton = page.locator("#resizeButton");
-    const sizeInput = page.locator("#sizeInput");
 
-    await panelIdInput.focus();
-    await panelIdInput.fill("left");
-    await sizeInput.focus();
-    await sizeInput.fill("15");
-    await resizeButton.click();
-
-    await panelIdInput.focus();
-    await panelIdInput.fill("right");
-    await sizeInput.focus();
-    await sizeInput.fill("25");
-    await resizeButton.click();
-
+    await imperativeResizePanel(page, "left", 15);
+    await imperativeResizePanel(page, "right", 25);
     await verifySizes(page, 15, 60, 25);
 
     await panelIdInput.focus();
@@ -147,20 +105,11 @@ test.describe("Imperative Panel API", () => {
     await verifySizes(page, 20, 60, 20);
 
     const expandButton = page.locator("#expandButton");
-    const panelIdInput = page.locator("#panelIdInput");
-    const resizeButton = page.locator("#resizeButton");
-    const sizeInput = page.locator("#sizeInput");
 
-    await panelIdInput.focus();
-    await panelIdInput.fill("left");
-
-    await sizeInput.focus();
-    await sizeInput.fill("15");
-    await resizeButton.click();
+    await imperativeResizePanel(page, "left", 15);
     await verifySizes(page, 15, 65, 20);
 
-    await sizeInput.fill("0");
-    await resizeButton.click();
+    await imperativeResizePanel(page, "left", 0);
     await verifySizes(page, 0, 80, 20);
 
     await expandButton.click();

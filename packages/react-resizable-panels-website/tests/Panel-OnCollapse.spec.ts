@@ -5,6 +5,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { PanelCollapseLogEntry } from "../src/routes/examples/types";
 
 import { clearLogEntries, getLogEntries } from "./utils/debug";
+import { imperativeResizePanelGroup } from "./utils/panels";
 import { goToUrl } from "./utils/url";
 
 async function openPage(
@@ -140,25 +141,12 @@ test.describe("Panel onCollapse prop", () => {
   }) => {
     await clearLogEntries(page);
 
-    const panelGroupIdInput = page.locator("#panelGroupIdInput");
-    const setLayoutButton = page.locator("#setLayoutButton");
-    const layoutInput = page.locator("#layoutInput");
-
-    await panelGroupIdInput.focus();
-    await panelGroupIdInput.fill("group");
-
-    await layoutInput.focus();
-    await layoutInput.fill("[70, 30, 0]");
-    await setLayoutButton.click();
-
+    await imperativeResizePanelGroup(page, "group", [70, 30, 0]);
     await verifyEntries(page, [{ panelId: "right", collapsed: true }]);
 
     await clearLogEntries(page);
 
-    await layoutInput.focus();
-    await layoutInput.fill("[0, 0, 100]");
-    await setLayoutButton.click();
-
+    await imperativeResizePanelGroup(page, "group", [0, 0, 100]);
     await verifyEntries(page, [
       { panelId: "left", collapsed: true },
       { panelId: "middle", collapsed: true },

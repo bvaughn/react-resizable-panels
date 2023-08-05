@@ -2,6 +2,7 @@ import { Page, test } from "@playwright/test";
 import { createElement } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
+import { imperativeResizePanelGroup } from "./utils/panels";
 import { goToUrl } from "./utils/url";
 import { verifySizes } from "./utils/verify";
 
@@ -54,21 +55,10 @@ test.describe("Imperative PanelGroup API", () => {
   test("should resize all panels", async ({ page }) => {
     await verifySizes(page, 20, 60, 20);
 
-    const panelGroupIdInput = page.locator("#panelGroupIdInput");
-    const setLayoutButton = page.locator("#setLayoutButton");
-    const layoutInput = page.locator("#layoutInput");
-
-    await panelGroupIdInput.focus();
-    await panelGroupIdInput.fill("group");
-
-    await layoutInput.focus();
-    await layoutInput.fill("[10, 20, 70]");
-    await setLayoutButton.click();
+    await imperativeResizePanelGroup(page, "group", [10, 20, 70]);
     await verifySizes(page, 10, 20, 70);
 
-    await layoutInput.focus();
-    await layoutInput.fill("[90, 6, 4]");
-    await setLayoutButton.click();
+    await imperativeResizePanelGroup(page, "group", [90, 6, 4]);
     await verifySizes(page, 90, 6, 4);
   });
 });

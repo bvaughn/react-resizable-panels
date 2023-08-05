@@ -9,7 +9,12 @@ import {
   usePanelGroupLayoutValidator,
 } from "react-resizable-panels";
 
-import { dragResizeTo, verifyPanelSizePixels } from "./utils/panels";
+import {
+  dragResizeTo,
+  imperativeResizePanel,
+  imperativeResizePanelGroup,
+  verifyPanelSizePixels,
+} from "./utils/panels";
 import { goToUrl } from "./utils/url";
 
 type HookConfig = Parameters<typeof usePanelGroupLayoutValidator>[0];
@@ -123,23 +128,12 @@ test.describe("usePanelGroupLayoutValidator", () => {
     }) => {
       await goToUrlHelper(page);
 
-      const panelIdInput = page.locator("#panelIdInput");
-      const resizeButton = page.locator("#resizeButton");
-      const sizeInput = page.locator("#sizeInput");
-
-      await panelIdInput.focus();
-      await panelIdInput.fill("left-panel");
-
       const leftPanel = page.locator("[data-panel]").first();
 
-      await sizeInput.focus();
-      await sizeInput.fill("80");
-      await resizeButton.click();
+      await imperativeResizePanel(page, "left-panel", 80);
       await verifyPanelSizePixels(leftPanel, 100);
 
-      await sizeInput.focus();
-      await sizeInput.fill("5");
-      await resizeButton.click();
+      await imperativeResizePanel(page, "left-panel", 4);
       await verifyPanelSizePixels(leftPanel, 50);
     });
 
@@ -148,23 +142,12 @@ test.describe("usePanelGroupLayoutValidator", () => {
     }) => {
       await goToUrlHelper(page);
 
-      const panelGroupIdInput = page.locator("#panelGroupIdInput");
-      const setLayoutButton = page.locator("#setLayoutButton");
-      const layoutInput = page.locator("#layoutInput");
-
-      await panelGroupIdInput.focus();
-      await panelGroupIdInput.fill("group");
-
       const leftPanel = page.locator("[data-panel]").first();
 
-      await layoutInput.focus();
-      await layoutInput.fill("[80, 10, 10]");
-      await setLayoutButton.click();
+      await imperativeResizePanelGroup(page, "group", [80, 10, 10]);
       await verifyPanelSizePixels(leftPanel, 100);
 
-      await layoutInput.focus();
-      await layoutInput.fill("[5, 55, 40]");
-      await setLayoutButton.click();
+      await imperativeResizePanelGroup(page, "group", [5, 55, 40]);
       await verifyPanelSizePixels(leftPanel, 50);
     });
 
@@ -179,28 +162,15 @@ test.describe("usePanelGroupLayoutValidator", () => {
         }
       );
 
-      const panelIdInput = page.locator("#panelIdInput");
-      const resizeButton = page.locator("#resizeButton");
-      const sizeInput = page.locator("#sizeInput");
-
-      await panelIdInput.focus();
-      await panelIdInput.fill("left-panel");
-
       const leftPanel = page.locator("[data-panel]").first();
 
-      await sizeInput.focus();
-      await sizeInput.fill("25");
-      await resizeButton.click();
+      await imperativeResizePanel(page, "left-panel", 25);
       await verifyPanelSizePixels(leftPanel, 100);
 
-      await sizeInput.focus();
-      await sizeInput.fill("10");
-      await resizeButton.click();
+      await imperativeResizePanel(page, "left-panel", 10);
       await verifyPanelSizePixels(leftPanel, 0);
 
-      await sizeInput.focus();
-      await sizeInput.fill("15");
-      await resizeButton.click();
+      await imperativeResizePanel(page, "left-panel", 15);
       await verifyPanelSizePixels(leftPanel, 100);
     });
   });
