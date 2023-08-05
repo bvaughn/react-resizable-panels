@@ -1,6 +1,12 @@
 .PanelGroupWrapper {
   height: 20rem;
 }
+.PanelGroupWrapper[data-short] {
+  height: 10rem;
+}
+.PanelGroupWrapper[data-tall] {
+  height: 30rem;
+}
 
 .PanelGroup {
   font-size: 2rem;

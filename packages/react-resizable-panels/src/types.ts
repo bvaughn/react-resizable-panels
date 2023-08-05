@@ -11,6 +11,12 @@ export type PanelGroupOnLayout = (sizes: number[]) => void;
 export type PanelOnCollapse = (collapsed: boolean) => void;
 export type PanelOnResize = (size: number, prevSize: number) => void;
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
+export type PanelGroupValidateLayout = (param: {
+  availableHeight: number;
+  availableWidth: number;
+  nextSizes: number[];
+  prevSizes: number[];
+}) => number[];
 
 export type PanelCallbackRef = RefObject<{
   onCollapse: PanelOnCollapse | null;
