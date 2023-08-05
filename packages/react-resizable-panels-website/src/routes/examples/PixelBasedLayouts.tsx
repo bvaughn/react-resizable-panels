@@ -14,6 +14,7 @@ import sharedStyles from "./shared.module.css";
 
 import { PropsWithChildren } from "react";
 import Code from "../../components/Code";
+import { dir } from "console";
 
 export default function PixelBasedLayouts() {
   const validateLayoutLeft = usePanelGroupLayoutValidator({
@@ -61,9 +62,11 @@ export default function PixelBasedLayouts() {
             validateLayout={validateLayoutLeft}
           >
             <Panel className={sharedStyles.PanelRow}>
-              <HorizontalSize>
-                <p className={styles.Small}>100px - 200px</p>
-              </HorizontalSize>
+              <div className={styles.AutoSizerWrapper}>
+                <Size direction="horizontal">
+                  <p className={styles.Small}>100px - 200px</p>
+                </Size>
+              </div>
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
             <Panel className={sharedStyles.PanelRow}>
@@ -104,10 +107,12 @@ export default function PixelBasedLayouts() {
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
             <Panel className={sharedStyles.PanelRow}>
-              <HorizontalSize>
-                <p className={styles.Small}>200px - 300px</p>
-                <p className={styles.Small}>collapse below 100px</p>
-              </HorizontalSize>
+              <div className={styles.AutoSizerWrapper}>
+                <Size direction="horizontal">
+                  <p className={styles.Small}>200px - 300px</p>
+                  <p className={styles.Small}>collapse below 100px</p>
+                </Size>
+              </div>
             </Panel>
           </PanelGroup>
         </div>
@@ -122,16 +127,18 @@ export default function PixelBasedLayouts() {
         <p>Vertical groups can also be managed with this hook.</p>
       </div>
       <div className={exampleStyles.ExampleContainer}>
-        <div className={sharedStyles.PanelGroupWrapper} data-tall>
+        <div className={sharedStyles.PanelGroupWrapper}>
           <PanelGroup
             className={sharedStyles.PanelGroup}
             direction="vertical"
             validateLayout={validateLayoutTop}
           >
             <Panel className={sharedStyles.PanelColumn}>
-              <VerticalSize>
-                <p className={styles.Small}>75px - 125px</p>
-              </VerticalSize>
+              <div className={styles.AutoSizerWrapper}>
+                <Size direction="vertical">
+                  <p className={styles.Small}>75px - 125px</p>
+                </Size>
+              </div>
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
             <Panel className={sharedStyles.PanelColumn}>
@@ -152,7 +159,7 @@ export default function PixelBasedLayouts() {
       />
       <div className={exampleStyles.ExampleContainer}>
         <p>
-          You can also use the <code>validateLayout</code> prop directly to
+          The <code>validateLayout</code> prop can also be used directly to
           implement an entirely custom layout.
         </p>
       </div>
@@ -166,34 +173,21 @@ export default function PixelBasedLayouts() {
   );
 }
 
-function HorizontalSize({ children }: PropsWithChildren) {
+function Size({
+  children,
+  direction,
+}: PropsWithChildren & {
+  direction: "horizontal" | "vertical";
+}) {
   return (
-    <AutoSizer disableHeight>
-      {({ width }) => (
+    <AutoSizer>
+      {({ height, width }) => (
         <div
-          className={sharedStyles.Centered}
-          style={{ height: "100%", width: `${width}px` }}
+          className={styles.AutoSizerInner}
+          style={{ height: `${height}px`, width: `${width}px` }}
         >
           <center>
-            <p>{width}px</p>
-            {children}
-          </center>
-        </div>
-      )}
-    </AutoSizer>
-  );
-}
-
-function VerticalSize({ children }: PropsWithChildren) {
-  return (
-    <AutoSizer disableWidth>
-      {({ height }) => (
-        <div
-          className={sharedStyles.Centered}
-          style={{ height: `${height}px`, width: "100%" }}
-        >
-          <center>
-            <p>{height}px</p>
+            <p>{direction === "horizontal" ? width : height}px</p>
             {children}
           </center>
         </div>
@@ -251,6 +245,7 @@ function validateLayout({
   nextSizes: number[];
   prevSizes: number[];
 }): number[] {
-  // Compute and return an array of sizes (totalling 100)
+  // Compute and return an array of sizes
+  // Note the values in the sizes array should total 100
 }
 `;

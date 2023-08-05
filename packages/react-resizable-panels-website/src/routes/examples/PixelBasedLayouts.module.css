@@ -1,3 +1,21 @@
+.AutoSizerWrapper {
+  flex: 1 1 auto;
+  background-color: var(--color-panel-background);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  display: flex;
+}
+
+.AutoSizerInner {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
 .Small {
   font-size: 0.8rem;
   color: var(--color-dim);
