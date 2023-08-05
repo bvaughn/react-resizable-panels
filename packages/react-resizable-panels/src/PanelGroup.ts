@@ -454,6 +454,27 @@ function PanelGroupWithForwardedRef({
     }
   }, [autoSaveId, panels, sizes, storage]);
 
+  useIsomorphicLayoutEffect(() => {
+    // This is a bit of a hack;
+    // in order to avoid recreating ResizeObservers if an inline function is passed
+    // we assume that validator will be provided initially
+    if (callbacksRef.current.validateLayout) {
+      const resizeObserver = new ResizeObserver(() => {
+        const { sizes: prevSizes } = committedValuesRef.current;
+        const nextSizes = validateLayoutHelper(prevSizes);
+        if (!areEqual(prevSizes, nextSizes)) {
+          setSizesUnsafe(nextSizes);
+        }
+      });
+
+      resizeObserver.observe(getPanelGroup(groupId)!);
+
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }
+  }, [groupId, setSizes, validateLayoutHelper]);
+
   const getPanelStyle = useCallback(
     (id: string, defaultSize: number | null): CSSProperties => {
       const { panels } = committedValuesRef.current;
