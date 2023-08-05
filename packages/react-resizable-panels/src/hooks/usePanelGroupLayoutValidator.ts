@@ -2,12 +2,12 @@ import { useCallback } from "../vendor/react";
 import { PanelGroupValidateLayout } from "../types";
 
 export function usePanelGroupLayoutValidator({
-  collapseThresholdPixels,
+  collapseBelowPixels,
   maxPixels,
   minPixels,
   position,
 }: {
-  collapseThresholdPixels?: number;
+  collapseBelowPixels?: number;
   maxPixels?: number;
   minPixels?: number;
   position: "bottom" | "left" | "right" | "top";
@@ -38,8 +38,8 @@ export function usePanelGroupLayoutValidator({
         }
       }
 
-      const collapseThresholdSize = collapseThresholdPixels
-        ? (collapseThresholdPixels / availablePixels) * 100
+      const collapseThresholdSize = collapseBelowPixels
+        ? (collapseBelowPixels / availablePixels) * 100
         : null;
       const minSize = minPixels ? (minPixels / availablePixels) * 100 : null;
       const maxSize = maxPixels ? (maxPixels / availablePixels) * 100 : null;
@@ -109,6 +109,6 @@ export function usePanelGroupLayoutValidator({
         }
       }
     },
-    [collapseThresholdPixels, maxPixels, minPixels, position]
+    [collapseBelowPixels, maxPixels, minPixels, position]
   );
 }
