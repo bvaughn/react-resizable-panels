@@ -192,11 +192,10 @@ function PanelGroupWithForwardedRef({
   // 0-1 values representing the relative size of each panel.
   const [sizes, setSizesUnsafe] = useState<number[]>([]);
 
-  const setSizes = useCallback(
+  const validateLayoutHelper = useCallback(
     (nextSizes: number[]) => {
       const { direction, sizes: prevSizes } = committedValuesRef.current;
       const { validateLayout } = callbacksRef.current;
-
       if (validateLayout) {
         const groupElement = getPanelGroup(groupId)!;
         const resizeHandles = getResizeHandlesForGroup(groupId);
@@ -247,11 +246,22 @@ function PanelGroupWithForwardedRef({
         }
       }
 
+      return nextSizes;
+    },
+    [groupId]
+  );
+
+  const setSizes = useCallback(
+    (nextSizes: number[]) => {
+      const { sizes: prevSizes } = committedValuesRef.current;
+
+      nextSizes = validateLayoutHelper(nextSizes);
+
       if (!areEqual(prevSizes, nextSizes)) {
         setSizesUnsafe(nextSizes);
       }
     },
-    [groupId]
+    [validateLayoutHelper]
   );
 
   // Used to support imperative collapse/expand API.
@@ -554,15 +564,19 @@ function PanelGroupWithForwardedRef({
         const size = isHorizontal ? rect.width : rect.height;
         const delta = (movement / size) * 100;
 
-        const nextSizes = adjustByDelta(
-          event,
-          panels,
-          idBefore,
-          idAfter,
-          delta,
-          prevSizes,
-          panelSizeBeforeCollapse.current,
-          initialDragStateRef.current
+        // If a validateLayout method has been provided
+        // it's important to use it before updating the mouse cursor
+        const nextSizes = validateLayoutHelper(
+          adjustByDelta(
+            event,
+            panels,
+            idBefore,
+            idAfter,
+            delta,
+            prevSizes,
+            panelSizeBeforeCollapse.current,
+            initialDragStateRef.current
+          )
         );
 
         const sizesChanged = !areEqual(prevSizes, nextSizes);
@@ -598,7 +612,8 @@ function PanelGroupWithForwardedRef({
           const panelIdToLastNotifiedSizeMap =
             panelIdToLastNotifiedSizeMapRef.current;
 
-          setSizes(nextSizes);
+          // It's okay to bypass in this case because we already validated above
+          setSizesUnsafe(nextSizes);
 
           // If resize change handlers have been declared, this is the time to call them.
           // Trigger user callbacks after updating state, so that user code can override the sizes.
@@ -614,7 +629,7 @@ function PanelGroupWithForwardedRef({
 
       return resizeHandler;
     },
-    [groupId, setSizes]
+    [groupId, validateLayoutHelper]
   );
 
   const unregisterPanel = useCallback((id: string) => {
