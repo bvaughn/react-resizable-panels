@@ -4,7 +4,7 @@ import {
   ImperativePanelHandle,
 } from "react-resizable-panels";
 
-import { urlToUrlData, urlPanelGroupToPanelGroup } from "../../utils/UrlData";
+import { urlToUrlData, PanelGroupForUrlData } from "../../utils/UrlData";
 
 import DebugLog, { ImperativeDebugLogHandle } from "../examples/DebugLog";
 
@@ -15,17 +15,26 @@ import {
   assertImperativePanelHandle,
 } from "../../../tests/utils/assert";
 import { useLayoutEffect } from "react";
+import { Metadata } from "../../../tests/utils/url";
 
 // Special route that can be configured via URL parameters.
 
 export default function EndToEndTesting() {
-  const [urlData, setUrlData] = useState(() => {
+  const [metadata, setMetadata] = useState<Metadata | null>(() => {
     const url = new URL(
       typeof window !== undefined ? window.location.href : ""
     );
-    const urlData = urlToUrlData(url);
+    const metadata = url.searchParams.get("metadata");
 
-    return urlData;
+    return metadata ? JSON.parse(metadata) : null;
+  });
+
+  const [urlPanelGroup, setUrlPanelGroup] = useState(() => {
+    const url = new URL(
+      typeof window !== undefined ? window.location.href : ""
+    );
+
+    return urlToUrlData(url);
   });
 
   useLayoutEffect(() => {
@@ -33,10 +42,66 @@ export default function EndToEndTesting() {
       const url = new URL(
         typeof window !== undefined ? window.location.href : ""
       );
-      const urlData = urlToUrlData(url);
 
-      setUrlData(urlData);
+      setUrlPanelGroup(urlToUrlData(url));
+
+      const metadata = url.searchParams.get("metadata");
+      setMetadata(metadata ? JSON.parse(metadata) : null);
     });
+  }, []);
+
+  useLayoutEffect(() => {
+    const observer = new MutationObserver((mutationRecords) => {
+      mutationRecords.forEach((mutationRecord) => {
+        const panelElement = mutationRecord.target as HTMLElement;
+        if (panelElement.childNodes.length > 0) {
+          return;
+        }
+
+        const panelSize = parseFloat(panelElement.style.flexGrow);
+
+        const panelGroupElement = panelElement.parentElement!;
+        const groupId = panelGroupElement.getAttribute("data-panel-group-id");
+        const direction = panelGroupElement.getAttribute(
+          "data-panel-group-direction"
+        );
+        const resizeHandles = Array.from(
+          panelGroupElement.querySelectorAll(
+            `[data-panel-resize-handle-id][data-panel-group-id="${groupId}"]`
+          )
+        ) as HTMLElement[];
+
+        let panelGroupPixels =
+          direction === "horizontal"
+            ? panelGroupElement.offsetWidth
+            : panelGroupElement.offsetHeight;
+        if (direction === "horizontal") {
+          panelGroupPixels -= resizeHandles.reduce((accumulated, handle) => {
+            return accumulated + handle.offsetWidth;
+          }, 0);
+        } else {
+          panelGroupPixels -= resizeHandles.reduce((accumulated, handle) => {
+            return accumulated + handle.offsetHeight;
+          }, 0);
+        }
+
+        panelElement.textContent = `${panelSize.toFixed(1)}%\n${(
+          (panelSize / 100) *
+          panelGroupPixels
+        ).toFixed(1)}px`;
+      });
+    });
+
+    const elements = document.querySelectorAll("[data-panel]");
+    Array.from(elements).forEach((element) => {
+      observer.observe(element, {
+        attributes: true,
+      });
+    });
+
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   const [panelId, setPanelId] = useState("");
@@ -48,10 +113,6 @@ export default function EndToEndTesting() {
   const idToRefMapRef = useRef<
     Map<string, ImperativePanelHandle | ImperativePanelGroupHandle>
   >(new Map());
-
-  const children = urlData
-    ? urlPanelGroupToPanelGroup(urlData, debugLogRef, idToRefMapRef)
-    : null;
 
   const onLayoutInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.currentTarget.value;
@@ -147,7 +208,16 @@ export default function EndToEndTesting() {
           </button>
         </div>
       </div>
-      <div className={styles.Children}>{children}</div>
+      <div className={styles.Children}>
+        {urlPanelGroup && (
+          <PanelGroupForUrlData
+            debugLogRef={debugLogRef}
+            idToRefMapRef={idToRefMapRef}
+            metadata={metadata}
+            urlPanelGroup={urlPanelGroup}
+          />
+        )}
+      </div>
       <DebugLog apiRef={debugLogRef} />
     </div>
   );

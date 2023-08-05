@@ -19,7 +19,9 @@ import {
   PanelResizeHandle,
   PanelResizeHandleOnDragging,
   PanelResizeHandleProps,
+  usePanelGroupLayoutValidator,
 } from "react-resizable-panels";
+import { Metadata } from "../../tests/utils/url";
 import { ImperativeDebugLogHandle } from "../routes/examples/DebugLog";
 
 type UrlPanel = {
@@ -210,12 +212,13 @@ function urlPanelToPanel(
     },
     urlPanel.children.map((child, index) => {
       if (isUrlPanelGroup(child)) {
-        return urlPanelGroupToPanelGroup(
-          child,
+        return createElement(PanelGroupForUrlData, {
           debugLogRef,
           idToRefMapRef,
-          index
-        );
+          key: index,
+          metadata: null,
+          urlPanelGroup: child,
+        });
       } else {
         return createElement(Fragment, { key: index }, child);
       }
@@ -223,14 +226,19 @@ function urlPanelToPanel(
   );
 }
 
-export function urlPanelGroupToPanelGroup(
-  urlPanelGroup: UrlPanelGroup,
-  debugLogRef: RefObject<ImperativeDebugLogHandle>,
+export function PanelGroupForUrlData({
+  debugLogRef,
+  idToRefMapRef,
+  metadata,
+  urlPanelGroup,
+}: {
+  debugLogRef: RefObject<ImperativeDebugLogHandle>;
   idToRefMapRef: RefObject<
     Map<string, ImperativePanelHandle | ImperativePanelGroupHandle>
-  >,
-  key?: any
-): ReactElement {
+  >;
+  metadata: Metadata | null;
+  urlPanelGroup: UrlPanelGroup;
+}): ReactElement {
   let onLayout: PanelGroupOnLayout | undefined = undefined;
   let refSetter;
 
@@ -253,6 +261,9 @@ export function urlPanelGroupToPanelGroup(
     };
   }
 
+  const config = metadata ? metadata.usePanelGroupLayoutValidator : undefined;
+  const validateLayout = usePanelGroupLayoutValidator((config ?? {}) as any);
+
   return createElement(
     PanelGroup,
     {
@@ -260,10 +271,10 @@ export function urlPanelGroupToPanelGroup(
       className: "PanelGroup",
       direction: urlPanelGroup.direction,
       id: urlPanelGroup.id,
-      key: key,
       onLayout,
       ref: refSetter,
       style: urlPanelGroup.style,
+      validateLayout: config ? validateLayout : undefined,
     },
     urlPanelGroup.children.map((child, index) => {
       if (isUrlPanel(child)) {

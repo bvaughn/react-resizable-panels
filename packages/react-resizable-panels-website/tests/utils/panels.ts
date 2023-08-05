@@ -132,3 +132,12 @@ export async function verifyPanelSize(locator: Locator, expectedSize: number) {
     expectedSize.toFixed(1)
   );
 }
+
+export async function verifyPanelSizePixels(
+  locator: Locator,
+  expectedSize: number
+) {
+  await expect(await locator.textContent()).toContain(
+    `${expectedSize.toFixed(1)}px`
+  );
+}

@@ -37,7 +37,12 @@ export function useWindowSplitterPanelGroupBehavior({
   useEffect(() => {
     const { direction, panels } = committedValuesRef.current!;
 
-    const groupElement = getPanelGroup(groupId)!;
+    const groupElement = getPanelGroup(groupId);
+    if (!groupElement) {
+      console.log(document.body.innerHTML);
+    }
+    assert(groupElement != null, `No group found for id "${groupId}"`);
+
     const { height, width } = groupElement.getBoundingClientRect();
 
     const handles = getResizeHandlesForGroup(groupId);

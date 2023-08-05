@@ -24,6 +24,10 @@ export function usePanelGroupLayoutValidator({
       nextSizes: number[];
       prevSizes: number[];
     }) => {
+      if (minPixels == null && maxPixels == null) {
+        return nextSizes;
+      }
+
       let availablePixels;
       switch (position) {
         case "bottom":
