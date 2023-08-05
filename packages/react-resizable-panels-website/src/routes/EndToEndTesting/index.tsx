@@ -54,7 +54,7 @@ export default function EndToEndTesting() {
     const observer = new MutationObserver((mutationRecords) => {
       mutationRecords.forEach((mutationRecord) => {
         const panelElement = mutationRecord.target as HTMLElement;
-        if (panelElement.childNodes.length > 0) {
+        if (panelElement.childElementCount > 0) {
           return;
         }
 
