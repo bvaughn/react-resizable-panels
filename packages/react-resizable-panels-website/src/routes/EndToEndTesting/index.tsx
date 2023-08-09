@@ -1,35 +1,47 @@
-import { ChangeEvent, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  Component,
+  ErrorInfo,
+  PropsWithChildren,
+  useRef,
+  useState,
+} from "react";
 import {
   ImperativePanelGroupHandle,
   ImperativePanelHandle,
+  getAvailableGroupSizePixels,
 } from "react-resizable-panels";
 
-import { urlToUrlData, PanelGroupForUrlData } from "../../utils/UrlData";
+import { urlPanelGroupToPanelGroup, urlToUrlData } from "../../utils/UrlData";
 
 import DebugLog, { ImperativeDebugLogHandle } from "../examples/DebugLog";
 
-import "./styles.css";
-import styles from "./styles.module.css";
+import { useLayoutEffect } from "react";
 import {
   assertImperativePanelGroupHandle,
   assertImperativePanelHandle,
 } from "../../../tests/utils/assert";
-import { useLayoutEffect } from "react";
-import { Metadata } from "../../../tests/utils/url";
+import "./styles.css";
+import styles from "./styles.module.css";
 
 // Special route that can be configured via URL parameters.
 
-export default function EndToEndTesting() {
-  const [metadata, setMetadata] = useState<Metadata | null>(() => {
-    const url = new URL(
-      typeof window !== undefined ? window.location.href : ""
-    );
-    const metadata = url.searchParams.get("metadata");
+class ErrorBoundary extends Component<PropsWithChildren> {
+  state = {
+    didError: false,
+  };
 
-    return metadata ? JSON.parse(metadata) : null;
-  });
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    console.error(error);
+  }
 
-  const [urlPanelGroup, setUrlPanelGroup] = useState(() => {
+  render() {
+    return this.state.didError ? null : this.props.children;
+  }
+}
+
+function EndToEndTesting() {
+  const [urlData, setUrlData] = useState(() => {
     const url = new URL(
       typeof window !== undefined ? window.location.href : ""
     );
@@ -43,52 +55,31 @@ export default function EndToEndTesting() {
         typeof window !== undefined ? window.location.href : ""
       );
 
-      setUrlPanelGroup(urlToUrlData(url));
-
-      const metadata = url.searchParams.get("metadata");
-      setMetadata(metadata ? JSON.parse(metadata) : null);
+      setUrlData(urlToUrlData(url));
     });
   }, []);
 
   useLayoutEffect(() => {
+    const calculatePanelSize = (panelElement: HTMLElement) => {
+      if (panelElement.childElementCount > 0) {
+        return; // Don't override nested groups
+      }
+
+      const panelSize = parseFloat(panelElement.style.flexGrow);
+
+      const panelGroupElement = panelElement.parentElement!;
+      const groupId = panelGroupElement.getAttribute("data-panel-group-id")!;
+      const panelGroupPixels = getAvailableGroupSizePixels(groupId);
+
+      panelElement.textContent = `${panelSize.toFixed(1)}%\n${(
+        (panelSize / 100) *
+        panelGroupPixels
+      ).toFixed(1)}px`;
+    };
+
     const observer = new MutationObserver((mutationRecords) => {
       mutationRecords.forEach((mutationRecord) => {
-        const panelElement = mutationRecord.target as HTMLElement;
-        if (panelElement.childElementCount > 0) {
-          return;
-        }
-
-        const panelSize = parseFloat(panelElement.style.flexGrow);
-
-        const panelGroupElement = panelElement.parentElement!;
-        const groupId = panelGroupElement.getAttribute("data-panel-group-id");
-        const direction = panelGroupElement.getAttribute(
-          "data-panel-group-direction"
-        );
-        const resizeHandles = Array.from(
-          panelGroupElement.querySelectorAll(
-            `[data-panel-resize-handle-id][data-panel-group-id="${groupId}"]`
-          )
-        ) as HTMLElement[];
-
-        let panelGroupPixels =
-          direction === "horizontal"
-            ? panelGroupElement.offsetWidth
-            : panelGroupElement.offsetHeight;
-        if (direction === "horizontal") {
-          panelGroupPixels -= resizeHandles.reduce((accumulated, handle) => {
-            return accumulated + handle.offsetWidth;
-          }, 0);
-        } else {
-          panelGroupPixels -= resizeHandles.reduce((accumulated, handle) => {
-            return accumulated + handle.offsetHeight;
-          }, 0);
-        }
-
-        panelElement.textContent = `${panelSize.toFixed(1)}%\n${(
-          (panelSize / 100) *
-          panelGroupPixels
-        ).toFixed(1)}px`;
+        calculatePanelSize(mutationRecord.target as HTMLElement);
       });
     });
 
@@ -97,6 +88,8 @@ export default function EndToEndTesting() {
       observer.observe(element, {
         attributes: true,
       });
+
+      calculatePanelSize(element as HTMLElement);
     });
 
     return () => {
@@ -113,6 +106,10 @@ export default function EndToEndTesting() {
   const idToRefMapRef = useRef<
     Map<string, ImperativePanelHandle | ImperativePanelGroupHandle>
   >(new Map());
+
+  const children = urlData
+    ? urlPanelGroupToPanelGroup(urlData, debugLogRef, idToRefMapRef)
+    : null;
 
   const onLayoutInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.currentTarget.value;
@@ -208,17 +205,16 @@ export default function EndToEndTesting() {
           </button>
         </div>
       </div>
-      <div className={styles.Children}>
-        {urlPanelGroup && (
-          <PanelGroupForUrlData
-            debugLogRef={debugLogRef}
-            idToRefMapRef={idToRefMapRef}
-            metadata={metadata}
-            urlPanelGroup={urlPanelGroup}
-          />
-        )}
-      </div>
+      <div className={styles.Children}>{children}</div>
       <DebugLog apiRef={debugLogRef} />
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <ErrorBoundary>
+      <EndToEndTesting />
+    </ErrorBoundary>
   );
 }

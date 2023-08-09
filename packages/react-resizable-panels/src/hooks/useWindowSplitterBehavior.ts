@@ -38,9 +38,6 @@ export function useWindowSplitterPanelGroupBehavior({
     const { direction, panels } = committedValuesRef.current!;
 
     const groupElement = getPanelGroup(groupId);
-    if (!groupElement) {
-      console.log(document.body.innerHTML);
-    }
     assert(groupElement != null, `No group found for id "${groupId}"`);
 
     const { height, width } = groupElement.getBoundingClientRect();
@@ -59,25 +56,26 @@ export function useWindowSplitterPanelGroupBehavior({
         return () => {};
       }
 
-      let minSize = 0;
-      let maxSize = 100;
+      let currentMinSize = 0;
+      let currentMaxSize = 100;
       let totalMinSize = 0;
       let totalMaxSize = 0;
 
       // A panel's effective min/max sizes also need to account for other panel's sizes.
       panelsArray.forEach((panelData) => {
-        if (panelData.current.id === idBefore) {
-          maxSize = panelData.current.maxSize;
-          minSize = panelData.current.minSize;
+        const { id, maxSize, minSize } = panelData.current;
+        if (id === idBefore) {
+          currentMinSize = minSize;
+          currentMaxSize = maxSize != null ? maxSize : 100;
         } else {
-          totalMinSize += panelData.current.minSize;
-          totalMaxSize += panelData.current.maxSize;
+          totalMinSize += minSize;
+          totalMaxSize += maxSize != null ? maxSize : 100;
         }
       });
 
-      const ariaValueMax = Math.min(maxSize, 100 - totalMinSize);
+      const ariaValueMax = Math.min(currentMaxSize, 100 - totalMinSize);
       const ariaValueMin = Math.max(
-        minSize,
+        currentMinSize,
         (panelsArray.length - 1) * 100 - totalMaxSize
       );
 
@@ -115,7 +113,7 @@ export function useWindowSplitterPanelGroupBehavior({
 
                 const nextSizes = adjustByDelta(
                   event,
-                  panels,
+                  committedValuesRef.current!,
                   idBefore,
                   idAfter,
                   delta,

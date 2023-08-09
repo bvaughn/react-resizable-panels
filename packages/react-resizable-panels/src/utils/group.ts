@@ -1,26 +1,29 @@
-import { InitialDragState } from "../PanelGroup";
+import { CommittedValues, InitialDragState } from "../PanelGroup";
 import { PRECISION } from "../constants";
 import { PanelData, ResizeEvent } from "../types";
 
 export function adjustByDelta(
   event: ResizeEvent | null,
-  panels: Map<string, PanelData>,
+  committedValues: CommittedValues,
   idBefore: string,
   idAfter: string,
-  delta: number,
+  deltaPixels: number,
   prevSizes: number[],
   panelSizeBeforeCollapse: Map<string, number>,
   initialDragState: InitialDragState | null
 ): number[] {
+  const { id: groupId, panelIdsWithStaticUnits, panels } = committedValues;
+
+  const groupSizePixels =
+    panelIdsWithStaticUnits.size > 0
+      ? getAvailableGroupSizePixels(groupId)
+      : NaN;
+
   const { sizes: initialSizes } = initialDragState || {};
 
   // If we're resizing by mouse or touch, use the initial sizes as a base.
   // This has the benefit of causing force-collapsed panels to spring back open if drag is reversed.
   const baseSizes = initialSizes || prevSizes;
-
-  if (delta === 0) {
-    return baseSizes;
-  }
 
   const panelsArray = panelsMapToSortedArray(panels);
 
@@ -38,14 +41,20 @@ export function adjustByDelta(
 
   // Max-bounds check the panel being expanded first.
   {
-    const pivotId = delta < 0 ? idAfter : idBefore;
+    const pivotId = deltaPixels < 0 ? idAfter : idBefore;
     const index = panelsArray.findIndex(
       (panel) => panel.current.id === pivotId
     );
     const panel = panelsArray[index];
     const baseSize = baseSizes[index];
 
-    const nextSize = safeResizePanel(panel, Math.abs(delta), baseSize, event);
+    const nextSize = safeResizePanel(
+      groupSizePixels,
+      panel,
+      Math.abs(deltaPixels),
+      baseSize,
+      event
+    );
     if (baseSize === nextSize) {
       // If there's no room for the pivot panel to grow, we can ignore this drag update.
       return baseSizes;
@@ -54,19 +63,20 @@ export function adjustByDelta(
         panelSizeBeforeCollapse.set(pivotId, baseSize);
       }
 
-      delta = delta < 0 ? baseSize - nextSize : nextSize - baseSize;
+      deltaPixels = deltaPixels < 0 ? baseSize - nextSize : nextSize - baseSize;
     }
   }
 
-  let pivotId = delta < 0 ? idBefore : idAfter;
+  let pivotId = deltaPixels < 0 ? idBefore : idAfter;
   let index = panelsArray.findIndex((panel) => panel.current.id === pivotId);
   while (true) {
     const panel = panelsArray[index];
     const baseSize = baseSizes[index];
 
-    const deltaRemaining = Math.abs(delta) - Math.abs(deltaApplied);
+    const deltaRemaining = Math.abs(deltaPixels) - Math.abs(deltaApplied);
 
     const nextSize = safeResizePanel(
+      groupSizePixels,
       panel,
       0 - deltaRemaining,
       baseSize,
@@ -84,15 +94,19 @@ export function adjustByDelta(
       if (
         deltaApplied
           .toPrecision(PRECISION)
-          .localeCompare(Math.abs(delta).toPrecision(PRECISION), undefined, {
-            numeric: true,
-          }) >= 0
+          .localeCompare(
+            Math.abs(deltaPixels).toPrecision(PRECISION),
+            undefined,
+            {
+              numeric: true,
+            }
+          ) >= 0
       ) {
         break;
       }
     }
 
-    if (delta < 0) {
+    if (deltaPixels < 0) {
       if (--index < 0) {
         break;
       }
@@ -110,7 +124,7 @@ export function adjustByDelta(
   }
 
   // Adjust the pivot panel before, but only by the amount that surrounding panels were able to shrink/contract.
-  pivotId = delta < 0 ? idAfter : idBefore;
+  pivotId = deltaPixels < 0 ? idAfter : idBefore;
   index = panelsArray.findIndex((panel) => panel.current.id === pivotId);
   nextSizes[index] = baseSizes[index] + deltaApplied;
 
@@ -177,6 +191,33 @@ export function getBeforeAndAfterIds(
   const idAfter = isLastPanel ? id : panelsArray[index + 1].current.id;
 
   return [idBefore, idAfter];
+}
+
+export function getAvailableGroupSizePixels(groupId: string): number {
+  const panelGroupElement = getPanelGroup(groupId);
+  if (panelGroupElement == null) {
+    return NaN;
+  }
+
+  const direction = panelGroupElement.getAttribute(
+    "data-panel-group-direction"
+  );
+  const resizeHandles = getResizeHandlesForGroup(groupId);
+  if (direction === "horizontal") {
+    return (
+      panelGroupElement.offsetWidth -
+      resizeHandles.reduce((accumulated, handle) => {
+        return accumulated + handle.offsetWidth;
+      }, 0)
+    );
+  } else {
+    return (
+      panelGroupElement.offsetHeight -
+      resizeHandles.reduce((accumulated, handle) => {
+        return accumulated + handle.offsetHeight;
+      }, 0)
+    );
+  }
 }
 
 // This method returns a number between 1 and 100 representing
@@ -280,7 +321,8 @@ export function panelsMapToSortedArray(
   });
 }
 
-function safeResizePanel(
+export function safeResizePanel(
+  groupSizePixels: number,
   panel: PanelData,
   delta: number,
   prevSize: number,
@@ -288,7 +330,15 @@ function safeResizePanel(
 ): number {
   const nextSizeUnsafe = prevSize + delta;
 
-  const { collapsedSize, collapsible, maxSize, minSize } = panel.current;
+  let { collapsedSize, collapsible, maxSize, minSize, units } = panel.current;
+
+  if (units === "static") {
+    collapsedSize = (collapsedSize / groupSizePixels) * 100;
+    if (maxSize != null) {
+      maxSize = (maxSize / groupSizePixels) * 100;
+    }
+    minSize = (minSize / groupSizePixels) * 100;
+  }
 
   if (collapsible) {
     if (prevSize > collapsedSize) {
@@ -309,7 +359,10 @@ function safeResizePanel(
     }
   }
 
-  const nextSize = Math.min(maxSize, Math.max(minSize, nextSizeUnsafe));
+  const nextSize = Math.min(
+    maxSize != null ? maxSize : 100,
+    Math.max(minSize, nextSizeUnsafe)
+  );
 
   return nextSize;
 }

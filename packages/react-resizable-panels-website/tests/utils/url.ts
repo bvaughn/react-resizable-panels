@@ -1,53 +1,42 @@
 import { Page } from "@playwright/test";
 import { ReactElement } from "react";
-import {
-  PanelGroupProps,
-  usePanelGroupLayoutValidator,
-} from "react-resizable-panels";
+import { PanelGroupProps } from "react-resizable-panels";
 import { UrlPanelGroupToEncodedString } from "../../src/utils/UrlData";
-
-export type Metadata = {
-  usePanelGroupLayoutValidator?: Parameters<
-    typeof usePanelGroupLayoutValidator
-  >[0];
-};
 
 export async function goToUrl(
   page: Page,
-  element: ReactElement<PanelGroupProps>,
-  metadata?: Metadata
+  element: ReactElement<PanelGroupProps>
 ) {
   const encodedString = UrlPanelGroupToEncodedString(element);
 
   const url = new URL("http://localhost:1234/__e2e");
   url.searchParams.set("urlPanelGroup", encodedString);
-  url.searchParams.set("metadata", metadata ? JSON.stringify(metadata) : "");
+
+  // Uncomment when testing for easier debugging
+  // console.log(url.toString());
 
   await page.goto(url.toString());
 }
 
 export async function updateUrl(
   page: Page,
-  element: ReactElement<PanelGroupProps>,
-  metadata?: Metadata
+  element: ReactElement<PanelGroupProps>
 ) {
-  const urlPanelGroupString = UrlPanelGroupToEncodedString(element);
-  const metadataString = metadata ? JSON.stringify(metadata) : "";
+  const encodedString = UrlPanelGroupToEncodedString(element);
 
   await page.evaluate(
-    ([metadataString, urlPanelGroupString]) => {
+    ([encodedString]) => {
       const url = new URL(window.location.href);
-      url.searchParams.set("urlPanelGroup", urlPanelGroupString);
-      url.searchParams.set("metadata", metadataString);
+      url.searchParams.set("urlPanelGroup", encodedString);
 
       window.history.pushState(
-        { urlPanelGroup: urlPanelGroupString },
+        { urlPanelGroup: encodedString },
         "",
         url.toString()
       );
 
       window.dispatchEvent(new Event("popstate"));
     },
-    [metadataString, urlPanelGroupString]
+    [encodedString]
   );
 }

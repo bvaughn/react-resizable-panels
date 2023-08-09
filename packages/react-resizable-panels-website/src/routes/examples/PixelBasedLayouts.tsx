@@ -1,8 +1,4 @@
-import {
-  Panel,
-  PanelGroup,
-  usePanelGroupLayoutValidator,
-} from "react-resizable-panels";
+import { Panel, PanelGroup } from "react-resizable-panels";
 
 import ResizeHandle from "../../components/ResizeHandle";
 
@@ -14,28 +10,9 @@ import sharedStyles from "./shared.module.css";
 
 import { PropsWithChildren } from "react";
 import Code from "../../components/Code";
-import { dir } from "console";
+import Icon from "../../components/Icon";
 
 export default function PixelBasedLayouts() {
-  const validateLayoutLeft = usePanelGroupLayoutValidator({
-    maxPixels: 200,
-    minPixels: 100,
-    position: "left",
-  });
-
-  const validateLayoutRight = usePanelGroupLayoutValidator({
-    collapseBelowPixels: 100,
-    maxPixels: 300,
-    minPixels: 200,
-    position: "right",
-  });
-
-  const validateLayoutTop = usePanelGroupLayoutValidator({
-    maxPixels: 125,
-    minPixels: 75,
-    position: "top",
-  });
-
   return (
     <div className={exampleStyles.Route}>
       <h1 className={exampleStyles.Header}>
@@ -45,23 +22,28 @@ export default function PixelBasedLayouts() {
         →<span className={exampleStyles.Title}>Pixel based layouts</span>
       </h1>
       <p>
-        Resizable panels typically use percentage-based layout constraints.
-        <code>PanelGroup</code> also supports custom validation functions for
-        pixel-base constraints.
+        Resizable panels typically use percentage-based layout constraints, but
+        pixel units are also supported via the <code>units</code> prop. The
+        example below shows a horizontal panel group where the first panel is
+        limited to a range of 100-200 pixels.
       </p>
-      <p>
-        The easiest way to do this is with the{" "}
-        <code>usePanelGroupLayoutValidator</code> hook, as shown in the example
-        below.
+      <p className={sharedStyles.WarningBlock}>
+        <Icon className={sharedStyles.WarningIcon} type="warning" />
+        Pixel units should be used sparingly because they require more complex
+        layout logic.
       </p>
       <div className={exampleStyles.ExampleContainer}>
         <div className={sharedStyles.PanelGroupWrapper} data-short>
           <PanelGroup
             className={sharedStyles.PanelGroup}
             direction="horizontal"
-            validateLayout={validateLayoutLeft}
           >
-            <Panel className={sharedStyles.PanelRow}>
+            <Panel
+              className={sharedStyles.PanelRow}
+              minSize={100}
+              maxSize={200}
+              units="static"
+            >
               <div className={styles.AutoSizerWrapper}>
                 <Size direction="horizontal">
                   <p className={styles.Small}>100px - 200px</p>
@@ -88,7 +70,7 @@ export default function PixelBasedLayouts() {
       <div className={exampleStyles.ExampleContainer}>
         <p>
           Panels with pixel constraints can also be configured to collapse as
-          shown below
+          shown below.
         </p>
       </div>
       <div className={exampleStyles.ExampleContainer}>
@@ -96,7 +78,6 @@ export default function PixelBasedLayouts() {
           <PanelGroup
             className={sharedStyles.PanelGroup}
             direction="horizontal"
-            validateLayout={validateLayoutRight}
           >
             <Panel className={sharedStyles.PanelRow}>
               <div className={sharedStyles.Centered}>left</div>
@@ -106,7 +87,14 @@ export default function PixelBasedLayouts() {
               <div className={sharedStyles.Centered}>middle</div>
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
-            <Panel className={sharedStyles.PanelRow}>
+            <Panel
+              className={sharedStyles.PanelRow}
+              collapsible={true}
+              collapsedSize={75}
+              minSize={200}
+              maxSize={300}
+              units="static"
+            >
               <div className={styles.AutoSizerWrapper}>
                 <Size direction="horizontal">
                   <p className={styles.Small}>200px - 300px</p>
@@ -121,52 +109,6 @@ export default function PixelBasedLayouts() {
         className={exampleStyles.Code}
         code={CODE_HOOK_COLLAPSIBLE.trim()}
         language="jsx"
-        showLineNumbers
-      />
-      <div className={exampleStyles.ExampleContainer}>
-        <p>Vertical groups can also be managed with this hook.</p>
-      </div>
-      <div className={exampleStyles.ExampleContainer}>
-        <div className={sharedStyles.PanelGroupWrapper}>
-          <PanelGroup
-            className={sharedStyles.PanelGroup}
-            direction="vertical"
-            validateLayout={validateLayoutTop}
-          >
-            <Panel className={sharedStyles.PanelColumn}>
-              <div className={styles.AutoSizerWrapper}>
-                <Size direction="vertical">
-                  <p className={styles.Small}>75px - 125px</p>
-                </Size>
-              </div>
-            </Panel>
-            <ResizeHandle className={sharedStyles.ResizeHandle} />
-            <Panel className={sharedStyles.PanelColumn}>
-              <div className={sharedStyles.Centered}>middle</div>
-            </Panel>
-            <ResizeHandle className={sharedStyles.ResizeHandle} />
-            <Panel className={sharedStyles.PanelColumn}>
-              <div className={sharedStyles.Centered}>bottom</div>
-            </Panel>
-          </PanelGroup>
-        </div>
-      </div>
-      <Code
-        className={exampleStyles.Code}
-        code={CODE_HOOK_VERTICAL.trim()}
-        language="jsx"
-        showLineNumbers
-      />
-      <div className={exampleStyles.ExampleContainer}>
-        <p>
-          The <code>validateLayout</code> prop can also be used directly to
-          implement an entirely custom layout.
-        </p>
-      </div>
-      <Code
-        className={exampleStyles.Code}
-        code={CODE_CUSTOM.trim()}
-        language="tsx"
         showLineNumbers
       />
     </div>
@@ -197,55 +139,21 @@ function Size({
 }
 
 const CODE_HOOK = `
-const validateLayout = usePanelGroupLayoutValidator({
-  maxPixels: 200,
-  minPixels: 100,
-  position: "left",
-});
-
-<PanelGroup direction="horizontal" validateLayout={validateLayout}>
-  {/* Panels ... */}
+<PanelGroup direction="horizontal">
+  <Panel minSize={100} maxSize={200} units="static" />
+  <PanelResizeHandle />
+  <Panel />
+  <PanelResizeHandle />
+  <Panel />
 </PanelGroup>
 `;
 
 const CODE_HOOK_COLLAPSIBLE = `
-const validateLayout = usePanelGroupLayoutValidator({
-  collapseBelowPixels: 100,
-  maxPixels: 300,
-  minPixels: 200,
-  position: "right",
-});
-
-<PanelGroup direction="horizontal" validateLayout={validateLayout}>
-  {/* Panels ... */}
+<PanelGroup direction="horizontal">
+  <Panel />
+  <PanelResizeHandle />
+  <Panel />
+  <PanelResizeHandle />
+  <Panel collapsible={true} collapsedSize={75} minSize={100} maxSize={200} units="static" />
 </PanelGroup>
-`;
-
-const CODE_HOOK_VERTICAL = `
-const validateLayout = usePanelGroupLayoutValidator({
-  maxPixels: 125,
-  minPixels: 75,
-  position: "top",
-});
-
-<PanelGroup direction="vertical" validateLayout={validateLayout}>
-  {/* Panels ... */}
-</PanelGroup>
-`;
-
-const CODE_CUSTOM = `
-function validateLayout({
-  availableHeight,
-  availableWidth,
-  nextSizes,
-  prevSizes,
-}: {
-  availableHeight: number;
-  availableWidth: number;
-  nextSizes: number[];
-  prevSizes: number[];
-}): number[] {
-  // Compute and return an array of sizes
-  // Note the values in the sizes array should total 100
-}
 `;

@@ -24,7 +24,6 @@ import {
   PanelData,
   PanelGroupOnLayout,
   PanelGroupStorage,
-  PanelGroupValidateLayout,
   ResizeEvent,
 } from "./types";
 import { areEqual } from "./utils/arrays";
@@ -40,12 +39,12 @@ import debounce from "./utils/debounce";
 import {
   adjustByDelta,
   callPanelCallbacks,
+  getAvailableGroupSizePixels,
   getBeforeAndAfterIds,
   getFlexGrow,
   getPanelGroup,
   getResizeHandle,
   getResizeHandlePanelIds,
-  getResizeHandlesForGroup,
   panelsMapToSortedArray,
 } from "./utils/group";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
@@ -97,6 +96,8 @@ const defaultStorage: PanelGroupStorage = {
 
 export type CommittedValues = {
   direction: Direction;
+  id: string;
+  panelIdsWithStaticUnits: Set<string>;
   panels: Map<string, PanelData>;
   sizes: number[];
 };
@@ -131,7 +132,6 @@ export type PanelGroupProps = {
   storage?: PanelGroupStorage;
   style?: CSSProperties;
   tagName?: ElementType;
-  validateLayout?: PanelGroupValidateLayout;
 };
 
 export type ImperativePanelGroupHandle = {
@@ -151,7 +151,6 @@ function PanelGroupWithForwardedRef({
   storage = defaultStorage,
   style: styleFromProps = {},
   tagName: Type = "div",
-  validateLayout,
 }: PanelGroupProps & {
   forwardedRef: ForwardedRef<ImperativePanelGroupHandle>;
 }) {
@@ -180,89 +179,15 @@ function PanelGroupWithForwardedRef({
   // Use a ref to guard against users passing inline props
   const callbacksRef = useRef<{
     onLayout: PanelGroupOnLayout | undefined;
-    validateLayout: PanelGroupValidateLayout | undefined;
-  }>({ onLayout, validateLayout });
+  }>({ onLayout });
   useEffect(() => {
     callbacksRef.current.onLayout = onLayout;
-    callbacksRef.current.validateLayout = validateLayout;
   });
 
   const panelIdToLastNotifiedSizeMapRef = useRef<Record<string, number>>({});
 
   // 0-1 values representing the relative size of each panel.
-  const [sizes, setSizesUnsafe] = useState<number[]>([]);
-
-  const validateLayoutHelper = useCallback(
-    (nextSizes: number[]) => {
-      const { direction, sizes: prevSizes } = committedValuesRef.current;
-      const { validateLayout } = callbacksRef.current;
-      if (validateLayout) {
-        const groupElement = getPanelGroup(groupId)!;
-        const resizeHandles = getResizeHandlesForGroup(groupId);
-
-        let availableHeight = groupElement.offsetHeight;
-        let availableWidth = groupElement.offsetWidth;
-
-        if (direction === "horizontal") {
-          availableWidth -= resizeHandles.reduce((accumulated, handle) => {
-            return accumulated + handle.offsetWidth;
-          }, 0);
-        } else {
-          availableHeight -= resizeHandles.reduce((accumulated, handle) => {
-            return accumulated + handle.offsetHeight;
-          }, 0);
-        }
-
-        let nextSizesBefore;
-        if (isDevelopment) {
-          nextSizesBefore = [...nextSizes];
-        }
-
-        nextSizes = validateLayout({
-          availableHeight,
-          availableWidth,
-          nextSizes,
-          prevSizes,
-        });
-
-        if (isDevelopment) {
-          const { didLogInvalidLayoutWarning } = devWarningsRef.current;
-          if (!didLogInvalidLayoutWarning) {
-            const total = nextSizes.reduce(
-              (accumulated, current) => accumulated + current,
-              0
-            );
-            if (total < 99 || total > 101) {
-              devWarningsRef.current.didLogInvalidLayoutWarning = true;
-
-              console.warn(
-                "Invalid layout.\nGiven:",
-                nextSizesBefore,
-                "\nReturned:",
-                nextSizes
-              );
-            }
-          }
-        }
-      }
-
-      return nextSizes;
-    },
-    [groupId]
-  );
-
-  const setSizes = useCallback(
-    (nextSizes: number[]) => {
-      const { sizes: prevSizes } = committedValuesRef.current;
-
-      nextSizes = validateLayoutHelper(nextSizes);
-
-      if (!areEqual(prevSizes, nextSizes)) {
-        setSizesUnsafe(nextSizes);
-      }
-    },
-    [validateLayoutHelper]
-  );
+  const [sizes, setSizes] = useState<number[]>([]);
 
   // Used to support imperative collapse/expand API.
   const panelSizeBeforeCollapse = useRef<Map<string, number>>(new Map());
@@ -272,6 +197,8 @@ function PanelGroupWithForwardedRef({
   // Store committed values to avoid unnecessarily re-running memoization/effects functions.
   const committedValuesRef = useRef<CommittedValues>({
     direction,
+    id: groupId,
+    panelIdsWithStaticUnits: new Set(),
     panels,
     sizes,
   });
@@ -296,16 +223,21 @@ function PanelGroupWithForwardedRef({
           panelIdToLastNotifiedSizeMapRef.current;
         const panelsArray = panelsMapToSortedArray(panels);
 
+        // Note this API does not validate min/max sizes or "static" units
+        // There would be too many edge cases to handle
+        // Use the API at your own risk
+
         setSizes(sizes);
 
         callPanelCallbacks(panelsArray, sizes, panelIdToLastNotifiedSizeMap);
       },
     }),
-    [setSizes]
+    []
   );
 
   useIsomorphicLayoutEffect(() => {
     committedValuesRef.current.direction = direction;
+    committedValuesRef.current.id = groupId;
     committedValuesRef.current.panels = panels;
     committedValuesRef.current.sizes = sizes;
   });
@@ -347,7 +279,11 @@ function PanelGroupWithForwardedRef({
   // Compute the initial sizes based on default weights.
   // This assumes that panels register during initial mount (no conditional rendering)!
   useIsomorphicLayoutEffect(() => {
-    const sizes = committedValuesRef.current.sizes;
+    const {
+      id: groupId,
+      panelIdsWithStaticUnits,
+      sizes,
+    } = committedValuesRef.current;
     if (sizes.length === panels.size) {
       // Only compute (or restore) default sizes once per panel configuration.
       return;
@@ -361,53 +297,100 @@ function PanelGroupWithForwardedRef({
       defaultSizes = loadPanelLayout(autoSaveId, panelsArray, storage);
     }
 
+    let groupSizePixels =
+      panelIdsWithStaticUnits.size > 0
+        ? getAvailableGroupSizePixels(groupId)
+        : NaN;
+
     if (defaultSizes != null) {
       setSizes(defaultSizes);
     } else {
       const panelsArray = panelsMapToSortedArray(panels);
 
-      let panelsWithNullDefaultSize = 0;
       let totalDefaultSize = 0;
-      let totalMinSize = 0;
 
-      // TODO
-      // Implicit default size calculations below do not account for inferred min/max size values.
-      // e.g. if Panel A has a maxSize of 40 then Panels A and B can't both have an implicit default size of 50.
-      // For now, these logic edge cases are left to the user to handle via props.
+      const panelsWithSizes = new Set<string>();
+      const sizes = Array<number>(panelsArray.length);
 
-      panelsArray.forEach((panel) => {
-        totalMinSize += panel.current.minSize;
+      // Assigning default sizes requires a couple of passes:
+      // First, all panels with defaultSize should be set as-is
+      for (let index = 0; index < panelsArray.length; index++) {
+        const panel = panelsArray[index];
+        const { defaultSize, id, maxSize, minSize, units } = panel.current;
 
-        if (panel.current.defaultSize === null) {
-          panelsWithNullDefaultSize++;
-        } else {
-          totalDefaultSize += panel.current.defaultSize;
+        if (defaultSize != null) {
+          panelsWithSizes.add(id);
+
+          sizes[index] =
+            units === "static"
+              ? (defaultSize / groupSizePixels) * 100
+              : defaultSize;
+
+          totalDefaultSize += sizes[index];
         }
-      });
-
-      if (totalDefaultSize > 100) {
-        throw new Error(`Default panel sizes cannot exceed 100%`);
-      } else if (
-        panelsArray.length > 1 &&
-        panelsWithNullDefaultSize === 0 &&
-        totalDefaultSize !== 100
-      ) {
-        throw new Error(`Invalid default sizes specified for panels`);
-      } else if (totalMinSize > 100) {
-        throw new Error(`Minimum panel sizes cannot exceed 100%`);
       }
 
-      setSizes(
-        panelsArray.map((panel) => {
-          if (panel.current.defaultSize === null) {
-            return (100 - totalDefaultSize) / panelsWithNullDefaultSize;
-          }
+      // Remaining total size should be distributed evenly between panels in two additional passes.
+      // First, panels with minSize/maxSize should get their portions
+      for (let index = 0; index < panelsArray.length; index++) {
+        const panel = panelsArray[index];
+        let { id, maxSize, minSize, units } = panel.current;
+        if (panelsWithSizes.has(id)) {
+          continue;
+        }
 
-          return panel.current.defaultSize;
-        })
-      );
+        if (units === "static") {
+          minSize = (minSize / groupSizePixels) * 100;
+          if (maxSize != null) {
+            maxSize = (maxSize / groupSizePixels) * 100;
+          }
+        }
+
+        if (minSize === 0 && (maxSize === null || maxSize === 100)) {
+          continue;
+        }
+
+        const remainingSize = 100 - totalDefaultSize;
+        const remainingPanels = panelsArray.length - panelsWithSizes.size;
+        const size = Math.min(
+          maxSize != null ? maxSize : 100,
+          Math.max(minSize, remainingSize / remainingPanels)
+        );
+
+        sizes[index] = size;
+        totalDefaultSize += size;
+        panelsWithSizes.add(id);
+      }
+
+      // And finally: The remaining size should be evenly distributed between the remaining panels
+      for (let index = 0; index < panelsArray.length; index++) {
+        const panel = panelsArray[index];
+        let { id } = panel.current;
+        if (panelsWithSizes.has(id)) {
+          continue;
+        }
+
+        const remainingSize = 100 - totalDefaultSize;
+        const remainingPanels = panelsArray.length - panelsWithSizes.size;
+        const size = remainingSize / remainingPanels;
+
+        sizes[index] = size;
+        totalDefaultSize += size;
+        panelsWithSizes.add(id);
+      }
+
+      // Finally: If there is any left-over values at the end, log an error
+      if (totalDefaultSize !== 100) {
+        if (isDevelopment) {
+          console.error(
+            `Invalid panel group configuration; default panel sizes should total 100 but was ${totalDefaultSize}`
+          );
+        }
+      }
+
+      setSizes(sizes);
     }
-  }, [autoSaveId, panels, setSizes, storage]);
+  }, [autoSaveId, panels, storage]);
 
   useEffect(() => {
     // If this panel has been configured to persist sizing information, save sizes to local storage.
@@ -455,25 +438,40 @@ function PanelGroupWithForwardedRef({
   }, [autoSaveId, panels, sizes, storage]);
 
   useIsomorphicLayoutEffect(() => {
-    // This is a bit of a hack;
-    // in order to avoid recreating ResizeObservers if an inline function is passed
-    // we assume that validator will be provided initially
-    if (callbacksRef.current.validateLayout) {
-      const resizeObserver = new ResizeObserver(() => {
-        const { sizes: prevSizes } = committedValuesRef.current;
-        const nextSizes = validateLayoutHelper(prevSizes);
+    const resizeObserver = new ResizeObserver(() => {
+      const {
+        panelIdsWithStaticUnits,
+        panels,
+        sizes: prevSizes,
+      } = committedValuesRef.current;
+
+      if (panelIdsWithStaticUnits.size > 0) {
+        const [idBefore, idAfter] = Array.from(panels.values()).map(
+          (panel) => panel.current.id
+        );
+
+        const nextSizes = adjustByDelta(
+          null,
+          committedValuesRef.current,
+          idBefore,
+          idAfter,
+          0,
+          prevSizes,
+          panelSizeBeforeCollapse.current,
+          initialDragStateRef.current
+        );
         if (!areEqual(prevSizes, nextSizes)) {
-          setSizesUnsafe(nextSizes);
+          setSizes(nextSizes);
         }
-      });
+      }
+    });
 
-      resizeObserver.observe(getPanelGroup(groupId)!);
+    resizeObserver.observe(getPanelGroup(groupId)!);
 
-      return () => {
-        resizeObserver.disconnect();
-      };
-    }
-  }, [groupId, setSizes, validateLayoutHelper]);
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [groupId]);
 
   const getPanelStyle = useCallback(
     (id: string, defaultSize: number | null): CSSProperties => {
@@ -526,6 +524,10 @@ function PanelGroupWithForwardedRef({
   );
 
   const registerPanel = useCallback((id: string, panelRef: PanelData) => {
+    if (panelRef.current.units === "static") {
+      committedValuesRef.current.panelIdsWithStaticUnits.add(id);
+    }
+
     setPanels((prevPanels) => {
       if (prevPanels.has(id)) {
         return prevPanels;
@@ -587,17 +589,15 @@ function PanelGroupWithForwardedRef({
 
         // If a validateLayout method has been provided
         // it's important to use it before updating the mouse cursor
-        const nextSizes = validateLayoutHelper(
-          adjustByDelta(
-            event,
-            panels,
-            idBefore,
-            idAfter,
-            delta,
-            prevSizes,
-            panelSizeBeforeCollapse.current,
-            initialDragStateRef.current
-          )
+        const nextSizes = adjustByDelta(
+          event,
+          committedValuesRef.current,
+          idBefore,
+          idAfter,
+          delta,
+          prevSizes,
+          panelSizeBeforeCollapse.current,
+          initialDragStateRef.current
         );
 
         const sizesChanged = !areEqual(prevSizes, nextSizes);
@@ -634,7 +634,7 @@ function PanelGroupWithForwardedRef({
             panelIdToLastNotifiedSizeMapRef.current;
 
           // It's okay to bypass in this case because we already validated above
-          setSizesUnsafe(nextSizes);
+          setSizes(nextSizes);
 
           // If resize change handlers have been declared, this is the time to call them.
           // Trigger user callbacks after updating state, so that user code can override the sizes.
@@ -650,10 +650,12 @@ function PanelGroupWithForwardedRef({
 
       return resizeHandler;
     },
-    [groupId, validateLayoutHelper]
+    [groupId]
   );
 
   const unregisterPanel = useCallback((id: string) => {
+    committedValuesRef.current.panelIdsWithStaticUnits.delete(id);
+
     setPanels((prevPanels) => {
       if (!prevPanels.has(id)) {
         return prevPanels;
@@ -666,205 +668,197 @@ function PanelGroupWithForwardedRef({
     });
   }, []);
 
-  const collapsePanel = useCallback(
-    (id: string) => {
-      const { panels, sizes: prevSizes } = committedValuesRef.current;
+  const collapsePanel = useCallback((id: string) => {
+    const { panels, sizes: prevSizes } = committedValuesRef.current;
 
-      const panel = panels.get(id);
-      if (panel == null) {
-        return;
+    const panel = panels.get(id);
+    if (panel == null) {
+      return;
+    }
+
+    const { collapsedSize, collapsible } = panel.current;
+    if (!collapsible) {
+      return;
+    }
+
+    const panelsArray = panelsMapToSortedArray(panels);
+
+    const index = panelsArray.indexOf(panel);
+    if (index < 0) {
+      return;
+    }
+
+    const currentSize = prevSizes[index];
+    if (currentSize === collapsedSize) {
+      // Panel is already collapsed.
+      return;
+    }
+
+    panelSizeBeforeCollapse.current.set(id, currentSize);
+
+    const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
+    if (idBefore == null || idAfter == null) {
+      return;
+    }
+
+    const isLastPanel = index === panelsArray.length - 1;
+    const delta = isLastPanel ? currentSize : collapsedSize - currentSize;
+
+    const nextSizes = adjustByDelta(
+      null,
+      committedValuesRef.current,
+      idBefore,
+      idAfter,
+      delta,
+      prevSizes,
+      panelSizeBeforeCollapse.current,
+      null
+    );
+    if (prevSizes !== nextSizes) {
+      const panelIdToLastNotifiedSizeMap =
+        panelIdToLastNotifiedSizeMapRef.current;
+
+      setSizes(nextSizes);
+
+      // If resize change handlers have been declared, this is the time to call them.
+      // Trigger user callbacks after updating state, so that user code can override the sizes.
+      callPanelCallbacks(panelsArray, nextSizes, panelIdToLastNotifiedSizeMap);
+    }
+  }, []);
+
+  const expandPanel = useCallback((id: string) => {
+    const { panels, sizes: prevSizes } = committedValuesRef.current;
+
+    const panel = panels.get(id);
+    if (panel == null) {
+      return;
+    }
+
+    const { collapsedSize, minSize } = panel.current;
+
+    const sizeBeforeCollapse =
+      panelSizeBeforeCollapse.current.get(id) || minSize;
+    if (!sizeBeforeCollapse) {
+      return;
+    }
+
+    const panelsArray = panelsMapToSortedArray(panels);
+
+    const index = panelsArray.indexOf(panel);
+    if (index < 0) {
+      return;
+    }
+
+    const currentSize = prevSizes[index];
+    if (currentSize !== collapsedSize) {
+      // Panel is already expanded.
+      return;
+    }
+
+    const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
+    if (idBefore == null || idAfter == null) {
+      return;
+    }
+
+    const isLastPanel = index === panelsArray.length - 1;
+    const delta = isLastPanel
+      ? collapsedSize - sizeBeforeCollapse
+      : sizeBeforeCollapse;
+
+    const nextSizes = adjustByDelta(
+      null,
+      committedValuesRef.current,
+      idBefore,
+      idAfter,
+      delta,
+      prevSizes,
+      panelSizeBeforeCollapse.current,
+      null
+    );
+    if (prevSizes !== nextSizes) {
+      const panelIdToLastNotifiedSizeMap =
+        panelIdToLastNotifiedSizeMapRef.current;
+
+      setSizes(nextSizes);
+
+      // If resize change handlers have been declared, this is the time to call them.
+      // Trigger user callbacks after updating state, so that user code can override the sizes.
+      callPanelCallbacks(panelsArray, nextSizes, panelIdToLastNotifiedSizeMap);
+    }
+  }, []);
+
+  const resizePanel = useCallback((id: string, nextSize: number) => {
+    const {
+      id: groupId,
+      panels,
+      sizes: prevSizes,
+    } = committedValuesRef.current;
+
+    const panel = panels.get(id);
+    if (panel == null) {
+      return;
+    }
+
+    let { collapsedSize, collapsible, maxSize, minSize, units } = panel.current;
+
+    if (units === "static") {
+      const groupSizePixels = getAvailableGroupSizePixels(groupId);
+      minSize = (minSize / groupSizePixels) * 100;
+      if (maxSize != null) {
+        maxSize = (maxSize / groupSizePixels) * 100;
       }
+    }
 
-      const { collapsedSize, collapsible } = panel.current;
-      if (!collapsible) {
-        return;
-      }
+    const panelsArray = panelsMapToSortedArray(panels);
 
-      const panelsArray = panelsMapToSortedArray(panels);
+    const index = panelsArray.indexOf(panel);
+    if (index < 0) {
+      return;
+    }
 
-      const index = panelsArray.indexOf(panel);
-      if (index < 0) {
-        return;
-      }
+    const currentSize = prevSizes[index];
+    if (currentSize === nextSize) {
+      return;
+    }
 
-      const currentSize = prevSizes[index];
-      if (currentSize === collapsedSize) {
-        // Panel is already collapsed.
-        return;
-      }
-
-      panelSizeBeforeCollapse.current.set(id, currentSize);
-
-      const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
-      if (idBefore == null || idAfter == null) {
-        return;
-      }
-
-      const isLastPanel = index === panelsArray.length - 1;
-      const delta = isLastPanel ? currentSize : collapsedSize - currentSize;
-
-      const nextSizes = adjustByDelta(
-        null,
-        panels,
-        idBefore,
-        idAfter,
-        delta,
-        prevSizes,
-        panelSizeBeforeCollapse.current,
-        null
+    if (collapsible && nextSize === collapsedSize) {
+      // This is a valid resize state.
+    } else {
+      nextSize = Math.min(
+        maxSize != null ? maxSize : 100,
+        Math.max(minSize, nextSize)
       );
-      if (prevSizes !== nextSizes) {
-        const panelIdToLastNotifiedSizeMap =
-          panelIdToLastNotifiedSizeMapRef.current;
+    }
 
-        setSizes(nextSizes);
+    const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
+    if (idBefore == null || idAfter == null) {
+      return;
+    }
 
-        // If resize change handlers have been declared, this is the time to call them.
-        // Trigger user callbacks after updating state, so that user code can override the sizes.
-        callPanelCallbacks(
-          panelsArray,
-          nextSizes,
-          panelIdToLastNotifiedSizeMap
-        );
-      }
-    },
-    [setSizes]
-  );
+    const isLastPanel = index === panelsArray.length - 1;
+    const delta = isLastPanel ? currentSize - nextSize : nextSize - currentSize;
 
-  const expandPanel = useCallback(
-    (id: string) => {
-      const { panels, sizes: prevSizes } = committedValuesRef.current;
+    const nextSizes = adjustByDelta(
+      null,
+      committedValuesRef.current,
+      idBefore,
+      idAfter,
+      delta,
+      prevSizes,
+      panelSizeBeforeCollapse.current,
+      null
+    );
+    if (prevSizes !== nextSizes) {
+      const panelIdToLastNotifiedSizeMap =
+        panelIdToLastNotifiedSizeMapRef.current;
 
-      const panel = panels.get(id);
-      if (panel == null) {
-        return;
-      }
+      setSizes(nextSizes);
 
-      const { collapsedSize, minSize } = panel.current;
-
-      const sizeBeforeCollapse =
-        panelSizeBeforeCollapse.current.get(id) || minSize;
-      if (!sizeBeforeCollapse) {
-        return;
-      }
-
-      const panelsArray = panelsMapToSortedArray(panels);
-
-      const index = panelsArray.indexOf(panel);
-      if (index < 0) {
-        return;
-      }
-
-      const currentSize = prevSizes[index];
-      if (currentSize !== collapsedSize) {
-        // Panel is already expanded.
-        return;
-      }
-
-      const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
-      if (idBefore == null || idAfter == null) {
-        return;
-      }
-
-      const isLastPanel = index === panelsArray.length - 1;
-      const delta = isLastPanel
-        ? collapsedSize - sizeBeforeCollapse
-        : sizeBeforeCollapse;
-
-      const nextSizes = adjustByDelta(
-        null,
-        panels,
-        idBefore,
-        idAfter,
-        delta,
-        prevSizes,
-        panelSizeBeforeCollapse.current,
-        null
-      );
-      if (prevSizes !== nextSizes) {
-        const panelIdToLastNotifiedSizeMap =
-          panelIdToLastNotifiedSizeMapRef.current;
-
-        setSizes(nextSizes);
-
-        // If resize change handlers have been declared, this is the time to call them.
-        // Trigger user callbacks after updating state, so that user code can override the sizes.
-        callPanelCallbacks(
-          panelsArray,
-          nextSizes,
-          panelIdToLastNotifiedSizeMap
-        );
-      }
-    },
-    [setSizes]
-  );
-
-  const resizePanel = useCallback(
-    (id: string, nextSize: number) => {
-      const { panels, sizes: prevSizes } = committedValuesRef.current;
-
-      const panel = panels.get(id);
-      if (panel == null) {
-        return;
-      }
-
-      const { collapsedSize, collapsible, maxSize, minSize } = panel.current;
-
-      const panelsArray = panelsMapToSortedArray(panels);
-
-      const index = panelsArray.indexOf(panel);
-      if (index < 0) {
-        return;
-      }
-
-      const currentSize = prevSizes[index];
-      if (currentSize === nextSize) {
-        return;
-      }
-
-      if (collapsible && nextSize === collapsedSize) {
-        // This is a valid resize state.
-      } else {
-        nextSize = Math.min(maxSize, Math.max(minSize, nextSize));
-      }
-
-      const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
-      if (idBefore == null || idAfter == null) {
-        return;
-      }
-
-      const isLastPanel = index === panelsArray.length - 1;
-      const delta = isLastPanel
-        ? currentSize - nextSize
-        : nextSize - currentSize;
-
-      const nextSizes = adjustByDelta(
-        null,
-        panels,
-        idBefore,
-        idAfter,
-        delta,
-        prevSizes,
-        panelSizeBeforeCollapse.current,
-        null
-      );
-      if (prevSizes !== nextSizes) {
-        const panelIdToLastNotifiedSizeMap =
-          panelIdToLastNotifiedSizeMapRef.current;
-
-        setSizes(nextSizes);
-
-        // If resize change handlers have been declared, this is the time to call them.
-        // Trigger user callbacks after updating state, so that user code can override the sizes.
-        callPanelCallbacks(
-          panelsArray,
-          nextSizes,
-          panelIdToLastNotifiedSizeMap
-        );
-      }
-    },
-    [setSizes]
-  );
+      // If resize change handlers have been declared, this is the time to call them.
+      // Trigger user callbacks after updating state, so that user code can override the sizes.
+      callPanelCallbacks(panelsArray, nextSizes, panelIdToLastNotifiedSizeMap);
+    }
+  }, []);
 
   const context = useMemo(
     () => ({

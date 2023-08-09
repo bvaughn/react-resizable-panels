@@ -6,6 +6,7 @@ import ResizeHandle from "../../components/ResizeHandle";
 
 import Example from "./Example";
 import styles from "./shared.module.css";
+import Icon from "../../components/Icon";
 
 export default function ExternalPersistence() {
   return (
@@ -22,11 +23,13 @@ export default function ExternalPersistence() {
             layout is saved as part of the URL hash.
           </p>
           <p className={styles.WarningBlock}>
+            <Icon className={styles.WarningIcon} type="warning" />
             Note the <code>storage</code> API is <em>synchronous</em>. If an
             async source is used (e.g. a database) then values should be
             pre-fetched during the initial render (e.g. using Suspense).
           </p>
           <p className={styles.WarningBlock}>
+            <Icon className={styles.WarningIcon} type="warning" />
             Note calls to <code>storage.setItem</code> are debounced by{" "}
             <strong>100ms</strong>. Depending on your implementation, you may
             wish to use a larger interval than that.

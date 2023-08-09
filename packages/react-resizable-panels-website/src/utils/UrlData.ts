@@ -19,9 +19,8 @@ import {
   PanelResizeHandle,
   PanelResizeHandleOnDragging,
   PanelResizeHandleProps,
-  usePanelGroupLayoutValidator,
+  PanelUnits,
 } from "react-resizable-panels";
-import { Metadata } from "../../tests/utils/url";
 import { ImperativeDebugLogHandle } from "../routes/examples/DebugLog";
 
 type UrlPanel = {
@@ -30,11 +29,12 @@ type UrlPanel = {
   collapsible?: boolean;
   defaultSize?: number | null;
   id?: string | null;
-  maxSize?: number;
+  maxSize?: number | null;
   minSize?: number;
   order?: number | null;
   style?: CSSProperties;
   type: "UrlPanel";
+  units: PanelUnits;
 };
 
 type UrlPanelGroup = {
@@ -112,6 +112,7 @@ function UrlPanelToData(urlPanel: ReactElement<PanelProps>): UrlPanel {
     order: urlPanel.props.order,
     style: urlPanel.props.style,
     type: "UrlPanel",
+    units: urlPanel.props.units ?? "relative",
   };
 }
 
@@ -209,16 +210,16 @@ function urlPanelToPanel(
       order: urlPanel.order,
       ref: refSetter,
       style: urlPanel.style,
+      units: urlPanel.units,
     },
     urlPanel.children.map((child, index) => {
       if (isUrlPanelGroup(child)) {
-        return createElement(PanelGroupForUrlData, {
+        return urlPanelGroupToPanelGroup(
+          child,
           debugLogRef,
           idToRefMapRef,
-          key: index,
-          metadata: null,
-          urlPanelGroup: child,
-        });
+          index
+        );
       } else {
         return createElement(Fragment, { key: index }, child);
       }
@@ -226,19 +227,14 @@ function urlPanelToPanel(
   );
 }
 
-export function PanelGroupForUrlData({
-  debugLogRef,
-  idToRefMapRef,
-  metadata,
-  urlPanelGroup,
-}: {
-  debugLogRef: RefObject<ImperativeDebugLogHandle>;
+export function urlPanelGroupToPanelGroup(
+  urlPanelGroup: UrlPanelGroup,
+  debugLogRef: RefObject<ImperativeDebugLogHandle>,
   idToRefMapRef: RefObject<
     Map<string, ImperativePanelHandle | ImperativePanelGroupHandle>
-  >;
-  metadata: Metadata | null;
-  urlPanelGroup: UrlPanelGroup;
-}): ReactElement {
+  >,
+  key?: any
+): ReactElement {
   let onLayout: PanelGroupOnLayout | undefined = undefined;
   let refSetter;
 
@@ -261,9 +257,6 @@ export function PanelGroupForUrlData({
     };
   }
 
-  const config = metadata ? metadata.usePanelGroupLayoutValidator : undefined;
-  const validateLayout = usePanelGroupLayoutValidator((config ?? {}) as any);
-
   return createElement(
     PanelGroup,
     {
@@ -271,10 +264,10 @@ export function PanelGroupForUrlData({
       className: "PanelGroup",
       direction: urlPanelGroup.direction,
       id: urlPanelGroup.id,
+      key: key,
       onLayout,
       ref: refSetter,
       style: urlPanelGroup.style,
-      validateLayout: config ? validateLayout : undefined,
     },
     urlPanelGroup.children.map((child, index) => {
       if (isUrlPanel(child)) {

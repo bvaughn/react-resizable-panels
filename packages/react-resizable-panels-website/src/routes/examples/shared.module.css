@@ -84,10 +84,19 @@
 }
 
 .WarningBlock {
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1ch;
   background: var(--color-warning-background);
-  padding: 0.25em 1ch;
+  padding: 0.5em;
   border-radius: 0.5rem;
+}
+.WarningIcon {
+  flex: 0 0 2rem;
+  width: 2rem;
+  height: 2rem;
 }
 
 .InlineCode {

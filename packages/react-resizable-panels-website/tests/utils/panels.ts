@@ -9,6 +9,31 @@ type Operation = {
   size: number;
 };
 
+export async function dragResizeBy(
+  page: Page,
+  panelResizeHandleId: string,
+  delta: number
+) {
+  const dragHandle = page.locator(
+    `[data-panel-resize-handle-id="${panelResizeHandleId}"]`
+  );
+  const direction = await dragHandle.getAttribute(
+    "data-panel-group-direction"
+  )!;
+
+  let dragHandleRect = (await dragHandle.boundingBox())!;
+  let pageX = dragHandleRect.x + dragHandleRect.width / 2;
+  let pageY = dragHandleRect.y + dragHandleRect.height / 2;
+
+  await page.mouse.move(pageX, pageY);
+  await page.mouse.down();
+  await page.mouse.move(
+    direction === "horizontal" ? pageX + delta : pageX,
+    direction === "vertical" ? pageY + delta : pageY
+  );
+  await page.mouse.up();
+}
+
 export async function dragResizeTo(
   page: Page,
   panelId: string,
