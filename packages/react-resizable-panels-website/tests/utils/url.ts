@@ -12,7 +12,7 @@ export async function goToUrl(
   const url = new URL("http://localhost:1234/__e2e");
   url.searchParams.set("urlPanelGroup", encodedString);
 
-  // Uncomment when testing for easier debugging
+  // Uncomment when testing for easier repros
   // console.log(url.toString());
 
   await page.goto(url.toString());

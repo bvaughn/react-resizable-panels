@@ -307,35 +307,35 @@ function PanelGroupWithForwardedRef({
     } else {
       const panelsArray = panelsMapToSortedArray(panels);
 
-      let totalDefaultSize = 0;
-
-      const panelsWithSizes = new Set<string>();
       const sizes = Array<number>(panelsArray.length);
+
+      let numPanelsWithSizes = 0;
+      let remainingSize = 100;
 
       // Assigning default sizes requires a couple of passes:
       // First, all panels with defaultSize should be set as-is
       for (let index = 0; index < panelsArray.length; index++) {
         const panel = panelsArray[index];
-        const { defaultSize, id, maxSize, minSize, units } = panel.current;
+        const { defaultSize, units } = panel.current;
 
         if (defaultSize != null) {
-          panelsWithSizes.add(id);
+          numPanelsWithSizes++;
 
           sizes[index] =
             units === "static"
               ? (defaultSize / groupSizePixels) * 100
               : defaultSize;
 
-          totalDefaultSize += sizes[index];
+          remainingSize -= sizes[index];
         }
       }
 
-      // Remaining total size should be distributed evenly between panels in two additional passes.
-      // First, panels with minSize/maxSize should get their portions
+      // Remaining total size should be distributed evenly between panels
+      // This may require two passes, depending on min/max constraints
       for (let index = 0; index < panelsArray.length; index++) {
         const panel = panelsArray[index];
-        let { id, maxSize, minSize, units } = panel.current;
-        if (panelsWithSizes.has(id)) {
+        let { defaultSize, id, maxSize, minSize, units } = panel.current;
+        if (defaultSize != null) {
           continue;
         }
 
@@ -346,44 +346,53 @@ function PanelGroupWithForwardedRef({
           }
         }
 
-        if (minSize === 0 && (maxSize === null || maxSize === 100)) {
-          continue;
-        }
-
-        const remainingSize = 100 - totalDefaultSize;
-        const remainingPanels = panelsArray.length - panelsWithSizes.size;
+        const remainingPanels = panelsArray.length - numPanelsWithSizes;
         const size = Math.min(
           maxSize != null ? maxSize : 100,
           Math.max(minSize, remainingSize / remainingPanels)
         );
 
         sizes[index] = size;
-        totalDefaultSize += size;
-        panelsWithSizes.add(id);
+        numPanelsWithSizes++;
+        remainingSize -= size;
       }
 
-      // And finally: The remaining size should be evenly distributed between the remaining panels
-      for (let index = 0; index < panelsArray.length; index++) {
-        const panel = panelsArray[index];
-        let { id } = panel.current;
-        if (panelsWithSizes.has(id)) {
-          continue;
+      // If there is additional, left over space, assign it to any panel(s) that permits it
+      // (It's not worth taking multiple additional passes to evenly distribute)
+      if (remainingSize !== 0) {
+        for (let index = 0; index < panelsArray.length; index++) {
+          const panel = panelsArray[index];
+          let { defaultSize, maxSize, minSize } = panel.current;
+          if (defaultSize != null) {
+            continue;
+          }
+
+          const size = Math.min(
+            maxSize != null ? maxSize : 100,
+            Math.max(minSize, sizes[index] + remainingSize)
+          );
+
+          if (size !== sizes[index]) {
+            remainingSize -= size - sizes[index];
+            sizes[index] = size;
+
+            // Fuzzy comparison to account for imprecise floating point math
+            if (Math.abs(remainingSize).toFixed(3) === "0.000") {
+              break;
+            }
+          }
         }
-
-        const remainingSize = 100 - totalDefaultSize;
-        const remainingPanels = panelsArray.length - panelsWithSizes.size;
-        const size = remainingSize / remainingPanels;
-
-        sizes[index] = size;
-        totalDefaultSize += size;
-        panelsWithSizes.add(id);
       }
 
-      // Finally: If there is any left-over values at the end, log an error
-      if (totalDefaultSize !== 100) {
+      // Finally, if there is still left-over size, log an error
+      if (Math.abs(remainingSize).toFixed(3) !== "0.000") {
         if (isDevelopment) {
           console.error(
-            `Invalid panel group configuration; default panel sizes should total 100 but was ${totalDefaultSize}`
+            `Invalid panel group configuration; default panel sizes should total 100% but was ${(
+              100 - remainingSize
+            ).toFixed(
+              1
+            )}%. This can cause the cursor to become misaligned while dragging.`
           );
         }
       }

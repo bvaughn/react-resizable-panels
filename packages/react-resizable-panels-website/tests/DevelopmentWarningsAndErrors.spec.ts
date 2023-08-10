@@ -274,10 +274,36 @@ test.describe("Development warnings and errors", () => {
       expect(errors).toEqual(
         expect.arrayContaining([
           expect.stringContaining(
-            "Invalid panel group configuration; default panel sizes should total 100 but was 50"
+            "Invalid panel group configuration; default panel sizes should total 100% but was 50.0%"
           ),
         ])
       );
     });
+  });
+
+  test("should warn if no minSize is provided for a panel with static units", async ({
+    page,
+  }) => {
+    await goToUrl(
+      page,
+      createElement(
+        PanelGroup,
+        { direction: "horizontal" },
+        createElement(Panel, { defaultSize: 25, units: "static" }),
+        createElement(PanelResizeHandle),
+        createElement(Panel)
+      )
+    );
+
+    await flushMessages(page);
+
+    expect(warnings).not.toHaveLength(0);
+    expect(warnings).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining(
+          'Panels with "static" units should specify a minSize value'
+        ),
+      ])
+    );
   });
 });
