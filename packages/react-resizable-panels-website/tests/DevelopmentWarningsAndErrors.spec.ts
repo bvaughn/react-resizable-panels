@@ -3,6 +3,10 @@ import { createElement } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import { goToUrl, updateUrl } from "./utils/url";
+import {
+  imperativeResizePanel,
+  imperativeResizePanelGroup,
+} from "./utils/panels";
 
 function createElements({
   numPanels,
@@ -352,6 +356,88 @@ test.describe("Development warnings and errors", () => {
       expect.arrayContaining([
         expect.stringContaining(
           "Invalid panel group configuration; default panel sizes should total 100% but was 50.0%."
+        ),
+      ])
+    );
+  });
+
+  test("should warn about invalid sizes set via imperative Panel API", async ({
+    page,
+  }) => {
+    await goToUrl(
+      page,
+      createElement(
+        PanelGroup,
+        { direction: "horizontal" },
+        createElement(Panel, { id: "left-panel", minSize: 25 }),
+        createElement(PanelResizeHandle),
+        createElement(Panel, { id: "middle-panel", minSize: 25 }),
+        createElement(PanelResizeHandle),
+        createElement(Panel, { id: "right-panel", maxSize: 25 })
+      )
+    );
+
+    await imperativeResizePanel(page, "left-panel", 20);
+
+    expect(errors).not.toHaveLength(0);
+    expect(errors).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining(
+          'Invalid size (20) specified for Panel "left-panel"'
+        ),
+      ])
+    );
+
+    errors.splice(0);
+
+    await imperativeResizePanel(page, "right-panel", 50);
+
+    expect(errors).not.toHaveLength(0);
+    expect(errors).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining(
+          'Invalid size (50) specified for Panel "right-panel"'
+        ),
+      ])
+    );
+  });
+
+  test("should warn about invalid layouts set via imperative PanelGroup API", async ({
+    page,
+  }) => {
+    await goToUrl(
+      page,
+      createElement(
+        PanelGroup,
+        { direction: "horizontal", id: "group" },
+        createElement(Panel, { id: "left-panel", minSize: 25 }),
+        createElement(PanelResizeHandle),
+        createElement(Panel, { id: "middle-panel", minSize: 25 }),
+        createElement(PanelResizeHandle),
+        createElement(Panel, { id: "right-panel", maxSize: 25 })
+      )
+    );
+
+    await imperativeResizePanelGroup(page, "group", [20, 60, 20]);
+
+    expect(errors).not.toHaveLength(0);
+    expect(errors).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining(
+          'Invalid size (20) specified for Panel "left-panel"'
+        ),
+      ])
+    );
+
+    errors.splice(0);
+
+    await imperativeResizePanelGroup(page, "group", [25, 25, 50]);
+
+    expect(errors).not.toHaveLength(0);
+    expect(errors).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining(
+          'Invalid size (50) specified for Panel "right-panel"'
         ),
       ])
     );

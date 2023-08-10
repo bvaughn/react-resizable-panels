@@ -46,6 +46,7 @@ import {
   getResizeHandle,
   getResizeHandlePanelIds,
   panelsMapToSortedArray,
+  safeResizePanel,
 } from "./utils/group";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
 
@@ -218,14 +219,37 @@ function PanelGroupWithForwardedRef({
 
         assert(total === 100, "Panel sizes must add up to 100%");
 
-        const { panels } = committedValuesRef.current;
+        const {
+          id: groupId,
+          panels,
+          sizes: prevSizes,
+        } = committedValuesRef.current;
         const panelIdToLastNotifiedSizeMap =
           panelIdToLastNotifiedSizeMapRef.current;
         const panelsArray = panelsMapToSortedArray(panels);
 
-        // Note this API does not validate min/max sizes or "static" units
-        // There would be too many edge cases to handle
-        // Use the API at your own risk
+        if (isDevelopment) {
+          const groupSizePixels = getAvailableGroupSizePixels(groupId);
+
+          for (let index = 0; index < sizes.length; index++) {
+            const panel = panelsArray[index];
+            const prevSize = prevSizes[index];
+            const nextSize = sizes[index];
+            const safeSize = safeResizePanel(
+              groupSizePixels,
+              panel,
+              nextSize - prevSize,
+              prevSize,
+              null
+            );
+
+            if (nextSize !== safeSize) {
+              console.error(
+                `Invalid size (${nextSize}) specified for Panel "${panel.current.id}" given the panel's min/max size constraints`
+              );
+            }
+          }
+        }
 
         setSizes(sizes);
 
@@ -833,10 +857,20 @@ function PanelGroupWithForwardedRef({
     if (collapsible && nextSize === collapsedSize) {
       // This is a valid resize state.
     } else {
+      const unsafeNextSize = nextSize;
+
       nextSize = Math.min(
         maxSize != null ? maxSize : 100,
         Math.max(minSize, nextSize)
       );
+
+      if (isDevelopment) {
+        if (unsafeNextSize !== nextSize) {
+          console.error(
+            `Invalid size (${unsafeNextSize}) specified for Panel "${panel.current.id}" given the panel's min/max size constraints`
+          );
+        }
+      }
     }
 
     const [idBefore, idAfter] = getBeforeAndAfterIds(id, panelsArray);
