@@ -306,4 +306,54 @@ test.describe("Development warnings and errors", () => {
       ])
     );
   });
+
+  test("should warn if invalid layout constraints are provided", async ({
+    page,
+  }) => {
+    await goToUrl(
+      page,
+      createElement(
+        PanelGroup,
+        { direction: "horizontal" },
+        createElement(Panel, { minSize: 75 }),
+        createElement(PanelResizeHandle),
+        createElement(Panel, { minSize: 75 })
+      )
+    );
+
+    await flushMessages(page);
+
+    expect(errors).not.toHaveLength(0);
+    expect(errors).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining(
+          "Invalid panel group configuration; default panel sizes should total 100% but was 150.0%."
+        ),
+      ])
+    );
+
+    errors.splice(0);
+
+    await goToUrl(
+      page,
+      createElement(
+        PanelGroup,
+        { direction: "horizontal" },
+        createElement(Panel, { maxSize: 25 }),
+        createElement(PanelResizeHandle),
+        createElement(Panel, { maxSize: 25 })
+      )
+    );
+
+    await flushMessages(page);
+
+    expect(errors).not.toHaveLength(0);
+    expect(errors).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining(
+          "Invalid panel group configuration; default panel sizes should total 100% but was 50.0%."
+        ),
+      ])
+    );
+  });
 });
