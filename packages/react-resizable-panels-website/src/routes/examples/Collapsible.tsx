@@ -69,12 +69,13 @@ function Content() {
         </div>
         <Panel
           className={sharedStyles.PanelColumn}
-          collapsedSize={4}
+          collapsedSize={36}
           collapsible={true}
-          defaultSize={20}
-          maxSize={25}
-          minSize={10}
+          defaultSize={150}
+          maxSize={150}
+          minSize={60}
           onCollapse={toggleCollapsed}
+          units="static"
         >
           <div className={styles.FileList}>
             <div className={styles.DirectoryEntry}>
