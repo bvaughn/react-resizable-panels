@@ -1,5 +1,5 @@
 import { Page, expect, test } from "@playwright/test";
-import { createElement } from "react";
+import { ReactNode, createElement } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import { goToUrl, updateUrl } from "./utils/url";
@@ -17,11 +17,12 @@ function createElements({
   omitIdProp?: boolean;
   omitOrderProp?: boolean;
 }) {
-  const panels = [
+  const panels: ReactNode[] = [
     createElement(Panel, {
       collapsible: true,
       defaultSize: numPanels === 2 ? 50 : 100,
       id: omitIdProp ? undefined : "left",
+      minSize: 10,
       order: omitOrderProp ? undefined : 1,
     }),
   ];
@@ -33,6 +34,7 @@ function createElements({
         collapsible: true,
         defaultSize: 50,
         id: omitIdProp ? undefined : "right",
+        minSize: 10,
         order: omitOrderProp ? undefined : 2,
       })
     );
@@ -153,7 +155,7 @@ test.describe("Development warnings and errors", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { defaultSize: -1 })
+          createElement(Panel, { defaultSize: -1, minSize: 10 })
         )
       );
 
@@ -167,7 +169,7 @@ test.describe("Development warnings and errors", () => {
       );
     });
 
-    test("should throw if defaultSize is greater than 100 and units are relative", async ({
+    test("should throw if defaultSize is greater than 100 and units are percentages", async ({
       page,
     }) => {
       await goToUrl(
@@ -175,7 +177,7 @@ test.describe("Development warnings and errors", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { defaultSize: 400 })
+          createElement(Panel, { defaultSize: 400, minSize: 10 })
         )
       );
 
@@ -189,15 +191,15 @@ test.describe("Development warnings and errors", () => {
       );
     });
 
-    test("should not throw if defaultSize is greater than 100 and units are static", async ({
+    test("should not throw if defaultSize is greater than 100 and units are pixels", async ({
       page,
     }) => {
       await goToUrl(
         page,
         createElement(
           PanelGroup,
-          { direction: "horizontal" },
-          createElement(Panel, { defaultSize: 400, units: "static" })
+          { direction: "horizontal", units: "pixels" },
+          createElement(Panel, { defaultSize: 400, minSize: 10 })
         )
       );
 
@@ -216,7 +218,7 @@ test.describe("Development warnings and errors", () => {
           { direction: "horizontal" },
           createElement(Panel, { defaultSize: 25, minSize: 50 }),
           createElement(PanelResizeHandle),
-          createElement(Panel)
+          createElement(Panel, { minSize: 10 })
         )
       );
 
@@ -240,9 +242,9 @@ test.describe("Development warnings and errors", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { defaultSize: 75, maxSize: 50 }),
+          createElement(Panel, { defaultSize: 75, maxSize: 50, minSize: 10 }),
           createElement(PanelResizeHandle),
-          createElement(Panel)
+          createElement(Panel, { minSize: 10 })
         )
       );
 
@@ -266,9 +268,9 @@ test.describe("Development warnings and errors", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { defaultSize: 25 }),
+          createElement(Panel, { defaultSize: 25, minSize: 10 }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { defaultSize: 25 })
+          createElement(Panel, { defaultSize: 25, minSize: 10 })
         )
       );
 
@@ -283,32 +285,6 @@ test.describe("Development warnings and errors", () => {
         ])
       );
     });
-  });
-
-  test("should warn if no minSize is provided for a panel with static units", async ({
-    page,
-  }) => {
-    await goToUrl(
-      page,
-      createElement(
-        PanelGroup,
-        { direction: "horizontal" },
-        createElement(Panel, { defaultSize: 25, units: "static" }),
-        createElement(PanelResizeHandle),
-        createElement(Panel)
-      )
-    );
-
-    await flushMessages(page);
-
-    expect(warnings).not.toHaveLength(0);
-    expect(warnings).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining(
-          'Panels with "static" units should specify a minSize value'
-        ),
-      ])
-    );
   });
 
   test("should warn if invalid layout constraints are provided", async ({
@@ -343,9 +319,9 @@ test.describe("Development warnings and errors", () => {
       createElement(
         PanelGroup,
         { direction: "horizontal" },
-        createElement(Panel, { maxSize: 25 }),
+        createElement(Panel, { maxSize: 25, minSize: 10 }),
         createElement(PanelResizeHandle),
-        createElement(Panel, { maxSize: 25 })
+        createElement(Panel, { maxSize: 25, minSize: 10 })
       )
     );
 
@@ -373,7 +349,7 @@ test.describe("Development warnings and errors", () => {
         createElement(PanelResizeHandle),
         createElement(Panel, { id: "middle-panel", minSize: 25 }),
         createElement(PanelResizeHandle),
-        createElement(Panel, { id: "right-panel", maxSize: 25 })
+        createElement(Panel, { id: "right-panel", maxSize: 25, minSize: 10 })
       )
     );
 
@@ -414,7 +390,7 @@ test.describe("Development warnings and errors", () => {
         createElement(PanelResizeHandle),
         createElement(Panel, { id: "middle-panel", minSize: 25 }),
         createElement(PanelResizeHandle),
-        createElement(Panel, { id: "right-panel", maxSize: 25 })
+        createElement(Panel, { id: "right-panel", maxSize: 25, minSize: 10 })
       )
     );
 

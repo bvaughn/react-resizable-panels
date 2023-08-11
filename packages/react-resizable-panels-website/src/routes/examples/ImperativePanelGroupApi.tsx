@@ -87,13 +87,13 @@ function Content() {
           onLayout={onLayout}
           ref={panelGroupRef}
         >
-          <Panel className={sharedStyles.PanelRow}>
+          <Panel className={sharedStyles.PanelRow} minSize={10}>
             <div className={sharedStyles.Centered}>
               left: {Math.round(sizes[0])}
             </div>
           </Panel>
           <ResizeHandle className={sharedStyles.ResizeHandle} />
-          <Panel className={sharedStyles.PanelRow}>
+          <Panel className={sharedStyles.PanelRow} minSize={10}>
             <div className={sharedStyles.Centered}>
               right: {Math.round(sizes[1])}
             </div>

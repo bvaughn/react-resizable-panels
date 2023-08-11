@@ -24,12 +24,14 @@ async function openPage(
       collapsible: true,
       defaultSize: collapsedByDefault ? 0 : 20,
       id: "left",
+      minSize: 10,
       order: 1,
     }),
     createElement(PanelResizeHandle, { id: "left-handle" }),
     createElement(Panel, {
       collapsible: middleCollapsible,
       id: "middle",
+      minSize: 10,
       order: 2,
     }),
     createElement(PanelResizeHandle, { id: "right-handle" }),
@@ -37,6 +39,7 @@ async function openPage(
       collapsible: true,
       defaultSize: collapsedByDefault ? 0 : 20,
       id: "right",
+      minSize: 10,
       order: 3,
     })
   );

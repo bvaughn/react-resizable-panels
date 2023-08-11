@@ -29,20 +29,20 @@ export default function PixelBasedLayouts() {
       </p>
       <p className={sharedStyles.WarningBlock}>
         <Icon className={sharedStyles.WarningIcon} type="warning" />
-        Pixel units should be used sparingly because they require more complex
-        layout logic.
+        Pixel units should only be used when necessary because they require more
+        complex layout logic.
       </p>
       <div className={exampleStyles.ExampleContainer}>
         <div className={sharedStyles.PanelGroupWrapper} data-short>
           <PanelGroup
             className={sharedStyles.PanelGroup}
             direction="horizontal"
+            units="pixels"
           >
             <Panel
               className={sharedStyles.PanelRow}
               minSize={100}
               maxSize={200}
-              units="static"
             >
               <div className={styles.AutoSizerWrapper}>
                 <Size direction="horizontal">
@@ -51,11 +51,11 @@ export default function PixelBasedLayouts() {
               </div>
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
-            <Panel className={sharedStyles.PanelRow}>
+            <Panel className={sharedStyles.PanelRow} minSize={10}>
               <div className={sharedStyles.Centered}>middle</div>
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
-            <Panel className={sharedStyles.PanelRow}>
+            <Panel className={sharedStyles.PanelRow} minSize={10}>
               <div className={sharedStyles.Centered}>right</div>
             </Panel>
           </PanelGroup>
@@ -78,12 +78,13 @@ export default function PixelBasedLayouts() {
           <PanelGroup
             className={sharedStyles.PanelGroup}
             direction="horizontal"
+            units="pixels"
           >
-            <Panel className={sharedStyles.PanelRow}>
+            <Panel className={sharedStyles.PanelRow} minSize={10}>
               <div className={sharedStyles.Centered}>left</div>
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
-            <Panel className={sharedStyles.PanelRow}>
+            <Panel className={sharedStyles.PanelRow} minSize={10}>
               <div className={sharedStyles.Centered}>middle</div>
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
@@ -93,7 +94,6 @@ export default function PixelBasedLayouts() {
               collapsedSize={75}
               minSize={200}
               maxSize={300}
-              units="static"
             >
               <div className={styles.AutoSizerWrapper}>
                 <Size direction="horizontal">
@@ -139,8 +139,8 @@ function Size({
 }
 
 const CODE_HOOK = `
-<PanelGroup direction="horizontal">
-  <Panel minSize={100} maxSize={200} units="static" />
+<PanelGroup direction="horizontal" units="pixels">
+  <Panel minSize={100} maxSize={200} />
   <PanelResizeHandle />
   <Panel />
   <PanelResizeHandle />
@@ -149,11 +149,11 @@ const CODE_HOOK = `
 `;
 
 const CODE_HOOK_COLLAPSIBLE = `
-<PanelGroup direction="horizontal">
+<PanelGroup direction="horizontal" units="pixels">
   <Panel />
   <PanelResizeHandle />
   <Panel />
   <PanelResizeHandle />
-  <Panel collapsible={true} collapsedSize={75} minSize={100} maxSize={200} units="static" />
+  <Panel collapsible={true} collapsedSize={75} minSize={100} maxSize={200} />
 </PanelGroup>
 `;

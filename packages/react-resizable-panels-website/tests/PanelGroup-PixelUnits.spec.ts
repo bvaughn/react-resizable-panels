@@ -31,9 +31,15 @@ async function goToUrlHelper(
     page,
     createElement(
       PanelGroup,
-      { direction: "horizontal", id: "group", ...props.panelGroupProps },
+      {
+        direction: "horizontal",
+        id: "group",
+        units: "pixels",
+        ...props.panelGroupProps,
+      },
       createElement(Panel, {
         id: "left-panel",
+        minSize: 10,
         ...props.leftPanelProps,
       }),
       createElement(PanelResizeHandle, {
@@ -42,6 +48,7 @@ async function goToUrlHelper(
       }),
       createElement(Panel, {
         id: "middle-panel",
+        minSize: 10,
         ...props.middlePanelProps,
       }),
       createElement(PanelResizeHandle, {
@@ -50,34 +57,35 @@ async function goToUrlHelper(
       }),
       createElement(Panel, {
         id: "right-panel",
+        minSize: 10,
         ...props.rightPanelProps,
       })
     )
   );
 }
 
-test.describe("Static Panel units", () => {
+test.describe("Pixel units", () => {
   test.describe("initial layout", () => {
     test("should observe max size constraint for default layout", async ({
       page,
     }) => {
       // Static left panel
       await goToUrlHelper(page, {
-        leftPanelProps: { maxSize: 100, minSize: 50, units: "static" },
+        leftPanelProps: { maxSize: 100, minSize: 50 },
       });
       const leftPanel = page.locator('[data-panel-id="left-panel"]');
       await verifyPanelSizePixels(leftPanel, 100);
 
       // Static middle panel
       await goToUrlHelper(page, {
-        middlePanelProps: { maxSize: 100, minSize: 50, units: "static" },
+        middlePanelProps: { maxSize: 100, minSize: 50 },
       });
       const middlePanel = page.locator('[data-panel-id="middle-panel"]');
       await verifyPanelSizePixels(middlePanel, 100);
 
       // Static right panel
       await goToUrlHelper(page, {
-        rightPanelProps: { maxSize: 100, minSize: 50, units: "static" },
+        rightPanelProps: { maxSize: 100, minSize: 50 },
       });
       const rightPanel = page.locator('[data-panel-id="right-panel"]');
       await verifyPanelSizePixels(rightPanel, 100);
@@ -87,7 +95,7 @@ test.describe("Static Panel units", () => {
       page,
     }) => {
       await goToUrlHelper(page, {
-        leftPanelProps: { maxSize: 300, minSize: 200, units: "static" },
+        leftPanelProps: { maxSize: 300, minSize: 200 },
       });
 
       const leftPanel = page.locator("[data-panel]").first();
@@ -98,7 +106,7 @@ test.describe("Static Panel units", () => {
       page,
     }) => {
       await goToUrlHelper(page, {
-        leftPanelProps: { maxSize: 100, minSize: 50, units: "static" },
+        leftPanelProps: { maxSize: 100, minSize: 50 },
       });
 
       const leftPanel = page.locator("[data-panel]").first();
@@ -120,7 +128,7 @@ test.describe("Static Panel units", () => {
       page,
     }) => {
       await goToUrlHelper(page, {
-        leftPanelProps: { maxSize: 100, minSize: 50, units: "static" },
+        leftPanelProps: { maxSize: 100, minSize: 50 },
       });
 
       const leftPanel = page.locator("[data-panel]").first();
@@ -136,7 +144,7 @@ test.describe("Static Panel units", () => {
       page,
     }) => {
       await goToUrlHelper(page, {
-        leftPanelProps: { maxSize: 100, minSize: 50, units: "static" },
+        leftPanelProps: { maxSize: 100, minSize: 50 },
       });
 
       const leftPanel = page.locator("[data-panel]").first();
@@ -152,7 +160,7 @@ test.describe("Static Panel units", () => {
       page,
     }) => {
       await goToUrlHelper(page, {
-        rightPanelProps: { maxSize: 100, minSize: 50, units: "static" },
+        rightPanelProps: { maxSize: 100, minSize: 50 },
       });
 
       const rightPanel = page.locator("[data-panel]").last();
@@ -170,7 +178,6 @@ test.describe("Static Panel units", () => {
           collapsible: true,
           minSize: 100,
           maxSize: 200,
-          units: "static",
         },
       });
 
@@ -195,7 +202,6 @@ test.describe("Static Panel units", () => {
         defaultSize: 50,
         maxSize: 100,
         minSize: 50,
-        units: "static",
       },
     });
     const leftPanel = page.locator('[data-panel-id="left-panel"]');
@@ -203,6 +209,20 @@ test.describe("Static Panel units", () => {
 
     await page.setViewportSize({ width: 300, height: 300 });
     await verifyPanelSizePixels(leftPanel, 50);
+
+    await page.setViewportSize({ width: 400, height: 300 });
+    await goToUrlHelper(page, {
+      rightPanelProps: {
+        defaultSize: 50,
+        maxSize: 100,
+        minSize: 50,
+      },
+    });
+    const rightPanel = page.locator('[data-panel-id="right-panel"]');
+    await verifyPanelSizePixels(rightPanel, 50);
+
+    await page.setViewportSize({ width: 300, height: 300 });
+    await verifyPanelSizePixels(rightPanel, 50);
   });
 
   test("should observe max size constraint if the overall group size expands", async ({
@@ -213,7 +233,6 @@ test.describe("Static Panel units", () => {
         defaultSize: 100,
         maxSize: 100,
         minSize: 50,
-        units: "static",
       },
     });
 
@@ -223,6 +242,23 @@ test.describe("Static Panel units", () => {
 
     await page.setViewportSize({ width: 500, height: 300 });
     await verifyPanelSizePixels(leftPanel, 100);
+
+    await page.setViewportSize({ width: 400, height: 300 });
+
+    await goToUrlHelper(page, {
+      rightPanelProps: {
+        defaultSize: 100,
+        maxSize: 100,
+        minSize: 50,
+      },
+    });
+
+    const rightPanel = page.locator('[data-panel-id="right-panel"]');
+
+    await verifyPanelSizePixels(rightPanel, 100);
+
+    await page.setViewportSize({ width: 500, height: 300 });
+    await verifyPanelSizePixels(rightPanel, 100);
   });
 
   test("should observe max size constraint for multiple panels", async ({
@@ -232,24 +268,25 @@ test.describe("Static Panel units", () => {
       page,
       createElement(
         PanelGroup,
-        { direction: "horizontal", id: "group" },
+        { direction: "horizontal", id: "group", units: "pixels" },
         createElement(Panel, {
           id: "first-panel",
           minSize: 50,
           maxSize: 75,
-          units: "static",
         }),
         createElement(PanelResizeHandle, {
           id: "first-resize-handle",
         }),
         createElement(Panel, {
           id: "second-panel",
+          minSize: 10,
         }),
         createElement(PanelResizeHandle, {
           id: "second-resize-handle",
         }),
         createElement(Panel, {
           id: "third-panel",
+          minSize: 10,
         }),
         createElement(PanelResizeHandle, {
           id: "third-resize-handle",
@@ -258,7 +295,6 @@ test.describe("Static Panel units", () => {
           id: "fourth-panel",
           minSize: 50,
           maxSize: 75,
-          units: "static",
         })
       )
     );

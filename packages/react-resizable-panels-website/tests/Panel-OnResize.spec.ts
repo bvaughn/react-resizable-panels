@@ -14,10 +14,16 @@ function createElements(numPanels: 2 | 3) {
       collapsible: true,
       defaultSize: numPanels === 3 ? 20 : 40,
       id: "left",
+      minSize: 10,
       order: 1,
     }),
     createElement(PanelResizeHandle, { id: "left-handle" }),
-    createElement(Panel, { defaultSize: 60, id: "middle", order: 2 }),
+    createElement(Panel, {
+      defaultSize: 60,
+      id: "middle",
+      minSize: 10,
+      order: 2,
+    }),
   ];
 
   if (numPanels === 3) {
@@ -27,6 +33,7 @@ function createElements(numPanels: 2 | 3) {
         collapsible: true,
         defaultSize: 20,
         id: "right",
+        minSize: 10,
         order: 3,
       })
     );

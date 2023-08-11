@@ -25,6 +25,7 @@ import {
   PanelGroupOnLayout,
   PanelGroupStorage,
   ResizeEvent,
+  Units,
 } from "./types";
 import { areEqual } from "./utils/arrays";
 import { assert } from "./utils/assert";
@@ -47,6 +48,7 @@ import {
   getResizeHandlePanelIds,
   panelsMapToSortedArray,
   safeResizePanel,
+  validatePanelProps,
 } from "./utils/group";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
 
@@ -98,9 +100,9 @@ const defaultStorage: PanelGroupStorage = {
 export type CommittedValues = {
   direction: Direction;
   id: string;
-  panelIdsWithStaticUnits: Set<string>;
   panels: Map<string, PanelData>;
   sizes: number[];
+  units: Units;
 };
 
 export type PanelDataMap = Map<string, PanelData>;
@@ -133,6 +135,7 @@ export type PanelGroupProps = {
   storage?: PanelGroupStorage;
   style?: CSSProperties;
   tagName?: ElementType;
+  units?: Units;
 };
 
 export type ImperativePanelGroupHandle = {
@@ -152,6 +155,7 @@ function PanelGroupWithForwardedRef({
   storage = defaultStorage,
   style: styleFromProps = {},
   tagName: Type = "div",
+  units = "percentages",
 }: PanelGroupProps & {
   forwardedRef: ForwardedRef<ImperativePanelGroupHandle>;
 }) {
@@ -199,9 +203,9 @@ function PanelGroupWithForwardedRef({
   const committedValuesRef = useRef<CommittedValues>({
     direction,
     id: groupId,
-    panelIdsWithStaticUnits: new Set(),
     panels,
     sizes,
+    units,
   });
 
   useImperativeHandle(
@@ -223,7 +227,9 @@ function PanelGroupWithForwardedRef({
           id: groupId,
           panels,
           sizes: prevSizes,
+          units,
         } = committedValuesRef.current;
+
         const panelIdToLastNotifiedSizeMap =
           panelIdToLastNotifiedSizeMapRef.current;
         const panelsArray = panelsMapToSortedArray(panels);
@@ -236,6 +242,7 @@ function PanelGroupWithForwardedRef({
             const prevSize = prevSizes[index];
             const nextSize = sizes[index];
             const safeSize = safeResizePanel(
+              units,
               groupSizePixels,
               panel,
               nextSize - prevSize,
@@ -264,6 +271,7 @@ function PanelGroupWithForwardedRef({
     committedValuesRef.current.id = groupId;
     committedValuesRef.current.panels = panels;
     committedValuesRef.current.sizes = sizes;
+    committedValuesRef.current.units = units;
   });
 
   useWindowSplitterPanelGroupBehavior({
@@ -303,11 +311,7 @@ function PanelGroupWithForwardedRef({
   // Compute the initial sizes based on default weights.
   // This assumes that panels register during initial mount (no conditional rendering)!
   useIsomorphicLayoutEffect(() => {
-    const {
-      id: groupId,
-      panelIdsWithStaticUnits,
-      sizes,
-    } = committedValuesRef.current;
+    const { id: groupId, sizes, units } = committedValuesRef.current;
     if (sizes.length === panels.size) {
       // Only compute (or restore) default sizes once per panel configuration.
       return;
@@ -322,9 +326,7 @@ function PanelGroupWithForwardedRef({
     }
 
     let groupSizePixels =
-      panelIdsWithStaticUnits.size > 0
-        ? getAvailableGroupSizePixels(groupId)
-        : NaN;
+      units === "pixels" ? getAvailableGroupSizePixels(groupId) : NaN;
 
     if (defaultSizes != null) {
       setSizes(defaultSizes);
@@ -340,13 +342,13 @@ function PanelGroupWithForwardedRef({
       // First, all panels with defaultSize should be set as-is
       for (let index = 0; index < panelsArray.length; index++) {
         const panel = panelsArray[index];
-        const { defaultSize, units } = panel.current;
+        const { defaultSize } = panel.current;
 
         if (defaultSize != null) {
           numPanelsWithSizes++;
 
           sizes[index] =
-            units === "static"
+            units === "pixels"
               ? (defaultSize / groupSizePixels) * 100
               : defaultSize;
 
@@ -358,12 +360,12 @@ function PanelGroupWithForwardedRef({
       // This may require two passes, depending on min/max constraints
       for (let index = 0; index < panelsArray.length; index++) {
         const panel = panelsArray[index];
-        let { defaultSize, id, maxSize, minSize, units } = panel.current;
+        let { defaultSize, id, maxSize, minSize } = panel.current;
         if (defaultSize != null) {
           continue;
         }
 
-        if (units === "static") {
+        if (units === "pixels") {
           minSize = (minSize / groupSizePixels) * 100;
           if (maxSize != null) {
             maxSize = (maxSize / groupSizePixels) * 100;
@@ -471,14 +473,11 @@ function PanelGroupWithForwardedRef({
   }, [autoSaveId, panels, sizes, storage]);
 
   useIsomorphicLayoutEffect(() => {
-    const resizeObserver = new ResizeObserver(() => {
-      const {
-        panelIdsWithStaticUnits,
-        panels,
-        sizes: prevSizes,
-      } = committedValuesRef.current;
-
-      if (panelIdsWithStaticUnits.size > 0) {
+    // Pixel panel constraints need to be reassessed after a group resize
+    // We can avoid the ResizeObserver overhead for relative layouts
+    if (units === "pixels") {
+      const resizeObserver = new ResizeObserver(() => {
+        const { panels, sizes: prevSizes } = committedValuesRef.current;
         const [idBefore, idAfter] = Array.from(panels.values()).map(
           (panel) => panel.current.id
         );
@@ -488,7 +487,7 @@ function PanelGroupWithForwardedRef({
           committedValuesRef.current,
           idBefore,
           idAfter,
-          0,
+          null,
           prevSizes,
           panelSizeBeforeCollapse.current,
           initialDragStateRef.current
@@ -496,15 +495,15 @@ function PanelGroupWithForwardedRef({
         if (!areEqual(prevSizes, nextSizes)) {
           setSizes(nextSizes);
         }
-      }
-    });
+      });
 
-    resizeObserver.observe(getPanelGroup(groupId)!);
+      resizeObserver.observe(getPanelGroup(groupId)!);
 
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [groupId]);
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }
+  }, [groupId, units]);
 
   const getPanelStyle = useCallback(
     (id: string, defaultSize: number | null): CSSProperties => {
@@ -557,9 +556,9 @@ function PanelGroupWithForwardedRef({
   );
 
   const registerPanel = useCallback((id: string, panelRef: PanelData) => {
-    if (panelRef.current.units === "static") {
-      committedValuesRef.current.panelIdsWithStaticUnits.add(id);
-    }
+    const { units } = committedValuesRef.current;
+
+    validatePanelProps(units, panelRef);
 
     setPanels((prevPanels) => {
       if (prevPanels.has(id)) {
@@ -687,8 +686,6 @@ function PanelGroupWithForwardedRef({
   );
 
   const unregisterPanel = useCallback((id: string) => {
-    committedValuesRef.current.panelIdsWithStaticUnits.delete(id);
-
     setPanels((prevPanels) => {
       if (!prevPanels.has(id)) {
         return prevPanels;
@@ -825,6 +822,7 @@ function PanelGroupWithForwardedRef({
       id: groupId,
       panels,
       sizes: prevSizes,
+      units,
     } = committedValuesRef.current;
 
     const panel = panels.get(id);
@@ -832,9 +830,9 @@ function PanelGroupWithForwardedRef({
       return;
     }
 
-    let { collapsedSize, collapsible, maxSize, minSize, units } = panel.current;
+    let { collapsedSize, collapsible, maxSize, minSize } = panel.current;
 
-    if (units === "static") {
+    if (units === "pixels") {
       const groupSizePixels = getAvailableGroupSizePixels(groupId);
       minSize = (minSize / groupSizePixels) * 100;
       if (maxSize != null) {

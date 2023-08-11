@@ -1,7 +1,8 @@
 # Changelog
 
 ## 0.0.55
-* New `units` prop added to `Panel` to support pixel-based panel size constraints.
+* New `units` prop added to `PanelGroup` to support pixel-based panel size constraints.
+* `Panel` prop `minSize` is now required to simplify upgrade path.
 
 ## 0.0.54
 * [172](https://github.com/bvaughn/react-resizable-panels/issues/172): Development warning added to `PanelGroup` for conditionally-rendered `Panel`(s) that don't have `id` and `order` props

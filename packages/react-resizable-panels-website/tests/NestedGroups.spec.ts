@@ -12,31 +12,31 @@ test.describe("Nested groups", () => {
       createElement(
         PanelGroup,
         { direction: "horizontal" },
-        createElement(Panel),
+        createElement(Panel, { minSize: 10 }),
         createElement(PanelResizeHandle),
         createElement(
           Panel,
-          undefined,
+          { minSize: 10 },
           createElement(
             PanelGroup,
             { direction: "vertical" },
-            createElement(Panel),
+            createElement(Panel, { minSize: 10 }),
             createElement(PanelResizeHandle),
             createElement(
               Panel,
-              undefined,
+              { minSize: 10 },
               createElement(
                 PanelGroup,
                 { direction: "horizontal" },
-                createElement(Panel),
+                createElement(Panel, { minSize: 10 }),
                 createElement(PanelResizeHandle),
-                createElement(Panel)
+                createElement(Panel, { minSize: 10 })
               )
             )
           )
         ),
         createElement(PanelResizeHandle),
-        createElement(Panel)
+        createElement(Panel, { minSize: 10 })
       )
     );
 

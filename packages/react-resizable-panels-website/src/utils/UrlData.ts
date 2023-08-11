@@ -19,7 +19,7 @@ import {
   PanelResizeHandle,
   PanelResizeHandleOnDragging,
   PanelResizeHandleProps,
-  PanelUnits,
+  Units,
 } from "react-resizable-panels";
 import { ImperativeDebugLogHandle } from "../routes/examples/DebugLog";
 
@@ -30,11 +30,10 @@ type UrlPanel = {
   defaultSize?: number | null;
   id?: string | null;
   maxSize?: number | null;
-  minSize?: number;
+  minSize: number;
   order?: number | null;
   style?: CSSProperties;
   type: "UrlPanel";
-  units: PanelUnits;
 };
 
 type UrlPanelGroup = {
@@ -44,6 +43,7 @@ type UrlPanelGroup = {
   id?: string | null;
   style?: CSSProperties;
   type: "UrlPanelGroup";
+  units: Units;
 };
 
 type UrlPanelResizeHandle = {
@@ -112,7 +112,6 @@ function UrlPanelToData(urlPanel: ReactElement<PanelProps>): UrlPanel {
     order: urlPanel.props.order,
     style: urlPanel.props.style,
     type: "UrlPanel",
-    units: urlPanel.props.units ?? "relative",
   };
 }
 
@@ -134,6 +133,7 @@ function UrlPanelGroupToData(
     id: urlPanelGroup.props.id,
     style: urlPanelGroup.props.style,
     type: "UrlPanelGroup",
+    units: urlPanelGroup.props.units ?? "percentages",
   };
 }
 
@@ -210,7 +210,6 @@ function urlPanelToPanel(
       order: urlPanel.order,
       ref: refSetter,
       style: urlPanel.style,
-      units: urlPanel.units,
     },
     urlPanel.children.map((child, index) => {
       if (isUrlPanelGroup(child)) {
@@ -268,6 +267,7 @@ export function urlPanelGroupToPanelGroup(
       onLayout,
       ref: refSetter,
       style: urlPanelGroup.style,
+      units: urlPanelGroup.units,
     },
     urlPanelGroup.children.map((child, index) => {
       if (isUrlPanel(child)) {

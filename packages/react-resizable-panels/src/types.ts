@@ -1,6 +1,7 @@
 import { RefObject } from "./vendor/react";
 
 export type Direction = "horizontal" | "vertical";
+export type Units = "percentages" | "pixels";
 
 export type PanelGroupStorage = {
   getItem(name: string): string | null;
@@ -17,8 +18,6 @@ export type PanelCallbackRef = RefObject<{
   onResize: PanelOnResize | null;
 }>;
 
-export type PanelUnits = "relative" | "static";
-
 export type PanelData = {
   current: {
     callbacksRef: PanelCallbackRef;
@@ -30,7 +29,6 @@ export type PanelData = {
     maxSize: number | null;
     minSize: number;
     order: number | null;
-    units: PanelUnits;
   };
 };
 

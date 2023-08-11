@@ -12,7 +12,7 @@ import type {
   PanelOnCollapse,
   PanelOnResize,
   PanelResizeHandleOnDragging,
-  PanelUnits,
+  Units,
 } from "./types";
 
 export {
@@ -27,7 +27,7 @@ export {
   PanelProps,
   PanelResizeHandleOnDragging,
   PanelResizeHandleProps,
-  PanelUnits,
+  Units,
 
   // React components
   Panel,

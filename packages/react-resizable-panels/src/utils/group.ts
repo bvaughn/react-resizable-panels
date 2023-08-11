@@ -1,23 +1,22 @@
+import { isDevelopment } from "#is-development";
 import { CommittedValues, InitialDragState } from "../PanelGroup";
 import { PRECISION } from "../constants";
-import { PanelData, ResizeEvent } from "../types";
+import { PanelData, ResizeEvent, Units } from "../types";
 
 export function adjustByDelta(
   event: ResizeEvent | null,
   committedValues: CommittedValues,
   idBefore: string,
   idAfter: string,
-  deltaPixels: number,
+  deltaPixels: number | null,
   prevSizes: number[],
   panelSizeBeforeCollapse: Map<string, number>,
   initialDragState: InitialDragState | null
 ): number[] {
-  const { id: groupId, panelIdsWithStaticUnits, panels } = committedValues;
+  const { id: groupId, panels, units } = committedValues;
 
   const groupSizePixels =
-    panelIdsWithStaticUnits.size > 0
-      ? getAvailableGroupSizePixels(groupId)
-      : NaN;
+    units === "pixels" ? getAvailableGroupSizePixels(groupId) : NaN;
 
   const { sizes: initialSizes } = initialDragState || {};
 
@@ -30,6 +29,13 @@ export function adjustByDelta(
   const nextSizes = baseSizes.concat();
 
   let deltaApplied = 0;
+
+  // A null delta means that layout is being recalculated (e.g. after a panel group resize)
+  // In that scenario it is not safe for this method to bail out early
+  const safeToBailOut = deltaPixels != null;
+  if (deltaPixels === null) {
+    deltaPixels = 0;
+  }
 
   // A resizing panel affects the panels before or after it.
   //
@@ -49,6 +55,7 @@ export function adjustByDelta(
     const baseSize = baseSizes[index];
 
     const nextSize = safeResizePanel(
+      units,
       groupSizePixels,
       panel,
       Math.abs(deltaPixels),
@@ -57,7 +64,9 @@ export function adjustByDelta(
     );
     if (baseSize === nextSize) {
       // If there's no room for the pivot panel to grow, we can ignore this drag update.
-      return baseSizes;
+      if (safeToBailOut) {
+        return baseSizes;
+      }
     } else {
       if (nextSize === 0 && baseSize > 0) {
         panelSizeBeforeCollapse.set(pivotId, baseSize);
@@ -76,6 +85,7 @@ export function adjustByDelta(
     const deltaRemaining = Math.abs(deltaPixels) - Math.abs(deltaApplied);
 
     const nextSize = safeResizePanel(
+      units,
       groupSizePixels,
       panel,
       0 - deltaRemaining,
@@ -322,6 +332,7 @@ export function panelsMapToSortedArray(
 }
 
 export function safeResizePanel(
+  units: Units,
   groupSizePixels: number,
   panel: PanelData,
   delta: number,
@@ -330,9 +341,9 @@ export function safeResizePanel(
 ): number {
   const nextSizeUnsafe = prevSize + delta;
 
-  let { collapsedSize, collapsible, maxSize, minSize, units } = panel.current;
+  let { collapsedSize, collapsible, maxSize, minSize } = panel.current;
 
-  if (units === "static") {
+  if (units === "pixels") {
     collapsedSize = (collapsedSize / groupSizePixels) * 100;
     if (maxSize != null) {
       maxSize = (maxSize / groupSizePixels) * 100;
@@ -365,4 +376,53 @@ export function safeResizePanel(
   );
 
   return nextSize;
+}
+
+export function validatePanelProps(units: Units, panelData: PanelData) {
+  const { collapsible, defaultSize, maxSize, minSize } = panelData.current;
+
+  // Basic props validation
+  if (minSize < 0 || (units === "percentages" && minSize > 100)) {
+    if (isDevelopment) {
+      console.error(`Invalid Panel minSize provided, ${minSize}`);
+    }
+
+    panelData.current.minSize = 0;
+  }
+
+  if (maxSize != null) {
+    if (maxSize < 0 || (units === "percentages" && maxSize > 100)) {
+      if (isDevelopment) {
+        console.error(`Invalid Panel maxSize provided, ${maxSize}`);
+      }
+
+      panelData.current.maxSize = null;
+    }
+  }
+
+  if (defaultSize !== null) {
+    if (defaultSize < 0 || (units === "percentages" && defaultSize > 100)) {
+      if (isDevelopment) {
+        console.error(`Invalid Panel defaultSize provided, ${defaultSize}`);
+      }
+
+      panelData.current.defaultSize = null;
+    } else if (defaultSize < minSize && !collapsible) {
+      if (isDevelopment) {
+        console.error(
+          `Panel minSize (${minSize}) cannot be greater than defaultSize (${defaultSize})`
+        );
+      }
+
+      panelData.current.defaultSize = minSize;
+    } else if (maxSize != null && defaultSize > maxSize) {
+      if (isDevelopment) {
+        console.error(
+          `Panel maxSize (${maxSize}) cannot be less than defaultSize (${defaultSize})`
+        );
+      }
+
+      panelData.current.defaultSize = maxSize;
+    }
+  }
 }

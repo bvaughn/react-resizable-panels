@@ -62,7 +62,7 @@ function Content() {
 
   return (
     <div className={sharedStyles.PanelGroupWrapper}>
-      <PanelGroup className={styles.IDE} direction="horizontal">
+      <PanelGroup className={styles.IDE} direction="horizontal" units="pixels">
         <div className={styles.Toolbar}>
           <Icon className={styles.ToolbarIconActive} type="files" />
           <Icon className={styles.ToolbarIcon} type="search" />
@@ -75,7 +75,6 @@ function Content() {
           maxSize={150}
           minSize={60}
           onCollapse={toggleCollapsed}
-          units="static"
         >
           <div className={styles.FileList}>
             <div className={styles.DirectoryEntry}>
@@ -104,7 +103,7 @@ function Content() {
               : styles.ResizeHandle
           }
         />
-        <Panel className={sharedStyles.PanelColumn}>
+        <Panel className={sharedStyles.PanelColumn} minSize={10}>
           <div className={styles.SourceTabs}>
             {Array.from(openFiles).map((file) => (
               <div
