@@ -19,6 +19,7 @@ import {
   PanelData,
   PanelOnCollapse,
   PanelOnResize,
+  Units,
 } from "./types";
 import { isDevelopment } from "./env-conditions/production";
 
@@ -43,7 +44,7 @@ export type ImperativePanelHandle = {
   expand: () => void;
   getCollapsed(): boolean;
   getSize(): number;
-  resize: (percentage: number) => void;
+  resize: (percentage: number, units?: Units) => void;
 };
 
 function PanelWithForwardedRef({
@@ -155,7 +156,8 @@ function PanelWithForwardedRef({
       getSize() {
         return committedValuesRef.current.size;
       },
-      resize: (percentage: number) => resizePanel(panelId, percentage),
+      resize: (percentage: number, units) =>
+        resizePanel(panelId, percentage, units),
     }),
     [collapsePanel, expandPanel, panelId, resizePanel]
   );

@@ -3,6 +3,7 @@ import { expect, Page } from "@playwright/test";
 import { PanelGroupLayoutLogEntry } from "../../src/routes/examples/types";
 
 import { getLogEntries } from "./debug";
+import { verifyPanelSizePixels } from "./panels";
 
 export async function verifySizes(page: Page, ...expectedSizes: number[]) {
   const logEntries = await getLogEntries<PanelGroupLayoutLogEntry>(
@@ -12,6 +13,28 @@ export async function verifySizes(page: Page, ...expectedSizes: number[]) {
   const { sizes: actualSizes } = logEntries[logEntries.length - 1];
 
   expect(actualSizes).toEqual(expectedSizes);
+}
+
+export async function verifySizesPixels(
+  page: Page,
+  ...expectedSizesPixels: number[]
+) {
+  const panels = page.locator("[data-panel-id]");
+
+  const count = await panels.count();
+  await expect(count).toBe(expectedSizesPixels.length);
+
+  for (let index = 0; index < count; index++) {
+    const panel = await panels.nth(index);
+    const textContent = (await panel.textContent()) || "";
+
+    const expectedSizePixels = expectedSizesPixels[index];
+    const actualSizePixels = parseFloat(
+      textContent.split("\n")[1].replace("px", "")
+    );
+
+    expect(expectedSizePixels).toBe(actualSizePixels);
+  }
 }
 
 export async function verifyFuzzySizes(

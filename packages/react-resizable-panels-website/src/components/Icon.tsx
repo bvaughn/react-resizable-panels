@@ -3,13 +3,16 @@ import styles from "./Icon.module.css";
 export type IconType =
   | "chevron-down"
   | "close"
+  | "collapse"
   | "css"
+  | "expand"
   | "files"
   | "horizontal-collapse"
   | "horizontal-expand"
   | "html"
   | "loading"
   | "markdown"
+  | "resize"
   | "resize-horizontal"
   | "resize-vertical"
   | "search"
@@ -32,9 +35,17 @@ export default function Icon({
       path =
         "M20 6.91L17.09 4L12 9.09L6.91 4L4 6.91L9.09 12L4 17.09L6.91 20L12 14.91L17.09 20L20 17.09L14.91 12L20 6.91Z";
       break;
+    case "collapse":
+      path =
+        "M19.5,3.09L15,7.59V4H13V11H20V9H16.41L20.91,4.5L19.5,3.09M4,13V15H7.59L3.09,19.5L4.5,20.91L9,16.41V20H11V13H4Z";
+      break;
     case "css":
       path =
         "M5,3L4.35,6.34H17.94L17.5,8.5H3.92L3.26,11.83H16.85L16.09,15.64L10.61,17.45L5.86,15.64L6.19,14H2.85L2.06,18L9.91,21L18.96,18L20.16,11.97L20.4,10.76L21.94,3H5Z";
+      break;
+    case "expand":
+      path =
+        "M10,21V19H6.41L10.91,14.5L9.5,13.09L5,17.59V14H3V21H10M14.5,10.91L19,6.41V10H21V3H14V5H17.59L13.09,9.5L14.5,10.91Z";
       break;
     case "files":
       path =
@@ -59,6 +70,10 @@ export default function Icon({
     case "markdown":
       path =
         "M20.56 18H3.44C2.65 18 2 17.37 2 16.59V7.41C2 6.63 2.65 6 3.44 6H20.56C21.35 6 22 6.63 22 7.41V16.59C22 17.37 21.35 18 20.56 18M6.81 15.19V11.53L8.73 13.88L10.65 11.53V15.19H12.58V8.81H10.65L8.73 11.16L6.81 8.81H4.89V15.19H6.81M19.69 12H17.77V8.81H15.85V12H13.92L16.81 15.28L19.69 12Z";
+      break;
+    case "resize":
+      path =
+        "M10.59,12L14.59,8H11V6H18V13H16V9.41L12,13.41V16H20V4H8V12H10.59M22,2V18H12V22H2V12H6V2H22M10,14H4V20H10V14Z";
       break;
     case "resize-horizontal":
       path =

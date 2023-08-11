@@ -1,6 +1,6 @@
 import { CSSProperties, createContext } from "./vendor/react";
 
-import { PanelData, ResizeEvent, ResizeHandler } from "./types";
+import { PanelData, ResizeEvent, ResizeHandler, Units } from "./types";
 
 export const PanelGroupContext = createContext<{
   activeHandleId: string | null;
@@ -11,7 +11,7 @@ export const PanelGroupContext = createContext<{
   groupId: string;
   registerPanel: (id: string, panel: PanelData) => void;
   registerResizeHandle: (id: string) => ResizeHandler;
-  resizePanel: (id: string, percentage: number) => void;
+  resizePanel: (id: string, percentage: number, units?: Units) => void;
   startDragging: (id: string, event: ResizeEvent) => void;
   stopDragging: () => void;
   unregisterPanel: (id: string) => void;

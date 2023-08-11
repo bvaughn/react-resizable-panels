@@ -21,6 +21,7 @@ import {
   assertImperativePanelGroupHandle,
   assertImperativePanelHandle,
 } from "../../../tests/utils/assert";
+import Icon from "../../components/Icon";
 import "./styles.css";
 import styles from "./styles.module.css";
 
@@ -100,6 +101,7 @@ function EndToEndTesting() {
   const [panelId, setPanelId] = useState("");
   const [panelGroupId, setPanelGroupId] = useState("");
   const [size, setSize] = useState(0);
+  const [units, setUnits] = useState("");
   const [layoutString, setLayoutString] = useState("");
 
   const debugLogRef = useRef<ImperativeDebugLogHandle>(null);
@@ -131,6 +133,11 @@ function EndToEndTesting() {
     setSize(parseFloat(value));
   };
 
+  const onUnitsInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.currentTarget.value;
+    setUnits(value);
+  };
+
   const onCollapseButtonClick = () => {
     const idToRefMap = idToRefMapRef.current;
     const panel = idToRefMap.get(panelId);
@@ -151,7 +158,7 @@ function EndToEndTesting() {
     const idToRefMap = idToRefMapRef.current;
     const panel = idToRefMap.get(panelId);
     if (panel && assertImperativePanelHandle(panel)) {
-      panel.resize(size);
+      panel.resize(size, (units as any) || undefined);
     }
   };
 
@@ -159,7 +166,10 @@ function EndToEndTesting() {
     const idToRefMap = idToRefMapRef.current;
     const panelGroup = idToRefMap.get(panelGroupId);
     if (panelGroup && assertImperativePanelGroupHandle(panelGroup)) {
-      panelGroup.setLayout(JSON.parse(layoutString));
+      panelGroup.setLayout(
+        JSON.parse(layoutString),
+        (units as any) || undefined
+      );
     }
   };
 
@@ -168,40 +178,73 @@ function EndToEndTesting() {
       <div className={styles.FormRow}>
         <div className={styles.FormColumn}>
           <input
+            className={styles.Input}
             id="panelIdInput"
             onChange={onPanelIdInputChange}
+            placeholder="Panel id"
             type="string"
           />
-          <button id="collapseButton" onClick={onCollapseButtonClick}>
-            collapse
+          <button
+            id="collapseButton"
+            onClick={onCollapseButtonClick}
+            title="Collapse panel"
+          >
+            <Icon type="collapse" />
           </button>
-          <button id="expandButton" onClick={onExpandButtonClick}>
-            expand
-          </button>
-          <button id="resizeButton" onClick={onResizeButtonClick}>
-            resize
+          <button
+            id="expandButton"
+            onClick={onExpandButtonClick}
+            title="Expand panel"
+          >
+            <Icon type="expand" />
           </button>
           <input
+            className={styles.Input}
             id="sizeInput"
             max={100}
             min={0}
             onChange={onSizeInputChange}
+            placeholder="Size"
             type="number"
+          />
+          <button
+            id="resizeButton"
+            onClick={onResizeButtonClick}
+            title="Resize panel"
+          >
+            <Icon type="resize" />
+          </button>
+        </div>
+        <div className={styles.FormColumn}>
+          <input
+            className={styles.Input}
+            id="unitsInput"
+            onChange={onUnitsInputChange}
+            placeholder="Units"
+            type="string"
           />
         </div>
         <div className={styles.FormColumn}>
           <input
+            className={styles.Input}
             id="panelGroupIdInput"
             onChange={onPanelGroupIdInputChange}
+            placeholder="Group id"
             type="string"
           />
           <input
+            className={styles.Input}
             id="layoutInput"
             onChange={onLayoutInputChange}
+            placeholder="Layout"
             type="string"
           />
-          <button id="setLayoutButton" onClick={onSetLayoutButton}>
-            set layout
+          <button
+            id="setLayoutButton"
+            onClick={onSetLayoutButton}
+            title="Set layout"
+          >
+            <Icon type="resize" />
           </button>
         </div>
       </div>

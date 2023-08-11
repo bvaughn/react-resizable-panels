@@ -2,6 +2,7 @@ import { Locator, Page, expect } from "@playwright/test";
 import { assert } from "./assert";
 import { getBodyCursorStyle } from "./cursor";
 import { verifyFuzzySizes } from "./verify";
+import { Units } from "react-resizable-panels";
 
 type Operation = {
   expectedCursor?: string;
@@ -155,7 +156,8 @@ export async function dragResizeTo(
 export async function imperativeResizePanel(
   page: Page,
   panelId: string,
-  size: number
+  size: number,
+  units?: Units
 ) {
   const panelIdInput = page.locator("#panelIdInput");
   await panelIdInput.focus();
@@ -165,6 +167,14 @@ export async function imperativeResizePanel(
   await sizeInput.focus();
   await sizeInput.fill("" + size);
 
+  const unitsInput = page.locator("#unitsInput");
+  if (units) {
+    await unitsInput.focus();
+    await unitsInput.fill(units);
+  } else {
+    await unitsInput.clear();
+  }
+
   const resizeButton = page.locator("#resizeButton");
   await resizeButton.click();
 }
@@ -172,7 +182,8 @@ export async function imperativeResizePanel(
 export async function imperativeResizePanelGroup(
   page: Page,
   panelGroupId: string,
-  sizes: number[]
+  sizes: number[],
+  units?: Units
 ) {
   const panelGroupIdInput = page.locator("#panelGroupIdInput");
   await panelGroupIdInput.focus();
@@ -181,6 +192,14 @@ export async function imperativeResizePanelGroup(
   const layoutInput = page.locator("#layoutInput");
   await layoutInput.focus();
   await layoutInput.fill(`[${sizes.join()}]`);
+
+  const unitsInput = page.locator("#unitsInput");
+  if (units) {
+    await unitsInput.focus();
+    await unitsInput.fill(units);
+  } else {
+    await unitsInput.clear();
+  }
 
   const setLayoutButton = page.locator("#setLayoutButton");
   await setLayoutButton.click();

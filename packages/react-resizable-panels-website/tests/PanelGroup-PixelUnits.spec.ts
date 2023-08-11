@@ -149,7 +149,7 @@ test.describe("Pixel units", () => {
 
       const leftPanel = page.locator("[data-panel]").first();
 
-      await imperativeResizePanel(page, "left-panel", 80);
+      await imperativeResizePanel(page, "left-panel", 150);
       await verifyPanelSizePixels(leftPanel, 100);
 
       await imperativeResizePanel(page, "left-panel", 4);
@@ -168,7 +168,7 @@ test.describe("Pixel units", () => {
       await imperativeResizePanel(page, "middle-panel", 1);
       await verifyPanelSizePixels(rightPanel, 100);
 
-      await imperativeResizePanel(page, "middle-panel", 98);
+      await imperativeResizePanel(page, "left-panel", 350);
       await verifyPanelSizePixels(rightPanel, 50);
     });
 

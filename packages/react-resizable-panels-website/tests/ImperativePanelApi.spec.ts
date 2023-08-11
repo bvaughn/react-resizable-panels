@@ -2,9 +2,13 @@ import { Page, test } from "@playwright/test";
 import { createElement } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
+import {
+  imperativeResizePanel,
+  verifyPanelSize,
+  verifyPanelSizePixels,
+} from "./utils/panels";
 import { goToUrl } from "./utils/url";
 import { verifySizes } from "./utils/verify";
-import { imperativeResizePanel } from "./utils/panels";
 
 async function openPage(
   page: Page,
@@ -135,5 +139,52 @@ test.describe("Imperative Panel API", () => {
     await page.keyboard.press("Shift+ArrowLeft");
 
     await verifySizes(page, 10, 80, 10);
+  });
+
+  test("should allow default group units of percentages to be overridden with pixels", async ({
+    page,
+  }) => {
+    await verifySizes(page, 20, 60, 20);
+
+    const leftPanel = page.locator('[data-panel-id="left"]');
+
+    await imperativeResizePanel(page, "left", 15);
+    await verifySizes(page, 15, 65, 20);
+
+    await imperativeResizePanel(page, "left", 50, "pixels");
+    await verifyPanelSizePixels(leftPanel, 50);
+  });
+
+  test("should allow default group units of pixels to be overridden with percentages", async ({
+    page,
+  }) => {
+    await goToUrl(
+      page,
+      createElement(
+        PanelGroup,
+        { direction: "horizontal", units: "pixels" },
+        createElement(Panel, {
+          defaultSize: 200,
+          id: "left",
+          maxSize: 300,
+          minSize: 100,
+        }),
+        createElement(PanelResizeHandle),
+        createElement(Panel, {
+          id: "right",
+          maxSize: 300,
+          minSize: 100,
+        })
+      )
+    );
+
+    const leftPanel = page.locator('[data-panel-id="left"]');
+    await verifyPanelSizePixels(leftPanel, 200);
+
+    await imperativeResizePanel(page, "left", 150);
+    await verifyPanelSizePixels(leftPanel, 150);
+
+    await imperativeResizePanel(page, "left", 40, "percentages");
+    await verifyPanelSize(leftPanel, 40);
   });
 });
