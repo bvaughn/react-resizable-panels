@@ -120,10 +120,6 @@ export type InitialDragState = {
   sizes: number[];
 };
 
-// TODO
-// Within an active drag, remember original positions to refine more easily on expand.
-// Look at what the Chrome devtools Sources does.
-
 export type PanelGroupProps = {
   autoSaveId?: string;
   children?: ReactNode;
