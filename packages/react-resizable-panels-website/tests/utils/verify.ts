@@ -3,16 +3,22 @@ import { expect, Page } from "@playwright/test";
 import { PanelGroupLayoutLogEntry } from "../../src/routes/examples/types";
 
 import { getLogEntries } from "./debug";
-import { verifyPanelSizePixels } from "./panels";
 
 export async function verifySizes(page: Page, ...expectedSizes: number[]) {
-  const logEntries = await getLogEntries<PanelGroupLayoutLogEntry>(
-    page,
-    "onLayout"
-  );
-  const { sizes: actualSizes } = logEntries[logEntries.length - 1];
+  const panels = page.locator("[data-panel-id]");
 
-  expect(actualSizes).toEqual(expectedSizes);
+  const count = await panels.count();
+  expect(count).toBe(expectedSizes.length);
+
+  for (let index = 0; index < count; index++) {
+    const panel = await panels.nth(index);
+    const textContent = (await panel.textContent()) || "";
+
+    const expectedSize = expectedSizes[index];
+    const actualSize = parseFloat(textContent.split("\n")[0].replace("%", ""));
+
+    expect(expectedSize).toBe(actualSize);
+  }
 }
 
 export async function verifySizesPixels(
@@ -22,7 +28,7 @@ export async function verifySizesPixels(
   const panels = page.locator("[data-panel-id]");
 
   const count = await panels.count();
-  await expect(count).toBe(expectedSizesPixels.length);
+  expect(count).toBe(expectedSizesPixels.length);
 
   for (let index = 0; index < count; index++) {
     const panel = await panels.nth(index);

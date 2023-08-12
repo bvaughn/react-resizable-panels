@@ -7,6 +7,7 @@ import {
   imperativeResizePanel,
   imperativeResizePanelGroup,
 } from "./utils/panels";
+import { verifySizes } from "./utils/verify";
 
 function createElements({
   numPanels,
@@ -268,13 +269,13 @@ test.describe("Development warnings and errors", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { defaultSize: 25, minSize: 10 }),
+          createElement(Panel, { defaultSize: 25, maxSize: 25, minSize: 10 }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { defaultSize: 25, minSize: 10 })
+          createElement(Panel, { defaultSize: 25, maxSize: 25, minSize: 10 })
         )
       );
 
-      await flushMessages(page);
+      await verifySizes(page, 25, 25);
 
       expect(errors).not.toHaveLength(0);
       expect(errors).toEqual(

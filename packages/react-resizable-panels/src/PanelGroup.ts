@@ -28,7 +28,6 @@ import {
   Units,
 } from "./types";
 import { areEqual } from "./utils/arrays";
-import { assert } from "./utils/assert";
 import {
   getDragOffset,
   getMovement,
@@ -39,6 +38,7 @@ import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
 import debounce from "./utils/debounce";
 import {
   adjustByDelta,
+  calculateDefaultLayout,
   callPanelCallbacks,
   getAvailableGroupSizePixels,
   getBeforeAndAfterIds,
@@ -47,7 +47,7 @@ import {
   getResizeHandle,
   getResizeHandlePanelIds,
   panelsMapToSortedArray,
-  safeResizePanel,
+  validatePanelGroupLayout,
   validatePanelProps,
 } from "./utils/group";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
@@ -228,45 +228,25 @@ function PanelGroupWithForwardedRef({
           sizes = sizes.map((size) => (size / groupSizePixels) * 100);
         }
 
-        const total = sizes.reduce(
-          (accumulated, current) => accumulated + current,
-          0
-        );
-
-        assert(total === 100, "Panel sizes must add up to 100%");
-
         const panelIdToLastNotifiedSizeMap =
           panelIdToLastNotifiedSizeMapRef.current;
         const panelsArray = panelsMapToSortedArray(panels);
 
-        if (isDevelopment) {
-          const groupSizePixels = getAvailableGroupSizePixels(groupId);
+        const nextSizes = validatePanelGroupLayout({
+          groupId,
+          panels,
+          nextSizes: sizes,
+          prevSizes,
+          units,
+        });
+        if (!areEqual(prevSizes, nextSizes)) {
+          setSizes(nextSizes);
 
-          for (let index = 0; index < sizes.length; index++) {
-            const panel = panelsArray[index];
-            const prevSize = prevSizes[index];
-            const nextSize = sizes[index];
-            const safeSize = safeResizePanel(
-              units,
-              groupSizePixels,
-              panel,
-              nextSize - prevSize,
-              prevSize,
-              null
-            );
-
-            if (nextSize !== safeSize) {
-              console.error(
-                `Invalid size (${nextSize}) specified for Panel "${panel.current.id}" given the panel's min/max size constraints`
-              );
-            }
-          }
-        }
-
-        if (!areEqual(prevSizes, sizes)) {
-          setSizes(sizes);
-
-          callPanelCallbacks(panelsArray, sizes, panelIdToLastNotifiedSizeMap);
+          callPanelCallbacks(
+            panelsArray,
+            nextSizes,
+            panelIdToLastNotifiedSizeMap
+          );
         }
       },
     }),
@@ -332,103 +312,14 @@ function PanelGroupWithForwardedRef({
       defaultSizes = loadPanelLayout(autoSaveId, panelsArray, storage);
     }
 
-    let groupSizePixels =
-      units === "pixels" ? getAvailableGroupSizePixels(groupId) : NaN;
-
     if (defaultSizes != null) {
       setSizes(defaultSizes);
     } else {
-      const panelsArray = panelsMapToSortedArray(panels);
-
-      const sizes = Array<number>(panelsArray.length);
-
-      let numPanelsWithSizes = 0;
-      let remainingSize = 100;
-
-      // Assigning default sizes requires a couple of passes:
-      // First, all panels with defaultSize should be set as-is
-      for (let index = 0; index < panelsArray.length; index++) {
-        const panel = panelsArray[index];
-        const { defaultSize } = panel.current;
-
-        if (defaultSize != null) {
-          numPanelsWithSizes++;
-
-          sizes[index] =
-            units === "pixels"
-              ? (defaultSize / groupSizePixels) * 100
-              : defaultSize;
-
-          remainingSize -= sizes[index];
-        }
-      }
-
-      // Remaining total size should be distributed evenly between panels
-      // This may require two passes, depending on min/max constraints
-      for (let index = 0; index < panelsArray.length; index++) {
-        const panel = panelsArray[index];
-        let { defaultSize, id, maxSize, minSize } = panel.current;
-        if (defaultSize != null) {
-          continue;
-        }
-
-        if (units === "pixels") {
-          minSize = (minSize / groupSizePixels) * 100;
-          if (maxSize != null) {
-            maxSize = (maxSize / groupSizePixels) * 100;
-          }
-        }
-
-        const remainingPanels = panelsArray.length - numPanelsWithSizes;
-        const size = Math.min(
-          maxSize != null ? maxSize : 100,
-          Math.max(minSize, remainingSize / remainingPanels)
-        );
-
-        sizes[index] = size;
-        numPanelsWithSizes++;
-        remainingSize -= size;
-      }
-
-      // If there is additional, left over space, assign it to any panel(s) that permits it
-      // (It's not worth taking multiple additional passes to evenly distribute)
-      if (remainingSize !== 0) {
-        for (let index = 0; index < panelsArray.length; index++) {
-          const panel = panelsArray[index];
-          let { defaultSize, maxSize, minSize } = panel.current;
-          if (defaultSize != null) {
-            continue;
-          }
-
-          const size = Math.min(
-            maxSize != null ? maxSize : 100,
-            Math.max(minSize, sizes[index] + remainingSize)
-          );
-
-          if (size !== sizes[index]) {
-            remainingSize -= size - sizes[index];
-            sizes[index] = size;
-
-            // Fuzzy comparison to account for imprecise floating point math
-            if (Math.abs(remainingSize).toFixed(3) === "0.000") {
-              break;
-            }
-          }
-        }
-      }
-
-      // Finally, if there is still left-over size, log an error
-      if (Math.abs(remainingSize).toFixed(3) !== "0.000") {
-        if (isDevelopment) {
-          console.error(
-            `Invalid panel group configuration; default panel sizes should total 100% but was ${(
-              100 - remainingSize
-            ).toFixed(
-              1
-            )}%. This can cause the cursor to become misaligned while dragging.`
-          );
-        }
-      }
+      const sizes = calculateDefaultLayout({
+        groupId,
+        panels,
+        units,
+      });
 
       setSizes(sizes);
     }
@@ -485,20 +376,14 @@ function PanelGroupWithForwardedRef({
     if (units === "pixels") {
       const resizeObserver = new ResizeObserver(() => {
         const { panels, sizes: prevSizes } = committedValuesRef.current;
-        const [idBefore, idAfter] = Array.from(panels.values()).map(
-          (panel) => panel.current.id
-        );
 
-        const nextSizes = adjustByDelta(
-          null,
-          committedValuesRef.current,
-          idBefore,
-          idAfter,
-          null,
+        const nextSizes = validatePanelGroupLayout({
+          groupId,
+          panels,
+          nextSizes: prevSizes,
           prevSizes,
-          panelSizeBeforeCollapse.current,
-          initialDragStateRef.current
-        );
+          units,
+        });
         if (!areEqual(prevSizes, nextSizes)) {
           setSizes(nextSizes);
         }

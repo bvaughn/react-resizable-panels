@@ -55,8 +55,8 @@ test.describe("Imperative PanelGroup API", () => {
     await imperativeResizePanelGroup(page, "group", [10, 20, 70]);
     await verifySizes(page, 10, 20, 70);
 
-    await imperativeResizePanelGroup(page, "group", [90, 6, 4]);
-    await verifySizes(page, 90, 6, 4);
+    await imperativeResizePanelGroup(page, "group", [80, 6, 14]);
+    await verifySizes(page, 30, 56, 14);
   });
 
   test("should allow default group units of percentages to be overridden with pixels", async ({

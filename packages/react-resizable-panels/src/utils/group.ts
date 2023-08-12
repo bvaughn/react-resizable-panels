@@ -8,7 +8,7 @@ export function adjustByDelta(
   committedValues: CommittedValues,
   idBefore: string,
   idAfter: string,
-  deltaPixels: number | null,
+  deltaPixels: number,
   prevSizes: number[],
   panelSizeBeforeCollapse: Map<string, number>,
   initialDragState: InitialDragState | null
@@ -29,13 +29,6 @@ export function adjustByDelta(
   const nextSizes = baseSizes.concat();
 
   let deltaApplied = 0;
-
-  // A null delta means that layout is being recalculated (e.g. after a panel group resize)
-  // In that scenario it is not safe for this method to bail out early
-  const safeToBailOut = deltaPixels != null;
-  if (deltaPixels === null) {
-    deltaPixels = 0;
-  }
 
   // A resizing panel affects the panels before or after it.
   //
@@ -58,15 +51,13 @@ export function adjustByDelta(
       units,
       groupSizePixels,
       panel,
-      Math.abs(deltaPixels),
       baseSize,
+      baseSize + Math.abs(deltaPixels),
       event
     );
     if (baseSize === nextSize) {
       // If there's no room for the pivot panel to grow, we can ignore this drag update.
-      if (safeToBailOut) {
-        return baseSizes;
-      }
+      return baseSizes;
     } else {
       if (nextSize === 0 && baseSize > 0) {
         panelSizeBeforeCollapse.set(pivotId, baseSize);
@@ -88,8 +79,8 @@ export function adjustByDelta(
       units,
       groupSizePixels,
       panel,
-      0 - deltaRemaining,
       baseSize,
+      baseSize - deltaRemaining,
       event
     );
     if (baseSize !== nextSize) {
@@ -181,6 +172,115 @@ export function callPanelCallbacks(
       }
     }
   });
+}
+
+export function calculateDefaultLayout({
+  groupId,
+  panels,
+  units,
+}: {
+  groupId: string;
+  panels: Map<string, PanelData>;
+  units: Units;
+}): number[] {
+  const groupSizePixels =
+    units === "pixels" ? getAvailableGroupSizePixels(groupId) : NaN;
+  const panelsArray = panelsMapToSortedArray(panels);
+  const sizes = Array<number>(panelsArray.length);
+
+  let numPanelsWithSizes = 0;
+  let remainingSize = 100;
+
+  // Assigning default sizes requires a couple of passes:
+  // First, all panels with defaultSize should be set as-is
+  for (let index = 0; index < panelsArray.length; index++) {
+    const panel = panelsArray[index];
+    const { defaultSize } = panel.current;
+
+    if (defaultSize != null) {
+      numPanelsWithSizes++;
+
+      sizes[index] =
+        units === "pixels"
+          ? (defaultSize / groupSizePixels) * 100
+          : defaultSize;
+
+      remainingSize -= sizes[index];
+    }
+  }
+
+  // Remaining total size should be distributed evenly between panels
+  // This may require two passes, depending on min/max constraints
+  for (let index = 0; index < panelsArray.length; index++) {
+    const panel = panelsArray[index];
+    let { defaultSize, id, maxSize, minSize } = panel.current;
+    if (defaultSize != null) {
+      continue;
+    }
+
+    if (units === "pixels") {
+      minSize = (minSize / groupSizePixels) * 100;
+      if (maxSize != null) {
+        maxSize = (maxSize / groupSizePixels) * 100;
+      }
+    }
+
+    const remainingPanels = panelsArray.length - numPanelsWithSizes;
+    const size = Math.min(
+      maxSize != null ? maxSize : 100,
+      Math.max(minSize, remainingSize / remainingPanels)
+    );
+
+    sizes[index] = size;
+    numPanelsWithSizes++;
+    remainingSize -= size;
+  }
+
+  // If there is additional, left over space, assign it to any panel(s) that permits it
+  // (It's not worth taking multiple additional passes to evenly distribute)
+  if (remainingSize !== 0) {
+    for (let index = 0; index < panelsArray.length; index++) {
+      const panel = panelsArray[index];
+      let { maxSize, minSize } = panel.current;
+
+      if (units === "pixels") {
+        minSize = (minSize / groupSizePixels) * 100;
+        if (maxSize != null) {
+          maxSize = (maxSize / groupSizePixels) * 100;
+        }
+      }
+
+      const size = Math.min(
+        maxSize != null ? maxSize : 100,
+        Math.max(minSize, sizes[index] + remainingSize)
+      );
+
+      if (size !== sizes[index]) {
+        remainingSize -= size - sizes[index];
+        sizes[index] = size;
+
+        // Fuzzy comparison to account for imprecise floating point math
+        if (Math.abs(remainingSize).toFixed(3) === "0.000") {
+          break;
+        }
+      }
+    }
+  }
+
+  // Finally, if there is still left-over size, log an error
+  if (Math.abs(remainingSize).toFixed(3) !== "0.000") {
+    if (isDevelopment) {
+      console.error(
+        `Invalid panel group configuration; default panel sizes should total 100% but was ${(
+          100 - remainingSize
+        ).toFixed(
+          1
+        )}%. This can cause the cursor to become misaligned while dragging.`
+      );
+    }
+  }
+
+  return sizes;
 }
 
 export function getBeforeAndAfterIds(
@@ -335,12 +435,10 @@ export function safeResizePanel(
   units: Units,
   groupSizePixels: number,
   panel: PanelData,
-  delta: number,
   prevSize: number,
-  event: ResizeEvent | null
+  nextSize: number,
+  event: ResizeEvent | null = null
 ): number {
-  const nextSizeUnsafe = prevSize + delta;
-
   let { collapsedSize, collapsible, maxSize, minSize } = panel.current;
 
   if (units === "pixels") {
@@ -354,7 +452,7 @@ export function safeResizePanel(
   if (collapsible) {
     if (prevSize > collapsedSize) {
       // Mimic VS COde behavior; collapse a panel if it's smaller than half of its min-size
-      if (nextSizeUnsafe <= minSize / 2 + collapsedSize) {
+      if (nextSize <= minSize / 2 + collapsedSize) {
         return collapsedSize;
       }
     } else {
@@ -363,19 +461,14 @@ export function safeResizePanel(
         // Keyboard events should expand a collapsed panel to the min size,
         // but mouse events should wait until the panel has reached its min size
         // to avoid a visual flickering when dragging between collapsed and min size.
-        if (nextSizeUnsafe < minSize) {
+        if (nextSize < minSize) {
           return collapsedSize;
         }
       }
     }
   }
 
-  const nextSize = Math.min(
-    maxSize != null ? maxSize : 100,
-    Math.max(minSize, nextSizeUnsafe)
-  );
-
-  return nextSize;
+  return Math.min(maxSize != null ? maxSize : 100, Math.max(minSize, nextSize));
 }
 
 export function validatePanelProps(units: Units, panelData: PanelData) {
@@ -425,4 +518,87 @@ export function validatePanelProps(units: Units, panelData: PanelData) {
       panelData.current.defaultSize = maxSize;
     }
   }
+}
+
+export function validatePanelGroupLayout({
+  groupId,
+  panels,
+  nextSizes,
+  prevSizes,
+  units,
+}: {
+  groupId: string;
+  panels: Map<string, PanelData>;
+  nextSizes: number[];
+  prevSizes: number[];
+  units: Units;
+}): number[] {
+  const panelsArray = panelsMapToSortedArray(panels);
+
+  const groupSizePixels =
+    units === "pixels" ? getAvailableGroupSizePixels(groupId) : NaN;
+
+  let remainingSize = 0;
+
+  // First, check all of the proposed sizes against the min/max constraints
+  for (let index = 0; index < panelsArray.length; index++) {
+    const panel = panelsArray[index];
+    const prevSize = prevSizes[index];
+    const nextSize = nextSizes[index];
+    const safeNextSize = safeResizePanel(
+      units,
+      groupSizePixels,
+      panel,
+      prevSize,
+      nextSize
+    );
+    if (nextSize != safeNextSize) {
+      remainingSize += nextSize - safeNextSize;
+      nextSizes[index] = safeNextSize;
+
+      if (isDevelopment) {
+        console.error(
+          `Invalid size (${nextSize}) specified for Panel "${panel.current.id}" given the panel's min/max size constraints`
+        );
+      }
+    }
+  }
+
+  // If there is additional, left over space, assign it to any panel(s) that permits it
+  // (It's not worth taking multiple additional passes to evenly distribute)
+  if (remainingSize.toFixed(3) !== "0.000") {
+    for (let index = 0; index < panelsArray.length; index++) {
+      const panel = panelsArray[index];
+
+      let { maxSize, minSize } = panel.current;
+
+      const size = Math.min(
+        maxSize != null ? maxSize : 100,
+        Math.max(minSize, nextSizes[index] + remainingSize)
+      );
+
+      if (size !== nextSizes[index]) {
+        remainingSize -= size - nextSizes[index];
+        nextSizes[index] = size;
+
+        // Fuzzy comparison to account for imprecise floating point math
+        if (Math.abs(remainingSize).toFixed(3) === "0.000") {
+          break;
+        }
+      }
+    }
+  }
+
+  // If we still have remainder, the requested layout wasn't valid and we should warn about it
+  if (remainingSize.toFixed(3) !== "0.000") {
+    if (isDevelopment) {
+      console.error(
+        `"Invalid panel group configuration; default panel sizes should total 100% but was ${
+          100 - remainingSize
+        }%`
+      );
+    }
+  }
+
+  return nextSizes;
 }
