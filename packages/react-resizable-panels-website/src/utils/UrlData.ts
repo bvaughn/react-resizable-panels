@@ -30,7 +30,7 @@ type UrlPanel = {
   defaultSize?: number | null;
   id?: string | null;
   maxSize?: number | null;
-  minSize: number;
+  minSize?: number;
   order?: number | null;
   style?: CSSProperties;
   type: "UrlPanel";
