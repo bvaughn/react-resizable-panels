@@ -139,7 +139,8 @@ export type PanelGroupProps = {
 };
 
 export type ImperativePanelGroupHandle = {
-  getLayout: () => number[];
+  getId: () => string;
+  getLayout: (units?: Units) => number[];
   setLayout: (panelSizes: number[], units?: Units) => void;
 };
 
@@ -211,9 +212,17 @@ function PanelGroupWithForwardedRef({
   useImperativeHandle(
     forwardedRef,
     () => ({
-      getLayout: () => {
-        const { sizes } = committedValuesRef.current;
-        return sizes;
+      getId: () => groupId,
+      getLayout: (unitsFromParams?: Units) => {
+        const { sizes, units: unitsFromProps } = committedValuesRef.current;
+
+        const units = unitsFromParams ?? unitsFromProps;
+        if (units === "pixels") {
+          const groupSizePixels = getAvailableGroupSizePixels(groupId);
+          return sizes.map((size) => (size / 100) * groupSizePixels);
+        } else {
+          return sizes;
+        }
       },
       setLayout: (sizes: number[], unitsFromParams?: Units) => {
         const {
@@ -250,7 +259,7 @@ function PanelGroupWithForwardedRef({
         }
       },
     }),
-    []
+    [groupId]
   );
 
   useIsomorphicLayoutEffect(() => {
@@ -396,6 +405,26 @@ function PanelGroupWithForwardedRef({
       };
     }
   }, [groupId, units]);
+
+  const getPanelSize = useCallback(
+    (id: string, unitsFromParams?: Units) => {
+      const { panels, units: unitsFromProps } = committedValuesRef.current;
+
+      const panelsArray = panelsMapToSortedArray(panels);
+
+      const index = panelsArray.findIndex((panel) => panel.current.id === id);
+      const size = sizes[index];
+
+      const units = unitsFromParams ?? unitsFromProps;
+      if (units === "pixels") {
+        const groupSizePixels = getAvailableGroupSizePixels(groupId);
+        return (size / 100) * groupSizePixels;
+      } else {
+        return size;
+      }
+    },
+    [groupId, sizes]
+  );
 
   const getPanelStyle = useCallback(
     (id: string, defaultSize: number | null): CSSProperties => {
@@ -813,6 +842,7 @@ function PanelGroupWithForwardedRef({
       collapsePanel,
       direction,
       expandPanel,
+      getPanelSize,
       getPanelStyle,
       groupId,
       registerPanel,
@@ -837,6 +867,7 @@ function PanelGroupWithForwardedRef({
 
         initialDragStateRef.current = null;
       },
+      units,
       unregisterPanel,
     }),
     [
@@ -844,11 +875,13 @@ function PanelGroupWithForwardedRef({
       collapsePanel,
       direction,
       expandPanel,
+      getPanelSize,
       getPanelStyle,
       groupId,
       registerPanel,
       registerResizeHandle,
       resizePanel,
+      units,
       unregisterPanel,
     ]
   );
@@ -868,6 +901,7 @@ function PanelGroupWithForwardedRef({
       "data-panel-group": "",
       "data-panel-group-direction": direction,
       "data-panel-group-id": groupId,
+      "data-panel-group-units": units,
       style: { ...style, ...styleFromProps },
     }),
     value: context,

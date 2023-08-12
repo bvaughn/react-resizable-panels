@@ -13,6 +13,7 @@
 }
 
 .FormColumn {
+  width: 100%;
   flex: 0 0 auto;
   display: flex;
   flex-direction: row;
@@ -23,5 +24,11 @@
 }
 
 .Input {
-  width: 7ch;
+  flex: 1 1 auto;
+  min-width: 5ch;
+  max-width: 15ch;
+}
+
+.Spacer {
+  flex: 1;
 }

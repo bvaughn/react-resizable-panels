@@ -533,6 +533,9 @@ export function validatePanelGroupLayout({
   prevSizes: number[];
   units: Units;
 }): number[] {
+  // Clone because this method modifies
+  nextSizes = [...nextSizes];
+
   const panelsArray = panelsMapToSortedArray(panels);
 
   const groupSizePixels =
@@ -571,6 +574,13 @@ export function validatePanelGroupLayout({
       const panel = panelsArray[index];
 
       let { maxSize, minSize } = panel.current;
+
+      if (units === "pixels") {
+        minSize = (minSize / groupSizePixels) * 100;
+        if (maxSize != null) {
+          maxSize = (maxSize / groupSizePixels) * 100;
+        }
+      }
 
       const size = Math.min(
         maxSize != null ? maxSize : 100,

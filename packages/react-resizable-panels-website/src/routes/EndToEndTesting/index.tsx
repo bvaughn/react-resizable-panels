@@ -9,6 +9,7 @@ import {
 import {
   ImperativePanelGroupHandle,
   ImperativePanelHandle,
+  Units,
   getAvailableGroupSizePixels,
 } from "react-resizable-panels";
 
@@ -50,56 +51,10 @@ function EndToEndTesting() {
     return urlToUrlData(url);
   });
 
-  useLayoutEffect(() => {
-    window.addEventListener("popstate", (event) => {
-      const url = new URL(
-        typeof window !== undefined ? window.location.href : ""
-      );
-
-      setUrlData(urlToUrlData(url));
-    });
-  }, []);
-
-  useLayoutEffect(() => {
-    const calculatePanelSize = (panelElement: HTMLElement) => {
-      if (panelElement.childElementCount > 0) {
-        return; // Don't override nested groups
-      }
-
-      const panelSize = parseFloat(panelElement.style.flexGrow);
-
-      const panelGroupElement = panelElement.parentElement!;
-      const groupId = panelGroupElement.getAttribute("data-panel-group-id")!;
-      const panelGroupPixels = getAvailableGroupSizePixels(groupId);
-
-      panelElement.textContent = `${panelSize.toFixed(1)}%\n${(
-        (panelSize / 100) *
-        panelGroupPixels
-      ).toFixed(1)}px`;
-    };
-
-    const observer = new MutationObserver((mutationRecords) => {
-      mutationRecords.forEach((mutationRecord) => {
-        calculatePanelSize(mutationRecord.target as HTMLElement);
-      });
-    });
-
-    const elements = document.querySelectorAll("[data-panel]");
-    Array.from(elements).forEach((element) => {
-      observer.observe(element, {
-        attributes: true,
-      });
-
-      calculatePanelSize(element as HTMLElement);
-    });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
   const [panelId, setPanelId] = useState("");
+  const [panelIds, setPanelIds] = useState<string[]>([]);
   const [panelGroupId, setPanelGroupId] = useState("");
+  const [panelGroupIds, setPanelGroupIds] = useState<string[]>([]);
   const [size, setSize] = useState(0);
   const [units, setUnits] = useState("");
   const [layoutString, setLayoutString] = useState("");
@@ -109,21 +64,110 @@ function EndToEndTesting() {
     Map<string, ImperativePanelHandle | ImperativePanelGroupHandle>
   >(new Map());
 
+  useLayoutEffect(() => {
+    const populateDropDowns = () => {
+      const panelElements = document.querySelectorAll("[data-panel-id]");
+      const panelIds = Array.from(panelElements).map(
+        (element) => element.getAttribute("data-panel-id")!
+      );
+      setPanelIds(panelIds);
+      setPanelId(panelIds[0]);
+
+      const panelGroupElements =
+        document.querySelectorAll("[data-panel-group]");
+      const panelGroupIds = Array.from(panelGroupElements).map(
+        (element) => element.getAttribute("data-panel-group-id")!
+      );
+      setPanelGroupIds(panelGroupIds);
+      setPanelGroupId(panelGroupIds[0]);
+
+      // const panelGroupElement = document.querySelector("[data-panel-group]")!;
+      // const units = panelGroupElement.getAttribute("data-panel-group-units")!;
+      // setUnits(units);
+    };
+
+    window.addEventListener("popstate", (event) => {
+      const url = new URL(
+        typeof window !== undefined ? window.location.href : ""
+      );
+
+      setUrlData(urlToUrlData(url));
+
+      populateDropDowns();
+    });
+
+    populateDropDowns();
+  }, []);
+
+  useLayoutEffect(() => {
+    const calculatePanelSize = (panelElement: HTMLElement) => {
+      if (panelElement.childElementCount > 0) {
+        return; // Don't override nested groups
+      }
+
+      // Let layout effects fire first
+      setTimeout(() => {
+        const panelId = panelElement.getAttribute("data-panel-id");
+        if (panelId != null) {
+          const panel = idToRefMapRef.current.get(
+            panelId
+          ) as ImperativePanelHandle;
+          if (panel != null) {
+            const percentage = panel.getSize("percentages");
+            const pixels = panel.getSize("pixels");
+
+            panelElement.textContent = `${percentage.toFixed(
+              1
+            )}%\n${pixels.toFixed(1)}px`;
+          }
+        }
+      }, 0);
+    };
+
+    const mutationObserver = new MutationObserver((records) => {
+      records.forEach((record) => {
+        calculatePanelSize(record.target as HTMLElement);
+      });
+    });
+    const resizeObserver = new ResizeObserver((records) => {
+      records.forEach((record) => {
+        calculatePanelSize(record.target as HTMLElement);
+      });
+    });
+
+    const elements = document.querySelectorAll("[data-panel]");
+    Array.from(elements).forEach((element) => {
+      mutationObserver.observe(element, {
+        attributes: true,
+      });
+      resizeObserver.observe(element);
+
+      calculatePanelSize(element as HTMLElement);
+    });
+
+    return () => {
+      mutationObserver.disconnect();
+      resizeObserver.disconnect();
+    };
+  }, []);
+
   const children = urlData
     ? urlPanelGroupToPanelGroup(urlData, debugLogRef, idToRefMapRef)
     : null;
 
   const onLayoutInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.currentTarget.value;
-    setLayoutString(value);
+    setLayoutString(value.startsWith("[") ? value : `[${value}]`);
   };
 
-  const onPanelIdInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const onPanelIdSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const value = event.currentTarget.value;
     setPanelId(value);
   };
 
-  const onPanelGroupIdInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const onPanelGroupIdSelectChange = (
+    event: ChangeEvent<HTMLSelectElement>
+  ) => {
     const value = event.currentTarget.value;
     setPanelGroupId(value);
   };
@@ -133,7 +177,7 @@ function EndToEndTesting() {
     setSize(parseFloat(value));
   };
 
-  const onUnitsInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const onUnitsSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const value = event.currentTarget.value;
     setUnits(value);
   };
@@ -177,13 +221,18 @@ function EndToEndTesting() {
     <div className={styles.Container}>
       <div className={styles.FormRow}>
         <div className={styles.FormColumn}>
-          <input
+          <select
             className={styles.Input}
-            id="panelIdInput"
-            onChange={onPanelIdInputChange}
+            id="panelIdSelect"
+            onChange={onPanelIdSelectChange}
             placeholder="Panel id"
-            type="string"
-          />
+          >
+            {panelIds.map((panelId) => (
+              <option key={panelId} value={panelId}>
+                {panelId}
+              </option>
+            ))}
+          </select>
           <button
             id="collapseButton"
             onClick={onCollapseButtonClick}
@@ -201,8 +250,6 @@ function EndToEndTesting() {
           <input
             className={styles.Input}
             id="sizeInput"
-            max={100}
-            min={0}
             onChange={onSizeInputChange}
             placeholder="Size"
             type="number"
@@ -214,24 +261,31 @@ function EndToEndTesting() {
           >
             <Icon type="resize" />
           </button>
-        </div>
-        <div className={styles.FormColumn}>
-          <input
+          <div className={styles.Spacer} />
+          <select
             className={styles.Input}
-            id="unitsInput"
-            onChange={onUnitsInputChange}
+            defaultValue={units}
+            id="unitsSelect"
+            onChange={onUnitsSelectChange}
             placeholder="Units"
-            type="string"
-          />
-        </div>
-        <div className={styles.FormColumn}>
-          <input
+          >
+            <option value=""></option>
+            <option value="percentages">percentages</option>
+            <option value="pixels">pixels</option>
+          </select>
+          <div className={styles.Spacer} />
+          <select
             className={styles.Input}
-            id="panelGroupIdInput"
-            onChange={onPanelGroupIdInputChange}
-            placeholder="Group id"
-            type="string"
-          />
+            id="panelGroupIdSelect"
+            onChange={onPanelGroupIdSelectChange}
+            placeholder="Panel group id"
+          >
+            {panelGroupIds.map((panelGroupId) => (
+              <option key={panelGroupId} value={panelGroupId}>
+                {panelGroupId}
+              </option>
+            ))}
+          </select>
           <input
             className={styles.Input}
             id="layoutInput"

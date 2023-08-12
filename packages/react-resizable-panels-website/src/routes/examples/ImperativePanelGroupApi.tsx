@@ -34,18 +34,18 @@ export default function ImperativePanelGroupApiRoute() {
             <li>
               <Code
                 className={sharedStyles.InlineCode}
-                code="getLayout(): number[]"
+                code={`getLayout(units?: "percentages" | "pixels"): number[]`}
                 language="typescript"
               />
-              Current size of panels
+              Current size of panels in the specified unit (or group default)
             </li>
             <li>
               <Code
                 className={sharedStyles.InlineCode}
-                code="setLayout(panelSizes: number[]): void"
+                code={`setLayout(panelSizes: number[], units?: "percentages" | "pixels"): void`}
                 language="typescript"
               />
-              Resize all panels
+              Resize all panels using the specified unit (or group default)
             </li>
           </ul>
         </>

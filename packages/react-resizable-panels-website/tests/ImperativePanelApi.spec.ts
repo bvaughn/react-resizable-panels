@@ -82,21 +82,19 @@ test.describe("Imperative Panel API", () => {
   }) => {
     const collapseButton = page.locator("#collapseButton");
     const expandButton = page.locator("#expandButton");
-    const panelIdInput = page.locator("#panelIdInput");
+    const panelIdSelect = page.locator("#panelIdSelect");
 
     await imperativeResizePanel(page, "left", 15);
     await imperativeResizePanel(page, "right", 25);
     await verifySizes(page, 15, 60, 25);
 
-    await panelIdInput.focus();
-    await panelIdInput.fill("left");
+    await panelIdSelect.selectOption("left");
     await collapseButton.click();
     await verifySizes(page, 0, 75, 25);
     await expandButton.click();
     await verifySizes(page, 15, 60, 25);
 
-    await panelIdInput.focus();
-    await panelIdInput.fill("right");
+    await panelIdSelect.selectOption("right");
     await collapseButton.click();
     await verifySizes(page, 15, 85, 0);
     await expandButton.click();

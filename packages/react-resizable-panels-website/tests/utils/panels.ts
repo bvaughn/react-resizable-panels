@@ -92,12 +92,6 @@ export async function dragResizeTo(
     const prevSize = (await panel.getAttribute("data-panel-size"))!;
     const isExpanding = parseFloat(prevSize) < nextSize;
 
-    console.log(
-      `${
-        isExpanding ? "Expanding" : "Contracting"
-      } panel "${panelId}" from ${prevSize} to ${nextSize}`
-    );
-
     // Last panel should drag the handle before it back (left/up)
     // All other panels should drag the handle after it forward (right/down)
     let dragIncrement = 0;
@@ -159,21 +153,15 @@ export async function imperativeResizePanel(
   size: number,
   units?: Units
 ) {
-  const panelIdInput = page.locator("#panelIdInput");
-  await panelIdInput.focus();
-  await panelIdInput.fill(panelId);
+  const panelIdSelect = page.locator("#panelIdSelect");
+  await panelIdSelect.selectOption(panelId);
 
   const sizeInput = page.locator("#sizeInput");
   await sizeInput.focus();
   await sizeInput.fill("" + size);
 
-  const unitsInput = page.locator("#unitsInput");
-  if (units) {
-    await unitsInput.focus();
-    await unitsInput.fill(units);
-  } else {
-    await unitsInput.clear();
-  }
+  const unitsSelect = page.locator("#unitsSelect");
+  unitsSelect.selectOption(units ?? "");
 
   const resizeButton = page.locator("#resizeButton");
   await resizeButton.click();
@@ -185,21 +173,15 @@ export async function imperativeResizePanelGroup(
   sizes: number[],
   units?: Units
 ) {
-  const panelGroupIdInput = page.locator("#panelGroupIdInput");
-  await panelGroupIdInput.focus();
-  await panelGroupIdInput.fill(panelGroupId);
+  const panelGroupIdSelect = page.locator("#panelGroupIdSelect");
+  panelGroupIdSelect.selectOption(panelGroupId);
 
   const layoutInput = page.locator("#layoutInput");
   await layoutInput.focus();
   await layoutInput.fill(`[${sizes.join()}]`);
 
-  const unitsInput = page.locator("#unitsInput");
-  if (units) {
-    await unitsInput.focus();
-    await unitsInput.fill(units);
-  } else {
-    await unitsInput.clear();
-  }
+  const unitsSelect = page.locator("#unitsSelect");
+  unitsSelect.selectOption(units ?? "");
 
   const setLayoutButton = page.locator("#setLayoutButton");
   await setLayoutButton.click();

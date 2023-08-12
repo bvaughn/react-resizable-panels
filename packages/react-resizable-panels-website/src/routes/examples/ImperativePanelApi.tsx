@@ -88,18 +88,19 @@ export default function ImperativePanelApiRoute() {
             <li>
               <Code
                 className={sharedStyles.InlineCode}
-                code="getSize(): number"
+                code={`getSize(units?: "percentages" | "pixels"): number`}
                 language="typescript"
               />
-              Panel's current size
+              Panel's current size in the specified unit (or group default)
             </li>
             <li>
               <Code
                 className={sharedStyles.InlineCode}
-                code="resize(percentage: number): void"
+                code={`resize(size: number, units?: "percentages" | "pixels"): void`}
                 language="typescript"
               />
-              Resize the panel to the specified percentage
+              Resize the panel to the specified size in the specified unit (or
+              group default)
             </li>
           </ul>
         </>

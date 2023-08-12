@@ -208,6 +208,7 @@ test.describe("Pixel units", () => {
     await verifyPanelSizePixels(leftPanel, 50);
 
     await page.setViewportSize({ width: 300, height: 300 });
+    await new Promise((r) => setTimeout(r, 30));
     await verifyPanelSizePixels(leftPanel, 50);
 
     await page.setViewportSize({ width: 400, height: 300 });

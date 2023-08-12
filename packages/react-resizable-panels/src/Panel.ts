@@ -21,7 +21,7 @@ import {
   PanelOnResize,
   Units,
 } from "./types";
-import { isDevelopment } from "./env-conditions/production";
+import { getAvailableGroupSizePixels } from "./utils/group";
 
 export type PanelProps = {
   children?: ReactNode;
@@ -43,7 +43,8 @@ export type ImperativePanelHandle = {
   collapse: () => void;
   expand: () => void;
   getCollapsed(): boolean;
-  getSize(): number;
+  getId(): string;
+  getSize(units?: Units): number;
   resize: (percentage: number, units?: Units) => void;
 };
 
@@ -77,9 +78,12 @@ function PanelWithForwardedRef({
   const {
     collapsePanel,
     expandPanel,
+    getPanelSize,
     getPanelStyle,
+    groupId,
     registerPanel,
     resizePanel,
+    units,
     unregisterPanel,
   } = context;
 
@@ -153,13 +157,16 @@ function PanelWithForwardedRef({
       getCollapsed() {
         return committedValuesRef.current.size === 0;
       },
-      getSize() {
-        return committedValuesRef.current.size;
+      getId() {
+        return panelId;
+      },
+      getSize(units) {
+        return getPanelSize(panelId, units);
       },
       resize: (percentage: number, units) =>
         resizePanel(panelId, percentage, units),
     }),
-    [collapsePanel, expandPanel, panelId, resizePanel]
+    [collapsePanel, expandPanel, getPanelSize, panelId, resizePanel]
   );
 
   return createElement(Type, {

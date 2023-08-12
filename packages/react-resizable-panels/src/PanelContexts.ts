@@ -7,6 +7,7 @@ export const PanelGroupContext = createContext<{
   collapsePanel: (id: string) => void;
   direction: "horizontal" | "vertical";
   expandPanel: (id: string) => void;
+  getPanelSize: (id: string, units?: Units) => number;
   getPanelStyle: (id: string, defaultSize: number | null) => CSSProperties;
   groupId: string;
   registerPanel: (id: string, panel: PanelData) => void;
@@ -15,6 +16,7 @@ export const PanelGroupContext = createContext<{
   startDragging: (id: string, event: ResizeEvent) => void;
   stopDragging: () => void;
   unregisterPanel: (id: string) => void;
+  units: Units;
 } | null>(null);
 
 PanelGroupContext.displayName = "PanelGroupContext";
