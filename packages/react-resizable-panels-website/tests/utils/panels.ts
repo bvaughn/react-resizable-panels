@@ -1,13 +1,39 @@
-import { Locator, expect, Page } from "@playwright/test";
+import { Locator, Page, expect } from "@playwright/test";
+import { assert } from "./assert";
 import { getBodyCursorStyle } from "./cursor";
 import { verifyFuzzySizes } from "./verify";
-import { assert } from "./assert";
+import { Units } from "react-resizable-panels";
 
 type Operation = {
   expectedCursor?: string;
   expectedSizes?: number[];
   size: number;
 };
+
+export async function dragResizeBy(
+  page: Page,
+  panelResizeHandleId: string,
+  delta: number
+) {
+  const dragHandle = page.locator(
+    `[data-panel-resize-handle-id="${panelResizeHandleId}"]`
+  );
+  const direction = await dragHandle.getAttribute(
+    "data-panel-group-direction"
+  )!;
+
+  let dragHandleRect = (await dragHandle.boundingBox())!;
+  let pageX = dragHandleRect.x + dragHandleRect.width / 2;
+  let pageY = dragHandleRect.y + dragHandleRect.height / 2;
+
+  await page.mouse.move(pageX, pageY);
+  await page.mouse.down();
+  await page.mouse.move(
+    direction === "horizontal" ? pageX + delta : pageX,
+    direction === "vertical" ? pageY + delta : pageY
+  );
+  await page.mouse.up();
+}
 
 export async function dragResizeTo(
   page: Page,
@@ -66,12 +92,6 @@ export async function dragResizeTo(
     const prevSize = (await panel.getAttribute("data-panel-size"))!;
     const isExpanding = parseFloat(prevSize) < nextSize;
 
-    console.log(
-      `${
-        isExpanding ? "Expanding" : "Contracting"
-      } panel "${panelId}" from ${prevSize} to ${nextSize}`
-    );
-
     // Last panel should drag the handle before it back (left/up)
     // All other panels should drag the handle after it forward (right/down)
     let dragIncrement = 0;
@@ -127,8 +147,57 @@ export async function dragResizeTo(
   await page.mouse.up();
 }
 
+export async function imperativeResizePanel(
+  page: Page,
+  panelId: string,
+  size: number,
+  units?: Units
+) {
+  const panelIdSelect = page.locator("#panelIdSelect");
+  await panelIdSelect.selectOption(panelId);
+
+  const sizeInput = page.locator("#sizeInput");
+  await sizeInput.focus();
+  await sizeInput.fill("" + size);
+
+  const unitsSelect = page.locator("#unitsSelect");
+  unitsSelect.selectOption(units ?? "");
+
+  const resizeButton = page.locator("#resizeButton");
+  await resizeButton.click();
+}
+
+export async function imperativeResizePanelGroup(
+  page: Page,
+  panelGroupId: string,
+  sizes: number[],
+  units?: Units
+) {
+  const panelGroupIdSelect = page.locator("#panelGroupIdSelect");
+  panelGroupIdSelect.selectOption(panelGroupId);
+
+  const layoutInput = page.locator("#layoutInput");
+  await layoutInput.focus();
+  await layoutInput.fill(`[${sizes.join()}]`);
+
+  const unitsSelect = page.locator("#unitsSelect");
+  unitsSelect.selectOption(units ?? "");
+
+  const setLayoutButton = page.locator("#setLayoutButton");
+  await setLayoutButton.click();
+}
+
 export async function verifyPanelSize(locator: Locator, expectedSize: number) {
   await expect(await locator.getAttribute("data-panel-size")).toBe(
     expectedSize.toFixed(1)
+  );
+}
+
+export async function verifyPanelSizePixels(
+  locator: Locator,
+  expectedSize: number
+) {
+  await expect(await locator.textContent()).toContain(
+    `${expectedSize.toFixed(1)}px`
   );
 }

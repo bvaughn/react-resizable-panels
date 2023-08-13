@@ -11,11 +11,21 @@ async function openPage(page: Page) {
   const panelGroup = createElement(
     PanelGroup,
     { direction: "horizontal", id: "group" },
-    createElement(Panel, { collapsible: true, defaultSize: 20, order: 1 }),
+    createElement(Panel, {
+      collapsible: true,
+      defaultSize: 20,
+      minSize: 10,
+      order: 1,
+    }),
     createElement(PanelResizeHandle, { id: "left-handle" }),
-    createElement(Panel, { defaultSize: 60, order: 2 }),
+    createElement(Panel, { defaultSize: 60, minSize: 10, order: 2 }),
     createElement(PanelResizeHandle, { id: "right-handle" }),
-    createElement(Panel, { collapsible: true, defaultSize: 20, order: 3 })
+    createElement(Panel, {
+      collapsible: true,
+      defaultSize: 20,
+      minSize: 10,
+      order: 3,
+    })
   );
 
   await goToUrl(page, panelGroup);

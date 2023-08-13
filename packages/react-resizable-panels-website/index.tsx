@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import HomeRoute from "./src/routes/Home";
 import ConditionalExampleRoute from "./src/routes/examples/Conditional";
+import PixelBasedLayoutsRoute from "./src/routes/examples/PixelBasedLayouts";
 import ExternalPersistenceExampleRoute from "./src/routes/examples/ExternalPersistence";
 import HorizontalExampleRoute from "./src/routes/examples/Horizontal";
 import ImperativePanelApiExampleRoute from "./src/routes/examples/ImperativePanelApi";
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
   {
     path: "/examples/conditional",
     element: <ConditionalExampleRoute />,
+  },
+  {
+    path: "/examples/pixel-based-layouts",
+    element: <PixelBasedLayoutsRoute />,
   },
   {
     path: "/examples/external-persistence",

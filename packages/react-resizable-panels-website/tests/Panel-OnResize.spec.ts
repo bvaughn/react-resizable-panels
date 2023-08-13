@@ -6,6 +6,7 @@ import { PanelResizeLogEntry } from "../src/routes/examples/types";
 
 import { clearLogEntries, getLogEntries } from "./utils/debug";
 import { goToUrl, updateUrl } from "./utils/url";
+import { imperativeResizePanelGroup } from "./utils/panels";
 
 function createElements(numPanels: 2 | 3) {
   const panels = [
@@ -13,10 +14,16 @@ function createElements(numPanels: 2 | 3) {
       collapsible: true,
       defaultSize: numPanels === 3 ? 20 : 40,
       id: "left",
+      minSize: 10,
       order: 1,
     }),
     createElement(PanelResizeHandle, { id: "left-handle" }),
-    createElement(Panel, { defaultSize: 60, id: "middle", order: 2 }),
+    createElement(Panel, {
+      defaultSize: 60,
+      id: "middle",
+      minSize: 10,
+      order: 2,
+    }),
   ];
 
   if (numPanels === 3) {
@@ -26,6 +33,7 @@ function createElements(numPanels: 2 | 3) {
         collapsible: true,
         defaultSize: 20,
         id: "right",
+        minSize: 10,
         order: 3,
       })
     );
@@ -115,16 +123,7 @@ test.describe("Panel onResize prop", () => {
   }) => {
     await clearLogEntries(page);
 
-    const panelGroupIdInput = page.locator("#panelGroupIdInput");
-    const setLayoutButton = page.locator("#setLayoutButton");
-    const layoutInput = page.locator("#layoutInput");
-
-    await panelGroupIdInput.focus();
-    await panelGroupIdInput.fill("group");
-
-    await layoutInput.focus();
-    await layoutInput.fill("[10, 20, 70]");
-    await setLayoutButton.click();
+    await imperativeResizePanelGroup(page, "group", [10, 20, 70]);
 
     await verifyEntries(page, [
       { panelId: "left", size: 10 },

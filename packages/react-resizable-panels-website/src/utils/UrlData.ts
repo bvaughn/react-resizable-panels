@@ -19,6 +19,7 @@ import {
   PanelResizeHandle,
   PanelResizeHandleOnDragging,
   PanelResizeHandleProps,
+  Units,
 } from "react-resizable-panels";
 import { ImperativeDebugLogHandle } from "../routes/examples/DebugLog";
 
@@ -28,7 +29,7 @@ type UrlPanel = {
   collapsible?: boolean;
   defaultSize?: number | null;
   id?: string | null;
-  maxSize?: number;
+  maxSize?: number | null;
   minSize?: number;
   order?: number | null;
   style?: CSSProperties;
@@ -42,6 +43,7 @@ type UrlPanelGroup = {
   id?: string | null;
   style?: CSSProperties;
   type: "UrlPanelGroup";
+  units: Units;
 };
 
 type UrlPanelResizeHandle = {
@@ -131,6 +133,7 @@ function UrlPanelGroupToData(
     id: urlPanelGroup.props.id,
     style: urlPanelGroup.props.style,
     type: "UrlPanelGroup",
+    units: urlPanelGroup.props.units ?? "percentages",
   };
 }
 
@@ -155,7 +158,6 @@ function urlPanelToPanel(
 ): ReactElement {
   let onCollapse: PanelOnCollapse | undefined = undefined;
   let onResize: PanelOnResize | undefined = undefined;
-  let refSetter;
 
   const panelId = urlPanel.id;
   if (panelId) {
@@ -180,16 +182,15 @@ function urlPanelToPanel(
         });
       }
     };
-
-    refSetter = (panel: ImperativePanelHandle | null) => {
-      const idToRefMap = idToRefMapRef.current!;
-      if (panel) {
-        idToRefMap.set(panelId, panel);
-      } else {
-        idToRefMap.delete(panelId);
-      }
-    };
   }
+
+  const refSetter = (panel: ImperativePanelHandle | null) => {
+    if (panel) {
+      const id = panel.getId();
+      const idToRefMap = idToRefMapRef.current!;
+      idToRefMap.set(id, panel);
+    }
+  };
 
   return createElement(
     Panel,
@@ -232,7 +233,6 @@ export function urlPanelGroupToPanelGroup(
   key?: any
 ): ReactElement {
   let onLayout: PanelGroupOnLayout | undefined = undefined;
-  let refSetter;
 
   const groupId = urlPanelGroup.id;
   if (groupId) {
@@ -242,16 +242,15 @@ export function urlPanelGroupToPanelGroup(
         debugLog.log({ groupId, type: "onLayout", sizes });
       }
     };
-
-    refSetter = (panelGroup: ImperativePanelGroupHandle | null) => {
-      const idToRefMap = idToRefMapRef.current!;
-      if (panelGroup) {
-        idToRefMap.set(groupId, panelGroup);
-      } else {
-        idToRefMap.delete(groupId);
-      }
-    };
   }
+
+  const refSetter = (panelGroup: ImperativePanelGroupHandle | null) => {
+    if (panelGroup) {
+      const id = panelGroup.getId();
+      const idToRefMap = idToRefMapRef.current!;
+      idToRefMap.set(id, panelGroup);
+    }
+  };
 
   return createElement(
     PanelGroup,
@@ -264,6 +263,7 @@ export function urlPanelGroupToPanelGroup(
       onLayout,
       ref: refSetter,
       style: urlPanelGroup.style,
+      units: urlPanelGroup.units,
     },
     urlPanelGroup.children.map((child, index) => {
       if (isUrlPanel(child)) {

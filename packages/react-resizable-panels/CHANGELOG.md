@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.0.55
+* New `units` prop added to `PanelGroup` to support pixel-based panel size constraints.
+
+This prop defaults to "percentage" but can be set to "pixels" for static, pixel based layout constraints.
+
+This can be used to add enable pixel-based min/max and default size values, e.g.:
+```tsx
+ <PanelGroup direction="horizontal" units="pixels">
+   {/* Will be constrained to 100-200 pixels (assuming group is large enough to permit this) */}
+   <Panel minSize={100} maxSize={200} />
+   <PanelResizeHandle />
+   <Panel />
+   <PanelResizeHandle />
+   <Panel />
+ </PanelGroup>
+```
+
+Imperative API methods are also able to work with either pixels or percentages now. They default to whatever units the group has been configured to use, but can be overridden with an additional, optional parameter, e.g.
+```ts
+panelRef.resize(100, "pixels");
+panelGroupRef.setLayout([25, 50, 25], "percentages");
+
+// Works for getters too, e.g.
+const percentage = panelRef.getSize("percentages");
+const pixels = panelRef.getSize("pixels");
+
+const layout = panelGroupRef.getLayout("pixels");
+```
+
 ## 0.0.54
 * [172](https://github.com/bvaughn/react-resizable-panels/issues/172): Development warning added to `PanelGroup` for conditionally-rendered `Panel`(s) that don't have `id` and `order` props
 * [156](https://github.com/bvaughn/react-resizable-panels/pull/156): Package exports now used to select between node (server-rendering) and browser (client-rendering) bundles

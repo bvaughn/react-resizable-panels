@@ -6,8 +6,13 @@ import type {
 } from "react-virtualized-auto-sizer";
 
 export default function withAutoSizer<ComponentProps>(
-  Component: FunctionComponent<ComponentProps>,
-  autoSizerProps?: AutoSizerProps
+  Component: FunctionComponent<
+    ComponentProps & {
+      height: number;
+      width: number;
+    }
+  >,
+  autoSizerProps?: Partial<AutoSizerProps>
 ): FunctionComponent<Omit<ComponentProps, "height" | "width">> {
   const AutoSizerWrapper = (
     props: Omit<ComponentProps, "height" | "width">

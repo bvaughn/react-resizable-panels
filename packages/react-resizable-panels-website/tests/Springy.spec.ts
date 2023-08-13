@@ -13,15 +13,17 @@ async function openPage(page: Page) {
     createElement(Panel, {
       defaultSize: 25,
       id: "left-panel",
+      minSize: 10,
       order: 1,
     }),
     createElement(PanelResizeHandle, { id: "left-handle" }),
-    createElement(Panel, { id: "middle-panel", order: 2 }),
+    createElement(Panel, { id: "middle-panel", minSize: 10, order: 2 }),
     createElement(PanelResizeHandle, { id: "right-handle" }),
     createElement(Panel, {
       collapsible: true,
       defaultSize: 25,
       id: "right-panel",
+      minSize: 10,
       order: 4,
     })
   );

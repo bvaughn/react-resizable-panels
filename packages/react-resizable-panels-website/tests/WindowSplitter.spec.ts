@@ -14,9 +14,9 @@ async function goToDefaultUrl(
     createElement(
       PanelGroup,
       { direction },
-      createElement(Panel),
+      createElement(Panel, { minSize: 10 }),
       createElement(PanelResizeHandle),
-      createElement(Panel)
+      createElement(Panel, { minSize: 10 })
     )
   );
 }
@@ -70,9 +70,9 @@ test.describe("Window Splitter", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { maxSize: 50 }),
+          createElement(Panel, { maxSize: 50, minSize: 10 }),
           createElement(PanelResizeHandle),
-          createElement(Panel)
+          createElement(Panel, { minSize: 10 })
         )
       );
 
@@ -90,9 +90,9 @@ test.describe("Window Splitter", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { defaultSize: 65 }),
+          createElement(Panel, { defaultSize: 65, minSize: 10 }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { maxSize: 40 })
+          createElement(Panel, { maxSize: 40, minSize: 10 })
         )
       );
 
@@ -234,7 +234,7 @@ test.describe("Window Splitter", () => {
           { direction: "horizontal" },
           createElement(Panel, { defaultSize: 40, maxSize: 70, minSize: 20 }),
           createElement(PanelResizeHandle),
-          createElement(Panel)
+          createElement(Panel, { minSize: 10 })
         )
       );
 
@@ -264,13 +264,13 @@ test.describe("Window Splitter", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel),
+          createElement(Panel, { minSize: 10 }),
           createElement(PanelResizeHandle),
-          createElement(Panel),
+          createElement(Panel, { minSize: 10 }),
           createElement(PanelResizeHandle),
-          createElement(Panel),
+          createElement(Panel, { minSize: 10 }),
           createElement(PanelResizeHandle),
-          createElement(Panel)
+          createElement(Panel, { minSize: 10 })
         )
       );
 

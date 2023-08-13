@@ -5,21 +5,24 @@ import { UrlPanelGroupToEncodedString } from "../../src/utils/UrlData";
 
 export async function goToUrl(
   page: Page,
-  element: ReactElement<PanelGroupProps>
+  element: ReactElement<PanelGroupProps> | null
 ) {
-  const encodedString = UrlPanelGroupToEncodedString(element);
+  const encodedString = element ? UrlPanelGroupToEncodedString(element) : "";
 
   const url = new URL("http://localhost:1234/__e2e");
   url.searchParams.set("urlPanelGroup", encodedString);
+
+  // Uncomment when testing for easier repros
+  // console.log(url.toString());
 
   await page.goto(url.toString());
 }
 
 export async function updateUrl(
   page: Page,
-  element: ReactElement<PanelGroupProps>
+  element: ReactElement<PanelGroupProps> | null
 ) {
-  const encodedString = UrlPanelGroupToEncodedString(element);
+  const encodedString = element ? UrlPanelGroupToEncodedString(element) : "";
 
   await page.evaluate(
     ([encodedString]) => {

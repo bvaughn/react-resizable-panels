@@ -13,11 +13,11 @@ test.describe("Resize handle", () => {
       createElement(
         PanelGroup,
         { direction: "horizontal" },
-        createElement(Panel),
+        createElement(Panel, { minSize: 10 }),
         createElement(PanelResizeHandle, { style: { height: 10, width: 10 } }),
-        createElement(Panel),
+        createElement(Panel, { minSize: 10 }),
         createElement(PanelResizeHandle, { style: { height: 10, width: 10 } }),
-        createElement(Panel)
+        createElement(Panel, { minSize: 10 })
       )
     );
 
