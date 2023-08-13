@@ -15,9 +15,11 @@ export async function verifySizes(page: Page, ...expectedSizes: number[]) {
     const textContent = (await panel.textContent()) || "";
 
     const expectedSize = expectedSizes[index];
-    const actualSize = parseFloat(textContent.split("\n")[0].replace("%", ""));
+    const rows = textContent.split("\n");
+    const actualSize =
+      rows.length === 2 ? parseFloat(rows[0].replace("%", "")) : NaN;
 
-    expect(expectedSize).toBe(actualSize);
+    expect(actualSize).toBe(expectedSize);
   }
 }
 
@@ -35,11 +37,11 @@ export async function verifySizesPixels(
     const textContent = (await panel.textContent()) || "";
 
     const expectedSizePixels = expectedSizesPixels[index];
-    const actualSizePixels = parseFloat(
-      textContent.split("\n")[1].replace("px", "")
-    );
+    const rows = textContent.split("\n");
+    const actualSizePixels =
+      rows.length === 2 ? parseFloat(rows[1].replace("px", "")) : NaN;
 
-    expect(expectedSizePixels).toBe(actualSizePixels);
+    expect(actualSizePixels).toBe(expectedSizePixels);
   }
 }
 

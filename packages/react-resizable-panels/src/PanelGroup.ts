@@ -318,7 +318,17 @@ function PanelGroupWithForwardedRef({
     }
 
     if (defaultSizes != null) {
-      setSizes(defaultSizes);
+      // Validate saved sizes in case something has changed since last render
+      // e.g. for pixel groups, this could be the size of the window
+      const validatedSizes = validatePanelGroupLayout({
+        groupId,
+        panels,
+        nextSizes: defaultSizes,
+        prevSizes: defaultSizes,
+        units,
+      });
+
+      setSizes(validatedSizes);
     } else {
       const sizes = calculateDefaultLayout({
         groupId,

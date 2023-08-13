@@ -14,54 +14,65 @@ import {
   imperativeResizePanel,
   verifyPanelSizePixels,
 } from "./utils/panels";
-import { goToUrl } from "./utils/url";
+import { goToUrl, updateUrl } from "./utils/url";
+import { verifySizesPixels } from "./utils/verify";
+
+function createElements(
+  props: {
+    leftPanelProps?: PanelProps;
+    leftResizeHandleProps?: Partial<PanelResizeHandleProps>;
+    middlePanelProps?: PanelProps;
+    panelGroupProps?: Partial<PanelGroupProps>;
+    rightPanelProps?: PanelProps;
+    rightResizeHandleProps?: Partial<PanelResizeHandleProps>;
+  } = {}
+) {
+  return createElement(
+    PanelGroup,
+    {
+      direction: "horizontal",
+      id: "group",
+      units: "pixels",
+      ...props.panelGroupProps,
+    },
+    createElement(Panel, {
+      id: "left-panel",
+      minSize: 10,
+      ...props.leftPanelProps,
+    }),
+    createElement(PanelResizeHandle, {
+      id: "left-resize-handle",
+      ...props.leftResizeHandleProps,
+    }),
+    createElement(Panel, {
+      id: "middle-panel",
+      minSize: 10,
+      ...props.middlePanelProps,
+    }),
+    createElement(PanelResizeHandle, {
+      id: "right-resize-handle",
+      ...props.rightResizeHandleProps,
+    }),
+    createElement(Panel, {
+      id: "right-panel",
+      minSize: 10,
+      ...props.rightPanelProps,
+    })
+  );
+}
 
 async function goToUrlHelper(
   page: Page,
   props: {
     leftPanelProps?: PanelProps;
-    leftResizeHandleProps?: PanelResizeHandleProps;
+    leftResizeHandleProps?: Partial<PanelResizeHandleProps>;
     middlePanelProps?: PanelProps;
-    panelGroupProps?: PanelGroupProps;
+    panelGroupProps?: Partial<PanelGroupProps>;
     rightPanelProps?: PanelProps;
-    rightResizeHandleProps?: PanelResizeHandleProps;
+    rightResizeHandleProps?: Partial<PanelResizeHandleProps>;
   } = {}
 ) {
-  await goToUrl(
-    page,
-    createElement(
-      PanelGroup,
-      {
-        direction: "horizontal",
-        id: "group",
-        units: "pixels",
-        ...props.panelGroupProps,
-      },
-      createElement(Panel, {
-        id: "left-panel",
-        minSize: 10,
-        ...props.leftPanelProps,
-      }),
-      createElement(PanelResizeHandle, {
-        id: "left-resize-handle",
-        ...props.leftResizeHandleProps,
-      }),
-      createElement(Panel, {
-        id: "middle-panel",
-        minSize: 10,
-        ...props.middlePanelProps,
-      }),
-      createElement(PanelResizeHandle, {
-        id: "right-resize-handle",
-        ...props.rightResizeHandleProps,
-      }),
-      createElement(Panel, {
-        id: "right-panel",
-        minSize: 10,
-        ...props.rightPanelProps,
-      })
-    )
-  );
+  await goToUrl(page, createElements(props));
 }
 
 test.describe("Pixel units", () => {
@@ -313,5 +324,49 @@ test.describe("Pixel units", () => {
     await dragResizeBy(page, "second-resize-handle", 400);
     await verifyPanelSizePixels(firstPanel, 50);
     await verifyPanelSizePixels(fourthPanel, 50);
+  });
+
+  test("should validate persisted pixel layouts before re-applying", async ({
+    page,
+  }) => {
+    let stored: { [name: string]: string } = {};
+    const elements = createElements({
+      panelGroupProps: {
+        autoSaveId: "test-group",
+        storage: {
+          getItem(name: string): string | null {
+            return stored[name] ?? null;
+          },
+          setItem(name: string, value: string): void {
+            stored[name] = value;
+          },
+        },
+      },
+      leftPanelProps: {
+        minSize: 50,
+      },
+      middlePanelProps: {
+        minSize: 50,
+      },
+      rightPanelProps: {
+        minSize: 50,
+      },
+    });
+    await goToUrl(page, elements as any);
+    await verifySizesPixels(page, 132, 132, 132);
+
+    await imperativeResizePanel(page, "left-panel", 50);
+    await verifySizesPixels(page, 50, 214, 132);
+
+    // Wait for localStorage write debounce
+    await new Promise((resolve) => setTimeout(resolve, 250));
+
+    // Unload page and resize window
+    await updateUrl(page, null);
+    await page.setViewportSize({ width: 300, height: 300 });
+
+    // Reload page and verify pixel validation has re-run on saved percentages
+    await updateUrl(page, elements);
+    await verifySizesPixels(page, 50, 147.3, 98.7);
   });
 });

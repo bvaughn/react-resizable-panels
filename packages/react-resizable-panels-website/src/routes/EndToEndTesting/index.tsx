@@ -149,7 +149,7 @@ function EndToEndTesting() {
       mutationObserver.disconnect();
       resizeObserver.disconnect();
     };
-  }, []);
+  }, [urlData]);
 
   const children = urlData
     ? urlPanelGroupToPanelGroup(urlData, debugLogRef, idToRefMapRef)
