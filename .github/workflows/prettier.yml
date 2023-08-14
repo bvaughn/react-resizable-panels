@@ -10,6 +10,6 @@ jobs:
         with:
           version: 7
       - name: Install dependencies
-        run: pnpm install -r
+        run: pnpm install --no-frozen-lockfile --recursive
       - name: Run Prettier
         run: pnpm run prettier:ci
