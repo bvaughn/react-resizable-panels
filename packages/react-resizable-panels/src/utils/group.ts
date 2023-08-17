@@ -14,7 +14,7 @@ export function adjustByDelta(
   initialDragState: InitialDragState | null
 ): number[] {
   const { id: groupId, panels, units } = committedValues;
-
+  const fullDelta = Math.abs(deltaPixels);
   const groupSizePixels =
     units === "pixels" ? getAvailableGroupSizePixels(groupId) : NaN;
 
@@ -38,27 +38,25 @@ export function adjustByDelta(
   // A positive delta means the panel immediately before the resizer should "expand".
   // This is accomplished by shrinking/contracting (and shifting) one or more of the panels after the resizer.
 
-  let pivotId = deltaPixels < 0 ? idBefore : idAfter;
-  let startIndex = panelsArray.findIndex(
+  const pivotId = deltaPixels < 0 ? idBefore : idAfter;
+  const startIndex = panelsArray.findIndex(
     (panel) => panel.current.id === pivotId
   );
   let index = startIndex;
 
   while (true) {
-    const deltaRemaining = Math.abs(deltaPixels) - Math.abs(deltaApplied);
     let hasRoom = false;
 
     // First try adjusting the pivotId panel and any panels after it
     while (index >= 0 && index < panelsArray.length) {
       const panel = panelsArray[index];
       const baseSize = baseSizes[index];
-
       const nextSize = safeResizePanel(
         units,
         groupSizePixels,
         panel,
         baseSize,
-        baseSize - deltaRemaining + deltaApplied,
+        baseSize - fullDelta + deltaApplied,
         event
       );
 
@@ -98,27 +96,23 @@ export function adjustByDelta(
     // Check if there is room to add in the opposite direction
     let deltaAppliedToOpposite = 0;
     let oppositeIndex = deltaPixels < 0 ? startIndex + 1 : startIndex - 1;
-    let oppositeNextSize = 0;
-    let oppositeBaseSize = 0;
-    let oppositePanel: PanelData | undefined = undefined;
     hasRoom = false;
 
     while (oppositeIndex >= 0 && oppositeIndex < panelsArray.length) {
-      oppositePanel = panelsArray[oppositeIndex];
-      oppositeBaseSize = baseSizes[oppositeIndex];
-      oppositeNextSize = safeResizePanel(
+      const oppositePanel = panelsArray[oppositeIndex];
+      const oppositeBaseSize = baseSizes[oppositeIndex];
+      const oppositeNextSize = safeResizePanel(
         units,
         groupSizePixels,
         oppositePanel,
         oppositeBaseSize,
-        oppositeBaseSize + deltaRemaining - deltaAppliedToOpposite,
+        oppositeBaseSize + (fullDelta - deltaAppliedToOpposite),
         event
       );
 
       if (oppositeBaseSize !== oppositeNextSize) {
         nextSizes[oppositeIndex] = oppositeNextSize;
         deltaAppliedToOpposite += oppositeNextSize - oppositeBaseSize;
-        deltaApplied += oppositeNextSize - oppositeBaseSize;
 
         // If the panel isn't at it's max size, we can stop here
         // there is room to modify this panel.
