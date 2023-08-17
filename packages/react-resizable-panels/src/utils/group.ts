@@ -43,10 +43,12 @@ export function adjustByDelta(
     (panel) => panel.current.id === pivotId
   );
   let index = startIndex;
+
   while (true) {
     const deltaRemaining = Math.abs(deltaPixels) - Math.abs(deltaApplied);
     let hasRoom = false;
 
+    // First try adjusting the pivotId panel and any panels after it
     while (index >= 0 && index < panelsArray.length) {
       const panel = panelsArray[index];
       const baseSize = baseSizes[index];
@@ -69,6 +71,8 @@ export function adjustByDelta(
 
         nextSizes[index] = nextSize;
 
+        // If the panel isn't at it's min size, we can stop here
+        // this panel has room to modify.
         if (nextSize !== panel.current.minSize) {
           hasRoom = true;
           break;
@@ -86,51 +90,50 @@ export function adjustByDelta(
       }
     }
 
+    // If we were unable to resize any of the pivot panels or remaining panels, return the previous state.
     if (!hasRoom) {
       return prevSizes;
     }
 
     // Check if there is room to add in the opposite direction
-    let oppositeIndex = deltaPixels < 0 ? index + 1 : index - 1;
     let deltaAppliedToOpposite = 0;
+    let oppositeIndex = deltaPixels < 0 ? startIndex + 1 : startIndex - 1;
+    let oppositeNextSize = 0;
+    let oppositeBaseSize = 0;
+    let oppositePanel: PanelData | undefined = undefined;
+    hasRoom = false;
 
-    if (oppositeIndex >= 0 && oppositeIndex < panelsArray.length) {
-      let oppositeIndex = deltaPixels < 0 ? startIndex + 1 : startIndex - 1;
-      let oppositeNextSize = 0;
-      let oppositeBaseSize = 0;
-      let oppositePanel: PanelData | undefined = undefined;
-      let hasRoom = false;
-      console.log("### iter", { oppositeIndex });
+    while (oppositeIndex >= 0 && oppositeIndex < panelsArray.length) {
+      oppositePanel = panelsArray[oppositeIndex];
+      oppositeBaseSize = baseSizes[oppositeIndex];
+      oppositeNextSize = safeResizePanel(
+        units,
+        groupSizePixels,
+        oppositePanel,
+        oppositeBaseSize,
+        oppositeBaseSize + deltaRemaining - deltaAppliedToOpposite,
+        event
+      );
 
-      while (oppositeIndex >= 0 && oppositeIndex < panelsArray.length) {
-        oppositePanel = panelsArray[oppositeIndex];
-        oppositeBaseSize = baseSizes[oppositeIndex];
-        oppositeNextSize = safeResizePanel(
-          units,
-          groupSizePixels,
-          oppositePanel,
-          oppositeBaseSize,
-          oppositeBaseSize + deltaRemaining - deltaAppliedToOpposite,
-          event
-        );
+      if (oppositeBaseSize !== oppositeNextSize) {
+        nextSizes[oppositeIndex] = oppositeNextSize;
+        deltaAppliedToOpposite += oppositeNextSize - oppositeBaseSize;
+        deltaApplied += oppositeNextSize - oppositeBaseSize;
 
-        if (oppositeBaseSize !== oppositeNextSize) {
-          nextSizes[oppositeIndex] = oppositeNextSize;
-          deltaAppliedToOpposite += oppositeNextSize - oppositeBaseSize;
-          deltaApplied += oppositeNextSize - oppositeBaseSize;
-
-          if (oppositeNextSize !== oppositePanel.current.maxSize) {
-            hasRoom = true;
-            break;
-          }
+        // If the panel isn't at it's max size, we can stop here
+        // there is room to modify this panel.
+        if (oppositeNextSize !== oppositePanel.current.maxSize) {
+          hasRoom = true;
+          break;
         }
-
-        oppositeIndex = deltaPixels < 0 ? oppositeIndex + 1 : oppositeIndex - 1;
       }
 
-      if (!hasRoom) {
-        return prevSizes;
-      }
+      oppositeIndex = deltaPixels < 0 ? oppositeIndex + 1 : oppositeIndex - 1;
+    }
+
+    // The opposite panel(s) have reached their max size, so we can't resize any further.
+    if (!hasRoom) {
+      return prevSizes;
     }
 
     if (
@@ -144,7 +147,6 @@ export function adjustByDelta(
           }
         ) >= 0
     ) {
-      console.log("###", "broke");
       break;
     }
 
