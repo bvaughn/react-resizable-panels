@@ -44,7 +44,7 @@ export function adjustByDelta(
   );
   let index = startIndex;
 
-  while (true) {
+  while (index >= 0 && index < panelsArray.length) {
     let hasRoom = false;
 
     // First try adjusting the pivotId panel and any panels after it
@@ -66,7 +66,6 @@ export function adjustByDelta(
         }
 
         deltaApplied += baseSize - nextSize;
-
         nextSizes[index] = nextSize;
 
         // If the panel isn't at it's min size, we can stop here
@@ -77,15 +76,7 @@ export function adjustByDelta(
         }
       }
 
-      if (deltaPixels < 0) {
-        if (--index < 0) {
-          break;
-        }
-      } else {
-        if (++index >= panelsArray.length) {
-          break;
-        }
-      }
+      index = deltaPixels < 0 ? index - 1 : index + 1;
     }
 
     // If we were unable to resize any of the pivot panels or remaining panels, return the previous state.
@@ -144,15 +135,7 @@ export function adjustByDelta(
       break;
     }
 
-    if (deltaPixels < 0) {
-      if (--index < 0) {
-        break;
-      }
-    } else {
-      if (++index >= panelsArray.length) {
-        break;
-      }
-    }
+    index = deltaPixels < 0 ? index - 1 : index + 1;
   }
 
   // If we were unable to resize any of the panels panels, return the previous state.
