@@ -38,35 +38,6 @@ export function adjustByDelta(
   // A positive delta means the panel immediately before the resizer should "expand".
   // This is accomplished by shrinking/contracting (and shifting) one or more of the panels after the resizer.
 
-  // Max-bounds check the panel being expanded first.
-  // {
-  //   const pivotId = deltaPixels < 0 ? idAfter : idBefore;
-  //   const index = panelsArray.findIndex(
-  //     (panel) => panel.current.id === pivotId
-  //   );
-  //   const panel = panelsArray[index];
-  //   const baseSize = baseSizes[index];
-
-  //   const nextSize = safeResizePanel(
-  //     units,
-  //     groupSizePixels,
-  //     panel,
-  //     baseSize,
-  //     baseSize + Math.abs(deltaPixels),
-  //     event
-  //   );
-  //   if (baseSize === nextSize) {
-  //     // If there's no room for the pivot panel to grow, we can ignore this drag update.
-  //     return baseSizes;
-  //   } else {
-  //     if (nextSize === 0 && baseSize > 0) {
-  //       panelSizeBeforeCollapse.set(pivotId, baseSize);
-  //     }
-
-  //     deltaPixels = deltaPixels < 0 ? baseSize - nextSize : nextSize - baseSize;
-  //   }
-  // }
-
   let pivotId = deltaPixels < 0 ? idBefore : idAfter;
   let startIndex = panelsArray.findIndex(
     (panel) => panel.current.id === pivotId
@@ -74,6 +45,7 @@ export function adjustByDelta(
   let index = startIndex;
   while (true) {
     const deltaRemaining = Math.abs(deltaPixels) - Math.abs(deltaApplied);
+    let hasRoom = false;
 
     while (index >= 0 && index < panelsArray.length) {
       const panel = panelsArray[index];
@@ -88,11 +60,6 @@ export function adjustByDelta(
         event
       );
 
-      console.log("### 0", {
-        baseSize,
-        nextSize,
-      });
-
       if (baseSize !== nextSize) {
         if (nextSize === 0 && baseSize > 0) {
           panelSizeBeforeCollapse.set(panel.current.id, baseSize);
@@ -103,6 +70,7 @@ export function adjustByDelta(
         nextSizes[index] = nextSize;
 
         if (nextSize !== panel.current.minSize) {
+          hasRoom = true;
           break;
         }
       }
@@ -118,12 +86,13 @@ export function adjustByDelta(
       }
     }
 
-    console.log("### 1st", { index, deltaApplied });
+    if (!hasRoom) {
+      return prevSizes;
+    }
 
     // Check if there is room to add in the opposite direction
     let oppositeIndex = deltaPixels < 0 ? index + 1 : index - 1;
     let deltaAppliedToOpposite = 0;
-    console.log("###", { oppositeIndex, deltaApplied });
 
     if (oppositeIndex >= 0 && oppositeIndex < panelsArray.length) {
       let oppositeIndex = deltaPixels < 0 ? startIndex + 1 : startIndex - 1;
@@ -145,23 +114,11 @@ export function adjustByDelta(
           event
         );
 
-        console.log("### opposite check", {
-          id: oppositePanel.current.id,
-          oppositeNextSize,
-          oppositeBaseSize,
-          deltaRemaining,
-          max: oppositePanel.current.maxSize,
-        });
-
         if (oppositeBaseSize !== oppositeNextSize) {
           nextSizes[oppositeIndex] = oppositeNextSize;
           deltaAppliedToOpposite += oppositeNextSize - oppositeBaseSize;
           deltaApplied += oppositeNextSize - oppositeBaseSize;
-          console.log("### apply opposite", {
-            oppositeBaseSize,
-            oppositeNextSize,
-            deltaApplied,
-          });
+
           if (oppositeNextSize !== oppositePanel.current.maxSize) {
             hasRoom = true;
             break;
@@ -205,42 +162,8 @@ export function adjustByDelta(
   // If we were unable to resize any of the panels panels, return the previous state.
   // This will essentially bailout and ignore the "mousemove" event.
   if (deltaApplied === 0) {
-    console.log("### bail");
     return baseSizes;
   }
-
-  // Adjust the pivot panel before, but only by the amount that surrounding panels were able to shrink/contract.
-  // pivotId = deltaPixels < 0 ? idAfter : idBefore;
-  // index = panelsArray.findIndex((panel) => panel.current.id === pivotId);
-  // while (true) {
-  //   const panel = panelsArray[index];
-  //   const baseSize = baseSizes[index];
-  //   const nextSize = safeResizePanel(
-  //     units,
-  //     groupSizePixels,
-  //     panel,
-  //     baseSize,
-  //     baseSize + deltaApplied,
-  //     event
-  //   );
-  //   console.log("### back", { id: panel.current.id, nextSize, baseSize });
-  //   if (baseSize !== nextSize) {
-  //     nextSizes[index] = nextSize;
-  //     break;
-  //   }
-  //   if (deltaPixels > 0) {
-  //     if (--index < 0) {
-  //       break;
-  //     }
-  //   } else {
-  //     if (++index >= panelsArray.length) {
-  //       break;
-  //     }
-  //   }
-  // }
-  // nextSizes[index] = baseSizes[index] + deltaApplied;
-
-  console.log("###", { nextSizes });
 
   return nextSizes;
 }
