@@ -122,6 +122,7 @@ export function adjustByDelta(
 
     // Check if there is room to add in the opposite direction
     let oppositeIndex = deltaPixels < 0 ? index + 1 : index - 1;
+    let deltaAppliedToOpposite = 0;
     console.log("###", { oppositeIndex, deltaApplied });
 
     if (oppositeIndex >= 0 && oppositeIndex < panelsArray.length) {
@@ -140,7 +141,7 @@ export function adjustByDelta(
           groupSizePixels,
           oppositePanel,
           oppositeBaseSize,
-          oppositeBaseSize + deltaRemaining,
+          oppositeBaseSize + deltaRemaining - deltaAppliedToOpposite,
           event
         );
 
@@ -152,35 +153,26 @@ export function adjustByDelta(
           max: oppositePanel.current.maxSize,
         });
 
-        if (
-          typeof oppositePanel.current.maxSize !== "number" ||
-          oppositeNextSize < oppositePanel.current.maxSize
-        ) {
-          hasRoom = true;
-          break;
+        if (oppositeBaseSize !== oppositeNextSize) {
+          nextSizes[oppositeIndex] = oppositeNextSize;
+          deltaAppliedToOpposite += oppositeNextSize - oppositeBaseSize;
+          deltaApplied += oppositeNextSize - oppositeBaseSize;
+          console.log("### apply opposite", {
+            oppositeBaseSize,
+            oppositeNextSize,
+            deltaApplied,
+          });
+          if (oppositeNextSize !== oppositePanel.current.maxSize) {
+            hasRoom = true;
+            break;
+          }
         }
 
         oppositeIndex = deltaPixels < 0 ? oppositeIndex + 1 : oppositeIndex - 1;
-        deltaApplied += oppositeNextSize - oppositeBaseSize;
       }
 
-      if (!hasRoom || !oppositePanel) {
+      if (!hasRoom) {
         return prevSizes;
-      }
-
-      console.log("### apply opposite", { oppositeBaseSize, oppositeNextSize });
-
-      if (oppositeBaseSize !== oppositeNextSize) {
-        if (oppositeNextSize === 0 && oppositeBaseSize > 0) {
-          panelSizeBeforeCollapse.set(
-            oppositePanel.current.id,
-            oppositeBaseSize
-          );
-        }
-
-        deltaApplied += oppositeNextSize - oppositeBaseSize;
-
-        nextSizes[oppositeIndex] = oppositeNextSize;
       }
     }
 
