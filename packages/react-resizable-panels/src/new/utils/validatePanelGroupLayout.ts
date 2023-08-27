@@ -1,4 +1,4 @@
-import { fuzzyNumbersEqual } from "./fuzzyNumbersEqual";
+import { fuzzyNumbersEqual } from "./numbers/fuzzyNumbersEqual";
 import { resizePanel } from "./resizePanel";
 import { PanelConstraints } from "../Panel";
 

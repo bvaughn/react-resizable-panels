@@ -1,8 +1,8 @@
 import { computePercentagePanelConstraints } from "./computePercentagePanelConstraints";
-import { fuzzyNumbersEqual } from "./fuzzyNumbersEqual";
+import { fuzzyNumbersEqual } from "./numbers/fuzzyNumbersEqual";
 import { resizePanel } from "./resizePanel";
 import { PanelConstraints } from "../Panel";
-import { fuzzyCompareNumbers } from "./fuzzyCompareNumbers";
+import { fuzzyCompareNumbers } from "./numbers/fuzzyCompareNumbers";
 
 let isCheckingForInfiniteLoop = false;
 

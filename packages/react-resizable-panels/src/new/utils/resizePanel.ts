@@ -1,7 +1,7 @@
 import { PRECISION } from "../../constants";
 import { PanelConstraints } from "../Panel";
 import { computePercentagePanelConstraints } from "./computePercentagePanelConstraints";
-import { fuzzyCompareNumbers } from "./fuzzyCompareNumbers";
+import { fuzzyCompareNumbers } from "./numbers/fuzzyCompareNumbers";
 
 // Panel size must be in percentages; pixel values should be pre-converted
 export function resizePanel({

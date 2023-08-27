@@ -1,4 +1,4 @@
-import { PRECISION } from "../../constants";
+import { PRECISION } from "../../../constants";
 
 export function fuzzyCompareNumbers(
   actual: number,

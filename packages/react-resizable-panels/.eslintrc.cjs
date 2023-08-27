@@ -1,5 +1,3 @@
-const { join } = require("path");
-
 /* eslint-env node */
 module.exports = {
   ignorePatterns: [".parcel-cache", "dist", "node_modules"],
