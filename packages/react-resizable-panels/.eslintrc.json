@@ -1,7 +1,7 @@
 {
   "ignorePatterns": [".parcel-cache", "dist", "node_modules"],
   "parser": "@typescript-eslint/parser",
-  "parserOptions": { "project": ["../../tsconfig.json"] },
+  "parserOptions": { "project": ["tsconfig.json"] },
   "plugins": ["@typescript-eslint", "no-restricted-imports", "react-hooks"],
   "root": true,
   "rules": {

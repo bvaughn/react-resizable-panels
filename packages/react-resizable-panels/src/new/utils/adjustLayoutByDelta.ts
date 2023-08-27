@@ -1,26 +1,32 @@
 import { computePercentagePanelConstraints } from "./computePercentagePanelConstraints";
-import { fuzzyCompareNumbers } from "./fuzzyCompareNumbers";
+import { fuzzyNumbersEqual } from "./fuzzyNumbersEqual";
 import { resizePanel } from "./resizePanel";
-import { PanelConstraints } from "./types";
+import { PanelConstraints } from "../Panel";
+import { fuzzyCompareNumbers } from "./fuzzyCompareNumbers";
+
+let isCheckingForInfiniteLoop = false;
 
 // All units must be in percentages; pixel values should be pre-converted
 export function adjustLayoutByDelta({
+  collapsedPanelMode = "permissive",
   delta,
   groupSizePixels,
-  layout,
+  layout: prevLayout,
   panelConstraints,
   pivotIndices,
 }: {
+  collapsedPanelMode?: "permissive" | "snap";
   delta: number;
   groupSizePixels: number;
   layout: number[];
   panelConstraints: PanelConstraints[];
-  // TODO panelExpandToSizes: number[]
   pivotIndices: number[];
 }): number[] {
-  if (delta === 0) {
-    return layout;
+  if (fuzzyNumbersEqual(delta, 0)) {
+    return prevLayout;
   }
+
+  const nextLayout = [...prevLayout];
 
   let deltaApplied = 0;
 
@@ -36,21 +42,30 @@ export function adjustLayoutByDelta({
   // We should only expand or contract by as much as its constraints allow
   {
     const pivotIndex = delta < 0 ? pivotIndices[1]! : pivotIndices[0]!;
-    const initialSize = layout[pivotIndex]!;
+    const initialSize = nextLayout[pivotIndex]!;
 
     const { collapsible } = panelConstraints[pivotIndex]!;
-    const { collapsedSizePercentage, minSizePercentage } =
+    const { collapsedSizePercentage, maxSizePercentage, minSizePercentage } =
       computePercentagePanelConstraints(
         panelConstraints,
         pivotIndex,
         groupSizePixels
       );
-    const isCollapsed = collapsible && initialSize === collapsedSizePercentage;
 
-    // TODO Could this, combined with the recursion, cause an infinite loop?
-    const unsafeSize = isCollapsed
-      ? minSizePercentage
-      : initialSize + Math.abs(delta);
+    const isCollapsed =
+      collapsible && fuzzyNumbersEqual(initialSize, collapsedSizePercentage);
+
+    let unsafeSize = initialSize + Math.abs(delta);
+    if (isCollapsed) {
+      if (fuzzyCompareNumbers(unsafeSize, maxSizePercentage) > 0) {
+        unsafeSize = maxSizePercentage;
+      } else if (fuzzyCompareNumbers(unsafeSize, minSizePercentage) < 0) {
+        unsafeSize = minSizePercentage;
+      } else if (collapsedPanelMode === "snap") {
+        unsafeSize = minSizePercentage;
+      }
+    }
+
     const safeSize = resizePanel({
       groupSizePixels,
       panelConstraints,
@@ -58,15 +73,13 @@ export function adjustLayoutByDelta({
       size: unsafeSize,
     });
 
-    if (initialSize === safeSize) {
+    if (fuzzyNumbersEqual(initialSize, safeSize)) {
       // If there's no room for the pivot panel to grow, we should ignore this change
-      return layout;
+      return nextLayout;
     } else {
       delta = delta < 0 ? initialSize - safeSize : safeSize - initialSize;
     }
   }
-
-  const initialLayout = [...layout];
 
   // Delta added to a panel needs to be subtracted from other panels
   // within the constraints that those panels allow
@@ -76,8 +89,8 @@ export function adjustLayoutByDelta({
     while (index >= 0 && index < panelConstraints.length) {
       const deltaRemaining = Math.abs(delta) - Math.abs(deltaApplied);
 
-      const baseSize = initialLayout[index]!;
-      const unsafeSize = baseSize - deltaRemaining;
+      const prevSize = prevLayout[index]!;
+      const unsafeSize = prevSize - deltaRemaining;
 
       let safeSize = resizePanel({
         groupSizePixels,
@@ -86,10 +99,10 @@ export function adjustLayoutByDelta({
         size: unsafeSize,
       });
 
-      if (baseSize !== safeSize) {
-        deltaApplied += baseSize - safeSize;
+      if (!fuzzyNumbersEqual(prevSize, safeSize)) {
+        deltaApplied += prevSize - safeSize;
 
-        layout[index] = safeSize;
+        nextLayout[index] = safeSize;
 
         if (
           deltaApplied
@@ -112,14 +125,14 @@ export function adjustLayoutByDelta({
 
   // If we were unable to resize any of the panels panels, return the previous state.
   // This will essentially bailout and ignore e.g. drags past a panel's boundaries
-  if (fuzzyCompareNumbers(deltaApplied, 0)) {
-    return initialLayout;
+  if (fuzzyNumbersEqual(deltaApplied, 0)) {
+    return prevLayout;
   }
 
   {
     const pivotIndex = delta < 0 ? pivotIndices[1]! : pivotIndices[0]!;
 
-    const unsafeSize = initialLayout[pivotIndex]! + deltaApplied;
+    const unsafeSize = prevLayout[pivotIndex]! + deltaApplied;
     const safeSize = resizePanel({
       groupSizePixels,
       panelConstraints,
@@ -128,17 +141,17 @@ export function adjustLayoutByDelta({
     });
 
     // Adjust the pivot panel before, but only by the amount that surrounding panels were able to shrink/contract.
-    layout[pivotIndex] = safeSize;
+    nextLayout[pivotIndex] = safeSize;
 
     // Edge case where expanding or contracting one panel caused another one to change collapsed state
-    if (safeSize !== unsafeSize) {
+    if (!fuzzyNumbersEqual(safeSize, unsafeSize)) {
       let deltaRemaining = unsafeSize - safeSize;
 
       const pivotIndex = delta < 0 ? pivotIndices[1]! : pivotIndices[0]!;
       let index = pivotIndex;
       while (index >= 0 && index < panelConstraints.length) {
-        const baseSize = layout[index]!;
-        const unsafeSize = baseSize + deltaRemaining;
+        const prevSize = nextLayout[index]!;
+        const unsafeSize = prevSize + deltaRemaining;
         const safeSize = resizePanel({
           groupSizePixels,
           panelConstraints,
@@ -146,13 +159,13 @@ export function adjustLayoutByDelta({
           size: unsafeSize,
         });
 
-        if (baseSize !== safeSize) {
-          deltaRemaining -= safeSize - baseSize;
+        if (!fuzzyNumbersEqual(prevSize, safeSize)) {
+          deltaRemaining -= safeSize - prevSize;
 
-          layout[index] = safeSize;
+          nextLayout[index] = safeSize;
         }
 
-        if (fuzzyCompareNumbers(deltaRemaining, 0)) {
+        if (fuzzyNumbersEqual(deltaRemaining, 0)) {
           break;
         }
 
@@ -165,17 +178,35 @@ export function adjustLayoutByDelta({
 
       // If we can't redistribute, this layout is invalid;
       // There may be an incremental layout that is valid though
-      if (!fuzzyCompareNumbers(deltaRemaining, 0)) {
-        return adjustLayoutByDelta({
-          delta: delta < 0 ? delta + 1 : delta - 1,
-          groupSizePixels,
-          layout: initialLayout,
-          panelConstraints,
-          pivotIndices,
-        });
+      if (!fuzzyNumbersEqual(deltaRemaining, 0)) {
+        let didSetInfiniteLoopCheckCounter = false;
+        if (isCheckingForInfiniteLoop === null) {
+          didSetInfiniteLoopCheckCounter = true;
+          isCheckingForInfiniteLoop = true;
+        }
+
+        try {
+          return adjustLayoutByDelta({
+            delta: delta < 0 ? delta + 1 : delta - 1,
+            groupSizePixels,
+            layout: prevLayout,
+            panelConstraints,
+            pivotIndices,
+          });
+        } catch (error) {
+          if (error instanceof RangeError) {
+            console.error(`Could not apply delta ${delta} to layout`);
+
+            return prevLayout;
+          }
+        } finally {
+          if (didSetInfiniteLoopCheckCounter) {
+            isCheckingForInfiniteLoop = false;
+          }
+        }
       }
     }
   }
 
-  return layout;
+  return nextLayout;
 }

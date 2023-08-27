@@ -1,5 +1,10 @@
 import { useReducer } from "react";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+
+import {
+  new_Panel as Panel,
+  new_PanelGroup as PanelGroup,
+  new_PanelResizeHandle as PanelResizeHandle,
+} from "react-resizable-panels";
 
 import {
   TUTORIAL_CODE_CSS,
@@ -56,25 +61,30 @@ function Content() {
     dispatch({ type: "open", file });
   };
 
-  const toggleCollapsed = (collapsed: boolean) => {
-    dispatch({ type: "toggleCollapsed", collapsed });
+  const onCollapse = () => {
+    dispatch({ type: "toggleCollapsed", collapsed: false });
+  };
+
+  const onExpand = () => {
+    dispatch({ type: "toggleCollapsed", collapsed: true });
   };
 
   return (
     <div className={sharedStyles.PanelGroupWrapper}>
-      <PanelGroup className={styles.IDE} direction="horizontal" units="pixels">
+      <PanelGroup className={styles.IDE} direction="horizontal">
         <div className={styles.Toolbar}>
           <Icon className={styles.ToolbarIconActive} type="files" />
           <Icon className={styles.ToolbarIcon} type="search" />
         </div>
         <Panel
           className={sharedStyles.PanelColumn}
-          collapsedSize={36}
+          collapsedSizePixels={36}
           collapsible={true}
-          defaultSize={150}
-          maxSize={150}
-          minSize={60}
-          onCollapse={toggleCollapsed}
+          defaultSizePixels={150}
+          maxSizePixels={150}
+          minSizePixels={60}
+          onCollapse={onCollapse}
+          onExpand={onExpand}
         >
           <div className={styles.FileList}>
             <div className={styles.DirectoryEntry}>
@@ -103,7 +113,7 @@ function Content() {
               : styles.ResizeHandle
           }
         />
-        <Panel className={sharedStyles.PanelColumn} minSize={10}>
+        <Panel className={sharedStyles.PanelColumn} minSizePercentage={50}>
           <div className={styles.SourceTabs}>
             {Array.from(openFiles).map((file) => (
               <div

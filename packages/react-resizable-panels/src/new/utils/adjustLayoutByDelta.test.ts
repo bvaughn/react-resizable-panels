@@ -5,7 +5,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 1,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [50, 50],
         panelConstraints: [{}, {}],
         pivotIndices: [0, 1],
@@ -17,7 +17,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [50, 50],
         panelConstraints: [{}, {}],
         pivotIndices: [0, 1],
@@ -26,7 +26,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [50, 50],
         panelConstraints: [{}, {}],
         pivotIndices: [0, 1],
@@ -38,7 +38,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [50, 50],
         panelConstraints: [
           {
@@ -59,7 +59,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [50, 50],
         panelConstraints: [
           {},
@@ -78,7 +78,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 30,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [50, 50],
         panelConstraints: [
           {},
@@ -112,11 +112,113 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 75]);
   });
 
+  // Edge case
+  // Expanding from a collapsed state to less than the min size
+  it("[1++,2]", () => {
+    // collapsed 4%, min size 6%, max size 15%
+    expect(
+      adjustLayoutByDelta({
+        delta: 1,
+        groupSizePixels: 1_000,
+        layout: [4, 96],
+        panelConstraints: [
+          {
+            collapsedSizePixels: 40,
+            collapsible: true,
+            defaultSizePixels: 150,
+            maxSizePixels: 150,
+            minSizePixels: 60,
+          },
+          {
+            minSizePercentage: 50,
+          },
+        ],
+        pivotIndices: [0, 1],
+      })
+    ).toEqual([6, 94]);
+  });
+
+  // Edge case
+  // Expanding from a collapsed state to greater than the max size
+  it("[1++,2]", () => {
+    // collapsed 4%, min size 6%, max size 15%
+    expect(
+      adjustLayoutByDelta({
+        delta: 25,
+        groupSizePixels: 1_000,
+        layout: [4, 96],
+        panelConstraints: [
+          {
+            collapsedSizePixels: 40,
+            collapsible: true,
+            defaultSizePixels: 150,
+            maxSizePixels: 150,
+            minSizePixels: 60,
+          },
+          {
+            minSizePercentage: 50,
+          },
+        ],
+        pivotIndices: [0, 1],
+      })
+    ).toEqual([15, 85]);
+  });
+
+  // Edge case
+  // Expanding from a collapsed state to a valid size in "permissive" (default) mode
+  it("[1++,2]", () => {
+    expect(
+      adjustLayoutByDelta({
+        collapsedPanelMode: "permissive",
+        delta: 30,
+        groupSizePixels: 100,
+        layout: [5, 95],
+        panelConstraints: [
+          {
+            collapsedSizePixels: 5,
+            collapsible: true,
+            maxSizePixels: 50,
+            minSizePixels: 25,
+          },
+          {
+            minSizePercentage: 50,
+          },
+        ],
+        pivotIndices: [0, 1],
+      })
+    ).toEqual([35, 65]);
+  });
+
+  // Edge case
+  // Expanding from a collapsed state to a valid size in "snap" mode
+  it("[1++,2]", () => {
+    expect(
+      adjustLayoutByDelta({
+        collapsedPanelMode: "snap",
+        delta: 30,
+        groupSizePixels: 100,
+        layout: [5, 95],
+        panelConstraints: [
+          {
+            collapsedSizePixels: 5,
+            collapsible: true,
+            maxSizePixels: 50,
+            minSizePixels: 25,
+          },
+          {
+            minSizePercentage: 50,
+          },
+        ],
+        pivotIndices: [0, 1],
+      })
+    ).toEqual([25, 75]);
+  });
+
   it("[1--,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -1,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [50, 50],
         panelConstraints: [{}, {}],
         pivotIndices: [0, 1],
@@ -128,7 +230,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -25,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [50, 50],
         panelConstraints: [{}, {}],
         pivotIndices: [0, 1],
@@ -140,7 +242,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [50, 50],
         panelConstraints: [{}, {}],
         pivotIndices: [0, 1],
@@ -152,7 +254,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [50, 50],
         panelConstraints: [
           {
@@ -173,7 +275,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -25,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [50, 50],
         panelConstraints: [
           {
@@ -192,7 +294,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -30,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [50, 50],
         panelConstraints: [
           {
@@ -213,7 +315,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -30,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [50, 50],
         panelConstraints: [
           {
@@ -232,7 +334,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 1,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, {}, {}],
         pivotIndices: [0, 1],
@@ -244,7 +346,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, {}, {}],
         pivotIndices: [0, 1],
@@ -256,7 +358,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, {}, {}],
         pivotIndices: [0, 1],
@@ -268,7 +370,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 75,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, {}, {}],
         pivotIndices: [0, 1],
@@ -280,7 +382,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [
           { maxSizePercentage: 35 },
@@ -297,7 +399,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [
           { maxSizePercentage: 35 },
@@ -313,7 +415,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 5,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 40, 35],
         panelConstraints: [
           {},
@@ -333,7 +435,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 26,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 40, 35],
         panelConstraints: [
           {},
@@ -353,7 +455,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 80,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 40, 35],
         panelConstraints: [
           {},
@@ -373,7 +475,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -1,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, {}, {}],
         pivotIndices: [0, 1],
@@ -385,7 +487,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -25,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, {}, {}],
         pivotIndices: [0, 1],
@@ -397,7 +499,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -1,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{ minSizePercentage: 20 }, {}, {}],
         pivotIndices: [0, 1],
@@ -409,7 +511,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{ minSizePercentage: 20 }, {}, {}],
         pivotIndices: [0, 1],
@@ -421,7 +523,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -5,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [
           {
@@ -439,7 +541,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -20,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [
           {
@@ -457,7 +559,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [
           {
@@ -477,7 +579,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -20,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [
           {
@@ -497,7 +599,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -20,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [45, 50, 5],
         panelConstraints: [
           {},
@@ -519,7 +621,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -1,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, {}, {}],
         pivotIndices: [1, 2],
@@ -531,7 +633,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -25,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, {}, {}],
         pivotIndices: [1, 2],
@@ -543,7 +645,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, {}, {}],
         pivotIndices: [1, 2],
@@ -555,7 +657,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -75,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, {}, {}],
         pivotIndices: [1, 2],
@@ -567,7 +669,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 5,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, {}, { minSizePercentage: 15 }],
         pivotIndices: [1, 2],
@@ -579,7 +681,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 20,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, {}, { minSizePercentage: 15 }],
         pivotIndices: [1, 2],
@@ -591,7 +693,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 5,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [
           {},
@@ -607,7 +709,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 10,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [
           {},
@@ -623,7 +725,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 1,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, {}, {}],
         pivotIndices: [1, 2],
@@ -635,7 +737,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, {}, {}],
         pivotIndices: [1, 2],
@@ -647,7 +749,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -20,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, { minSizePercentage: 40 }, {}],
         pivotIndices: [1, 2],
@@ -659,7 +761,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [{}, {}, { maxSizePercentage: 30 }],
         pivotIndices: [1, 2],
@@ -671,7 +773,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -35,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [
           {},
@@ -691,7 +793,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -60,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 50, 25],
         panelConstraints: [
           {
@@ -711,7 +813,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 1,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [0, 1],
@@ -723,7 +825,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [0, 1],
@@ -735,7 +837,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [0, 1],
@@ -747,7 +849,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 75,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [0, 1],
@@ -759,7 +861,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{ maxSizePercentage: 35 }, {}, {}, {}],
         pivotIndices: [0, 1],
@@ -771,7 +873,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 100,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {},
@@ -788,7 +890,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 10,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {},
@@ -817,7 +919,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 40,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {},
@@ -846,7 +948,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 100,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {},
@@ -875,7 +977,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -1,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [0, 1],
@@ -887,7 +989,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -25,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [0, 1],
@@ -899,7 +1001,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{ minSizePercentage: 20 }, {}, {}, {}],
         pivotIndices: [0, 1],
@@ -911,7 +1013,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -25,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, { maxSizePercentage: 35 }, {}, {}],
         pivotIndices: [0, 1],
@@ -923,7 +1025,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {
@@ -944,7 +1046,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {
@@ -971,7 +1073,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {
@@ -998,7 +1100,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {
@@ -1019,7 +1121,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {
@@ -1040,7 +1142,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 10,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [1, 2],
@@ -1052,7 +1154,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 30,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [1, 2],
@@ -1064,7 +1166,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [1, 2],
@@ -1076,7 +1178,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, { maxSizePercentage: 35 }, {}, {}],
         pivotIndices: [1, 2],
@@ -1088,7 +1190,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, { minSizePercentage: 20 }, {}],
         pivotIndices: [1, 2],
@@ -1100,7 +1202,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 10,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {},
@@ -1121,7 +1223,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 30,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {},
@@ -1142,7 +1244,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {},
@@ -1163,7 +1265,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -25,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [1, 2],
@@ -1175,7 +1277,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [1, 2],
@@ -1187,7 +1289,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, { minSizePercentage: 20 }, {}, {}],
         pivotIndices: [1, 2],
@@ -1199,7 +1301,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{ minSizePercentage: 20 }, {}, {}, {}],
         pivotIndices: [1, 2],
@@ -1211,7 +1313,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           { minSizePercentage: 20 },
@@ -1228,7 +1330,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -5,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {
@@ -1249,7 +1351,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {
@@ -1270,7 +1372,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {},
@@ -1291,7 +1393,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 10,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [2, 3],
@@ -1303,7 +1405,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 30,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [2, 3],
@@ -1315,7 +1417,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 30,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, { maxSizePercentage: 40 }, {}],
         pivotIndices: [2, 3],
@@ -1327,7 +1429,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 30,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, { minSizePercentage: 10 }],
         pivotIndices: [2, 3],
@@ -1339,7 +1441,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 5,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {},
@@ -1360,7 +1462,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {},
@@ -1381,7 +1483,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [2, 3],
@@ -1393,7 +1495,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -40,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [2, 3],
@@ -1405,7 +1507,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -100,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, {}],
         pivotIndices: [2, 3],
@@ -1417,7 +1519,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           { minSizePercentage: 10 },
@@ -1434,7 +1536,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, {}, {}, { maxSizePercentage: 40 }],
         pivotIndices: [2, 3],
@@ -1446,7 +1548,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [{}, { minSizePercentage: 5 }, {}, {}],
         pivotIndices: [2, 3],
@@ -1458,7 +1560,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -100,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {
@@ -1487,7 +1589,7 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -100,
-        groupSizePixels: NaN,
+        groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
           {
@@ -1509,6 +1611,8 @@ describe("adjustLayoutByDelta", () => {
   });
 
   // TODO expandToSize after collapsed
+
+  // TODO Infinite loop check
 
   // TODO Invalid pixel constraints (min too large, max too small) should recover by recomputing base?
 });

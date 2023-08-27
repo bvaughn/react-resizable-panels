@@ -1,5 +1,7 @@
+import { PRECISION } from "../../constants";
+import { PanelConstraints } from "../Panel";
 import { computePercentagePanelConstraints } from "./computePercentagePanelConstraints";
-import { PanelConstraints } from "./types";
+import { fuzzyCompareNumbers } from "./fuzzyCompareNumbers";
 
 // Panel size must be in percentages; pixel values should be pre-converted
 export function resizePanel({
@@ -23,7 +25,7 @@ export function resizePanel({
     );
 
   if (minSizePercentage != null) {
-    if (size < minSizePercentage) {
+    if (fuzzyCompareNumbers(size, minSizePercentage) < 0) {
       if (collapsible) {
         size = collapsedSizePercentage;
       } else {

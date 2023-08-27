@@ -1,32 +1,34 @@
-import { fuzzyCompareNumbers } from "./fuzzyCompareNumbers";
+import { fuzzyNumbersEqual } from "./fuzzyNumbersEqual";
 import { resizePanel } from "./resizePanel";
-import { PanelConstraints } from "./types";
+import { PanelConstraints } from "../Panel";
 
 // All units must be in percentages; pixel values should be pre-converted
 export function validatePanelGroupLayout({
   groupSizePixels,
-  layout,
+  layout: prevLayout,
   panelConstraints,
 }: {
   groupSizePixels: number;
   layout: number[];
   panelConstraints: PanelConstraints[];
 }): number[] {
+  const nextLayout = [...prevLayout];
+
   // Validate layout expectations
-  if (layout.length !== panelConstraints.length) {
+  if (nextLayout.length !== panelConstraints.length) {
     throw Error(
-      `Invalid ${panelConstraints.length} panel layout: ${layout
+      `Invalid ${panelConstraints.length} panel layout: ${nextLayout
         .map((size) => `${size}%`)
         .join(", ")}`
     );
   } else if (
-    !fuzzyCompareNumbers(
-      layout.reduce((accumulated, current) => accumulated + current, 0),
+    !fuzzyNumbersEqual(
+      nextLayout.reduce((accumulated, current) => accumulated + current, 0),
       100
     )
   ) {
     throw Error(
-      `Invalid layout total size: ${layout
+      `Invalid layout total size: ${nextLayout
         .map((size) => `${size}%`)
         .join(", ")}`
     );
@@ -36,7 +38,7 @@ export function validatePanelGroupLayout({
 
   // First pass: Validate the proposed layout given each panel's constraints
   for (let index = 0; index < panelConstraints.length; index++) {
-    const unsafeSize = layout[index]!;
+    const unsafeSize = nextLayout[index]!;
 
     const safeSize = resizePanel({
       groupSizePixels,
@@ -48,15 +50,15 @@ export function validatePanelGroupLayout({
     if (unsafeSize != safeSize) {
       remainingSize += unsafeSize - safeSize;
 
-      layout[index] = safeSize;
+      nextLayout[index] = safeSize;
     }
   }
 
   // If there is additional, left over space, assign it to any panel(s) that permits it
   // (It's not worth taking multiple additional passes to evenly distribute)
-  if (!fuzzyCompareNumbers(remainingSize, 0)) {
+  if (!fuzzyNumbersEqual(remainingSize, 0)) {
     for (let index = 0; index < panelConstraints.length; index++) {
-      const prevSize = layout[index]!;
+      const prevSize = nextLayout[index]!;
       const unsafeSize = prevSize + remainingSize;
       const safeSize = resizePanel({
         groupSizePixels,
@@ -67,15 +69,15 @@ export function validatePanelGroupLayout({
 
       if (prevSize !== safeSize) {
         remainingSize -= safeSize - prevSize;
-        layout[index] = safeSize;
+        nextLayout[index] = safeSize;
 
         // Once we've used up the remainder, bail
-        if (fuzzyCompareNumbers(remainingSize, 0)) {
+        if (fuzzyNumbersEqual(remainingSize, 0)) {
           break;
         }
       }
     }
   }
 
-  return layout;
+  return nextLayout;
 }

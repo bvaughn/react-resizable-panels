@@ -1,8 +1,11 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import { Panel, PanelGroup } from "react-resizable-panels";
+import {
+  new_Panel as Panel,
+  new_PanelGroup as PanelGroup,
+} from "react-resizable-panels";
 
 import Code from "../../components/Code";
-import ResizeHandle from "../../components/ResizeHandle";
+import { new_ResizeHandle as ResizeHandle } from "../../components/ResizeHandle";
 
 import Example from "./Example";
 import styles from "./shared.module.css";
@@ -54,7 +57,11 @@ function Content() {
         className={styles.PanelGroup}
         direction={useVerticalLayout ? "vertical" : "horizontal"}
       >
-        <Panel className={styles.PanelColumn} defaultSize={50} minSize={25}>
+        <Panel
+          className={styles.PanelColumn}
+          defaultSizePercentage={50}
+          minSizePercentage={25}
+        >
           <div
             className={styles.Centered}
             style={{ backgroundColor: "var(--color-background-code)" }}
@@ -68,7 +75,11 @@ function Content() {
           </div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
-        <Panel className={styles.PanelColumn} defaultSize={50} minSize={25}>
+        <Panel
+          className={styles.PanelColumn}
+          defaultSizePercentage={50}
+          minSizePercentage={25}
+        >
           <div
             className={styles.Centered}
             style={{ backgroundColor: "var(--color-background-code)" }}

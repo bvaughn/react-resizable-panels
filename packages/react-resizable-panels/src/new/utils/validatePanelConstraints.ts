@@ -1,6 +1,6 @@
 import { isDevelopment } from "#is-development";
 import { computePercentagePanelConstraints } from "./computePercentagePanelConstraints";
-import { PanelConstraints } from "./types";
+import { PanelConstraints } from "../Panel";
 
 export function validatePanelConstraints({
   panelConstraints,
