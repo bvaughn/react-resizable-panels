@@ -1,12 +1,10 @@
-import { getResizeHandle, getResizeHandlesForGroup } from "../../utils/group";
+import { getResizeHandleElementIndex } from "./dom/getResizeHandleElementIndex";
 
 export function determinePivotIndices(
   groupId: string,
   dragHandleId: string
 ): [indexBefore: number, indexAfter: number] {
-  const handle = getResizeHandle(dragHandleId);
-  const handles = getResizeHandlesForGroup(groupId);
-  const index = handle ? handles.indexOf(handle) : -1;
+  const index = getResizeHandleElementIndex(groupId, dragHandleId);
 
-  return [index, index + 1];
+  return index != null ? [index, index + 1] : [-1, -1];
 }

@@ -1,6 +1,7 @@
-import { getPanelGroup, getResizeHandle } from "../../utils/group";
 import { DragState, ResizeEvent } from "../PanelGroupContext";
 import { Direction } from "../types";
+import { getPanelGroupElement } from "./dom/getPanelGroupElement";
+import { getResizeHandleElement } from "./dom/getResizeHandleElement";
 import { getResizeEventCursorPosition } from "./getResizeEventCursorPosition";
 
 export function calculateDragOffsetPercentage(
@@ -11,14 +12,14 @@ export function calculateDragOffsetPercentage(
 ): number {
   const isHorizontal = direction === "horizontal";
 
-  const handleElement = getResizeHandle(dragHandleId)!;
+  const handleElement = getResizeHandleElement(dragHandleId)!;
   const groupId = handleElement.getAttribute("data-panel-group-id")!;
 
   let { initialCursorPosition } = initialDragState;
 
   const cursorPosition = getResizeEventCursorPosition(direction, event);
 
-  const groupElement = getPanelGroup(groupId)!;
+  const groupElement = getPanelGroupElement(groupId)!;
   const groupRect = groupElement.getBoundingClientRect();
   const groupSizeInPixels = isHorizontal ? groupRect.width : groupRect.height;
 

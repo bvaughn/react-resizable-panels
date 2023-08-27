@@ -1,8 +1,8 @@
-import { getPanelGroup } from "../../utils/group";
 import { DragState, ResizeEvent } from "../PanelGroupContext";
 import { Direction } from "../types";
-import { isKeyDown } from "./events";
 import { calculateDragOffsetPercentage } from "./calculateDragOffsetPercentage";
+import { getPanelGroupElement } from "./dom/getPanelGroupElement";
+import { isKeyDown } from "./events";
 
 // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/movementX
 export function calculateDeltaPercentage(
@@ -15,7 +15,7 @@ export function calculateDeltaPercentage(
   if (isKeyDown(event)) {
     const isHorizontal = direction === "horizontal";
 
-    const groupElement = getPanelGroup(groupId)!;
+    const groupElement = getPanelGroupElement(groupId)!;
     const rect = groupElement.getBoundingClientRect();
     const groupSizeInPixels = isHorizontal ? rect.width : rect.height;
 

@@ -3,7 +3,6 @@ import useIsomorphicLayoutEffect from "../hooks/useIsomorphicEffect";
 import useUniqueId from "../hooks/useUniqueId";
 import { resetGlobalCursorStyle, setGlobalCursorStyle } from "../utils/cursor";
 import debounce from "../utils/debounce";
-import { getAvailableGroupSizePixels, getResizeHandle } from "../utils/group";
 import {
   CSSProperties,
   ElementType,
@@ -26,6 +25,8 @@ import { computePanelFlexBoxStyle } from "./utils/computePanelFlexBoxStyle";
 import { computePercentagePanelConstraints } from "./utils/computePercentagePanelConstraints";
 import { convertPercentageToPixels } from "./utils/convertPercentageToPixels";
 import { determinePivotIndices } from "./utils/determinePivotIndices";
+import { calculateAvailablePanelSizeInPixels } from "./utils/dom/calculateAvailablePanelSizeInPixels";
+import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
 import { isMouseEvent, isTouchEvent } from "./utils/events";
 import { getResizeEventCursorPosition } from "./utils/getResizeEventCursorPosition";
 import { initializeDefaultStorage } from "./utils/initializeDefaultStorage";
@@ -147,7 +148,7 @@ export function PanelGroup({
       unsafeLayout = loadPanelLayout(autoSaveId, panelDataArray, storage);
     }
 
-    const groupSizePixels = getAvailableGroupSizePixels(groupId);
+    const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
 
     if (unsafeLayout == null) {
       unsafeLayout = calculateDefaultLayout({
@@ -363,7 +364,7 @@ export function PanelGroup({
         delta = -delta;
       }
 
-      const groupSizePixels = getAvailableGroupSizePixels(groupId);
+      const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
       const panelConstraints = panelDataArray.map(
         (panelData) => panelData.constraints
       );
@@ -448,7 +449,7 @@ export function PanelGroup({
     (dragHandleId: string, event: ResizeEvent) => {
       const { direction, layout } = committedValuesRef.current;
 
-      const handleElement = getResizeHandle(dragHandleId)!;
+      const handleElement = getResizeHandleElement(dragHandleId)!;
 
       const initialCursorPosition = getResizeEventCursorPosition(
         direction,
@@ -561,7 +562,7 @@ function panelDataHelper(
   const panelIndex = panelDataArray.indexOf(panelData);
   const panelConstraints = panelConstraintsArray[panelIndex];
 
-  const groupSizePixels = getAvailableGroupSizePixels(groupId);
+  const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
 
   const percentagePanelConstraints = computePercentagePanelConstraints(
     panelConstraintsArray,
