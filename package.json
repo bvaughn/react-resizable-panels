@@ -21,6 +21,8 @@
     "typescript:watch": "tsc --noEmit --watch"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-nullish-coalescing-operator": "7.18.6",
+    "@babel/plugin-proposal-optional-chaining": "7.21.0",
     "@babel/preset-typescript": "^7.21.5",
     "@playwright/test": "^1.35.0",
     "@types/node": "^18.15.11",
