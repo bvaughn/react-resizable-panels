@@ -1,12 +1,12 @@
 import { ChangeEvent, FormEvent, RefObject, useRef, useState } from "react";
 import {
-  ImperativePanelHandle,
-  Panel,
-  PanelGroup,
+  new_ImperativePanelHandle as ImperativePanelHandle,
+  new_Panel as Panel,
+  new_PanelGroup as PanelGroup,
 } from "react-resizable-panels";
 import Icon from "../../components/Icon";
 
-import ResizeHandle from "../../components/ResizeHandle";
+import { new_ResizeHandle as ResizeHandle } from "../../components/ResizeHandle";
 
 import Example from "./Example";
 import styles from "./ImperativePanelApi.module.css";
@@ -212,11 +212,11 @@ function Content({
           <Panel
             className={sharedStyles.PanelRow}
             collapsible
-            defaultSize={sizes.left}
+            defaultSizePercentage={sizes.left}
             id="left"
-            maxSize={30}
-            minSize={10}
-            onResize={(left: number) => onResize({ left })}
+            maxSizePercentage={30}
+            minSizePercentage={10}
+            onResize={({ sizePercentage: left }) => onResize({ left })}
             order={1}
             ref={leftPanelRef}
           >
@@ -229,9 +229,9 @@ function Content({
             className={sharedStyles.PanelRow}
             collapsible={true}
             id="middle"
-            maxSize={100}
-            minSize={10}
-            onResize={(middle: number) => onResize({ middle })}
+            maxSizePercentage={100}
+            minSizePercentage={10}
+            onResize={({ sizePercentage: middle }) => onResize({ middle })}
             order={2}
             ref={middlePanelRef}
           >
@@ -243,11 +243,11 @@ function Content({
           <Panel
             className={sharedStyles.PanelRow}
             collapsible
-            defaultSize={sizes.right}
+            defaultSizePercentage={sizes.right}
             id="right"
-            maxSize={100}
-            minSize={10}
-            onResize={(right: number) => onResize({ right })}
+            maxSizePercentage={100}
+            minSizePercentage={10}
+            onResize={({ sizePercentage: right }) => onResize({ right })}
             order={3}
             ref={rightPanelRef}
           >

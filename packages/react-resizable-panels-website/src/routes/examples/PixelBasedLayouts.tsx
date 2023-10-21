@@ -22,15 +22,16 @@ export default function PixelBasedLayouts() {
         →<span className={exampleStyles.Title}>Pixel based layouts</span>
       </h1>
       <p>
-        Resizable panels typically use percentage-based layout constraints, but
-        pixel units are also supported via the <code>units</code> prop. The
-        example below shows a horizontal panel group where the first panel is
-        limited to a range of 100-200 pixels.
+        Resizable panels can specific either <strong>percentage-based</strong>{" "}
+        or <strong>pixel-based</strong> layout constraints, although
+        percentage-based constraints are generally recommended for performance
+        purposes. The example below shows a horizontal panel group where the
+        first panel is limited to a range of 100-200 pixels.
       </p>
       <p className={sharedStyles.WarningBlock}>
         <Icon className={sharedStyles.WarningIcon} type="warning" />
-        Pixel units should only be used when necessary because they require more
-        complex layout logic.
+        Pixel units should only be used when necessary because they require the
+        use of a <code>ResizerObserver</code>.
       </p>
       <div className={exampleStyles.ExampleContainer}>
         <div className={sharedStyles.PanelGroupWrapper} data-short>
@@ -139,8 +140,8 @@ function Size({
 }
 
 const CODE_HOOK = `
-<PanelGroup direction="horizontal" units="pixels">
-  <Panel minSize={100} maxSize={200} />
+<PanelGroup direction="horizontal">
+  <Panel minSizePixels={100} maxSizePixels={200} />
   <PanelResizeHandle />
   <Panel />
   <PanelResizeHandle />
@@ -149,11 +150,11 @@ const CODE_HOOK = `
 `;
 
 const CODE_HOOK_COLLAPSIBLE = `
-<PanelGroup direction="horizontal" units="pixels">
+<PanelGroup direction="horizontal">
   <Panel />
   <PanelResizeHandle />
   <Panel />
   <PanelResizeHandle />
-  <Panel collapsible={true} collapsedSize={75} minSize={100} maxSize={200} />
+  <Panel collapsible={true} collapsedSizePixels={75} minSizePixels={100} maxSizePixels={200} />
 </PanelGroup>
 `;

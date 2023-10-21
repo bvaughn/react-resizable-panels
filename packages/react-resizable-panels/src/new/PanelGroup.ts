@@ -6,17 +6,20 @@ import debounce from "../utils/debounce";
 import {
   CSSProperties,
   ElementType,
+  ForwardedRef,
   PropsWithChildren,
   createElement,
+  forwardRef,
   useCallback,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
   useState,
 } from "../vendor/react";
 import { PanelData } from "./Panel";
 import { DragState, PanelGroupContext, ResizeEvent } from "./PanelGroupContext";
-import { Direction } from "./types";
+import { Direction, MixedSizes } from "./types";
 import { adjustLayoutByDelta } from "./utils/adjustLayoutByDelta";
 import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
 import { calculateDeltaPercentage } from "./utils/calculateDeltaPercentage";
@@ -27,7 +30,7 @@ import { convertPercentageToPixels } from "./utils/convertPercentageToPixels";
 import { determinePivotIndices } from "./utils/determinePivotIndices";
 import { calculateAvailablePanelSizeInPixels } from "./utils/dom/calculateAvailablePanelSizeInPixels";
 import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
-import { isMouseEvent, isTouchEvent } from "./utils/events";
+import { isKeyDown, isMouseEvent, isTouchEvent } from "./utils/events";
 import { getResizeEventCursorPosition } from "./utils/getResizeEventCursorPosition";
 import { initializeDefaultStorage } from "./utils/initializeDefaultStorage";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
@@ -36,6 +39,12 @@ import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 // TODO Move group/DOM helpers into new package
 
 // TODO Use ResizeObserver (but only if any Panels declare pixels units)
+
+export type ImperativePanelGroupHandle = {
+  getId: () => string;
+  getLayout: () => MixedSizes[];
+  setLayout: (layout: Partial<MixedSizes>[]) => void;
+};
 
 export type PanelGroupStorage = {
   getItem(name: string): string | null;
@@ -73,17 +82,20 @@ const debounceMap: {
   [key: string]: typeof savePanelGroupLayout;
 } = {};
 
-export function PanelGroup({
+function PanelGroupWithForwardedRef({
   autoSaveId,
   children,
   className: classNameFromProps = "",
   direction,
+  forwardedRef,
   id: idFromProps,
   onLayout,
   storage = defaultStorage,
   style: styleFromProps,
   tagName: Type = "div",
-}: PanelGroupProps) {
+}: PanelGroupProps & {
+  forwardedRef: ForwardedRef<ImperativePanelGroupHandle>;
+}) {
   const groupId = useUniqueId(idFromProps);
 
   const [dragState, setDragState] = useState<DragState | null>(null);
@@ -105,6 +117,21 @@ export function PanelGroup({
     layout,
     panelDataArray,
   });
+
+  useImperativeHandle(
+    forwardedRef,
+    () => ({
+      getId: () => groupId,
+      getLayout: () => {
+        // TODO
+        return [];
+      },
+      setLayout: (layout: Partial<MixedSizes>[]) => {
+        // TODO
+      },
+    }),
+    [groupId]
+  );
 
   useIsomorphicLayoutEffect(() => {
     committedValuesRef.current.direction = direction;
@@ -196,12 +223,14 @@ export function PanelGroup({
             layout,
             panelConstraints: panelConstraintsArray,
             pivotIndices,
+            trigger: "imperative-api",
           });
 
           if (!compareLayouts(layout, nextLayout)) {
             setLayout(nextLayout);
 
             // TODO Callbacks and stuff (put in helper function that takes prevLayout, nextLayout)
+            // onLayout()
           }
         }
       }
@@ -236,6 +265,7 @@ export function PanelGroup({
             layout,
             panelConstraints: panelConstraintsArray,
             pivotIndices,
+            trigger: "imperative-api",
           });
 
           if (!compareLayouts(layout, nextLayout)) {
@@ -370,12 +400,12 @@ export function PanelGroup({
       );
 
       const nextLayout = adjustLayoutByDelta({
-        collapsedPanelMode: "snap",
         delta,
         groupSizePixels,
         layout: initialLayout ?? prevLayout,
         panelConstraints,
         pivotIndices,
+        trigger: isKeyDown(event) ? "keyboard" : "mouse-or-touch",
       });
 
       const layoutChanged = !compareLayouts(prevLayout, nextLayout);
@@ -434,6 +464,7 @@ export function PanelGroup({
         layout,
         panelConstraints: panelConstraintsArray,
         pivotIndices,
+        trigger: "imperative-api",
       });
 
       if (!compareLayouts(layout, nextLayout)) {
@@ -548,6 +579,16 @@ export function PanelGroup({
     })
   );
 }
+
+export const PanelGroup = forwardRef<
+  ImperativePanelGroupHandle,
+  PanelGroupProps
+>((props: PanelGroupProps, ref: ForwardedRef<ImperativePanelGroupHandle>) =>
+  createElement(PanelGroupWithForwardedRef, { ...props, forwardedRef: ref })
+);
+
+PanelGroupWithForwardedRef.displayName = "PanelGroup";
+PanelGroup.displayName = "forwardRef(PanelGroup)";
 
 function panelDataHelper(
   groupId: string,

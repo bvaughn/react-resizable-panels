@@ -4,7 +4,9 @@ import { PanelResizeHandle } from "./PanelResizeHandle";
 
 // TEMP
 import { Panel as new_Panel } from "./new/Panel";
+import type { ImperativePanelHandle as new_ImperativePanelHandle } from "./new/Panel";
 import { PanelGroup as new_PanelGroup } from "./new/PanelGroup";
+import type { ImperativePanelGroupHandle as new_ImperativePanelGroupHandle } from "./new/PanelGroup";
 import { PanelResizeHandle as new_PanelResizeHandle } from "./new/PanelResizeHandle";
 
 import type { ImperativePanelHandle, PanelProps } from "./Panel";
@@ -43,6 +45,8 @@ export {
   getAvailableGroupSizePixels,
 
   // TEMP
+  new_ImperativePanelGroupHandle,
+  new_ImperativePanelHandle,
   new_Panel,
   new_PanelGroup,
   new_PanelResizeHandle,

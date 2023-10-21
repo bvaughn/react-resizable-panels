@@ -8,19 +8,19 @@ let isCheckingForInfiniteLoop = false;
 
 // All units must be in percentages; pixel values should be pre-converted
 export function adjustLayoutByDelta({
-  collapsedPanelMode = "permissive",
   delta,
   groupSizePixels,
   layout: prevLayout,
   panelConstraints,
   pivotIndices,
+  trigger,
 }: {
-  collapsedPanelMode?: "permissive" | "snap";
   delta: number;
   groupSizePixels: number;
   layout: number[];
   panelConstraints: PanelConstraints[];
   pivotIndices: number[];
+  trigger: "imperative-api" | "keyboard" | "mouse-or-touch";
 }): number[] {
   if (fuzzyNumbersEqual(delta, 0)) {
     return prevLayout;
@@ -57,12 +57,11 @@ export function adjustLayoutByDelta({
 
     let unsafeSize = initialSize + Math.abs(delta);
     if (isCollapsed) {
-      if (fuzzyCompareNumbers(unsafeSize, maxSizePercentage) > 0) {
-        unsafeSize = maxSizePercentage;
-      } else if (fuzzyCompareNumbers(unsafeSize, minSizePercentage) < 0) {
-        unsafeSize = minSizePercentage;
-      } else if (collapsedPanelMode === "snap") {
-        unsafeSize = minSizePercentage;
+      switch (trigger) {
+        case "keyboard":
+          if (minSizePercentage > unsafeSize) {
+            unsafeSize = minSizePercentage;
+          }
       }
     }
 
@@ -192,6 +191,7 @@ export function adjustLayoutByDelta({
             layout: prevLayout,
             panelConstraints,
             pivotIndices,
+            trigger,
           });
         } catch (error) {
           if (error instanceof RangeError) {

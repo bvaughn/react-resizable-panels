@@ -1,23 +1,16 @@
-import { RefObject, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import type { new_ImperativePanelGroupHandle as ImperativePanelGroupHandle } from "react-resizable-panels";
 import {
-  ImperativePanelHandle,
-  Panel,
-  PanelGroup,
+  new_Panel as Panel,
+  new_PanelGroup as PanelGroup,
 } from "react-resizable-panels";
 
-import ResizeHandle from "../../components/ResizeHandle";
+import { new_ResizeHandle as ResizeHandle } from "../../components/ResizeHandle";
 
+import Code from "../../components/Code";
 import Example from "./Example";
 import styles from "./ImperativePanelGroupApi.module.css";
 import sharedStyles from "./shared.module.css";
-import Code from "../../components/Code";
-import { ImperativePanelGroupHandle } from "react-resizable-panels";
-
-type Sizes = {
-  left: number;
-  middle: number;
-  right: number;
-};
 
 export default function ImperativePanelGroupApiRoute() {
   return (
@@ -68,7 +61,7 @@ function Content() {
   const resetLayout = () => {
     const panelGroup = panelGroupRef.current;
     if (panelGroup) {
-      panelGroup.setLayout([50, 50]);
+      panelGroup.setLayout([{ sizePercentage: 50 }, { sizePercentage: 50 }]);
     }
   };
 
@@ -87,13 +80,13 @@ function Content() {
           onLayout={onLayout}
           ref={panelGroupRef}
         >
-          <Panel className={sharedStyles.PanelRow} minSize={10}>
+          <Panel className={sharedStyles.PanelRow} minSizePercentage={10}>
             <div className={sharedStyles.Centered}>
               left: {Math.round(sizes[0])}
             </div>
           </Panel>
           <ResizeHandle className={sharedStyles.ResizeHandle} />
-          <Panel className={sharedStyles.PanelRow} minSize={10}>
+          <Panel className={sharedStyles.PanelRow} minSizePercentage={10}>
             <div className={sharedStyles.Centered}>
               right: {Math.round(sizes[1])}
             </div>
