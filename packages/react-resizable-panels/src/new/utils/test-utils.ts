@@ -1,5 +1,21 @@
 const util = require("util");
 
+export function expectToBeCloseToArray(
+  actualNumbers: number[],
+  expectedNumbers: number[]
+) {
+  expect(actualNumbers.length).toBe(expectedNumbers.length);
+
+  try {
+    actualNumbers.forEach((actualNumber, index) => {
+      const expectedNumber = expectedNumbers[index];
+      expect(actualNumber).toBeCloseTo(expectedNumber, 1);
+    });
+  } catch (error) {
+    expect(actualNumbers).toEqual(expectedNumbers);
+  }
+}
+
 export function verifyExpectedWarnings(
   callback: Function,
   ...expectedMessages: string[]

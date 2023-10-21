@@ -22,7 +22,7 @@ import { PanelData } from "./Panel";
 import { DragState, PanelGroupContext, ResizeEvent } from "./PanelGroupContext";
 import { Direction, MixedSizes } from "./types";
 import { adjustLayoutByDelta } from "./utils/adjustLayoutByDelta";
-import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
+import { calculateUnsafeDefaultLayout } from "./utils/calculateUnsafeDefaultLayout";
 import { calculateDeltaPercentage } from "./utils/calculateDeltaPercentage";
 import { callPanelCallbacks } from "./utils/callPanelCallbacks";
 import { compareLayouts } from "./utils/compareLayouts";
@@ -241,7 +241,7 @@ function PanelGroupWithForwardedRef({
     const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
 
     if (unsafeLayout == null) {
-      unsafeLayout = calculateDefaultLayout({
+      unsafeLayout = calculateUnsafeDefaultLayout({
         groupSizePixels,
         panelDataArray,
       });

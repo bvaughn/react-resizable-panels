@@ -1,9 +1,7 @@
 import { PanelData } from "../Panel";
 import { computePercentagePanelConstraints } from "./computePercentagePanelConstraints";
 
-// TODO Add basic unit tests for this
-
-export function calculateDefaultLayout({
+export function calculateUnsafeDefaultLayout({
   groupSizePixels,
   panelDataArray,
 }: {
