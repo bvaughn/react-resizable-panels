@@ -3,6 +3,7 @@ import { PanelGroup } from "./PanelGroup";
 import { PanelResizeHandle } from "./PanelResizeHandle";
 
 // TEMP
+import type { MixedSizes } from "./new/types";
 import { Panel as new_Panel } from "./new/Panel";
 import type { ImperativePanelHandle as new_ImperativePanelHandle } from "./new/Panel";
 import { PanelGroup as new_PanelGroup } from "./new/PanelGroup";
@@ -26,6 +27,7 @@ export {
   // TypeScript types
   ImperativePanelGroupHandle,
   ImperativePanelHandle,
+  MixedSizes,
   PanelOnCollapse,
   PanelOnResize,
   PanelGroupOnLayout,

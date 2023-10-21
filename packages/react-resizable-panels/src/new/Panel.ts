@@ -16,13 +16,10 @@ import { MixedSizes } from "./types";
 
 export type OnCollapse = () => void;
 export type OnExpand = () => void;
-export type OnResize = ({
-  sizePercentage,
-  sizePixels,
-}: {
-  sizePercentage: number;
-  sizePixels: number;
-}) => void;
+export type OnResize = (
+  mixedSizes: MixedSizes,
+  prevMixedSizes: MixedSizes
+) => void;
 
 export type PanelCallbacks = {
   onCollapse?: OnCollapse;

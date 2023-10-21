@@ -1,5 +1,8 @@
 import { useRef, useState } from "react";
-import type { new_ImperativePanelGroupHandle as ImperativePanelGroupHandle } from "react-resizable-panels";
+import type {
+  MixedSizes,
+  new_ImperativePanelGroupHandle as ImperativePanelGroupHandle,
+} from "react-resizable-panels";
 import {
   new_Panel as Panel,
   new_PanelGroup as PanelGroup,
@@ -54,8 +57,8 @@ function Content() {
 
   const panelGroupRef = useRef<ImperativePanelGroupHandle>(null);
 
-  const onLayout = (sizes: number[]) => {
-    setSizes(sizes);
+  const onLayout = (mixedSizes: MixedSizes[]) => {
+    setSizes(mixedSizes.map((mixedSize) => mixedSize.sizePercentage));
   };
 
   const resetLayout = () => {
