@@ -169,12 +169,10 @@ function PanelGroupWithForwardedRef({
   const devWarningsRef = useRef<{
     didLogDefaultSizeWarning: boolean;
     didLogIdAndOrderWarning: boolean;
-    didLogInvalidLayoutWarning: boolean;
     prevPanelIds: string[];
   }>({
     didLogDefaultSizeWarning: false,
     didLogIdAndOrderWarning: false,
-    didLogInvalidLayoutWarning: false,
     prevPanelIds: [],
   });
 

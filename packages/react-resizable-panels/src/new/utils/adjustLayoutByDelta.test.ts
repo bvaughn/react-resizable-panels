@@ -1780,9 +1780,5 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([20, 5, 20, 55]);
   });
 
-  // TODO expandToSize after collapsed
-
-  // TODO Infinite loop check
-
   // TODO Invalid pixel constraints (min too large, max too small) should recover by recomputing base?
 });

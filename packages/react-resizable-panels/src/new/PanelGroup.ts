@@ -1,3 +1,4 @@
+import { isBrowser } from "#is-browser";
 import { isDevelopment } from "#is-development";
 import useIsomorphicLayoutEffect from "../hooks/useIsomorphicEffect";
 import useUniqueId from "../hooks/useUniqueId";
@@ -38,8 +39,6 @@ import { getResizeEventCursorPosition } from "./utils/getResizeEventCursorPositi
 import { initializeDefaultStorage } from "./utils/initializeDefaultStorage";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
-
-// TODO Move group/DOM helpers into new package
 
 // TODO Use ResizeObserver (but only if any Panels declare pixels units)
 //      ResizeObserver should trigger validatePanelGroupLayout() and callPanelCallbacks() when size changes
@@ -127,6 +126,18 @@ function PanelGroupWithForwardedRef({
     panelDataArray,
   });
 
+  const devWarningsRef = useRef<{
+    didLogDefaultSizeWarning: boolean;
+    didLogIdAndOrderWarning: boolean;
+    didLogInvalidLayoutWarning: boolean;
+    prevPanelIds: string[];
+  }>({
+    didLogDefaultSizeWarning: false,
+    didLogIdAndOrderWarning: false,
+    didLogInvalidLayoutWarning: false,
+    prevPanelIds: [],
+  });
+
   useImperativeHandle(
     forwardedRef,
     () => ({
@@ -204,8 +215,6 @@ function PanelGroupWithForwardedRef({
     committedValuesRef.current.panelDataArray = panelDataArray;
   });
 
-  // TODO Dev warnings
-
   useEffect(() => {
     // If this panel has been configured to persist sizing information, save sizes to local storage.
     if (autoSaveId) {
@@ -273,6 +282,37 @@ function PanelGroupWithForwardedRef({
       );
     }
   }, [autoSaveId, layout, panelDataArray, storage]);
+
+  // DEV warnings
+  useEffect(() => {
+    if (isDevelopment) {
+      const { didLogIdAndOrderWarning, prevPanelIds } = devWarningsRef.current;
+
+      if (!didLogIdAndOrderWarning) {
+        const { panelDataArray } = committedValuesRef.current;
+
+        const panelIds = panelDataArray.map(({ id }) => id);
+
+        devWarningsRef.current.prevPanelIds = panelIds;
+
+        const panelsHaveChanged =
+          prevPanelIds.length > 0 && !areEqual(prevPanelIds, panelIds);
+        if (panelsHaveChanged) {
+          if (
+            panelDataArray.find(
+              ({ idIsFromProps, order }) => !idIsFromProps || order == null
+            )
+          ) {
+            devWarningsRef.current.didLogIdAndOrderWarning = true;
+
+            console.warn(
+              `WARNING: Panel id and order props recommended when panels are dynamically rendered`
+            );
+          }
+        }
+      }
+    }
+  });
 
   // External APIs are safe to memoize via committed values ref
   const collapsePanel = useCallback(
@@ -421,6 +461,26 @@ function PanelGroupWithForwardedRef({
   const getPanelStyle = useCallback(
     (panelData: PanelData) => {
       const panelIndex = panelDataArray.indexOf(panelData);
+
+      // Before mounting, Panels will not yet have registered themselves.
+      // This includes server rendering.
+      // At this point the best we can do is render everything with the same size.
+      if (panelDataArray.length === 0) {
+        if (isDevelopment) {
+          if (!devWarningsRef.current.didLogDefaultSizeWarning) {
+            if (
+              !isBrowser &&
+              panelData.constraints.defaultSizePercentage == null &&
+              panelData.constraints.defaultSizePixels == null
+            ) {
+              devWarningsRef.current.didLogDefaultSizeWarning = true;
+              console.warn(
+                `WARNING: Panel defaultSizePercentage or defaultSizePixels prop recommended to avoid layout shift after server rendering`
+              );
+            }
+          }
+        }
+      }
 
       return computePanelFlexBoxStyle({
         dragState,
