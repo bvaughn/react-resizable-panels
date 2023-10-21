@@ -1,6 +1,7 @@
 import { isDevelopment } from "#is-development";
 import useIsomorphicLayoutEffect from "../hooks/useIsomorphicEffect";
 import useUniqueId from "../hooks/useUniqueId";
+import { areEqual } from "../utils/arrays";
 import { resetGlobalCursorStyle, setGlobalCursorStyle } from "../utils/cursor";
 import debounce from "../utils/debounce";
 import {
@@ -27,6 +28,7 @@ import { compareLayouts } from "./utils/compareLayouts";
 import { computePanelFlexBoxStyle } from "./utils/computePanelFlexBoxStyle";
 import { computePercentagePanelConstraints } from "./utils/computePercentagePanelConstraints";
 import { convertPercentageToPixels } from "./utils/convertPercentageToPixels";
+import { convertPixelsToPercentage } from "./utils/convertPixelsToPercentage";
 import { determinePivotIndices } from "./utils/determinePivotIndices";
 import { calculateAvailablePanelSizeInPixels } from "./utils/dom/calculateAvailablePanelSizeInPixels";
 import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
@@ -121,16 +123,59 @@ function PanelGroupWithForwardedRef({
   useImperativeHandle(
     forwardedRef,
     () => ({
-      getId: () => groupId,
+      getId: () => committedValuesRef.current.id,
       getLayout: () => {
-        // TODO
-        return [];
+        const { id: groupId, layout } = committedValuesRef.current;
+
+        const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
+
+        return layout.map((sizePercentage) => {
+          return {
+            sizePercentage,
+            sizePixels: convertPercentageToPixels(
+              sizePercentage,
+              groupSizePixels
+            ),
+          };
+        });
       },
-      setLayout: (layout: Partial<MixedSizes>[]) => {
-        // TODO
+      setLayout: (mixedSizes: Partial<MixedSizes>[]) => {
+        const {
+          id: groupId,
+          layout: prevLayout,
+          panelDataArray,
+        } = committedValuesRef.current;
+
+        const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
+
+        const unsafeLayout = mixedSizes.map(
+          ({ sizePercentage, sizePixels }) => {
+            if (sizePercentage != null) {
+              return sizePercentage;
+            } else if (sizePixels != null) {
+              return convertPixelsToPercentage(sizePixels, groupSizePixels);
+            } else {
+              throw Error("Invalid layout");
+            }
+          }
+        );
+
+        const safeLayout = validatePanelGroupLayout({
+          groupSizePixels,
+          layout: unsafeLayout,
+          panelConstraints: panelDataArray.map(
+            (panelData) => panelData.constraints
+          ),
+        });
+
+        if (!areEqual(prevLayout, safeLayout)) {
+          setLayout(safeLayout);
+
+          // TODO Callbacks
+        }
       },
     }),
-    [groupId]
+    []
   );
 
   useIsomorphicLayoutEffect(() => {
@@ -194,7 +239,9 @@ function PanelGroupWithForwardedRef({
       ),
     });
 
-    setLayout(validatedLayout);
+    if (!areEqual(layout, validatedLayout)) {
+      setLayout(validatedLayout);
+    }
   }, [autoSaveId, layout, panelDataArray, storage]);
 
   // External APIs are safe to memoize via committed values ref
