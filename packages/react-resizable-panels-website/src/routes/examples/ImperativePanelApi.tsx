@@ -120,17 +120,17 @@ function TogglesRow({
   panelRef: RefObject<ImperativePanelHandle>;
   panelSize: number;
 }) {
-  const [size, setSize] = useState(20);
+  const [sizePercentage, setSizePercentage] = useState(20);
 
   const onInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget as HTMLInputElement;
-    setSize(parseInt(input.value));
+    setSizePercentage(parseInt(input.value));
   };
 
   const onFormSubmit = (event: FormEvent) => {
     event.preventDefault();
 
-    panelRef.current?.resize(size);
+    panelRef.current?.resize({ sizePercentage });
   };
 
   return (
@@ -164,7 +164,7 @@ function TogglesRow({
           max={100}
           size={2}
           type="number"
-          value={size}
+          value={sizePercentage}
         />
       </form>
     </div>

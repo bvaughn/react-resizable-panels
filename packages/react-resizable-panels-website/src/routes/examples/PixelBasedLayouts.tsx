@@ -1,6 +1,9 @@
-import { Panel, PanelGroup } from "react-resizable-panels";
+import {
+  new_Panel as Panel,
+  new_PanelGroup as PanelGroup,
+} from "react-resizable-panels";
 
-import ResizeHandle from "../../components/ResizeHandle";
+import { new_ResizeHandle as ResizeHandle } from "../../components/ResizeHandle";
 
 import { Link } from "react-router-dom";
 import AutoSizer from "react-virtualized-auto-sizer";
@@ -38,12 +41,11 @@ export default function PixelBasedLayouts() {
           <PanelGroup
             className={sharedStyles.PanelGroup}
             direction="horizontal"
-            units="pixels"
           >
             <Panel
               className={sharedStyles.PanelRow}
-              minSize={100}
-              maxSize={200}
+              minSizePixels={100}
+              maxSizePixels={200}
             >
               <div className={styles.AutoSizerWrapper}>
                 <Size direction="horizontal">
@@ -52,11 +54,11 @@ export default function PixelBasedLayouts() {
               </div>
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
-            <Panel className={sharedStyles.PanelRow} minSize={10}>
+            <Panel className={sharedStyles.PanelRow} minSizePixels={10}>
               <div className={sharedStyles.Centered}>middle</div>
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
-            <Panel className={sharedStyles.PanelRow} minSize={10}>
+            <Panel className={sharedStyles.PanelRow} minSizePixels={10}>
               <div className={sharedStyles.Centered}>right</div>
             </Panel>
           </PanelGroup>
@@ -79,27 +81,26 @@ export default function PixelBasedLayouts() {
           <PanelGroup
             className={sharedStyles.PanelGroup}
             direction="horizontal"
-            units="pixels"
           >
-            <Panel className={sharedStyles.PanelRow} minSize={10}>
+            <Panel className={sharedStyles.PanelRow} minSizePixels={10}>
               <div className={sharedStyles.Centered}>left</div>
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
-            <Panel className={sharedStyles.PanelRow} minSize={10}>
+            <Panel className={sharedStyles.PanelRow} minSizePixels={10}>
               <div className={sharedStyles.Centered}>middle</div>
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
             <Panel
               className={sharedStyles.PanelRow}
               collapsible={true}
-              collapsedSize={75}
-              minSize={200}
-              maxSize={300}
+              collapsedSizePixels={75}
+              minSizePixels={200}
+              maxSizePixels={300}
             >
               <div className={styles.AutoSizerWrapper}>
                 <Size direction="horizontal">
                   <p className={styles.Small}>200px - 300px</p>
-                  <p className={styles.Small}>collapse below 100px</p>
+                  <p className={styles.Small}>collapse below 200px</p>
                 </Size>
               </div>
             </Panel>
@@ -155,6 +156,6 @@ const CODE_HOOK_COLLAPSIBLE = `
   <PanelResizeHandle />
   <Panel />
   <PanelResizeHandle />
-  <Panel collapsible={true} collapsedSizePixels={75} minSizePixels={100} maxSizePixels={200} />
+  <Panel collapsible={true} collapsedSizePixels={75} minSizePixels={200} maxSizePixels={300} />
 </PanelGroup>
 `;
