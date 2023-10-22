@@ -3,7 +3,10 @@ import { act } from "react-dom/test-utils";
 import { createRef } from "../vendor/react";
 import { ImperativePanelHandle, Panel } from "./Panel";
 import { PanelGroup } from "./PanelGroup";
-import { mockOffsetWidthAndHeight } from "./utils/test-utils";
+import {
+  mockOffsetWidthAndHeight,
+  verifyExpandedPanelGroupLayout,
+} from "./utils/test-utils";
 import { MixedSizes } from "..";
 
 describe("PanelGroup", () => {
@@ -55,61 +58,132 @@ describe("PanelGroup", () => {
   });
 
   describe("imperative handle API", () => {
-    it("should re-expand to the most recent size before collapsing", () => {
-      const ref = createRef<ImperativePanelHandle>();
+    describe("collapse and expand", () => {
+      let leftPanelRef = createRef<ImperativePanelHandle>();
+      let rightPanelRef = createRef<ImperativePanelHandle>();
 
-      let mostRecentMixedSizes: MixedSizes | undefined;
+      let mostRecentLayout: MixedSizes[] | null;
 
-      const onResize = (mixedSizes: MixedSizes) => {
-        mostRecentMixedSizes = mixedSizes;
-      };
+      beforeEach(() => {
+        leftPanelRef = createRef<ImperativePanelHandle>();
+        rightPanelRef = createRef<ImperativePanelHandle>();
 
-      act(() => {
-        root.render(
-          <PanelGroup direction="horizontal">
-            <Panel
-              collapsible
-              collapsedSizePercentage={5}
-              defaultSizePercentage={50}
-              id="a"
-              onResize={onResize}
-              ref={ref}
-            />
-            <Panel defaultSizePercentage={50} id="b" />
-          </PanelGroup>
-        );
+        mostRecentLayout = null;
+
+        const onLayout = (layout: MixedSizes[]) => {
+          mostRecentLayout = layout;
+        };
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal" onLayout={onLayout}>
+              <Panel
+                collapsible
+                defaultSizePercentage={50}
+                ref={leftPanelRef}
+              />
+              <Panel
+                collapsible
+                defaultSizePercentage={50}
+                ref={rightPanelRef}
+              />
+            </PanelGroup>
+          );
+        });
       });
 
-      expect(mostRecentMixedSizes).toEqual({
-        sizePercentage: 50,
-        sizePixels: 500,
+      it("should expand and collapse the first panel in a group", () => {
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
+        act(() => {
+          leftPanelRef.current!.collapse();
+        });
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [0, 100]);
+        act(() => {
+          leftPanelRef.current!.expand();
+        });
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
       });
 
-      act(() => {
-        ref.current!.resize({ sizePercentage: 30 });
+      it("should expand and collapse the last panel in a group", () => {
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
+        act(() => {
+          rightPanelRef.current!.collapse();
+        });
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [100, 0]);
+        act(() => {
+          rightPanelRef.current!.expand();
+        });
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
       });
 
-      expect(mostRecentMixedSizes).toEqual({
-        sizePercentage: 30,
-        sizePixels: 300,
+      it("should re-expand to the most recent size before collapsing", () => {
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
+        act(() => {
+          leftPanelRef.current!.resize({ sizePercentage: 30 });
+        });
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [30, 70]);
+        act(() => {
+          leftPanelRef.current!.collapse();
+        });
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [0, 100]);
+        act(() => {
+          leftPanelRef.current!.expand();
+        });
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [30, 70]);
+      });
+    });
+
+    describe("resize", () => {
+      let leftPanelRef = createRef<ImperativePanelHandle>();
+      let middlePanelRef = createRef<ImperativePanelHandle>();
+      let rightPanelRef = createRef<ImperativePanelHandle>();
+
+      let mostRecentLayout: MixedSizes[] | null;
+
+      beforeEach(() => {
+        leftPanelRef = createRef<ImperativePanelHandle>();
+        middlePanelRef = createRef<ImperativePanelHandle>();
+        rightPanelRef = createRef<ImperativePanelHandle>();
+
+        mostRecentLayout = null;
+
+        const onLayout = (layout: MixedSizes[]) => {
+          mostRecentLayout = layout;
+        };
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal" onLayout={onLayout}>
+              <Panel defaultSizePercentage={20} ref={leftPanelRef} />
+              <Panel defaultSizePercentage={60} ref={middlePanelRef} />
+              <Panel defaultSizePercentage={20} ref={rightPanelRef} />
+            </PanelGroup>
+          );
+        });
       });
 
-      act(() => {
-        ref.current!.collapse();
+      it("should resize the first panel in a group", () => {
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 60, 20]);
+        act(() => {
+          leftPanelRef.current!.resize({ sizePercentage: 40 });
+        });
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [40, 40, 20]);
       });
 
-      expect(mostRecentMixedSizes).toEqual({
-        sizePercentage: 5,
-        sizePixels: 50,
+      it("should resize the middle panel in a group", () => {
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 60, 20]);
+        act(() => {
+          middlePanelRef.current!.resize({ sizePercentage: 40 });
+        });
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 40, 40]);
       });
 
-      act(() => {
-        ref.current!.expand();
-      });
-
-      expect(mostRecentMixedSizes).toEqual({
-        sizePercentage: 30,
-        sizePixels: 300,
+      it("should resize the last panel in a group", () => {
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 60, 20]);
+        act(() => {
+          rightPanelRef.current!.resize({ sizePercentage: 40 });
+        });
+        verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 40, 40]);
       });
     });
   });

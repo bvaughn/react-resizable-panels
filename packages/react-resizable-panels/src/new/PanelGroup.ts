@@ -346,8 +346,14 @@ function PanelGroupWithForwardedRef({
             panelSizePercentage
           );
 
+          const isLastPanel =
+            panelDataArray.indexOf(panelData) === panelDataArray.length - 1;
+          const delta = isLastPanel
+            ? panelSizePercentage - collapsedSizePercentage
+            : collapsedSizePercentage - panelSizePercentage;
+
           const nextLayout = adjustLayoutByDelta({
-            delta: collapsedSizePercentage - panelSizePercentage,
+            delta,
             groupSizePixels,
             layout: prevLayout,
             panelConstraints: panelConstraintsArray,
@@ -410,11 +416,19 @@ function PanelGroupWithForwardedRef({
           const prevPanelSizePercentage =
             panelSizeBeforeCollapseRef.current.get(panelData.id);
 
+          const baseSizePercentage =
+            prevPanelSizePercentage != null
+              ? prevPanelSizePercentage
+              : minSizePercentage;
+
+          const isLastPanel =
+            panelDataArray.indexOf(panelData) === panelDataArray.length - 1;
+          const delta = isLastPanel
+            ? panelSizePercentage - baseSizePercentage
+            : baseSizePercentage - panelSizePercentage;
+
           const nextLayout = adjustLayoutByDelta({
-            delta:
-              prevPanelSizePercentage != null
-                ? prevPanelSizePercentage - panelSizePercentage
-                : minSizePercentage - panelSizePercentage,
+            delta,
             groupSizePixels,
             layout: prevLayout,
             panelConstraints: panelConstraintsArray,
@@ -656,8 +670,14 @@ function PanelGroupWithForwardedRef({
         groupSizePixels
       );
 
+      const isLastPanel =
+        panelDataArray.indexOf(panelData) === panelDataArray.length - 1;
+      const delta = isLastPanel
+        ? panelSizePercentage - sizePercentage
+        : sizePercentage - panelSizePercentage;
+
       const nextLayout = adjustLayoutByDelta({
-        delta: sizePercentage - panelSizePercentage,
+        delta,
         groupSizePixels,
         layout: prevLayout,
         panelConstraints: panelConstraintsArray,

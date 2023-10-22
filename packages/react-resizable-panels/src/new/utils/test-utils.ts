@@ -1,3 +1,5 @@
+import { MixedSizes } from "../../../dist/react-resizable-panels.cjs.mjs";
+
 const util = require("util");
 
 export function expectToBeCloseToArray(
@@ -57,6 +59,16 @@ export function mockOffsetWidthAndHeight(
       );
     }
   };
+}
+
+export function verifyExpandedPanelGroupLayout(
+  actualLayout: MixedSizes[],
+  expectedPercentages: number[]
+) {
+  expect(actualLayout).toHaveLength(expectedPercentages.length);
+  expect(actualLayout.map(({ sizePercentage }) => sizePercentage)).toEqual(
+    expectedPercentages
+  );
 }
 
 export function verifyExpectedWarnings(
