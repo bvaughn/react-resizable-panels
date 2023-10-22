@@ -16,6 +16,49 @@ export function expectToBeCloseToArray(
   }
 }
 
+export function mockOffsetWidthAndHeight(
+  mockWidth = 1_000,
+  mockHeight = 1_000
+) {
+  const offsetHeightPropertyDescriptor = Object.getOwnPropertyDescriptor(
+    HTMLElement.prototype,
+    "offsetHeight"
+  );
+
+  const offsetWidthPropertyDescriptor = Object.getOwnPropertyDescriptor(
+    HTMLElement.prototype,
+    "offsetWidth"
+  );
+
+  Object.defineProperty(HTMLElement.prototype, "offsetHeight", {
+    configurable: true,
+    value: mockHeight,
+  });
+
+  Object.defineProperty(HTMLElement.prototype, "offsetWidth", {
+    configurable: true,
+    value: mockWidth,
+  });
+
+  return function uninstallMocks() {
+    if (offsetHeightPropertyDescriptor) {
+      Object.defineProperty(
+        HTMLElement.prototype,
+        "offsetHeight",
+        offsetHeightPropertyDescriptor
+      );
+    }
+
+    if (offsetWidthPropertyDescriptor) {
+      Object.defineProperty(
+        HTMLElement.prototype,
+        "offsetWidth",
+        offsetWidthPropertyDescriptor
+      );
+    }
+  };
+}
+
 export function verifyExpectedWarnings(
   callback: Function,
   ...expectedMessages: string[]

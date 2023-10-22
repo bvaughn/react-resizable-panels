@@ -1,4 +1,3 @@
-import { isBrowser } from "#is-browser";
 import { isDevelopment } from "#is-development";
 import useIsomorphicLayoutEffect from "../hooks/useIsomorphicEffect";
 import useUniqueId from "../hooks/useUniqueId";
@@ -23,8 +22,8 @@ import { PanelData } from "./Panel";
 import { DragState, PanelGroupContext, ResizeEvent } from "./PanelGroupContext";
 import { Direction, MixedSizes } from "./types";
 import { adjustLayoutByDelta } from "./utils/adjustLayoutByDelta";
-import { calculateUnsafeDefaultLayout } from "./utils/calculateUnsafeDefaultLayout";
 import { calculateDeltaPercentage } from "./utils/calculateDeltaPercentage";
+import { calculateUnsafeDefaultLayout } from "./utils/calculateUnsafeDefaultLayout";
 import { callPanelCallbacks } from "./utils/callPanelCallbacks";
 import { compareLayouts } from "./utils/compareLayouts";
 import { computePanelFlexBoxStyle } from "./utils/computePanelFlexBoxStyle";
@@ -108,6 +107,7 @@ function PanelGroupWithForwardedRef({
   const panelIdToLastNotifiedMixedSizesMapRef = useRef<
     Record<string, MixedSizes>
   >({});
+  const panelSizeBeforeCollapseRef = useRef<Map<string, number>>(new Map());
   const prevDeltaRef = useRef<number>(0);
 
   const committedValuesRef = useRef<{
@@ -127,14 +127,10 @@ function PanelGroupWithForwardedRef({
   });
 
   const devWarningsRef = useRef<{
-    didLogDefaultSizeWarning: boolean;
     didLogIdAndOrderWarning: boolean;
-    didLogInvalidLayoutWarning: boolean;
     prevPanelIds: string[];
   }>({
-    didLogDefaultSizeWarning: false,
     didLogIdAndOrderWarning: false,
-    didLogInvalidLayoutWarning: false,
     prevPanelIds: [],
   });
 
@@ -281,6 +277,13 @@ function PanelGroupWithForwardedRef({
         }))
       );
     }
+
+    callPanelCallbacks(
+      groupId,
+      panelDataArray,
+      validatedLayout,
+      panelIdToLastNotifiedMixedSizesMapRef.current
+    );
   }, [autoSaveId, layout, panelDataArray, storage]);
 
   // DEV warnings
@@ -336,7 +339,12 @@ function PanelGroupWithForwardedRef({
         } = panelDataHelper(groupId, panelDataArray, panelData, prevLayout);
 
         if (panelSizePercentage !== collapsedSizePercentage) {
-          // TODO Store size before collapse
+          // Store size before collapse;
+          // This is the size that gets restored if the expand() API is used.
+          panelSizeBeforeCollapseRef.current.set(
+            panelData.id,
+            panelSizePercentage
+          );
 
           const nextLayout = adjustLayoutByDelta({
             delta: collapsedSizePercentage - panelSizePercentage,
@@ -398,10 +406,15 @@ function PanelGroupWithForwardedRef({
         } = panelDataHelper(groupId, panelDataArray, panelData, prevLayout);
 
         if (panelSizePercentage === collapsedSizePercentage) {
-          // TODO Retrieve size before collapse; this should be the default new size
+          // Restore this panel to the size it was before it was collapsed, if possible.
+          const prevPanelSizePercentage =
+            panelSizeBeforeCollapseRef.current.get(panelData.id);
 
           const nextLayout = adjustLayoutByDelta({
-            delta: minSizePercentage - panelSizePercentage,
+            delta:
+              prevPanelSizePercentage != null
+                ? prevPanelSizePercentage - panelSizePercentage
+                : minSizePercentage - panelSizePercentage,
             groupSizePixels,
             layout: prevLayout,
             panelConstraints: panelConstraintsArray,
@@ -461,26 +474,6 @@ function PanelGroupWithForwardedRef({
   const getPanelStyle = useCallback(
     (panelData: PanelData) => {
       const panelIndex = panelDataArray.indexOf(panelData);
-
-      // Before mounting, Panels will not yet have registered themselves.
-      // This includes server rendering.
-      // At this point the best we can do is render everything with the same size.
-      if (panelDataArray.length === 0) {
-        if (isDevelopment) {
-          if (!devWarningsRef.current.didLogDefaultSizeWarning) {
-            if (
-              !isBrowser &&
-              panelData.constraints.defaultSizePercentage == null &&
-              panelData.constraints.defaultSizePixels == null
-            ) {
-              devWarningsRef.current.didLogDefaultSizeWarning = true;
-              console.warn(
-                `WARNING: Panel defaultSizePercentage or defaultSizePixels prop recommended to avoid layout shift after server rendering`
-              );
-            }
-          }
-        }
-      }
 
       return computePanelFlexBoxStyle({
         dragState,
@@ -644,7 +637,7 @@ function PanelGroupWithForwardedRef({
 
   // External APIs are safe to memoize via committed values ref
   const resizePanel = useCallback(
-    (panelData: PanelData, sizePercentage: number) => {
+    (panelData: PanelData, mixedSizes: Partial<MixedSizes>) => {
       const {
         layout: prevLayout,
         onLayout,
@@ -657,6 +650,11 @@ function PanelGroupWithForwardedRef({
 
       const { groupSizePixels, panelSizePercentage, pivotIndices } =
         panelDataHelper(groupId, panelDataArray, panelData, prevLayout);
+
+      const sizePercentage = getPercentageSizeFromMixedSizes(
+        mixedSizes,
+        groupSizePixels
+      );
 
       const nextLayout = adjustLayoutByDelta({
         delta: sizePercentage - panelSizePercentage,

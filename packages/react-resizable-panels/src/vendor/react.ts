@@ -22,6 +22,7 @@ import type {
 const {
   createElement,
   createContext,
+  createRef,
   forwardRef,
   useCallback,
   useContext,
@@ -39,6 +40,7 @@ const useId = (React as any)["useId".toString()] as () => string;
 export {
   createElement,
   createContext,
+  createRef,
   forwardRef,
   useCallback,
   useContext,

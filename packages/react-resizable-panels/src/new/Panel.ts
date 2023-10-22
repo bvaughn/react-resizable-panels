@@ -1,4 +1,5 @@
-import { isDevelopment } from "../env-conditions/production";
+import { isBrowser } from "#is-browser";
+import { isDevelopment } from "#is-development";
 import useIsomorphicLayoutEffect from "../hooks/useIsomorphicEffect";
 import useUniqueId from "../hooks/useUniqueId";
 import {
@@ -13,6 +14,8 @@ import {
 } from "../vendor/react";
 import { PanelGroupContext } from "./PanelGroupContext";
 import { MixedSizes } from "./types";
+import { calculateAvailablePanelSizeInPixels } from "./utils/dom/calculateAvailablePanelSizeInPixels";
+import { getPercentageSizeFromMixedSizes } from "./utils/getPercentageSizeFromMixedSizes";
 
 export type OnCollapse = () => void;
 export type OnExpand = () => void;
@@ -52,7 +55,7 @@ export type ImperativePanelHandle = {
   expand: () => void;
   getId(): string;
   getSize(): MixedSizes;
-  resize: (percentage: number) => void;
+  resize: (size: Partial<MixedSizes>) => void;
 };
 
 export type PanelProps = PropsWithChildren<{
@@ -140,6 +143,29 @@ export function PanelWithForwardedRef({
     order,
   });
 
+  const devWarningsRef = useRef<{
+    didLogDefaultSizeWarning: boolean;
+  }>({
+    didLogDefaultSizeWarning: false,
+  });
+
+  // Normally we wouldn't log a warning during render,
+  // but effects don't run on the server, so we can't do it there
+  if (isDevelopment) {
+    if (!devWarningsRef.current.didLogDefaultSizeWarning) {
+      if (
+        !isBrowser &&
+        defaultSizePercentage == null &&
+        defaultSizePixels == null
+      ) {
+        devWarningsRef.current.didLogDefaultSizeWarning = true;
+        console.warn(
+          `WARNING: Panel defaultSizePercentage or defaultSizePixels prop recommended to avoid layout shift after server rendering`
+        );
+      }
+    }
+  }
+
   useIsomorphicLayoutEffect(() => {
     const { callbacks, constraints } = panelDataRef.current;
 
@@ -193,8 +219,9 @@ export function PanelWithForwardedRef({
       isExpanded() {
         return !isPanelCollapsed(panelDataRef.current);
       },
-      resize: (percentage: number) =>
-        resizePanel(panelDataRef.current, percentage),
+      resize: (mixedSizes: Partial<MixedSizes>) => {
+        resizePanel(panelDataRef.current, mixedSizes);
+      },
     }),
     [
       collapsePanel,
