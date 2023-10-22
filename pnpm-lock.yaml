@@ -1,7 +1,7 @@
 lockfileVersion: '6.0'
 
 settings:
-  autoInstallPeers: true
+  autoInstallPeers: false
   excludeLinksFromLockfile: false
 
 importers:
@@ -32,7 +32,7 @@ importers:
     devDependencies:
       '@babel/preset-typescript':
         specifier: ^7.22.5
-        version: 7.22.5(@babel/core@7.22.11)
+        version: 7.22.5
       '@playwright/test':
         specifier: ^1.37.0
         version: 1.37.0
@@ -77,7 +77,7 @@ importers:
         version: 0.11.10
       ts-jest:
         specifier: ^29.1.1
-        version: 29.1.1(@babel/core@7.22.11)(jest@29.6.2)(typescript@5.1.6)
+        version: 29.1.1(jest@29.6.2)(typescript@5.1.6)
       typescript:
         specifier: ^5.1.6
         version: 5.1.6
@@ -104,7 +104,7 @@ importers:
     dependencies:
       '@codemirror/lang-css':
         specifier: latest
-        version: 6.2.1(@codemirror/view@6.16.0)
+        version: 6.2.1
       '@codemirror/lang-html':
         specifier: latest
         version: 6.4.5
@@ -236,19 +236,18 @@ packages:
       lru-cache: 5.1.1
       semver: 6.3.1
 
-  /@babel/helper-create-class-features-plugin@7.22.10(@babel/core@7.22.11):
+  /@babel/helper-create-class-features-plugin@7.22.10:
     resolution: {integrity: sha512-5IBb77txKYQPpOEdUdIhBx8VrZyDCQ+H82H0+5dX1TmuscP5vJKEE3cKurjtIw/vFwzbVH48VweE78kVDBrqjA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0
     dependencies:
-      '@babel/core': 7.22.11
       '@babel/helper-annotate-as-pure': 7.22.5
       '@babel/helper-environment-visitor': 7.22.5
       '@babel/helper-function-name': 7.22.5
       '@babel/helper-member-expression-to-functions': 7.22.5
       '@babel/helper-optimise-call-expression': 7.22.5
-      '@babel/helper-replace-supers': 7.22.9(@babel/core@7.22.11)
+      '@babel/helper-replace-supers': 7.22.9
       '@babel/helper-skip-transparent-expression-wrappers': 7.22.5
       '@babel/helper-split-export-declaration': 7.22.6
       semver: 6.3.1
@@ -320,13 +319,12 @@ packages:
     resolution: {integrity: sha512-uLls06UVKgFG9QD4OeFYLEGteMIAa5kpTPcFL28yuCIIzsf6ZyKZMllKVOCZFhiZ5ptnwX4mtKdWCBE/uT4amg==}
     engines: {node: '>=6.9.0'}
 
-  /@babel/helper-replace-supers@7.22.9(@babel/core@7.22.11):
+  /@babel/helper-replace-supers@7.22.9:
     resolution: {integrity: sha512-LJIKvvpgPOPUThdYqcX6IXRuIcTkcAub0IaDRGCZH0p5GPUp7PhRU9QVgFcDDd51BaPkk77ZjqFwh6DZTAEmGg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0
     dependencies:
-      '@babel/core': 7.22.11
       '@babel/helper-environment-visitor': 7.22.5
       '@babel/helper-member-expression-to-functions': 7.22.5
       '@babel/helper-optimise-call-expression': 7.22.5
@@ -539,31 +537,29 @@ packages:
       '@babel/helper-plugin-utils': 7.22.5
       '@babel/helper-simple-access': 7.22.5
 
-  /@babel/plugin-transform-typescript@7.22.10(@babel/core@7.22.11):
+  /@babel/plugin-transform-typescript@7.22.10:
     resolution: {integrity: sha512-7++c8I/ymsDo4QQBAgbraXLzIM6jmfao11KgIBEYZRReWzNWH9NtNgJcyrZiXsOPh523FQm6LfpLyy/U5fn46A==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/core': 7.22.11
       '@babel/helper-annotate-as-pure': 7.22.5
-      '@babel/helper-create-class-features-plugin': 7.22.10(@babel/core@7.22.11)
+      '@babel/helper-create-class-features-plugin': 7.22.10
       '@babel/helper-plugin-utils': 7.22.5
       '@babel/plugin-syntax-typescript': 7.22.5(@babel/core@7.22.11)
     dev: true
 
-  /@babel/preset-typescript@7.22.5(@babel/core@7.22.11):
+  /@babel/preset-typescript@7.22.5:
     resolution: {integrity: sha512-YbPaal9LxztSGhmndR46FmAbkJ/1fAsw293tSU+I5E5h+cnJ3d4GTwyUgGYmOXJYdGA+uNePle4qbaRzj2NISQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/core': 7.22.11
       '@babel/helper-plugin-utils': 7.22.5
       '@babel/helper-validator-option': 7.22.5
       '@babel/plugin-syntax-jsx': 7.22.5(@babel/core@7.22.11)
       '@babel/plugin-transform-modules-commonjs': 7.22.5(@babel/core@7.22.11)
-      '@babel/plugin-transform-typescript': 7.22.10(@babel/core@7.22.11)
+      '@babel/plugin-transform-typescript': 7.22.10
     dev: true
 
   /@babel/runtime@7.22.11:
@@ -626,13 +622,11 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@codemirror/autocomplete@6.9.0(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0)(@lezer/common@1.0.3):
+  /@codemirror/autocomplete@6.9.0(@codemirror/language@6.8.0)(@codemirror/state@6.2.1):
     resolution: {integrity: sha512-Fbwm0V/Wn3BkEJZRhr0hi5BhCo5a7eBL6LYaliPjOSwCyfOpnjXY59HruSxOUNV+1OYer0Tgx1zRNQttjXyDog==}
     peerDependencies:
       '@codemirror/language': ^6.0.0
       '@codemirror/state': ^6.0.0
-      '@codemirror/view': ^6.0.0
-      '@lezer/common': ^1.0.0
     dependencies:
       '@codemirror/language': 6.8.0
       '@codemirror/state': 6.2.1
@@ -640,23 +634,21 @@ packages:
       '@lezer/common': 1.0.3
     dev: false
 
-  /@codemirror/lang-css@6.2.1(@codemirror/view@6.16.0):
+  /@codemirror/lang-css@6.2.1:
     resolution: {integrity: sha512-/UNWDNV5Viwi/1lpr/dIXJNWiwDxpw13I4pTUAsNxZdg6E0mI2kTQb0P2iHczg1Tu+H4EBgJR+hYhKiHKko7qg==}
     dependencies:
-      '@codemirror/autocomplete': 6.9.0(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0)(@lezer/common@1.0.3)
+      '@codemirror/autocomplete': 6.9.0(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)
       '@codemirror/language': 6.8.0
       '@codemirror/state': 6.2.1
       '@lezer/common': 1.0.3
       '@lezer/css': 1.1.3
-    transitivePeerDependencies:
-      - '@codemirror/view'
     dev: false
 
   /@codemirror/lang-html@6.4.5:
     resolution: {integrity: sha512-dUCSxkIw2G+chaUfw3Gfu5kkN83vJQN8gfQDp9iEHsIZluMJA0YJveT12zg/28BJx+uPsbQ6VimKCgx3oJrZxA==}
     dependencies:
-      '@codemirror/autocomplete': 6.9.0(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0)(@lezer/common@1.0.3)
-      '@codemirror/lang-css': 6.2.1(@codemirror/view@6.16.0)
+      '@codemirror/autocomplete': 6.9.0(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)
+      '@codemirror/lang-css': 6.2.1
       '@codemirror/lang-javascript': 6.1.9
       '@codemirror/language': 6.8.0
       '@codemirror/state': 6.2.1
@@ -669,7 +661,7 @@ packages:
   /@codemirror/lang-javascript@6.1.9:
     resolution: {integrity: sha512-z3jdkcqOEBT2txn2a87A0jSy6Te3679wg/U8QzMeftFt+4KA6QooMwfdFzJiuC3L6fXKfTXZcDocoaxMYfGz0w==}
     dependencies:
-      '@codemirror/autocomplete': 6.9.0(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0)(@lezer/common@1.0.3)
+      '@codemirror/autocomplete': 6.9.0(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)
       '@codemirror/language': 6.8.0
       '@codemirror/lint': 6.4.0
       '@codemirror/state': 6.2.1
@@ -681,7 +673,7 @@ packages:
   /@codemirror/lang-markdown@6.2.0:
     resolution: {integrity: sha512-deKegEQVzfBAcLPqsJEa+IxotqPVwWZi90UOEvQbfa01NTAw8jNinrykuYPTULGUj+gha0ZG2HBsn4s5d64Qrg==}
     dependencies:
-      '@codemirror/autocomplete': 6.9.0(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0)(@lezer/common@1.0.3)
+      '@codemirror/autocomplete': 6.9.0(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)
       '@codemirror/lang-html': 6.4.5
       '@codemirror/language': 6.8.0
       '@codemirror/state': 6.2.1
@@ -5518,7 +5510,7 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
-  /ts-jest@29.1.1(@babel/core@7.22.11)(jest@29.6.2)(typescript@5.1.6):
+  /ts-jest@29.1.1(jest@29.6.2)(typescript@5.1.6):
     resolution: {integrity: sha512-D6xjnnbP17cC85nliwGiL+tpoKN0StpgE0TeOjXQTU6MVCfsB4v7aW05CgQ/1OywGb0x/oy9hHFnN+sczTiRaA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     hasBin: true
@@ -5539,7 +5531,6 @@ packages:
       esbuild:
         optional: true
     dependencies:
-      '@babel/core': 7.22.11
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
       jest: 29.6.2(@types/node@18.17.5)
