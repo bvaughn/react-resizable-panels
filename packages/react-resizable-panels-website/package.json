@@ -27,5 +27,10 @@
     "react-virtualized-auto-sizer": "^1.0.10",
     "sort-by": "latest",
     "suspense": "^0.0.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "@lezer/common": "1.1.0"
+    }
   }
 }
