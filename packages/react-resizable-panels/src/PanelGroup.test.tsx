@@ -1,10 +1,10 @@
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { createRef } from "../vendor/react";
+import { MixedSizes } from "..";
 import { Panel } from "./Panel";
 import { ImperativePanelGroupHandle, PanelGroup } from "./PanelGroup";
-import { MixedSizes } from "..";
 import { mockOffsetWidthAndHeight } from "./utils/test-utils";
+import { createRef } from "./vendor/react";
 
 describe("PanelGroup", () => {
   let expectedWarnings: string[] = [];
@@ -144,5 +144,7 @@ describe("PanelGroup", () => {
         );
       });
     });
+
+    // TODO Verify warning if invalid layout is set via imperative api
   });
 });

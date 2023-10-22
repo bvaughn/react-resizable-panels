@@ -1,12 +1,8 @@
 import { useMemo } from "react";
-import {
-  new_Panel as Panel,
-  new_PanelGroup as PanelGroup,
-  PanelGroupStorage,
-} from "react-resizable-panels";
+import { Panel, PanelGroup, PanelGroupStorage } from "react-resizable-panels";
 import { useNavigate } from "react-router-dom";
 
-import { new_ResizeHandle as ResizeHandle } from "../../components/ResizeHandle";
+import { ResizeHandle } from "../../components/ResizeHandle";
 
 import Example from "./Example";
 import styles from "./shared.module.css";

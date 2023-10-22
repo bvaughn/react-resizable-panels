@@ -9,8 +9,6 @@ import {
 import {
   ImperativePanelGroupHandle,
   ImperativePanelHandle,
-  Units,
-  getAvailableGroupSizePixels,
 } from "react-resizable-panels";
 
 import { urlPanelGroupToPanelGroup, urlToUrlData } from "../../utils/UrlData";
@@ -55,8 +53,10 @@ function EndToEndTesting() {
   const [panelIds, setPanelIds] = useState<string[]>([]);
   const [panelGroupId, setPanelGroupId] = useState("");
   const [panelGroupIds, setPanelGroupIds] = useState<string[]>([]);
-  const [size, setSize] = useState(0);
-  const [units, setUnits] = useState("");
+  const [sizePercentage, setSizePercentage] = useState<number | undefined>(
+    undefined
+  );
+  const [sizePixels, setSizePixels] = useState<number | undefined>(undefined);
   const [layoutString, setLayoutString] = useState("");
 
   const debugLogRef = useRef<ImperativeDebugLogHandle>(null);
@@ -80,10 +80,6 @@ function EndToEndTesting() {
       );
       setPanelGroupIds(panelGroupIds);
       setPanelGroupId(panelGroupIds[0]);
-
-      // const panelGroupElement = document.querySelector("[data-panel-group]")!;
-      // const units = panelGroupElement.getAttribute("data-panel-group-units")!;
-      // setUnits(units);
     };
 
     window.addEventListener("popstate", (event) => {
@@ -113,12 +109,11 @@ function EndToEndTesting() {
             panelId
           ) as ImperativePanelHandle;
           if (panel != null) {
-            const percentage = panel.getSize("percentages");
-            const pixels = panel.getSize("pixels");
+            const { sizePercentage, sizePixels } = panel.getSize();
 
-            panelElement.textContent = `${percentage.toFixed(
+            panelElement.textContent = `${sizePercentage.toFixed(
               1
-            )}%\n${pixels.toFixed(1)}px`;
+            )}%\n${sizePixels.toFixed(1)}px`;
           }
         }
       }, 0);
@@ -174,12 +169,16 @@ function EndToEndTesting() {
 
   const onSizeInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.currentTarget.value;
-    setSize(parseFloat(value));
-  };
 
-  const onUnitsSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const value = event.currentTarget.value;
-    setUnits(value);
+    if (value.endsWith("%")) {
+      setSizePercentage(parseFloat(value));
+      setSizePixels(undefined);
+    } else if (value.endsWith("px")) {
+      setSizePercentage(undefined);
+      setSizePixels(parseFloat(value));
+    } else {
+      throw Error(`Invalid size: ${value}`);
+    }
   };
 
   const onCollapseButtonClick = () => {
@@ -202,7 +201,7 @@ function EndToEndTesting() {
     const idToRefMap = idToRefMapRef.current;
     const panel = idToRefMap.get(panelId);
     if (panel && assertImperativePanelHandle(panel)) {
-      panel.resize(size, (units as any) || undefined);
+      panel.resize({ sizePercentage, sizePixels });
     }
   };
 
@@ -210,10 +209,7 @@ function EndToEndTesting() {
     const idToRefMap = idToRefMapRef.current;
     const panelGroup = idToRefMap.get(panelGroupId);
     if (panelGroup && assertImperativePanelGroupHandle(panelGroup)) {
-      panelGroup.setLayout(
-        JSON.parse(layoutString),
-        (units as any) || undefined
-      );
+      panelGroup.setLayout(JSON.parse(layoutString));
     }
   };
 
@@ -251,7 +247,7 @@ function EndToEndTesting() {
             className={styles.Input}
             id="sizeInput"
             onChange={onSizeInputChange}
-            placeholder="Size"
+            placeholder="Size (% or px)"
             type="number"
           />
           <button
@@ -261,18 +257,6 @@ function EndToEndTesting() {
           >
             <Icon type="resize" />
           </button>
-          <div className={styles.Spacer} />
-          <select
-            className={styles.Input}
-            defaultValue={units}
-            id="unitsSelect"
-            onChange={onUnitsSelectChange}
-            placeholder="Units"
-          >
-            <option value=""></option>
-            <option value="percentages">percentages</option>
-            <option value="pixels">pixels</option>
-          </select>
           <div className={styles.Spacer} />
           <select
             className={styles.Input}

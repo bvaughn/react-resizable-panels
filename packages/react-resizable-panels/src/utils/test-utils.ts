@@ -1,4 +1,4 @@
-import { MixedSizes } from "../../../dist/react-resizable-panels.cjs.mjs";
+import { MixedSizes } from "../types";
 
 const util = require("util");
 

@@ -1,8 +1,8 @@
 // This method returns a number between 1 and 100 representing
 
-import { CSSProperties } from "../../vendor/react";
 import { PanelData } from "../Panel";
 import { DragState } from "../PanelGroupContext";
+import { CSSProperties } from "../vendor/react";
 
 // the % of the group's overall space this panel should occupy.
 export function computePanelFlexBoxStyle({

@@ -1,12 +1,12 @@
 import { ChangeEvent, FormEvent, RefObject, useRef, useState } from "react";
 import {
-  new_ImperativePanelHandle as ImperativePanelHandle,
-  new_Panel as Panel,
-  new_PanelGroup as PanelGroup,
+  ImperativePanelHandle,
+  Panel,
+  PanelGroup,
 } from "react-resizable-panels";
 import Icon from "../../components/Icon";
 
-import { new_ResizeHandle as ResizeHandle } from "../../components/ResizeHandle";
+import { ResizeHandle } from "../../components/ResizeHandle";
 
 import Example from "./Example";
 import styles from "./ImperativePanelApi.module.css";

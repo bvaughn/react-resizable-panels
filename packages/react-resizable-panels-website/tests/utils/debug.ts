@@ -27,7 +27,7 @@ export async function clearLogEntries(
 
 export async function getLogEntries<Type extends LogEntry>(
   page: Page,
-  logEntryType: LogEntryType | null = null
+  logEntryType: LogEntryType | LogEntryType[] | null = null
 ): Promise<Type[]> {
   const logEntries: Type[] = await page.evaluate((logEntryType) => {
     const div = document.getElementById("debug");
@@ -37,11 +37,16 @@ export async function getLogEntries<Type extends LogEntry>(
 
     const textContent = div.textContent!;
     const logEntries = JSON.parse(textContent) as LogEntry[];
-    if (logEntryType === null) {
-      return logEntries as Type[];
-    }
 
-    return logEntries.filter(({ type }) => type === logEntryType) as Type[];
+    return logEntries.filter(({ type }) => {
+      if (logEntryType == null) {
+        return true;
+      } else if (Array.isArray(logEntryType)) {
+        return logEntryType.includes(type);
+      } else {
+        return logEntryType === type;
+      }
+    }) as Type[];
   }, logEntryType);
 
   return logEntries;

@@ -8,27 +8,27 @@ import { goToUrl } from "./utils/url";
 const panelGroupABC = createElement(
   PanelGroup,
   { autoSaveId: "test-group", direction: "horizontal" },
-  createElement(Panel, { minSize: 10, order: 1 }),
+  createElement(Panel, { minSizePercentage: 10, order: 1 }),
   createElement(PanelResizeHandle),
-  createElement(Panel, { minSize: 10, order: 2 }),
+  createElement(Panel, { minSizePercentage: 10, order: 2 }),
   createElement(PanelResizeHandle),
-  createElement(Panel, { minSize: 10, order: 3 })
+  createElement(Panel, { minSizePercentage: 10, order: 3 })
 );
 
 const panelGroupBC = createElement(
   PanelGroup,
   { autoSaveId: "test-group", direction: "horizontal" },
-  createElement(Panel, { minSize: 10, order: 2 }),
+  createElement(Panel, { minSizePercentage: 10, order: 2 }),
   createElement(PanelResizeHandle),
-  createElement(Panel, { minSize: 10, order: 3 })
+  createElement(Panel, { minSizePercentage: 10, order: 3 })
 );
 
 const panelGroupAB = createElement(
   PanelGroup,
   { autoSaveId: "test-group", direction: "horizontal" },
-  createElement(Panel, { minSize: 10, order: 1 }),
+  createElement(Panel, { minSizePercentage: 10, order: 1 }),
   createElement(PanelResizeHandle),
-  createElement(Panel, { minSize: 10, order: 2 })
+  createElement(Panel, { minSizePercentage: 10, order: 2 })
 );
 
 test.describe("Storage", () => {

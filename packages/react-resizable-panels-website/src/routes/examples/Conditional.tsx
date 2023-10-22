@@ -1,10 +1,7 @@
 import { useState } from "react";
-import {
-  new_Panel as Panel,
-  new_PanelGroup as PanelGroup,
-} from "react-resizable-panels";
+import { Panel, PanelGroup } from "react-resizable-panels";
 
-import { new_ResizeHandle as ResizeHandle } from "../../components/ResizeHandle";
+import { ResizeHandle } from "../../components/ResizeHandle";
 
 import Example from "./Example";
 import styles from "./shared.module.css";

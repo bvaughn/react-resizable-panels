@@ -1,6 +1,6 @@
-import { CSSProperties, createContext } from "../vendor/react";
 import { PanelData } from "./Panel";
 import { MixedSizes } from "./types";
+import { CSSProperties, createContext } from "./vendor/react";
 
 export type ResizeEvent = KeyboardEvent | MouseEvent | TouchEvent;
 export type ResizeHandler = (event: ResizeEvent) => void;

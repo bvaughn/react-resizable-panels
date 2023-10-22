@@ -9,28 +9,33 @@ import {
 import {
   ImperativePanelGroupHandle,
   ImperativePanelHandle,
+  MixedSizes,
   Panel,
   PanelGroup,
   PanelGroupOnLayout,
   PanelGroupProps,
   PanelOnCollapse,
+  PanelOnExpand,
   PanelOnResize,
   PanelProps,
   PanelResizeHandle,
   PanelResizeHandleOnDragging,
   PanelResizeHandleProps,
-  Units,
 } from "react-resizable-panels";
 import { ImperativeDebugLogHandle } from "../routes/examples/DebugLog";
 
 type UrlPanel = {
   children: Array<string | UrlPanelGroup>;
-  collapsedSize?: number;
+  collapsedSizePercentage?: number;
+  collapsedSizePixels?: number;
   collapsible?: boolean;
-  defaultSize?: number | null;
+  defaultSizePercentage?: number | null;
+  defaultSizePixels?: number | null;
   id?: string | null;
-  maxSize?: number | null;
-  minSize?: number;
+  maxSizePercentage?: number | null;
+  maxSizePixels?: number | null;
+  minSizePercentage?: number;
+  minSizePixels?: number;
   order?: number | null;
   style?: CSSProperties;
   type: "UrlPanel";
@@ -43,7 +48,6 @@ type UrlPanelGroup = {
   id?: string | null;
   style?: CSSProperties;
   type: "UrlPanelGroup";
-  units: Units;
 };
 
 type UrlPanelResizeHandle = {
@@ -103,12 +107,16 @@ function UrlPanelToData(urlPanel: ReactElement<PanelProps>): UrlPanel {
         return child;
       }
     }),
-    collapsedSize: urlPanel.props.collapsedSize,
+    collapsedSizePercentage: urlPanel.props.collapsedSizePercentage,
+    collapsedSizePixels: urlPanel.props.collapsedSizePixels,
     collapsible: urlPanel.props.collapsible,
-    defaultSize: urlPanel.props.defaultSize,
+    defaultSizePercentage: urlPanel.props.defaultSizePercentage,
+    defaultSizePixels: urlPanel.props.defaultSizePixels,
     id: urlPanel.props.id,
-    maxSize: urlPanel.props.maxSize,
-    minSize: urlPanel.props.minSize,
+    maxSizePercentage: urlPanel.props.maxSizePercentage,
+    maxSizePixels: urlPanel.props.maxSizePixels,
+    minSizePercentage: urlPanel.props.minSizePercentage,
+    minSizePixels: urlPanel.props.minSizePixels,
     order: urlPanel.props.order,
     style: urlPanel.props.style,
     type: "UrlPanel",
@@ -133,7 +141,6 @@ function UrlPanelGroupToData(
     id: urlPanelGroup.props.id,
     style: urlPanelGroup.props.style,
     type: "UrlPanelGroup",
-    units: urlPanelGroup.props.units ?? "percentages",
   };
 }
 
@@ -157,22 +164,32 @@ function urlPanelToPanel(
   key?: any
 ): ReactElement {
   let onCollapse: PanelOnCollapse | undefined = undefined;
+  let onExpand: PanelOnExpand | undefined = undefined;
   let onResize: PanelOnResize | undefined = undefined;
 
   const panelId = urlPanel.id;
   if (panelId) {
-    onCollapse = (collapsed: boolean) => {
+    onCollapse = () => {
       const debugLog = debugLogRef.current;
       if (debugLog) {
         debugLog.log({
-          collapsed,
           panelId,
           type: "onCollapse",
         });
       }
     };
 
-    onResize = (size: number) => {
+    onExpand = () => {
+      const debugLog = debugLogRef.current;
+      if (debugLog) {
+        debugLog.log({
+          panelId,
+          type: "onExpand",
+        });
+      }
+    };
+
+    onResize = (size: MixedSizes) => {
       const debugLog = debugLogRef.current;
       if (debugLog) {
         debugLog.log({
@@ -196,16 +213,20 @@ function urlPanelToPanel(
     Panel,
     {
       className: "Panel",
-      collapsedSize: urlPanel.collapsedSize,
+      collapsedSizePercentage: urlPanel.collapsedSizePercentage,
+      collapsedSizePixels: urlPanel.collapsedSizePixels,
       collapsible: urlPanel.collapsible,
-      defaultSize: urlPanel.defaultSize,
-      id: urlPanel.id,
+      defaultSizePercentage: urlPanel.defaultSizePercentage ?? undefined,
+      defaultSizePixels: urlPanel.defaultSizePixels ?? undefined,
+      id: urlPanel.id ?? undefined,
       key,
-      maxSize: urlPanel.maxSize,
-      minSize: urlPanel.minSize,
+      maxSizePercentage: urlPanel.maxSizePercentage ?? undefined,
+      maxSizePixels: urlPanel.maxSizePixels ?? undefined,
+      minSizePercentage: urlPanel.minSizePercentage,
+      minSizePixels: urlPanel.minSizePixels,
       onCollapse,
       onResize,
-      order: urlPanel.order,
+      order: urlPanel.order ?? undefined,
       ref: refSetter,
       style: urlPanel.style,
     },
@@ -236,10 +257,10 @@ export function urlPanelGroupToPanelGroup(
 
   const groupId = urlPanelGroup.id;
   if (groupId) {
-    onLayout = (sizes: number[]) => {
+    onLayout = (layout: MixedSizes[]) => {
       const debugLog = debugLogRef.current;
       if (debugLog) {
-        debugLog.log({ groupId, type: "onLayout", sizes });
+        debugLog.log({ groupId, type: "onLayout", layout });
       }
     };
   }
@@ -263,7 +284,6 @@ export function urlPanelGroupToPanelGroup(
       onLayout,
       ref: refSetter,
       style: urlPanelGroup.style,
-      units: urlPanelGroup.units,
     },
     urlPanelGroup.children.map((child, index) => {
       if (isUrlPanel(child)) {

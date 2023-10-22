@@ -1,10 +1,6 @@
 import { useReducer } from "react";
 
-import {
-  new_Panel as Panel,
-  new_PanelGroup as PanelGroup,
-  new_PanelResizeHandle as PanelResizeHandle,
-} from "react-resizable-panels";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import {
   TUTORIAL_CODE_CSS,
@@ -179,7 +175,7 @@ const FILES: File[] = FILE_PATHS.map(([path, code]) => {
 const CODE = `
 <PanelGroup direction="horizontal">
   <SideTabBar />
-  <Panel collapsedSize={5} collapsible={true} minSize={10}>
+  <Panel collapsible={true} collapsedSizePixels={35} minSizePercentage={10}>
     <SourceBrowser />
   </Panel>
   <PanelResizeHandle />

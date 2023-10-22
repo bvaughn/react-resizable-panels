@@ -14,9 +14,9 @@ async function goToDefaultUrl(
     createElement(
       PanelGroup,
       { direction },
-      createElement(Panel, { minSize: 10 }),
+      createElement(Panel, { minSizePercentage: 10 }),
       createElement(PanelResizeHandle),
-      createElement(Panel, { minSize: 10 })
+      createElement(Panel, { minSizePercentage: 10 })
     )
   );
 }
@@ -30,9 +30,12 @@ test.describe("Window Splitter", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { defaultSize: 35, minSize: 20 }),
+          createElement(Panel, {
+            defaultSizePercentage: 35,
+            minSizePercentage: 20,
+          }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { minSize: 5 })
+          createElement(Panel, { minSizePercentage: 5 })
         )
       );
 
@@ -50,9 +53,9 @@ test.describe("Window Splitter", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { minSize: 20 }),
+          createElement(Panel, { minSizePercentage: 20 }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { minSize: 50 })
+          createElement(Panel, { minSizePercentage: 50 })
         )
       );
 
@@ -70,9 +73,12 @@ test.describe("Window Splitter", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { maxSize: 50, minSize: 10 }),
+          createElement(Panel, {
+            maxSizePercentage: 50,
+            minSizePercentage: 10,
+          }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { minSize: 10 })
+          createElement(Panel, { minSizePercentage: 10 })
         )
       );
 
@@ -90,9 +96,12 @@ test.describe("Window Splitter", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { defaultSize: 65, minSize: 10 }),
+          createElement(Panel, {
+            defaultSizePercentage: 65,
+            minSizePercentage: 10,
+          }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { maxSize: 40, minSize: 10 })
+          createElement(Panel, { maxSizePercentage: 40, minSizePercentage: 10 })
         )
       );
 
@@ -232,9 +241,13 @@ test.describe("Window Splitter", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { defaultSize: 40, maxSize: 70, minSize: 20 }),
+          createElement(Panel, {
+            defaultSizePercentage: 40,
+            maxSizePercentage: 70,
+            minSizePercentage: 20,
+          }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { minSize: 10 })
+          createElement(Panel, { minSizePercentage: 10 })
         )
       );
 
@@ -264,13 +277,13 @@ test.describe("Window Splitter", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { minSize: 10 }),
+          createElement(Panel, { minSizePercentage: 10 }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { minSize: 10 }),
+          createElement(Panel, { minSizePercentage: 10 }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { minSize: 10 }),
+          createElement(Panel, { minSizePercentage: 10 }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { minSize: 10 })
+          createElement(Panel, { minSizePercentage: 10 })
         )
       );
 

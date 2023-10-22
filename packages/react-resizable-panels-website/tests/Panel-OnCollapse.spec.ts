@@ -2,7 +2,10 @@ import { expect, Page, test } from "@playwright/test";
 import { createElement } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import { PanelCollapseLogEntry } from "../src/routes/examples/types";
+import {
+  PanelCollapseLogEntry,
+  PanelExpandLogEntry,
+} from "../src/routes/examples/types";
 
 import { clearLogEntries, getLogEntries } from "./utils/debug";
 import { imperativeResizePanelGroup } from "./utils/panels";
@@ -22,24 +25,24 @@ async function openPage(
     { direction: "horizontal", id: "group" },
     createElement(Panel, {
       collapsible: true,
-      defaultSize: collapsedByDefault ? 0 : 20,
+      defaultSizePercentage: collapsedByDefault ? 0 : 20,
       id: "left",
-      minSize: 10,
+      minSizePercentage: 10,
       order: 1,
     }),
     createElement(PanelResizeHandle, { id: "left-handle" }),
     createElement(Panel, {
       collapsible: middleCollapsible,
       id: "middle",
-      minSize: 10,
+      minSizePercentage: 10,
       order: 2,
     }),
     createElement(PanelResizeHandle, { id: "right-handle" }),
     createElement(Panel, {
       collapsible: true,
-      defaultSize: collapsedByDefault ? 0 : 20,
+      defaultSizePercentage: collapsedByDefault ? 0 : 20,
       id: "right",
-      minSize: 10,
+      minSizePercentage: 10,
       order: 3,
     })
   );
@@ -49,23 +52,23 @@ async function openPage(
 
 async function verifyEntries(
   page: Page,
-  expected: Omit<PanelCollapseLogEntry, "type">[]
+  expected: Array<{ panelId: string; collapsed: boolean }>
 ) {
-  const logEntries = await getLogEntries<PanelCollapseLogEntry>(
-    page,
-    "onCollapse"
-  );
+  const logEntries = await getLogEntries<
+    PanelCollapseLogEntry | PanelExpandLogEntry
+  >(page, ["onCollapse", "onExpand"]);
 
   expect(logEntries.length).toEqual(expected.length);
 
   for (let index = 0; index < expected.length; index++) {
-    const { panelId: actualPanelId, collapsed: actualCollapsed } =
-      logEntries[index];
+    const { panelId: actualPanelId, type } = logEntries[index];
     const { panelId: expectedPanelId, collapsed: expectedPanelCollapsed } =
       expected[index];
 
+    const actualPanelCollapsed = type === "onCollapse";
+
     expect(actualPanelId).toEqual(expectedPanelId);
-    expect(actualCollapsed).toEqual(expectedPanelCollapsed);
+    expect(actualPanelCollapsed).toEqual(expectedPanelCollapsed);
   }
 }
 

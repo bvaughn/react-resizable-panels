@@ -1,4 +1,3 @@
-import { PRECISION } from "../../constants";
 import { PanelConstraints } from "../Panel";
 import { computePercentagePanelConstraints } from "./computePercentagePanelConstraints";
 import { fuzzyCompareNumbers } from "./numbers/fuzzyCompareNumbers";

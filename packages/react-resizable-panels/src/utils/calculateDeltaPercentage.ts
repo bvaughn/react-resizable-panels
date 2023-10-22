@@ -1,7 +1,7 @@
 import { DragState, ResizeEvent } from "../PanelGroupContext";
 import { Direction } from "../types";
+import { getPanelGroupElement } from "../utils/dom/getPanelGroupElement";
 import { calculateDragOffsetPercentage } from "./calculateDragOffsetPercentage";
-import { getPanelGroupElement } from "./dom/getPanelGroupElement";
 import { isKeyDown } from "./events";
 
 // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/movementX

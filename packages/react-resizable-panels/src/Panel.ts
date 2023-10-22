@@ -1,67 +1,100 @@
+import { isBrowser } from "#is-browser";
+import { isDevelopment } from "#is-development";
+import { PanelGroupContext } from "./PanelGroupContext";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
+import { MixedSizes } from "./types";
 import {
-  createElement,
-  CSSProperties,
   ElementType,
   ForwardedRef,
+  PropsWithChildren,
+  createElement,
   forwardRef,
-  ReactNode,
   useContext,
-  useEffect,
   useImperativeHandle,
   useRef,
 } from "./vendor/react";
 
-import { PanelGroupContext } from "./PanelContexts";
-import {
-  PanelCallbackRef,
-  PanelData,
-  PanelOnCollapse,
-  PanelOnResize,
-  Units,
-} from "./types";
-import { getAvailableGroupSizePixels } from "./utils/group";
+export type PanelOnCollapse = () => void;
+export type PanelOnExpand = () => void;
+export type PanelOnResize = (
+  mixedSizes: MixedSizes,
+  prevMixedSizes: MixedSizes
+) => void;
 
-export type PanelProps = {
-  children?: ReactNode;
-  className?: string;
-  collapsedSize?: number;
-  collapsible?: boolean;
-  defaultSize?: number | null;
-  id?: string | null;
-  maxSize?: number | null;
-  minSize?: number;
-  onCollapse?: PanelOnCollapse | null;
-  onResize?: PanelOnResize | null;
-  order?: number | null;
-  style?: CSSProperties;
-  tagName?: ElementType;
+export type PanelCallbacks = {
+  onCollapse?: PanelOnCollapse;
+  onExpand?: PanelOnExpand;
+  onResize?: PanelOnResize;
+};
+
+export type PanelConstraints = {
+  collapsedSizePercentage?: number | undefined;
+  collapsedSizePixels?: number | undefined;
+  collapsible?: boolean | undefined;
+  defaultSizePercentage?: number | undefined;
+  defaultSizePixels?: number | undefined;
+  maxSizePercentage?: number | undefined;
+  maxSizePixels?: number | undefined;
+  minSizePercentage?: number | undefined;
+  minSizePixels?: number | undefined;
+};
+
+export type PanelData = {
+  callbacks: PanelCallbacks;
+  constraints: PanelConstraints;
+  id: string;
+  idIsFromProps: boolean;
+  order: number | undefined;
 };
 
 export type ImperativePanelHandle = {
   collapse: () => void;
   expand: () => void;
-  getCollapsed(): boolean;
   getId(): string;
-  getSize(units?: Units): number;
-  resize: (percentage: number, units?: Units) => void;
+  getSize(): MixedSizes;
+  resize: (size: Partial<MixedSizes>) => void;
 };
 
-function PanelWithForwardedRef({
-  children = null,
+export type PanelProps = PropsWithChildren<{
+  className?: string;
+  collapsedSizePercentage?: number | undefined;
+  collapsedSizePixels?: number | undefined;
+  collapsible?: boolean | undefined;
+  defaultSizePercentage?: number | undefined;
+  defaultSizePixels?: number | undefined;
+  id?: string;
+  maxSizePercentage?: number | undefined;
+  maxSizePixels?: number | undefined;
+  minSizePercentage?: number | undefined;
+  minSizePixels?: number | undefined;
+  onCollapse?: PanelOnCollapse;
+  onExpand?: PanelOnExpand;
+  onResize?: PanelOnResize;
+  order?: number;
+  style?: object;
+  tagName?: ElementType;
+}>;
+
+export function PanelWithForwardedRef({
+  children,
   className: classNameFromProps = "",
-  collapsedSize = 0,
-  collapsible = false,
-  defaultSize = null,
+  collapsedSizePercentage,
+  collapsedSizePixels,
+  collapsible,
+  defaultSizePercentage,
+  defaultSizePixels,
   forwardedRef,
-  id: idFromProps = null,
-  maxSize = null,
-  minSize,
-  onCollapse = null,
-  onResize = null,
-  order = null,
-  style: styleFromProps = {},
+  id: idFromProps,
+  maxSizePercentage,
+  maxSizePixels,
+  minSizePercentage,
+  minSizePixels,
+  onCollapse,
+  onExpand,
+  onResize,
+  order,
+  style: styleFromProps,
   tagName: Type = "div",
 }: PanelProps & {
   forwardedRef: ForwardedRef<ImperativePanelHandle>;
@@ -73,123 +106,152 @@ function PanelWithForwardedRef({
     );
   }
 
-  const panelId = useUniqueId(idFromProps);
-
   const {
     collapsePanel,
     expandPanel,
     getPanelSize,
     getPanelStyle,
+    isPanelCollapsed,
     registerPanel,
     resizePanel,
-    units,
     unregisterPanel,
   } = context;
 
-  if (minSize == null) {
-    if (units === "percentages") {
-      // Mimics legacy default value for percentage based panel groups
-      minSize = 10;
-    } else {
-      // There is no meaningful minimum pixel default we can provide
-      minSize = 0;
-    }
-  }
+  const panelId = useUniqueId(idFromProps);
 
-  // Use a ref to guard against users passing inline props
-  const callbacksRef = useRef<{
-    onCollapse: PanelOnCollapse | null;
-    onResize: PanelOnResize | null;
-  }>({ onCollapse, onResize });
-  useEffect(() => {
-    callbacksRef.current.onCollapse = onCollapse;
-    callbacksRef.current.onResize = onResize;
-  });
-
-  const style = getPanelStyle(panelId, defaultSize);
-
-  const committedValuesRef = useRef<{
-    size: number;
-  }>({
-    size: parseSizeFromStyle(style),
-  });
-
-  const panelDataRef = useRef<{
-    callbacksRef: PanelCallbackRef;
-    collapsedSize: number;
-    collapsible: boolean;
-    defaultSize: number | null;
-    id: string;
-    idWasAutoGenerated: boolean;
-    maxSize: number | null;
-    minSize: number;
-    order: number | null;
-  }>({
-    callbacksRef,
-    collapsedSize,
-    collapsible,
-    defaultSize,
+  const panelDataRef = useRef<PanelData>({
+    callbacks: {
+      onCollapse,
+      onExpand,
+      onResize,
+    },
+    constraints: {
+      collapsedSizePercentage,
+      collapsedSizePixels,
+      collapsible,
+      defaultSizePercentage,
+      defaultSizePixels,
+      maxSizePercentage,
+      maxSizePixels,
+      minSizePercentage,
+      minSizePixels,
+    },
     id: panelId,
-    idWasAutoGenerated: idFromProps == null,
-    maxSize,
-    minSize,
+    idIsFromProps: idFromProps !== undefined,
     order,
   });
 
-  useIsomorphicLayoutEffect(() => {
-    committedValuesRef.current.size = parseSizeFromStyle(style);
+  const devWarningsRef = useRef<{
+    didLogDefaultSizeWarning: boolean;
+  }>({
+    didLogDefaultSizeWarning: false,
+  });
 
-    panelDataRef.current.callbacksRef = callbacksRef;
-    panelDataRef.current.collapsedSize = collapsedSize;
-    panelDataRef.current.collapsible = collapsible;
-    panelDataRef.current.defaultSize = defaultSize;
+  // Normally we wouldn't log a warning during render,
+  // but effects don't run on the server, so we can't do it there
+  if (isDevelopment) {
+    if (!devWarningsRef.current.didLogDefaultSizeWarning) {
+      if (
+        !isBrowser &&
+        defaultSizePercentage == null &&
+        defaultSizePixels == null
+      ) {
+        devWarningsRef.current.didLogDefaultSizeWarning = true;
+        console.warn(
+          `WARNING: Panel defaultSizePercentage or defaultSizePixels prop recommended to avoid layout shift after server rendering`
+        );
+      }
+    }
+  }
+
+  useIsomorphicLayoutEffect(() => {
+    const { callbacks, constraints } = panelDataRef.current;
+
     panelDataRef.current.id = panelId;
-    panelDataRef.current.idWasAutoGenerated = idFromProps == null;
-    panelDataRef.current.maxSize = maxSize;
-    panelDataRef.current.minSize = minSize as number;
+    panelDataRef.current.idIsFromProps = idFromProps !== undefined;
     panelDataRef.current.order = order;
+
+    callbacks.onCollapse = onCollapse;
+    callbacks.onExpand = onExpand;
+    callbacks.onResize = onResize;
+
+    constraints.collapsedSizePercentage = collapsedSizePercentage;
+    constraints.collapsedSizePixels = collapsedSizePixels;
+    constraints.collapsible = collapsible;
+    constraints.defaultSizePercentage = defaultSizePercentage;
+    constraints.defaultSizePixels = defaultSizePixels;
+    constraints.maxSizePercentage = maxSizePercentage;
+    constraints.maxSizePixels = maxSizePixels;
+    constraints.minSizePercentage = minSizePercentage;
+    constraints.minSizePixels = minSizePixels;
   });
 
   useIsomorphicLayoutEffect(() => {
-    registerPanel(panelId, panelDataRef as PanelData);
+    const panelData = panelDataRef.current;
+
+    registerPanel(panelData);
 
     return () => {
-      unregisterPanel(panelId);
+      unregisterPanel(panelData);
     };
   }, [order, panelId, registerPanel, unregisterPanel]);
 
   useImperativeHandle(
     forwardedRef,
     () => ({
-      collapse: () => collapsePanel(panelId),
-      expand: () => expandPanel(panelId),
-      getCollapsed() {
-        return committedValuesRef.current.size === 0;
+      collapse: () => {
+        collapsePanel(panelDataRef.current);
+      },
+      expand: () => {
+        expandPanel(panelDataRef.current);
       },
       getId() {
         return panelId;
       },
-      getSize(units) {
-        return getPanelSize(panelId, units);
+      getSize() {
+        return getPanelSize(panelDataRef.current);
       },
-      resize: (percentage: number, units) =>
-        resizePanel(panelId, percentage, units),
+      isCollapsed() {
+        return isPanelCollapsed(panelDataRef.current);
+      },
+      isExpanded() {
+        return !isPanelCollapsed(panelDataRef.current);
+      },
+      resize: (mixedSizes: Partial<MixedSizes>) => {
+        resizePanel(panelDataRef.current, mixedSizes);
+      },
     }),
-    [collapsePanel, expandPanel, getPanelSize, panelId, resizePanel]
+    [
+      collapsePanel,
+      expandPanel,
+      getPanelSize,
+      isPanelCollapsed,
+      panelId,
+      resizePanel,
+    ]
   );
+
+  const style = getPanelStyle(panelDataRef.current);
 
   return createElement(Type, {
     children,
     className: classNameFromProps,
-    "data-panel": "",
-    "data-panel-collapsible": collapsible || undefined,
-    "data-panel-id": panelId,
-    "data-panel-size": parseFloat("" + style.flexGrow).toFixed(1),
-    id: `data-panel-id-${panelId}`,
     style: {
       ...style,
       ...styleFromProps,
     },
+
+    // CSS selectors
+    "data-panel": "",
+
+    // e2e test attributes
+    "data-panel-collapsible": isDevelopment
+      ? collapsible || undefined
+      : undefined,
+    "data-panel-id": isDevelopment ? panelId : undefined,
+    "data-panel-size": isDevelopment
+      ? parseFloat("" + style.flexGrow).toFixed(1)
+      : undefined,
   });
 }
 
@@ -200,13 +262,3 @@ export const Panel = forwardRef<ImperativePanelHandle, PanelProps>(
 
 PanelWithForwardedRef.displayName = "Panel";
 Panel.displayName = "forwardRef(Panel)";
-
-// HACK
-function parseSizeFromStyle(style: CSSProperties): number {
-  const { flexGrow } = style;
-  if (typeof flexGrow === "string") {
-    return parseFloat(flexGrow);
-  } else {
-    return flexGrow as number;
-  }
-}

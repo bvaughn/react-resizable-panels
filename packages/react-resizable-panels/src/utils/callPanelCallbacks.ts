@@ -1,7 +1,7 @@
 import { PanelData } from "../Panel";
 import { MixedSizes } from "../types";
+import { calculateAvailablePanelSizeInPixels } from "../utils/dom/calculateAvailablePanelSizeInPixels";
 import { convertPercentageToPixels } from "./convertPercentageToPixels";
-import { calculateAvailablePanelSizeInPixels } from "./dom/calculateAvailablePanelSizeInPixels";
 import { getPercentageSizeFromMixedSizes } from "./getPercentageSizeFromMixedSizes";
 
 // Layout should be pre-converted into percentages

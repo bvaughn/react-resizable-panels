@@ -1,13 +1,13 @@
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { createRef } from "../vendor/react";
+import { createRef } from "./vendor/react";
 import { ImperativePanelHandle, Panel } from "./Panel";
 import { PanelGroup } from "./PanelGroup";
 import {
   mockOffsetWidthAndHeight,
   verifyExpandedPanelGroupLayout,
 } from "./utils/test-utils";
-import { MixedSizes } from "..";
+import { MixedSizes } from ".";
 
 describe("PanelGroup", () => {
   let expectedWarnings: string[] = [];
@@ -221,5 +221,14 @@ describe("PanelGroup", () => {
         );
       });
     });
+
+    // TODO Verify warning if percentage and pixel units are ever both specified
+    // TODO Verify throw if default size is less than 0
+    // TODO Verify throw if default percentage is greater than 100
+    // TODO Verify warning if default size is less than min size
+    // TODO Verify warning if default size is greater than max size
+    // TODO Verify warning if default percentages don't add up to 100%
+    // TODO Verify warning if min/max size combinations result in impossible layout constraints
+    // TODO Verify warning if invalid size is set via imperative api
   });
 });
