@@ -127,39 +127,39 @@ test.describe("Window Splitter", () => {
 
       await page.keyboard.press("ArrowRight");
       await verifyAriaValues(resizeHandle, {
-        now: 51,
+        now: 60,
       });
 
       await page.keyboard.press("ArrowRight");
       await verifyAriaValues(resizeHandle, {
-        now: 52,
+        now: 70,
       });
 
       // This isn't officially part of the spec but it seems like a nice tweak
       await page.keyboard.press("Shift+ArrowRight");
       await verifyAriaValues(resizeHandle, {
-        now: 62,
+        now: 90,
       });
 
       await page.keyboard.press("ArrowLeft");
       await verifyAriaValues(resizeHandle, {
-        now: 61,
+        now: 80,
       });
 
       // This isn't officially part of the spec but it seems like a nice tweak
       await page.keyboard.press("Shift+ArrowLeft");
       await verifyAriaValues(resizeHandle, {
-        now: 51,
+        now: 10,
       });
 
       // Up and down arrows should not affect a "horizontal" list
       await page.keyboard.press("ArrowUp");
       await verifyAriaValues(resizeHandle, {
-        now: 51,
+        now: 10,
       });
       await page.keyboard.press("ArrowDown");
       await verifyAriaValues(resizeHandle, {
-        now: 51,
+        now: 10,
       });
     });
 
@@ -176,33 +176,38 @@ test.describe("Window Splitter", () => {
       // Up and down arrows should affect a "vertical" list
       await page.keyboard.press("ArrowUp");
       await verifyAriaValues(resizeHandle, {
-        now: 49,
+        now: 40,
       });
 
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
       await verifyAriaValues(resizeHandle, {
-        now: 51,
+        now: 60,
       });
 
       await page.keyboard.press("Shift+ArrowDown");
       await verifyAriaValues(resizeHandle, {
-        now: 61,
+        now: 90,
       });
-      await page.keyboard.press("Shift+ArrowUp");
+
+      await page.keyboard.press("ArrowUp");
+      await verifyAriaValues(resizeHandle, {
+        now: 80,
+      });
+
       await page.keyboard.press("Shift+ArrowUp");
       await verifyAriaValues(resizeHandle, {
-        now: 41,
+        now: 10,
       });
 
       // But Left and right arrows should be ignored
       await page.keyboard.press("ArrowLeft");
       await verifyAriaValues(resizeHandle, {
-        now: 41,
+        now: 10,
       });
       await page.keyboard.press("ArrowRight");
       await verifyAriaValues(resizeHandle, {
-        now: 41,
+        now: 10,
       });
     });
   });

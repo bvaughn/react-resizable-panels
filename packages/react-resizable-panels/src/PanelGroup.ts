@@ -3,6 +3,7 @@ import { PanelData } from "./Panel";
 import { DragState, PanelGroupContext, ResizeEvent } from "./PanelGroupContext";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
+import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterPanelGroupBehavior";
 import { Direction, MixedSizes } from "./types";
 import { adjustLayoutByDelta } from "./utils/adjustLayoutByDelta";
 import { areEqual } from "./utils/arrays";
@@ -216,6 +217,14 @@ function PanelGroupWithForwardedRef({
     committedValuesRef.current.layout = layout;
     committedValuesRef.current.onLayout = onLayout;
     committedValuesRef.current.panelDataArray = panelDataArray;
+  });
+
+  useWindowSplitterPanelGroupBehavior({
+    committedValuesRef,
+    groupId,
+    layout,
+    panelDataArray,
+    setLayout,
   });
 
   useEffect(() => {
@@ -751,6 +760,8 @@ function PanelGroupWithForwardedRef({
   }, []);
 
   const unregisterPanel = useCallback((panelData: PanelData) => {
+    delete panelIdToLastNotifiedMixedSizesMapRef.current[panelData.id];
+
     setPanelDataArray((panelDataArray) => {
       const index = panelDataArray.indexOf(panelData);
       if (index >= 0) {

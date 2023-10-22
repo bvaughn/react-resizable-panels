@@ -82,10 +82,10 @@ test.describe("Nested groups", () => {
 
     // Resize the outer panel
     await outerHorizontalFirstHandle.focus();
-    await page.keyboard.press("Shift+ArrowLeft");
+    await page.keyboard.press("ArrowLeft");
     await verifyAriaValues(outerHorizontalFirstHandle, { now: 23 });
     await outerHorizontalLastHandle.focus();
-    await page.keyboard.press("Shift+ArrowRight");
+    await page.keyboard.press("ArrowRight");
     await verifyAriaValues(outerHorizontalLastHandle, { now: 53 });
 
     // Verify the inner panels still have the same relative sizes

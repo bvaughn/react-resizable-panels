@@ -1,3 +1,0 @@
-export function getResizeHandleElements(): HTMLDivElement[] {
-  return Array.from(document.querySelectorAll(`[data-panel-resize-handle-id]`));
-}

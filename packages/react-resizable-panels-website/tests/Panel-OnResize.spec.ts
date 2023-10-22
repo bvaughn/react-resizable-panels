@@ -111,7 +111,7 @@ test.describe("Panel onResize prop", () => {
 
     await clearLogEntries(page);
 
-    await page.keyboard.press("Shift+ArrowLeft");
+    await page.keyboard.press("ArrowLeft");
     await verifyEntries(page, [
       { panelId: "middle", sizePercentage: 90 },
       { panelId: "right", sizePercentage: 10 },
@@ -144,11 +144,18 @@ test.describe("Panel onResize prop", () => {
     await clearLogEntries(page);
 
     await updateUrl(page, createElements(2));
-    await verifyEntries(page, [{ panelId: "left", sizePercentage: 40 }]);
+    await verifyEntries(page, [
+      { panelId: "left", sizePercentage: 40 },
+      { panelId: "middle", sizePercentage: 60 },
+    ]);
 
     await clearLogEntries(page);
 
     await updateUrl(page, createElements(3));
-    await verifyEntries(page, [{ panelId: "left", sizePercentage: 20 }]);
+    await verifyEntries(page, [
+      { panelId: "left", sizePercentage: 20 },
+      { panelId: "middle", sizePercentage: 60 },
+      { panelId: "right", sizePercentage: 20 },
+    ]);
   });
 });
