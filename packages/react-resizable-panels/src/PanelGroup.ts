@@ -72,6 +72,8 @@ export type PanelGroupProps = PropsWithChildren<{
   className?: string;
   direction: Direction;
   id?: string | null;
+  keyboardResizeByPercentage?: number | null;
+  keyboardResizeByPixels?: number | null;
   onLayout?: PanelGroupOnLayout | null;
   storage?: PanelGroupStorage;
   style?: CSSProperties;
@@ -90,6 +92,8 @@ function PanelGroupWithForwardedRef({
   forwardedRef,
   id: idFromProps,
   onLayout = null,
+  keyboardResizeByPercentage = null,
+  keyboardResizeByPixels = null,
   storage = defaultStorage,
   style: styleFromProps,
   tagName: Type = "div",
@@ -112,6 +116,8 @@ function PanelGroupWithForwardedRef({
     direction: Direction;
     dragState: DragState | null;
     id: string;
+    keyboardResizeByPercentage: number | null;
+    keyboardResizeByPixels: number | null;
     layout: number[];
     onLayout: PanelGroupOnLayout | null;
     panelDataArray: PanelData[];
@@ -119,6 +125,8 @@ function PanelGroupWithForwardedRef({
     direction,
     dragState,
     id: groupId,
+    keyboardResizeByPercentage,
+    keyboardResizeByPixels,
     layout,
     onLayout,
     panelDataArray,
@@ -161,8 +169,9 @@ function PanelGroupWithForwardedRef({
 
         const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
 
-        const unsafeLayout = mixedSizes.map((mixedSize) =>
-          getPercentageSizeFromMixedSizes(mixedSize, groupSizePixels)
+        const unsafeLayout = mixedSizes.map(
+          (mixedSize) =>
+            getPercentageSizeFromMixedSizes(mixedSize, groupSizePixels)!
         );
 
         const safeLayout = validatePanelGroupLayout({
@@ -552,6 +561,8 @@ function PanelGroupWithForwardedRef({
         direction,
         dragState,
         id: groupId,
+        keyboardResizeByPercentage,
+        keyboardResizeByPixels,
         onLayout,
         panelDataArray,
         layout: prevLayout,
@@ -566,7 +577,11 @@ function PanelGroupWithForwardedRef({
         groupId,
         dragHandleId,
         direction,
-        dragState!
+        dragState!,
+        {
+          percentage: keyboardResizeByPercentage,
+          pixels: keyboardResizeByPixels,
+        }
       );
       if (delta === 0) {
         return;
@@ -666,7 +681,7 @@ function PanelGroupWithForwardedRef({
       const sizePercentage = getPercentageSizeFromMixedSizes(
         mixedSizes,
         groupSizePixels
-      );
+      )!;
 
       const isLastPanel =
         panelDataArray.indexOf(panelData) === panelDataArray.length - 1;

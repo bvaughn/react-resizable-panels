@@ -44,13 +44,14 @@ export function callPanelCallbacks(
       }
 
       if (collapsible && (onCollapse || onExpand)) {
-        const collapsedSize = getPercentageSizeFromMixedSizes(
-          {
-            sizePercentage: constraints.collapsedSizePercentage,
-            sizePixels: constraints.collapsedSizePixels,
-          },
-          groupSizePixels
-        );
+        const collapsedSize =
+          getPercentageSizeFromMixedSizes(
+            {
+              sizePercentage: constraints.collapsedSizePercentage,
+              sizePixels: constraints.collapsedSizePixels,
+            },
+            groupSizePixels
+          ) ?? 0;
 
         const size = getPercentageSizeFromMixedSizes(
           mixedSizes,
@@ -66,7 +67,8 @@ export function callPanelCallbacks(
           onExpand();
         } else if (
           onCollapse &&
-          lastNotifiedMixedSizes.sizePercentage !== collapsedSize &&
+          (lastNotifiedMixedSizes == null ||
+            lastNotifiedMixedSizes.sizePercentage !== collapsedSize) &&
           size === collapsedSize
         ) {
           onCollapse();

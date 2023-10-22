@@ -46,6 +46,8 @@ type UrlPanelGroup = {
   children: Array<UrlPanel | UrlPanelResizeHandle>;
   direction: "horizontal" | "vertical";
   id?: string | null;
+  keyboardResizeByPercentage?: number | null;
+  keyboardResizeByPixels?: number | null;
   style?: CSSProperties;
   type: "UrlPanelGroup";
 };
@@ -139,6 +141,8 @@ function UrlPanelGroupToData(
     }),
     direction: urlPanelGroup.props.direction,
     id: urlPanelGroup.props.id,
+    keyboardResizeByPercentage: urlPanelGroup.props.keyboardResizeByPercentage,
+    keyboardResizeByPixels: urlPanelGroup.props.keyboardResizeByPixels,
     style: urlPanelGroup.props.style,
     type: "UrlPanelGroup",
   };
@@ -281,6 +285,8 @@ export function urlPanelGroupToPanelGroup(
       direction: urlPanelGroup.direction,
       id: urlPanelGroup.id,
       key: key,
+      keyboardResizeByPercentage: urlPanelGroup.keyboardResizeByPercentage,
+      keyboardResizeByPixels: urlPanelGroup.keyboardResizeByPixels,
       onLayout,
       ref: refSetter,
       style: urlPanelGroup.style,

@@ -10,7 +10,11 @@ export function calculateDeltaPercentage(
   groupId: string,
   dragHandleId: string,
   direction: Direction,
-  initialDragState: DragState
+  initialDragState: DragState,
+  keyboardResizeByOptions: {
+    percentage: number | null;
+    pixels: number | null;
+  }
 ): number {
   if (isKeyDown(event)) {
     const isHorizontal = direction === "horizontal";
@@ -19,8 +23,16 @@ export function calculateDeltaPercentage(
     const rect = groupElement.getBoundingClientRect();
     const groupSizeInPixels = isHorizontal ? rect.width : rect.height;
 
-    const denominator = event.shiftKey ? 10 : 100;
-    const delta = groupSizeInPixels / denominator;
+    let delta = 0;
+    if (event.shiftKey) {
+      delta = 100;
+    } else if (keyboardResizeByOptions.percentage != null) {
+      delta = keyboardResizeByOptions.percentage;
+    } else if (keyboardResizeByOptions.pixels != null) {
+      delta = keyboardResizeByOptions.pixels / groupSizeInPixels;
+    } else {
+      delta = 10;
+    }
 
     let movement = 0;
     switch (event.key) {
@@ -37,10 +49,10 @@ export function calculateDeltaPercentage(
         movement = isHorizontal ? 0 : -delta;
         break;
       case "End":
-        movement = groupSizeInPixels;
+        movement = 100;
         break;
       case "Home":
-        movement = -groupSizeInPixels;
+        movement = -100;
         break;
     }
 

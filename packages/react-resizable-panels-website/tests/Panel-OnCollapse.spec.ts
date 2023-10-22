@@ -79,17 +79,12 @@ test.describe("Panel onCollapse prop", () => {
 
   test("should be called once on-mount", async ({ page }) => {
     // No panels are collapsed by default.
-    await verifyEntries(page, [
-      { panelId: "left", collapsed: false },
-      { panelId: "middle", collapsed: false },
-      { panelId: "right", collapsed: false },
-    ]);
+    await verifyEntries(page, []);
 
     // If we override via URL parameters, left and right panels should be collapsed by default.
     await openPage(page, { collapsedByDefault: true });
     await verifyEntries(page, [
       { panelId: "left", collapsed: true },
-      { panelId: "middle", collapsed: false },
       { panelId: "right", collapsed: true },
     ]);
   });

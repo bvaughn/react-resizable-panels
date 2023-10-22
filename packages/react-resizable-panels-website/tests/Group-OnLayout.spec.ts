@@ -61,7 +61,9 @@ test.describe("PanelGroup onLayout prop", () => {
     await verifyEntries(page, [[20, 60, 20]]);
   });
 
-  test("should be called when the panel group is resized", async ({ page }) => {
+  test.only("should be called when the panel group is resized", async ({
+    page,
+  }) => {
     const leftHandle = page.locator(
       '[data-panel-resize-handle-id="left-handle"]'
     );

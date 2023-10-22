@@ -183,7 +183,10 @@ export async function imperativeResizePanelGroup(
   await setLayoutButton.click();
 }
 
-export async function verifyPanelSize(locator: Locator, expectedSize: number) {
+export async function verifyPanelSizePercentage(
+  locator: Locator,
+  expectedSize: number
+) {
   await expect(await locator.getAttribute("data-panel-size")).toBe(
     expectedSize.toFixed(1)
   );

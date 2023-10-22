@@ -286,8 +286,8 @@ function EndToEndTesting() {
           </button>
         </div>
       </div>
-      <div className={styles.Children}>{children}</div>
       <DebugLog apiRef={debugLogRef} />
+      <div className={styles.Children}>{children}</div>
     </div>
   );
 }
