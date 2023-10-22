@@ -9,6 +9,7 @@ import {
 import {
   ImperativePanelGroupHandle,
   ImperativePanelHandle,
+  MixedSizes,
 } from "react-resizable-panels";
 
 import { urlPanelGroupToPanelGroup, urlToUrlData } from "../../utils/UrlData";
@@ -209,7 +210,20 @@ function EndToEndTesting() {
     const idToRefMap = idToRefMapRef.current;
     const panelGroup = idToRefMap.get(panelGroupId);
     if (panelGroup && assertImperativePanelGroupHandle(panelGroup)) {
-      panelGroup.setLayout(JSON.parse(layoutString));
+      const trimmedLayoutString = layoutString.substring(
+        1,
+        layoutString.length - 1
+      );
+      const layout = trimmedLayoutString.split(",").map((text) => {
+        if (text.endsWith("%")) {
+          return { sizePercentage: parseFloat(text) };
+        } else if (text.endsWith("px")) {
+          return { sizePixels: parseFloat(text) };
+        } else {
+          throw Error(`Invalid layout: ${layoutString}`);
+        }
+      }) satisfies Partial<MixedSizes>[];
+      panelGroup.setLayout(layout);
     }
   };
 

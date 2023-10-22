@@ -123,7 +123,7 @@ test.describe("Panel onResize prop", () => {
   }) => {
     await clearLogEntries(page);
 
-    await imperativeResizePanelGroup(page, "group", [10, 20, 70]);
+    await imperativeResizePanelGroup(page, "group", ["10%", "20%", "70%"]);
 
     await verifyEntries(page, [
       { panelId: "left", sizePercentage: 10 },

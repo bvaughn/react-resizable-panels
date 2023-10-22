@@ -65,7 +65,9 @@ export function callPanelCallbacks(
           size !== collapsedSize
         ) {
           onExpand();
-        } else if (
+        }
+
+        if (
           onCollapse &&
           (lastNotifiedMixedSizes == null ||
             lastNotifiedMixedSizes.sizePercentage !== collapsedSize) &&

@@ -170,7 +170,7 @@ export async function imperativeResizePanel(
 export async function imperativeResizePanelGroup(
   page: Page,
   panelGroupId: string,
-  sizes: number[]
+  sizes: string[]
 ) {
   const panelGroupIdSelect = page.locator("#panelGroupIdSelect");
   panelGroupIdSelect.selectOption(panelGroupId);

@@ -229,6 +229,7 @@ function urlPanelToPanel(
       minSizePercentage: urlPanel.minSizePercentage,
       minSizePixels: urlPanel.minSizePixels,
       onCollapse,
+      onExpand,
       onResize,
       order: urlPanel.order ?? undefined,
       ref: refSetter,

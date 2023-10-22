@@ -61,9 +61,7 @@ test.describe("PanelGroup onLayout prop", () => {
     await verifyEntries(page, [[20, 60, 20]]);
   });
 
-  test.only("should be called when the panel group is resized", async ({
-    page,
-  }) => {
+  test("should be called when the panel group is resized", async ({ page }) => {
     const leftHandle = page.locator(
       '[data-panel-resize-handle-id="left-handle"]'
     );
@@ -77,7 +75,7 @@ test.describe("PanelGroup onLayout prop", () => {
     await page.keyboard.press("Home");
     await rightHandle.focus();
     await page.keyboard.press("End");
-    await page.keyboard.press("Shift+ArrowLeft");
+    await page.keyboard.press("ArrowLeft");
 
     await verifyEntries(page, [
       [0, 80, 20],

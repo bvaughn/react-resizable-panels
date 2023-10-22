@@ -58,7 +58,12 @@ async function verifyEntries(
     PanelCollapseLogEntry | PanelExpandLogEntry
   >(page, ["onCollapse", "onExpand"]);
 
-  expect(logEntries.length).toEqual(expected.length);
+  try {
+    expect(logEntries.length).toEqual(expected.length);
+  } catch (error) {
+    console.error(`Expected ${expected.length} entries, got:\n`, logEntries);
+    throw error;
+  }
 
   for (let index = 0; index < expected.length; index++) {
     const { panelId: actualPanelId, type } = logEntries[index];
@@ -79,24 +84,18 @@ test.describe("Panel onCollapse prop", () => {
 
   test("should be called once on-mount", async ({ page }) => {
     // No panels are collapsed by default.
-    await verifyEntries(page, []);
+    await verifyEntries(page, [
+      { panelId: "left", collapsed: false },
+      { panelId: "middle", collapsed: false },
+      { panelId: "right", collapsed: false },
+    ]);
 
     // If we override via URL parameters, left and right panels should be collapsed by default.
     await openPage(page, { collapsedByDefault: true });
     await verifyEntries(page, [
       { panelId: "left", collapsed: true },
+      { panelId: "middle", collapsed: false },
       { panelId: "right", collapsed: true },
-    ]);
-  });
-
-  // Edge case
-  test("should only call onCollapse for panels that are collapsible", async ({
-    page,
-  }) => {
-    await openPage(page, { middleCollapsible: false });
-    await verifyEntries(page, [
-      { panelId: "left", collapsed: false },
-      { panelId: "right", collapsed: false },
     ]);
   });
 
@@ -113,7 +112,6 @@ test.describe("Panel onCollapse prop", () => {
     // Resizing should not trigger onCollapse unless the panel's collapsed state changes.
     await leftHandle.focus();
     await page.keyboard.press("ArrowLeft");
-    await page.keyboard.press("Shift+ArrowLeft");
     await verifyEntries(page, []);
 
     await page.keyboard.press("Home");
@@ -129,8 +127,6 @@ test.describe("Panel onCollapse prop", () => {
 
     // Resizing should not trigger onCollapse unless the panel's collapsed state changes.
     await page.keyboard.press("ArrowRight");
-    await page.keyboard.press("Shift+ArrowRight");
-    await page.keyboard.press("End");
     await verifyEntries(page, []);
 
     await page.keyboard.press("ArrowLeft");
@@ -142,12 +138,12 @@ test.describe("Panel onCollapse prop", () => {
   }) => {
     await clearLogEntries(page);
 
-    await imperativeResizePanelGroup(page, "group", [70, 30, 0]);
+    await imperativeResizePanelGroup(page, "group", ["70%", "30%", "0%"]);
     await verifyEntries(page, [{ panelId: "right", collapsed: true }]);
 
     await clearLogEntries(page);
 
-    await imperativeResizePanelGroup(page, "group", [0, 0, 100]);
+    await imperativeResizePanelGroup(page, "group", ["0%", "0%", "100%"]);
     await verifyEntries(page, [
       { panelId: "left", collapsed: true },
       { panelId: "middle", collapsed: true },
