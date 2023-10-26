@@ -468,7 +468,7 @@ export function safeResizePanel(
           }
           
           return collapsedSize;
-        } 
+        }
       }
     }
   }
