@@ -451,7 +451,7 @@ export function safeResizePanel(
 
   if (collapsible) {
     if (prevSize > collapsedSize) {
-      
+      // Mimic VS Code behavior; collapse a panel if it's smaller than half of its min-size
       if (nextSize <= minSize / 2 + collapsedSize) {
         return collapsedSize;
       }
@@ -461,7 +461,7 @@ export function safeResizePanel(
       // but mouse events should wait until the panel has reached its min size
       // to avoid a visual flickering when dragging between collapsed and min size.
       if (!isKeyboardEvent) {
-        // Mimic VS COde behavior; collapse a panel if it's smaller than half of its min-size
+        // Mimic VS Code behavior; collapse a panel if it's smaller than half of its min-size
         if (nextSize > minSize / 2 + collapsedSize) {
           return minSize;
         } else if (nextSize < minSize) {
