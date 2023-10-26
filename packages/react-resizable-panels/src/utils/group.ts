@@ -457,14 +457,16 @@ export function safeResizePanel(
       }
     } else {
       const isKeyboardEvent = event?.type?.startsWith("key");
-      // Keyboard events should expand a collapsed panel to the min size,
-      // but mouse events should wait until the panel has reached its min size
-      // to avoid a visual flickering when dragging between collapsed and min size.
       if (!isKeyboardEvent) {
-        // Mimic VS Code behavior; collapse a panel if it's smaller than half of its min-size
-        if (nextSize > minSize / 2 + collapsedSize) {
-          return minSize;
-        } else if (nextSize < minSize) {
+        // Keyboard events should expand a collapsed panel to the min size,
+        // but mouse events should wait until the panel has reached its min size
+        // to avoid a visual flickering when dragging between collapsed and min size.
+        if (nextSize < minSize) {
+          // Mimic VS Code behavior; collapse a panel if it's smaller than half of its min-size
+          if (nextSize > minSize / 2 + collapsedSize) {
+            return minSize;
+          }
+          
           return collapsedSize;
         } 
       }
