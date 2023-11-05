@@ -90,6 +90,19 @@ describe("validatePanelConstraints", () => {
       validatePanelConstraints({
         panelConstraints: [
           {
+            defaultSizePercentage: -1,
+            minSizePercentage: 10,
+          },
+        ],
+        panelIndex: 0,
+        panelId: "test",
+      });
+    }, "default size should not be less than 0");
+
+    verifyExpectedWarnings(() => {
+      validatePanelConstraints({
+        panelConstraints: [
+          {
             defaultSizePercentage: 5,
             minSizePercentage: 10,
           },
@@ -98,6 +111,19 @@ describe("validatePanelConstraints", () => {
         panelId: "test",
       });
     }, "default size should not be less than min size");
+
+    verifyExpectedWarnings(() => {
+      validatePanelConstraints({
+        panelConstraints: [
+          {
+            defaultSizePercentage: 101,
+            maxSizePercentage: 10,
+          },
+        ],
+        panelIndex: 0,
+        panelId: "test",
+      });
+    }, "default size should not be greater than 100");
 
     verifyExpectedWarnings(() => {
       validatePanelConstraints({

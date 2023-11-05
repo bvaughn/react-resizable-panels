@@ -32,7 +32,7 @@ export function validatePanelGroupLayout({
     // (especially if the amount is small)
     if (isDevelopment) {
       console.warn(
-        `Invalid layout total size: ${nextLayout
+        `WARNING: Invalid layout total size: ${nextLayout
           .map((size) => `${size}%`)
           .join(", ")}`
       );

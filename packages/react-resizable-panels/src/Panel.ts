@@ -142,21 +142,21 @@ export function PanelWithForwardedRef({
   });
 
   const devWarningsRef = useRef<{
-    didLogDefaultSizeWarning: boolean;
+    didLogMissingDefaultSizeWarning: boolean;
   }>({
-    didLogDefaultSizeWarning: false,
+    didLogMissingDefaultSizeWarning: false,
   });
 
   // Normally we wouldn't log a warning during render,
   // but effects don't run on the server, so we can't do it there
   if (isDevelopment) {
-    if (!devWarningsRef.current.didLogDefaultSizeWarning) {
+    if (!devWarningsRef.current.didLogMissingDefaultSizeWarning) {
       if (
         !isBrowser &&
         defaultSizePercentage == null &&
         defaultSizePixels == null
       ) {
-        devWarningsRef.current.didLogDefaultSizeWarning = true;
+        devWarningsRef.current.didLogMissingDefaultSizeWarning = true;
         console.warn(
           `WARNING: Panel defaultSizePercentage or defaultSizePixels prop recommended to avoid layout shift after server rendering`
         );

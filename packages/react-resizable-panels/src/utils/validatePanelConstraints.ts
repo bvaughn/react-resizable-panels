@@ -10,7 +10,7 @@ export function validatePanelConstraints({
   panelConstraints: PanelConstraints[];
   panelId: string | undefined;
   panelIndex: number;
-}) {
+}): boolean {
   if (isDevelopment) {
     const warnings = [];
 
@@ -65,10 +65,15 @@ export function validatePanelConstraints({
       }
 
       if (defaultSizePercentage != null) {
-        if (defaultSizePercentage < minSizePercentage) {
+        if (defaultSizePercentage < 0) {
+          warnings.push("default size should not be less than 0");
+        } else if (defaultSizePercentage < minSizePercentage) {
           warnings.push("default size should not be less than min size");
         }
-        if (defaultSizePercentage > maxSizePercentage) {
+
+        if (defaultSizePercentage > 100) {
+          warnings.push("default size should not be greater than 100");
+        } else if (defaultSizePercentage > maxSizePercentage) {
           warnings.push("default size should not be greater than max size");
         }
       }
@@ -80,9 +85,13 @@ export function validatePanelConstraints({
 
     if (warnings.length > 0) {
       const name = panelId != null ? `Panel "${panelId}"` : "Panel";
-      console.error(
+      console.warn(
         `${name} has an invalid configuration:\n\n${warnings.join("\n")}`
       );
+
+      return false;
     }
   }
+
+  return true;
 }

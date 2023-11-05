@@ -24,6 +24,7 @@ import { getPercentageSizeFromMixedSizes } from "./utils/getPercentageSizeFromMi
 import { getResizeEventCursorPosition } from "./utils/getResizeEventCursorPosition";
 import { initializeDefaultStorage } from "./utils/initializeDefaultStorage";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
+import { validatePanelConstraints } from "./utils/validatePanelConstraints";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 import {
   CSSProperties,
@@ -135,9 +136,11 @@ function PanelGroupWithForwardedRef({
 
   const devWarningsRef = useRef<{
     didLogIdAndOrderWarning: boolean;
+    didLogPanelConstraintsWarning: boolean;
     prevPanelIds: string[];
   }>({
     didLogIdAndOrderWarning: false,
+    didLogPanelConstraintsWarning: false,
     prevPanelIds: [],
   });
 
@@ -305,7 +308,11 @@ function PanelGroupWithForwardedRef({
   // DEV warnings
   useEffect(() => {
     if (isDevelopment) {
-      const { didLogIdAndOrderWarning, prevPanelIds } = devWarningsRef.current;
+      const {
+        didLogIdAndOrderWarning,
+        didLogPanelConstraintsWarning,
+        prevPanelIds,
+      } = devWarningsRef.current;
 
       if (!didLogIdAndOrderWarning) {
         const { panelDataArray } = committedValuesRef.current;
@@ -327,6 +334,30 @@ function PanelGroupWithForwardedRef({
             console.warn(
               `WARNING: Panel id and order props recommended when panels are dynamically rendered`
             );
+          }
+        }
+      }
+
+      if (!didLogPanelConstraintsWarning) {
+        const panelConstraints = panelDataArray.map(
+          (panelData) => panelData.constraints
+        );
+
+        for (
+          let panelIndex = 0;
+          panelIndex < panelConstraints.length;
+          panelIndex++
+        ) {
+          const isValid = validatePanelConstraints({
+            panelConstraints,
+            panelId: panelDataArray[panelIndex].id,
+            panelIndex,
+          });
+
+          if (!isValid) {
+            devWarningsRef.current.didLogPanelConstraintsWarning = true;
+
+            break;
           }
         }
       }

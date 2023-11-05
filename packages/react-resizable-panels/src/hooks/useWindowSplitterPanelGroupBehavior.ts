@@ -59,7 +59,9 @@ export function useWindowSplitterPanelGroupBehavior({
           if (!didWarnAboutMissingResizeHandle) {
             devWarningsRef.current.didWarnAboutMissingResizeHandle = true;
 
-            console.warn(`Missing resize handle for PanelGroup "${groupId}"`);
+            console.warn(
+              `WARNING: Missing resize handle for PanelGroup "${groupId}"`
+            );
           }
         }
       } else {

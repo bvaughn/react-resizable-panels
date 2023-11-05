@@ -1,12 +1,17 @@
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { createRef } from "./vendor/react";
-import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from ".";
+import {
+  ImperativePanelHandle,
+  MixedSizes,
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+} from ".";
 import {
   mockPanelGroupOffsetWidthAndHeight,
   verifyExpandedPanelGroupLayout,
 } from "./utils/test-utils";
-import { MixedSizes } from ".";
+import { createRef } from "./vendor/react";
 
 describe("PanelGroup", () => {
   let expectedWarnings: string[] = [];
@@ -190,6 +195,9 @@ describe("PanelGroup", () => {
     });
   });
 
+  // TODO Verify throw if default size is less than 0 or greater than 100
+  // TODO Verify throw if rendered outside of a PanelGroup
+
   describe("DEV warnings", () => {
     it("should warn about server rendered panels with no default size", () => {
       jest.resetModules();
@@ -229,13 +237,33 @@ describe("PanelGroup", () => {
       });
     });
 
-    // TODO Verify warning if percentage and pixel units are ever both specified
-    // TODO Verify throw if default size is less than 0
-    // TODO Verify throw if default percentage is greater than 100
-    // TODO Verify warning if default size is less than min size
-    // TODO Verify warning if default size is greater than max size
-    // TODO Verify warning if default percentages don't add up to 100%
-    // TODO Verify warning if min/max size combinations result in impossible layout constraints
-    // TODO Verify warning if invalid size is set via imperative api
+    it("should warn if both pixel and percentage units are specified", () => {
+      // We just spot check this here; validatePanelConstraints() has its own in-depth tests
+      expectWarning(
+        "should not specify both percentage and pixel units for: min size"
+      );
+
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal" key="minSize">
+            <Panel minSizePercentage={100} minSizePixels={1_000} />
+          </PanelGroup>
+        );
+      });
+    });
+
+    it("should warn if invalid sizes are specified declaratively", () => {
+      expectWarning("default size should not be less than 0");
+
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal" key="collapsedSize">
+            <Panel defaultSizePercentage={-1} />
+            <PanelResizeHandle />
+            <Panel />
+          </PanelGroup>
+        );
+      });
+    });
   });
 });
