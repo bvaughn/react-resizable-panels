@@ -18,7 +18,7 @@ export function expectToBeCloseToArray(
   }
 }
 
-export function mockOffsetWidthAndHeight(
+export function mockPanelGroupOffsetWidthAndHeight(
   mockWidth = 1_000,
   mockHeight = 1_000
 ) {
@@ -34,12 +34,24 @@ export function mockOffsetWidthAndHeight(
 
   Object.defineProperty(HTMLElement.prototype, "offsetHeight", {
     configurable: true,
-    value: mockHeight,
+    get: function () {
+      if (this.hasAttribute("data-resize-handle")) {
+        return 0;
+      } else if (this.hasAttribute("data-panel-group")) {
+        return mockHeight;
+      }
+    },
   });
 
   Object.defineProperty(HTMLElement.prototype, "offsetWidth", {
     configurable: true,
-    value: mockWidth,
+    get: function () {
+      if (this.hasAttribute("data-resize-handle")) {
+        return 0;
+      } else if (this.hasAttribute("data-panel-group")) {
+        return mockWidth;
+      }
+    },
   });
 
   return function uninstallMocks() {

@@ -151,6 +151,10 @@ export function PanelResizeHandle({
   return createElement(Type, {
     children,
     className: classNameFromProps,
+
+    // CSS selectors
+    "data-resize-handle": "",
+
     "data-resize-handle-active": isDragging
       ? "pointer"
       : isFocused

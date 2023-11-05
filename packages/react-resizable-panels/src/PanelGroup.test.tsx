@@ -1,9 +1,13 @@
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { MixedSizes } from "..";
-import { Panel } from "./Panel";
-import { ImperativePanelGroupHandle, PanelGroup } from "./PanelGroup";
-import { mockOffsetWidthAndHeight } from "./utils/test-utils";
+import {
+  ImperativePanelGroupHandle,
+  MixedSizes,
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+} from ".";
+import { mockPanelGroupOffsetWidthAndHeight } from "./utils/test-utils";
 import { createRef } from "./vendor/react";
 
 describe("PanelGroup", () => {
@@ -20,7 +24,7 @@ describe("PanelGroup", () => {
     global.IS_REACT_ACT_ENVIRONMENT = true;
 
     // JSDom doesn't support element sizes
-    uninstallMockOffsetWidthAndHeight = mockOffsetWidthAndHeight();
+    uninstallMockOffsetWidthAndHeight = mockPanelGroupOffsetWidthAndHeight();
 
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -85,6 +89,7 @@ describe("PanelGroup", () => {
         root.render(
           <PanelGroup direction="horizontal" onLayout={onLayout} ref={ref}>
             <Panel defaultSizePercentage={50} id="a" />
+            <PanelResizeHandle />
             <Panel defaultSizePercentage={50} id="b" />
           </PanelGroup>
         );
@@ -139,12 +144,14 @@ describe("PanelGroup", () => {
         root.render(
           <PanelGroup direction="horizontal">
             <Panel defaultSizePercentage={50} id="a" />
+            <PanelResizeHandle />
             <Panel defaultSizePercentage={50} id="b" />
           </PanelGroup>
         );
       });
     });
 
+    // TODO Verify warning if missing resize handle
     // TODO Verify warning if invalid layout is set via imperative api
   });
 });

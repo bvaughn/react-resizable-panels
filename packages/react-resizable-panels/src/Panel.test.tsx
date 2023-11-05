@@ -1,10 +1,9 @@
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { createRef } from "./vendor/react";
-import { ImperativePanelHandle, Panel } from "./Panel";
-import { PanelGroup } from "./PanelGroup";
+import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from ".";
 import {
-  mockOffsetWidthAndHeight,
+  mockPanelGroupOffsetWidthAndHeight,
   verifyExpandedPanelGroupLayout,
 } from "./utils/test-utils";
 import { MixedSizes } from ".";
@@ -22,7 +21,7 @@ describe("PanelGroup", () => {
     // @ts-expect-error
     global.IS_REACT_ACT_ENVIRONMENT = true;
 
-    uninstallMockOffsetWidthAndHeight = mockOffsetWidthAndHeight();
+    uninstallMockOffsetWidthAndHeight = mockPanelGroupOffsetWidthAndHeight();
 
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -82,6 +81,7 @@ describe("PanelGroup", () => {
                 defaultSizePercentage={50}
                 ref={leftPanelRef}
               />
+              <PanelResizeHandle />
               <Panel
                 collapsible
                 defaultSizePercentage={50}
@@ -155,7 +155,9 @@ describe("PanelGroup", () => {
           root.render(
             <PanelGroup direction="horizontal" onLayout={onLayout}>
               <Panel defaultSizePercentage={20} ref={leftPanelRef} />
+              <PanelResizeHandle />
               <Panel defaultSizePercentage={60} ref={middlePanelRef} />
+              <PanelResizeHandle />
               <Panel defaultSizePercentage={20} ref={rightPanelRef} />
             </PanelGroup>
           );
@@ -193,16 +195,22 @@ describe("PanelGroup", () => {
       jest.resetModules();
       jest.mock("#is-browser", () => ({ isBrowser: false }));
 
-      const { createRoot } = require("react-dom/client");
+      const { TextEncoder } = require("util");
+      global.TextEncoder = TextEncoder;
+
+      const { renderToStaticMarkup } = require("react-dom/server.browser");
       const { act } = require("react-dom/test-utils");
       const Panel = require("./Panel").Panel;
       const PanelGroup = require("./PanelGroup").PanelGroup;
+      const PanelResizeHandle =
+        require("./PanelResizeHandle").PanelResizeHandle;
 
       act(() => {
-        const root = createRoot(document.createElement("div"));
-        root.render(
+        // No warning expected if default sizes provided
+        renderToStaticMarkup(
           <PanelGroup direction="horizontal">
             <Panel defaultSizePercentage={100} />
+            <PanelResizeHandle />
             <Panel defaultSizePixels={1_000} />
           </PanelGroup>
         );
@@ -213,8 +221,7 @@ describe("PanelGroup", () => {
       );
 
       act(() => {
-        const root = createRoot(document.createElement("div"));
-        root.render(
+        renderToStaticMarkup(
           <PanelGroup direction="horizontal">
             <Panel id="one" />
           </PanelGroup>

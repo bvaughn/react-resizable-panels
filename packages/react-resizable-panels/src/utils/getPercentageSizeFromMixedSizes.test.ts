@@ -41,9 +41,7 @@ describe("getPercentageSizeFromMixedSizes", () => {
     ).toBe(25);
   });
 
-  it("should throw if neither pixel nor percentage sizes specified", () => {
-    expect(() => getPercentageSizeFromMixedSizes({}, 100_000)).toThrowError(
-      "Invalid size"
-    );
+  it("should return undefined if neither pixel nor percentage sizes specified", () => {
+    expect(getPercentageSizeFromMixedSizes({}, 100_000)).toBeUndefined();
   });
 });

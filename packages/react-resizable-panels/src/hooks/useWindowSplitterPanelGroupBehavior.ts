@@ -46,22 +46,26 @@ export function useWindowSplitterPanelGroupBehavior({
       });
 
       const resizeHandleElement = resizeHandleElements[index];
-      resizeHandleElement.setAttribute(
-        "aria-controls",
-        panelDataArray[index].id
-      );
-      resizeHandleElement.setAttribute(
-        "aria-valuemax",
-        "" + Math.round(valueMax)
-      );
-      resizeHandleElement.setAttribute(
-        "aria-valuemin",
-        "" + Math.round(valueMin)
-      );
-      resizeHandleElement.setAttribute(
-        "aria-valuenow",
-        "" + Math.round(valueNow)
-      );
+      if (resizeHandleElement == null) {
+        console.warn(`Missing resize handle for PanelGroup "${groupId}"`);
+      } else {
+        resizeHandleElement.setAttribute(
+          "aria-controls",
+          panelDataArray[index].id
+        );
+        resizeHandleElement.setAttribute(
+          "aria-valuemax",
+          "" + Math.round(valueMax)
+        );
+        resizeHandleElement.setAttribute(
+          "aria-valuemin",
+          "" + Math.round(valueMin)
+        );
+        resizeHandleElement.setAttribute(
+          "aria-valuenow",
+          "" + Math.round(valueNow)
+        );
+      }
     }
 
     return () => {
