@@ -1,3 +1,4 @@
+import { isDevelopment } from "#is-development";
 import { RefObject, useEffect } from "../vendor/react";
 
 import { PanelData } from "../Panel";
@@ -14,6 +15,7 @@ import { getResizeHandleElementsForGroup } from "../utils/dom/getResizeHandleEle
 import { getResizeHandlePanelIds } from "../utils/dom/getResizeHandlePanelIds";
 import { getPercentageSizeFromMixedSizes } from "../utils/getPercentageSizeFromMixedSizes";
 import useIsomorphicLayoutEffect from "./useIsomorphicEffect";
+import { useRef } from "react";
 
 // https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/
 
@@ -33,6 +35,12 @@ export function useWindowSplitterPanelGroupBehavior({
   panelDataArray: PanelData[];
   setLayout: (sizes: number[]) => void;
 }): void {
+  const devWarningsRef = useRef<{
+    didWarnAboutMissingResizeHandle: boolean;
+  }>({
+    didWarnAboutMissingResizeHandle: false,
+  });
+
   useIsomorphicLayoutEffect(() => {
     const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
     const resizeHandleElements = getResizeHandleElementsForGroup(groupId);
@@ -47,7 +55,15 @@ export function useWindowSplitterPanelGroupBehavior({
 
       const resizeHandleElement = resizeHandleElements[index];
       if (resizeHandleElement == null) {
-        console.warn(`Missing resize handle for PanelGroup "${groupId}"`);
+        if (isDevelopment) {
+          const { didWarnAboutMissingResizeHandle } = devWarningsRef.current;
+
+          if (!didWarnAboutMissingResizeHandle) {
+            devWarningsRef.current.didWarnAboutMissingResizeHandle = true;
+
+            console.warn(`Missing resize handle for PanelGroup "${groupId}"`);
+          }
+        }
       } else {
         resizeHandleElement.setAttribute(
           "aria-controls",

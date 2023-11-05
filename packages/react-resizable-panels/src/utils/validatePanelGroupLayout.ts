@@ -1,6 +1,7 @@
+import { isDevelopment } from "#is-development";
+import { PanelConstraints } from "../Panel";
 import { fuzzyNumbersEqual } from "./numbers/fuzzyNumbersEqual";
 import { resizePanel } from "./resizePanel";
-import { PanelConstraints } from "../Panel";
 
 // All units must be in percentages; pixel values should be pre-converted
 export function validatePanelGroupLayout({
@@ -27,11 +28,15 @@ export function validatePanelGroupLayout({
       100
     )
   ) {
-    throw Error(
-      `Invalid layout total size: ${nextLayout
-        .map((size) => `${size}%`)
-        .join(", ")}`
-    );
+    // This is not ideal so we should warn about it, but it may be recoverable in some cases
+    // (especially if the amount is small)
+    if (isDevelopment) {
+      console.warn(
+        `Invalid layout total size: ${nextLayout
+          .map((size) => `${size}%`)
+          .join(", ")}`
+      );
+    }
   }
 
   let remainingSize = 0;

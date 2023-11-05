@@ -151,7 +151,60 @@ describe("PanelGroup", () => {
       });
     });
 
-    // TODO Verify warning if missing resize handle
-    // TODO Verify warning if invalid layout is set via imperative api
+    it("should warn about missing resize handles", () => {
+      expectWarning(
+        'Missing resize handle for PanelGroup "group-without-handle"'
+      );
+
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal" id="group-without-handle">
+            <Panel />
+            <Panel />
+          </PanelGroup>
+        );
+      });
+    });
+
+    it("should warn about an invalid declarative layout", () => {
+      expectWarning("Invalid layout total size: 60%, 80%");
+
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal" id="group-without-handle">
+            <Panel defaultSizePercentage={60} />
+            <PanelResizeHandle />
+            <Panel defaultSizePercentage={80} />
+          </PanelGroup>
+        );
+      });
+    });
+
+    it("should warn about an invalid layout set via the imperative api", () => {
+      const ref = createRef<ImperativePanelGroupHandle>();
+
+      act(() => {
+        root.render(
+          <PanelGroup
+            direction="horizontal"
+            id="group-without-handle"
+            ref={ref}
+          >
+            <Panel defaultSizePercentage={30} />
+            <PanelResizeHandle />
+            <Panel defaultSizePercentage={70} />
+          </PanelGroup>
+        );
+      });
+
+      expectWarning("Invalid layout total size: 60%, 80%");
+
+      act(() => {
+        ref.current!.setLayout([
+          { sizePercentage: 60 },
+          { sizePercentage: 80 },
+        ]);
+      });
+    });
   });
 });

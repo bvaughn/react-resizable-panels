@@ -1,3 +1,4 @@
+import { verifyExpectedWarnings } from "./test-utils";
 import { validatePanelGroupLayout } from "./validatePanelGroupLayout";
 
 describe("validatePanelGroupLayout", () => {
@@ -12,21 +13,25 @@ describe("validatePanelGroupLayout", () => {
   });
 
   it("should reject layouts that do not total 100%", () => {
-    expect(() =>
-      validatePanelGroupLayout({
-        groupSizePixels: NaN,
-        layout: [10, 20, 30],
-        panelConstraints: [{}, {}, {}],
-      })
-    ).toThrow("Invalid layout total size");
+    verifyExpectedWarnings(
+      () =>
+        validatePanelGroupLayout({
+          groupSizePixels: NaN,
+          layout: [10, 20, 30],
+          panelConstraints: [{}, {}, {}],
+        }),
+      "Invalid layout total size"
+    );
 
-    expect(() =>
-      validatePanelGroupLayout({
-        groupSizePixels: NaN,
-        layout: [50, 100, 150],
-        panelConstraints: [{}, {}, {}],
-      })
-    ).toThrow("Invalid layout total size");
+    verifyExpectedWarnings(
+      () =>
+        validatePanelGroupLayout({
+          groupSizePixels: NaN,
+          layout: [50, 100, 150],
+          panelConstraints: [{}, {}, {}],
+        }),
+      "Invalid layout total size"
+    );
   });
 
   it("should reject layouts that do not match the number of panels", () => {
