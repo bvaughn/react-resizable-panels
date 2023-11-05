@@ -1,6 +1,4 @@
 import { isDevelopment } from "#is-development";
-import { RefObject, useEffect } from "../vendor/react";
-
 import { PanelData } from "../Panel";
 import { PRECISION } from "../constants";
 import { Direction } from "../types";
@@ -14,8 +12,8 @@ import { getPanelGroupElement } from "../utils/dom/getPanelGroupElement";
 import { getResizeHandleElementsForGroup } from "../utils/dom/getResizeHandleElementsForGroup";
 import { getResizeHandlePanelIds } from "../utils/dom/getResizeHandlePanelIds";
 import { getPercentageSizeFromMixedSizes } from "../utils/getPercentageSizeFromMixedSizes";
+import { RefObject, useEffect, useRef } from "../vendor/react";
 import useIsomorphicLayoutEffect from "./useIsomorphicEffect";
-import { useRef } from "react";
 
 // https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/
 
