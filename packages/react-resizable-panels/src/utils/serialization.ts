@@ -10,11 +10,11 @@ type SerializedPanelGroupState = { [panelIds: string]: number[] };
 function getSerializationKey(panels: PanelData[]): string {
   return panels
     .map((panel) => {
-      const { id, idIsFromProps, constraints } = panel;
+      const { constraints, id, idIsFromProps, order } = panel;
       if (idIsFromProps) {
         return id;
       } else {
-        return JSON.stringify(constraints);
+        return `${order}:${JSON.stringify(constraints)}`;
       }
     })
     .sort((a, b) => a.localeCompare(b))

@@ -56,13 +56,12 @@ test.describe("Storage", () => {
       await first.focus();
       await page.keyboard.press("Home");
       await resizeHandles.last().focus();
-      await page.keyboard.press("End");
-      await page.keyboard.press("Shift+ArrowLeft");
+      await page.keyboard.press("Shift+ArrowRight");
       await verifyAriaValues(first, {
         now: 10,
       });
       await verifyAriaValues(last, {
-        now: 70,
+        now: 80,
       });
 
       // Wait for localStorage write debounce
@@ -74,7 +73,7 @@ test.describe("Storage", () => {
         now: 10,
       });
       await verifyAriaValues(last, {
-        now: 70,
+        now: 80,
       });
     });
 
