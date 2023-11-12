@@ -44,7 +44,7 @@ export function adjustLayoutByDelta({
     const initialSize = nextLayout[pivotIndex]!;
 
     const { collapsible } = panelConstraints[pivotIndex]!;
-    const { collapsedSizePercentage, maxSizePercentage, minSizePercentage } =
+    const { collapsedSizePercentage, minSizePercentage } =
       computePercentagePanelConstraints(
         panelConstraints,
         pivotIndex,
