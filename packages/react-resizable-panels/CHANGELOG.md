@@ -2,7 +2,11 @@
 
 ## 0.0.56
 
-Support a more customizable mix of percentage and pixel based units at the `Panel` level.
+Support a mix of percentage and pixel based units at the `Panel` level:
+
+```jsx
+<Panel defaultSizePixels={100} minSizePercentage={20} maxSizePercentage={50} />
+```
 
 > **Note**: Pixel units require the use of a `ResizeObserver` to validate. Percentage based units are recommended when possible.
 
