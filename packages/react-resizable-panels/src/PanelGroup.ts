@@ -45,6 +45,8 @@ import {
 //      ResizeObserver should trigger validatePanelGroupLayout() and callPanelCallbacks() when size changes
 //      The /examples/pixel-based-layouts page can be used to test this
 
+const LOCAL_STORAGE_DEBOUNCE_INTERVAL = 100;
+
 export type ImperativePanelGroupHandle = {
   getId: () => string;
   getLayout: () => MixedSizes[];
@@ -239,7 +241,10 @@ function PanelGroupWithForwardedRef({
 
       // Limit the frequency of localStorage updates.
       if (!debounceMap[autoSaveId]) {
-        debounceMap[autoSaveId] = debounce(savePanelGroupLayout, 100);
+        debounceMap[autoSaveId] = debounce(
+          savePanelGroupLayout,
+          LOCAL_STORAGE_DEBOUNCE_INTERVAL
+        );
       }
       debounceMap[autoSaveId](autoSaveId, panelDataArray, layout, storage);
     }
@@ -349,6 +354,7 @@ function PanelGroupWithForwardedRef({
           panelIndex++
         ) {
           const isValid = validatePanelConstraints({
+            groupId,
             panelConstraints,
             panelId: panelDataArray[panelIndex].id,
             panelIndex,

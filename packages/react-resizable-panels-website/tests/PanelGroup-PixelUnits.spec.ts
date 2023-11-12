@@ -36,7 +36,7 @@ function createElements(
     },
     createElement(Panel, {
       id: "left-panel",
-      minSizePercentage: 10,
+      minSizePixels: 10,
       ...props.leftPanelProps,
     }),
     createElement(PanelResizeHandle, {
@@ -45,7 +45,7 @@ function createElements(
     }),
     createElement(Panel, {
       id: "middle-panel",
-      minSizePercentage: 10,
+      minSizePixels: 10,
       ...props.middlePanelProps,
     }),
     createElement(PanelResizeHandle, {
@@ -54,7 +54,7 @@ function createElements(
     }),
     createElement(Panel, {
       id: "right-panel",
-      minSizePercentage: 10,
+      minSizePixels: 10,
       ...props.rightPanelProps,
     })
   );
@@ -81,21 +81,21 @@ test.describe("Pixel units", () => {
     }) => {
       // Static left panel
       await goToUrlHelper(page, {
-        leftPanelProps: { maxSizePercentage: 100, minSizePercentage: 50 },
+        leftPanelProps: { maxSizePixels: 100, minSizePixels: 50 },
       });
       const leftPanel = page.locator('[data-panel-id="left-panel"]');
       await verifyPanelSizePixels(leftPanel, 100);
 
       // Static middle panel
       await goToUrlHelper(page, {
-        middlePanelProps: { maxSizePercentage: 100, minSizePercentage: 50 },
+        middlePanelProps: { maxSizePixels: 100, minSizePixels: 50 },
       });
       const middlePanel = page.locator('[data-panel-id="middle-panel"]');
       await verifyPanelSizePixels(middlePanel, 100);
 
       // Static right panel
       await goToUrlHelper(page, {
-        rightPanelProps: { maxSizePercentage: 100, minSizePercentage: 50 },
+        rightPanelProps: { maxSizePixels: 100, minSizePixels: 50 },
       });
       const rightPanel = page.locator('[data-panel-id="right-panel"]');
       await verifyPanelSizePixels(rightPanel, 100);
@@ -105,7 +105,7 @@ test.describe("Pixel units", () => {
       page,
     }) => {
       await goToUrlHelper(page, {
-        leftPanelProps: { maxSizePercentage: 300, minSizePercentage: 200 },
+        leftPanelProps: { maxSizePixels: 300, minSizePixels: 200 },
       });
 
       const leftPanel = page.locator("[data-panel]").first();
@@ -116,7 +116,7 @@ test.describe("Pixel units", () => {
       page,
     }) => {
       await goToUrlHelper(page, {
-        leftPanelProps: { maxSizePercentage: 100, minSizePercentage: 50 },
+        leftPanelProps: { maxSizePixels: 100, minSizePixels: 50 },
       });
 
       const leftPanel = page.locator("[data-panel]").first();
@@ -138,7 +138,7 @@ test.describe("Pixel units", () => {
       page,
     }) => {
       await goToUrlHelper(page, {
-        leftPanelProps: { maxSizePercentage: 100, minSizePercentage: 50 },
+        leftPanelProps: { maxSizePixels: 100, minSizePixels: 50 },
       });
 
       const leftPanel = page.locator("[data-panel]").first();
@@ -154,7 +154,7 @@ test.describe("Pixel units", () => {
       page,
     }) => {
       await goToUrlHelper(page, {
-        leftPanelProps: { maxSizePercentage: 100, minSizePercentage: 50 },
+        leftPanelProps: { maxSizePixels: 100, minSizePixels: 50 },
       });
 
       const leftPanel = page.locator("[data-panel]").first();
@@ -170,7 +170,7 @@ test.describe("Pixel units", () => {
       page,
     }) => {
       await goToUrlHelper(page, {
-        rightPanelProps: { maxSizePercentage: 100, minSizePercentage: 50 },
+        rightPanelProps: { maxSizePixels: 100, minSizePixels: 50 },
       });
 
       const rightPanel = page.locator("[data-panel]").last();
@@ -186,20 +186,17 @@ test.describe("Pixel units", () => {
       await goToUrlHelper(page, {
         leftPanelProps: {
           collapsible: true,
-          minSizePercentage: 100,
-          maxSizePercentage: 200,
+          minSizePixels: 100,
+          maxSizePixels: 200,
         },
       });
 
       const leftPanel = page.locator("[data-panel]").first();
 
       await imperativeResizePanel(page, "left-panel", { sizePixels: 25 });
-      await verifyPanelSizePixels(leftPanel, 100);
-
-      await imperativeResizePanel(page, "left-panel", { sizePixels: 10 });
       await verifyPanelSizePixels(leftPanel, 0);
 
-      await imperativeResizePanel(page, "left-panel", { sizePixels: 15 });
+      await imperativeResizePanel(page, "left-panel", { sizePixels: 100 });
       await verifyPanelSizePixels(leftPanel, 100);
     });
   });
@@ -209,9 +206,9 @@ test.describe("Pixel units", () => {
   }) => {
     await goToUrlHelper(page, {
       leftPanelProps: {
-        defaultSizePercentage: 50,
-        maxSizePercentage: 100,
-        minSizePercentage: 50,
+        defaultSizePixels: 50,
+        maxSizePixels: 100,
+        minSizePixels: 50,
       },
     });
     const leftPanel = page.locator('[data-panel-id="left-panel"]');
@@ -224,9 +221,9 @@ test.describe("Pixel units", () => {
     await page.setViewportSize({ width: 400, height: 300 });
     await goToUrlHelper(page, {
       rightPanelProps: {
-        defaultSizePercentage: 50,
-        maxSizePercentage: 100,
-        minSizePercentage: 50,
+        defaultSizePixels: 50,
+        maxSizePixels: 100,
+        minSizePixels: 50,
       },
     });
     const rightPanel = page.locator('[data-panel-id="right-panel"]');
@@ -241,9 +238,9 @@ test.describe("Pixel units", () => {
   }) => {
     await goToUrlHelper(page, {
       leftPanelProps: {
-        defaultSizePercentage: 100,
-        maxSizePercentage: 100,
-        minSizePercentage: 50,
+        defaultSizePixels: 100,
+        maxSizePixels: 100,
+        minSizePixels: 50,
       },
     });
 
@@ -258,9 +255,9 @@ test.describe("Pixel units", () => {
 
     await goToUrlHelper(page, {
       rightPanelProps: {
-        defaultSizePercentage: 100,
-        maxSizePercentage: 100,
-        minSizePercentage: 50,
+        defaultSizePixels: 100,
+        maxSizePixels: 100,
+        minSizePixels: 50,
       },
     });
 
@@ -282,30 +279,30 @@ test.describe("Pixel units", () => {
         { direction: "horizontal", id: "group" },
         createElement(Panel, {
           id: "first-panel",
-          minSizePercentage: 50,
-          maxSizePercentage: 75,
+          minSizePixels: 50,
+          maxSizePixels: 75,
         }),
         createElement(PanelResizeHandle, {
           id: "first-resize-handle",
         }),
         createElement(Panel, {
           id: "second-panel",
-          minSizePercentage: 10,
+          minSizePixels: 10,
         }),
         createElement(PanelResizeHandle, {
           id: "second-resize-handle",
         }),
         createElement(Panel, {
           id: "third-panel",
-          minSizePercentage: 10,
+          minSizePixels: 10,
         }),
         createElement(PanelResizeHandle, {
           id: "third-resize-handle",
         }),
         createElement(Panel, {
           id: "fourth-panel",
-          minSizePercentage: 50,
-          maxSizePercentage: 75,
+          minSizePixels: 50,
+          maxSizePixels: 75,
         })
       )
     );
@@ -342,13 +339,13 @@ test.describe("Pixel units", () => {
         },
       },
       leftPanelProps: {
-        minSizePercentage: 50,
+        minSizePixels: 50,
       },
       middlePanelProps: {
-        minSizePercentage: 50,
+        minSizePixels: 50,
       },
       rightPanelProps: {
-        minSizePercentage: 50,
+        minSizePixels: 50,
       },
     });
     await goToUrl(page, elements as any);

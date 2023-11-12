@@ -262,7 +262,7 @@ function EndToEndTesting() {
             id="sizeInput"
             onChange={onSizeInputChange}
             placeholder="Size (% or px)"
-            type="number"
+            type="text"
           />
           <button
             id="resizeButton"

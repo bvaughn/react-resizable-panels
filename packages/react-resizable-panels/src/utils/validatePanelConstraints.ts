@@ -1,12 +1,15 @@
 import { isDevelopment } from "#is-development";
 import { computePercentagePanelConstraints } from "./computePercentagePanelConstraints";
 import { PanelConstraints } from "../Panel";
+import { calculateAvailablePanelSizeInPixels } from "./dom/calculateAvailablePanelSizeInPixels";
 
 export function validatePanelConstraints({
+  groupId,
   panelConstraints,
   panelId,
   panelIndex,
 }: {
+  groupId: string;
   panelConstraints: PanelConstraints[];
   panelId: string | undefined;
   panelIndex: number;
@@ -51,12 +54,18 @@ export function validatePanelConstraints({
     }
 
     {
+      const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
+
       const {
         collapsedSizePercentage,
         defaultSizePercentage,
         maxSizePercentage,
         minSizePercentage,
-      } = computePercentagePanelConstraints(panelConstraints, panelIndex, 100);
+      } = computePercentagePanelConstraints(
+        panelConstraints,
+        panelIndex,
+        groupSizePixels
+      );
 
       if (minSizePercentage > maxSizePercentage) {
         warnings.push(
