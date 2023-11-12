@@ -2,7 +2,83 @@
 
 ## 0.0.56
 
-// TODO
+Support a more customizable mix of percentage and pixel based units at the `Panel` level.
+
+> **Note**: Pixel units require the use of a `ResizeObserver` to validate. Percentage based units are recommended when possible.
+
+### Example migrating panels with percentage units
+
+<table>
+  <thead>
+    <tr>
+      <th>v55</th>
+      <th>v56</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <pre lang="jsx">
+&lt;Panel
+  defaultSize={25}
+  minSize={10}
+  maxSize={50}
+/&gt;
+        </pre>
+      </td>
+      <td>
+        <pre lang="jsx">
+&lt;Panel
+  defaultSizePercentage={25}
+  minSizePercentage={10}
+  maxSizePercentage={50}
+/&gt;
+        </pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+### Example migrating panels with pixel units
+
+<table>
+  <thead>
+    <tr>
+      <th>v55</th>
+      <th>v56</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <pre lang="jsx">
+&lt;PanelGroup
+  direction="horizontal"
+  units="pixels"
+&gt;
+  &lt;Panel minSize={100} maxSize={200} /&gt;
+  &lt;PanelResizeHandle /&gt;
+  &lt;Panel /&gt;
+&lt;/PanelGroup&gt;
+        </pre>
+      </td>
+      <td>
+        <pre lang="jsx">
+&lt;PanelGroup direction="horizontal"&gt;
+  &lt;Panel
+    minSizePixels={100}
+    maxSizePixels={200}
+  /&gt;
+  &lt;PanelResizeHandle /&gt;
+  &lt;Panel /&gt;
+&lt;/PanelGroup&gt;
+        </pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+For a complete list of supported properties and example usage, refer to the docs.
 
 ## 0.0.55
 
@@ -12,7 +88,7 @@ This prop defaults to "percentage" but can be set to "pixels" for static, pixel 
 
 This can be used to add enable pixel-based min/max and default size values, e.g.:
 
-```tsx
+```jsx
 <PanelGroup direction="horizontal" units="pixels">
   {/* Will be constrained to 100-200 pixels (assuming group is large enough to permit this) */}
   <Panel minSize={100} maxSize={200} />
