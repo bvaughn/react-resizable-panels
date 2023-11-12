@@ -5,6 +5,7 @@ describe("validatePanelConstraints", () => {
   it("should not warn if there are no validation errors", () => {
     verifyExpectedWarnings(() => {
       validatePanelConstraints({
+        groupSizePixels: 100_000,
         panelConstraints: [{}],
         panelIndex: 0,
         panelId: "test",
@@ -15,6 +16,7 @@ describe("validatePanelConstraints", () => {
   it("should warn about conflicting percentages and pixels", () => {
     verifyExpectedWarnings(() => {
       validatePanelConstraints({
+        groupSizePixels: 100_000,
         panelConstraints: [
           {
             collapsedSizePercentage: 5,
@@ -28,6 +30,7 @@ describe("validatePanelConstraints", () => {
 
     verifyExpectedWarnings(() => {
       validatePanelConstraints({
+        groupSizePixels: 100_000,
         panelConstraints: [
           {
             maxSizePercentage: 5,
@@ -43,6 +46,7 @@ describe("validatePanelConstraints", () => {
 
     verifyExpectedWarnings(() => {
       validatePanelConstraints({
+        groupSizePixels: 100_000,
         panelConstraints: [
           {
             defaultSizePercentage: 5,
@@ -58,6 +62,7 @@ describe("validatePanelConstraints", () => {
   it("should warn about conflicting min/max sizes", () => {
     verifyExpectedWarnings(() => {
       validatePanelConstraints({
+        groupSizePixels: 100_000,
         panelConstraints: [
           {
             maxSizePercentage: 5,
@@ -73,6 +78,7 @@ describe("validatePanelConstraints", () => {
   it("should warn about conflicting collapsed and min sizes", () => {
     verifyExpectedWarnings(() => {
       validatePanelConstraints({
+        groupSizePixels: 100_000,
         panelConstraints: [
           {
             collapsedSizePercentage: 15,
@@ -88,6 +94,7 @@ describe("validatePanelConstraints", () => {
   it("should warn about conflicting default and min/max sizes", () => {
     verifyExpectedWarnings(() => {
       validatePanelConstraints({
+        groupSizePixels: 100_000,
         panelConstraints: [
           {
             defaultSizePercentage: -1,
@@ -101,6 +108,7 @@ describe("validatePanelConstraints", () => {
 
     verifyExpectedWarnings(() => {
       validatePanelConstraints({
+        groupSizePixels: 100_000,
         panelConstraints: [
           {
             defaultSizePercentage: 5,
@@ -114,6 +122,7 @@ describe("validatePanelConstraints", () => {
 
     verifyExpectedWarnings(() => {
       validatePanelConstraints({
+        groupSizePixels: 100_000,
         panelConstraints: [
           {
             defaultSizePercentage: 101,
@@ -127,6 +136,7 @@ describe("validatePanelConstraints", () => {
 
     verifyExpectedWarnings(() => {
       validatePanelConstraints({
+        groupSizePixels: 100_000,
         panelConstraints: [
           {
             defaultSizePercentage: 15,

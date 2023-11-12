@@ -201,7 +201,7 @@ test.describe("Pixel units", () => {
     });
   });
 
-  test("should observe min size constraint if the overall group size shrinks", async ({
+  test("should observe min size pixel constraints if the overall group size shrinks", async ({
     page,
   }) => {
     await goToUrlHelper(page, {
@@ -230,10 +230,11 @@ test.describe("Pixel units", () => {
     await verifyPanelSizePixels(rightPanel, 50);
 
     await page.setViewportSize({ width: 300, height: 300 });
+    await new Promise((resolve) => setTimeout(resolve, 250));
     await verifyPanelSizePixels(rightPanel, 50);
   });
 
-  test("should observe max size constraint if the overall group size expands", async ({
+  test("should observe max size pixel constraints if the overall group size expands", async ({
     page,
   }) => {
     await goToUrlHelper(page, {
@@ -266,6 +267,7 @@ test.describe("Pixel units", () => {
     await verifyPanelSizePixels(rightPanel, 100);
 
     await page.setViewportSize({ width: 500, height: 300 });
+    await new Promise((resolve) => setTimeout(resolve, 250));
     await verifyPanelSizePixels(rightPanel, 100);
   });
 

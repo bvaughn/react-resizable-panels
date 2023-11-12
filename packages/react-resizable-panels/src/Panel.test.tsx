@@ -280,6 +280,8 @@ describe("PanelGroup", () => {
         "should not specify both percentage and pixel units for: min size"
       );
 
+      expectWarning("Pixel based constraints require ResizeObserver");
+
       act(() => {
         root.render(
           <PanelGroup direction="horizontal" key="minSize">

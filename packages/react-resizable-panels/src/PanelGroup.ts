@@ -18,12 +18,14 @@ import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
 import debounce from "./utils/debounce";
 import { determinePivotIndices } from "./utils/determinePivotIndices";
 import { calculateAvailablePanelSizeInPixels } from "./utils/dom/calculateAvailablePanelSizeInPixels";
+import { getPanelGroupElement } from "./utils/dom/getPanelGroupElement";
 import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
 import { isKeyDown, isMouseEvent, isTouchEvent } from "./utils/events";
 import { getPercentageSizeFromMixedSizes } from "./utils/getPercentageSizeFromMixedSizes";
 import { getResizeEventCursorPosition } from "./utils/getResizeEventCursorPosition";
 import { initializeDefaultStorage } from "./utils/initializeDefaultStorage";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
+import { shouldMonitorPixelBasedConstraints } from "./utils/shouldMonitorPixelBasedConstraints";
 import { validatePanelConstraints } from "./utils/validatePanelConstraints";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 import {
@@ -40,10 +42,6 @@ import {
   useRef,
   useState,
 } from "./vendor/react";
-
-// TODO Use ResizeObserver (but only if any Panels declare pixels units)
-//      ResizeObserver should trigger validatePanelGroupLayout() and callPanelCallbacks() when size changes
-//      The /examples/pixel-based-layouts page can be used to test this
 
 const LOCAL_STORAGE_DEBOUNCE_INTERVAL = 100;
 
@@ -310,6 +308,63 @@ function PanelGroupWithForwardedRef({
     );
   }, [autoSaveId, layout, panelDataArray, storage]);
 
+  useIsomorphicLayoutEffect(() => {
+    const constraints = panelDataArray.map(({ constraints }) => constraints);
+    if (!shouldMonitorPixelBasedConstraints(constraints)) {
+      // Avoid the overhead of ResizeObserver if no pixel constraints require monitoring
+      return;
+    }
+
+    if (typeof ResizeObserver === "undefined") {
+      console.warn(
+        `WARNING: Pixel based constraints require ResizeObserver but it is not supported by the current browser.`
+      );
+    } else {
+      const resizeObserver = new ResizeObserver(() => {
+        const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
+
+        const { layout: prevLayout, onLayout } = committedValuesRef.current;
+
+        const nextLayout = validatePanelGroupLayout({
+          groupSizePixels,
+          layout: prevLayout,
+          panelConstraints: panelDataArray.map(
+            (panelData) => panelData.constraints
+          ),
+        });
+
+        if (!areEqual(prevLayout, nextLayout)) {
+          setLayout(nextLayout);
+
+          if (onLayout) {
+            onLayout(
+              nextLayout.map((sizePercentage) => ({
+                sizePercentage,
+                sizePixels: convertPercentageToPixels(
+                  sizePercentage,
+                  groupSizePixels
+                ),
+              }))
+            );
+          }
+
+          callPanelCallbacks(
+            groupId,
+            panelDataArray,
+            nextLayout,
+            panelIdToLastNotifiedMixedSizesMapRef.current
+          );
+        }
+      });
+
+      resizeObserver.observe(getPanelGroupElement(groupId)!);
+
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }
+  }, [groupId, panelDataArray]);
+
   // DEV warnings
   useEffect(() => {
     if (isDevelopment) {
@@ -348,13 +403,15 @@ function PanelGroupWithForwardedRef({
           (panelData) => panelData.constraints
         );
 
+        const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
+
         for (
           let panelIndex = 0;
           panelIndex < panelConstraints.length;
           panelIndex++
         ) {
           const isValid = validatePanelConstraints({
-            groupId,
+            groupSizePixels,
             panelConstraints,
             panelId: panelDataArray[panelIndex].id,
             panelIndex,

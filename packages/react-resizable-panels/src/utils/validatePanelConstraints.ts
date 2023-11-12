@@ -1,15 +1,14 @@
 import { isDevelopment } from "#is-development";
-import { computePercentagePanelConstraints } from "./computePercentagePanelConstraints";
 import { PanelConstraints } from "../Panel";
-import { calculateAvailablePanelSizeInPixels } from "./dom/calculateAvailablePanelSizeInPixels";
+import { computePercentagePanelConstraints } from "./computePercentagePanelConstraints";
 
 export function validatePanelConstraints({
-  groupId,
+  groupSizePixels,
   panelConstraints,
   panelId,
   panelIndex,
 }: {
-  groupId: string;
+  groupSizePixels: number;
   panelConstraints: PanelConstraints[];
   panelId: string | undefined;
   panelIndex: number;
@@ -54,8 +53,6 @@ export function validatePanelConstraints({
     }
 
     {
-      const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
-
       const {
         collapsedSizePercentage,
         defaultSizePercentage,
