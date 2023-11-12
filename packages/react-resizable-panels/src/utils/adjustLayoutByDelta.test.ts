@@ -1780,5 +1780,29 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([20, 5, 20, 55]);
   });
 
-  // TODO Invalid pixel constraints (min too large, max too small) should recover by recomputing base?
+  describe("invalid layouts", () => {
+    it("should ignore changes that violate max or min size constraints", () => {
+      expect(
+        adjustLayoutByDelta({
+          delta: 1,
+          groupSizePixels: 100,
+          layout: [50, 50],
+          panelConstraints: [{ maxSizePercentage: 50 }, {}],
+          pivotIndices: [0, 1],
+          trigger: "imperative-api",
+        })
+      ).toEqual([50, 50]);
+
+      expect(
+        adjustLayoutByDelta({
+          delta: 1,
+          groupSizePixels: 100,
+          layout: [50, 50],
+          panelConstraints: [{}, { minSizePercentage: 50 }],
+          pivotIndices: [0, 1],
+          trigger: "imperative-api",
+        })
+      ).toEqual([50, 50]);
+    });
+  });
 });

@@ -195,8 +195,45 @@ describe("PanelGroup", () => {
     });
   });
 
-  // TODO Verify throw if default size is less than 0 or greater than 100
-  // TODO Verify throw if rendered outside of a PanelGroup
+  describe("invariants", () => {
+    beforeEach(() => {
+      jest.spyOn(console, "error").mockImplementation(() => {
+        // Noop
+      });
+    });
+
+    it("should throw if default size is less than 0 or greater than 100", () => {
+      expect(() => {
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel defaultSizePercentage={-1} />
+            </PanelGroup>
+          );
+        });
+      }).toThrow("Invalid layout");
+
+      expect(() => {
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel defaultSizePercentage={101} />
+            </PanelGroup>
+          );
+        });
+      }).toThrow("Invalid layout");
+    });
+
+    it("should throw if rendered outside of a PanelGroup", () => {
+      expect(() => {
+        act(() => {
+          root.render(<Panel />);
+        });
+      }).toThrow(
+        "Panel components must be rendered within a PanelGroup container"
+      );
+    });
+  });
 
   describe("DEV warnings", () => {
     it("should warn about server rendered panels with no default size", () => {
