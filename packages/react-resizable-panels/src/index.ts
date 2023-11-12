@@ -2,38 +2,43 @@ import { Panel } from "./Panel";
 import { PanelGroup } from "./PanelGroup";
 import { PanelResizeHandle } from "./PanelResizeHandle";
 
-import type { ImperativePanelHandle, PanelProps } from "./Panel";
-import type { ImperativePanelGroupHandle, PanelGroupProps } from "./PanelGroup";
-import type { PanelResizeHandleProps } from "./PanelResizeHandle";
-import { getAvailableGroupSizePixels } from "./utils/group";
+import type { MixedSizes } from "./types";
+
 import type {
-  PanelGroupOnLayout,
-  PanelGroupStorage,
+  ImperativePanelHandle,
   PanelOnCollapse,
+  PanelOnExpand,
   PanelOnResize,
+  PanelProps,
+} from "./Panel";
+import type {
+  ImperativePanelGroupHandle,
+  PanelGroupOnLayout,
+  PanelGroupProps,
+  PanelGroupStorage,
+} from "./PanelGroup";
+import type {
   PanelResizeHandleOnDragging,
-  Units,
-} from "./types";
+  PanelResizeHandleProps,
+} from "./PanelResizeHandle";
 
 export {
   // TypeScript types
   ImperativePanelGroupHandle,
   ImperativePanelHandle,
-  PanelOnCollapse,
-  PanelOnResize,
+  MixedSizes,
   PanelGroupOnLayout,
   PanelGroupProps,
   PanelGroupStorage,
+  PanelOnCollapse,
+  PanelOnExpand,
+  PanelOnResize,
   PanelProps,
   PanelResizeHandleOnDragging,
   PanelResizeHandleProps,
-  Units,
 
   // React components
   Panel,
   PanelGroup,
   PanelResizeHandle,
-
-  // Utility methods
-  getAvailableGroupSizePixels,
 };

@@ -12,31 +12,31 @@ test.describe("Nested groups", () => {
       createElement(
         PanelGroup,
         { direction: "horizontal" },
-        createElement(Panel, { minSize: 10 }),
+        createElement(Panel, { minSizePercentage: 10 }),
         createElement(PanelResizeHandle),
         createElement(
           Panel,
-          { minSize: 10 },
+          { minSizePercentage: 10 },
           createElement(
             PanelGroup,
             { direction: "vertical" },
-            createElement(Panel, { minSize: 10 }),
+            createElement(Panel, { minSizePercentage: 10 }),
             createElement(PanelResizeHandle),
             createElement(
               Panel,
-              { minSize: 10 },
+              { minSizePercentage: 10 },
               createElement(
                 PanelGroup,
                 { direction: "horizontal" },
-                createElement(Panel, { minSize: 10 }),
+                createElement(Panel, { minSizePercentage: 10 }),
                 createElement(PanelResizeHandle),
-                createElement(Panel, { minSize: 10 })
+                createElement(Panel, { minSizePercentage: 10 })
               )
             )
           )
         ),
         createElement(PanelResizeHandle),
-        createElement(Panel, { minSize: 10 })
+        createElement(Panel, { minSizePercentage: 10 })
       )
     );
 
@@ -82,10 +82,10 @@ test.describe("Nested groups", () => {
 
     // Resize the outer panel
     await outerHorizontalFirstHandle.focus();
-    await page.keyboard.press("Shift+ArrowLeft");
+    await page.keyboard.press("ArrowLeft");
     await verifyAriaValues(outerHorizontalFirstHandle, { now: 23 });
     await outerHorizontalLastHandle.focus();
-    await page.keyboard.press("Shift+ArrowRight");
+    await page.keyboard.press("ArrowRight");
     await verifyAriaValues(outerHorizontalLastHandle, { now: 53 });
 
     // Verify the inner panels still have the same relative sizes

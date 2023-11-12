@@ -13,17 +13,21 @@ async function openPage(page: Page) {
     { direction: "horizontal", id: "group" },
     createElement(Panel, {
       collapsible: true,
-      defaultSize: 20,
-      minSize: 10,
+      defaultSizePercentage: 20,
+      minSizePercentage: 10,
       order: 1,
     }),
     createElement(PanelResizeHandle, { id: "left-handle" }),
-    createElement(Panel, { defaultSize: 60, minSize: 10, order: 2 }),
+    createElement(Panel, {
+      defaultSizePercentage: 60,
+      minSizePercentage: 10,
+      order: 2,
+    }),
     createElement(PanelResizeHandle, { id: "right-handle" }),
     createElement(Panel, {
       collapsible: true,
-      defaultSize: 20,
-      minSize: 10,
+      defaultSizePercentage: 20,
+      minSizePercentage: 10,
       order: 3,
     })
   );
@@ -31,17 +35,19 @@ async function openPage(page: Page) {
   await goToUrl(page, panelGroup);
 }
 
-async function verifyEntries(page: Page, expectedSizes: number[][]) {
+async function verifyEntries(page: Page, expectedPercentages: number[][]) {
   const logEntries = await getLogEntries<PanelGroupLayoutLogEntry>(
     page,
     "onLayout"
   );
 
-  expect(logEntries.length).toEqual(expectedSizes.length);
+  expect(logEntries.length).toEqual(expectedPercentages.length);
 
-  for (let index = 0; index < expectedSizes.length; index++) {
-    const actual = logEntries[index].sizes;
-    const expected = expectedSizes[index];
+  for (let index = 0; index < expectedPercentages.length; index++) {
+    const actual = logEntries[index].layout.map(
+      ({ sizePercentage }) => sizePercentage
+    );
+    const expected = expectedPercentages[index];
     expect(actual).toEqual(expected);
   }
 }
@@ -69,7 +75,7 @@ test.describe("PanelGroup onLayout prop", () => {
     await page.keyboard.press("Home");
     await rightHandle.focus();
     await page.keyboard.press("End");
-    await page.keyboard.press("Shift+ArrowLeft");
+    await page.keyboard.press("ArrowLeft");
 
     await verifyEntries(page, [
       [0, 80, 20],

@@ -1,8 +1,8 @@
 import { Locator, Page, expect } from "@playwright/test";
 import { assert } from "./assert";
 import { getBodyCursorStyle } from "./cursor";
-import { verifyFuzzySizes } from "./verify";
-import { Units } from "react-resizable-panels";
+import { verifyFuzzySizesPercentages } from "./verify";
+import { MixedSizes } from "react-resizable-panels";
 
 type Operation = {
   expectedCursor?: string;
@@ -134,7 +134,7 @@ export async function dragResizeTo(
     if (expectedSizes != null) {
       // This resizing approach isn't incredibly precise,
       // so we should allow for minor variations in panel sizes.
-      await verifyFuzzySizes(page, 0.25, ...expectedSizes);
+      await verifyFuzzySizesPercentages(page, 0.25, ...expectedSizes);
     }
 
     if (expectedCursor != null) {
@@ -150,18 +150,18 @@ export async function dragResizeTo(
 export async function imperativeResizePanel(
   page: Page,
   panelId: string,
-  size: number,
-  units?: Units
+  size: Partial<MixedSizes>
 ) {
   const panelIdSelect = page.locator("#panelIdSelect");
   await panelIdSelect.selectOption(panelId);
 
   const sizeInput = page.locator("#sizeInput");
   await sizeInput.focus();
-  await sizeInput.fill("" + size);
-
-  const unitsSelect = page.locator("#unitsSelect");
-  unitsSelect.selectOption(units ?? "");
+  await sizeInput.fill(
+    size.sizePercentage != null
+      ? `${size.sizePercentage}%`
+      : `${size.sizePixels}px`
+  );
 
   const resizeButton = page.locator("#resizeButton");
   await resizeButton.click();
@@ -170,8 +170,7 @@ export async function imperativeResizePanel(
 export async function imperativeResizePanelGroup(
   page: Page,
   panelGroupId: string,
-  sizes: number[],
-  units?: Units
+  sizes: string[]
 ) {
   const panelGroupIdSelect = page.locator("#panelGroupIdSelect");
   panelGroupIdSelect.selectOption(panelGroupId);
@@ -180,14 +179,14 @@ export async function imperativeResizePanelGroup(
   await layoutInput.focus();
   await layoutInput.fill(`[${sizes.join()}]`);
 
-  const unitsSelect = page.locator("#unitsSelect");
-  unitsSelect.selectOption(units ?? "");
-
   const setLayoutButton = page.locator("#setLayoutButton");
   await setLayoutButton.click();
 }
 
-export async function verifyPanelSize(locator: Locator, expectedSize: number) {
+export async function verifyPanelSizePercentage(
+  locator: Locator,
+  expectedSize: number
+) {
   await expect(await locator.getAttribute("data-panel-size")).toBe(
     expectedSize.toFixed(1)
   );

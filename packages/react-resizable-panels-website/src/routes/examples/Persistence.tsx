@@ -1,6 +1,6 @@
 import { Panel, PanelGroup } from "react-resizable-panels";
 
-import ResizeHandle from "../../components/ResizeHandle";
+import { ResizeHandle } from "../../components/ResizeHandle";
 
 import Example from "./Example";
 import styles from "./shared.module.css";
@@ -30,15 +30,15 @@ function Content() {
         className={styles.PanelGroup}
         direction="horizontal"
       >
-        <Panel className={styles.PanelColumn} minSize={10}>
+        <Panel className={styles.PanelColumn} minSizePercentage={10}>
           <div className={styles.Centered}>left</div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
-        <Panel className={styles.PanelRow} minSize={10}>
+        <Panel className={styles.PanelRow} minSizePercentage={10}>
           <div className={styles.Centered}>middle</div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
-        <Panel className={styles.PanelColumn} minSize={10}>
+        <Panel className={styles.PanelColumn} minSizePercentage={10}>
           <div className={styles.Centered}>right</div>
         </Panel>
       </PanelGroup>

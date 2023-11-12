@@ -10,7 +10,7 @@ jobs:
         with:
           version: 7
       - name: Install dependencies
-        run: pnpm install -r
+        run: pnpm install --frozen-lockfile --recursive
       - name: Build NPM package
         run: pnpm prerelease
       - name: Run TypeScript

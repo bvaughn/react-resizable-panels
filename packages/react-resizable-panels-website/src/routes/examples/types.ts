@@ -1,12 +1,18 @@
+import { MixedSizes } from "react-resizable-panels";
+
 export type PanelCollapseLogEntryType = "onCollapse";
+export type PanelExpandLogEntryType = "onExpand";
 export type PanelGroupLayoutLogEntryType = "onLayout";
 export type PanelResizeHandleDraggingLogEntryType = "onDragging";
 export type PanelResizeLogEntryType = "onResize";
 
 export type PanelCollapseLogEntry = {
-  collapsed: boolean;
   panelId: string;
   type: PanelCollapseLogEntryType;
+};
+export type PanelExpandLogEntry = {
+  panelId: string;
+  type: PanelExpandLogEntryType;
 };
 export type PanelResizeHandleDraggingLogEntry = {
   isDragging: boolean;
@@ -15,23 +21,25 @@ export type PanelResizeHandleDraggingLogEntry = {
 };
 export type PanelGroupLayoutLogEntry = {
   groupId: string;
-  sizes: number[];
+  layout: MixedSizes[];
   type: PanelGroupLayoutLogEntryType;
 };
 export type PanelResizeLogEntry = {
   panelId: string;
-  size: number;
+  size: MixedSizes;
   type: PanelResizeLogEntryType;
 };
 
 export type LogEntryType =
   | PanelCollapseLogEntryType
+  | PanelExpandLogEntryType
   | PanelResizeHandleDraggingLogEntryType
   | PanelGroupLayoutLogEntryType
   | PanelResizeLogEntryType;
 
 export type LogEntry =
   | PanelCollapseLogEntry
+  | PanelExpandLogEntry
   | PanelResizeHandleDraggingLogEntry
   | PanelGroupLayoutLogEntry
   | PanelResizeLogEntry;

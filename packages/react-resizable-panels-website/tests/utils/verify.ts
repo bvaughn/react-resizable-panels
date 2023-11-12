@@ -4,7 +4,10 @@ import { PanelGroupLayoutLogEntry } from "../../src/routes/examples/types";
 
 import { getLogEntries } from "./debug";
 
-export async function verifySizes(page: Page, ...expectedSizes: number[]) {
+export async function verifySizesPercentages(
+  page: Page,
+  ...expectedSizes: number[]
+) {
   const panels = page.locator("[data-panel-id]");
 
   const count = await panels.count();
@@ -45,7 +48,7 @@ export async function verifySizesPixels(
   }
 }
 
-export async function verifyFuzzySizes(
+export async function verifyFuzzySizesPercentages(
   page: Page,
   precision: number,
   ...expectedSizes: number[]
@@ -54,7 +57,9 @@ export async function verifyFuzzySizes(
     page,
     "onLayout"
   );
-  const { sizes: actualSizes } = logEntries[logEntries.length - 1];
+  const actualSizes = logEntries[logEntries.length - 1].layout.map(
+    ({ sizePercentage }) => sizePercentage
+  );
 
   expect(actualSizes).toHaveLength(expectedSizes.length);
 

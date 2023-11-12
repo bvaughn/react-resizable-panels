@@ -1,6 +1,6 @@
 import { Panel, PanelGroup } from "react-resizable-panels";
 
-import ResizeHandle from "../../components/ResizeHandle";
+import { ResizeHandle } from "../../components/ResizeHandle";
 
 import { Link } from "react-router-dom";
 import AutoSizer from "react-virtualized-auto-sizer";
@@ -22,27 +22,27 @@ export default function PixelBasedLayouts() {
         →<span className={exampleStyles.Title}>Pixel based layouts</span>
       </h1>
       <p>
-        Resizable panels typically use percentage-based layout constraints, but
-        pixel units are also supported via the <code>units</code> prop. The
-        example below shows a horizontal panel group where the first panel is
-        limited to a range of 100-200 pixels.
+        Resizable panels can specific either <strong>percentage-based</strong>{" "}
+        or <strong>pixel-based</strong> layout constraints, although
+        percentage-based constraints are generally recommended for performance
+        purposes. The example below shows a horizontal panel group where the
+        first panel is limited to a range of 100-200 pixels.
       </p>
       <p className={sharedStyles.WarningBlock}>
         <Icon className={sharedStyles.WarningIcon} type="warning" />
-        Pixel units should only be used when necessary because they require more
-        complex layout logic.
+        Pixel units should only be used when necessary because they require the
+        use of a <code>ResizerObserver</code>.
       </p>
       <div className={exampleStyles.ExampleContainer}>
         <div className={sharedStyles.PanelGroupWrapper} data-short>
           <PanelGroup
             className={sharedStyles.PanelGroup}
             direction="horizontal"
-            units="pixels"
           >
             <Panel
               className={sharedStyles.PanelRow}
-              minSize={100}
-              maxSize={200}
+              minSizePixels={100}
+              maxSizePixels={200}
             >
               <div className={styles.AutoSizerWrapper}>
                 <Size direction="horizontal">
@@ -51,11 +51,11 @@ export default function PixelBasedLayouts() {
               </div>
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
-            <Panel className={sharedStyles.PanelRow} minSize={10}>
+            <Panel className={sharedStyles.PanelRow} minSizePixels={10}>
               <div className={sharedStyles.Centered}>middle</div>
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
-            <Panel className={sharedStyles.PanelRow} minSize={10}>
+            <Panel className={sharedStyles.PanelRow} minSizePixels={10}>
               <div className={sharedStyles.Centered}>right</div>
             </Panel>
           </PanelGroup>
@@ -78,27 +78,26 @@ export default function PixelBasedLayouts() {
           <PanelGroup
             className={sharedStyles.PanelGroup}
             direction="horizontal"
-            units="pixels"
           >
-            <Panel className={sharedStyles.PanelRow} minSize={10}>
+            <Panel className={sharedStyles.PanelRow} minSizePixels={10}>
               <div className={sharedStyles.Centered}>left</div>
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
-            <Panel className={sharedStyles.PanelRow} minSize={10}>
+            <Panel className={sharedStyles.PanelRow} minSizePixels={10}>
               <div className={sharedStyles.Centered}>middle</div>
             </Panel>
             <ResizeHandle className={sharedStyles.ResizeHandle} />
             <Panel
               className={sharedStyles.PanelRow}
               collapsible={true}
-              collapsedSize={75}
-              minSize={200}
-              maxSize={300}
+              collapsedSizePixels={75}
+              minSizePixels={200}
+              maxSizePixels={300}
             >
               <div className={styles.AutoSizerWrapper}>
                 <Size direction="horizontal">
                   <p className={styles.Small}>200px - 300px</p>
-                  <p className={styles.Small}>collapse below 100px</p>
+                  <p className={styles.Small}>collapse below 200px</p>
                 </Size>
               </div>
             </Panel>
@@ -139,8 +138,8 @@ function Size({
 }
 
 const CODE_HOOK = `
-<PanelGroup direction="horizontal" units="pixels">
-  <Panel minSize={100} maxSize={200} />
+<PanelGroup direction="horizontal">
+  <Panel minSizePixels={100} maxSizePixels={200} />
   <PanelResizeHandle />
   <Panel />
   <PanelResizeHandle />
@@ -149,11 +148,11 @@ const CODE_HOOK = `
 `;
 
 const CODE_HOOK_COLLAPSIBLE = `
-<PanelGroup direction="horizontal" units="pixels">
+<PanelGroup direction="horizontal">
   <Panel />
   <PanelResizeHandle />
   <Panel />
   <PanelResizeHandle />
-  <Panel collapsible={true} collapsedSize={75} minSize={100} maxSize={200} />
+  <Panel collapsible={true} collapsedSizePixels={75} minSizePixels={200} maxSizePixels={300} />
 </PanelGroup>
 `;

@@ -62,6 +62,8 @@
   "types": "dist/react-resizable-panels.cjs.d.ts",
   "scripts": {
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "test": "jest --config=jest.config.js",
+    "test:watch": "jest --config=jest.config.js --watch",
     "watch": "parcel watch --port=2345"
   },
   "devDependencies": {

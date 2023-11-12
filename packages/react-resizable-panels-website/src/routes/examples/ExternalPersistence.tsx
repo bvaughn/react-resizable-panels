@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Panel, PanelGroup, PanelGroupStorage } from "react-resizable-panels";
 import { useNavigate } from "react-router-dom";
 
-import ResizeHandle from "../../components/ResizeHandle";
+import { ResizeHandle } from "../../components/ResizeHandle";
 
 import Example from "./Example";
 import styles from "./shared.module.css";
@@ -81,15 +81,23 @@ function Content() {
         direction="horizontal"
         storage={urlStorage}
       >
-        <Panel className={styles.PanelRow} collapsible={true} minSize={10}>
+        <Panel
+          className={styles.PanelRow}
+          collapsible={true}
+          minSizePercentage={10}
+        >
           <div className={styles.Centered}>left</div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
-        <Panel className={styles.PanelRow} minSize={10}>
+        <Panel className={styles.PanelRow} minSizePercentage={10}>
           <div className={styles.Centered}>middle</div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
-        <Panel className={styles.PanelRow} collapsible={true} minSize={10}>
+        <Panel
+          className={styles.PanelRow}
+          collapsible={true}
+          minSizePercentage={10}
+        >
           <div className={styles.Centered}>right</div>
         </Panel>
       </PanelGroup>

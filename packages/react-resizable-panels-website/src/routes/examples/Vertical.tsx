@@ -1,6 +1,6 @@
 import { Panel, PanelGroup } from "react-resizable-panels";
 
-import ResizeHandle from "../../components/ResizeHandle";
+import { ResizeHandle } from "../../components/ResizeHandle";
 
 import Example from "./Example";
 import styles from "./shared.module.css";
@@ -35,14 +35,18 @@ function Content() {
       <PanelGroup className={styles.PanelGroup} direction="vertical">
         <Panel
           className={styles.PanelColumn}
-          defaultSize={50}
-          maxSize={75}
-          minSize={10}
+          defaultSizePercentage={50}
+          maxSizePercentage={75}
+          minSizePercentage={10}
         >
           <div className={styles.Centered}>top</div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
-        <Panel className={styles.PanelColumn} maxSize={75} minSize={10}>
+        <Panel
+          className={styles.PanelColumn}
+          maxSizePercentage={75}
+          minSizePercentage={10}
+        >
           <div className={styles.Centered}>bottom</div>
         </Panel>
       </PanelGroup>
@@ -52,11 +56,11 @@ function Content() {
 
 const CODE = `
 <PanelGroup direction="vertical">
-  <Panel maxSize={75}>
+  <Panel maxSizePercentage={75}>
     top
   </Panel>
   <PanelResizeHandle />
-  <Panel maxSize={75}>
+  <Panel maxSizePercentage={75}>
     bottom
   </Panel>
 </PanelGroup>

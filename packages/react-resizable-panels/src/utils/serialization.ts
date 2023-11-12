@@ -1,16 +1,21 @@
-import { PanelData, PanelGroupStorage } from "../types";
+import { PanelData } from "../Panel";
+import { PanelGroupStorage } from "../PanelGroup";
 
 type SerializedPanelGroupState = { [panelIds: string]: number[] };
 
 // Note that Panel ids might be user-provided (stable) or useId generated (non-deterministic)
 // so they should not be used as part of the serialization key.
-// Using an attribute like minSize instead should work well enough.
+// Using the min/max size attributes should work well enough as a backup.
 // Pre-sorting by minSize allows remembering layouts even if panels are re-ordered/dragged.
 function getSerializationKey(panels: PanelData[]): string {
   return panels
     .map((panel) => {
-      const { minSize, order } = panel.current;
-      return order ? `${order}:${minSize}` : `${minSize}`;
+      const { constraints, id, idIsFromProps, order } = panel;
+      if (idIsFromProps) {
+        return id;
+      } else {
+        return `${order}:${JSON.stringify(constraints)}`;
+      }
     })
     .sort((a, b) => a.localeCompare(b))
     .join(",");

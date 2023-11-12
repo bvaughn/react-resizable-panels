@@ -6,7 +6,7 @@ import {
 } from "react-resizable-panels";
 import Icon from "../../components/Icon";
 
-import ResizeHandle from "../../components/ResizeHandle";
+import { ResizeHandle } from "../../components/ResizeHandle";
 
 import Example from "./Example";
 import styles from "./ImperativePanelApi.module.css";
@@ -120,17 +120,17 @@ function TogglesRow({
   panelRef: RefObject<ImperativePanelHandle>;
   panelSize: number;
 }) {
-  const [size, setSize] = useState(20);
+  const [sizePercentage, setSizePercentage] = useState(20);
 
   const onInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget as HTMLInputElement;
-    setSize(parseInt(input.value));
+    setSizePercentage(parseInt(input.value));
   };
 
   const onFormSubmit = (event: FormEvent) => {
     event.preventDefault();
 
-    panelRef.current?.resize(size);
+    panelRef.current?.resize({ sizePercentage });
   };
 
   return (
@@ -164,7 +164,7 @@ function TogglesRow({
           max={100}
           size={2}
           type="number"
-          value={size}
+          value={sizePercentage}
         />
       </form>
     </div>
@@ -212,11 +212,11 @@ function Content({
           <Panel
             className={sharedStyles.PanelRow}
             collapsible
-            defaultSize={sizes.left}
+            defaultSizePercentage={sizes.left}
             id="left"
-            maxSize={30}
-            minSize={10}
-            onResize={(left: number) => onResize({ left })}
+            maxSizePercentage={30}
+            minSizePercentage={10}
+            onResize={({ sizePercentage: left }) => onResize({ left })}
             order={1}
             ref={leftPanelRef}
           >
@@ -229,9 +229,9 @@ function Content({
             className={sharedStyles.PanelRow}
             collapsible={true}
             id="middle"
-            maxSize={100}
-            minSize={10}
-            onResize={(middle: number) => onResize({ middle })}
+            maxSizePercentage={100}
+            minSizePercentage={10}
+            onResize={({ sizePercentage: middle }) => onResize({ middle })}
             order={2}
             ref={middlePanelRef}
           >
@@ -243,11 +243,11 @@ function Content({
           <Panel
             className={sharedStyles.PanelRow}
             collapsible
-            defaultSize={sizes.right}
+            defaultSizePercentage={sizes.right}
             id="right"
-            maxSize={100}
-            minSize={10}
-            onResize={(right: number) => onResize({ right })}
+            maxSizePercentage={100}
+            minSizePercentage={10}
+            onResize={({ sizePercentage: right }) => onResize({ right })}
             order={3}
             ref={rightPanelRef}
           >

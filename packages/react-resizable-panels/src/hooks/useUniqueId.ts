@@ -15,5 +15,5 @@ export default function useUniqueId(
     idRef.current = "" + counter++;
   }
 
-  return idRef.current;
+  return idFromParams ?? idRef.current;
 }

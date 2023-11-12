@@ -1,3 +1,4 @@
+import useUniqueId from "./hooks/useUniqueId";
 import {
   createElement,
   CSSProperties,
@@ -11,16 +12,16 @@ import {
   useRef,
   useState,
 } from "./vendor/react";
-import useUniqueId from "./hooks/useUniqueId";
 
 import { useWindowSplitterResizeHandlerBehavior } from "./hooks/useWindowSplitterBehavior";
-import { PanelGroupContext } from "./PanelContexts";
-import type {
-  ResizeHandler,
+import {
+  PanelGroupContext,
   ResizeEvent,
-  PanelResizeHandleOnDragging,
-} from "./types";
+  ResizeHandler,
+} from "./PanelGroupContext";
 import { getCursorStyle } from "./utils/cursor";
+
+export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 
 export type PanelResizeHandleProps = {
   children?: ReactNode;
@@ -59,8 +60,8 @@ export function PanelResizeHandle({
   }
 
   const {
-    activeHandleId,
     direction,
+    dragState,
     groupId,
     registerResizeHandle,
     startDragging,
@@ -68,7 +69,7 @@ export function PanelResizeHandle({
   } = panelGroupContext;
 
   const resizeHandleId = useUniqueId(idFromProps);
-  const isDragging = activeHandleId === resizeHandleId;
+  const isDragging = dragState?.dragHandleId === resizeHandleId;
 
   const [isFocused, setIsFocused] = useState(false);
 
@@ -150,6 +151,10 @@ export function PanelResizeHandle({
   return createElement(Type, {
     children,
     className: classNameFromProps,
+
+    // CSS selectors
+    "data-resize-handle": "",
+
     "data-resize-handle-active": isDragging
       ? "pointer"
       : isFocused

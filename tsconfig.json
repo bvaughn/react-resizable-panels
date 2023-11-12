@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
+    "esModuleInterop": true,
     "jsx": "react-jsx",
     "lib": ["ES2015", "DOM"],
     "module": "es2020",
     "moduleResolution": "bundler",
     "noImplicitAny": true,
     "strict": true,
-    "types": ["node"]
+    "typeRoots": ["node_modules/@types"],
+    "types": ["jest", "node"]
   },
   "exclude": ["node_modules"],
   "include": ["declaration.d.ts", "packages/**/*.ts", "packages/**/*.tsx"]

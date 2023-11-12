@@ -3,7 +3,7 @@ import { PanelResizeHandle } from "react-resizable-panels";
 import Icon from "./Icon";
 import styles from "./ResizeHandle.module.css";
 
-export default function ResizeHandle({
+export function ResizeHandle({
   className = "",
   collapsed = false,
   id,

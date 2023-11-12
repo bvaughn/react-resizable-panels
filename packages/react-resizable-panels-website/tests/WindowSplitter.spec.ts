@@ -14,9 +14,9 @@ async function goToDefaultUrl(
     createElement(
       PanelGroup,
       { direction },
-      createElement(Panel, { minSize: 10 }),
+      createElement(Panel, { minSizePercentage: 10 }),
       createElement(PanelResizeHandle),
-      createElement(Panel, { minSize: 10 })
+      createElement(Panel, { minSizePercentage: 10 })
     )
   );
 }
@@ -30,9 +30,12 @@ test.describe("Window Splitter", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { defaultSize: 35, minSize: 20 }),
+          createElement(Panel, {
+            defaultSizePercentage: 35,
+            minSizePercentage: 20,
+          }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { minSize: 5 })
+          createElement(Panel, { minSizePercentage: 5 })
         )
       );
 
@@ -50,9 +53,9 @@ test.describe("Window Splitter", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { minSize: 20 }),
+          createElement(Panel, { minSizePercentage: 20 }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { minSize: 50 })
+          createElement(Panel, { minSizePercentage: 50 })
         )
       );
 
@@ -70,9 +73,12 @@ test.describe("Window Splitter", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { maxSize: 50, minSize: 10 }),
+          createElement(Panel, {
+            maxSizePercentage: 50,
+            minSizePercentage: 10,
+          }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { minSize: 10 })
+          createElement(Panel, { minSizePercentage: 10 })
         )
       );
 
@@ -90,9 +96,12 @@ test.describe("Window Splitter", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { defaultSize: 65, minSize: 10 }),
+          createElement(Panel, {
+            defaultSizePercentage: 65,
+            minSizePercentage: 10,
+          }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { maxSize: 40, minSize: 10 })
+          createElement(Panel, { maxSizePercentage: 40, minSizePercentage: 10 })
         )
       );
 
@@ -118,39 +127,39 @@ test.describe("Window Splitter", () => {
 
       await page.keyboard.press("ArrowRight");
       await verifyAriaValues(resizeHandle, {
-        now: 51,
+        now: 60,
       });
 
       await page.keyboard.press("ArrowRight");
       await verifyAriaValues(resizeHandle, {
-        now: 52,
+        now: 70,
       });
 
       // This isn't officially part of the spec but it seems like a nice tweak
       await page.keyboard.press("Shift+ArrowRight");
       await verifyAriaValues(resizeHandle, {
-        now: 62,
+        now: 90,
       });
 
       await page.keyboard.press("ArrowLeft");
       await verifyAriaValues(resizeHandle, {
-        now: 61,
+        now: 80,
       });
 
       // This isn't officially part of the spec but it seems like a nice tweak
       await page.keyboard.press("Shift+ArrowLeft");
       await verifyAriaValues(resizeHandle, {
-        now: 51,
+        now: 10,
       });
 
       // Up and down arrows should not affect a "horizontal" list
       await page.keyboard.press("ArrowUp");
       await verifyAriaValues(resizeHandle, {
-        now: 51,
+        now: 10,
       });
       await page.keyboard.press("ArrowDown");
       await verifyAriaValues(resizeHandle, {
-        now: 51,
+        now: 10,
       });
     });
 
@@ -167,33 +176,38 @@ test.describe("Window Splitter", () => {
       // Up and down arrows should affect a "vertical" list
       await page.keyboard.press("ArrowUp");
       await verifyAriaValues(resizeHandle, {
-        now: 49,
+        now: 40,
       });
 
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
       await verifyAriaValues(resizeHandle, {
-        now: 51,
+        now: 60,
       });
 
       await page.keyboard.press("Shift+ArrowDown");
       await verifyAriaValues(resizeHandle, {
-        now: 61,
+        now: 90,
       });
-      await page.keyboard.press("Shift+ArrowUp");
+
+      await page.keyboard.press("ArrowUp");
+      await verifyAriaValues(resizeHandle, {
+        now: 80,
+      });
+
       await page.keyboard.press("Shift+ArrowUp");
       await verifyAriaValues(resizeHandle, {
-        now: 41,
+        now: 10,
       });
 
       // But Left and right arrows should be ignored
       await page.keyboard.press("ArrowLeft");
       await verifyAriaValues(resizeHandle, {
-        now: 41,
+        now: 10,
       });
       await page.keyboard.press("ArrowRight");
       await verifyAriaValues(resizeHandle, {
-        now: 41,
+        now: 10,
       });
     });
   });
@@ -232,9 +246,13 @@ test.describe("Window Splitter", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { defaultSize: 40, maxSize: 70, minSize: 20 }),
+          createElement(Panel, {
+            defaultSizePercentage: 40,
+            maxSizePercentage: 70,
+            minSizePercentage: 20,
+          }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { minSize: 10 })
+          createElement(Panel, { minSizePercentage: 10 })
         )
       );
 
@@ -264,13 +282,13 @@ test.describe("Window Splitter", () => {
         createElement(
           PanelGroup,
           { direction: "horizontal" },
-          createElement(Panel, { minSize: 10 }),
+          createElement(Panel, { minSizePercentage: 10 }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { minSize: 10 }),
+          createElement(Panel, { minSizePercentage: 10 }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { minSize: 10 }),
+          createElement(Panel, { minSizePercentage: 10 }),
           createElement(PanelResizeHandle),
-          createElement(Panel, { minSize: 10 })
+          createElement(Panel, { minSizePercentage: 10 })
         )
       );
 

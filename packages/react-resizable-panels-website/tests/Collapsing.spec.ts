@@ -2,7 +2,7 @@ import { test } from "@playwright/test";
 import { createElement } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import { verifyPanelSize } from "./utils/panels";
+import { verifyPanelSizePercentage } from "./utils/panels";
 import { goToUrl } from "./utils/url";
 
 test.describe("collapsible prop", () => {
@@ -14,18 +14,18 @@ test.describe("collapsible prop", () => {
         { direction: "horizontal" },
         createElement(Panel, {
           collapsible: true,
-          defaultSize: 35,
-          minSize: 10,
+          defaultSizePercentage: 35,
+          minSizePercentage: 10,
         }),
         createElement(PanelResizeHandle, { style: { height: 10, width: 10 } }),
         createElement(Panel, {
-          minSize: 10,
+          minSizePercentage: 10,
         }),
         createElement(PanelResizeHandle, { style: { height: 10, width: 10 } }),
         createElement(Panel, {
           collapsible: true,
-          defaultSize: 35,
-          minSize: 20,
+          defaultSizePercentage: 35,
+          minSizePercentage: 20,
         })
       )
     );
@@ -38,36 +38,36 @@ test.describe("collapsible prop", () => {
     const firstPanel = panels.first();
     const lastPanel = panels.last();
 
-    await verifyPanelSize(firstPanel, 35);
-    await verifyPanelSize(lastPanel, 35);
+    await verifyPanelSizePercentage(firstPanel, 35);
+    await verifyPanelSizePercentage(lastPanel, 35);
 
     await firstHandle.focus();
-    await page.keyboard.press("Shift+ArrowLeft");
-    await verifyPanelSize(firstPanel, 25);
-    await page.keyboard.press("Shift+ArrowLeft");
-    await verifyPanelSize(firstPanel, 15);
-    // Once it drops below half, it will collapse
-    await page.keyboard.press("Shift+ArrowLeft");
-    await verifyPanelSize(firstPanel, 0);
-    await page.keyboard.press("Shift+ArrowRight");
-    await verifyPanelSize(firstPanel, 10);
     await page.keyboard.press("ArrowLeft");
-    await verifyPanelSize(firstPanel, 0);
+    await verifyPanelSizePercentage(firstPanel, 25);
+    await page.keyboard.press("ArrowLeft");
+    await verifyPanelSizePercentage(firstPanel, 15);
+    // Once it drops below the min size, it will collapse
+    await page.keyboard.press("ArrowLeft");
+    await verifyPanelSizePercentage(firstPanel, 0);
     await page.keyboard.press("ArrowRight");
-    await verifyPanelSize(firstPanel, 10);
+    await verifyPanelSizePercentage(firstPanel, 10);
+    await page.keyboard.press("ArrowLeft");
+    await verifyPanelSizePercentage(firstPanel, 0);
+    await page.keyboard.press("ArrowRight");
+    await verifyPanelSizePercentage(firstPanel, 10);
 
     await lastHandle.focus();
-    await page.keyboard.press("Shift+ArrowRight");
-    await page.keyboard.press("Shift+ArrowRight");
-    await verifyPanelSize(lastPanel, 20);
-    await page.keyboard.press("Shift+ArrowRight");
-    await verifyPanelSize(lastPanel, 0);
-    await page.keyboard.press("Shift+ArrowLeft");
-    await verifyPanelSize(lastPanel, 20);
     await page.keyboard.press("ArrowRight");
-    await verifyPanelSize(lastPanel, 0);
+    await verifyPanelSizePercentage(lastPanel, 25);
+    // Once it drops below the min size, it will collapse
+    await page.keyboard.press("ArrowRight");
+    await verifyPanelSizePercentage(lastPanel, 0);
     await page.keyboard.press("ArrowLeft");
-    await verifyPanelSize(lastPanel, 20);
+    await verifyPanelSizePercentage(lastPanel, 20);
+    await page.keyboard.press("ArrowRight");
+    await verifyPanelSizePercentage(lastPanel, 0);
+    await page.keyboard.press("ArrowLeft");
+    await verifyPanelSizePercentage(lastPanel, 20);
   });
 
   test("should support custom collapsedSize values", async ({ page }) => {
@@ -77,13 +77,13 @@ test.describe("collapsible prop", () => {
         PanelGroup,
         { direction: "horizontal" },
         createElement(Panel, {
-          collapsedSize: 2,
+          collapsedSizePercentage: 2,
           collapsible: true,
-          defaultSize: 35,
-          minSize: 10,
+          defaultSizePercentage: 35,
+          minSizePercentage: 10,
         }),
         createElement(PanelResizeHandle, { style: { height: 10, width: 10 } }),
-        createElement(Panel, { minSize: 10 })
+        createElement(Panel, { minSizePercentage: 10 })
       )
     );
 
@@ -93,26 +93,20 @@ test.describe("collapsible prop", () => {
     const firstPanel = panels.first();
     const lastPanel = panels.last();
 
-    await verifyPanelSize(firstPanel, 35);
-    await verifyPanelSize(lastPanel, 65);
+    await verifyPanelSizePercentage(firstPanel, 35);
+    await verifyPanelSizePercentage(lastPanel, 65);
 
     await resizeHandle.focus();
-    await page.keyboard.press("Shift+ArrowLeft");
-    await verifyPanelSize(firstPanel, 25);
-    await page.keyboard.press("Shift+ArrowLeft");
-    await verifyPanelSize(firstPanel, 15);
-    // Once it drops below half, it will collapse
-    await page.keyboard.press("Shift+ArrowLeft");
-    await verifyPanelSize(firstPanel, 2);
-    await page.keyboard.press("Shift+ArrowRight");
-    await verifyPanelSize(firstPanel, 12);
     await page.keyboard.press("ArrowLeft");
-    await verifyPanelSize(firstPanel, 11);
+    await verifyPanelSizePercentage(firstPanel, 25);
     await page.keyboard.press("ArrowLeft");
-    await verifyPanelSize(firstPanel, 10);
+    await verifyPanelSizePercentage(firstPanel, 15);
+    // Once it drops below min size, it will collapse
     await page.keyboard.press("ArrowLeft");
-    await verifyPanelSize(firstPanel, 2);
+    await verifyPanelSizePercentage(firstPanel, 2);
     await page.keyboard.press("ArrowRight");
-    await verifyPanelSize(firstPanel, 10);
+    await verifyPanelSizePercentage(firstPanel, 12);
+    await page.keyboard.press("ArrowLeft");
+    await verifyPanelSizePercentage(firstPanel, 2);
   });
 });

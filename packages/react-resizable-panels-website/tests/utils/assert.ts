@@ -40,7 +40,8 @@ export function isImperativePanelHandle(
     typeof value === "object" &&
     typeof value.collapse === "function" &&
     typeof value.expand === "function" &&
-    typeof value.getCollapsed === "function" &&
+    typeof value.isCollapsed === "function" &&
+    typeof value.isExpanded === "function" &&
     typeof value.getSize === "function" &&
     typeof value.resize === "function"
   );

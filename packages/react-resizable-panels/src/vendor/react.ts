@@ -13,6 +13,7 @@ import type {
   ElementType,
   ForwardedRef,
   MouseEvent,
+  PropsWithChildren,
   ReactNode,
   RefObject,
   TouchEvent,
@@ -21,6 +22,7 @@ import type {
 const {
   createElement,
   createContext,
+  createRef,
   forwardRef,
   useCallback,
   useContext,
@@ -38,6 +40,7 @@ const useId = (React as any)["useId".toString()] as () => string;
 export {
   createElement,
   createContext,
+  createRef,
   forwardRef,
   useCallback,
   useContext,
@@ -55,6 +58,7 @@ export type {
   ElementType,
   ForwardedRef,
   MouseEvent,
+  PropsWithChildren,
   ReactNode,
   RefObject,
   TouchEvent,

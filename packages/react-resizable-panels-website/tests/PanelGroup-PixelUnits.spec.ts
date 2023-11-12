@@ -32,12 +32,11 @@ function createElements(
     {
       direction: "horizontal",
       id: "group",
-      units: "pixels",
       ...props.panelGroupProps,
     },
     createElement(Panel, {
       id: "left-panel",
-      minSize: 10,
+      minSizePixels: 10,
       ...props.leftPanelProps,
     }),
     createElement(PanelResizeHandle, {
@@ -46,7 +45,7 @@ function createElements(
     }),
     createElement(Panel, {
       id: "middle-panel",
-      minSize: 10,
+      minSizePixels: 10,
       ...props.middlePanelProps,
     }),
     createElement(PanelResizeHandle, {
@@ -55,7 +54,7 @@ function createElements(
     }),
     createElement(Panel, {
       id: "right-panel",
-      minSize: 10,
+      minSizePixels: 10,
       ...props.rightPanelProps,
     })
   );
@@ -82,21 +81,21 @@ test.describe("Pixel units", () => {
     }) => {
       // Static left panel
       await goToUrlHelper(page, {
-        leftPanelProps: { maxSize: 100, minSize: 50 },
+        leftPanelProps: { maxSizePixels: 100, minSizePixels: 50 },
       });
       const leftPanel = page.locator('[data-panel-id="left-panel"]');
       await verifyPanelSizePixels(leftPanel, 100);
 
       // Static middle panel
       await goToUrlHelper(page, {
-        middlePanelProps: { maxSize: 100, minSize: 50 },
+        middlePanelProps: { maxSizePixels: 100, minSizePixels: 50 },
       });
       const middlePanel = page.locator('[data-panel-id="middle-panel"]');
       await verifyPanelSizePixels(middlePanel, 100);
 
       // Static right panel
       await goToUrlHelper(page, {
-        rightPanelProps: { maxSize: 100, minSize: 50 },
+        rightPanelProps: { maxSizePixels: 100, minSizePixels: 50 },
       });
       const rightPanel = page.locator('[data-panel-id="right-panel"]');
       await verifyPanelSizePixels(rightPanel, 100);
@@ -106,7 +105,7 @@ test.describe("Pixel units", () => {
       page,
     }) => {
       await goToUrlHelper(page, {
-        leftPanelProps: { maxSize: 300, minSize: 200 },
+        leftPanelProps: { maxSizePixels: 300, minSizePixels: 200 },
       });
 
       const leftPanel = page.locator("[data-panel]").first();
@@ -117,7 +116,7 @@ test.describe("Pixel units", () => {
       page,
     }) => {
       await goToUrlHelper(page, {
-        leftPanelProps: { maxSize: 100, minSize: 50 },
+        leftPanelProps: { maxSizePixels: 100, minSizePixels: 50 },
       });
 
       const leftPanel = page.locator("[data-panel]").first();
@@ -139,7 +138,7 @@ test.describe("Pixel units", () => {
       page,
     }) => {
       await goToUrlHelper(page, {
-        leftPanelProps: { maxSize: 100, minSize: 50 },
+        leftPanelProps: { maxSizePixels: 100, minSizePixels: 50 },
       });
 
       const leftPanel = page.locator("[data-panel]").first();
@@ -155,15 +154,15 @@ test.describe("Pixel units", () => {
       page,
     }) => {
       await goToUrlHelper(page, {
-        leftPanelProps: { maxSize: 100, minSize: 50 },
+        leftPanelProps: { maxSizePixels: 100, minSizePixels: 50 },
       });
 
       const leftPanel = page.locator("[data-panel]").first();
 
-      await imperativeResizePanel(page, "left-panel", 150);
+      await imperativeResizePanel(page, "left-panel", { sizePixels: 150 });
       await verifyPanelSizePixels(leftPanel, 100);
 
-      await imperativeResizePanel(page, "left-panel", 4);
+      await imperativeResizePanel(page, "left-panel", { sizePixels: 4 });
       await verifyPanelSizePixels(leftPanel, 50);
     });
 
@@ -171,15 +170,15 @@ test.describe("Pixel units", () => {
       page,
     }) => {
       await goToUrlHelper(page, {
-        rightPanelProps: { maxSize: 100, minSize: 50 },
+        rightPanelProps: { maxSizePixels: 100, minSizePixels: 50 },
       });
 
       const rightPanel = page.locator("[data-panel]").last();
 
-      await imperativeResizePanel(page, "middle-panel", 1);
+      await imperativeResizePanel(page, "middle-panel", { sizePixels: 1 });
       await verifyPanelSizePixels(rightPanel, 100);
 
-      await imperativeResizePanel(page, "left-panel", 350);
+      await imperativeResizePanel(page, "left-panel", { sizePixels: 350 });
       await verifyPanelSizePixels(rightPanel, 50);
     });
 
@@ -187,32 +186,29 @@ test.describe("Pixel units", () => {
       await goToUrlHelper(page, {
         leftPanelProps: {
           collapsible: true,
-          minSize: 100,
-          maxSize: 200,
+          minSizePixels: 100,
+          maxSizePixels: 200,
         },
       });
 
       const leftPanel = page.locator("[data-panel]").first();
 
-      await imperativeResizePanel(page, "left-panel", 25);
-      await verifyPanelSizePixels(leftPanel, 100);
-
-      await imperativeResizePanel(page, "left-panel", 10);
+      await imperativeResizePanel(page, "left-panel", { sizePixels: 25 });
       await verifyPanelSizePixels(leftPanel, 0);
 
-      await imperativeResizePanel(page, "left-panel", 15);
+      await imperativeResizePanel(page, "left-panel", { sizePixels: 100 });
       await verifyPanelSizePixels(leftPanel, 100);
     });
   });
 
-  test("should observe min size constraint if the overall group size shrinks", async ({
+  test("should observe min size pixel constraints if the overall group size shrinks", async ({
     page,
   }) => {
     await goToUrlHelper(page, {
       leftPanelProps: {
-        defaultSize: 50,
-        maxSize: 100,
-        minSize: 50,
+        defaultSizePixels: 50,
+        maxSizePixels: 100,
+        minSizePixels: 50,
       },
     });
     const leftPanel = page.locator('[data-panel-id="left-panel"]');
@@ -225,26 +221,27 @@ test.describe("Pixel units", () => {
     await page.setViewportSize({ width: 400, height: 300 });
     await goToUrlHelper(page, {
       rightPanelProps: {
-        defaultSize: 50,
-        maxSize: 100,
-        minSize: 50,
+        defaultSizePixels: 50,
+        maxSizePixels: 100,
+        minSizePixels: 50,
       },
     });
     const rightPanel = page.locator('[data-panel-id="right-panel"]');
     await verifyPanelSizePixels(rightPanel, 50);
 
     await page.setViewportSize({ width: 300, height: 300 });
+    await new Promise((resolve) => setTimeout(resolve, 250));
     await verifyPanelSizePixels(rightPanel, 50);
   });
 
-  test("should observe max size constraint if the overall group size expands", async ({
+  test("should observe max size pixel constraints if the overall group size expands", async ({
     page,
   }) => {
     await goToUrlHelper(page, {
       leftPanelProps: {
-        defaultSize: 100,
-        maxSize: 100,
-        minSize: 50,
+        defaultSizePixels: 100,
+        maxSizePixels: 100,
+        minSizePixels: 50,
       },
     });
 
@@ -259,9 +256,9 @@ test.describe("Pixel units", () => {
 
     await goToUrlHelper(page, {
       rightPanelProps: {
-        defaultSize: 100,
-        maxSize: 100,
-        minSize: 50,
+        defaultSizePixels: 100,
+        maxSizePixels: 100,
+        minSizePixels: 50,
       },
     });
 
@@ -270,6 +267,7 @@ test.describe("Pixel units", () => {
     await verifyPanelSizePixels(rightPanel, 100);
 
     await page.setViewportSize({ width: 500, height: 300 });
+    await new Promise((resolve) => setTimeout(resolve, 250));
     await verifyPanelSizePixels(rightPanel, 100);
   });
 
@@ -280,33 +278,33 @@ test.describe("Pixel units", () => {
       page,
       createElement(
         PanelGroup,
-        { direction: "horizontal", id: "group", units: "pixels" },
+        { direction: "horizontal", id: "group" },
         createElement(Panel, {
           id: "first-panel",
-          minSize: 50,
-          maxSize: 75,
+          minSizePixels: 50,
+          maxSizePixels: 75,
         }),
         createElement(PanelResizeHandle, {
           id: "first-resize-handle",
         }),
         createElement(Panel, {
           id: "second-panel",
-          minSize: 10,
+          minSizePixels: 10,
         }),
         createElement(PanelResizeHandle, {
           id: "second-resize-handle",
         }),
         createElement(Panel, {
           id: "third-panel",
-          minSize: 10,
+          minSizePixels: 10,
         }),
         createElement(PanelResizeHandle, {
           id: "third-resize-handle",
         }),
         createElement(Panel, {
           id: "fourth-panel",
-          minSize: 50,
-          maxSize: 75,
+          minSizePixels: 50,
+          maxSizePixels: 75,
         })
       )
     );
@@ -343,19 +341,19 @@ test.describe("Pixel units", () => {
         },
       },
       leftPanelProps: {
-        minSize: 50,
+        minSizePixels: 50,
       },
       middlePanelProps: {
-        minSize: 50,
+        minSizePixels: 50,
       },
       rightPanelProps: {
-        minSize: 50,
+        minSizePixels: 50,
       },
     });
     await goToUrl(page, elements as any);
     await verifySizesPixels(page, 132, 132, 132);
 
-    await imperativeResizePanel(page, "left-panel", 50);
+    await imperativeResizePanel(page, "left-panel", { sizePixels: 50 });
     await verifySizesPixels(page, 50, 214, 132);
 
     // Wait for localStorage write debounce

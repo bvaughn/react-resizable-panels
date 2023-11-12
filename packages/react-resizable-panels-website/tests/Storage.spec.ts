@@ -8,27 +8,27 @@ import { goToUrl } from "./utils/url";
 const panelGroupABC = createElement(
   PanelGroup,
   { autoSaveId: "test-group", direction: "horizontal" },
-  createElement(Panel, { minSize: 10, order: 1 }),
+  createElement(Panel, { minSizePercentage: 10, order: 1 }),
   createElement(PanelResizeHandle),
-  createElement(Panel, { minSize: 10, order: 2 }),
+  createElement(Panel, { minSizePercentage: 10, order: 2 }),
   createElement(PanelResizeHandle),
-  createElement(Panel, { minSize: 10, order: 3 })
+  createElement(Panel, { minSizePercentage: 10, order: 3 })
 );
 
 const panelGroupBC = createElement(
   PanelGroup,
   { autoSaveId: "test-group", direction: "horizontal" },
-  createElement(Panel, { minSize: 10, order: 2 }),
+  createElement(Panel, { minSizePercentage: 10, order: 2 }),
   createElement(PanelResizeHandle),
-  createElement(Panel, { minSize: 10, order: 3 })
+  createElement(Panel, { minSizePercentage: 10, order: 3 })
 );
 
 const panelGroupAB = createElement(
   PanelGroup,
   { autoSaveId: "test-group", direction: "horizontal" },
-  createElement(Panel, { minSize: 10, order: 1 }),
+  createElement(Panel, { minSizePercentage: 10, order: 1 }),
   createElement(PanelResizeHandle),
-  createElement(Panel, { minSize: 10, order: 2 })
+  createElement(Panel, { minSizePercentage: 10, order: 2 })
 );
 
 test.describe("Storage", () => {
@@ -56,13 +56,12 @@ test.describe("Storage", () => {
       await first.focus();
       await page.keyboard.press("Home");
       await resizeHandles.last().focus();
-      await page.keyboard.press("End");
-      await page.keyboard.press("Shift+ArrowLeft");
+      await page.keyboard.press("Shift+ArrowRight");
       await verifyAriaValues(first, {
         now: 10,
       });
       await verifyAriaValues(last, {
-        now: 70,
+        now: 80,
       });
 
       // Wait for localStorage write debounce
@@ -74,7 +73,7 @@ test.describe("Storage", () => {
         now: 10,
       });
       await verifyAriaValues(last, {
-        now: 70,
+        now: 80,
       });
     });
 
