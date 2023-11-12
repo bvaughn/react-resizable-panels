@@ -3,9 +3,8 @@ import { computePercentagePanelConstraints } from "./computePercentagePanelConst
 
 describe("computePercentagePanelConstraints", () => {
   it("should compute reasonable defaults with no constraints", () => {
-    expect(
-  computePercentagePanelConstraints([{}, {}], 0, 100)
-).toMatchInlineSnapshot(`
+    expect(computePercentagePanelConstraints([{}, {}], 0, 100))
+      .toMatchInlineSnapshot(`
 {
   "collapsedSizePercentage": 0,
   "defaultSizePercentage": undefined,
@@ -14,9 +13,8 @@ describe("computePercentagePanelConstraints", () => {
 }
 `);
 
-    expect(
-  computePercentagePanelConstraints([{}, {}], 1, 100)
-).toMatchInlineSnapshot(`
+    expect(computePercentagePanelConstraints([{}, {}], 1, 100))
+      .toMatchInlineSnapshot(`
 {
   "collapsedSizePercentage": 0,
   "defaultSizePercentage": undefined,
