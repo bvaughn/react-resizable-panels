@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.57
+
+- [#207](https://github.com/bvaughn/react-resizable-panels/pull/207): Fix DEV conditional error that broke data attributes (and selectors).
+
 ## 0.0.56
 
 Support a mix of percentage and pixel based units at the `Panel` level:
