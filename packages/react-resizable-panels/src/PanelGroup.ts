@@ -266,6 +266,10 @@ function PanelGroupWithForwardedRef({
     }
 
     const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
+    if (groupSizePixels <= 0) {
+      // Wait until the group has rendered a non-zero size before computing layout.
+      return;
+    }
 
     if (unsafeLayout == null) {
       unsafeLayout = calculateUnsafeDefaultLayout({
@@ -925,10 +929,8 @@ function PanelGroupWithForwardedRef({
 
       // CSS selectors
       "data-panel-group": "",
-
-      // e2e test attributes
-      "data-panel-group-direction": isDevelopment ? direction : undefined,
-      "data-panel-group-id": isDevelopment ? groupId : undefined,
+      "data-panel-group-direction": direction,
+      "data-panel-group-id": groupId,
     })
   );
 }

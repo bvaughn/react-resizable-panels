@@ -68,4 +68,31 @@ describe("computePercentagePanelConstraints", () => {
 }
 `);
   });
+
+  it("should compute reasonable percentage based constraints from pixels if group size is negative", () => {
+    jest.spyOn(console, "warn").mockImplementation(() => {});
+
+    expect(
+      computePercentagePanelConstraints(
+        [
+          {
+            minSizePixels: 25,
+            maxSizePixels: 100,
+          },
+        ],
+
+        0,
+        -100
+      )
+    ).toMatchInlineSnapshot(`
+{
+  "collapsedSizePercentage": 0,
+  "defaultSizePercentage": undefined,
+  "maxSizePercentage": 0,
+  "minSizePercentage": 0,
+}
+`);
+
+    expect(console.warn).toHaveBeenCalledTimes(1);
+  });
 });

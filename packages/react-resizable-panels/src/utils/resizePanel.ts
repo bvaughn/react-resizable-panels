@@ -14,6 +14,25 @@ export function resizePanel({
   panelIndex: number;
   size: number;
 }) {
+  const hasPixelConstraints = panelConstraints.some(
+    ({
+      collapsedSizePixels,
+      defaultSizePixels,
+      minSizePixels,
+      maxSizePixels,
+    }) =>
+      collapsedSizePixels != null ||
+      defaultSizePixels != null ||
+      minSizePixels != null ||
+      maxSizePixels != null
+  );
+
+  if (hasPixelConstraints && groupSizePixels <= 0) {
+    console.warn(`WARNING: Invalid group size: ${groupSizePixels}px`);
+
+    return 0;
+  }
+
   let { collapsible } = panelConstraints[panelIndex]!;
 
   const { collapsedSizePercentage, maxSizePercentage, minSizePercentage } =
