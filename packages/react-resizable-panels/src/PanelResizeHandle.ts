@@ -151,19 +151,6 @@ export function PanelResizeHandle({
   return createElement(Type, {
     children,
     className: classNameFromProps,
-
-    // CSS selectors
-    "data-resize-handle": "",
-
-    "data-resize-handle-active": isDragging
-      ? "pointer"
-      : isFocused
-      ? "keyboard"
-      : undefined,
-    "data-panel-group-direction": direction,
-    "data-panel-group-id": groupId,
-    "data-panel-resize-handle-enabled": !disabled,
-    "data-panel-resize-handle-id": resizeHandleId,
     onBlur: () => setIsFocused(false),
     onFocus: () => setIsFocused(true),
     onMouseDown: (event: ReactMouseEvent) => {
@@ -192,6 +179,18 @@ export function PanelResizeHandle({
       ...styleFromProps,
     },
     tabIndex: 0,
+
+    // CSS selectors
+    "data-panel-group-direction": direction,
+    "data-panel-group-id": groupId,
+    "data-resize-handle": "",
+    "data-resize-handle-active": isDragging
+      ? "pointer"
+      : isFocused
+      ? "keyboard"
+      : undefined,
+    "data-panel-resize-handle-enabled": !disabled,
+    "data-panel-resize-handle-id": resizeHandleId,
   });
 }
 

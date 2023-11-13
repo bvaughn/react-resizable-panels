@@ -21,6 +21,23 @@ export function convertPixelConstraintsToPercentages(
     minSizePixels,
   } = panelConstraints;
 
+  const hasPixelConstraints =
+    collapsedSizePixels != null ||
+    defaultSizePixels != null ||
+    minSizePixels != null ||
+    maxSizePixels != null;
+
+  if (hasPixelConstraints && groupSizePixels <= 0) {
+    console.warn(`WARNING: Invalid group size: ${groupSizePixels}px`);
+
+    return {
+      collapsedSizePercentage: 0,
+      defaultSizePercentage,
+      maxSizePercentage: 0,
+      minSizePercentage: 0,
+    };
+  }
+
   if (collapsedSizePixels != null) {
     collapsedSizePercentage = convertPixelsToPercentage(
       collapsedSizePixels,
