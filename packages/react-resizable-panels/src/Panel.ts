@@ -19,7 +19,7 @@ export type PanelOnCollapse = () => void;
 export type PanelOnExpand = () => void;
 export type PanelOnResize = (
   mixedSizes: MixedSizes,
-  prevMixedSizes: MixedSizes
+  prevMixedSizes: MixedSizes | undefined
 ) => void;
 
 export type PanelCallbacks = {
