@@ -5,6 +5,7 @@ import {
   MixedSizes,
   Panel,
   PanelGroup,
+  PanelOnResize,
   PanelResizeHandle,
 } from ".";
 import {
@@ -232,6 +233,28 @@ describe("PanelGroup", () => {
       }).toThrow(
         "Panel components must be rendered within a PanelGroup container"
       );
+    });
+  });
+
+  describe("panel callbacks", () => {
+    describe("onResize", () => {
+      it("should call onResize with defined prevMixedSizes on first render", () => {
+        let initPrevMixedSizes;
+        const onResize: PanelOnResize = jest.fn((_, prevMixedSizes) => {
+          initPrevMixedSizes = prevMixedSizes;
+        });
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel onResize={onResize} />
+            </PanelGroup>
+          );
+        });
+
+        expect(onResize).toHaveBeenCalledTimes(1);
+        expect(initPrevMixedSizes).toBeDefined();
+      });
     });
   });
 

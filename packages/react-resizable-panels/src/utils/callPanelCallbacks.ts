@@ -32,6 +32,7 @@ export function callPanelCallbacks(
     const lastNotifiedMixedSizes = panelIdToLastNotifiedMixedSizesMap[panelId];
     if (
       lastNotifiedMixedSizes == null ||
+      lastNotifiedMixedSizes == undefined ||
       mixedSizes.sizePercentage !== lastNotifiedMixedSizes.sizePercentage ||
       mixedSizes.sizePixels !== lastNotifiedMixedSizes.sizePixels
     ) {
@@ -40,7 +41,8 @@ export function callPanelCallbacks(
       const { onCollapse, onExpand, onResize } = callbacks;
 
       if (onResize) {
-        onResize(mixedSizes, lastNotifiedMixedSizes);
+        // On first render, lastNotifiedMixedSizes will be undefined, fall back to mixedSizes
+        onResize(mixedSizes, lastNotifiedMixedSizes ?? mixedSizes);
       }
 
       if (collapsible && (onCollapse || onExpand)) {
