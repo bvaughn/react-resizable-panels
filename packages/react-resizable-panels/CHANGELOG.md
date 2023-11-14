@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.58
+
+- Exported `PanelOnResize` type properly notes the second param (`prevSize`) as potentially undefined (for mount).
+
 ## 0.0.57
 
 - [#207](https://github.com/bvaughn/react-resizable-panels/pull/207): Fix DEV conditional error that broke data attributes (and selectors).
