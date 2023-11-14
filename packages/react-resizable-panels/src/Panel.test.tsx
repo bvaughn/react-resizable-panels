@@ -14,7 +14,7 @@ import {
 } from "./utils/test-utils";
 import { createRef } from "./vendor/react";
 
-describe("PanelGroup", () => {
+describe("Panel", () => {
   let expectedWarnings: string[] = [];
   let root: Root;
   let uninstallMockOffsetWidthAndHeight: () => void;
