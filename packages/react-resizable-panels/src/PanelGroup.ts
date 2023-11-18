@@ -83,6 +83,12 @@ export type PanelGroupProps = PropsWithChildren<{
   tagName?: ElementType;
 }>;
 
+type ImperativeApiQueue = {
+  type: "collapse" | "expand" | "resize";
+  mixedSizes?: Partial<MixedSizes>;
+  panelData: PanelData;
+};
+
 const debounceMap: {
   [key: string]: typeof savePanelGroupLayout;
 } = {};
@@ -115,6 +121,10 @@ function PanelGroupWithForwardedRef({
   >({});
   const panelSizeBeforeCollapseRef = useRef<Map<string, number>>(new Map());
   const prevDeltaRef = useRef<number>(0);
+
+  const [imperativeApiQueue, setImperativeApiQueue] = useState<
+    ImperativeApiQueue[]
+  >([]);
 
   const committedValuesRef = useRef<{
     direction: Direction;
@@ -442,6 +452,18 @@ function PanelGroupWithForwardedRef({
         panelDataArray,
       } = committedValuesRef.current;
 
+      // See issues/211
+      if (panelDataArray.find(({ id }) => id === panelData.id) == null) {
+        setImperativeApiQueue((prev) => [
+          ...prev,
+          {
+            panelData,
+            type: "collapse",
+          },
+        ]);
+        return;
+      }
+
       if (panelData.constraints.collapsible) {
         const panelConstraintsArray = panelDataArray.map(
           (panelData) => panelData.constraints
@@ -513,6 +535,18 @@ function PanelGroupWithForwardedRef({
         onLayout,
         panelDataArray,
       } = committedValuesRef.current;
+
+      // See issues/211
+      if (panelDataArray.find(({ id }) => id === panelData.id) == null) {
+        setImperativeApiQueue((prev) => [
+          ...prev,
+          {
+            panelData,
+            type: "expand",
+          },
+        ]);
+        return;
+      }
 
       if (panelData.constraints.collapsible) {
         const panelConstraintsArray = panelDataArray.map(
@@ -780,6 +814,19 @@ function PanelGroupWithForwardedRef({
         panelDataArray,
       } = committedValuesRef.current;
 
+      // See issues/211
+      if (panelDataArray.find(({ id }) => id === panelData.id) == null) {
+        setImperativeApiQueue((prev) => [
+          ...prev,
+          {
+            panelData,
+            mixedSizes,
+            type: "resize",
+          },
+        ]);
+        return;
+      }
+
       const panelConstraintsArray = panelDataArray.map(
         (panelData) => panelData.constraints
       );
@@ -872,6 +919,35 @@ function PanelGroupWithForwardedRef({
       return panelDataArray;
     });
   }, []);
+
+  // Handle imperative API calls that were made before panels were registered
+  useIsomorphicLayoutEffect(() => {
+    const queue = imperativeApiQueue;
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      switch (current.type) {
+        case "collapse": {
+          collapsePanel(current.panelData);
+          break;
+        }
+        case "expand": {
+          expandPanel(current.panelData);
+          break;
+        }
+        case "resize": {
+          resizePanel(current.panelData, current.mixedSizes!);
+          break;
+        }
+      }
+    }
+  }, [
+    collapsePanel,
+    expandPanel,
+    imperativeApiQueue,
+    layout,
+    panelDataArray,
+    resizePanel,
+  ]);
 
   const context = useMemo(
     () => ({
