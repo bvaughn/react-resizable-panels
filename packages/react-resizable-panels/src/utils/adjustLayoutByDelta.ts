@@ -1,9 +1,8 @@
+import { PanelConstraints } from "../Panel";
 import { computePercentagePanelConstraints } from "./computePercentagePanelConstraints";
+import { fuzzyCompareNumbers } from "./numbers/fuzzyCompareNumbers";
 import { fuzzyNumbersEqual } from "./numbers/fuzzyNumbersEqual";
 import { resizePanel } from "./resizePanel";
-import { PanelConstraints } from "../Panel";
-
-let isCheckingForInfiniteLoop = false;
 
 // All units must be in percentages; pixel values should be pre-converted
 export function adjustLayoutByDelta({
@@ -29,59 +28,124 @@ export function adjustLayoutByDelta({
 
   let deltaApplied = 0;
 
+  //const DEBUG = [];
+  //DEBUG.push(`adjustLayoutByDelta() ${prevLayout.join(", ")}`);
+  //DEBUG.push(`  delta: ${delta}`);
+  //DEBUG.push(`  pivotIndices: ${pivotIndices.join(", ")}`);
+  //DEBUG.push(`  trigger: ${trigger}`);
+  //DEBUG.push("");
+
   // A resizing panel affects the panels before or after it.
   //
-  // A negative delta means the panel immediately after the resizer should grow/expand by decreasing its offset.
+  // A negative delta means the panel(s) immediately after the resize handle should grow/expand by decreasing its offset.
   // Other panels may also need to shrink/contract (and shift) to make room, depending on the min weights.
   //
-  // A positive delta means the panel immediately before the resizer should "expand".
-  // This is accomplished by shrinking/contracting (and shifting) one or more of the panels after the resizer.
+  // A positive delta means the panel(s) immediately before the resize handle should "expand".
+  // This is accomplished by shrinking/contracting (and shifting) one or more of the panels after the resize handle.
 
-  // First, check the panel we're pivoting around;
-  // We should only expand or contract by as much as its constraints allow
   {
-    const pivotIndex = delta < 0 ? pivotIndices[1]! : pivotIndices[0]!;
-    const initialSize = nextLayout[pivotIndex]!;
+    // If this is a resize triggered by a keyboard event, our logic for expanding/collapsing is different.
+    // We no longer check the halfway threshold because this may prevent the panel from expanding at all.
+    if (trigger === "keyboard") {
+      {
+        // Check if we should expand a collapsed panel
+        const index = delta < 0 ? pivotIndices[1]! : pivotIndices[0]!;
+        const constraints = panelConstraints[index]!;
+        //DEBUG.push(`edge case check 1: ${index}`);
+        //DEBUG.push(`  -> collapsible? ${constraints.collapsible}`);
+        if (constraints.collapsible) {
+          const prevSize = prevLayout[index]!;
+          const { collapsedSizePercentage, minSizePercentage } =
+            computePercentagePanelConstraints(
+              panelConstraints,
+              index,
+              groupSizePixels
+            );
 
-    const { collapsible } = panelConstraints[pivotIndex]!;
-    const { collapsedSizePercentage, minSizePercentage } =
-      computePercentagePanelConstraints(
-        panelConstraints,
-        pivotIndex,
-        groupSizePixels
-      );
+          if (fuzzyNumbersEqual(prevSize, collapsedSizePercentage)) {
+            const localDelta = minSizePercentage - prevSize;
+            //DEBUG.push(`  -> expand delta: ${localDelta}`);
 
-    const isCollapsed =
-      collapsible && fuzzyNumbersEqual(initialSize, collapsedSizePercentage);
-
-    let unsafeSize = initialSize + Math.abs(delta);
-    if (isCollapsed) {
-      switch (trigger) {
-        case "keyboard":
-          if (minSizePercentage > unsafeSize) {
-            unsafeSize = minSizePercentage;
+            if (fuzzyCompareNumbers(localDelta, Math.abs(delta)) > 0) {
+              delta = delta < 0 ? 0 - localDelta : localDelta;
+              //DEBUG.push(`  -> delta: ${delta}`);
+            }
           }
+        }
+      }
+
+      {
+        // Check if we should collapse a panel at its minimum size
+        const index = delta < 0 ? pivotIndices[0]! : pivotIndices[1]!;
+        const constraints = panelConstraints[index]!;
+        //DEBUG.push(`edge case check 2: ${index}`);
+        //DEBUG.push(`  -> collapsible? ${constraints.collapsible}`);
+        if (constraints.collapsible) {
+          const prevSize = prevLayout[index]!;
+          const { collapsedSizePercentage, minSizePercentage } =
+            computePercentagePanelConstraints(
+              panelConstraints,
+              index,
+              groupSizePixels
+            );
+
+          if (fuzzyNumbersEqual(prevSize, minSizePercentage)) {
+            const localDelta = prevSize - collapsedSizePercentage;
+            //DEBUG.push(`  -> expand delta: ${localDelta}`);
+
+            if (fuzzyCompareNumbers(localDelta, Math.abs(delta)) > 0) {
+              delta = delta < 0 ? 0 - localDelta : localDelta;
+              //DEBUG.push(`  -> delta: ${delta}`);
+            }
+          }
+        }
+      }
+    }
+    //DEBUG.push("");
+  }
+
+  {
+    // Pre-calculate max available delta in the opposite direction of our pivot.
+    // This will be the maximum amount we're allowed to expand/contract the panels in the primary direction.
+    // If this amount is less than the requested delta, adjust the requested delta.
+    // If this amount is greater than the requested delta, that's useful information too–
+    // as an expanding panel might change from collapsed to min size.
+
+    const increment = delta < 0 ? 1 : -1;
+
+    let index = delta < 0 ? pivotIndices[1]! : pivotIndices[0]!;
+    let maxAvailableDelta = 0;
+
+    //DEBUG.push("pre calc...");
+    while (true) {
+      const prevSize = prevLayout[index];
+      const maxSafeSize = resizePanel({
+        groupSizePixels,
+        panelConstraints,
+        panelIndex: index,
+        size: 100,
+      });
+      const delta = maxSafeSize - prevSize;
+      //DEBUG.push(`  ${index}: ${prevSize} -> ${maxSafeSize}`);
+
+      maxAvailableDelta += delta;
+      index += increment;
+
+      if (index < 0 || index >= panelConstraints.length) {
+        break;
       }
     }
 
-    const safeSize = resizePanel({
-      groupSizePixels,
-      panelConstraints,
-      panelIndex: pivotIndex,
-      size: unsafeSize,
-    });
-
-    if (fuzzyNumbersEqual(initialSize, safeSize)) {
-      // If there's no room for the pivot panel to grow, we should ignore this change
-      return nextLayout;
-    } else {
-      delta = delta < 0 ? initialSize - safeSize : safeSize - initialSize;
-    }
+    //DEBUG.push(`  -> max available delta: ${maxAvailableDelta}`);
+    const minAbsDelta = Math.min(Math.abs(delta), Math.abs(maxAvailableDelta));
+    delta = delta < 0 ? 0 - minAbsDelta : minAbsDelta;
+    //DEBUG.push(`  -> adjusted delta: ${delta}`);
+    //DEBUG.push("");
   }
 
-  // Delta added to a panel needs to be subtracted from other panels
-  // within the constraints that those panels allow
   {
+    // Delta added to a panel needs to be subtracted from other panels (within the constraints that those panels allow).
+
     const pivotIndex = delta < 0 ? pivotIndices[0]! : pivotIndices[1]!;
     let index = pivotIndex;
     while (index >= 0 && index < panelConstraints.length) {
@@ -89,8 +153,7 @@ export function adjustLayoutByDelta({
 
       const prevSize = prevLayout[index]!;
       const unsafeSize = prevSize - deltaRemaining;
-
-      let safeSize = resizePanel({
+      const safeSize = resizePanel({
         groupSizePixels,
         panelConstraints,
         panelIndex: index,
@@ -120,14 +183,19 @@ export function adjustLayoutByDelta({
       }
     }
   }
+  //DEBUG.push(`after 1: ${nextLayout.join(", ")}`);
+  //DEBUG.push(`  deltaApplied: ${deltaApplied}`);
+  //DEBUG.push("");
 
   // If we were unable to resize any of the panels panels, return the previous state.
   // This will essentially bailout and ignore e.g. drags past a panel's boundaries
   if (fuzzyNumbersEqual(deltaApplied, 0)) {
+    //console.log(DEBUG.join("\n"));
     return prevLayout;
   }
 
   {
+    // Now distribute the applied delta to the panels in the other direction
     const pivotIndex = delta < 0 ? pivotIndices[1]! : pivotIndices[0]!;
 
     const unsafeSize = prevLayout[pivotIndex]! + deltaApplied;
@@ -173,38 +241,20 @@ export function adjustLayoutByDelta({
           index++;
         }
       }
-
-      // If we can't redistribute, this layout is invalid;
-      // There may be an incremental layout that is valid though
-      if (!fuzzyNumbersEqual(deltaRemaining, 0)) {
-        let didSetInfiniteLoopCheckCounter = false;
-        if (isCheckingForInfiniteLoop === null) {
-          didSetInfiniteLoopCheckCounter = true;
-          isCheckingForInfiniteLoop = true;
-        }
-
-        try {
-          return adjustLayoutByDelta({
-            delta: delta < 0 ? delta + 1 : delta - 1,
-            groupSizePixels,
-            layout: prevLayout,
-            panelConstraints,
-            pivotIndices,
-            trigger,
-          });
-        } catch (error) {
-          if (error instanceof RangeError) {
-            console.error(`Could not apply delta ${delta} to layout`);
-
-            return prevLayout;
-          }
-        } finally {
-          if (didSetInfiniteLoopCheckCounter) {
-            isCheckingForInfiniteLoop = false;
-          }
-        }
-      }
     }
+  }
+  //DEBUG.push(`after 2: ${nextLayout.join(", ")}`);
+  //DEBUG.push(`  deltaApplied: ${deltaApplied}`);
+  //DEBUG.push("");
+
+  const totalSize = nextLayout.reduce((total, size) => size + total, 0);
+  deltaApplied = 100 - totalSize;
+  //DEBUG.push(`total size: ${totalSize}`);
+  //DEBUG.push(`  deltaApplied: ${deltaApplied}`);
+  //console.log(DEBUG.join("\n"));
+
+  if (!fuzzyNumbersEqual(totalSize, 100)) {
+    return prevLayout;
   }
 
   return nextLayout;

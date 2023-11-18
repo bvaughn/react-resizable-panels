@@ -27,20 +27,36 @@ export default function ImperativePanelGroupApiRoute() {
             <li>
               <Code
                 className={sharedStyles.InlineCode}
-                code={`getLayout(units?: "percentages" | "pixels"): number[]`}
+                code={`getId(): string`}
                 language="typescript"
               />
-              Current size of panels in the specified unit (or group default)
+              Panel group id
             </li>
             <li>
               <Code
                 className={sharedStyles.InlineCode}
-                code={`setLayout(panelSizes: number[], units?: "percentages" | "pixels"): void`}
+                code={`getLayout(): MixedSizes[]`}
                 language="typescript"
               />
-              Resize all panels using the specified unit (or group default)
+              Current size of panels (in both percentage and pixel units)
+            </li>
+            <li>
+              <Code
+                className={sharedStyles.InlineCode}
+                code={`setLayout(Partial<MixedSizes>[]): void`}
+                language="typescript"
+              />
+              Resize all panels (using either percentage or pixel units)
             </li>
           </ul>
+          <p>
+            Note that the <code>MixedSizes</code> type above is defined as{" "}
+            <Code
+              className={sharedStyles.InlineCode}
+              code={`{ sizePercentage: number; sizePixels: number; }`}
+              language="typescript"
+            />
+          </p>
         </>
       }
       language="tsx"

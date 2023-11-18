@@ -46,6 +46,8 @@ test.describe("collapsible prop", () => {
     await verifyPanelSizePercentage(firstPanel, 25);
     await page.keyboard.press("ArrowLeft");
     await verifyPanelSizePercentage(firstPanel, 15);
+    await page.keyboard.press("ArrowLeft");
+    await verifyPanelSizePercentage(firstPanel, 10);
     // Once it drops below the min size, it will collapse
     await page.keyboard.press("ArrowLeft");
     await verifyPanelSizePercentage(firstPanel, 0);
@@ -59,6 +61,8 @@ test.describe("collapsible prop", () => {
     await lastHandle.focus();
     await page.keyboard.press("ArrowRight");
     await verifyPanelSizePercentage(lastPanel, 25);
+    await page.keyboard.press("ArrowRight");
+    await verifyPanelSizePercentage(lastPanel, 20);
     // Once it drops below the min size, it will collapse
     await page.keyboard.press("ArrowRight");
     await verifyPanelSizePercentage(lastPanel, 0);

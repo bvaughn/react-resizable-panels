@@ -128,7 +128,12 @@ function Size({
           style={{ height: `${height}px`, width: `${width}px` }}
         >
           <center>
-            <p>{direction === "horizontal" ? width : height}px</p>
+            <p>
+              {direction === "horizontal"
+                ? Math.round(width!)
+                : Math.round(height!)}
+              px
+            </p>
             {children}
           </center>
         </div>

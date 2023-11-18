@@ -3,7 +3,7 @@ import { isDevelopment } from "#is-development";
 import { PanelGroupContext } from "./PanelGroupContext";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
-import { MixedSizes } from "./types";
+import { DataAttributes, MixedSizes } from "./types";
 import {
   ElementType,
   ForwardedRef,
@@ -53,6 +53,8 @@ export type ImperativePanelHandle = {
   expand: () => void;
   getId(): string;
   getSize(): MixedSizes;
+  isCollapsed: () => boolean;
+  isExpanded: () => boolean;
   resize: (size: Partial<MixedSizes>) => void;
 };
 
@@ -61,6 +63,7 @@ export type PanelProps = PropsWithChildren<{
   collapsedSizePercentage?: number | undefined;
   collapsedSizePixels?: number | undefined;
   collapsible?: boolean | undefined;
+  dataAttributes?: DataAttributes;
   defaultSizePercentage?: number | undefined;
   defaultSizePixels?: number | undefined;
   id?: string;
@@ -82,6 +85,7 @@ export function PanelWithForwardedRef({
   collapsedSizePercentage,
   collapsedSizePixels,
   collapsible,
+  dataAttributes,
   defaultSizePercentage,
   defaultSizePixels,
   forwardedRef,
@@ -240,6 +244,8 @@ export function PanelWithForwardedRef({
       ...style,
       ...styleFromProps,
     },
+
+    ...dataAttributes,
 
     // CSS selectors
     "data-panel": "",

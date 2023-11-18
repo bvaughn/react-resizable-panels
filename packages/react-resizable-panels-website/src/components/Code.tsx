@@ -2,14 +2,13 @@ import { Suspense, useMemo } from "react";
 
 import {
   Language,
+  ParsedTokens,
   escapeHtmlEntities,
-  highlightSyntaxSuspense,
   parsedTokensToHtml,
+  syntaxParsingCache,
 } from "../suspense/SyntaxParsingCache";
-import { ParsedTokens } from "../suspense/SyntaxParsingCache";
 
 import styles from "./Code.module.css";
-import Icon from "./Icon";
 
 export default function Code({
   className = "",
@@ -90,7 +89,7 @@ function Parser({
   language: Language;
   showLineNumbers: boolean;
 }) {
-  const tokens = highlightSyntaxSuspense(code, language);
+  const tokens = syntaxParsingCache.read(code, language);
   return (
     <TokenRenderer
       className={className}

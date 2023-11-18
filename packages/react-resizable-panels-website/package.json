@@ -26,6 +26,6 @@
     "react-router-dom": "latest",
     "react-virtualized-auto-sizer": "^1.0.10",
     "sort-by": "latest",
-    "suspense": "^0.0.2"
+    "suspense": "^0.0.38"
   }
 }

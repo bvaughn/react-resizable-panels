@@ -156,16 +156,31 @@ describe("validatePanelGroupLayout", () => {
       ).toEqual([25, 75]);
     });
 
-    it("should collapse a panel that's below the minimum percentage size", () => {
+    it("should collapse a panel once it drops below the halfway point between collapsed and minimum percentage sizes", () => {
       expect(
         validatePanelGroupLayout({
           groupSizePixels: NaN,
-          layout: [20, 80],
+          layout: [15, 85],
           panelConstraints: [
             {
               collapsible: true,
               collapsedSizePercentage: 10,
-              minSizePercentage: 25,
+              minSizePercentage: 20,
+            },
+            {},
+          ],
+        })
+      ).toEqual([20, 80]);
+
+      expect(
+        validatePanelGroupLayout({
+          groupSizePixels: NaN,
+          layout: [14, 86],
+          panelConstraints: [
+            {
+              collapsible: true,
+              collapsedSizePercentage: 10,
+              minSizePercentage: 20,
             },
             {},
           ],
@@ -173,7 +188,7 @@ describe("validatePanelGroupLayout", () => {
       ).toEqual([10, 90]);
     });
 
-    it("should collapse a panel that's below the minimum pixel size", () => {
+    it("should collapse a panel once it drops below the halfway point between collapsed and minimum pixel sizes", () => {
       expect(
         validatePanelGroupLayout({
           groupSizePixels: 400,
@@ -181,13 +196,28 @@ describe("validatePanelGroupLayout", () => {
           panelConstraints: [
             {
               collapsible: true,
-              collapsedSizePixels: 40,
+              collapsedSizePixels: 0,
               minSizePixels: 100,
             },
             {},
           ],
         })
-      ).toEqual([10, 90]);
+      ).toEqual([25, 75]);
+
+      expect(
+        validatePanelGroupLayout({
+          groupSizePixels: 400,
+          layout: [10, 90],
+          panelConstraints: [
+            {
+              collapsible: true,
+              collapsedSizePixels: 0,
+              minSizePixels: 100,
+            },
+            {},
+          ],
+        })
+      ).toEqual([0, 100]);
     });
   });
 

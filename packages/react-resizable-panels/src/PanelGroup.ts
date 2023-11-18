@@ -4,7 +4,7 @@ import { DragState, PanelGroupContext, ResizeEvent } from "./PanelGroupContext";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
 import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterPanelGroupBehavior";
-import { Direction, MixedSizes } from "./types";
+import { DataAttributes, Direction, MixedSizes } from "./types";
 import { adjustLayoutByDelta } from "./utils/adjustLayoutByDelta";
 import { areEqual } from "./utils/arrays";
 import { calculateDeltaPercentage } from "./utils/calculateDeltaPercentage";
@@ -72,6 +72,7 @@ const defaultStorage: PanelGroupStorage = {
 export type PanelGroupProps = PropsWithChildren<{
   autoSaveId?: string;
   className?: string;
+  dataAttributes?: DataAttributes;
   direction: Direction;
   id?: string | null;
   keyboardResizeByPercentage?: number | null;
@@ -90,6 +91,7 @@ function PanelGroupWithForwardedRef({
   autoSaveId,
   children,
   className: classNameFromProps = "",
+  dataAttributes,
   direction,
   forwardedRef,
   id: idFromProps,
@@ -926,6 +928,8 @@ function PanelGroupWithForwardedRef({
         ...style,
         ...styleFromProps,
       },
+
+      ...dataAttributes,
 
       // CSS selectors
       "data-panel-group": "",
