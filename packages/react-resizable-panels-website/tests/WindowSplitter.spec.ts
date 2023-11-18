@@ -1,20 +1,26 @@
 import { test, expect, Page } from "@playwright/test";
 import { createElement } from "react";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import {
+  Panel,
+  PanelGroup,
+  PanelProps,
+  PanelResizeHandle,
+} from "react-resizable-panels";
 
 import { verifyAriaValues } from "./utils/aria";
 import { goToUrl } from "./utils/url";
 
 async function goToDefaultUrl(
   page: Page,
-  direction: "horizontal" | "vertical" = "horizontal"
+  direction: "horizontal" | "vertical" = "horizontal",
+  firstPanelProps?: Partial<PanelProps>
 ) {
   await goToUrl(
     page,
     createElement(
       PanelGroup,
       { direction },
-      createElement(Panel, { minSizePercentage: 10 }),
+      createElement(Panel, { minSizePercentage: 10, ...firstPanelProps }),
       createElement(PanelResizeHandle),
       createElement(Panel, { minSizePercentage: 10 })
     )
@@ -213,8 +219,11 @@ test.describe("Window Splitter", () => {
   });
 
   test.describe("other keys", () => {
-    test("Enter key", async ({ page }) => {
-      await goToDefaultUrl(page);
+    test("Enter key (not collapsible)", async ({ page }) => {
+      await goToDefaultUrl(page, "horizontal", {
+        collapsible: false,
+        minSizePercentage: 10,
+      });
 
       const resizeHandle = page.locator("[data-panel-resize-handle-id]");
       await resizeHandle.focus();
@@ -226,17 +235,41 @@ test.describe("Window Splitter", () => {
 
       await page.keyboard.press("Enter");
       await verifyAriaValues(resizeHandle, {
+        now: 50,
+      });
+
+      await page.keyboard.press("Enter");
+      await verifyAriaValues(resizeHandle, {
+        now: 50,
+      });
+    });
+
+    test("Enter key (collapsible)", async ({ page }) => {
+      await goToDefaultUrl(page, "horizontal", {
+        collapsible: true,
+      });
+
+      const resizeHandle = page.locator("[data-panel-resize-handle-id]");
+      await resizeHandle.focus();
+      await verifyAriaValues(resizeHandle, {
+        min: 10,
+        max: 90,
+        now: 50,
+      });
+
+      await page.keyboard.press("Enter");
+      await verifyAriaValues(resizeHandle, {
+        now: 0,
+      });
+
+      await page.keyboard.press("Enter");
+      await verifyAriaValues(resizeHandle, {
         now: 10,
       });
 
       await page.keyboard.press("Enter");
       await verifyAriaValues(resizeHandle, {
-        now: 90,
-      });
-
-      await page.keyboard.press("Enter");
-      await verifyAriaValues(resizeHandle, {
-        now: 10,
+        now: 0,
       });
     });
 

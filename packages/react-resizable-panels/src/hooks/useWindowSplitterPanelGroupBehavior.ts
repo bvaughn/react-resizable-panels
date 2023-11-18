@@ -1,6 +1,5 @@
 import { isDevelopment } from "#is-development";
 import { PanelData } from "../Panel";
-import { PRECISION } from "../constants";
 import { Direction } from "../types";
 import { adjustLayoutByDelta } from "../utils/adjustLayoutByDelta";
 import { assert } from "../utils/assert";
@@ -12,6 +11,7 @@ import { getPanelGroupElement } from "../utils/dom/getPanelGroupElement";
 import { getResizeHandleElementsForGroup } from "../utils/dom/getResizeHandleElementsForGroup";
 import { getResizeHandlePanelIds } from "../utils/dom/getResizeHandlePanelIds";
 import { getPercentageSizeFromMixedSizes } from "../utils/getPercentageSizeFromMixedSizes";
+import { fuzzyNumbersEqual } from "../utils/numbers/fuzzyNumbersEqual";
 import { RefObject, useEffect, useRef } from "../vendor/react";
 import useIsomorphicLayoutEffect from "./useIsomorphicEffect";
 
@@ -95,12 +95,10 @@ export function useWindowSplitterPanelGroupBehavior({
   }, [groupId, layout, panelDataArray]);
 
   useEffect(() => {
-    const { direction, panelDataArray } = committedValuesRef.current!;
+    const { panelDataArray } = committedValuesRef.current!;
 
     const groupElement = getPanelGroupElement(groupId);
     assert(groupElement != null, `No group found for id "${groupId}"`);
-
-    const { height, width } = groupElement.getBoundingClientRect();
 
     const handles = getResizeHandleElementsForGroup(groupId);
     const cleanupFunctions = handles.map((handle) => {
@@ -130,9 +128,18 @@ export function useWindowSplitterPanelGroupBehavior({
             if (index >= 0) {
               const panelData = panelDataArray[index];
               const size = layout[index];
-              if (size != null) {
+              if (size != null && panelData.constraints.collapsible) {
                 const groupSizePixels = getAvailableGroupSizePixels(groupId);
 
+                const collapsedSize =
+                  getPercentageSizeFromMixedSizes(
+                    {
+                      sizePercentage:
+                        panelData.constraints.collapsedSizePercentage,
+                      sizePixels: panelData.constraints.collapsedSizePixels,
+                    },
+                    groupSizePixels
+                  ) ?? 0;
                 const minSize =
                   getPercentageSizeFromMixedSizes(
                     {
@@ -142,17 +149,10 @@ export function useWindowSplitterPanelGroupBehavior({
                     groupSizePixels
                   ) ?? 0;
 
-                let delta = 0;
-                if (
-                  size.toPrecision(PRECISION) <= minSize.toPrecision(PRECISION)
-                ) {
-                  delta = direction === "horizontal" ? width : height;
-                } else {
-                  delta = -(direction === "horizontal" ? width : height);
-                }
-
                 const nextLayout = adjustLayoutByDelta({
-                  delta,
+                  delta: fuzzyNumbersEqual(size, collapsedSize)
+                    ? minSize - collapsedSize
+                    : collapsedSize - size,
                   groupSizePixels,
                   layout,
                   panelConstraints: panelDataArray.map(
