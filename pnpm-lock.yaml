@@ -157,8 +157,8 @@ importers:
         specifier: latest
         version: 1.2.0
       suspense:
-        specifier: ^0.0.2
-        version: 0.0.2(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^0.0.38
+        version: 0.0.38(react-dom@18.2.0)(react@18.2.0)
 
 packages:
 
@@ -2617,6 +2617,10 @@ packages:
   /argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
+  /array-sorting-utilities@0.0.1:
+    resolution: {integrity: sha512-h/idT7IGFYQoUk+/ilm5uFAbG1mZ/vW5wYDJG+OD0w15AvTEBv3Yu9WGcV0dTTdKitcufHtLYQjHd42m9u7RZw==}
+    dev: false
+
   /array-union@2.1.0:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
     engines: {node: '>=8'}
@@ -3697,6 +3701,12 @@ packages:
   /inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
 
+  /interval-utilities@0.0.1:
+    resolution: {integrity: sha512-Qo1IAx3noFPA0ssKfNe0eQmLmGmquWlEiwPn9Oeb16L1PqWnNe0YGfeRlU/hF7dtjjYRdNfVMVl+0o0cMLvjOQ==}
+    dependencies:
+      point-utilities: 0.0.2
+    dev: false
+
   /is-arrayish@0.2.1:
     resolution: {integrity: sha512-zz06S8t0ozoDXMG+ube26zeCTNXcKIPJZJi8hBrF4idCLms4CG9QtK7qBl1boi5ODzFpjswb5JPmHCbMpjaYzg==}
 
@@ -4746,6 +4756,13 @@ packages:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
     dev: true
 
+  /node-interval-tree@2.1.2:
+    resolution: {integrity: sha512-bJ9zMDuNGzVQg1xv0bCPzyEDxHgbrx7/xGj6CDokvizZZmastPsOh0JJLuY8wA5q2SfX1TLNMk7XNV8WxbGxzA==}
+    engines: {node: '>= 14.0.0'}
+    dependencies:
+      shallowequal: 1.1.0
+    dev: false
+
   /node-releases@2.0.13:
     resolution: {integrity: sha512-uYr7J37ae/ORWdZeQ1xxMJe3NtdmqMC/JZK+geofDrkLUApKRHPd18/TxtBOJ4A0/+uUIliorNrfYV6s1b02eQ==}
 
@@ -4970,6 +4987,10 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
     dev: true
+
+  /point-utilities@0.0.2:
+    resolution: {integrity: sha512-jNUr+ijPk0cWw39gtJG0O8HNPL2EVC7e2ilC1NUlJw1QVTgC8NIMS/8AmG9IJfvfmJx+IlT8KNJzf/Jb035STQ==}
+    dev: false
 
   /postcss-value-parser@4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
@@ -5260,6 +5281,10 @@ packages:
     dependencies:
       lru-cache: 6.0.0
 
+  /shallowequal@1.1.0:
+    resolution: {integrity: sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ==}
+    dev: false
+
   /shebang-command@2.0.0:
     resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}
     engines: {node: '>=8'}
@@ -5430,12 +5455,16 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  /suspense@0.0.2(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-Uw3qKyglDL/HyedUeo+U/szNmmzxQI0tRZL2VTf60rSqNTQwLwOoXGr052FilNaIEGDXjTswAqSMslaFIeEdzA==}
+  /suspense@0.0.38(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-0u82Snn5MUjMRULeio/OJDcR8DoI032aGw+x2WHFgs3d5zPxMqGOlkEXrsFuYpN3fL4fukaNmOspZVUcJJ5Kmg==}
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0
     dependencies:
+      array-sorting-utilities: 0.0.1
+      interval-utilities: 0.0.1
+      node-interval-tree: 2.1.2
+      point-utilities: 0.0.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false

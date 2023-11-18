@@ -20,12 +20,14 @@ import {
   ResizeHandler,
 } from "./PanelGroupContext";
 import { getCursorStyle } from "./utils/cursor";
+import { DataAttributes } from "./types";
 
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 
 export type PanelResizeHandleProps = {
   children?: ReactNode;
   className?: string;
+  dataAttributes?: DataAttributes;
   disabled?: boolean;
   id?: string | null;
   onDragging?: PanelResizeHandleOnDragging;
@@ -36,6 +38,7 @@ export type PanelResizeHandleProps = {
 export function PanelResizeHandle({
   children = null,
   className: classNameFromProps = "",
+  dataAttributes,
   disabled = false,
   id: idFromProps = null,
   onDragging,
@@ -179,6 +182,8 @@ export function PanelResizeHandle({
       ...styleFromProps,
     },
     tabIndex: 0,
+
+    ...dataAttributes,
 
     // CSS selectors
     "data-panel-group-direction": direction,

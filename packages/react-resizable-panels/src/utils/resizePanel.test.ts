@@ -1,8 +1,68 @@
 import { resizePanel } from "./resizePanel";
 
 describe("resizePanel", () => {
+  it("should not collapse (or expand) until a panel size dips below the halfway point between min size and collapsed size", () => {
+    expect(
+      resizePanel({
+        groupSizePixels: 100,
+        panelConstraints: [
+          {
+            collapsible: true,
+            collapsedSizePercentage: 10,
+            minSizePercentage: 20,
+          },
+        ],
+        panelIndex: 0,
+        size: 15,
+      })
+    ).toBe(20);
+
+    expect(
+      resizePanel({
+        groupSizePixels: 100,
+        panelConstraints: [
+          {
+            collapsible: true,
+            collapsedSizePercentage: 10,
+            minSizePercentage: 20,
+          },
+        ],
+        panelIndex: 0,
+        size: 14,
+      })
+    ).toBe(10);
+
+    expect(
+      resizePanel({
+        groupSizePixels: 100,
+        panelConstraints: [
+          {
+            collapsible: true,
+            minSizePercentage: 20,
+          },
+        ],
+        panelIndex: 0,
+        size: 10,
+      })
+    ).toBe(20);
+
+    expect(
+      resizePanel({
+        groupSizePixels: 100,
+        panelConstraints: [
+          {
+            collapsible: true,
+            minSizePercentage: 20,
+          },
+        ],
+        panelIndex: 0,
+        size: 9,
+      })
+    ).toBe(0);
+  });
+
   // Edge case test (issues/206)
-  fit("should respect percentage panel constraints if group size is negative", () => {
+  it("should respect percentage panel constraints if group size is negative", () => {
     jest.spyOn(console, "warn").mockImplementation(() => {});
 
     expect(

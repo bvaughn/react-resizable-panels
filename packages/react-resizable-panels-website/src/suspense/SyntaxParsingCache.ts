@@ -2,7 +2,7 @@ import { ensureSyntaxTree } from "@codemirror/language";
 import { EditorState, Extension } from "@codemirror/state";
 import { classHighlighter, highlightTree } from "@lezer/highlight";
 import { createCache } from "suspense";
-import { fetchModuleAsync } from "./ImportCache";
+import { importCache } from "./ImportCache";
 
 export type Language =
   | "css"
@@ -31,12 +31,14 @@ export type ParserData = {
 export const DEFAULT_MAX_CHARACTERS = 500_000;
 export const DEFAULT_MAX_TIME = 5_000;
 
-export const {
-  fetchAsync: highlightSyntaxAsync,
-  fetchSuspense: highlightSyntaxSuspense,
-} = createCache<[code: string, language: Language], ParsedTokens[]>(
-  (code: string, language: Language) => `${code.length}-${language}`,
-  async (code: string, language: Language) => {
+export const syntaxParsingCache = createCache<
+  [code: string, language: Language],
+  ParsedTokens[]
+>({
+  config: { immutable: true },
+  debugLabel: "syntaxParsingCache",
+  getKey: ([code, language]) => `${code}-${language}`,
+  load: async ([code, language]) => {
     const languageExtension = await getLanguageExtension(language);
     const parsedTokens: ParsedTokens[] = [];
 
@@ -159,8 +161,7 @@ export const {
 
     return parsedTokens;
   },
-  "SyntaxParsingCache"
-);
+});
 
 function processSection(
   currentLineState: {
@@ -227,33 +228,37 @@ export function escapeHtmlEntities(rawString: string): string {
 async function getLanguageExtension(language: Language): Promise<Extension> {
   switch (language) {
     case "css":
-      const { cssLanguage } = await fetchModuleAsync("@codemirror/lang-css");
+      const { cssLanguage } = await importCache.readAsync(
+        "@codemirror/lang-css"
+      );
       return cssLanguage.extension;
     case "html":
-      const { htmlLanguage } = await fetchModuleAsync("@codemirror/lang-html");
+      const { htmlLanguage } = await importCache.readAsync(
+        "@codemirror/lang-html"
+      );
       return htmlLanguage.extension;
     case "javascript":
-      const { javascriptLanguage } = await fetchModuleAsync(
+      const { javascriptLanguage } = await importCache.readAsync(
         "@codemirror/lang-javascript"
       );
       return javascriptLanguage.extension;
     case "jsx":
-      const { jsxLanguage } = await fetchModuleAsync(
+      const { jsxLanguage } = await importCache.readAsync(
         "@codemirror/lang-javascript"
       );
       return jsxLanguage.extension;
     case "markdown":
-      const { markdownLanguage } = await fetchModuleAsync(
+      const { markdownLanguage } = await importCache.readAsync(
         "@codemirror/lang-markdown"
       );
       return markdownLanguage.extension;
     case "tsx":
-      const { tsxLanguage } = await fetchModuleAsync(
+      const { tsxLanguage } = await importCache.readAsync(
         "@codemirror/lang-javascript"
       );
       return tsxLanguage.extension;
     case "typescript":
-      const { typescriptLanguage } = await fetchModuleAsync(
+      const { typescriptLanguage } = await importCache.readAsync(
         "@codemirror/lang-javascript"
       );
       return typescriptLanguage.extension;

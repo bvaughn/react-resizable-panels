@@ -82,7 +82,7 @@ describe("adjustLayoutByDelta", () => {
   it("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
-        delta: 30,
+        delta: 40,
         groupSizePixels: 100,
         layout: [50, 50],
         panelConstraints: [
@@ -122,7 +122,7 @@ describe("adjustLayoutByDelta", () => {
   });
 
   // Edge case
-  // Expanding from a collapsed state to less than the min size via keyboard should snap to min size
+  // Keyboard interactions should always expand a collapsed panel
   it("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
@@ -141,6 +141,27 @@ describe("adjustLayoutByDelta", () => {
         trigger: "keyboard",
       })
     ).toEqual([25, 75]);
+  });
+
+  // Edge case
+  // Keyboard interactions should always collapse a collapsible panel once it's at the minimum size
+  it("[1++,2]", () => {
+    expect(
+      adjustLayoutByDelta({
+        delta: 5,
+        groupSizePixels: NaN,
+        layout: [75, 25],
+        panelConstraints: [
+          {},
+          {
+            collapsible: true,
+            minSizePercentage: 25,
+          },
+        ],
+        pivotIndices: [0, 1],
+        trigger: "keyboard",
+      })
+    ).toEqual([100, 0]);
   });
 
   // Edge case
@@ -174,6 +195,7 @@ describe("adjustLayoutByDelta", () => {
   // Expanding from a collapsed state to less than the min size via keyboard should snap to min size
   it("[1++,2]", () => {
     // collapsed 4%, min size 6%, max size 15%
+
     expect(
       adjustLayoutByDelta({
         delta: 1,
@@ -395,6 +417,24 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         trigger: "imperative-api",
       })
+    ).toEqual([25, 75]);
+
+    expect(
+      adjustLayoutByDelta({
+        delta: -36,
+        groupSizePixels: 100,
+        layout: [50, 50],
+        panelConstraints: [
+          {
+            collapsedSizePercentage: 5,
+            collapsible: true,
+            minSizePercentage: 25,
+          },
+          {},
+        ],
+        pivotIndices: [0, 1],
+        trigger: "imperative-api",
+      })
     ).toEqual([5, 95]);
   });
 
@@ -418,6 +458,50 @@ describe("adjustLayoutByDelta", () => {
         trigger: "imperative-api",
       })
     ).toEqual([25, 75]);
+  });
+
+  // Edge case
+  // Keyboard interactions should always expand a collapsed panel
+  it("[1--,2]", () => {
+    expect(
+      adjustLayoutByDelta({
+        delta: -5,
+        groupSizePixels: NaN,
+        layout: [90, 10],
+        panelConstraints: [
+          {},
+          {
+            collapsedSizePercentage: 10,
+            collapsible: true,
+            minSizePercentage: 25,
+          },
+        ],
+        pivotIndices: [0, 1],
+        trigger: "keyboard",
+      })
+    ).toEqual([75, 25]);
+  });
+
+  // Edge case
+  // Keyboard interactions should always collapse a collapsible panel once it's at the minimum size
+  it("[1++,2]", () => {
+    expect(
+      adjustLayoutByDelta({
+        delta: -5,
+        groupSizePixels: NaN,
+        layout: [25, 75],
+        panelConstraints: [
+          {
+            collapsedSizePercentage: 10,
+            collapsible: true,
+            minSizePercentage: 25,
+          },
+          {},
+        ],
+        pivotIndices: [0, 1],
+        trigger: "keyboard",
+      })
+    ).toEqual([10, 90]);
   });
 
   it("[1++,2,3]", () => {
@@ -722,7 +806,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         trigger: "imperative-api",
       })
-    ).toEqual([45, 50, 5]);
+    ).toEqual([25, 50, 25]);
   });
 
   it("[1,2++,3]", () => {
@@ -834,6 +918,21 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         trigger: "imperative-api",
       })
+    ).toEqual([25, 55, 20]);
+
+    expect(
+      adjustLayoutByDelta({
+        delta: 16,
+        groupSizePixels: 100,
+        layout: [25, 50, 25],
+        panelConstraints: [
+          {},
+          {},
+          { collapsible: true, minSizePercentage: 20 },
+        ],
+        pivotIndices: [1, 2],
+        trigger: "imperative-api",
+      })
     ).toEqual([25, 75, 0]);
   });
 
@@ -907,15 +1006,53 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         trigger: "imperative-api",
       })
+    ).toEqual([20, 20, 60]);
+
+    expect(
+      adjustLayoutByDelta({
+        delta: -40,
+        groupSizePixels: 100,
+        layout: [25, 50, 25],
+        panelConstraints: [
+          {},
+          {
+            collapsedSizePercentage: 5,
+            collapsible: true,
+            minSizePercentage: 20,
+          },
+          {},
+        ],
+        pivotIndices: [1, 2],
+        trigger: "imperative-api",
+      })
     ).toEqual([25, 5, 70]);
   });
 
   it("[1,2--,3]", () => {
     expect(
       adjustLayoutByDelta({
-        delta: -60,
+        delta: -10,
         groupSizePixels: 100,
-        layout: [25, 50, 25],
+        layout: [25, 0, 75],
+        panelConstraints: [
+          {
+            collapsedSizePercentage: 5,
+            collapsible: true,
+            minSizePercentage: 20,
+          },
+          {},
+          {},
+        ],
+        pivotIndices: [1, 2],
+        trigger: "imperative-api",
+      })
+    ).toEqual([20, 0, 80]);
+
+    expect(
+      adjustLayoutByDelta({
+        delta: -20,
+        groupSizePixels: 100,
+        layout: [25, 0, 75],
         panelConstraints: [
           {
             collapsedSizePercentage: 5,
@@ -1018,6 +1155,34 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: 10,
+        groupSizePixels: 100,
+        layout: [25, 25, 25, 25],
+        panelConstraints: [
+          {},
+          {
+            collapsedSizePercentage: 5,
+            collapsible: true,
+            minSizePercentage: 20,
+          },
+          {
+            collapsedSizePercentage: 5,
+            collapsible: true,
+            minSizePercentage: 20,
+          },
+          {
+            collapsedSizePercentage: 5,
+            collapsible: true,
+            minSizePercentage: 20,
+          },
+        ],
+        pivotIndices: [0, 1],
+        trigger: "imperative-api",
+      })
+    ).toEqual([35, 20, 20, 25]);
+
+    expect(
+      adjustLayoutByDelta({
+        delta: 15,
         groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
@@ -1153,13 +1318,33 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         trigger: "imperative-api",
       })
-    ).toEqual([15, 35, 25, 25]);
+    ).toEqual([0, 35, 40, 25]);
   });
 
   it("[1--,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
+        groupSizePixels: 100,
+        layout: [25, 25, 25, 25],
+        panelConstraints: [
+          {
+            collapsedSizePercentage: 5,
+            collapsible: true,
+            minSizePercentage: 20,
+          },
+          {},
+          {},
+          {},
+        ],
+        pivotIndices: [0, 1],
+        trigger: "imperative-api",
+      })
+    ).toEqual([20, 30, 25, 25]);
+
+    expect(
+      adjustLayoutByDelta({
+        delta: -15,
         groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
@@ -1182,6 +1367,26 @@ describe("adjustLayoutByDelta", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
+        groupSizePixels: 100,
+        layout: [25, 25, 25, 25],
+        panelConstraints: [
+          {
+            collapsedSizePercentage: 5,
+            collapsible: true,
+            minSizePercentage: 20,
+          },
+          { maxSizePercentage: 35 },
+          {},
+          {},
+        ],
+        pivotIndices: [0, 1],
+        trigger: "imperative-api",
+      })
+    ).toEqual([20, 30, 25, 25]);
+
+    expect(
+      adjustLayoutByDelta({
+        delta: -15,
         groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
@@ -1256,10 +1461,35 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([20, 30, 25, 25]);
   });
 
+  // Edge case (issues/210)
   it("[1--,2,3,4]", () => {
+    // If the size doesn't drop below the halfway point, the panel should not collapse
     expect(
       adjustLayoutByDelta({
         delta: -10,
+        groupSizePixels: 100,
+        layout: [25, 25, 25, 25],
+        panelConstraints: [
+          {
+            collapsedSizePercentage: 5,
+            collapsible: true,
+            minSizePercentage: 20,
+          },
+          { maxSizePercentage: 35 },
+          { maxSizePercentage: 35 },
+          { maxSizePercentage: 35 },
+        ],
+        pivotIndices: [0, 1],
+        trigger: "imperative-api",
+      })
+    ).toEqual([20, 30, 25, 25]);
+
+    // If the size drops below the halfway point, the panel should collapse
+    // In this case it needs to add sizes to multiple other panels in order to collapse
+    // because the nearest neighbor panel's max size constraints won't allow it to expand to cover all of the difference
+    expect(
+      adjustLayoutByDelta({
+        delta: -20,
         groupSizePixels: 100,
         layout: [25, 25, 25, 25],
         panelConstraints: [
@@ -1327,7 +1557,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         trigger: "imperative-api",
       })
-    ).toEqual([25, 35, 15, 25]);
+    ).toEqual([65, 35, 0, 0]);
   });
 
   it("[1,2++,3,4]", () => {
@@ -1581,7 +1811,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [2, 3],
         trigger: "imperative-api",
       })
-    ).toEqual([25, 25, 40, 10]);
+    ).toEqual([25, 35, 40, 0]);
   });
 
   it("[1,2,3++,4]", () => {

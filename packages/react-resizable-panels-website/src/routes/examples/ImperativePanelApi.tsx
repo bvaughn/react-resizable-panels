@@ -80,7 +80,23 @@ export default function ImperativePanelApiRoute() {
             <li>
               <Code
                 className={sharedStyles.InlineCode}
-                code="getCollapsed(): boolean"
+                code={`getId(): string`}
+                language="typescript"
+              />
+              Panel id
+            </li>
+            <li>
+              <Code
+                className={sharedStyles.InlineCode}
+                code={`getSize(): MixedSizes`}
+                language="typescript"
+              />
+              Panel's current size in (in both percentage and pixel units)
+            </li>
+            <li>
+              <Code
+                className={sharedStyles.InlineCode}
+                code="isCollapsed(): boolean"
                 language="typescript"
               />
               Panel is currently collapsed
@@ -88,21 +104,29 @@ export default function ImperativePanelApiRoute() {
             <li>
               <Code
                 className={sharedStyles.InlineCode}
-                code={`getSize(units?: "percentages" | "pixels"): number`}
+                code="isExpanded(): boolean"
                 language="typescript"
               />
-              Panel's current size in the specified unit (or group default)
+              Panel is currently expanded
             </li>
             <li>
               <Code
                 className={sharedStyles.InlineCode}
-                code={`resize(size: number, units?: "percentages" | "pixels"): void`}
+                code={`resize(Partial<MixedSizes>): void`}
                 language="typescript"
               />
-              Resize the panel to the specified size in the specified unit (or
-              group default)
+              Resize the panel to the specified size (either percentage or pixel
+              units)
             </li>
           </ul>
+          <p>
+            Note that the <code>MixedSizes</code> type above is defined as{" "}
+            <Code
+              className={sharedStyles.InlineCode}
+              code={`{ sizePercentage: number; sizePixels: number; }`}
+              language="typescript"
+            />
+          </p>
         </>
       }
       language="tsx"

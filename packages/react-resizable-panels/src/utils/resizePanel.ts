@@ -45,7 +45,13 @@ export function resizePanel({
   if (minSizePercentage != null) {
     if (fuzzyCompareNumbers(size, minSizePercentage) < 0) {
       if (collapsible) {
-        size = collapsedSizePercentage;
+        // Collapsible panels should snap closed or open only once they cross the halfway point between collapsed and min size.
+        const halfwayPoint = (collapsedSizePercentage + minSizePercentage) / 2;
+        if (fuzzyCompareNumbers(size, halfwayPoint) < 0) {
+          size = collapsedSizePercentage;
+        } else {
+          size = minSizePercentage;
+        }
       } else {
         size = minSizePercentage;
       }

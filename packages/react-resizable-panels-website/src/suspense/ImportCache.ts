@@ -2,12 +2,11 @@ import { createCache } from "suspense";
 
 type Module = any;
 
-export const {
-  fetchAsync: fetchModuleAsync,
-  fetchSuspense: fetchModuleSuspense,
-} = createCache<[string], Module>(
-  (path: string) => path,
-  async (path: string) => {
+export const importCache = createCache<[string], Module>({
+  config: { immutable: true },
+  debugLabel: "importCache",
+  getKey: ([path]) => path,
+  load: async ([path]) => {
     switch (path) {
       case "@codemirror/lang-css":
         return await import("@codemirror/lang-css");
@@ -20,5 +19,5 @@ export const {
       default:
         throw Error(`Unknown path: ${path}`);
     }
-  }
-);
+  },
+});
