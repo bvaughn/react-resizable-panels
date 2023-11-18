@@ -1,14 +1,11 @@
 # Changelog
 
-## 0.0.59
+## 0.0.58
 
 - Change group layout to more thoroughly distribute resize delta to support more flexible group size configurations.
 - Add data attribute support to `Panel`, `PanelGroup`, and `PanelResizeHandle`.
 - Update API documentation to reflect changed imperative API method names.
-
-## 0.0.58
-
-- Exported `PanelOnResize` type properly notes the second param (`prevSize`) as potentially undefined (for mount).
+- `PanelOnResize` TypeScript def updated to reflect that previous size param is `undefined` the first time it is called.
 
 ## 0.0.57
 
