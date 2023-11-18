@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.59
+
+- Support imperative panel API usage on-mount.
+- Made PanelGroup bailout condition smarter (don't bailout for empty groups unless pixel constraints are used).
+- Improved window splitter compatibility by better handling "Enter" key.
+
 ## 0.0.58
 
 - Change group layout to more thoroughly distribute resize delta to support more flexible group size configurations.
