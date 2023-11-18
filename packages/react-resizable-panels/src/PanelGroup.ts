@@ -279,8 +279,14 @@ function PanelGroupWithForwardedRef({
 
     const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
     if (groupSizePixels <= 0) {
-      // Wait until the group has rendered a non-zero size before computing layout.
-      return;
+      if (
+        shouldMonitorPixelBasedConstraints(
+          panelDataArray.map(({ constraints }) => constraints)
+        )
+      ) {
+        // Wait until the group has rendered a non-zero size before computing layout.
+        return;
+      }
     }
 
     if (unsafeLayout == null) {
