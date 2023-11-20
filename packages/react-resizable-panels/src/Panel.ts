@@ -115,6 +115,7 @@ export function PanelWithForwardedRef({
     expandPanel,
     getPanelSize,
     getPanelStyle,
+    groupId,
     isPanelCollapsed,
     registerPanel,
     resizePanel,
@@ -250,6 +251,7 @@ export function PanelWithForwardedRef({
     // CSS selectors
     "data-panel": "",
     "data-panel-id": panelId,
+    "data-panel-group-id": groupId,
 
     // e2e test attributes
     "data-panel-collapsible": isDevelopment

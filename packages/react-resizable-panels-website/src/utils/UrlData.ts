@@ -129,7 +129,7 @@ function UrlPanelGroupToData(
   urlPanelGroup: ReactElement<PanelGroupProps>
 ): UrlPanelGroup {
   return {
-    autoSaveId: urlPanelGroup.props.autoSaveId,
+    autoSaveId: urlPanelGroup.props.autoSaveId ?? undefined,
     children: Children.toArray(urlPanelGroup.props.children).map((child) => {
       if (isPanelElement(child)) {
         return UrlPanelToData(child);
