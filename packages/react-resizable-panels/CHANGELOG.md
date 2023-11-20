@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.60
+
+- Better support imperative API usage from mount effects.
+- Better support strict effects mode.
+- Better checks not to call `onResize` or `onLayout` more than once.
+
 ## 0.0.59
 
 - Support imperative panel API usage on-mount.
