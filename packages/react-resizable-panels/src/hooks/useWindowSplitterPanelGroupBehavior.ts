@@ -19,6 +19,7 @@ import useIsomorphicLayoutEffect from "./useIsomorphicEffect";
 
 export function useWindowSplitterPanelGroupBehavior({
   committedValuesRef,
+  eagerValuesRef,
   groupId,
   layout,
   panelDataArray,
@@ -26,6 +27,8 @@ export function useWindowSplitterPanelGroupBehavior({
 }: {
   committedValuesRef: RefObject<{
     direction: Direction;
+  }>;
+  eagerValuesRef: RefObject<{
     panelDataArray: PanelData[];
   }>;
   groupId: string;
@@ -95,7 +98,7 @@ export function useWindowSplitterPanelGroupBehavior({
   }, [groupId, layout, panelDataArray]);
 
   useEffect(() => {
-    const { panelDataArray } = committedValuesRef.current!;
+    const { panelDataArray } = eagerValuesRef.current!;
 
     const groupElement = getPanelGroupElement(groupId);
     assert(groupElement != null, `No group found for id "${groupId}"`);
@@ -181,5 +184,12 @@ export function useWindowSplitterPanelGroupBehavior({
     return () => {
       cleanupFunctions.forEach((cleanupFunction) => cleanupFunction());
     };
-  }, [committedValuesRef, groupId, layout, panelDataArray, setLayout]);
+  }, [
+    committedValuesRef,
+    eagerValuesRef,
+    groupId,
+    layout,
+    panelDataArray,
+    setLayout,
+  ]);
 }

@@ -123,9 +123,7 @@ function PanelGroupWithForwardedRef({
     id: string;
     keyboardResizeByPercentage: number | null;
     keyboardResizeByPixels: number | null;
-    layout: number[];
     onLayout: PanelGroupOnLayout | null;
-    panelDataArray: PanelData[];
     storage: PanelGroupStorage;
   }>({
     autoSaveId,
@@ -134,10 +132,16 @@ function PanelGroupWithForwardedRef({
     id: groupId,
     keyboardResizeByPercentage,
     keyboardResizeByPixels,
-    layout,
     onLayout,
-    panelDataArray: [],
     storage,
+  });
+
+  const eagerValuesRef = useRef<{
+    layout: number[];
+    panelDataArray: PanelData[];
+  }>({
+    layout,
+    panelDataArray: [],
   });
 
   const devWarningsRef = useRef<{
@@ -155,7 +159,8 @@ function PanelGroupWithForwardedRef({
     () => ({
       getId: () => committedValuesRef.current.id,
       getLayout: () => {
-        const { id: groupId, layout } = committedValuesRef.current;
+        const { id: groupId } = committedValuesRef.current;
+        const { layout } = eagerValuesRef.current;
 
         const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
 
@@ -170,12 +175,8 @@ function PanelGroupWithForwardedRef({
         });
       },
       setLayout: (mixedSizes: Partial<MixedSizes>[]) => {
-        const {
-          id: groupId,
-          layout: prevLayout,
-          onLayout,
-          panelDataArray,
-        } = committedValuesRef.current;
+        const { id: groupId, onLayout } = committedValuesRef.current;
+        const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
         const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
 
@@ -195,7 +196,7 @@ function PanelGroupWithForwardedRef({
         if (!areEqual(prevLayout, safeLayout)) {
           setLayout(safeLayout);
 
-          committedValuesRef.current.layout = safeLayout;
+          eagerValuesRef.current.layout = safeLayout;
 
           if (onLayout) {
             onLayout(
@@ -235,14 +236,15 @@ function PanelGroupWithForwardedRef({
 
   useWindowSplitterPanelGroupBehavior({
     committedValuesRef,
+    eagerValuesRef,
     groupId,
     layout,
-    panelDataArray: committedValuesRef.current.panelDataArray,
+    panelDataArray: eagerValuesRef.current.panelDataArray,
     setLayout,
   });
 
   useEffect(() => {
-    const { panelDataArray } = committedValuesRef.current;
+    const { panelDataArray } = eagerValuesRef.current;
 
     // If this panel has been configured to persist sizing information, save sizes to local storage.
     if (autoSaveId) {
@@ -262,7 +264,7 @@ function PanelGroupWithForwardedRef({
   }, [autoSaveId, layout, storage]);
 
   useIsomorphicLayoutEffect(() => {
-    const { panelDataArray } = committedValuesRef.current;
+    const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
     const constraints = panelDataArray.map(({ constraints }) => constraints);
     if (!shouldMonitorPixelBasedConstraints(constraints)) {
@@ -278,7 +280,7 @@ function PanelGroupWithForwardedRef({
       const resizeObserver = new ResizeObserver(() => {
         const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
 
-        const { layout: prevLayout, onLayout } = committedValuesRef.current;
+        const { onLayout } = committedValuesRef.current;
 
         const nextLayout = validatePanelGroupLayout({
           groupSizePixels,
@@ -291,7 +293,7 @@ function PanelGroupWithForwardedRef({
         if (!areEqual(prevLayout, nextLayout)) {
           setLayout(nextLayout);
 
-          committedValuesRef.current.layout = nextLayout;
+          eagerValuesRef.current.layout = nextLayout;
 
           if (onLayout) {
             onLayout(
@@ -325,7 +327,7 @@ function PanelGroupWithForwardedRef({
   // DEV warnings
   useEffect(() => {
     if (isDevelopment) {
-      const { panelDataArray } = committedValuesRef.current;
+      const { panelDataArray } = eagerValuesRef.current;
 
       const {
         didLogIdAndOrderWarning,
@@ -387,11 +389,8 @@ function PanelGroupWithForwardedRef({
   // External APIs are safe to memoize via committed values ref
   const collapsePanel = useCallback(
     (panelData: PanelData) => {
-      const {
-        layout: prevLayout,
-        onLayout,
-        panelDataArray,
-      } = committedValuesRef.current;
+      const { onLayout } = committedValuesRef.current;
+      const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
       if (panelData.constraints.collapsible) {
         const panelConstraintsArray = panelDataArray.map(
@@ -431,7 +430,7 @@ function PanelGroupWithForwardedRef({
           if (!compareLayouts(prevLayout, nextLayout)) {
             setLayout(nextLayout);
 
-            committedValuesRef.current.layout = nextLayout;
+            eagerValuesRef.current.layout = nextLayout;
 
             if (onLayout) {
               onLayout(
@@ -461,11 +460,8 @@ function PanelGroupWithForwardedRef({
   // External APIs are safe to memoize via committed values ref
   const expandPanel = useCallback(
     (panelData: PanelData) => {
-      const {
-        layout: prevLayout,
-        onLayout,
-        panelDataArray,
-      } = committedValuesRef.current;
+      const { onLayout } = committedValuesRef.current;
+      const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
       if (panelData.constraints.collapsible) {
         const panelConstraintsArray = panelDataArray.map(
@@ -508,7 +504,7 @@ function PanelGroupWithForwardedRef({
           if (!compareLayouts(prevLayout, nextLayout)) {
             setLayout(nextLayout);
 
-            committedValuesRef.current.layout = nextLayout;
+            eagerValuesRef.current.layout = nextLayout;
 
             if (onLayout) {
               onLayout(
@@ -538,7 +534,7 @@ function PanelGroupWithForwardedRef({
   // External APIs are safe to memoize via committed values ref
   const getPanelSize = useCallback(
     (panelData: PanelData) => {
-      const { layout, panelDataArray } = committedValuesRef.current;
+      const { layout, panelDataArray } = eagerValuesRef.current;
 
       const { panelSizePercentage, panelSizePixels } = panelDataHelper(
         groupId,
@@ -558,7 +554,7 @@ function PanelGroupWithForwardedRef({
   // This API should never read from committedValuesRef
   const getPanelStyle = useCallback(
     (panelData: PanelData) => {
-      const { panelDataArray } = committedValuesRef.current;
+      const { panelDataArray } = eagerValuesRef.current;
 
       const panelIndex = panelDataArray.indexOf(panelData);
 
@@ -575,7 +571,7 @@ function PanelGroupWithForwardedRef({
   // External APIs are safe to memoize via committed values ref
   const isPanelCollapsed = useCallback(
     (panelData: PanelData) => {
-      const { layout, panelDataArray } = committedValuesRef.current;
+      const { layout, panelDataArray } = eagerValuesRef.current;
 
       const { collapsedSizePercentage, collapsible, panelSizePercentage } =
         panelDataHelper(groupId, panelDataArray, panelData, layout);
@@ -590,7 +586,7 @@ function PanelGroupWithForwardedRef({
   // External APIs are safe to memoize via committed values ref
   const isPanelExpanded = useCallback(
     (panelData: PanelData) => {
-      const { layout, panelDataArray } = committedValuesRef.current;
+      const { layout, panelDataArray } = eagerValuesRef.current;
 
       const { collapsedSizePercentage, collapsible, panelSizePercentage } =
         panelDataHelper(groupId, panelDataArray, panelData, layout);
@@ -604,11 +600,10 @@ function PanelGroupWithForwardedRef({
     const {
       autoSaveId,
       id: groupId,
-      layout: prevLayout,
       onLayout,
-      panelDataArray,
       storage,
     } = committedValuesRef.current;
+    const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
     panelDataArray.push(panelData);
     panelDataArray.sort((panelA, panelB) => {
@@ -668,11 +663,14 @@ function PanelGroupWithForwardedRef({
       ),
     });
 
+    // Offscreen mode makes this a bit weird;
+    // Panels unregister when hidden and re-register when shown again,
+    // but the overall layout doesn't change between these two cases.
+    setLayout(nextLayout);
+
+    eagerValuesRef.current.layout = nextLayout;
+
     if (!areEqual(prevLayout, nextLayout)) {
-      setLayout(nextLayout);
-
-      committedValuesRef.current.layout = nextLayout;
-
       if (onLayout) {
         onLayout(
           nextLayout.map((sizePercentage) => ({
@@ -705,9 +703,8 @@ function PanelGroupWithForwardedRef({
         keyboardResizeByPercentage,
         keyboardResizeByPixels,
         onLayout,
-        panelDataArray,
-        layout: prevLayout,
       } = committedValuesRef.current;
+      const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
       const { initialLayout } = dragState ?? {};
 
@@ -781,7 +778,7 @@ function PanelGroupWithForwardedRef({
       if (layoutChanged) {
         setLayout(nextLayout);
 
-        committedValuesRef.current.layout = nextLayout;
+        eagerValuesRef.current.layout = nextLayout;
 
         if (onLayout) {
           onLayout(
@@ -808,11 +805,9 @@ function PanelGroupWithForwardedRef({
   // External APIs are safe to memoize via committed values ref
   const resizePanel = useCallback(
     (panelData: PanelData, mixedSizes: Partial<MixedSizes>) => {
-      const {
-        layout: prevLayout,
-        onLayout,
-        panelDataArray,
-      } = committedValuesRef.current;
+      const { onLayout } = committedValuesRef.current;
+
+      const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
       const panelConstraintsArray = panelDataArray.map(
         (panelData) => panelData.constraints
@@ -844,7 +839,7 @@ function PanelGroupWithForwardedRef({
       if (!compareLayouts(prevLayout, nextLayout)) {
         setLayout(nextLayout);
 
-        committedValuesRef.current.layout = nextLayout;
+        eagerValuesRef.current.layout = nextLayout;
 
         if (onLayout) {
           onLayout(
@@ -871,7 +866,8 @@ function PanelGroupWithForwardedRef({
 
   const startDragging = useCallback(
     (dragHandleId: string, event: ResizeEvent) => {
-      const { direction, layout } = committedValuesRef.current;
+      const { direction } = committedValuesRef.current;
+      const { layout } = eagerValuesRef.current;
 
       const handleElement = getResizeHandleElement(dragHandleId)!;
 
@@ -903,12 +899,8 @@ function PanelGroupWithForwardedRef({
     timeout: null,
   });
   const unregisterPanel = useCallback((panelData: PanelData) => {
-    const {
-      id: groupId,
-      layout: prevLayout,
-      onLayout,
-      panelDataArray,
-    } = committedValuesRef.current;
+    const { id: groupId, onLayout } = committedValuesRef.current;
+    const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
     const index = panelDataArray.indexOf(panelData);
     if (index >= 0) {
@@ -940,7 +932,7 @@ function PanelGroupWithForwardedRef({
           // When a panel is removed from the group, we should delete the most recent prev-size entry for it.
           // If we don't do this, then a conditionally rendered panel might not call onResize when it's re-mounted.
           // Strict effects mode makes this tricky though because all panels will be registered, unregistered, then re-registered on mount.
-          delete panelIdToLastNotifiedMixedSizesMapRef.current[panelData.id];
+          delete map[panelData.id];
         }
       });
 
@@ -973,7 +965,7 @@ function PanelGroupWithForwardedRef({
       if (!areEqual(prevLayout, nextLayout)) {
         setLayout(nextLayout);
 
-        committedValuesRef.current.layout = nextLayout;
+        eagerValuesRef.current.layout = nextLayout;
 
         if (onLayout) {
           onLayout(
