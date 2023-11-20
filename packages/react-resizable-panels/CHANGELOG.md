@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.61
+
+- Better unstable Offscreen/Activity API.
+
 ## 0.0.60
 
 - Better support imperative API usage from mount effects.
