@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.63
+
+- Change default (not-yet-registered) Panel flex-grow style from 0 to 1
+
 ## 0.0.62
 
 - Edge case expand/collapse invalid size guard (#220)
