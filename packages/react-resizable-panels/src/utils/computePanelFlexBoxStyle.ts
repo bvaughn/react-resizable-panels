@@ -22,9 +22,10 @@ export function computePanelFlexBoxStyle({
 
   let flexGrow;
   if (panelData.length === 1) {
-    flexGrow = "100";
+    flexGrow = "1";
   } else if (size == null) {
-    flexGrow = "0";
+    // Initial render (before panels have registered themselves)
+    flexGrow = "1";
   } else {
     flexGrow = size.toPrecision(precision);
   }
