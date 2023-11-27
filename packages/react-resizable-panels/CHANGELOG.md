@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.62
+
+- Edge case expand/collapse invalid size guard (#220)
+
 ## 0.0.61
 
 - Better unstable Offscreen/Activity API.
