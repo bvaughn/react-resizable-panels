@@ -482,7 +482,8 @@ function PanelGroupWithForwardedRef({
             panelSizeBeforeCollapseRef.current.get(panelData.id);
 
           const baseSizePercentage =
-            prevPanelSizePercentage != null
+            prevPanelSizePercentage != null &&
+            prevPanelSizePercentage >= minSizePercentage
               ? prevPanelSizePercentage
               : minSizePercentage;
 
