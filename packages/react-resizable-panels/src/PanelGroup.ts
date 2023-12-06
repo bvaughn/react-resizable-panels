@@ -711,17 +711,19 @@ function PanelGroupWithForwardedRef({
 
       const pivotIndices = determinePivotIndices(groupId, dragHandleId);
 
-      let delta = calculateDeltaPercentage(
-        event,
-        groupId,
-        dragHandleId,
-        direction,
-        dragState!,
-        {
-          percentage: keyboardResizeByPercentage,
-          pixels: keyboardResizeByPixels,
-        }
-      );
+      let delta = dragState
+        ? calculateDeltaPercentage(
+            event,
+            groupId,
+            dragHandleId,
+            direction,
+            dragState,
+            {
+              percentage: keyboardResizeByPercentage,
+              pixels: keyboardResizeByPixels,
+            }
+          )
+        : 0;
       if (delta === 0) {
         return;
       }
