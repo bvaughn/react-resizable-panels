@@ -14,6 +14,10 @@ export function validatePanelGroupLayout({
   panelConstraints: PanelConstraints[];
 }): number[] {
   const nextLayout = [...prevLayout];
+  const nextLayoutTotalSize = nextLayout.reduce(
+    (accumulated, current) => accumulated + current,
+    0
+  );
 
   // Validate layout expectations
   if (nextLayout.length !== panelConstraints.length) {
@@ -22,20 +26,20 @@ export function validatePanelGroupLayout({
         .map((size) => `${size}%`)
         .join(", ")}`
     );
-  } else if (
-    !fuzzyNumbersEqual(
-      nextLayout.reduce((accumulated, current) => accumulated + current, 0),
-      100
-    )
-  ) {
+  } else if (!fuzzyNumbersEqual(nextLayoutTotalSize, 100)) {
     // This is not ideal so we should warn about it, but it may be recoverable in some cases
     // (especially if the amount is small)
     if (isDevelopment) {
       console.warn(
         `WARNING: Invalid layout total size: ${nextLayout
           .map((size) => `${size}%`)
-          .join(", ")}`
+          .join(", ")}. Layout normalization will be applied.`
       );
+    }
+    for (let index = 0; index < panelConstraints.length; index++) {
+      const unsafeSize = nextLayout[index]!;
+      const safeSize = (100 / nextLayoutTotalSize) * unsafeSize;
+      nextLayout[index] = safeSize;
     }
   }
 

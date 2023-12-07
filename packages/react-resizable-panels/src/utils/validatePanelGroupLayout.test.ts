@@ -12,26 +12,25 @@ describe("validatePanelGroupLayout", () => {
     ).toEqual([10, 60, 30]);
   });
 
-  it("should reject layouts that do not total 100%", () => {
-    verifyExpectedWarnings(
-      () =>
-        validatePanelGroupLayout({
-          groupSizePixels: NaN,
-          layout: [10, 20, 30],
-          panelConstraints: [{}, {}, {}],
-        }),
-      "Invalid layout total size"
-    );
+  it("should normalize layouts that do not total 100%", () => {
+    let layout;
+    verifyExpectedWarnings(() => {
+      layout = validatePanelGroupLayout({
+        groupSizePixels: NaN,
+        layout: [10, 20, 20],
+        panelConstraints: [{}, {}, {}],
+      });
+    }, "Invalid layout total size");
+    expect(layout).toEqual([20, 40, 40]);
 
-    verifyExpectedWarnings(
-      () =>
-        validatePanelGroupLayout({
-          groupSizePixels: NaN,
-          layout: [50, 100, 150],
-          panelConstraints: [{}, {}, {}],
-        }),
-      "Invalid layout total size"
-    );
+    verifyExpectedWarnings(() => {
+      layout = validatePanelGroupLayout({
+        groupSizePixels: NaN,
+        layout: [50, 100, 50],
+        panelConstraints: [{}, {}, {}],
+      });
+    }, "Invalid layout total size");
+    expect(layout).toEqual([25, 50, 25]);
   });
 
   it("should reject layouts that do not match the number of panels", () => {
