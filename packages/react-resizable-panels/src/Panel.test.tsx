@@ -1,12 +1,8 @@
+import assert from "assert";
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import {
-  ImperativePanelHandle,
-  MixedSizes,
-  Panel,
-  PanelGroup,
-  PanelResizeHandle,
-} from ".";
+import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from ".";
+import { getPanelElement } from "./utils/dom/getPanelElement";
 import {
   mockPanelGroupOffsetWidthAndHeight,
   verifyExpandedPanelGroupLayout,
@@ -66,7 +62,7 @@ describe("PanelGroup", () => {
       let leftPanelRef = createRef<ImperativePanelHandle>();
       let rightPanelRef = createRef<ImperativePanelHandle>();
 
-      let mostRecentLayout: MixedSizes[] | null;
+      let mostRecentLayout: number[] | null;
 
       beforeEach(() => {
         leftPanelRef = createRef<ImperativePanelHandle>();
@@ -74,7 +70,7 @@ describe("PanelGroup", () => {
 
         mostRecentLayout = null;
 
-        const onLayout = (layout: MixedSizes[]) => {
+        const onLayout = (layout: number[]) => {
           mostRecentLayout = layout;
         };
 
@@ -135,7 +131,7 @@ describe("PanelGroup", () => {
       let middlePanelRef = createRef<ImperativePanelHandle>();
       let rightPanelRef = createRef<ImperativePanelHandle>();
 
-      let mostRecentLayout: MixedSizes[] | null;
+      let mostRecentLayout: number[] | null;
 
       beforeEach(() => {
         leftPanelRef = createRef<ImperativePanelHandle>();
@@ -144,7 +140,7 @@ describe("PanelGroup", () => {
 
         mostRecentLayout = null;
 
-        const onLayout = (layout: MixedSizes[]) => {
+        const onLayout = (layout: number[]) => {
           mostRecentLayout = layout;
         };
 
@@ -225,6 +221,24 @@ describe("PanelGroup", () => {
         "Panel components must be rendered within a PanelGroup container"
       );
     });
+  });
+
+  it("should support ...rest attributes", () => {
+    act(() => {
+      root.render(
+        <PanelGroup direction="horizontal">
+          <Panel data-test-name="foo" id="panel" tabIndex={123} title="bar" />
+          <PanelResizeHandle />
+          <Panel />
+        </PanelGroup>
+      );
+    });
+
+    const element = getPanelElement("panel");
+    assert(element);
+    expect(element.tabIndex).toBe(123);
+    expect(element.getAttribute("data-test-name")).toBe("foo");
+    expect(element.title).toBe("bar");
   });
 
   describe("DEV warnings", () => {

@@ -1,11 +1,10 @@
 import { PanelData } from "../Panel";
-import { Size } from "../types";
 
 // Layout should be pre-converted into percentages
 export function callPanelCallbacks(
   panelsArray: PanelData[],
   layout: number[],
-  panelIdToLastNotifiedMixedSizesMap: Record<string, Size>
+  panelIdToLastNotifiedSizeMap: Record<string, number>
 ) {
   layout.forEach((size, index) => {
     const panelData = panelsArray[index];
@@ -19,9 +18,9 @@ export function callPanelCallbacks(
     const { callbacks, constraints, id: panelId } = panelData;
     const { collapsedSize = 0, collapsible } = constraints;
 
-    const lastNotifiedSize = panelIdToLastNotifiedMixedSizesMap[panelId];
+    const lastNotifiedSize = panelIdToLastNotifiedSizeMap[panelId];
     if (lastNotifiedSize == null || size !== lastNotifiedSize) {
-      panelIdToLastNotifiedMixedSizesMap[panelId] = size;
+      panelIdToLastNotifiedSizeMap[panelId] = size;
 
       const { onCollapse, onExpand, onResize } = callbacks;
 

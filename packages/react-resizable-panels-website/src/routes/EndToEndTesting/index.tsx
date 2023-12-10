@@ -9,7 +9,6 @@ import {
 import {
   ImperativePanelGroupHandle,
   ImperativePanelHandle,
-  MixedSizes,
 } from "react-resizable-panels";
 
 import { urlPanelGroupToPanelGroup, urlToUrlData } from "../../utils/UrlData";

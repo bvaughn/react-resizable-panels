@@ -2,7 +2,6 @@ import { Locator, Page, expect } from "@playwright/test";
 import { assert } from "./assert";
 import { getBodyCursorStyle } from "./cursor";
 import { verifyFuzzySizesPercentages } from "./verify";
-import { Size } from "react-resizable-panels";
 
 type Operation = {
   expectedCursor?: string;
@@ -150,7 +149,7 @@ export async function dragResizeTo(
 export async function imperativeResizePanel(
   page: Page,
   panelId: string,
-  size: Size
+  size: number
 ) {
   const panelIdSelect = page.locator("#panelIdSelect");
   await panelIdSelect.selectOption(panelId);

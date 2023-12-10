@@ -2,13 +2,14 @@ import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import {
   ImperativePanelGroupHandle,
-  MixedSizes,
   Panel,
   PanelGroup,
   PanelResizeHandle,
 } from ".";
 import { mockPanelGroupOffsetWidthAndHeight } from "./utils/test-utils";
 import { createRef } from "./vendor/react";
+import { getPanelGroupElement } from "./utils/dom/getPanelGroupElement";
+import assert from "assert";
 
 describe("PanelGroup", () => {
   let expectedWarnings: string[] = [];
@@ -79,9 +80,9 @@ describe("PanelGroup", () => {
     it("should get and set layouts", () => {
       const ref = createRef<ImperativePanelGroupHandle>();
 
-      let mostRecentLayout: MixedSizes[] | null = null;
+      let mostRecentLayout: number[] | null = null;
 
-      const onLayout = (layout: MixedSizes[]) => {
+      const onLayout = (layout: number[]) => {
         mostRecentLayout = layout;
       };
 
@@ -103,6 +104,30 @@ describe("PanelGroup", () => {
 
       expect(mostRecentLayout).toEqual([25, 75]);
     });
+  });
+
+  it("should support ...rest attributes", () => {
+    act(() => {
+      root.render(
+        <PanelGroup
+          data-test-name="foo"
+          direction="horizontal"
+          id="group"
+          tabIndex={123}
+          title="bar"
+        >
+          <Panel />
+          <PanelResizeHandle />
+          <Panel />
+        </PanelGroup>
+      );
+    });
+
+    const element = getPanelGroupElement("group");
+    assert(element);
+    expect(element.tabIndex).toBe(123);
+    expect(element.getAttribute("data-test-name")).toBe("foo");
+    expect(element.title).toBe("bar");
   });
 
   describe("DEV warnings", () => {

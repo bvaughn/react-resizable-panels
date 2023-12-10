@@ -9,7 +9,6 @@ import {
 import {
   ImperativePanelGroupHandle,
   ImperativePanelHandle,
-  MixedSizes,
   Panel,
   PanelGroup,
   PanelGroupOnLayout,
@@ -183,7 +182,7 @@ function urlPanelToPanel(
       }
     };
 
-    onResize = (size: MixedSizes) => {
+    onResize = (size: number) => {
       const debugLog = debugLogRef.current;
       if (debugLog) {
         debugLog.log({
@@ -248,7 +247,7 @@ export function urlPanelGroupToPanelGroup(
 
   const groupId = urlPanelGroup.id;
   if (groupId) {
-    onLayout = (layout: MixedSizes[]) => {
+    onLayout = (layout: number[]) => {
       const debugLog = debugLogRef.current;
       if (debugLog) {
         debugLog.log({ groupId, type: "onLayout", layout });

@@ -1,8 +1,5 @@
 import { useRef, useState } from "react";
-import type {
-  ImperativePanelGroupHandle,
-  MixedSizes,
-} from "react-resizable-panels";
+import type { ImperativePanelGroupHandle } from "react-resizable-panels";
 import { Panel, PanelGroup } from "react-resizable-panels";
 
 import { ResizeHandle } from "../../components/ResizeHandle";

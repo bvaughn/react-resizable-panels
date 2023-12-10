@@ -4,7 +4,7 @@ import { DragState, PanelGroupContext, ResizeEvent } from "./PanelGroupContext";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
 import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterPanelGroupBehavior";
-import { DataAttributes, Direction, Size } from "./types";
+import { Direction } from "./types";
 import { adjustLayoutByDelta } from "./utils/adjustLayoutByDelta";
 import { areEqual } from "./utils/arrays";
 import { calculateDeltaPercentage } from "./utils/calculateDeltaPercentage";
@@ -27,6 +27,7 @@ import {
   CSSProperties,
   ElementType,
   ForwardedRef,
+  HTMLAttributes,
   PropsWithChildren,
   createElement,
   forwardRef,
@@ -42,8 +43,8 @@ const LOCAL_STORAGE_DEBOUNCE_INTERVAL = 100;
 
 export type ImperativePanelGroupHandle = {
   getId: () => string;
-  getLayout: () => Size[];
-  setLayout: (layout: Partial<Size>[]) => void;
+  getLayout: () => number[];
+  setLayout: (layout: number[]) => void;
 };
 
 export type PanelGroupStorage = {
@@ -51,7 +52,7 @@ export type PanelGroupStorage = {
   setItem(name: string, value: string): void;
 };
 
-export type PanelGroupOnLayout = (layout: Size[]) => void;
+export type PanelGroupOnLayout = (layout: number[]) => void;
 
 const defaultStorage: PanelGroupStorage = {
   getItem: (name: string) => {
@@ -64,18 +65,18 @@ const defaultStorage: PanelGroupStorage = {
   },
 };
 
-export type PanelGroupProps = PropsWithChildren<{
-  autoSaveId?: string | null;
-  className?: string;
-  dataAttributes?: DataAttributes;
-  direction: Direction;
-  id?: string | null;
-  keyboardResizeBy?: number | null;
-  onLayout?: PanelGroupOnLayout | null;
-  storage?: PanelGroupStorage;
-  style?: CSSProperties;
-  tagName?: ElementType;
-}>;
+export type PanelGroupProps = Omit<HTMLAttributes<ElementType>, "id"> &
+  PropsWithChildren<{
+    autoSaveId?: string | null;
+    className?: string;
+    direction: Direction;
+    id?: string | null;
+    keyboardResizeBy?: number | null;
+    onLayout?: PanelGroupOnLayout | null;
+    storage?: PanelGroupStorage;
+    style?: CSSProperties;
+    tagName?: ElementType;
+  }>;
 
 const debounceMap: {
   [key: string]: typeof savePanelGroupLayout;
@@ -86,15 +87,15 @@ function PanelGroupWithForwardedRef({
   autoSaveId = null,
   children,
   className: classNameFromProps = "",
-  dataAttributes,
   direction,
   forwardedRef,
-  id: idFromProps,
+  id: idFromProps = null,
   onLayout = null,
   keyboardResizeBy = null,
   storage = defaultStorage,
   style: styleFromProps,
   tagName: Type = "div",
+  ...rest
 }: PanelGroupProps & {
   forwardedRef: ForwardedRef<ImperativePanelGroupHandle>;
 }) {
@@ -103,7 +104,7 @@ function PanelGroupWithForwardedRef({
   const [dragState, setDragState] = useState<DragState | null>(null);
   const [layout, setLayout] = useState<number[]>([]);
 
-  const panelIdToLastNotifiedSizeMapRef = useRef<Record<string, Size>>({});
+  const panelIdToLastNotifiedSizeMapRef = useRef<Record<string, number>>({});
   const panelSizeBeforeCollapseRef = useRef<Map<string, number>>(new Map());
   const prevDeltaRef = useRef<number>(0);
 
@@ -152,7 +153,7 @@ function PanelGroupWithForwardedRef({
 
         return layout;
       },
-      setLayout: (unsafeLayout: Size[]) => {
+      setLayout: (unsafeLayout: number[]) => {
         const { onLayout } = committedValuesRef.current;
         const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
@@ -826,14 +827,14 @@ function PanelGroupWithForwardedRef({
     PanelGroupContext.Provider,
     { value: context },
     createElement(Type, {
+      ...rest,
+
       children,
       className: classNameFromProps,
       style: {
         ...style,
         ...styleFromProps,
       },
-
-      ...dataAttributes,
 
       // CSS selectors
       "data-panel-group": "",

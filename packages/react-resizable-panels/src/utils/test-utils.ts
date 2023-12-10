@@ -1,5 +1,3 @@
-import { Size } from "../types";
-
 const util = require("util");
 
 export function expectToBeCloseToArray(
@@ -74,7 +72,7 @@ export function mockPanelGroupOffsetWidthAndHeight(
 }
 
 export function verifyExpandedPanelGroupLayout(
-  actualLayout: Size[],
+  actualLayout: number[],
   expectedLayout: number[]
 ) {
   expect(actualLayout).toEqual(expectedLayout);

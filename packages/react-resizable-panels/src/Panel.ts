@@ -3,10 +3,10 @@ import { isDevelopment } from "#is-development";
 import { PanelGroupContext } from "./PanelGroupContext";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
-import { DataAttributes, Size } from "./types";
 import {
   ElementType,
   ForwardedRef,
+  HTMLAttributes,
   PropsWithChildren,
   createElement,
   forwardRef,
@@ -18,8 +18,8 @@ import {
 export type PanelOnCollapse = () => void;
 export type PanelOnExpand = () => void;
 export type PanelOnResize = (
-  mixedSizes: Size,
-  prevMixedSizes: Size | undefined
+  size: number,
+  prevSize: number | undefined
 ) => void;
 
 export type PanelCallbacks = {
@@ -48,35 +48,34 @@ export type ImperativePanelHandle = {
   collapse: () => void;
   expand: () => void;
   getId(): string;
-  getSize(): Size;
+  getSize(): number;
   isCollapsed: () => boolean;
   isExpanded: () => boolean;
-  resize: (size: Partial<Size>) => void;
+  resize: (size: number) => void;
 };
 
-export type PanelProps = PropsWithChildren<{
-  className?: string;
-  collapsedSize?: number | undefined;
-  collapsible?: boolean | undefined;
-  dataAttributes?: DataAttributes;
-  defaultSize?: number | undefined;
-  id?: string;
-  maxSize?: number | undefined;
-  minSize?: number | undefined;
-  onCollapse?: PanelOnCollapse;
-  onExpand?: PanelOnExpand;
-  onResize?: PanelOnResize;
-  order?: number;
-  style?: object;
-  tagName?: ElementType;
-}>;
+export type PanelProps = Omit<HTMLAttributes<ElementType>, "id" | "onResize"> &
+  PropsWithChildren<{
+    className?: string;
+    collapsedSize?: number | undefined;
+    collapsible?: boolean | undefined;
+    defaultSize?: number | undefined;
+    id?: string;
+    maxSize?: number | undefined;
+    minSize?: number | undefined;
+    onCollapse?: PanelOnCollapse;
+    onExpand?: PanelOnExpand;
+    onResize?: PanelOnResize;
+    order?: number;
+    style?: object;
+    tagName?: ElementType;
+  }>;
 
 export function PanelWithForwardedRef({
   children,
   className: classNameFromProps = "",
   collapsedSize,
   collapsible,
-  dataAttributes,
   defaultSize,
   forwardedRef,
   id: idFromProps,
@@ -88,6 +87,7 @@ export function PanelWithForwardedRef({
   order,
   style: styleFromProps,
   tagName: Type = "div",
+  ...rest
 }: PanelProps & {
   forwardedRef: ForwardedRef<ImperativePanelHandle>;
 }) {
@@ -198,8 +198,8 @@ export function PanelWithForwardedRef({
       isExpanded() {
         return !isPanelCollapsed(panelDataRef.current);
       },
-      resize: (mixedSizes: Partial<Size>) => {
-        resizePanel(panelDataRef.current, mixedSizes);
+      resize: (size: number) => {
+        resizePanel(panelDataRef.current, size);
       },
     }),
     [
@@ -215,14 +215,14 @@ export function PanelWithForwardedRef({
   const style = getPanelStyle(panelDataRef.current);
 
   return createElement(Type, {
+    ...rest,
+
     children,
     className: classNameFromProps,
     style: {
       ...style,
       ...styleFromProps,
     },
-
-    ...dataAttributes,
 
     // CSS selectors
     "data-panel": "",

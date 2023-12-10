@@ -3,8 +3,9 @@ import {
   createElement,
   CSSProperties,
   ElementType,
+  HTMLAttributes,
+  PropsWithChildren,
   MouseEvent as ReactMouseEvent,
-  ReactNode,
   TouchEvent,
   useCallback,
   useContext,
@@ -20,30 +21,30 @@ import {
   ResizeHandler,
 } from "./PanelGroupContext";
 import { getCursorStyle } from "./utils/cursor";
-import { DataAttributes } from "./types";
 
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 
-export type PanelResizeHandleProps = {
-  children?: ReactNode;
-  className?: string;
-  dataAttributes?: DataAttributes;
-  disabled?: boolean;
-  id?: string | null;
-  onDragging?: PanelResizeHandleOnDragging;
-  style?: CSSProperties;
-  tagName?: ElementType;
-};
+export type PanelResizeHandleProps = Omit<HTMLAttributes<ElementType>, "id"> &
+  PropsWithChildren<{
+    className?: string;
+    disabled?: boolean;
+    id?: string | null;
+    onDragging?: PanelResizeHandleOnDragging;
+    style?: CSSProperties;
+    tabIndex?: number;
+    tagName?: ElementType;
+  }>;
 
 export function PanelResizeHandle({
   children = null,
   className: classNameFromProps = "",
-  dataAttributes,
   disabled = false,
-  id: idFromProps = null,
+  id: idFromProps,
   onDragging,
   style: styleFromProps = {},
+  tabIndex = 0,
   tagName: Type = "div",
+  ...rest
 }: PanelResizeHandleProps) {
   const divElementRef = useRef<HTMLDivElement>(null);
 
@@ -152,6 +153,8 @@ export function PanelResizeHandle({
   };
 
   return createElement(Type, {
+    ...rest,
+
     children,
     className: classNameFromProps,
     onBlur: () => setIsFocused(false),
@@ -181,9 +184,7 @@ export function PanelResizeHandle({
       ...style,
       ...styleFromProps,
     },
-    tabIndex: 0,
-
-    ...dataAttributes,
+    tabIndex,
 
     // CSS selectors
     "data-panel-group-direction": direction,
