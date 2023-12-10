@@ -8,7 +8,7 @@ export function calculateDeltaPercentage(
   event: ResizeEvent,
   dragHandleId: string,
   direction: Direction,
-  initialDragState: DragState,
+  initialDragState: DragState | null,
   keyboardResizeBy: number | null
 ): number {
   if (isKeyDown(event)) {
@@ -47,6 +47,10 @@ export function calculateDeltaPercentage(
 
     return movement;
   } else {
+    if (initialDragState == null) {
+      return 0;
+    }
+
     return calculateDragOffsetPercentage(
       event,
       dragHandleId,

@@ -542,7 +542,7 @@ function PanelGroupWithForwardedRef({
         event,
         dragHandleId,
         direction,
-        dragState!,
+        dragState,
         keyboardResizeBy
       );
       if (delta === 0) {
