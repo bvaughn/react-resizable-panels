@@ -8,10 +8,10 @@ import Icon from "../../components/Icon";
 
 import { ResizeHandle } from "../../components/ResizeHandle";
 
+import Code from "../../components/Code";
 import Example from "./Example";
 import styles from "./ImperativePanelApi.module.css";
 import sharedStyles from "./shared.module.css";
-import Code from "../../components/Code";
 
 type Sizes = {
   left: number;
@@ -88,7 +88,7 @@ export default function ImperativePanelApiRoute() {
             <li>
               <Code
                 className={sharedStyles.InlineCode}
-                code={`getSize(): MixedSizes`}
+                code={`getSize(): number`}
                 language="typescript"
               />
               Panel's current size in (in both percentage and pixel units)
@@ -112,21 +112,13 @@ export default function ImperativePanelApiRoute() {
             <li>
               <Code
                 className={sharedStyles.InlineCode}
-                code={`resize(Partial<MixedSizes>): void`}
+                code={`resize(size: number): void`}
                 language="typescript"
               />
               Resize the panel to the specified size (either percentage or pixel
               units)
             </li>
           </ul>
-          <p>
-            Note that the <code>MixedSizes</code> type above is defined as{" "}
-            <Code
-              className={sharedStyles.InlineCode}
-              code={`{ sizePercentage: number; sizePixels: number; }`}
-              language="typescript"
-            />
-          </p>
         </>
       }
       language="tsx"
@@ -144,17 +136,17 @@ function TogglesRow({
   panelRef: RefObject<ImperativePanelHandle>;
   panelSize: number;
 }) {
-  const [sizePercentage, setSizePercentage] = useState(20);
+  const [size, setSize] = useState(20);
 
   const onInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget as HTMLInputElement;
-    setSizePercentage(parseInt(input.value));
+    setSize(parseInt(input.value));
   };
 
   const onFormSubmit = (event: FormEvent) => {
     event.preventDefault();
 
-    panelRef.current?.resize({ sizePercentage });
+    panelRef.current?.resize(size);
   };
 
   return (
@@ -188,7 +180,7 @@ function TogglesRow({
           max={100}
           size={2}
           type="number"
-          value={sizePercentage}
+          value={size}
         />
       </form>
     </div>
@@ -236,11 +228,11 @@ function Content({
           <Panel
             className={sharedStyles.PanelRow}
             collapsible
-            defaultSizePercentage={sizes.left}
+            defaultSize={20}
             id="left"
-            maxSizePercentage={30}
-            minSizePercentage={10}
-            onResize={({ sizePercentage: left }) => onResize({ left })}
+            maxSize={30}
+            minSize={10}
+            onResize={(left) => onResize({ left })}
             order={1}
             ref={leftPanelRef}
           >
@@ -253,9 +245,9 @@ function Content({
             className={sharedStyles.PanelRow}
             collapsible={true}
             id="middle"
-            maxSizePercentage={100}
-            minSizePercentage={10}
-            onResize={({ sizePercentage: middle }) => onResize({ middle })}
+            maxSize={100}
+            minSize={10}
+            onResize={(middle) => onResize({ middle })}
             order={2}
             ref={middlePanelRef}
           >
@@ -267,11 +259,11 @@ function Content({
           <Panel
             className={sharedStyles.PanelRow}
             collapsible
-            defaultSizePercentage={sizes.right}
+            defaultSize={20}
             id="right"
-            maxSizePercentage={100}
-            minSizePercentage={10}
-            onResize={({ sizePercentage: right }) => onResize({ right })}
+            maxSize={100}
+            minSize={10}
+            onResize={(right) => onResize({ right })}
             order={3}
             ref={rightPanelRef}
           >

@@ -1,4 +1,4 @@
-import { MixedSizes } from "../types";
+import { Size } from "../types";
 
 const util = require("util");
 
@@ -74,13 +74,10 @@ export function mockPanelGroupOffsetWidthAndHeight(
 }
 
 export function verifyExpandedPanelGroupLayout(
-  actualLayout: MixedSizes[],
-  expectedPercentages: number[]
+  actualLayout: Size[],
+  expectedLayout: number[]
 ) {
-  expect(actualLayout).toHaveLength(expectedPercentages.length);
-  expect(actualLayout.map(({ sizePercentage }) => sizePercentage)).toEqual(
-    expectedPercentages
-  );
+  expect(actualLayout).toEqual(expectedLayout);
 }
 
 export function verifyExpectedWarnings(

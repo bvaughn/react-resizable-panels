@@ -81,23 +81,15 @@ function Content() {
         direction="horizontal"
         storage={urlStorage}
       >
-        <Panel
-          className={styles.PanelRow}
-          collapsible={true}
-          minSizePercentage={10}
-        >
+        <Panel className={styles.PanelRow} collapsible={true} minSize={10}>
           <div className={styles.Centered}>left</div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
-        <Panel className={styles.PanelRow} minSizePercentage={10}>
+        <Panel className={styles.PanelRow} minSize={10}>
           <div className={styles.Centered}>middle</div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
-        <Panel
-          className={styles.PanelRow}
-          collapsible={true}
-          minSizePercentage={10}
-        >
+        <Panel className={styles.PanelRow} collapsible={true} minSize={10}>
           <div className={styles.Centered}>right</div>
         </Panel>
       </PanelGroup>

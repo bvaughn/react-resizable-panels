@@ -11,23 +11,23 @@ async function openPage(page: Page) {
     PanelGroup,
     { direction: "horizontal", id: "group" },
     createElement(Panel, {
-      defaultSizePercentage: 25,
+      defaultSize: 25,
       id: "left-panel",
-      minSizePercentage: 10,
+      minSize: 10,
       order: 1,
     }),
     createElement(PanelResizeHandle, { id: "left-handle" }),
     createElement(Panel, {
       id: "middle-panel",
-      minSizePercentage: 10,
+      minSize: 10,
       order: 2,
     }),
     createElement(PanelResizeHandle, { id: "right-handle" }),
     createElement(Panel, {
       collapsible: true,
-      defaultSizePercentage: 25,
+      defaultSize: 25,
       id: "right-panel",
-      minSizePercentage: 10,
+      minSize: 10,
       order: 4,
     })
   );

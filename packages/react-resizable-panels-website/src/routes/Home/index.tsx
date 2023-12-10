@@ -13,7 +13,6 @@ const LINKS = [
   { path: "overflow", title: "Overflow content" },
   { path: "collapsible", title: "Collapsible panels" },
   { path: "conditional", title: "Conditional panels" },
-  { path: "pixel-based-layouts", title: "Pixel based layouts" },
   { path: "external-persistence", title: "External persistence" },
   { path: "imperative-panel-api", title: "Imperative Panel API" },
   { path: "imperative-panel-group-api", title: "Imperative PanelGroup API" },

@@ -1,11 +1,8 @@
 import { PanelData } from "../Panel";
-import { computePercentagePanelConstraints } from "./computePercentagePanelConstraints";
 
 export function calculateUnsafeDefaultLayout({
-  groupSizePixels,
   panelDataArray,
 }: {
-  groupSizePixels: number;
   panelDataArray: PanelData[];
 }): number[] {
   const layout = Array<number>(panelDataArray.length);
@@ -19,27 +16,19 @@ export function calculateUnsafeDefaultLayout({
 
   // Distribute default sizes first
   for (let index = 0; index < panelDataArray.length; index++) {
-    const { defaultSizePercentage } = computePercentagePanelConstraints(
-      panelDataConstraints,
-      index,
-      groupSizePixels
-    );
+    const { defaultSize } = panelDataConstraints[index];
 
-    if (defaultSizePercentage != null) {
+    if (defaultSize != null) {
       numPanelsWithSizes++;
-      layout[index] = defaultSizePercentage;
-      remainingSize -= defaultSizePercentage;
+      layout[index] = defaultSize;
+      remainingSize -= defaultSize;
     }
   }
 
   // Remaining size should be distributed evenly between panels without default sizes
   for (let index = 0; index < panelDataArray.length; index++) {
-    const { defaultSizePercentage } = computePercentagePanelConstraints(
-      panelDataConstraints,
-      index,
-      groupSizePixels
-    );
-    if (defaultSizePercentage != null) {
+    const { defaultSize } = panelDataConstraints[index];
+    if (defaultSize != null) {
       continue;
     }
 

@@ -18,9 +18,7 @@ export async function verifySizesPercentages(
     const textContent = (await panel.textContent()) || "";
 
     const expectedSize = expectedSizes[index];
-    const rows = textContent.split("\n");
-    const actualSize =
-      rows.length === 2 ? parseFloat(rows[0].replace("%", "")) : NaN;
+    const actualSize = parseFloat(textContent.replace("%", ""));
 
     expect(actualSize).toBe(expectedSize);
   }
@@ -57,9 +55,7 @@ export async function verifyFuzzySizesPercentages(
     page,
     "onLayout"
   );
-  const actualSizes = logEntries[logEntries.length - 1].layout.map(
-    ({ sizePercentage }) => sizePercentage
-  );
+  const actualSizes = logEntries[logEntries.length - 1].layout;
 
   expect(actualSizes).toHaveLength(expectedSizes.length);
 

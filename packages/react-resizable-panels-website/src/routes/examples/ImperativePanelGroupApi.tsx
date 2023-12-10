@@ -35,7 +35,7 @@ export default function ImperativePanelGroupApiRoute() {
             <li>
               <Code
                 className={sharedStyles.InlineCode}
-                code={`getLayout(): MixedSizes[]`}
+                code={`getLayout(): number[]`}
                 language="typescript"
               />
               Current size of panels (in both percentage and pixel units)
@@ -43,20 +43,12 @@ export default function ImperativePanelGroupApiRoute() {
             <li>
               <Code
                 className={sharedStyles.InlineCode}
-                code={`setLayout(Partial<MixedSizes>[]): void`}
+                code={`setLayout(number[]): void`}
                 language="typescript"
               />
               Resize all panels (using either percentage or pixel units)
             </li>
           </ul>
-          <p>
-            Note that the <code>MixedSizes</code> type above is defined as{" "}
-            <Code
-              className={sharedStyles.InlineCode}
-              code={`{ sizePercentage: number; sizePixels: number; }`}
-              language="typescript"
-            />
-          </p>
         </>
       }
       language="tsx"
@@ -70,14 +62,14 @@ function Content() {
 
   const panelGroupRef = useRef<ImperativePanelGroupHandle>(null);
 
-  const onLayout = (mixedSizes: MixedSizes[]) => {
-    setSizes(mixedSizes.map((mixedSize) => mixedSize.sizePercentage));
+  const onLayout = (sizes: number[]) => {
+    setSizes(sizes);
   };
 
   const resetLayout = () => {
     const panelGroup = panelGroupRef.current;
     if (panelGroup) {
-      panelGroup.setLayout([{ sizePercentage: 50 }, { sizePercentage: 50 }]);
+      panelGroup.setLayout([50, 50]);
     }
   };
 
@@ -96,13 +88,13 @@ function Content() {
           onLayout={onLayout}
           ref={panelGroupRef}
         >
-          <Panel className={sharedStyles.PanelRow} minSizePercentage={10}>
+          <Panel className={sharedStyles.PanelRow} minSize={10}>
             <div className={sharedStyles.Centered}>
               left: {Math.round(sizes[0])}
             </div>
           </Panel>
           <ResizeHandle className={sharedStyles.ResizeHandle} />
-          <Panel className={sharedStyles.PanelRow} minSizePercentage={10}>
+          <Panel className={sharedStyles.PanelRow} minSize={10}>
             <div className={sharedStyles.Centered}>
               right: {Math.round(sizes[1])}
             </div>

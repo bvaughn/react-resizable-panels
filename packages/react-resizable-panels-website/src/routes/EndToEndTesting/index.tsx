@@ -54,10 +54,7 @@ function EndToEndTesting() {
   const [panelIds, setPanelIds] = useState<string[]>([]);
   const [panelGroupId, setPanelGroupId] = useState("");
   const [panelGroupIds, setPanelGroupIds] = useState<string[]>([]);
-  const [sizePercentage, setSizePercentage] = useState<number | undefined>(
-    undefined
-  );
-  const [sizePixels, setSizePixels] = useState<number | undefined>(undefined);
+  const [size, setSize] = useState<number>(0);
   const [layoutString, setLayoutString] = useState("");
 
   const debugLogRef = useRef<ImperativeDebugLogHandle>(null);
@@ -110,11 +107,9 @@ function EndToEndTesting() {
             panelId
           ) as ImperativePanelHandle;
           if (panel != null) {
-            const { sizePercentage, sizePixels } = panel.getSize();
+            const size = panel.getSize();
 
-            panelElement.textContent = `${sizePercentage.toFixed(
-              1
-            )}%\n${sizePixels.toFixed(1)}px`;
+            panelElement.textContent = `${size.toFixed(1)}%`;
           }
         }
       }, 0);
@@ -171,15 +166,7 @@ function EndToEndTesting() {
   const onSizeInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.currentTarget.value;
 
-    if (value.endsWith("%")) {
-      setSizePercentage(parseFloat(value));
-      setSizePixels(undefined);
-    } else if (value.endsWith("px")) {
-      setSizePercentage(undefined);
-      setSizePixels(parseFloat(value));
-    } else {
-      throw Error(`Invalid size: ${value}`);
-    }
+    setSize(parseFloat(value));
   };
 
   const onCollapseButtonClick = () => {
@@ -202,7 +189,7 @@ function EndToEndTesting() {
     const idToRefMap = idToRefMapRef.current;
     const panel = idToRefMap.get(panelId);
     if (panel && assertImperativePanelHandle(panel)) {
-      panel.resize({ sizePercentage, sizePixels });
+      panel.resize(size);
     }
   };
 
@@ -214,15 +201,9 @@ function EndToEndTesting() {
         1,
         layoutString.length - 1
       );
-      const layout = trimmedLayoutString.split(",").map((text) => {
-        if (text.endsWith("%")) {
-          return { sizePercentage: parseFloat(text) };
-        } else if (text.endsWith("px")) {
-          return { sizePixels: parseFloat(text) };
-        } else {
-          throw Error(`Invalid layout: ${layoutString}`);
-        }
-      }) satisfies Partial<MixedSizes>[];
+      const layout = trimmedLayoutString
+        .split(",")
+        .map((text) => parseFloat(text));
       panelGroup.setLayout(layout);
     }
   };

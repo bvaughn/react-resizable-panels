@@ -33,23 +33,15 @@ function Content() {
   return (
     <div className={styles.PanelGroupWrapper}>
       <PanelGroup className={styles.PanelGroup} direction="horizontal">
-        <Panel
-          className={styles.PanelRow}
-          defaultSizePercentage={30}
-          minSizePercentage={20}
-        >
+        <Panel className={styles.PanelRow} defaultSize={30} minSize={20}>
           <div className={styles.Centered}>left</div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
-        <Panel className={styles.PanelRow} minSizePercentage={30}>
+        <Panel className={styles.PanelRow} minSize={30}>
           <div className={styles.Centered}>middle</div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
-        <Panel
-          className={styles.PanelRow}
-          defaultSizePercentage={30}
-          minSizePercentage={20}
-        >
+        <Panel className={styles.PanelRow} defaultSize={30} minSize={20}>
           <div className={styles.Centered}>right</div>
         </Panel>
       </PanelGroup>
@@ -59,15 +51,15 @@ function Content() {
 
 const CODE = `
 <PanelGroup direction="horizontal">
-  <Panel defaultSizePercentage={30} minSizePercentage={20}>
+  <Panel defaultSize={30} minSize={20}>
     left
   </Panel>
   <PanelResizeHandle />
-  <Panel minSizePercentage={30}>
+  <Panel minSize={30}>
     middle
   </Panel>
   <PanelResizeHandle />
-  <Panel defaultSizePercentage={30} minSizePercentage={20}>
+  <Panel defaultSize={30} minSize={20}>
     right
   </Panel>
 </PanelGroup>

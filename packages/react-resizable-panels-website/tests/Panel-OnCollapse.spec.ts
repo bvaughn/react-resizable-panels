@@ -25,24 +25,24 @@ async function openPage(
     { direction: "horizontal", id: "group" },
     createElement(Panel, {
       collapsible: true,
-      defaultSizePercentage: collapsedByDefault ? 0 : 20,
+      defaultSize: collapsedByDefault ? 0 : 20,
       id: "left",
-      minSizePercentage: 10,
+      minSize: 10,
       order: 1,
     }),
     createElement(PanelResizeHandle, { id: "left-handle" }),
     createElement(Panel, {
       collapsible: middleCollapsible,
       id: "middle",
-      minSizePercentage: 10,
+      minSize: 10,
       order: 2,
     }),
     createElement(PanelResizeHandle, { id: "right-handle" }),
     createElement(Panel, {
       collapsible: true,
-      defaultSizePercentage: collapsedByDefault ? 0 : 20,
+      defaultSize: collapsedByDefault ? 0 : 20,
       id: "right",
-      minSizePercentage: 10,
+      minSize: 10,
       order: 3,
     })
   );

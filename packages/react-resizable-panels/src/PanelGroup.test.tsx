@@ -88,41 +88,20 @@ describe("PanelGroup", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal" onLayout={onLayout} ref={ref}>
-            <Panel defaultSizePercentage={50} id="a" />
+            <Panel defaultSize={50} id="a" />
             <PanelResizeHandle />
-            <Panel defaultSizePercentage={50} id="b" />
+            <Panel defaultSize={50} id="b" />
           </PanelGroup>
         );
       });
 
-      expect(mostRecentLayout).toEqual([
-        {
-          sizePercentage: 50,
-          sizePixels: 500,
-        },
-        {
-          sizePercentage: 50,
-          sizePixels: 500,
-        },
-      ]);
+      expect(mostRecentLayout).toEqual([50, 50]);
 
       act(() => {
-        ref.current!.setLayout([
-          { sizePercentage: 25 },
-          { sizePercentage: 75 },
-        ]);
+        ref.current!.setLayout([25, 75]);
       });
 
-      expect(mostRecentLayout).toEqual([
-        {
-          sizePercentage: 25,
-          sizePixels: 250,
-        },
-        {
-          sizePercentage: 75,
-          sizePixels: 750,
-        },
-      ]);
+      expect(mostRecentLayout).toEqual([25, 75]);
     });
   });
 
@@ -131,7 +110,7 @@ describe("PanelGroup", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal">
-            <Panel defaultSizePercentage={100} id="a" />
+            <Panel defaultSize={100} id="a" />
           </PanelGroup>
         );
       });
@@ -143,9 +122,9 @@ describe("PanelGroup", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal">
-            <Panel defaultSizePercentage={50} id="a" />
+            <Panel defaultSize={50} id="a" />
             <PanelResizeHandle />
-            <Panel defaultSizePercentage={50} id="b" />
+            <Panel defaultSize={50} id="b" />
           </PanelGroup>
         );
       });
@@ -172,9 +151,9 @@ describe("PanelGroup", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal" id="group-without-handle">
-            <Panel defaultSizePercentage={60} />
+            <Panel defaultSize={60} />
             <PanelResizeHandle />
-            <Panel defaultSizePercentage={80} />
+            <Panel defaultSize={80} />
           </PanelGroup>
         );
       });
@@ -190,9 +169,9 @@ describe("PanelGroup", () => {
             id="group-without-handle"
             ref={ref}
           >
-            <Panel defaultSizePercentage={30} />
+            <Panel defaultSize={30} />
             <PanelResizeHandle />
-            <Panel defaultSizePercentage={70} />
+            <Panel defaultSize={70} />
           </PanelGroup>
         );
       });
@@ -200,10 +179,7 @@ describe("PanelGroup", () => {
       expectWarning("Invalid layout total size: 60%, 80%");
 
       act(() => {
-        ref.current!.setLayout([
-          { sizePercentage: 60 },
-          { sizePercentage: 80 },
-        ]);
+        ref.current!.setLayout([60, 80]);
       });
     });
   });

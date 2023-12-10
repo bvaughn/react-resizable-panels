@@ -12,16 +12,16 @@ function createElements(numPanels: 2 | 3) {
   const panels = [
     createElement(Panel, {
       collapsible: true,
-      defaultSizePercentage: numPanels === 3 ? 20 : 40,
+      defaultSize: numPanels === 3 ? 20 : 40,
       id: "left",
-      minSizePercentage: 10,
+      minSize: 10,
       order: 1,
     }),
     createElement(PanelResizeHandle, { id: "left-handle" }),
     createElement(Panel, {
-      defaultSizePercentage: 60,
+      defaultSize: 60,
       id: "middle",
-      minSizePercentage: 10,
+      minSize: 10,
       order: 2,
     }),
   ];
@@ -31,9 +31,9 @@ function createElements(numPanels: 2 | 3) {
       createElement(PanelResizeHandle, { id: "right-handle" }),
       createElement(Panel, {
         collapsible: true,
-        defaultSizePercentage: 20,
+        defaultSize: 20,
         id: "right",
-        minSizePercentage: 10,
+        minSize: 10,
         order: 3,
       })
     );
@@ -54,7 +54,7 @@ async function openPage(page: Page) {
 
 async function verifyEntries(
   page: Page,
-  expected: Array<{ panelId: string; sizePercentage: number }>
+  expected: Array<{ panelId: string; size: number }>
 ) {
   const logEntries = await getLogEntries<PanelResizeLogEntry>(page, "onResize");
 
@@ -62,11 +62,11 @@ async function verifyEntries(
 
   for (let index = 0; index < expected.length; index++) {
     const { panelId: actualPanelId, size: actualSize } = logEntries[index];
-    const { panelId: expectedPanelId, sizePercentage: expectedPanelSize } =
+    const { panelId: expectedPanelId, size: expectedPanelSize } =
       expected[index];
 
     expect(actualPanelId).toEqual(expectedPanelId);
-    expect(actualSize.sizePercentage).toEqual(expectedPanelSize);
+    expect(actualSize).toEqual(expectedPanelSize);
   }
 }
 
@@ -77,9 +77,9 @@ test.describe("Panel onResize prop", () => {
 
   test("should be called once on-mount", async ({ page }) => {
     await verifyEntries(page, [
-      { panelId: "left", sizePercentage: 20 },
-      { panelId: "middle", sizePercentage: 60 },
-      { panelId: "right", sizePercentage: 20 },
+      { panelId: "left", size: 20 },
+      { panelId: "middle", size: 60 },
+      { panelId: "right", size: 20 },
     ]);
   });
 
@@ -96,8 +96,8 @@ test.describe("Panel onResize prop", () => {
     await leftHandle.focus();
     await page.keyboard.press("Home");
     await verifyEntries(page, [
-      { panelId: "left", sizePercentage: 0 },
-      { panelId: "middle", sizePercentage: 80 },
+      { panelId: "left", size: 0 },
+      { panelId: "middle", size: 80 },
     ]);
 
     await clearLogEntries(page);
@@ -105,16 +105,16 @@ test.describe("Panel onResize prop", () => {
     await rightHandle.focus();
     await page.keyboard.press("End");
     await verifyEntries(page, [
-      { panelId: "middle", sizePercentage: 100 },
-      { panelId: "right", sizePercentage: 0 },
+      { panelId: "middle", size: 100 },
+      { panelId: "right", size: 0 },
     ]);
 
     await clearLogEntries(page);
 
     await page.keyboard.press("ArrowLeft");
     await verifyEntries(page, [
-      { panelId: "middle", sizePercentage: 90 },
-      { panelId: "right", sizePercentage: 10 },
+      { panelId: "middle", size: 90 },
+      { panelId: "right", size: 10 },
     ]);
   });
 
@@ -126,9 +126,9 @@ test.describe("Panel onResize prop", () => {
     await imperativeResizePanelGroup(page, "group", ["10%", "20%", "70%"]);
 
     await verifyEntries(page, [
-      { panelId: "left", sizePercentage: 10 },
-      { panelId: "middle", sizePercentage: 20 },
-      { panelId: "right", sizePercentage: 70 },
+      { panelId: "left", size: 10 },
+      { panelId: "middle", size: 20 },
+      { panelId: "right", size: 70 },
     ]);
   });
 
@@ -136,26 +136,22 @@ test.describe("Panel onResize prop", () => {
     page,
   }) => {
     await verifyEntries(page, [
-      { panelId: "left", sizePercentage: 20 },
-      { panelId: "middle", sizePercentage: 60 },
-      { panelId: "right", sizePercentage: 20 },
+      { panelId: "left", size: 20 },
+      { panelId: "middle", size: 60 },
+      { panelId: "right", size: 20 },
     ]);
 
     await clearLogEntries(page);
 
     await updateUrl(page, createElements(2));
-    await verifyEntries(page, [
-      { panelId: "left", sizePercentage: 40 },
-      { panelId: "middle", sizePercentage: 60 },
-    ]);
+    await verifyEntries(page, [{ panelId: "left", size: 40 }]);
 
     await clearLogEntries(page);
 
     await updateUrl(page, createElements(3));
     await verifyEntries(page, [
-      { panelId: "left", sizePercentage: 20 },
-      { panelId: "middle", sizePercentage: 60 },
-      { panelId: "right", sizePercentage: 20 },
+      { panelId: "left", size: 20 },
+      { panelId: "right", size: 20 },
     ]);
   });
 });

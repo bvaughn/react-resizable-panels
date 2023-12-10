@@ -1,7 +1,7 @@
 import { DragState, ResizeEvent } from "../PanelGroupContext";
 import { Direction } from "../types";
-import { getPanelGroupElement } from "../utils/dom/getPanelGroupElement";
-import { getResizeHandleElement } from "../utils/dom/getResizeHandleElement";
+import { getPanelGroupElement } from "./dom/getPanelGroupElement";
+import { getResizeHandleElement } from "./dom/getResizeHandleElement";
 import { getResizeEventCursorPosition } from "./getResizeEventCursorPosition";
 
 export function calculateDragOffsetPercentage(

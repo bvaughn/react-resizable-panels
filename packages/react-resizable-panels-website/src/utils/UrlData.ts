@@ -26,16 +26,12 @@ import { ImperativeDebugLogHandle } from "../routes/examples/DebugLog";
 
 type UrlPanel = {
   children: Array<string | UrlPanelGroup>;
-  collapsedSizePercentage?: number;
-  collapsedSizePixels?: number;
+  collapsedSize?: number;
   collapsible?: boolean;
-  defaultSizePercentage?: number | null;
-  defaultSizePixels?: number | null;
+  defaultSize?: number | null;
   id?: string | null;
-  maxSizePercentage?: number | null;
-  maxSizePixels?: number | null;
-  minSizePercentage?: number;
-  minSizePixels?: number;
+  maxSize?: number | null;
+  minSize?: number;
   order?: number | null;
   style?: CSSProperties;
   type: "UrlPanel";
@@ -46,8 +42,7 @@ type UrlPanelGroup = {
   children: Array<UrlPanel | UrlPanelResizeHandle>;
   direction: "horizontal" | "vertical";
   id?: string | null;
-  keyboardResizeByPercentage?: number | null;
-  keyboardResizeByPixels?: number | null;
+  keyboardResizeBy?: number | null;
   style?: CSSProperties;
   type: "UrlPanelGroup";
 };
@@ -109,16 +104,12 @@ function UrlPanelToData(urlPanel: ReactElement<PanelProps>): UrlPanel {
         return child;
       }
     }),
-    collapsedSizePercentage: urlPanel.props.collapsedSizePercentage,
-    collapsedSizePixels: urlPanel.props.collapsedSizePixels,
+    collapsedSize: urlPanel.props.collapsedSize,
     collapsible: urlPanel.props.collapsible,
-    defaultSizePercentage: urlPanel.props.defaultSizePercentage,
-    defaultSizePixels: urlPanel.props.defaultSizePixels,
+    defaultSize: urlPanel.props.defaultSize,
     id: urlPanel.props.id,
-    maxSizePercentage: urlPanel.props.maxSizePercentage,
-    maxSizePixels: urlPanel.props.maxSizePixels,
-    minSizePercentage: urlPanel.props.minSizePercentage,
-    minSizePixels: urlPanel.props.minSizePixels,
+    maxSize: urlPanel.props.maxSize,
+    minSize: urlPanel.props.minSize,
     order: urlPanel.props.order,
     style: urlPanel.props.style,
     type: "UrlPanel",
@@ -141,8 +132,7 @@ function UrlPanelGroupToData(
     }),
     direction: urlPanelGroup.props.direction,
     id: urlPanelGroup.props.id,
-    keyboardResizeByPercentage: urlPanelGroup.props.keyboardResizeByPercentage,
-    keyboardResizeByPixels: urlPanelGroup.props.keyboardResizeByPixels,
+    keyboardResizeBy: urlPanelGroup.props.keyboardResizeBy,
     style: urlPanelGroup.props.style,
     type: "UrlPanelGroup",
   };
@@ -217,17 +207,13 @@ function urlPanelToPanel(
     Panel,
     {
       className: "Panel",
-      collapsedSizePercentage: urlPanel.collapsedSizePercentage,
-      collapsedSizePixels: urlPanel.collapsedSizePixels,
+      collapsedSize: urlPanel.collapsedSize,
       collapsible: urlPanel.collapsible,
-      defaultSizePercentage: urlPanel.defaultSizePercentage ?? undefined,
-      defaultSizePixels: urlPanel.defaultSizePixels ?? undefined,
+      defaultSize: urlPanel.defaultSize ?? undefined,
       id: urlPanel.id ?? undefined,
       key,
-      maxSizePercentage: urlPanel.maxSizePercentage ?? undefined,
-      maxSizePixels: urlPanel.maxSizePixels ?? undefined,
-      minSizePercentage: urlPanel.minSizePercentage,
-      minSizePixels: urlPanel.minSizePixels,
+      maxSize: urlPanel.maxSize ?? undefined,
+      minSize: urlPanel.minSize,
       onCollapse,
       onExpand,
       onResize,
@@ -286,8 +272,7 @@ export function urlPanelGroupToPanelGroup(
       direction: urlPanelGroup.direction,
       id: urlPanelGroup.id,
       key: key,
-      keyboardResizeByPercentage: urlPanelGroup.keyboardResizeByPercentage,
-      keyboardResizeByPixels: urlPanelGroup.keyboardResizeByPixels,
+      keyboardResizeBy: urlPanelGroup.keyboardResizeBy,
       onLayout,
       ref: refSetter,
       style: urlPanelGroup.style,

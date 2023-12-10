@@ -14,18 +14,18 @@ test.describe("collapsible prop", () => {
         { direction: "horizontal" },
         createElement(Panel, {
           collapsible: true,
-          defaultSizePercentage: 35,
-          minSizePercentage: 10,
+          defaultSize: 35,
+          minSize: 10,
         }),
         createElement(PanelResizeHandle, { style: { height: 10, width: 10 } }),
         createElement(Panel, {
-          minSizePercentage: 10,
+          minSize: 10,
         }),
         createElement(PanelResizeHandle, { style: { height: 10, width: 10 } }),
         createElement(Panel, {
           collapsible: true,
-          defaultSizePercentage: 35,
-          minSizePercentage: 20,
+          defaultSize: 35,
+          minSize: 20,
         })
       )
     );
@@ -81,13 +81,13 @@ test.describe("collapsible prop", () => {
         PanelGroup,
         { direction: "horizontal" },
         createElement(Panel, {
-          collapsedSizePercentage: 2,
+          collapsedSize: 2,
           collapsible: true,
-          defaultSizePercentage: 35,
-          minSizePercentage: 10,
+          defaultSize: 35,
+          minSize: 10,
         }),
         createElement(PanelResizeHandle, { style: { height: 10, width: 10 } }),
-        createElement(Panel, { minSizePercentage: 10 })
+        createElement(Panel, { minSize: 10 })
       )
     );
 

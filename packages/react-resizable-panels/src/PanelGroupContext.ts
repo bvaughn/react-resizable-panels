@@ -1,5 +1,5 @@
 import { PanelData } from "./Panel";
-import { MixedSizes } from "./types";
+import { Size } from "./types";
 import { CSSProperties, createContext } from "./vendor/react";
 
 export type ResizeEvent = KeyboardEvent | MouseEvent | TouchEvent;
@@ -17,14 +17,14 @@ export const PanelGroupContext = createContext<{
   direction: "horizontal" | "vertical";
   dragState: DragState | null;
   expandPanel: (panelData: PanelData) => void;
-  getPanelSize: (panelData: PanelData) => MixedSizes;
+  getPanelSize: (panelData: PanelData) => Size;
   getPanelStyle: (panelData: PanelData) => CSSProperties;
   groupId: string;
   isPanelCollapsed: (panelData: PanelData) => boolean;
   isPanelExpanded: (panelData: PanelData) => boolean;
   registerPanel: (panelData: PanelData) => void;
   registerResizeHandle: (dragHandleId: string) => ResizeHandler;
-  resizePanel: (panelData: PanelData, mixedSizes: Partial<MixedSizes>) => void;
+  resizePanel: (panelData: PanelData, mixedSizes: Partial<Size>) => void;
   startDragging: (dragHandleId: string, event: ResizeEvent) => void;
   stopDragging: () => void;
   unregisterPanel: (panelData: PanelData) => void;

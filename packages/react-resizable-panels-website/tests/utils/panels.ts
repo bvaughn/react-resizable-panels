@@ -2,7 +2,7 @@ import { Locator, Page, expect } from "@playwright/test";
 import { assert } from "./assert";
 import { getBodyCursorStyle } from "./cursor";
 import { verifyFuzzySizesPercentages } from "./verify";
-import { MixedSizes } from "react-resizable-panels";
+import { Size } from "react-resizable-panels";
 
 type Operation = {
   expectedCursor?: string;
@@ -150,18 +150,14 @@ export async function dragResizeTo(
 export async function imperativeResizePanel(
   page: Page,
   panelId: string,
-  size: Partial<MixedSizes>
+  size: Size
 ) {
   const panelIdSelect = page.locator("#panelIdSelect");
   await panelIdSelect.selectOption(panelId);
 
   const sizeInput = page.locator("#sizeInput");
   await sizeInput.focus();
-  await sizeInput.fill(
-    size.sizePercentage != null
-      ? `${size.sizePercentage}%`
-      : `${size.sizePixels}px`
-  );
+  await sizeInput.fill(`${size}%`);
 
   const resizeButton = page.locator("#resizeButton");
   await resizeButton.click();

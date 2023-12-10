@@ -5,11 +5,9 @@ import { resizePanel } from "./resizePanel";
 
 // All units must be in percentages; pixel values should be pre-converted
 export function validatePanelGroupLayout({
-  groupSizePixels,
   layout: prevLayout,
   panelConstraints,
 }: {
-  groupSizePixels: number;
   layout: number[];
   panelConstraints: PanelConstraints[];
 }): number[] {
@@ -46,7 +44,6 @@ export function validatePanelGroupLayout({
     const unsafeSize = nextLayout[index]!;
 
     const safeSize = resizePanel({
-      groupSizePixels,
       panelConstraints,
       panelIndex: index,
       size: unsafeSize,
@@ -66,7 +63,6 @@ export function validatePanelGroupLayout({
       const prevSize = nextLayout[index]!;
       const unsafeSize = prevSize + remainingSize;
       const safeSize = resizePanel({
-        groupSizePixels,
         panelConstraints,
         panelIndex: index,
         size: unsafeSize,

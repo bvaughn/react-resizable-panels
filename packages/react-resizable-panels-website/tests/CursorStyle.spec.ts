@@ -39,15 +39,15 @@ test.describe("cursor style", () => {
         PanelGroup,
         { direction },
         createElement(Panel, {
-          defaultSizePercentage: 50,
+          defaultSize: 50,
           id: "first-panel",
-          minSizePercentage: 10,
+          minSize: 10,
         }),
         createElement(PanelResizeHandle),
         createElement(Panel, {
-          defaultSizePercentage: 50,
+          defaultSize: 50,
           id: "last-panel",
-          minSizePercentage: 10,
+          minSize: 10,
         })
       )
     );

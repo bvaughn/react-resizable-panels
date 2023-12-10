@@ -1,13 +1,10 @@
 import { PanelData } from "../Panel";
-import { getPercentageSizeFromMixedSizes } from "./getPercentageSizeFromMixedSizes";
 
 export function calculateAriaValues({
-  groupSizePixels,
   layout,
   panelsArray,
   pivotIndices,
 }: {
-  groupSizePixels: number;
   layout: number[];
   panelsArray: PanelData[];
   pivotIndices: number[];
@@ -20,30 +17,7 @@ export function calculateAriaValues({
   // A panel's effective min/max sizes also need to account for other panel's sizes.
   panelsArray.forEach((panelData, index) => {
     const { constraints } = panelData;
-    const {
-      maxSizePercentage,
-      maxSizePixels,
-      minSizePercentage,
-      minSizePixels,
-    } = constraints;
-
-    const minSize =
-      getPercentageSizeFromMixedSizes(
-        {
-          sizePercentage: minSizePercentage,
-          sizePixels: minSizePixels,
-        },
-        groupSizePixels
-      ) ?? 0;
-
-    const maxSize =
-      getPercentageSizeFromMixedSizes(
-        {
-          sizePercentage: maxSizePercentage,
-          sizePixels: maxSizePixels,
-        },
-        groupSizePixels
-      ) ?? 100;
+    const { maxSize = 100, minSize = 0 } = constraints;
 
     if (index === pivotIndices[0]) {
       currentMinSize = minSize;

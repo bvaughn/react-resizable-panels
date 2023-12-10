@@ -81,17 +81,9 @@ describe("PanelGroup", () => {
         act(() => {
           root.render(
             <PanelGroup direction="horizontal" onLayout={onLayout}>
-              <Panel
-                collapsible
-                defaultSizePercentage={50}
-                ref={leftPanelRef}
-              />
+              <Panel collapsible defaultSize={50} ref={leftPanelRef} />
               <PanelResizeHandle />
-              <Panel
-                collapsible
-                defaultSizePercentage={50}
-                ref={rightPanelRef}
-              />
+              <Panel collapsible defaultSize={50} ref={rightPanelRef} />
             </PanelGroup>
           );
         });
@@ -124,7 +116,7 @@ describe("PanelGroup", () => {
       it("should re-expand to the most recent size before collapsing", () => {
         verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
         act(() => {
-          leftPanelRef.current!.resize({ sizePercentage: 30 });
+          leftPanelRef.current!.resize(30);
         });
         verifyExpandedPanelGroupLayout(mostRecentLayout!, [30, 70]);
         act(() => {
@@ -159,11 +151,11 @@ describe("PanelGroup", () => {
         act(() => {
           root.render(
             <PanelGroup direction="horizontal" onLayout={onLayout}>
-              <Panel defaultSizePercentage={20} ref={leftPanelRef} />
+              <Panel defaultSize={20} ref={leftPanelRef} />
               <PanelResizeHandle />
-              <Panel defaultSizePercentage={60} ref={middlePanelRef} />
+              <Panel defaultSize={60} ref={middlePanelRef} />
               <PanelResizeHandle />
-              <Panel defaultSizePercentage={20} ref={rightPanelRef} />
+              <Panel defaultSize={20} ref={rightPanelRef} />
             </PanelGroup>
           );
         });
@@ -172,7 +164,7 @@ describe("PanelGroup", () => {
       it("should resize the first panel in a group", () => {
         verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 60, 20]);
         act(() => {
-          leftPanelRef.current!.resize({ sizePercentage: 40 });
+          leftPanelRef.current!.resize(40);
         });
         verifyExpandedPanelGroupLayout(mostRecentLayout!, [40, 40, 20]);
       });
@@ -180,7 +172,7 @@ describe("PanelGroup", () => {
       it("should resize the middle panel in a group", () => {
         verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 60, 20]);
         act(() => {
-          middlePanelRef.current!.resize({ sizePercentage: 40 });
+          middlePanelRef.current!.resize(40);
         });
         verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 40, 40]);
       });
@@ -188,7 +180,7 @@ describe("PanelGroup", () => {
       it("should resize the last panel in a group", () => {
         verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 60, 20]);
         act(() => {
-          rightPanelRef.current!.resize({ sizePercentage: 40 });
+          rightPanelRef.current!.resize(40);
         });
         verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 40, 40]);
       });
@@ -207,7 +199,7 @@ describe("PanelGroup", () => {
         act(() => {
           root.render(
             <PanelGroup direction="horizontal">
-              <Panel defaultSizePercentage={-1} />
+              <Panel defaultSize={-1} />
             </PanelGroup>
           );
         });
@@ -217,7 +209,7 @@ describe("PanelGroup", () => {
         act(() => {
           root.render(
             <PanelGroup direction="horizontal">
-              <Panel defaultSizePercentage={101} />
+              <Panel defaultSize={101} />
             </PanelGroup>
           );
         });
@@ -254,15 +246,15 @@ describe("PanelGroup", () => {
         // No warning expected if default sizes provided
         renderToStaticMarkup(
           <PanelGroup direction="horizontal">
-            <Panel defaultSizePercentage={100} />
+            <Panel defaultSize={100} />
             <PanelResizeHandle />
-            <Panel defaultSizePixels={1_000} />
+            <Panel defaultSize={1_000} />
           </PanelGroup>
         );
       });
 
       expectWarning(
-        "Panel defaultSizePercentage or defaultSizePixels prop recommended to avoid layout shift after server rendering"
+        "Panel defaultSize prop recommended to avoid layout shift after server rendering"
       );
 
       act(() => {
@@ -274,30 +266,13 @@ describe("PanelGroup", () => {
       });
     });
 
-    it("should warn if both pixel and percentage units are specified", () => {
-      // We just spot check this here; validatePanelConstraints() has its own in-depth tests
-      expectWarning(
-        "should not specify both percentage and pixel units for: min size"
-      );
-
-      expectWarning("Pixel based constraints require ResizeObserver");
-
-      act(() => {
-        root.render(
-          <PanelGroup direction="horizontal" key="minSize">
-            <Panel minSizePercentage={100} minSizePixels={1_000} />
-          </PanelGroup>
-        );
-      });
-    });
-
     it("should warn if invalid sizes are specified declaratively", () => {
       expectWarning("default size should not be less than 0");
 
       act(() => {
         root.render(
           <PanelGroup direction="horizontal" key="collapsedSize">
-            <Panel defaultSizePercentage={-1} />
+            <Panel defaultSize={-1} />
             <PanelResizeHandle />
             <Panel />
           </PanelGroup>
