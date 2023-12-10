@@ -83,7 +83,6 @@ const debounceMap: {
   [key: string]: typeof savePanelGroupLayout;
 } = {};
 
-// TODO [v1] Can I remove some of the initial-mount complexity since we don't need group pixels anymore?
 function PanelGroupWithForwardedRef({
   autoSaveId = null,
   children,
@@ -192,9 +191,6 @@ function PanelGroupWithForwardedRef({
     committedValuesRef.current.id = groupId;
     committedValuesRef.current.onLayout = onLayout;
     committedValuesRef.current.storage = storage;
-
-    // panelDataArray and layout are updated in-sync with scheduled state updates.
-    // TODO [217] Move these values into a separate ref
   });
 
   useWindowSplitterPanelGroupBehavior({
