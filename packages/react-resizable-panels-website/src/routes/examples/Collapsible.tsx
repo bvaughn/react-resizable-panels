@@ -1,7 +1,10 @@
 import { useReducer } from "react";
-
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-
+import {
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+  assert,
+} from "react-resizable-panels";
 import {
   TUTORIAL_CODE_CSS,
   TUTORIAL_CODE_HTML,
@@ -11,7 +14,6 @@ import {
 import Code from "../../components/Code";
 import Icon from "../../components/Icon";
 import { Language } from "../../suspense/SyntaxParsingCache";
-
 import styles from "./Collapsible.module.css";
 import Example from "./Example";
 import sharedStyles from "./shared.module.css";
@@ -197,10 +199,13 @@ type FilesState = {
   openFiles: File[];
 };
 
+const FIRST_FILE = FILES[0];
+assert(FIRST_FILE);
+
 const initialState: FilesState = {
   currentFileIndex: 0,
   fileListCollapsed: false,
-  openFiles: [FILES[0]],
+  openFiles: [FIRST_FILE],
 };
 
 function reducer(state: FilesState, action: FilesAction): FilesState {

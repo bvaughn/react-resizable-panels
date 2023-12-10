@@ -1,3 +1,5 @@
+import { assert } from "./assert";
+
 const util = require("util");
 
 export function expectToBeCloseToArray(
@@ -9,6 +11,8 @@ export function expectToBeCloseToArray(
   try {
     actualNumbers.forEach((actualNumber, index) => {
       const expectedNumber = expectedNumbers[index];
+      assert(expectedNumber != null);
+
       expect(actualNumber).toBeCloseTo(expectedNumber, 1);
     });
   } catch (error) {

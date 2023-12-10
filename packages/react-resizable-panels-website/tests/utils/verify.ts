@@ -2,12 +2,10 @@ import { expect, Page } from "@playwright/test";
 
 import { PanelGroupLayoutLogEntry } from "../../src/routes/examples/types";
 
+import { assert } from "react-resizable-panels";
 import { getLogEntries } from "./debug";
 
-export async function verifySizesPercentages(
-  page: Page,
-  ...expectedSizes: number[]
-) {
+export async function verifySizes(page: Page, ...expectedSizes: number[]) {
   const panels = page.locator("[data-panel-id]");
 
   const count = await panels.count();
@@ -24,29 +22,7 @@ export async function verifySizesPercentages(
   }
 }
 
-export async function verifySizesPixels(
-  page: Page,
-  ...expectedSizesPixels: number[]
-) {
-  const panels = page.locator("[data-panel-id]");
-
-  const count = await panels.count();
-  expect(count).toBe(expectedSizesPixels.length);
-
-  for (let index = 0; index < count; index++) {
-    const panel = await panels.nth(index);
-    const textContent = (await panel.textContent()) || "";
-
-    const expectedSizePixels = expectedSizesPixels[index];
-    const rows = textContent.split("\n");
-    const actualSizePixels =
-      rows.length === 2 ? parseFloat(rows[1].replace("px", "")) : NaN;
-
-    expect(actualSizePixels).toBe(expectedSizePixels);
-  }
-}
-
-export async function verifyFuzzySizesPercentages(
+export async function verifyFuzzySizes(
   page: Page,
   precision: number,
   ...expectedSizes: number[]
@@ -55,13 +31,19 @@ export async function verifyFuzzySizesPercentages(
     page,
     "onLayout"
   );
-  const actualSizes = logEntries[logEntries.length - 1].layout;
+  const logEntry = logEntries[logEntries.length - 1];
+  assert(logEntry);
+
+  const actualSizes = logEntry.layout;
 
   expect(actualSizes).toHaveLength(expectedSizes.length);
 
   for (let index = 0; index < actualSizes.length; index++) {
     const actualSize = actualSizes[index];
+    assert(actualSize);
+
     const expectedSize = expectedSizes[index];
+    assert(expectedSize);
 
     expect(actualSize).toBeGreaterThanOrEqual(expectedSize - precision);
     expect(actualSize).toBeLessThanOrEqual(expectedSize + precision);

@@ -63,10 +63,10 @@ export function useWindowSplitterPanelGroupBehavior({
           }
         }
       } else {
-        resizeHandleElement.setAttribute(
-          "aria-controls",
-          panelDataArray[index].id
-        );
+        const panelData = panelDataArray[index];
+        assert(panelData);
+
+        resizeHandleElement.setAttribute("aria-controls", panelData.id);
         resizeHandleElement.setAttribute(
           "aria-valuemax",
           "" + Math.round(valueMax)
@@ -77,7 +77,7 @@ export function useWindowSplitterPanelGroupBehavior({
         );
         resizeHandleElement.setAttribute(
           "aria-valuenow",
-          "" + Math.round(valueNow)
+          valueNow != null ? "" + Math.round(valueNow) : ""
         );
       }
     }
@@ -93,14 +93,20 @@ export function useWindowSplitterPanelGroupBehavior({
   }, [groupId, layout, panelDataArray]);
 
   useEffect(() => {
-    const { panelDataArray } = eagerValuesRef.current!;
+    const eagerValues = eagerValuesRef.current;
+    assert(eagerValues);
+
+    const { panelDataArray } = eagerValues;
 
     const groupElement = getPanelGroupElement(groupId);
     assert(groupElement != null, `No group found for id "${groupId}"`);
 
     const handles = getResizeHandleElementsForGroup(groupId);
+    assert(handles);
+
     const cleanupFunctions = handles.map((handle) => {
-      const handleId = handle.getAttribute("data-panel-resize-handle-id")!;
+      const handleId = handle.getAttribute("data-panel-resize-handle-id");
+      assert(handleId);
 
       const [idBefore, idAfter] = getResizeHandlePanelIds(
         groupId,
@@ -125,6 +131,8 @@ export function useWindowSplitterPanelGroupBehavior({
             );
             if (index >= 0) {
               const panelData = panelDataArray[index];
+              assert(panelData);
+
               const size = layout[index];
 
               const {

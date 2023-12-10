@@ -1,4 +1,5 @@
 import { PanelData } from "../Panel";
+import { assert } from "./assert";
 
 // Layout should be pre-converted into percentages
 export function callPanelCallbacks(
@@ -8,12 +9,7 @@ export function callPanelCallbacks(
 ) {
   layout.forEach((size, index) => {
     const panelData = panelsArray[index];
-    if (!panelData) {
-      // Handle initial mount (when panels are registered too late to be in the panels array)
-      // The subsequent render+effects will handle the resize notification
-      // TODO [v1] Is this constraint still necessary?
-      return;
-    }
+    assert(panelData);
 
     const { callbacks, constraints, id: panelId } = panelData;
     const { collapsedSize = 0, collapsible } = constraints;

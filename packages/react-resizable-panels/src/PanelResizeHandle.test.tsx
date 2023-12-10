@@ -1,7 +1,7 @@
-import assert from "assert";
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { Panel, PanelGroup, PanelResizeHandle } from ".";
+import { assert } from "./utils/assert";
 import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
 
 describe("PanelResizeHandle", () => {

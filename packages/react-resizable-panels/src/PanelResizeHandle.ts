@@ -20,6 +20,7 @@ import {
   ResizeEvent,
   ResizeHandler,
 } from "./PanelGroupContext";
+import { assert } from "./utils/assert";
 import { getCursorStyle } from "./utils/cursor";
 
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
@@ -84,8 +85,9 @@ export function PanelResizeHandle({
   const stopDraggingAndBlur = useCallback(() => {
     // Clicking on the drag handle shouldn't leave it focused;
     // That would cause the PanelGroup to think it was still active.
-    const div = divElementRef.current!;
-    div.blur();
+    const divElement = divElementRef.current;
+    assert(divElement);
+    divElement.blur();
 
     stopDragging();
 
@@ -117,7 +119,9 @@ export function PanelResizeHandle({
       resizeHandler(event);
     };
 
-    const divElement = divElementRef.current!;
+    const divElement = divElementRef.current;
+    assert(divElement);
+
     const targetDocument = divElement.ownerDocument;
 
     targetDocument.body.addEventListener("contextmenu", stopDraggingAndBlur);
@@ -162,7 +166,9 @@ export function PanelResizeHandle({
     onMouseDown: (event: ReactMouseEvent) => {
       startDragging(resizeHandleId, event.nativeEvent);
 
-      const { onDragging } = callbacksRef.current!;
+      const callbacks = callbacksRef.current;
+      assert(callbacks);
+      const { onDragging } = callbacks;
       if (onDragging) {
         onDragging(true);
       }
@@ -173,7 +179,9 @@ export function PanelResizeHandle({
     onTouchStart: (event: TouchEvent) => {
       startDragging(resizeHandleId, event.nativeEvent);
 
-      const { onDragging } = callbacksRef.current!;
+      const callbacks = callbacksRef.current;
+      assert(callbacks);
+      const { onDragging } = callbacks;
       if (onDragging) {
         onDragging(true);
       }

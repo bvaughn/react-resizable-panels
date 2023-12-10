@@ -1,3 +1,5 @@
+import { assert } from "react-resizable-panels";
+
 export const Targets = {
   bottomLeft: "bottomLeft",
   bottomRight: "bottomRight",
@@ -107,6 +109,8 @@ const stages = frames.filter((step): step is Stage => step.type === "stage");
 
 for (let index = 0; index < frames.length; index++) {
   const frame = frames[index];
+  assert(frame);
+
   switch (frame.type) {
     case "pause":
       sequence.push(frame);
@@ -116,6 +120,7 @@ for (let index = 0; index < frames.length; index++) {
 
       const index = stages.indexOf(fromStage);
       const toStage = index + 1 < stages.length ? stages[index + 1] : stages[0];
+      assert(toStage != null);
 
       const changedProperties: AnimatedProperty[] = [];
 

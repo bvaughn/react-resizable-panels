@@ -1,6 +1,11 @@
 import { expect, Page, test } from "@playwright/test";
 import { createElement } from "react";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import {
+  assert,
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+} from "react-resizable-panels";
 
 import {
   PanelCollapseLogEntry,
@@ -52,23 +57,31 @@ async function openPage(
 
 async function verifyEntries(
   page: Page,
-  expected: Array<{ panelId: string; collapsed: boolean }>
+  expectedLogEntries: Array<{ panelId: string; collapsed: boolean }>
 ) {
   const logEntries = await getLogEntries<
     PanelCollapseLogEntry | PanelExpandLogEntry
   >(page, ["onCollapse", "onExpand"]);
 
   try {
-    expect(logEntries.length).toEqual(expected.length);
+    expect(logEntries.length).toEqual(expectedLogEntries.length);
   } catch (error) {
-    console.error(`Expected ${expected.length} entries, got:\n`, logEntries);
+    console.error(
+      `Expected ${expectedLogEntries.length} entries, got:\n`,
+      logEntries
+    );
     throw error;
   }
 
-  for (let index = 0; index < expected.length; index++) {
-    const { panelId: actualPanelId, type } = logEntries[index];
+  for (let index = 0; index < expectedLogEntries.length; index++) {
+    const actualLogEntry = logEntries[index];
+    assert(actualLogEntry);
+    const { panelId: actualPanelId, type } = actualLogEntry;
+
+    const expectedLogEntry = expectedLogEntries[index];
+    assert(expectedLogEntry);
     const { panelId: expectedPanelId, collapsed: expectedPanelCollapsed } =
-      expected[index];
+      expectedLogEntry;
 
     const actualPanelCollapsed = type === "onCollapse";
 

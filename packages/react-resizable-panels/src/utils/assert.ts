@@ -1,5 +1,5 @@
 export function assert(
-  expectedCondition: boolean,
+  expectedCondition: any,
   message: string = "Assertion failed!"
 ): asserts expectedCondition {
   if (!expectedCondition) {

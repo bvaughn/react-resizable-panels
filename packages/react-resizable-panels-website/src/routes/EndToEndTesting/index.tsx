@@ -3,24 +3,22 @@ import {
   Component,
   ErrorInfo,
   PropsWithChildren,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
 import {
   ImperativePanelGroupHandle,
   ImperativePanelHandle,
+  assert,
 } from "react-resizable-panels";
-
-import { urlPanelGroupToPanelGroup, urlToUrlData } from "../../utils/UrlData";
-
-import DebugLog, { ImperativeDebugLogHandle } from "../examples/DebugLog";
-
-import { useLayoutEffect } from "react";
 import {
   assertImperativePanelGroupHandle,
   assertImperativePanelHandle,
 } from "../../../tests/utils/assert";
 import Icon from "../../components/Icon";
+import { urlPanelGroupToPanelGroup, urlToUrlData } from "../../utils/UrlData";
+import DebugLog, { ImperativeDebugLogHandle } from "../examples/DebugLog";
 import "./styles.css";
 import styles from "./styles.module.css";
 
@@ -67,16 +65,24 @@ function EndToEndTesting() {
       const panelIds = Array.from(panelElements).map(
         (element) => element.getAttribute("data-panel-id")!
       );
+
+      const firstPanelId = panelIds[0];
+      assert(firstPanelId != null);
+
       setPanelIds(panelIds);
-      setPanelId(panelIds[0]);
+      setPanelId(firstPanelId);
 
       const panelGroupElements =
         document.querySelectorAll("[data-panel-group]");
       const panelGroupIds = Array.from(panelGroupElements).map(
         (element) => element.getAttribute("data-panel-group-id")!
       );
+
+      const firstPanelGroupId = panelGroupIds[0];
+      assert(firstPanelGroupId != null);
+
       setPanelGroupIds(panelGroupIds);
-      setPanelGroupId(panelGroupIds[0]);
+      setPanelGroupId(firstPanelGroupId);
     };
 
     window.addEventListener("popstate", (event) => {

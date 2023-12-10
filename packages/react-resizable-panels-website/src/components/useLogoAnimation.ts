@@ -1,4 +1,5 @@
 import { RefObject, useEffect } from "react";
+import { assert } from "react-resizable-panels";
 import { Sequence, Target } from "./LogoAnimation";
 
 export function useLogoAnimation(
@@ -31,6 +32,8 @@ export function useLogoAnimation(
       let accumulatedDuration = 0;
       for (let index = 0; index < sequence.length; index++) {
         segment = sequence[index];
+        assert(segment);
+
         if (
           elapsed >= accumulatedDuration &&
           elapsed <= accumulatedDuration + segment.duration

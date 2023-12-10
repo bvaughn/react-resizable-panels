@@ -1,12 +1,17 @@
 import { expect, Page, test } from "@playwright/test";
 import { createElement } from "react";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import {
+  assert,
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+} from "react-resizable-panels";
 
 import { PanelResizeLogEntry } from "../src/routes/examples/types";
 
 import { clearLogEntries, getLogEntries } from "./utils/debug";
-import { goToUrl, updateUrl } from "./utils/url";
 import { imperativeResizePanelGroup } from "./utils/panels";
+import { goToUrl, updateUrl } from "./utils/url";
 
 function createElements(numPanels: 2 | 3) {
   const panels = [
@@ -54,16 +59,21 @@ async function openPage(page: Page) {
 
 async function verifyEntries(
   page: Page,
-  expected: Array<{ panelId: string; size: number }>
+  expectedLogEntries: Array<{ panelId: string; size: number }>
 ) {
   const logEntries = await getLogEntries<PanelResizeLogEntry>(page, "onResize");
 
-  expect(logEntries.length).toEqual(expected.length);
+  expect(logEntries.length).toEqual(expectedLogEntries.length);
 
-  for (let index = 0; index < expected.length; index++) {
-    const { panelId: actualPanelId, size: actualSize } = logEntries[index];
+  for (let index = 0; index < expectedLogEntries.length; index++) {
+    const actualLogEntry = logEntries[index];
+    assert(actualLogEntry);
+    const { panelId: actualPanelId, size: actualSize } = actualLogEntry;
+
+    const expectedLogEntry = expectedLogEntries[index];
+    assert(expectedLogEntry);
     const { panelId: expectedPanelId, size: expectedPanelSize } =
-      expected[index];
+      expectedLogEntry;
 
     expect(actualPanelId).toEqual(expectedPanelId);
     expect(actualSize).toEqual(expectedPanelSize);

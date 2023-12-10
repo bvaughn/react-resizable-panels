@@ -4,6 +4,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import { PanelGroupLayoutLogEntry } from "../src/routes/examples/types";
 
+import { assert } from "react-resizable-panels";
 import { clearLogEntries, getLogEntries } from "./utils/debug";
 import { goToUrl } from "./utils/url";
 
@@ -44,7 +45,10 @@ async function verifyEntries(page: Page, expectedLayout: number[][]) {
   expect(logEntries.length).toEqual(expectedLayout.length);
 
   for (let index = 0; index < expectedLayout.length; index++) {
-    const { layout: actual } = logEntries[index];
+    const logEntry = logEntries[index];
+    assert(logEntry);
+
+    const { layout: actual } = logEntry;
     const expected = expectedLayout[index];
     expect(actual).toEqual(expected);
   }

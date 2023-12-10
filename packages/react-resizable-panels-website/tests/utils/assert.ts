@@ -1,16 +1,8 @@
-import { ImperativePanelGroupHandle } from "react-resizable-panels";
-import { ImperativePanelHandle } from "react-resizable-panels";
-
-export function assert(
-  expectedCondition: boolean,
-  message: string = "Assertion failed!"
-): asserts expectedCondition {
-  if (!expectedCondition) {
-    console.error(message);
-
-    throw Error(message);
-  }
-}
+import { assert } from "react-resizable-panels";
+import {
+  ImperativePanelGroupHandle,
+  ImperativePanelHandle,
+} from "react-resizable-panels";
 
 export function assertImperativePanelHandle(
   value: any

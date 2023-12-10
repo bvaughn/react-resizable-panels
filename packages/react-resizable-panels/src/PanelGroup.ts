@@ -7,6 +7,7 @@ import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterPa
 import { Direction } from "./types";
 import { adjustLayoutByDelta } from "./utils/adjustLayoutByDelta";
 import { areEqual } from "./utils/arrays";
+import { assert } from "./utils/assert";
 import { calculateDeltaPercentage } from "./utils/calculateDeltaPercentage";
 import { calculateUnsafeDefaultLayout } from "./utils/calculateUnsafeDefaultLayout";
 import { callPanelCallbacks } from "./utils/callPanelCallbacks";
@@ -214,14 +215,19 @@ function PanelGroupWithForwardedRef({
         return;
       }
 
+      let debouncedSave = debounceMap[autoSaveId];
+
       // Limit the frequency of localStorage updates.
-      if (!debounceMap[autoSaveId]) {
-        debounceMap[autoSaveId] = debounce(
+      if (debouncedSave == null) {
+        debouncedSave = debounce(
           savePanelGroupLayout,
           LOCAL_STORAGE_DEBOUNCE_INTERVAL
         );
+
+        debounceMap[autoSaveId] = debouncedSave;
       }
-      debounceMap[autoSaveId](autoSaveId, panelDataArray, layout, storage);
+
+      debouncedSave(autoSaveId, panelDataArray, layout, storage);
     }
   }, [autoSaveId, layout, storage]);
 
@@ -268,9 +274,12 @@ function PanelGroupWithForwardedRef({
           panelIndex < panelConstraints.length;
           panelIndex++
         ) {
+          const panelData = panelDataArray[panelIndex];
+          assert(panelData);
+
           const isValid = validatePanelConstraints({
             panelConstraints,
-            panelId: panelDataArray[panelIndex].id,
+            panelId: panelData.id,
             panelIndex,
           });
 
@@ -299,6 +308,8 @@ function PanelGroupWithForwardedRef({
         panelSize,
         pivotIndices,
       } = panelDataHelper(panelDataArray, panelData, prevLayout);
+
+      assert(panelSize != null);
 
       if (panelSize !== collapsedSize) {
         // Store size before collapse;
@@ -403,6 +414,8 @@ function PanelGroupWithForwardedRef({
 
     const { panelSize } = panelDataHelper(panelDataArray, panelData, layout);
 
+    assert(panelSize != null);
+
     return panelSize;
   }, []);
 
@@ -445,6 +458,8 @@ function PanelGroupWithForwardedRef({
       collapsible,
       panelSize,
     } = panelDataHelper(panelDataArray, panelData, layout);
+
+    assert(panelSize != null);
 
     return !collapsible || panelSize > collapsedSize;
   }, []);
@@ -633,6 +648,8 @@ function PanelGroupWithForwardedRef({
         prevLayout
       );
 
+      assert(panelSize != null);
+
       const isLastPanel =
         panelDataArray.indexOf(panelData) === panelDataArray.length - 1;
       const delta = isLastPanel
@@ -671,7 +688,8 @@ function PanelGroupWithForwardedRef({
       const { direction } = committedValuesRef.current;
       const { layout } = eagerValuesRef.current;
 
-      const handleElement = getResizeHandleElement(dragHandleId)!;
+      const handleElement = getResizeHandleElement(dragHandleId);
+      assert(handleElement);
 
       const initialCursorPosition = getResizeEventCursorPosition(
         direction,
@@ -875,7 +893,6 @@ function panelDataHelper(
 
   return {
     ...panelConstraints,
-    collapsible: panelConstraints.collapsible,
     panelSize,
     pivotIndices,
   };

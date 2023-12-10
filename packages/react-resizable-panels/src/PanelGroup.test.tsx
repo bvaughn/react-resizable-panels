@@ -6,10 +6,10 @@ import {
   PanelGroup,
   PanelResizeHandle,
 } from ".";
+import { assert } from "./utils/assert";
+import { getPanelGroupElement } from "./utils/dom/getPanelGroupElement";
 import { mockPanelGroupOffsetWidthAndHeight } from "./utils/test-utils";
 import { createRef } from "./vendor/react";
-import { getPanelGroupElement } from "./utils/dom/getPanelGroupElement";
-import assert from "assert";
 
 describe("PanelGroup", () => {
   let expectedWarnings: string[] = [];
@@ -68,13 +68,13 @@ describe("PanelGroup", () => {
         root.render(<PanelGroup direction="horizontal" id="one" ref={ref} />);
       });
 
-      expect(ref.current!.getId()).toBe("one");
+      expect(ref.current?.getId()).toBe("one");
 
       act(() => {
         root.render(<PanelGroup direction="horizontal" id="two" ref={ref} />);
       });
 
-      expect(ref.current!.getId()).toBe("two");
+      expect(ref.current?.getId()).toBe("two");
     });
 
     it("should get and set layouts", () => {
@@ -99,7 +99,7 @@ describe("PanelGroup", () => {
       expect(mostRecentLayout).toEqual([50, 50]);
 
       act(() => {
-        ref.current!.setLayout([25, 75]);
+        ref.current?.setLayout([25, 75]);
       });
 
       expect(mostRecentLayout).toEqual([25, 75]);
@@ -204,7 +204,7 @@ describe("PanelGroup", () => {
       expectWarning("Invalid layout total size: 60%, 80%");
 
       act(() => {
-        ref.current!.setLayout([60, 80]);
+        ref.current?.setLayout([60, 80]);
       });
     });
   });

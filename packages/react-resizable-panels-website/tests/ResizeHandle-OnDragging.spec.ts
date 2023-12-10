@@ -1,6 +1,11 @@
 import { expect, Page, test } from "@playwright/test";
 import { createElement } from "react";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import {
+  assert,
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+} from "react-resizable-panels";
 
 import { PanelResizeHandleDraggingLogEntry } from "../src/routes/examples/types";
 
@@ -37,19 +42,25 @@ async function openPage(page: Page) {
 
 async function verifyEntries(
   page: Page,
-  expected: Array<[handleId: string, isDragging: boolean]>
+  expectedLogEntries: Array<[handleId: string, isDragging: boolean]>
 ) {
   const logEntries = await getLogEntries<PanelResizeHandleDraggingLogEntry>(
     page,
     "onDragging"
   );
 
-  expect(logEntries.length).toEqual(expected.length);
+  expect(logEntries.length).toEqual(expectedLogEntries.length);
 
-  for (let index = 0; index < expected.length; index++) {
+  for (let index = 0; index < expectedLogEntries.length; index++) {
+    const actualLogEntry = logEntries[index];
+    assert(actualLogEntry);
     const { isDragging: isDraggingActual, resizeHandleId: handleIdActual } =
-      logEntries[index];
-    const [handleIdExpected, isDraggingExpected] = expected[index];
+      actualLogEntry;
+
+    const expectedEntry = expectedLogEntries[index];
+    assert(expectedEntry);
+    const [handleIdExpected, isDraggingExpected] = expectedEntry;
+
     expect(handleIdExpected).toEqual(handleIdActual);
     expect(isDraggingExpected).toEqual(isDraggingActual);
   }

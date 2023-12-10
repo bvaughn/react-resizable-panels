@@ -1,6 +1,7 @@
 import { Panel } from "./Panel";
 import { PanelGroup } from "./PanelGroup";
 import { PanelResizeHandle } from "./PanelResizeHandle";
+import { assert } from "./utils/assert";
 
 import type {
   ImperativePanelHandle,
@@ -33,6 +34,9 @@ export {
   PanelProps,
   PanelResizeHandleOnDragging,
   PanelResizeHandleProps,
+
+  // Utiltiy methods
+  assert,
 
   // React components
   Panel,

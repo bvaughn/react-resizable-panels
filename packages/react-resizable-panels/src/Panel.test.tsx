@@ -1,7 +1,7 @@
-import assert from "assert";
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from ".";
+import { assert } from "./utils/assert";
 import { getPanelElement } from "./utils/dom/getPanelElement";
 import {
   mockPanelGroupOffsetWidthAndHeight,
@@ -86,43 +86,49 @@ describe("PanelGroup", () => {
       });
 
       it("should expand and collapse the first panel in a group", () => {
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
+        assert(mostRecentLayout);
+
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
         act(() => {
-          leftPanelRef.current!.collapse();
+          leftPanelRef.current?.collapse();
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [0, 100]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [0, 100]);
         act(() => {
-          leftPanelRef.current!.expand();
+          leftPanelRef.current?.expand();
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
       });
 
       it("should expand and collapse the last panel in a group", () => {
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
+        assert(mostRecentLayout);
+
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
         act(() => {
-          rightPanelRef.current!.collapse();
+          rightPanelRef.current?.collapse();
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [100, 0]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [100, 0]);
         act(() => {
-          rightPanelRef.current!.expand();
+          rightPanelRef.current?.expand();
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
       });
 
       it("should re-expand to the most recent size before collapsing", () => {
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
+        assert(mostRecentLayout);
+
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
         act(() => {
-          leftPanelRef.current!.resize(30);
+          leftPanelRef.current?.resize(30);
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [30, 70]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [30, 70]);
         act(() => {
-          leftPanelRef.current!.collapse();
+          leftPanelRef.current?.collapse();
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [0, 100]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [0, 100]);
         act(() => {
-          leftPanelRef.current!.expand();
+          leftPanelRef.current?.expand();
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [30, 70]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [30, 70]);
       });
     });
 
@@ -158,27 +164,33 @@ describe("PanelGroup", () => {
       });
 
       it("should resize the first panel in a group", () => {
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 60, 20]);
+        assert(mostRecentLayout);
+
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 60, 20]);
         act(() => {
-          leftPanelRef.current!.resize(40);
+          leftPanelRef.current?.resize(40);
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [40, 40, 20]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [40, 40, 20]);
       });
 
       it("should resize the middle panel in a group", () => {
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 60, 20]);
+        assert(mostRecentLayout);
+
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 60, 20]);
         act(() => {
-          middlePanelRef.current!.resize(40);
+          middlePanelRef.current?.resize(40);
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 40, 40]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 40, 40]);
       });
 
       it("should resize the last panel in a group", () => {
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 60, 20]);
+        assert(mostRecentLayout);
+
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 60, 20]);
         act(() => {
-          rightPanelRef.current!.resize(40);
+          rightPanelRef.current?.resize(40);
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 40, 40]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 40, 40]);
       });
     });
   });
