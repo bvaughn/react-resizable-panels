@@ -313,7 +313,8 @@ function PanelGroupWithForwardedRef({
         panelSizeBeforeCollapseRef.current.set(panelData.id, panelSize);
 
         const isLastPanel =
-          panelDataArray.indexOf(panelData) === panelDataArray.length - 1;
+          findPanelDataIndex(panelDataArray, panelData) ===
+          panelDataArray.length - 1;
         const delta = isLastPanel
           ? panelSize - collapsedSize
           : collapsedSize - panelSize;
@@ -374,7 +375,8 @@ function PanelGroupWithForwardedRef({
             : minSize;
 
         const isLastPanel =
-          panelDataArray.indexOf(panelData) === panelDataArray.length - 1;
+          findPanelDataIndex(panelDataArray, panelData) ===
+          panelDataArray.length - 1;
         const delta = isLastPanel ? panelSize - baseSize : baseSize - panelSize;
 
         const nextLayout = adjustLayoutByDelta({
@@ -420,7 +422,7 @@ function PanelGroupWithForwardedRef({
     (panelData: PanelData) => {
       const { panelDataArray } = eagerValuesRef.current;
 
-      const panelIndex = panelDataArray.indexOf(panelData);
+      const panelIndex = findPanelDataIndex(panelDataArray, panelData);
 
       return computePanelFlexBoxStyle({
         dragState,
@@ -468,6 +470,19 @@ function PanelGroupWithForwardedRef({
       storage,
     } = committedValuesRef.current;
     const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
+
+    // HACK
+    // This appears to be triggered by some React Suspense+Offscreen+StrictMode bug;
+    // see app.replay.io/recording/17b6e11d-4500-4173-b23d-61dfd141fed1
+    const index = findPanelDataIndex(panelDataArray, panelData);
+    if (index >= 0) {
+      if (panelData.idIsFromProps) {
+        console.warn(`Panel with id "${panelData.id}" registered twice`);
+      } else {
+        console.warn(`Panel registered twice`);
+      }
+      return;
+    }
 
     panelDataArray.push(panelData);
     panelDataArray.sort((panelA, panelB) => {
@@ -647,7 +662,8 @@ function PanelGroupWithForwardedRef({
       assert(panelSize != null);
 
       const isLastPanel =
-        panelDataArray.indexOf(panelData) === panelDataArray.length - 1;
+        findPanelDataIndex(panelDataArray, panelData) ===
+        panelDataArray.length - 1;
       const delta = isLastPanel
         ? panelSize - unsafePanelSize
         : unsafePanelSize - panelSize;
@@ -718,7 +734,7 @@ function PanelGroupWithForwardedRef({
     const { onLayout } = committedValuesRef.current;
     const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
-    const index = panelDataArray.indexOf(panelData);
+    const index = findPanelDataIndex(panelDataArray, panelData);
     if (index >= 0) {
       panelDataArray.splice(index, 1);
       unregisterPanelRef.current.pendingPanelIds.add(panelData.id);
@@ -733,7 +749,8 @@ function PanelGroupWithForwardedRef({
     // We can't check the DOM to detect this because Panel elements have not yet been removed.
     unregisterPanelRef.current.timeout = setTimeout(() => {
       const { pendingPanelIds } = unregisterPanelRef.current;
-      const map = panelIdToLastNotifiedSizeMapRef.current;
+      const panelIdToLastNotifiedSizeMap =
+        panelIdToLastNotifiedSizeMapRef.current;
 
       // TRICKY
       // Strict effects mode
@@ -741,18 +758,18 @@ function PanelGroupWithForwardedRef({
       pendingPanelIds.forEach((panelId) => {
         pendingPanelIds.delete(panelId);
 
-        if (panelDataArray.find(({ id }) => id === panelId) == null) {
+        if (panelDataArray.find(({ id }) => id === panelId) != null) {
           unmountDueToStrictMode = true;
-
+        } else {
           // TRICKY
           // When a panel is removed from the group, we should delete the most recent prev-size entry for it.
           // If we don't do this, then a conditionally rendered panel might not call onResize when it's re-mounted.
           // Strict effects mode makes this tricky though because all panels will be registered, unregistered, then re-registered on mount.
-          delete map[panelData.id];
+          delete panelIdToLastNotifiedSizeMap[panelId];
         }
       });
 
-      if (!unmountDueToStrictMode) {
+      if (unmountDueToStrictMode) {
         return;
       }
 
@@ -868,6 +885,13 @@ export const PanelGroup = forwardRef<
 PanelGroupWithForwardedRef.displayName = "PanelGroup";
 PanelGroup.displayName = "forwardRef(PanelGroup)";
 
+function findPanelDataIndex(panelDataArray: PanelData[], panelData: PanelData) {
+  return panelDataArray.findIndex(
+    (prevPanelData) =>
+      prevPanelData === panelData || prevPanelData.id === panelData.id
+  );
+}
+
 function panelDataHelper(
   panelDataArray: PanelData[],
   panelData: PanelData,
@@ -877,7 +901,7 @@ function panelDataHelper(
     (panelData) => panelData.constraints
   );
 
-  const panelIndex = panelDataArray.indexOf(panelData);
+  const panelIndex = findPanelDataIndex(panelDataArray, panelData);
   const panelConstraints = panelConstraintsArray[panelIndex];
 
   const isLastPanel = panelIndex === panelDataArray.length - 1;
