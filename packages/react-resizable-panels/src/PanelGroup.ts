@@ -225,7 +225,9 @@ function PanelGroupWithForwardedRef({
         debounceMap[autoSaveId] = debouncedSave;
       }
 
-      debouncedSave(autoSaveId, panelDataArray, layout, storage);
+      // Clone panel data array before saving since this array is mutated.
+      // If we don't clone, we run the risk of saving the wrong panel and layout pair.
+      debouncedSave(autoSaveId, [...panelDataArray], layout, storage);
     }
   }, [autoSaveId, layout, storage]);
 

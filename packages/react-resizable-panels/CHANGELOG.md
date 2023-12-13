@@ -1,6 +1,10 @@
 # Changelog
 
-## 1.0.0
+## 1.0.1
+
+- Small bug fix to guard against saving an incorrect panel layout to local storage
+
+# 1.0.0
 
 - Remove support for pixel-based Panel constraints; (props like `defaultSizePercentage` should now be `defaultSize`)
 - Replaced `dataAttributes` prop with `...rest` prop that supports all HTML attributes
