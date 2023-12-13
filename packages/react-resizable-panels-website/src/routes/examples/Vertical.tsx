@@ -35,18 +35,14 @@ function Content() {
       <PanelGroup className={styles.PanelGroup} direction="vertical">
         <Panel
           className={styles.PanelColumn}
-          defaultSizePercentage={50}
-          maxSizePercentage={75}
-          minSizePercentage={10}
+          defaultSize={50}
+          maxSize={75}
+          minSize={10}
         >
           <div className={styles.Centered}>top</div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
-        <Panel
-          className={styles.PanelColumn}
-          maxSizePercentage={75}
-          minSizePercentage={10}
-        >
+        <Panel className={styles.PanelColumn} maxSize={75} minSize={10}>
           <div className={styles.Centered}>bottom</div>
         </Panel>
       </PanelGroup>
@@ -56,11 +52,11 @@ function Content() {
 
 const CODE = `
 <PanelGroup direction="vertical">
-  <Panel maxSizePercentage={75}>
+  <Panel maxSize={75}>
     top
   </Panel>
   <PanelResizeHandle />
-  <Panel maxSizePercentage={75}>
+  <Panel maxSize={75}>
     bottom
   </Panel>
 </PanelGroup>

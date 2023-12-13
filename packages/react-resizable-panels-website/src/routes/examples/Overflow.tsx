@@ -54,11 +54,7 @@ function Content() {
         className={styles.PanelGroup}
         direction={useVerticalLayout ? "vertical" : "horizontal"}
       >
-        <Panel
-          className={styles.PanelColumn}
-          defaultSizePercentage={50}
-          minSizePercentage={25}
-        >
+        <Panel className={styles.PanelColumn} defaultSize={50} minSize={25}>
           <div
             className={styles.Centered}
             style={{ backgroundColor: "var(--color-background-code)" }}
@@ -72,11 +68,7 @@ function Content() {
           </div>
         </Panel>
         <ResizeHandle className={styles.ResizeHandle} />
-        <Panel
-          className={styles.PanelColumn}
-          defaultSizePercentage={50}
-          minSizePercentage={25}
-        >
+        <Panel className={styles.PanelColumn} defaultSize={50} minSize={25}>
           <div
             className={styles.Centered}
             style={{ backgroundColor: "var(--color-background-code)" }}

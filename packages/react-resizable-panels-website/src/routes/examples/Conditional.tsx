@@ -66,34 +66,19 @@ function Content({
       >
         {showLeftPanel && (
           <>
-            <Panel
-              className={styles.Panel}
-              id="left"
-              minSizePercentage={10}
-              order={1}
-            >
+            <Panel className={styles.Panel} id="left" minSize={10} order={1}>
               <div className={styles.Centered}>left</div>
             </Panel>
             <ResizeHandle className={styles.ResizeHandle} />
           </>
         )}
-        <Panel
-          className={styles.Panel}
-          id="center"
-          minSizePercentage={10}
-          order={2}
-        >
+        <Panel className={styles.Panel} id="center" minSize={10} order={2}>
           <div className={styles.Centered}>middle</div>
         </Panel>
         {showRightPanel && (
           <>
             <ResizeHandle className={styles.ResizeHandle} />
-            <Panel
-              className={styles.Panel}
-              id="right"
-              minSizePercentage={10}
-              order={3}
-            >
+            <Panel className={styles.Panel} id="right" minSize={10} order={3}>
               <div className={styles.Centered}>right</div>
             </Panel>
           </>

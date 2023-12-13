@@ -28,7 +28,6 @@ describe("calculateUnsafeDefaultLayout", () => {
   it("should assign even sizes for every panel by default", () => {
     expectToBeCloseToArray(
       calculateUnsafeDefaultLayout({
-        groupSizePixels: 100_000,
         panelDataArray: [createPanelData()],
       }),
       [100]
@@ -36,7 +35,6 @@ describe("calculateUnsafeDefaultLayout", () => {
 
     expectToBeCloseToArray(
       calculateUnsafeDefaultLayout({
-        groupSizePixels: 100_000,
         panelDataArray: [createPanelData(), createPanelData()],
       }),
       [50, 50]
@@ -44,7 +42,6 @@ describe("calculateUnsafeDefaultLayout", () => {
 
     expectToBeCloseToArray(
       calculateUnsafeDefaultLayout({
-        groupSizePixels: 100_000,
         panelDataArray: [
           createPanelData(),
           createPanelData(),
@@ -58,13 +55,12 @@ describe("calculateUnsafeDefaultLayout", () => {
   it("should respect default panel size constraints", () => {
     expectToBeCloseToArray(
       calculateUnsafeDefaultLayout({
-        groupSizePixels: 100_000,
         panelDataArray: [
           createPanelData({
-            defaultSizePercentage: 15,
+            defaultSize: 15,
           }),
           createPanelData({
-            defaultSizePercentage: 85,
+            defaultSize: 85,
           }),
         ],
       }),
@@ -75,14 +71,13 @@ describe("calculateUnsafeDefaultLayout", () => {
   it("should ignore min and max panel size constraints", () => {
     expectToBeCloseToArray(
       calculateUnsafeDefaultLayout({
-        groupSizePixels: 100_000,
         panelDataArray: [
           createPanelData({
-            minSizePercentage: 40,
+            minSize: 40,
           }),
           createPanelData(),
           createPanelData({
-            maxSizePercentage: 10,
+            maxSize: 10,
           }),
         ],
       }),

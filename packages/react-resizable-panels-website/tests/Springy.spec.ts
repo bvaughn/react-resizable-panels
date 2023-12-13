@@ -4,30 +4,30 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import { dragResizeTo } from "./utils/panels";
 import { goToUrl } from "./utils/url";
-import { verifySizesPercentages } from "./utils/verify";
+import { verifySizes } from "./utils/verify";
 
 async function openPage(page: Page) {
   const panelGroup = createElement(
     PanelGroup,
     { direction: "horizontal", id: "group" },
     createElement(Panel, {
-      defaultSizePercentage: 25,
+      defaultSize: 25,
       id: "left-panel",
-      minSizePercentage: 10,
+      minSize: 10,
       order: 1,
     }),
     createElement(PanelResizeHandle, { id: "left-handle" }),
     createElement(Panel, {
       id: "middle-panel",
-      minSizePercentage: 10,
+      minSize: 10,
       order: 2,
     }),
     createElement(PanelResizeHandle, { id: "right-handle" }),
     createElement(Panel, {
       collapsible: true,
-      defaultSizePercentage: 25,
+      defaultSize: 25,
       id: "right-panel",
-      minSizePercentage: 10,
+      minSize: 10,
       order: 4,
     })
   );
@@ -43,7 +43,7 @@ test.describe("springy panels", () => {
   test("later panels should be springy when expanding then collapsing the first panel", async ({
     page,
   }) => {
-    await verifySizesPercentages(page, 25, 50, 25);
+    await verifySizes(page, 25, 50, 25);
 
     // Test expanding the first panel
     await dragResizeTo(
@@ -60,7 +60,7 @@ test.describe("springy panels", () => {
   test("earlier panels should be springy when expanding then collapsing the last panel", async ({
     page,
   }) => {
-    await verifySizesPercentages(page, 25, 50, 25);
+    await verifySizes(page, 25, 50, 25);
 
     // Test expanding the last panel
     await dragResizeTo(
@@ -77,7 +77,7 @@ test.describe("springy panels", () => {
   test("panels should remember a max spring point per drag", async ({
     page,
   }) => {
-    await verifySizesPercentages(page, 25, 50, 25);
+    await verifySizes(page, 25, 50, 25);
 
     await dragResizeTo(page, "left-panel", {
       size: 70,

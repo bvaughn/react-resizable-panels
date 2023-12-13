@@ -3,25 +3,22 @@ import {
   Component,
   ErrorInfo,
   PropsWithChildren,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
 import {
   ImperativePanelGroupHandle,
   ImperativePanelHandle,
-  MixedSizes,
+  assert,
 } from "react-resizable-panels";
-
-import { urlPanelGroupToPanelGroup, urlToUrlData } from "../../utils/UrlData";
-
-import DebugLog, { ImperativeDebugLogHandle } from "../examples/DebugLog";
-
-import { useLayoutEffect } from "react";
 import {
   assertImperativePanelGroupHandle,
   assertImperativePanelHandle,
 } from "../../../tests/utils/assert";
 import Icon from "../../components/Icon";
+import { urlPanelGroupToPanelGroup, urlToUrlData } from "../../utils/UrlData";
+import DebugLog, { ImperativeDebugLogHandle } from "../examples/DebugLog";
 import "./styles.css";
 import styles from "./styles.module.css";
 
@@ -54,10 +51,7 @@ function EndToEndTesting() {
   const [panelIds, setPanelIds] = useState<string[]>([]);
   const [panelGroupId, setPanelGroupId] = useState("");
   const [panelGroupIds, setPanelGroupIds] = useState<string[]>([]);
-  const [sizePercentage, setSizePercentage] = useState<number | undefined>(
-    undefined
-  );
-  const [sizePixels, setSizePixels] = useState<number | undefined>(undefined);
+  const [size, setSize] = useState<number>(0);
   const [layoutString, setLayoutString] = useState("");
 
   const debugLogRef = useRef<ImperativeDebugLogHandle>(null);
@@ -71,16 +65,24 @@ function EndToEndTesting() {
       const panelIds = Array.from(panelElements).map(
         (element) => element.getAttribute("data-panel-id")!
       );
+
+      const firstPanelId = panelIds[0];
+      assert(firstPanelId != null);
+
       setPanelIds(panelIds);
-      setPanelId(panelIds[0]);
+      setPanelId(firstPanelId);
 
       const panelGroupElements =
         document.querySelectorAll("[data-panel-group]");
       const panelGroupIds = Array.from(panelGroupElements).map(
         (element) => element.getAttribute("data-panel-group-id")!
       );
+
+      const firstPanelGroupId = panelGroupIds[0];
+      assert(firstPanelGroupId != null);
+
       setPanelGroupIds(panelGroupIds);
-      setPanelGroupId(panelGroupIds[0]);
+      setPanelGroupId(firstPanelGroupId);
     };
 
     window.addEventListener("popstate", (event) => {
@@ -110,11 +112,9 @@ function EndToEndTesting() {
             panelId
           ) as ImperativePanelHandle;
           if (panel != null) {
-            const { sizePercentage, sizePixels } = panel.getSize();
+            const size = panel.getSize();
 
-            panelElement.textContent = `${sizePercentage.toFixed(
-              1
-            )}%\n${sizePixels.toFixed(1)}px`;
+            panelElement.textContent = `${size.toFixed(1)}%`;
           }
         }
       }, 0);
@@ -171,15 +171,7 @@ function EndToEndTesting() {
   const onSizeInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.currentTarget.value;
 
-    if (value.endsWith("%")) {
-      setSizePercentage(parseFloat(value));
-      setSizePixels(undefined);
-    } else if (value.endsWith("px")) {
-      setSizePercentage(undefined);
-      setSizePixels(parseFloat(value));
-    } else {
-      throw Error(`Invalid size: ${value}`);
-    }
+    setSize(parseFloat(value));
   };
 
   const onCollapseButtonClick = () => {
@@ -202,7 +194,7 @@ function EndToEndTesting() {
     const idToRefMap = idToRefMapRef.current;
     const panel = idToRefMap.get(panelId);
     if (panel && assertImperativePanelHandle(panel)) {
-      panel.resize({ sizePercentage, sizePixels });
+      panel.resize(size);
     }
   };
 
@@ -214,15 +206,9 @@ function EndToEndTesting() {
         1,
         layoutString.length - 1
       );
-      const layout = trimmedLayoutString.split(",").map((text) => {
-        if (text.endsWith("%")) {
-          return { sizePercentage: parseFloat(text) };
-        } else if (text.endsWith("px")) {
-          return { sizePixels: parseFloat(text) };
-        } else {
-          throw Error(`Invalid layout: ${layoutString}`);
-        }
-      }) satisfies Partial<MixedSizes>[];
+      const layout = trimmedLayoutString
+        .split(",")
+        .map((text) => parseFloat(text));
       panelGroup.setLayout(layout);
     }
   };

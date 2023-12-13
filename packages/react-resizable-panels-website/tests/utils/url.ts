@@ -27,7 +27,7 @@ export async function updateUrl(
   await page.evaluate(
     ([encodedString]) => {
       const url = new URL(window.location.href);
-      url.searchParams.set("urlPanelGroup", encodedString);
+      url.searchParams.set("urlPanelGroup", encodedString ?? "");
 
       window.history.pushState(
         { urlPanelGroup: encodedString },

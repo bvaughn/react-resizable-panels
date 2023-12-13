@@ -2,11 +2,13 @@ import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import {
   ImperativePanelGroupHandle,
-  MixedSizes,
+  ImperativePanelHandle,
   Panel,
   PanelGroup,
   PanelResizeHandle,
 } from ".";
+import { assert } from "./utils/assert";
+import { getPanelGroupElement } from "./utils/dom/getPanelGroupElement";
 import { mockPanelGroupOffsetWidthAndHeight } from "./utils/test-utils";
 import { createRef } from "./vendor/react";
 
@@ -67,62 +69,124 @@ describe("PanelGroup", () => {
         root.render(<PanelGroup direction="horizontal" id="one" ref={ref} />);
       });
 
-      expect(ref.current!.getId()).toBe("one");
+      expect(ref.current?.getId()).toBe("one");
 
       act(() => {
         root.render(<PanelGroup direction="horizontal" id="two" ref={ref} />);
       });
 
-      expect(ref.current!.getId()).toBe("two");
+      expect(ref.current?.getId()).toBe("two");
     });
 
     it("should get and set layouts", () => {
       const ref = createRef<ImperativePanelGroupHandle>();
 
-      let mostRecentLayout: MixedSizes[] | null = null;
+      let mostRecentLayout: number[] | null = null;
 
-      const onLayout = (layout: MixedSizes[]) => {
+      const onLayout = (layout: number[]) => {
         mostRecentLayout = layout;
       };
 
       act(() => {
         root.render(
           <PanelGroup direction="horizontal" onLayout={onLayout} ref={ref}>
-            <Panel defaultSizePercentage={50} id="a" />
+            <Panel defaultSize={50} id="a" />
             <PanelResizeHandle />
-            <Panel defaultSizePercentage={50} id="b" />
+            <Panel defaultSize={50} id="b" />
           </PanelGroup>
         );
       });
 
-      expect(mostRecentLayout).toEqual([
-        {
-          sizePercentage: 50,
-          sizePixels: 500,
-        },
-        {
-          sizePercentage: 50,
-          sizePixels: 500,
-        },
-      ]);
+      expect(mostRecentLayout).toEqual([50, 50]);
 
       act(() => {
-        ref.current!.setLayout([
-          { sizePercentage: 25 },
-          { sizePercentage: 75 },
-        ]);
+        ref.current?.setLayout([25, 75]);
       });
 
-      expect(mostRecentLayout).toEqual([
-        {
-          sizePercentage: 25,
-          sizePixels: 250,
-        },
-        {
-          sizePercentage: 75,
-          sizePixels: 750,
-        },
-      ]);
+      expect(mostRecentLayout).toEqual([25, 75]);
+    });
+  });
+
+  it("should support ...rest attributes", () => {
+    act(() => {
+      root.render(
+        <PanelGroup
+          data-test-name="foo"
+          direction="horizontal"
+          id="group"
+          tabIndex={123}
+          title="bar"
+        >
+          <Panel />
+          <PanelResizeHandle />
+          <Panel />
+        </PanelGroup>
+      );
+    });
+
+    const element = getPanelGroupElement("group");
+    assert(element);
+    expect(element.tabIndex).toBe(123);
+    expect(element.getAttribute("data-test-name")).toBe("foo");
+    expect(element.title).toBe("bar");
+  });
+
+  describe("callbacks", () => {
+    describe("onLayout", () => {
+      it("should be called with the initial group layout on mount", () => {
+        let onLayout = jest.fn();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal" onLayout={onLayout}>
+              <Panel defaultSize={35} />
+              <PanelResizeHandle />
+              <Panel defaultSize={65} />
+            </PanelGroup>
+          );
+        });
+
+        expect(onLayout).toHaveBeenCalledTimes(1);
+        expect(onLayout).toHaveBeenCalledWith([35, 65]);
+      });
+
+      it("should be called any time the group layout changes", () => {
+        let onLayout = jest.fn();
+        let panelGroupRef = createRef<ImperativePanelGroupHandle>();
+        let panelRef = createRef<ImperativePanelHandle>();
+
+        act(() => {
+          root.render(
+            <PanelGroup
+              direction="horizontal"
+              onLayout={onLayout}
+              ref={panelGroupRef}
+            >
+              <Panel defaultSize={35} ref={panelRef} />
+              <PanelResizeHandle />
+              <Panel defaultSize={65} />
+            </PanelGroup>
+          );
+        });
+
+        onLayout.mockReset();
+
+        act(() => {
+          panelGroupRef.current?.setLayout([25, 75]);
+        });
+
+        expect(onLayout).toHaveBeenCalledTimes(1);
+        expect(onLayout).toHaveBeenCalledWith([25, 75]);
+
+        onLayout.mockReset();
+
+        act(() => {
+          panelRef.current?.resize(50);
+        });
+
+        expect(onLayout).toHaveBeenCalledTimes(1);
+        expect(onLayout).toHaveBeenCalledWith([50, 50]);
+      });
     });
   });
 
@@ -131,7 +195,7 @@ describe("PanelGroup", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal">
-            <Panel defaultSizePercentage={100} id="a" />
+            <Panel defaultSize={100} id="a" />
           </PanelGroup>
         );
       });
@@ -143,9 +207,9 @@ describe("PanelGroup", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal">
-            <Panel defaultSizePercentage={50} id="a" />
+            <Panel defaultSize={50} id="a" />
             <PanelResizeHandle />
-            <Panel defaultSizePercentage={50} id="b" />
+            <Panel defaultSize={50} id="b" />
           </PanelGroup>
         );
       });
@@ -172,9 +236,9 @@ describe("PanelGroup", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal" id="group-without-handle">
-            <Panel defaultSizePercentage={60} />
+            <Panel defaultSize={60} />
             <PanelResizeHandle />
-            <Panel defaultSizePercentage={80} />
+            <Panel defaultSize={80} />
           </PanelGroup>
         );
       });
@@ -190,9 +254,9 @@ describe("PanelGroup", () => {
             id="group-without-handle"
             ref={ref}
           >
-            <Panel defaultSizePercentage={30} />
+            <Panel defaultSize={30} />
             <PanelResizeHandle />
-            <Panel defaultSizePercentage={70} />
+            <Panel defaultSize={70} />
           </PanelGroup>
         );
       });
@@ -200,10 +264,7 @@ describe("PanelGroup", () => {
       expectWarning("Invalid layout total size: 60%, 80%");
 
       act(() => {
-        ref.current!.setLayout([
-          { sizePercentage: 60 },
-          { sizePercentage: 80 },
-        ]);
+        ref.current?.setLayout([60, 80]);
       });
     });
   });

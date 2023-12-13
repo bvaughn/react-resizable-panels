@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.0
+
+- Remove support for pixel-based Panel constraints; (props like `defaultSizePercentage` should now be `defaultSize`)
+- Replaced `dataAttributes` prop with `...rest` prop that supports all HTML attributes
+
 ## 0.0.63
 
 - Change default (not-yet-registered) Panel flex-grow style from 0 to 1

@@ -1,8 +1,7 @@
 import { Panel } from "./Panel";
 import { PanelGroup } from "./PanelGroup";
 import { PanelResizeHandle } from "./PanelResizeHandle";
-
-import type { MixedSizes } from "./types";
+import { assert } from "./utils/assert";
 
 import type {
   ImperativePanelHandle,
@@ -26,7 +25,6 @@ export {
   // TypeScript types
   ImperativePanelGroupHandle,
   ImperativePanelHandle,
-  MixedSizes,
   PanelGroupOnLayout,
   PanelGroupProps,
   PanelGroupStorage,
@@ -36,6 +34,9 @@ export {
   PanelProps,
   PanelResizeHandleOnDragging,
   PanelResizeHandleProps,
+
+  // Utiltiy methods
+  assert,
 
   // React components
   Panel,

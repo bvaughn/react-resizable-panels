@@ -1,4 +1,4 @@
-import { MixedSizes } from "../types";
+import { assert } from "./assert";
 
 const util = require("util");
 
@@ -11,6 +11,8 @@ export function expectToBeCloseToArray(
   try {
     actualNumbers.forEach((actualNumber, index) => {
       const expectedNumber = expectedNumbers[index];
+      assert(expectedNumber != null);
+
       expect(actualNumber).toBeCloseTo(expectedNumber, 1);
     });
   } catch (error) {
@@ -74,13 +76,10 @@ export function mockPanelGroupOffsetWidthAndHeight(
 }
 
 export function verifyExpandedPanelGroupLayout(
-  actualLayout: MixedSizes[],
-  expectedPercentages: number[]
+  actualLayout: number[],
+  expectedLayout: number[]
 ) {
-  expect(actualLayout).toHaveLength(expectedPercentages.length);
-  expect(actualLayout.map(({ sizePercentage }) => sizePercentage)).toEqual(
-    expectedPercentages
-  );
+  expect(actualLayout).toEqual(expectedLayout);
 }
 
 export function verifyExpectedWarnings(

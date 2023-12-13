@@ -27,7 +27,6 @@ describe("calculateAriaValues", () => {
   it("should work correctly for panels with no min/max constraints", () => {
     expect(
       calculateAriaValues({
-        groupSizePixels: 1_000,
         layout: [50, 50],
         panelsArray: [createPanelData(), createPanelData()],
         pivotIndices: [0, 1],
@@ -40,7 +39,6 @@ describe("calculateAriaValues", () => {
 
     expect(
       calculateAriaValues({
-        groupSizePixels: 1_000,
         layout: [20, 50, 30],
         panelsArray: [createPanelData(), createPanelData(), createPanelData()],
         pivotIndices: [0, 1],
@@ -53,7 +51,6 @@ describe("calculateAriaValues", () => {
 
     expect(
       calculateAriaValues({
-        groupSizePixels: 1_000,
         layout: [20, 50, 30],
         panelsArray: [createPanelData(), createPanelData(), createPanelData()],
         pivotIndices: [1, 2],
@@ -68,12 +65,11 @@ describe("calculateAriaValues", () => {
   it("should work correctly for panels with min/max constraints", () => {
     expect(
       calculateAriaValues({
-        groupSizePixels: 1_000,
         layout: [25, 75],
         panelsArray: [
           createPanelData({
-            maxSizePercentage: 35,
-            minSizePercentage: 10,
+            maxSize: 35,
+            minSize: 10,
           }),
           createPanelData(),
         ],
@@ -87,17 +83,16 @@ describe("calculateAriaValues", () => {
 
     expect(
       calculateAriaValues({
-        groupSizePixels: 1_000,
         layout: [25, 50, 25],
         panelsArray: [
           createPanelData({
-            maxSizePercentage: 35,
-            minSizePercentage: 10,
+            maxSize: 35,
+            minSize: 10,
           }),
           createPanelData(),
           createPanelData({
-            maxSizePercentage: 35,
-            minSizePercentage: 10,
+            maxSize: 35,
+            minSize: 10,
           }),
         ],
         pivotIndices: [1, 2],

@@ -46,7 +46,8 @@ export function useWindowSplitterResizeHandlerBehavior({
         case "F6": {
           event.preventDefault();
 
-          const groupId = handleElement.getAttribute("data-panel-group-id")!;
+          const groupId = handleElement.getAttribute("data-panel-group-id");
+          assert(groupId);
 
           const handles = getResizeHandleElementsForGroup(groupId);
           const index = getResizeHandleElementIndex(groupId, handleId);

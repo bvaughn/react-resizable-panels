@@ -4,35 +4,30 @@ import { DragState, PanelGroupContext, ResizeEvent } from "./PanelGroupContext";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
 import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterPanelGroupBehavior";
-import { DataAttributes, Direction, MixedSizes } from "./types";
+import { Direction } from "./types";
 import { adjustLayoutByDelta } from "./utils/adjustLayoutByDelta";
 import { areEqual } from "./utils/arrays";
+import { assert } from "./utils/assert";
 import { calculateDeltaPercentage } from "./utils/calculateDeltaPercentage";
 import { calculateUnsafeDefaultLayout } from "./utils/calculateUnsafeDefaultLayout";
 import { callPanelCallbacks } from "./utils/callPanelCallbacks";
 import { compareLayouts } from "./utils/compareLayouts";
 import { computePanelFlexBoxStyle } from "./utils/computePanelFlexBoxStyle";
-import { computePercentagePanelConstraints } from "./utils/computePercentagePanelConstraints";
-import { convertPercentageToPixels } from "./utils/convertPercentageToPixels";
 import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
 import debounce from "./utils/debounce";
 import { determinePivotIndices } from "./utils/determinePivotIndices";
-import { calculateAvailablePanelSizeInPixels } from "./utils/dom/calculateAvailablePanelSizeInPixels";
-import { getPanelElementsForGroup } from "./utils/dom/getPanelElementsForGroup";
-import { getPanelGroupElement } from "./utils/dom/getPanelGroupElement";
 import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
 import { isKeyDown, isMouseEvent, isTouchEvent } from "./utils/events";
-import { getPercentageSizeFromMixedSizes } from "./utils/getPercentageSizeFromMixedSizes";
 import { getResizeEventCursorPosition } from "./utils/getResizeEventCursorPosition";
 import { initializeDefaultStorage } from "./utils/initializeDefaultStorage";
 import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
-import { shouldMonitorPixelBasedConstraints } from "./utils/shouldMonitorPixelBasedConstraints";
 import { validatePanelConstraints } from "./utils/validatePanelConstraints";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 import {
   CSSProperties,
   ElementType,
   ForwardedRef,
+  HTMLAttributes,
   PropsWithChildren,
   createElement,
   forwardRef,
@@ -48,8 +43,8 @@ const LOCAL_STORAGE_DEBOUNCE_INTERVAL = 100;
 
 export type ImperativePanelGroupHandle = {
   getId: () => string;
-  getLayout: () => MixedSizes[];
-  setLayout: (layout: Partial<MixedSizes>[]) => void;
+  getLayout: () => number[];
+  setLayout: (layout: number[]) => void;
 };
 
 export type PanelGroupStorage = {
@@ -57,7 +52,7 @@ export type PanelGroupStorage = {
   setItem(name: string, value: string): void;
 };
 
-export type PanelGroupOnLayout = (layout: MixedSizes[]) => void;
+export type PanelGroupOnLayout = (layout: number[]) => void;
 
 const defaultStorage: PanelGroupStorage = {
   getItem: (name: string) => {
@@ -70,19 +65,18 @@ const defaultStorage: PanelGroupStorage = {
   },
 };
 
-export type PanelGroupProps = PropsWithChildren<{
-  autoSaveId?: string | null;
-  className?: string;
-  dataAttributes?: DataAttributes;
-  direction: Direction;
-  id?: string | null;
-  keyboardResizeByPercentage?: number | null;
-  keyboardResizeByPixels?: number | null;
-  onLayout?: PanelGroupOnLayout | null;
-  storage?: PanelGroupStorage;
-  style?: CSSProperties;
-  tagName?: ElementType;
-}>;
+export type PanelGroupProps = Omit<HTMLAttributes<ElementType>, "id"> &
+  PropsWithChildren<{
+    autoSaveId?: string | null;
+    className?: string;
+    direction: Direction;
+    id?: string | null;
+    keyboardResizeBy?: number | null;
+    onLayout?: PanelGroupOnLayout | null;
+    storage?: PanelGroupStorage;
+    style?: CSSProperties;
+    tagName?: ElementType;
+  }>;
 
 const debounceMap: {
   [key: string]: typeof savePanelGroupLayout;
@@ -92,16 +86,15 @@ function PanelGroupWithForwardedRef({
   autoSaveId = null,
   children,
   className: classNameFromProps = "",
-  dataAttributes,
   direction,
   forwardedRef,
-  id: idFromProps,
+  id: idFromProps = null,
   onLayout = null,
-  keyboardResizeByPercentage = null,
-  keyboardResizeByPixels = null,
+  keyboardResizeBy = null,
   storage = defaultStorage,
   style: styleFromProps,
   tagName: Type = "div",
+  ...rest
 }: PanelGroupProps & {
   forwardedRef: ForwardedRef<ImperativePanelGroupHandle>;
 }) {
@@ -109,10 +102,9 @@ function PanelGroupWithForwardedRef({
 
   const [dragState, setDragState] = useState<DragState | null>(null);
   const [layout, setLayout] = useState<number[]>([]);
+  const [panelDataArray, setPanelDataArray] = useState<PanelData[]>([]);
 
-  const panelIdToLastNotifiedMixedSizesMapRef = useRef<
-    Record<string, MixedSizes>
-  >({});
+  const panelIdToLastNotifiedSizeMapRef = useRef<Record<string, number>>({});
   const panelSizeBeforeCollapseRef = useRef<Map<string, number>>(new Map());
   const prevDeltaRef = useRef<number>(0);
 
@@ -121,8 +113,7 @@ function PanelGroupWithForwardedRef({
     direction: Direction;
     dragState: DragState | null;
     id: string;
-    keyboardResizeByPercentage: number | null;
-    keyboardResizeByPixels: number | null;
+    keyboardResizeBy: number | null;
     onLayout: PanelGroupOnLayout | null;
     storage: PanelGroupStorage;
   }>({
@@ -130,8 +121,7 @@ function PanelGroupWithForwardedRef({
     direction,
     dragState,
     id: groupId,
-    keyboardResizeByPercentage,
-    keyboardResizeByPixels,
+    keyboardResizeBy,
     onLayout,
     storage,
   });
@@ -139,9 +129,11 @@ function PanelGroupWithForwardedRef({
   const eagerValuesRef = useRef<{
     layout: number[];
     panelDataArray: PanelData[];
+    panelDataArrayChanged: boolean;
   }>({
     layout,
     panelDataArray: [],
+    panelDataArrayChanged: false,
   });
 
   const devWarningsRef = useRef<{
@@ -159,34 +151,15 @@ function PanelGroupWithForwardedRef({
     () => ({
       getId: () => committedValuesRef.current.id,
       getLayout: () => {
-        const { id: groupId } = committedValuesRef.current;
         const { layout } = eagerValuesRef.current;
 
-        const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
-
-        return layout.map((sizePercentage) => {
-          return {
-            sizePercentage,
-            sizePixels: convertPercentageToPixels(
-              sizePercentage,
-              groupSizePixels
-            ),
-          };
-        });
+        return layout;
       },
-      setLayout: (mixedSizes: Partial<MixedSizes>[]) => {
-        const { id: groupId, onLayout } = committedValuesRef.current;
+      setLayout: (unsafeLayout: number[]) => {
+        const { onLayout } = committedValuesRef.current;
         const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
-        const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
-
-        const unsafeLayout = mixedSizes.map(
-          (mixedSize) =>
-            getPercentageSizeFromMixedSizes(mixedSize, groupSizePixels)!
-        );
-
         const safeLayout = validatePanelGroupLayout({
-          groupSizePixels,
           layout: unsafeLayout,
           panelConstraints: panelDataArray.map(
             (panelData) => panelData.constraints
@@ -199,22 +172,13 @@ function PanelGroupWithForwardedRef({
           eagerValuesRef.current.layout = safeLayout;
 
           if (onLayout) {
-            onLayout(
-              safeLayout.map((sizePercentage) => ({
-                sizePercentage,
-                sizePixels: convertPercentageToPixels(
-                  sizePercentage,
-                  groupSizePixels
-                ),
-              }))
-            );
+            onLayout(safeLayout);
           }
 
           callPanelCallbacks(
-            groupId,
             panelDataArray,
             safeLayout,
-            panelIdToLastNotifiedMixedSizesMapRef.current
+            panelIdToLastNotifiedSizeMapRef.current
           );
         }
       },
@@ -229,9 +193,6 @@ function PanelGroupWithForwardedRef({
     committedValuesRef.current.id = groupId;
     committedValuesRef.current.onLayout = onLayout;
     committedValuesRef.current.storage = storage;
-
-    // panelDataArray and layout are updated in-sync with scheduled state updates.
-    // TODO [217] Move these values into a separate ref
   });
 
   useWindowSplitterPanelGroupBehavior({
@@ -252,77 +213,21 @@ function PanelGroupWithForwardedRef({
         return;
       }
 
+      let debouncedSave = debounceMap[autoSaveId];
+
       // Limit the frequency of localStorage updates.
-      if (!debounceMap[autoSaveId]) {
-        debounceMap[autoSaveId] = debounce(
+      if (debouncedSave == null) {
+        debouncedSave = debounce(
           savePanelGroupLayout,
           LOCAL_STORAGE_DEBOUNCE_INTERVAL
         );
+
+        debounceMap[autoSaveId] = debouncedSave;
       }
-      debounceMap[autoSaveId](autoSaveId, panelDataArray, layout, storage);
+
+      debouncedSave(autoSaveId, panelDataArray, layout, storage);
     }
   }, [autoSaveId, layout, storage]);
-
-  useIsomorphicLayoutEffect(() => {
-    const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
-
-    const constraints = panelDataArray.map(({ constraints }) => constraints);
-    if (!shouldMonitorPixelBasedConstraints(constraints)) {
-      // Avoid the overhead of ResizeObserver if no pixel constraints require monitoring
-      return;
-    }
-
-    if (typeof ResizeObserver === "undefined") {
-      console.warn(
-        `WARNING: Pixel based constraints require ResizeObserver but it is not supported by the current browser.`
-      );
-    } else {
-      const resizeObserver = new ResizeObserver(() => {
-        const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
-
-        const { onLayout } = committedValuesRef.current;
-
-        const nextLayout = validatePanelGroupLayout({
-          groupSizePixels,
-          layout: prevLayout,
-          panelConstraints: panelDataArray.map(
-            (panelData) => panelData.constraints
-          ),
-        });
-
-        if (!areEqual(prevLayout, nextLayout)) {
-          setLayout(nextLayout);
-
-          eagerValuesRef.current.layout = nextLayout;
-
-          if (onLayout) {
-            onLayout(
-              nextLayout.map((sizePercentage) => ({
-                sizePercentage,
-                sizePixels: convertPercentageToPixels(
-                  sizePercentage,
-                  groupSizePixels
-                ),
-              }))
-            );
-          }
-
-          callPanelCallbacks(
-            groupId,
-            panelDataArray,
-            nextLayout,
-            panelIdToLastNotifiedMixedSizesMapRef.current
-          );
-        }
-      });
-
-      resizeObserver.observe(getPanelGroupElement(groupId)!);
-
-      return () => {
-        resizeObserver.disconnect();
-      };
-    }
-  }, [groupId]);
 
   // DEV warnings
   useEffect(() => {
@@ -362,17 +267,17 @@ function PanelGroupWithForwardedRef({
           (panelData) => panelData.constraints
         );
 
-        const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
-
         for (
           let panelIndex = 0;
           panelIndex < panelConstraints.length;
           panelIndex++
         ) {
+          const panelData = panelDataArray[panelIndex];
+          assert(panelData);
+
           const isValid = validatePanelConstraints({
-            groupSizePixels,
             panelConstraints,
-            panelId: panelDataArray[panelIndex].id,
+            panelId: panelData.id,
             panelIndex,
           });
 
@@ -387,177 +292,139 @@ function PanelGroupWithForwardedRef({
   });
 
   // External APIs are safe to memoize via committed values ref
-  const collapsePanel = useCallback(
-    (panelData: PanelData) => {
-      const { onLayout } = committedValuesRef.current;
-      const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
+  const collapsePanel = useCallback((panelData: PanelData) => {
+    const { onLayout } = committedValuesRef.current;
+    const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
-      if (panelData.constraints.collapsible) {
-        const panelConstraintsArray = panelDataArray.map(
-          (panelData) => panelData.constraints
-        );
-
-        const {
-          collapsedSizePercentage,
-          panelSizePercentage,
-          pivotIndices,
-          groupSizePixels,
-        } = panelDataHelper(groupId, panelDataArray, panelData, prevLayout);
-
-        if (panelSizePercentage !== collapsedSizePercentage) {
-          // Store size before collapse;
-          // This is the size that gets restored if the expand() API is used.
-          panelSizeBeforeCollapseRef.current.set(
-            panelData.id,
-            panelSizePercentage
-          );
-
-          const isLastPanel =
-            panelDataArray.indexOf(panelData) === panelDataArray.length - 1;
-          const delta = isLastPanel
-            ? panelSizePercentage - collapsedSizePercentage
-            : collapsedSizePercentage - panelSizePercentage;
-
-          const nextLayout = adjustLayoutByDelta({
-            delta,
-            groupSizePixels,
-            layout: prevLayout,
-            panelConstraints: panelConstraintsArray,
-            pivotIndices,
-            trigger: "imperative-api",
-          });
-
-          if (!compareLayouts(prevLayout, nextLayout)) {
-            setLayout(nextLayout);
-
-            eagerValuesRef.current.layout = nextLayout;
-
-            if (onLayout) {
-              onLayout(
-                nextLayout.map((sizePercentage) => ({
-                  sizePercentage,
-                  sizePixels: convertPercentageToPixels(
-                    sizePercentage,
-                    groupSizePixels
-                  ),
-                }))
-              );
-            }
-
-            callPanelCallbacks(
-              groupId,
-              panelDataArray,
-              nextLayout,
-              panelIdToLastNotifiedMixedSizesMapRef.current
-            );
-          }
-        }
-      }
-    },
-    [groupId]
-  );
-
-  // External APIs are safe to memoize via committed values ref
-  const expandPanel = useCallback(
-    (panelData: PanelData) => {
-      const { onLayout } = committedValuesRef.current;
-      const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
-
-      if (panelData.constraints.collapsible) {
-        const panelConstraintsArray = panelDataArray.map(
-          (panelData) => panelData.constraints
-        );
-
-        const {
-          collapsedSizePercentage,
-          panelSizePercentage,
-          minSizePercentage,
-          pivotIndices,
-          groupSizePixels,
-        } = panelDataHelper(groupId, panelDataArray, panelData, prevLayout);
-
-        if (panelSizePercentage === collapsedSizePercentage) {
-          // Restore this panel to the size it was before it was collapsed, if possible.
-          const prevPanelSizePercentage =
-            panelSizeBeforeCollapseRef.current.get(panelData.id);
-
-          const baseSizePercentage =
-            prevPanelSizePercentage != null &&
-            prevPanelSizePercentage >= minSizePercentage
-              ? prevPanelSizePercentage
-              : minSizePercentage;
-
-          const isLastPanel =
-            panelDataArray.indexOf(panelData) === panelDataArray.length - 1;
-          const delta = isLastPanel
-            ? panelSizePercentage - baseSizePercentage
-            : baseSizePercentage - panelSizePercentage;
-
-          const nextLayout = adjustLayoutByDelta({
-            delta,
-            groupSizePixels,
-            layout: prevLayout,
-            panelConstraints: panelConstraintsArray,
-            pivotIndices,
-            trigger: "imperative-api",
-          });
-
-          if (!compareLayouts(prevLayout, nextLayout)) {
-            setLayout(nextLayout);
-
-            eagerValuesRef.current.layout = nextLayout;
-
-            if (onLayout) {
-              onLayout(
-                nextLayout.map((sizePercentage) => ({
-                  sizePercentage,
-                  sizePixels: convertPercentageToPixels(
-                    sizePercentage,
-                    groupSizePixels
-                  ),
-                }))
-              );
-            }
-
-            callPanelCallbacks(
-              groupId,
-              panelDataArray,
-              nextLayout,
-              panelIdToLastNotifiedMixedSizesMapRef.current
-            );
-          }
-        }
-      }
-    },
-    [groupId]
-  );
-
-  // External APIs are safe to memoize via committed values ref
-  const getPanelSize = useCallback(
-    (panelData: PanelData) => {
-      const { layout, panelDataArray } = eagerValuesRef.current;
-
-      const { panelSizePercentage, panelSizePixels } = panelDataHelper(
-        groupId,
-        panelDataArray,
-        panelData,
-        layout
+    if (panelData.constraints.collapsible) {
+      const panelConstraintsArray = panelDataArray.map(
+        (panelData) => panelData.constraints
       );
 
-      return {
-        sizePercentage: panelSizePercentage,
-        sizePixels: panelSizePixels,
-      };
-    },
-    [groupId]
-  );
+      const {
+        collapsedSize = 0,
+        panelSize,
+        pivotIndices,
+      } = panelDataHelper(panelDataArray, panelData, prevLayout);
+
+      assert(panelSize != null);
+
+      if (panelSize !== collapsedSize) {
+        // Store size before collapse;
+        // This is the size that gets restored if the expand() API is used.
+        panelSizeBeforeCollapseRef.current.set(panelData.id, panelSize);
+
+        const isLastPanel =
+          findPanelDataIndex(panelDataArray, panelData) ===
+          panelDataArray.length - 1;
+        const delta = isLastPanel
+          ? panelSize - collapsedSize
+          : collapsedSize - panelSize;
+
+        const nextLayout = adjustLayoutByDelta({
+          delta,
+          layout: prevLayout,
+          panelConstraints: panelConstraintsArray,
+          pivotIndices,
+          trigger: "imperative-api",
+        });
+
+        if (!compareLayouts(prevLayout, nextLayout)) {
+          setLayout(nextLayout);
+
+          eagerValuesRef.current.layout = nextLayout;
+
+          if (onLayout) {
+            onLayout(nextLayout);
+          }
+
+          callPanelCallbacks(
+            panelDataArray,
+            nextLayout,
+            panelIdToLastNotifiedSizeMapRef.current
+          );
+        }
+      }
+    }
+  }, []);
+
+  // External APIs are safe to memoize via committed values ref
+  const expandPanel = useCallback((panelData: PanelData) => {
+    const { onLayout } = committedValuesRef.current;
+    const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
+
+    if (panelData.constraints.collapsible) {
+      const panelConstraintsArray = panelDataArray.map(
+        (panelData) => panelData.constraints
+      );
+
+      const {
+        collapsedSize = 0,
+        panelSize,
+        minSize = 0,
+        pivotIndices,
+      } = panelDataHelper(panelDataArray, panelData, prevLayout);
+
+      if (panelSize === collapsedSize) {
+        // Restore this panel to the size it was before it was collapsed, if possible.
+        const prevPanelSize = panelSizeBeforeCollapseRef.current.get(
+          panelData.id
+        );
+
+        const baseSize =
+          prevPanelSize != null && prevPanelSize >= minSize
+            ? prevPanelSize
+            : minSize;
+
+        const isLastPanel =
+          findPanelDataIndex(panelDataArray, panelData) ===
+          panelDataArray.length - 1;
+        const delta = isLastPanel ? panelSize - baseSize : baseSize - panelSize;
+
+        const nextLayout = adjustLayoutByDelta({
+          delta,
+          layout: prevLayout,
+          panelConstraints: panelConstraintsArray,
+          pivotIndices,
+          trigger: "imperative-api",
+        });
+
+        if (!compareLayouts(prevLayout, nextLayout)) {
+          setLayout(nextLayout);
+
+          eagerValuesRef.current.layout = nextLayout;
+
+          if (onLayout) {
+            onLayout(nextLayout);
+          }
+
+          callPanelCallbacks(
+            panelDataArray,
+            nextLayout,
+            panelIdToLastNotifiedSizeMapRef.current
+          );
+        }
+      }
+    }
+  }, []);
+
+  // External APIs are safe to memoize via committed values ref
+  const getPanelSize = useCallback((panelData: PanelData) => {
+    const { layout, panelDataArray } = eagerValuesRef.current;
+
+    const { panelSize } = panelDataHelper(panelDataArray, panelData, layout);
+
+    assert(panelSize != null);
+
+    return panelSize;
+  }, []);
 
   // This API should never read from committedValuesRef
   const getPanelStyle = useCallback(
     (panelData: PanelData) => {
       const { panelDataArray } = eagerValuesRef.current;
 
-      const panelIndex = panelDataArray.indexOf(panelData);
+      const panelIndex = findPanelDataIndex(panelDataArray, panelData);
 
       return computePanelFlexBoxStyle({
         dragState,
@@ -570,41 +437,35 @@ function PanelGroupWithForwardedRef({
   );
 
   // External APIs are safe to memoize via committed values ref
-  const isPanelCollapsed = useCallback(
-    (panelData: PanelData) => {
-      const { layout, panelDataArray } = eagerValuesRef.current;
+  const isPanelCollapsed = useCallback((panelData: PanelData) => {
+    const { layout, panelDataArray } = eagerValuesRef.current;
 
-      const { collapsedSizePercentage, collapsible, panelSizePercentage } =
-        panelDataHelper(groupId, panelDataArray, panelData, layout);
+    const { collapsedSize, collapsible, panelSize } = panelDataHelper(
+      panelDataArray,
+      panelData,
+      layout
+    );
 
-      return (
-        collapsible === true && panelSizePercentage === collapsedSizePercentage
-      );
-    },
-    [groupId]
-  );
+    return collapsible === true && panelSize === collapsedSize;
+  }, []);
 
   // External APIs are safe to memoize via committed values ref
-  const isPanelExpanded = useCallback(
-    (panelData: PanelData) => {
-      const { layout, panelDataArray } = eagerValuesRef.current;
+  const isPanelExpanded = useCallback((panelData: PanelData) => {
+    const { layout, panelDataArray } = eagerValuesRef.current;
 
-      const { collapsedSizePercentage, collapsible, panelSizePercentage } =
-        panelDataHelper(groupId, panelDataArray, panelData, layout);
+    const {
+      collapsedSize = 0,
+      collapsible,
+      panelSize,
+    } = panelDataHelper(panelDataArray, panelData, layout);
 
-      return !collapsible || panelSizePercentage > collapsedSizePercentage;
-    },
-    [groupId]
-  );
+    assert(panelSize != null);
+
+    return !collapsible || panelSize > collapsedSize;
+  }, []);
 
   const registerPanel = useCallback((panelData: PanelData) => {
-    const {
-      autoSaveId,
-      id: groupId,
-      onLayout,
-      storage,
-    } = committedValuesRef.current;
-    const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
+    const { panelDataArray } = eagerValuesRef.current;
 
     panelDataArray.push(panelData);
     panelDataArray.sort((panelA, panelB) => {
@@ -621,77 +482,57 @@ function PanelGroupWithForwardedRef({
       }
     });
 
-    // Wait until all panels have registered before we try to compute layout;
-    // doing it earlier is both wasteful and may trigger misleading warnings in development mode.
-    const panelElements = getPanelElementsForGroup(groupId);
-    if (panelElements.length !== panelDataArray.length) {
-      return;
-    }
+    eagerValuesRef.current.panelDataArrayChanged = true;
+  }, []);
 
-    // If this panel has been configured to persist sizing information,
-    // default size should be restored from local storage if possible.
-    let unsafeLayout: number[] | null = null;
-    if (autoSaveId) {
-      unsafeLayout = loadPanelLayout(autoSaveId, panelDataArray, storage);
-    }
+  // (Re)calculate group layout whenever panels are registered or unregistered.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useIsomorphicLayoutEffect(() => {
+    if (eagerValuesRef.current.panelDataArrayChanged) {
+      eagerValuesRef.current.panelDataArrayChanged = false;
 
-    const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
-    if (groupSizePixels <= 0) {
-      if (
-        shouldMonitorPixelBasedConstraints(
-          panelDataArray.map(({ constraints }) => constraints)
-        )
-      ) {
-        // Wait until the group has rendered a non-zero size before computing layout.
-        return;
+      const { autoSaveId, onLayout, storage } = committedValuesRef.current;
+      const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
+
+      // If this panel has been configured to persist sizing information,
+      // default size should be restored from local storage if possible.
+      let unsafeLayout: number[] | null = null;
+      if (autoSaveId) {
+        unsafeLayout = loadPanelLayout(autoSaveId, panelDataArray, storage);
       }
-    }
 
-    if (unsafeLayout == null) {
-      unsafeLayout = calculateUnsafeDefaultLayout({
-        groupSizePixels,
-        panelDataArray,
+      if (unsafeLayout == null) {
+        unsafeLayout = calculateUnsafeDefaultLayout({
+          panelDataArray,
+        });
+      }
+
+      // Validate even saved layouts in case something has changed since last render
+      // e.g. for pixel groups, this could be the size of the window
+      const nextLayout = validatePanelGroupLayout({
+        layout: unsafeLayout,
+        panelConstraints: panelDataArray.map(
+          (panelData) => panelData.constraints
+        ),
       });
-    }
 
-    // Validate even saved layouts in case something has changed since last render
-    // e.g. for pixel groups, this could be the size of the window
-    const nextLayout = validatePanelGroupLayout({
-      groupSizePixels,
-      layout: unsafeLayout,
-      panelConstraints: panelDataArray.map(
-        (panelData) => panelData.constraints
-      ),
-    });
+      if (!areEqual(prevLayout, nextLayout)) {
+        setLayout(nextLayout);
 
-    // Offscreen mode makes this a bit weird;
-    // Panels unregister when hidden and re-register when shown again,
-    // but the overall layout doesn't change between these two cases.
-    setLayout(nextLayout);
+        eagerValuesRef.current.layout = nextLayout;
 
-    eagerValuesRef.current.layout = nextLayout;
+        if (onLayout) {
+          onLayout(nextLayout);
+        }
 
-    if (!areEqual(prevLayout, nextLayout)) {
-      if (onLayout) {
-        onLayout(
-          nextLayout.map((sizePercentage) => ({
-            sizePercentage,
-            sizePixels: convertPercentageToPixels(
-              sizePercentage,
-              groupSizePixels
-            ),
-          }))
+        callPanelCallbacks(
+          panelDataArray,
+          nextLayout,
+          panelIdToLastNotifiedSizeMapRef.current
         );
       }
-
-      callPanelCallbacks(
-        groupId,
-        panelDataArray,
-        nextLayout,
-        panelIdToLastNotifiedMixedSizesMapRef.current
-      );
     }
-  }, []);
+  });
 
   const registerResizeHandle = useCallback((dragHandleId: string) => {
     return function resizeHandler(event: ResizeEvent) {
@@ -701,8 +542,7 @@ function PanelGroupWithForwardedRef({
         direction,
         dragState,
         id: groupId,
-        keyboardResizeByPercentage,
-        keyboardResizeByPixels,
+        keyboardResizeBy,
         onLayout,
       } = committedValuesRef.current;
       const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
@@ -713,14 +553,10 @@ function PanelGroupWithForwardedRef({
 
       let delta = calculateDeltaPercentage(
         event,
-        groupId,
         dragHandleId,
         direction,
-        dragState!,
-        {
-          percentage: keyboardResizeByPercentage,
-          pixels: keyboardResizeByPixels,
-        }
+        dragState,
+        keyboardResizeBy
       );
       if (delta === 0) {
         return;
@@ -732,14 +568,12 @@ function PanelGroupWithForwardedRef({
         delta = -delta;
       }
 
-      const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
       const panelConstraints = panelDataArray.map(
         (panelData) => panelData.constraints
       );
 
       const nextLayout = adjustLayoutByDelta({
         delta,
-        groupSizePixels,
         layout: initialLayout ?? prevLayout,
         panelConstraints,
         pivotIndices,
@@ -782,22 +616,13 @@ function PanelGroupWithForwardedRef({
         eagerValuesRef.current.layout = nextLayout;
 
         if (onLayout) {
-          onLayout(
-            nextLayout.map((sizePercentage) => ({
-              sizePercentage,
-              sizePixels: convertPercentageToPixels(
-                sizePercentage,
-                groupSizePixels
-              ),
-            }))
-          );
+          onLayout(nextLayout);
         }
 
         callPanelCallbacks(
-          groupId,
           panelDataArray,
           nextLayout,
-          panelIdToLastNotifiedMixedSizesMapRef.current
+          panelIdToLastNotifiedSizeMapRef.current
         );
       }
     };
@@ -805,7 +630,7 @@ function PanelGroupWithForwardedRef({
 
   // External APIs are safe to memoize via committed values ref
   const resizePanel = useCallback(
-    (panelData: PanelData, mixedSizes: Partial<MixedSizes>) => {
+    (panelData: PanelData, unsafePanelSize: number) => {
       const { onLayout } = committedValuesRef.current;
 
       const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
@@ -814,23 +639,23 @@ function PanelGroupWithForwardedRef({
         (panelData) => panelData.constraints
       );
 
-      const { groupSizePixels, panelSizePercentage, pivotIndices } =
-        panelDataHelper(groupId, panelDataArray, panelData, prevLayout);
+      const { panelSize, pivotIndices } = panelDataHelper(
+        panelDataArray,
+        panelData,
+        prevLayout
+      );
 
-      const sizePercentage = getPercentageSizeFromMixedSizes(
-        mixedSizes,
-        groupSizePixels
-      )!;
+      assert(panelSize != null);
 
       const isLastPanel =
-        panelDataArray.indexOf(panelData) === panelDataArray.length - 1;
+        findPanelDataIndex(panelDataArray, panelData) ===
+        panelDataArray.length - 1;
       const delta = isLastPanel
-        ? panelSizePercentage - sizePercentage
-        : sizePercentage - panelSizePercentage;
+        ? panelSize - unsafePanelSize
+        : unsafePanelSize - panelSize;
 
       const nextLayout = adjustLayoutByDelta({
         delta,
-        groupSizePixels,
         layout: prevLayout,
         panelConstraints: panelConstraintsArray,
         pivotIndices,
@@ -843,26 +668,17 @@ function PanelGroupWithForwardedRef({
         eagerValuesRef.current.layout = nextLayout;
 
         if (onLayout) {
-          onLayout(
-            nextLayout.map((sizePercentage) => ({
-              sizePercentage,
-              sizePixels: convertPercentageToPixels(
-                sizePercentage,
-                groupSizePixels
-              ),
-            }))
-          );
+          onLayout(nextLayout);
         }
 
         callPanelCallbacks(
-          groupId,
           panelDataArray,
           nextLayout,
-          panelIdToLastNotifiedMixedSizesMapRef.current
+          panelIdToLastNotifiedSizeMapRef.current
         );
       }
     },
-    [groupId]
+    []
   );
 
   const startDragging = useCallback(
@@ -870,7 +686,8 @@ function PanelGroupWithForwardedRef({
       const { direction } = committedValuesRef.current;
       const { layout } = eagerValuesRef.current;
 
-      const handleElement = getResizeHandleElement(dragHandleId)!;
+      const handleElement = getResizeHandleElement(dragHandleId);
+      assert(handleElement);
 
       const initialCursorPosition = getResizeEventCursorPosition(
         direction,
@@ -892,102 +709,21 @@ function PanelGroupWithForwardedRef({
     setDragState(null);
   }, []);
 
-  const unregisterPanelRef = useRef<{
-    pendingPanelIds: Set<string>;
-    timeout: NodeJS.Timeout | null;
-  }>({
-    pendingPanelIds: new Set(),
-    timeout: null,
-  });
   const unregisterPanel = useCallback((panelData: PanelData) => {
-    const { id: groupId, onLayout } = committedValuesRef.current;
-    const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
+    const { panelDataArray } = eagerValuesRef.current;
 
-    const index = panelDataArray.indexOf(panelData);
+    const index = findPanelDataIndex(panelDataArray, panelData);
     if (index >= 0) {
       panelDataArray.splice(index, 1);
-      unregisterPanelRef.current.pendingPanelIds.add(panelData.id);
-    }
-
-    if (unregisterPanelRef.current.timeout != null) {
-      clearTimeout(unregisterPanelRef.current.timeout);
-    }
-
-    // Batch panel unmounts so that we only calculate layout once;
-    // This is more efficient and avoids misleading warnings in development mode.
-    // We can't check the DOM to detect this because Panel elements have not yet been removed.
-    unregisterPanelRef.current.timeout = setTimeout(() => {
-      const { pendingPanelIds } = unregisterPanelRef.current;
-      const map = panelIdToLastNotifiedMixedSizesMapRef.current;
 
       // TRICKY
-      // Strict effects mode
-      let unmountDueToStrictMode = false;
-      pendingPanelIds.forEach((panelId) => {
-        pendingPanelIds.delete(panelId);
+      // When a panel is removed from the group, we should delete the most recent prev-size entry for it.
+      // If we don't do this, then a conditionally rendered panel might not call onResize when it's re-mounted.
+      // Strict effects mode makes this tricky though because all panels will be registered, unregistered, then re-registered on mount.
+      delete panelIdToLastNotifiedSizeMapRef.current[panelData.id];
 
-        if (panelDataArray.find(({ id }) => id === panelId) == null) {
-          unmountDueToStrictMode = true;
-
-          // TRICKY
-          // When a panel is removed from the group, we should delete the most recent prev-size entry for it.
-          // If we don't do this, then a conditionally rendered panel might not call onResize when it's re-mounted.
-          // Strict effects mode makes this tricky though because all panels will be registered, unregistered, then re-registered on mount.
-          delete map[panelData.id];
-        }
-      });
-
-      if (!unmountDueToStrictMode) {
-        return;
-      }
-
-      if (panelDataArray.length === 0) {
-        // The group is unmounting; skip layout calculation.
-        return;
-      }
-
-      const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
-
-      let unsafeLayout: number[] = calculateUnsafeDefaultLayout({
-        groupSizePixels,
-        panelDataArray,
-      });
-
-      // Validate even saved layouts in case something has changed since last render
-      // e.g. for pixel groups, this could be the size of the window
-      const nextLayout = validatePanelGroupLayout({
-        groupSizePixels,
-        layout: unsafeLayout,
-        panelConstraints: panelDataArray.map(
-          (panelData) => panelData.constraints
-        ),
-      });
-
-      if (!areEqual(prevLayout, nextLayout)) {
-        setLayout(nextLayout);
-
-        eagerValuesRef.current.layout = nextLayout;
-
-        if (onLayout) {
-          onLayout(
-            nextLayout.map((sizePercentage) => ({
-              sizePercentage,
-              sizePixels: convertPercentageToPixels(
-                sizePercentage,
-                groupSizePixels
-              ),
-            }))
-          );
-        }
-
-        callPanelCallbacks(
-          groupId,
-          panelDataArray,
-          nextLayout,
-          panelIdToLastNotifiedMixedSizesMapRef.current
-        );
-      }
-    }, 0);
+      eagerValuesRef.current.panelDataArrayChanged = true;
+    }
   }, []);
 
   const context = useMemo(
@@ -1039,14 +775,14 @@ function PanelGroupWithForwardedRef({
     PanelGroupContext.Provider,
     { value: context },
     createElement(Type, {
+      ...rest,
+
       children,
       className: classNameFromProps,
       style: {
         ...style,
         ...styleFromProps,
       },
-
-      ...dataAttributes,
 
       // CSS selectors
       "data-panel-group": "",
@@ -1066,8 +802,14 @@ export const PanelGroup = forwardRef<
 PanelGroupWithForwardedRef.displayName = "PanelGroup";
 PanelGroup.displayName = "forwardRef(PanelGroup)";
 
+function findPanelDataIndex(panelDataArray: PanelData[], panelData: PanelData) {
+  return panelDataArray.findIndex(
+    (prevPanelData) =>
+      prevPanelData === panelData || prevPanelData.id === panelData.id
+  );
+}
+
 function panelDataHelper(
-  groupId: string,
   panelDataArray: PanelData[],
   panelData: PanelData,
   layout: number[]
@@ -1076,34 +818,19 @@ function panelDataHelper(
     (panelData) => panelData.constraints
   );
 
-  const panelIndex = panelDataArray.indexOf(panelData);
+  const panelIndex = findPanelDataIndex(panelDataArray, panelData);
   const panelConstraints = panelConstraintsArray[panelIndex];
-
-  const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
-
-  const percentagePanelConstraints = computePercentagePanelConstraints(
-    panelConstraintsArray,
-    panelIndex,
-    groupSizePixels
-  );
 
   const isLastPanel = panelIndex === panelDataArray.length - 1;
   const pivotIndices = isLastPanel
     ? [panelIndex - 1, panelIndex]
     : [panelIndex, panelIndex + 1];
 
-  const panelSizePercentage = layout[panelIndex];
-  const panelSizePixels = convertPercentageToPixels(
-    panelSizePercentage,
-    groupSizePixels
-  );
+  const panelSize = layout[panelIndex];
 
   return {
-    ...percentagePanelConstraints,
-    collapsible: panelConstraints.collapsible,
-    panelSizePercentage,
-    panelSizePixels,
-    groupSizePixels,
+    ...panelConstraints,
+    panelSize,
     pivotIndices,
   };
 }

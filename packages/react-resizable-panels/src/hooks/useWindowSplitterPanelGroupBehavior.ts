@@ -5,12 +5,9 @@ import { adjustLayoutByDelta } from "../utils/adjustLayoutByDelta";
 import { assert } from "../utils/assert";
 import { calculateAriaValues } from "../utils/calculateAriaValues";
 import { determinePivotIndices } from "../utils/determinePivotIndices";
-import { calculateAvailablePanelSizeInPixels } from "../utils/dom/calculateAvailablePanelSizeInPixels";
-import { getAvailableGroupSizePixels } from "../utils/dom/getAvailableGroupSizePixels";
 import { getPanelGroupElement } from "../utils/dom/getPanelGroupElement";
 import { getResizeHandleElementsForGroup } from "../utils/dom/getResizeHandleElementsForGroup";
 import { getResizeHandlePanelIds } from "../utils/dom/getResizeHandlePanelIds";
-import { getPercentageSizeFromMixedSizes } from "../utils/getPercentageSizeFromMixedSizes";
 import { fuzzyNumbersEqual } from "../utils/numbers/fuzzyNumbersEqual";
 import { RefObject, useEffect, useRef } from "../vendor/react";
 import useIsomorphicLayoutEffect from "./useIsomorphicEffect";
@@ -43,12 +40,10 @@ export function useWindowSplitterPanelGroupBehavior({
   });
 
   useIsomorphicLayoutEffect(() => {
-    const groupSizePixels = calculateAvailablePanelSizeInPixels(groupId);
     const resizeHandleElements = getResizeHandleElementsForGroup(groupId);
 
     for (let index = 0; index < panelDataArray.length - 1; index++) {
       const { valueMax, valueMin, valueNow } = calculateAriaValues({
-        groupSizePixels,
         layout,
         panelsArray: panelDataArray,
         pivotIndices: [index, index + 1],
@@ -68,10 +63,10 @@ export function useWindowSplitterPanelGroupBehavior({
           }
         }
       } else {
-        resizeHandleElement.setAttribute(
-          "aria-controls",
-          panelDataArray[index].id
-        );
+        const panelData = panelDataArray[index];
+        assert(panelData);
+
+        resizeHandleElement.setAttribute("aria-controls", panelData.id);
         resizeHandleElement.setAttribute(
           "aria-valuemax",
           "" + Math.round(valueMax)
@@ -82,7 +77,7 @@ export function useWindowSplitterPanelGroupBehavior({
         );
         resizeHandleElement.setAttribute(
           "aria-valuenow",
-          "" + Math.round(valueNow)
+          valueNow != null ? "" + Math.round(valueNow) : ""
         );
       }
     }
@@ -98,14 +93,20 @@ export function useWindowSplitterPanelGroupBehavior({
   }, [groupId, layout, panelDataArray]);
 
   useEffect(() => {
-    const { panelDataArray } = eagerValuesRef.current!;
+    const eagerValues = eagerValuesRef.current;
+    assert(eagerValues);
+
+    const { panelDataArray } = eagerValues;
 
     const groupElement = getPanelGroupElement(groupId);
     assert(groupElement != null, `No group found for id "${groupId}"`);
 
     const handles = getResizeHandleElementsForGroup(groupId);
+    assert(handles);
+
     const cleanupFunctions = handles.map((handle) => {
-      const handleId = handle.getAttribute("data-panel-resize-handle-id")!;
+      const handleId = handle.getAttribute("data-panel-resize-handle-id");
+      assert(handleId);
 
       const [idBefore, idAfter] = getResizeHandlePanelIds(
         groupId,
@@ -130,33 +131,21 @@ export function useWindowSplitterPanelGroupBehavior({
             );
             if (index >= 0) {
               const panelData = panelDataArray[index];
+              assert(panelData);
+
               const size = layout[index];
-              if (size != null && panelData.constraints.collapsible) {
-                const groupSizePixels = getAvailableGroupSizePixels(groupId);
 
-                const collapsedSize =
-                  getPercentageSizeFromMixedSizes(
-                    {
-                      sizePercentage:
-                        panelData.constraints.collapsedSizePercentage,
-                      sizePixels: panelData.constraints.collapsedSizePixels,
-                    },
-                    groupSizePixels
-                  ) ?? 0;
-                const minSize =
-                  getPercentageSizeFromMixedSizes(
-                    {
-                      sizePercentage: panelData.constraints.minSizePercentage,
-                      sizePixels: panelData.constraints.minSizePixels,
-                    },
-                    groupSizePixels
-                  ) ?? 0;
+              const {
+                collapsedSize = 0,
+                collapsible,
+                minSize = 0,
+              } = panelData.constraints;
 
+              if (size != null && collapsible) {
                 const nextLayout = adjustLayoutByDelta({
                   delta: fuzzyNumbersEqual(size, collapsedSize)
                     ? minSize - collapsedSize
                     : collapsedSize - size,
-                  groupSizePixels,
                   layout,
                   panelConstraints: panelDataArray.map(
                     (panelData) => panelData.constraints

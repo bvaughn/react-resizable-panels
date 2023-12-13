@@ -1,12 +1,8 @@
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import {
-  ImperativePanelHandle,
-  MixedSizes,
-  Panel,
-  PanelGroup,
-  PanelResizeHandle,
-} from ".";
+import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from ".";
+import { assert } from "./utils/assert";
+import { getPanelElement } from "./utils/dom/getPanelElement";
 import {
   mockPanelGroupOffsetWidthAndHeight,
   verifyExpandedPanelGroupLayout,
@@ -66,7 +62,7 @@ describe("PanelGroup", () => {
       let leftPanelRef = createRef<ImperativePanelHandle>();
       let rightPanelRef = createRef<ImperativePanelHandle>();
 
-      let mostRecentLayout: MixedSizes[] | null;
+      let mostRecentLayout: number[] | null;
 
       beforeEach(() => {
         leftPanelRef = createRef<ImperativePanelHandle>();
@@ -74,67 +70,65 @@ describe("PanelGroup", () => {
 
         mostRecentLayout = null;
 
-        const onLayout = (layout: MixedSizes[]) => {
+        const onLayout = (layout: number[]) => {
           mostRecentLayout = layout;
         };
 
         act(() => {
           root.render(
             <PanelGroup direction="horizontal" onLayout={onLayout}>
-              <Panel
-                collapsible
-                defaultSizePercentage={50}
-                ref={leftPanelRef}
-              />
+              <Panel collapsible defaultSize={50} ref={leftPanelRef} />
               <PanelResizeHandle />
-              <Panel
-                collapsible
-                defaultSizePercentage={50}
-                ref={rightPanelRef}
-              />
+              <Panel collapsible defaultSize={50} ref={rightPanelRef} />
             </PanelGroup>
           );
         });
       });
 
       it("should expand and collapse the first panel in a group", () => {
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
+        assert(mostRecentLayout);
+
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
         act(() => {
-          leftPanelRef.current!.collapse();
+          leftPanelRef.current?.collapse();
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [0, 100]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [0, 100]);
         act(() => {
-          leftPanelRef.current!.expand();
+          leftPanelRef.current?.expand();
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
       });
 
       it("should expand and collapse the last panel in a group", () => {
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
+        assert(mostRecentLayout);
+
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
         act(() => {
-          rightPanelRef.current!.collapse();
+          rightPanelRef.current?.collapse();
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [100, 0]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [100, 0]);
         act(() => {
-          rightPanelRef.current!.expand();
+          rightPanelRef.current?.expand();
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
       });
 
       it("should re-expand to the most recent size before collapsing", () => {
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [50, 50]);
+        assert(mostRecentLayout);
+
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
         act(() => {
-          leftPanelRef.current!.resize({ sizePercentage: 30 });
+          leftPanelRef.current?.resize(30);
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [30, 70]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [30, 70]);
         act(() => {
-          leftPanelRef.current!.collapse();
+          leftPanelRef.current?.collapse();
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [0, 100]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [0, 100]);
         act(() => {
-          leftPanelRef.current!.expand();
+          leftPanelRef.current?.expand();
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [30, 70]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [30, 70]);
       });
     });
 
@@ -143,7 +137,7 @@ describe("PanelGroup", () => {
       let middlePanelRef = createRef<ImperativePanelHandle>();
       let rightPanelRef = createRef<ImperativePanelHandle>();
 
-      let mostRecentLayout: MixedSizes[] | null;
+      let mostRecentLayout: number[] | null;
 
       beforeEach(() => {
         leftPanelRef = createRef<ImperativePanelHandle>();
@@ -152,45 +146,51 @@ describe("PanelGroup", () => {
 
         mostRecentLayout = null;
 
-        const onLayout = (layout: MixedSizes[]) => {
+        const onLayout = (layout: number[]) => {
           mostRecentLayout = layout;
         };
 
         act(() => {
           root.render(
             <PanelGroup direction="horizontal" onLayout={onLayout}>
-              <Panel defaultSizePercentage={20} ref={leftPanelRef} />
+              <Panel defaultSize={20} ref={leftPanelRef} />
               <PanelResizeHandle />
-              <Panel defaultSizePercentage={60} ref={middlePanelRef} />
+              <Panel defaultSize={60} ref={middlePanelRef} />
               <PanelResizeHandle />
-              <Panel defaultSizePercentage={20} ref={rightPanelRef} />
+              <Panel defaultSize={20} ref={rightPanelRef} />
             </PanelGroup>
           );
         });
       });
 
       it("should resize the first panel in a group", () => {
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 60, 20]);
+        assert(mostRecentLayout);
+
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 60, 20]);
         act(() => {
-          leftPanelRef.current!.resize({ sizePercentage: 40 });
+          leftPanelRef.current?.resize(40);
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [40, 40, 20]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [40, 40, 20]);
       });
 
       it("should resize the middle panel in a group", () => {
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 60, 20]);
+        assert(mostRecentLayout);
+
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 60, 20]);
         act(() => {
-          middlePanelRef.current!.resize({ sizePercentage: 40 });
+          middlePanelRef.current?.resize(40);
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 40, 40]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 40, 40]);
       });
 
       it("should resize the last panel in a group", () => {
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 60, 20]);
+        assert(mostRecentLayout);
+
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 60, 20]);
         act(() => {
-          rightPanelRef.current!.resize({ sizePercentage: 40 });
+          rightPanelRef.current?.resize(40);
         });
-        verifyExpandedPanelGroupLayout(mostRecentLayout!, [20, 40, 40]);
+        verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 40, 40]);
       });
     });
   });
@@ -207,7 +207,7 @@ describe("PanelGroup", () => {
         act(() => {
           root.render(
             <PanelGroup direction="horizontal">
-              <Panel defaultSizePercentage={-1} />
+              <Panel defaultSize={-1} />
             </PanelGroup>
           );
         });
@@ -217,7 +217,7 @@ describe("PanelGroup", () => {
         act(() => {
           root.render(
             <PanelGroup direction="horizontal">
-              <Panel defaultSizePercentage={101} />
+              <Panel defaultSize={101} />
             </PanelGroup>
           );
         });
@@ -232,6 +232,247 @@ describe("PanelGroup", () => {
       }).toThrow(
         "Panel components must be rendered within a PanelGroup container"
       );
+    });
+  });
+
+  it("should support ...rest attributes", () => {
+    act(() => {
+      root.render(
+        <PanelGroup direction="horizontal">
+          <Panel data-test-name="foo" id="panel" tabIndex={123} title="bar" />
+          <PanelResizeHandle />
+          <Panel />
+        </PanelGroup>
+      );
+    });
+
+    const element = getPanelElement("panel");
+    assert(element);
+    expect(element.tabIndex).toBe(123);
+    expect(element.getAttribute("data-test-name")).toBe("foo");
+    expect(element.title).toBe("bar");
+  });
+
+  describe("callbacks", () => {
+    describe("onCollapse", () => {
+      it("should be called on mount if a panels initial size is 0", () => {
+        let onCollapseLeft = jest.fn();
+        let onCollapseRight = jest.fn();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel collapsible defaultSize={0} onCollapse={onCollapseLeft} />
+              <PanelResizeHandle />
+              <Panel collapsible onCollapse={onCollapseRight} />
+            </PanelGroup>
+          );
+        });
+
+        expect(onCollapseLeft).toHaveBeenCalledTimes(1);
+        expect(onCollapseRight).not.toHaveBeenCalled();
+      });
+
+      it("should be called when a panel is collapsed", () => {
+        let onCollapse = jest.fn();
+
+        let panelRef = createRef<ImperativePanelHandle>();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel collapsible onCollapse={onCollapse} ref={panelRef} />
+              <PanelResizeHandle />
+              <Panel />
+            </PanelGroup>
+          );
+        });
+
+        expect(onCollapse).not.toHaveBeenCalled();
+
+        act(() => {
+          panelRef.current?.collapse();
+        });
+
+        expect(onCollapse).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe("onExpand", () => {
+      it("should be called on mount if a collapsible panels initial size is not 0", () => {
+        let onExpandLeft = jest.fn();
+        let onExpandRight = jest.fn();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel collapsible onExpand={onExpandLeft} />
+              <PanelResizeHandle />
+              <Panel onExpand={onExpandRight} />
+            </PanelGroup>
+          );
+        });
+
+        expect(onExpandLeft).toHaveBeenCalledTimes(1);
+        expect(onExpandRight).not.toHaveBeenCalled();
+      });
+
+      it("should be called when a collapsible panel is expanded", () => {
+        let onExpand = jest.fn();
+
+        let panelRef = createRef<ImperativePanelHandle>();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel
+                collapsible
+                defaultSize={0}
+                onExpand={onExpand}
+                ref={panelRef}
+              />
+              <PanelResizeHandle />
+              <Panel />
+            </PanelGroup>
+          );
+        });
+
+        expect(onExpand).not.toHaveBeenCalled();
+
+        act(() => {
+          panelRef.current?.resize(25);
+        });
+
+        expect(onExpand).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe("onResize", () => {
+      it("should be called on mount", () => {
+        let onResizeLeft = jest.fn();
+        let onResizeMiddle = jest.fn();
+        let onResizeRight = jest.fn();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel id="left" onResize={onResizeLeft} order={1} />
+              <PanelResizeHandle />
+              <Panel
+                defaultSize={50}
+                id="middle"
+                onResize={onResizeMiddle}
+                order={2}
+              />
+              <PanelResizeHandle />
+              <Panel id="right" onResize={onResizeRight} order={3} />
+            </PanelGroup>
+          );
+        });
+
+        expect(onResizeLeft).toHaveBeenCalledTimes(1);
+        expect(onResizeLeft).toHaveBeenCalledWith(25, undefined);
+        expect(onResizeMiddle).toHaveBeenCalledTimes(1);
+        expect(onResizeMiddle).toHaveBeenCalledWith(50, undefined);
+        expect(onResizeRight).toHaveBeenCalledTimes(1);
+        expect(onResizeRight).toHaveBeenCalledWith(25, undefined);
+      });
+
+      it("should be called when a panel is added or removed from the group", () => {
+        let onResizeLeft = jest.fn();
+        let onResizeMiddle = jest.fn();
+        let onResizeRight = jest.fn();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel
+                id="middle"
+                key="middle"
+                onResize={onResizeMiddle}
+                order={2}
+              />
+            </PanelGroup>
+          );
+        });
+
+        expect(onResizeLeft).not.toHaveBeenCalled();
+        expect(onResizeMiddle).toHaveBeenCalledWith(100, undefined);
+        expect(onResizeRight).not.toHaveBeenCalled();
+
+        onResizeLeft.mockReset();
+        onResizeMiddle.mockReset();
+        onResizeRight.mockReset();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel
+                id="left"
+                key="left"
+                maxSize={25}
+                minSize={25}
+                onResize={onResizeLeft}
+                order={1}
+              />
+              <PanelResizeHandle />
+              <Panel
+                id="middle"
+                key="middle"
+                onResize={onResizeMiddle}
+                order={2}
+              />
+              <PanelResizeHandle />
+              <Panel
+                id="right"
+                key="right"
+                maxSize={25}
+                minSize={25}
+                onResize={onResizeRight}
+                order={3}
+              />
+            </PanelGroup>
+          );
+        });
+
+        expect(onResizeLeft).toHaveBeenCalledTimes(1);
+        expect(onResizeLeft).toHaveBeenCalledWith(25, undefined);
+        expect(onResizeMiddle).toHaveBeenCalledTimes(1);
+        expect(onResizeMiddle).toHaveBeenCalledWith(50, 100);
+        expect(onResizeRight).toHaveBeenCalledTimes(1);
+        expect(onResizeRight).toHaveBeenCalledWith(25, undefined);
+
+        onResizeLeft.mockReset();
+        onResizeMiddle.mockReset();
+        onResizeRight.mockReset();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel
+                id="left"
+                key="left"
+                maxSize={25}
+                minSize={25}
+                onResize={onResizeLeft}
+                order={1}
+              />
+              <PanelResizeHandle />
+              <Panel
+                id="middle"
+                key="middle"
+                onResize={onResizeMiddle}
+                order={2}
+              />
+            </PanelGroup>
+          );
+        });
+
+        expect(onResizeLeft).not.toHaveBeenCalled();
+        expect(onResizeMiddle).toHaveBeenCalledTimes(1);
+        expect(onResizeMiddle).toHaveBeenCalledWith(75, 50);
+        expect(onResizeRight).not.toHaveBeenCalled();
+      });
     });
   });
 
@@ -254,15 +495,15 @@ describe("PanelGroup", () => {
         // No warning expected if default sizes provided
         renderToStaticMarkup(
           <PanelGroup direction="horizontal">
-            <Panel defaultSizePercentage={100} />
+            <Panel defaultSize={100} />
             <PanelResizeHandle />
-            <Panel defaultSizePixels={1_000} />
+            <Panel defaultSize={1_000} />
           </PanelGroup>
         );
       });
 
       expectWarning(
-        "Panel defaultSizePercentage or defaultSizePixels prop recommended to avoid layout shift after server rendering"
+        "Panel defaultSize prop recommended to avoid layout shift after server rendering"
       );
 
       act(() => {
@@ -274,30 +515,13 @@ describe("PanelGroup", () => {
       });
     });
 
-    it("should warn if both pixel and percentage units are specified", () => {
-      // We just spot check this here; validatePanelConstraints() has its own in-depth tests
-      expectWarning(
-        "should not specify both percentage and pixel units for: min size"
-      );
-
-      expectWarning("Pixel based constraints require ResizeObserver");
-
-      act(() => {
-        root.render(
-          <PanelGroup direction="horizontal" key="minSize">
-            <Panel minSizePercentage={100} minSizePixels={1_000} />
-          </PanelGroup>
-        );
-      });
-    });
-
     it("should warn if invalid sizes are specified declaratively", () => {
       expectWarning("default size should not be less than 0");
 
       act(() => {
         root.render(
           <PanelGroup direction="horizontal" key="collapsedSize">
-            <Panel defaultSizePercentage={-1} />
+            <Panel defaultSize={-1} />
             <PanelResizeHandle />
             <Panel />
           </PanelGroup>

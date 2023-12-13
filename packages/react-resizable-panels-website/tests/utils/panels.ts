@@ -1,8 +1,7 @@
 import { Locator, Page, expect } from "@playwright/test";
-import { assert } from "./assert";
+import { assert } from "react-resizable-panels";
 import { getBodyCursorStyle } from "./cursor";
-import { verifyFuzzySizesPercentages } from "./verify";
-import { MixedSizes } from "react-resizable-panels";
+import { verifyFuzzySizes } from "./verify";
 
 type Operation = {
   expectedCursor?: string;
@@ -38,7 +37,7 @@ export async function dragResizeBy(
 export async function dragResizeTo(
   page: Page,
   panelId: string,
-  ...operations: Operation[]
+  ...operationsArray: Operation[]
 ) {
   const panels = page.locator("[data-panel-id]");
 
@@ -83,11 +82,14 @@ export async function dragResizeTo(
   await page.mouse.move(pageX, pageY);
   await page.mouse.down();
 
-  for (let i = 0; i < operations.length; i++) {
+  for (let index = 0; index < operationsArray.length; index++) {
     pageX = Math.min(pageXMax - 1, Math.max(pageXMin + 1, pageX));
     pageY = Math.min(pageYMax - 1, Math.max(pageYMin + 1, pageY));
 
-    const { expectedSizes, expectedCursor, size: nextSize } = operations[i];
+    const operations = operationsArray[index];
+    assert(operations);
+
+    const { expectedSizes, expectedCursor, size: nextSize } = operations;
 
     const prevSize = (await panel.getAttribute("data-panel-size"))!;
     const isExpanding = parseFloat(prevSize) < nextSize;
@@ -134,7 +136,7 @@ export async function dragResizeTo(
     if (expectedSizes != null) {
       // This resizing approach isn't incredibly precise,
       // so we should allow for minor variations in panel sizes.
-      await verifyFuzzySizesPercentages(page, 0.25, ...expectedSizes);
+      await verifyFuzzySizes(page, 0.25, ...expectedSizes);
     }
 
     if (expectedCursor != null) {
@@ -150,18 +152,14 @@ export async function dragResizeTo(
 export async function imperativeResizePanel(
   page: Page,
   panelId: string,
-  size: Partial<MixedSizes>
+  size: number
 ) {
   const panelIdSelect = page.locator("#panelIdSelect");
   await panelIdSelect.selectOption(panelId);
 
   const sizeInput = page.locator("#sizeInput");
   await sizeInput.focus();
-  await sizeInput.fill(
-    size.sizePercentage != null
-      ? `${size.sizePercentage}%`
-      : `${size.sizePixels}px`
-  );
+  await sizeInput.fill(`${size}%`);
 
   const resizeButton = page.locator("#resizeButton");
   await resizeButton.click();

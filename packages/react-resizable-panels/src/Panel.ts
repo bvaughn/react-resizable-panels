@@ -3,10 +3,10 @@ import { isDevelopment } from "#is-development";
 import { PanelGroupContext } from "./PanelGroupContext";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
-import { DataAttributes, MixedSizes } from "./types";
 import {
   ElementType,
   ForwardedRef,
+  HTMLAttributes,
   PropsWithChildren,
   createElement,
   forwardRef,
@@ -18,8 +18,8 @@ import {
 export type PanelOnCollapse = () => void;
 export type PanelOnExpand = () => void;
 export type PanelOnResize = (
-  mixedSizes: MixedSizes,
-  prevMixedSizes: MixedSizes | undefined
+  size: number,
+  prevSize: number | undefined
 ) => void;
 
 export type PanelCallbacks = {
@@ -29,15 +29,11 @@ export type PanelCallbacks = {
 };
 
 export type PanelConstraints = {
-  collapsedSizePercentage?: number | undefined;
-  collapsedSizePixels?: number | undefined;
+  collapsedSize?: number | undefined;
   collapsible?: boolean | undefined;
-  defaultSizePercentage?: number | undefined;
-  defaultSizePixels?: number | undefined;
-  maxSizePercentage?: number | undefined;
-  maxSizePixels?: number | undefined;
-  minSizePercentage?: number | undefined;
-  minSizePixels?: number | undefined;
+  defaultSize?: number | undefined;
+  maxSize?: number | undefined;
+  minSize?: number | undefined;
 };
 
 export type PanelData = {
@@ -52,54 +48,46 @@ export type ImperativePanelHandle = {
   collapse: () => void;
   expand: () => void;
   getId(): string;
-  getSize(): MixedSizes;
+  getSize(): number;
   isCollapsed: () => boolean;
   isExpanded: () => boolean;
-  resize: (size: Partial<MixedSizes>) => void;
+  resize: (size: number) => void;
 };
 
-export type PanelProps = PropsWithChildren<{
-  className?: string;
-  collapsedSizePercentage?: number | undefined;
-  collapsedSizePixels?: number | undefined;
-  collapsible?: boolean | undefined;
-  dataAttributes?: DataAttributes;
-  defaultSizePercentage?: number | undefined;
-  defaultSizePixels?: number | undefined;
-  id?: string;
-  maxSizePercentage?: number | undefined;
-  maxSizePixels?: number | undefined;
-  minSizePercentage?: number | undefined;
-  minSizePixels?: number | undefined;
-  onCollapse?: PanelOnCollapse;
-  onExpand?: PanelOnExpand;
-  onResize?: PanelOnResize;
-  order?: number;
-  style?: object;
-  tagName?: ElementType;
-}>;
+export type PanelProps = Omit<HTMLAttributes<ElementType>, "id" | "onResize"> &
+  PropsWithChildren<{
+    className?: string;
+    collapsedSize?: number | undefined;
+    collapsible?: boolean | undefined;
+    defaultSize?: number | undefined;
+    id?: string;
+    maxSize?: number | undefined;
+    minSize?: number | undefined;
+    onCollapse?: PanelOnCollapse;
+    onExpand?: PanelOnExpand;
+    onResize?: PanelOnResize;
+    order?: number;
+    style?: object;
+    tagName?: ElementType;
+  }>;
 
 export function PanelWithForwardedRef({
   children,
   className: classNameFromProps = "",
-  collapsedSizePercentage,
-  collapsedSizePixels,
+  collapsedSize,
   collapsible,
-  dataAttributes,
-  defaultSizePercentage,
-  defaultSizePixels,
+  defaultSize,
   forwardedRef,
   id: idFromProps,
-  maxSizePercentage,
-  maxSizePixels,
-  minSizePercentage,
-  minSizePixels,
+  maxSize,
+  minSize,
   onCollapse,
   onExpand,
   onResize,
   order,
   style: styleFromProps,
   tagName: Type = "div",
+  ...rest
 }: PanelProps & {
   forwardedRef: ForwardedRef<ImperativePanelHandle>;
 }) {
@@ -131,15 +119,11 @@ export function PanelWithForwardedRef({
       onResize,
     },
     constraints: {
-      collapsedSizePercentage,
-      collapsedSizePixels,
+      collapsedSize,
       collapsible,
-      defaultSizePercentage,
-      defaultSizePixels,
-      maxSizePercentage,
-      maxSizePixels,
-      minSizePercentage,
-      minSizePixels,
+      defaultSize,
+      maxSize,
+      minSize,
     },
     id: panelId,
     idIsFromProps: idFromProps !== undefined,
@@ -156,14 +140,10 @@ export function PanelWithForwardedRef({
   // but effects don't run on the server, so we can't do it there
   if (isDevelopment) {
     if (!devWarningsRef.current.didLogMissingDefaultSizeWarning) {
-      if (
-        !isBrowser &&
-        defaultSizePercentage == null &&
-        defaultSizePixels == null
-      ) {
+      if (!isBrowser && defaultSize == null) {
         devWarningsRef.current.didLogMissingDefaultSizeWarning = true;
         console.warn(
-          `WARNING: Panel defaultSizePercentage or defaultSizePixels prop recommended to avoid layout shift after server rendering`
+          `WARNING: Panel defaultSize prop recommended to avoid layout shift after server rendering`
         );
       }
     }
@@ -180,15 +160,11 @@ export function PanelWithForwardedRef({
     callbacks.onExpand = onExpand;
     callbacks.onResize = onResize;
 
-    constraints.collapsedSizePercentage = collapsedSizePercentage;
-    constraints.collapsedSizePixels = collapsedSizePixels;
+    constraints.collapsedSize = collapsedSize;
     constraints.collapsible = collapsible;
-    constraints.defaultSizePercentage = defaultSizePercentage;
-    constraints.defaultSizePixels = defaultSizePixels;
-    constraints.maxSizePercentage = maxSizePercentage;
-    constraints.maxSizePixels = maxSizePixels;
-    constraints.minSizePercentage = minSizePercentage;
-    constraints.minSizePixels = minSizePixels;
+    constraints.defaultSize = defaultSize;
+    constraints.maxSize = maxSize;
+    constraints.minSize = minSize;
   });
 
   useIsomorphicLayoutEffect(() => {
@@ -222,8 +198,8 @@ export function PanelWithForwardedRef({
       isExpanded() {
         return !isPanelCollapsed(panelDataRef.current);
       },
-      resize: (mixedSizes: Partial<MixedSizes>) => {
-        resizePanel(panelDataRef.current, mixedSizes);
+      resize: (size: number) => {
+        resizePanel(panelDataRef.current, size);
       },
     }),
     [
@@ -239,14 +215,14 @@ export function PanelWithForwardedRef({
   const style = getPanelStyle(panelDataRef.current);
 
   return createElement(Type, {
+    ...rest,
+
     children,
     className: classNameFromProps,
     style: {
       ...style,
       ...styleFromProps,
     },
-
-    ...dataAttributes,
 
     // CSS selectors
     "data-panel": "",

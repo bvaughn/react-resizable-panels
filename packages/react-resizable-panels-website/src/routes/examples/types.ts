@@ -1,5 +1,3 @@
-import { MixedSizes } from "react-resizable-panels";
-
 export type PanelCollapseLogEntryType = "onCollapse";
 export type PanelExpandLogEntryType = "onExpand";
 export type PanelGroupLayoutLogEntryType = "onLayout";
@@ -21,12 +19,12 @@ export type PanelResizeHandleDraggingLogEntry = {
 };
 export type PanelGroupLayoutLogEntry = {
   groupId: string;
-  layout: MixedSizes[];
+  layout: number[];
   type: PanelGroupLayoutLogEntryType;
 };
 export type PanelResizeLogEntry = {
   panelId: string;
-  size: MixedSizes;
+  size: number;
   type: PanelResizeLogEntryType;
 };
 

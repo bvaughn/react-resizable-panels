@@ -19,6 +19,10 @@ Supported input methods include mouse, touch, and keyboard (via [Window Splitter
 
 ## FAQ
 
+### Can panel sizes be specified in pixels?
+
+No. Pixel-based constraints [added significant complexity](https://github.com/bvaughn/react-resizable-panels/pull/176) to the initialization and validation logic and so I've decided not to support them. You may be able to implement a version of this yourself following [a pattern like this](https://github.com/bvaughn/react-resizable-panels/issues/46#issuecomment-1368108416) but it is not officially supported by this library.
+
 ### How can I fix layout/sizing problems with conditionally rendered panels?
 
 The `Panel` API doesn't _require_ `id` and `order` props because they aren't necessary for static layouts. When panels are conditionally rendered though, it's best to supply these values.
@@ -27,13 +31,13 @@ The `Panel` API doesn't _require_ `id` and `order` props because they aren't nec
 <PanelGroup direction="horizontal">
   {renderSideBar && (
     <>
-      <Panel id="sidebar" minSizePercentage={25} order={1}>
+      <Panel id="sidebar" minSize={25} order={1}>
         <Sidebar />
       </Panel>
       <PanelResizeHandle />
     </>
   )}
-  <Panel minSizePercentage={25} order={2}>
+  <Panel minSize={25} order={2}>
     <Main />
   </Panel>
 </PanelGroup>
@@ -79,9 +83,9 @@ export function ClientComponent({
 
   return (
     <PanelGroup direction="horizontal" onLayout={onLayout}>
-      <Panel defaultSizePercentage={defaultLayout[0]}>{/* ... */}</Panel>
+      <Panel defaultSize={defaultLayout[0]}>{/* ... */}</Panel>
       <PanelResizeHandle className="w-2 bg-blue-800" />
-      <Panel defaultSizePercentage={defaultLayout[1]}>{/* ... */}</Panel>
+      <Panel defaultSize={defaultLayout[1]}>{/* ... */}</Panel>
     </PanelGroup>
   );
 }

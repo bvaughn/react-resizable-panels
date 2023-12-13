@@ -3,8 +3,9 @@ import {
   createElement,
   CSSProperties,
   ElementType,
+  HTMLAttributes,
+  PropsWithChildren,
   MouseEvent as ReactMouseEvent,
-  ReactNode,
   TouchEvent,
   useCallback,
   useContext,
@@ -19,31 +20,32 @@ import {
   ResizeEvent,
   ResizeHandler,
 } from "./PanelGroupContext";
+import { assert } from "./utils/assert";
 import { getCursorStyle } from "./utils/cursor";
-import { DataAttributes } from "./types";
 
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 
-export type PanelResizeHandleProps = {
-  children?: ReactNode;
-  className?: string;
-  dataAttributes?: DataAttributes;
-  disabled?: boolean;
-  id?: string | null;
-  onDragging?: PanelResizeHandleOnDragging;
-  style?: CSSProperties;
-  tagName?: ElementType;
-};
+export type PanelResizeHandleProps = Omit<HTMLAttributes<ElementType>, "id"> &
+  PropsWithChildren<{
+    className?: string;
+    disabled?: boolean;
+    id?: string | null;
+    onDragging?: PanelResizeHandleOnDragging;
+    style?: CSSProperties;
+    tabIndex?: number;
+    tagName?: ElementType;
+  }>;
 
 export function PanelResizeHandle({
   children = null,
   className: classNameFromProps = "",
-  dataAttributes,
   disabled = false,
-  id: idFromProps = null,
+  id: idFromProps,
   onDragging,
   style: styleFromProps = {},
+  tabIndex = 0,
   tagName: Type = "div",
+  ...rest
 }: PanelResizeHandleProps) {
   const divElementRef = useRef<HTMLDivElement>(null);
 
@@ -83,8 +85,9 @@ export function PanelResizeHandle({
   const stopDraggingAndBlur = useCallback(() => {
     // Clicking on the drag handle shouldn't leave it focused;
     // That would cause the PanelGroup to think it was still active.
-    const div = divElementRef.current!;
-    div.blur();
+    const divElement = divElementRef.current;
+    assert(divElement);
+    divElement.blur();
 
     stopDragging();
 
@@ -116,7 +119,9 @@ export function PanelResizeHandle({
       resizeHandler(event);
     };
 
-    const divElement = divElementRef.current!;
+    const divElement = divElementRef.current;
+    assert(divElement);
+
     const targetDocument = divElement.ownerDocument;
 
     targetDocument.body.addEventListener("contextmenu", stopDraggingAndBlur);
@@ -152,6 +157,8 @@ export function PanelResizeHandle({
   };
 
   return createElement(Type, {
+    ...rest,
+
     children,
     className: classNameFromProps,
     onBlur: () => setIsFocused(false),
@@ -159,7 +166,9 @@ export function PanelResizeHandle({
     onMouseDown: (event: ReactMouseEvent) => {
       startDragging(resizeHandleId, event.nativeEvent);
 
-      const { onDragging } = callbacksRef.current!;
+      const callbacks = callbacksRef.current;
+      assert(callbacks);
+      const { onDragging } = callbacks;
       if (onDragging) {
         onDragging(true);
       }
@@ -170,7 +179,9 @@ export function PanelResizeHandle({
     onTouchStart: (event: TouchEvent) => {
       startDragging(resizeHandleId, event.nativeEvent);
 
-      const { onDragging } = callbacksRef.current!;
+      const callbacks = callbacksRef.current;
+      assert(callbacks);
+      const { onDragging } = callbacks;
       if (onDragging) {
         onDragging(true);
       }
@@ -181,9 +192,7 @@ export function PanelResizeHandle({
       ...style,
       ...styleFromProps,
     },
-    tabIndex: 0,
-
-    ...dataAttributes,
+    tabIndex,
 
     // CSS selectors
     "data-panel-group-direction": direction,
