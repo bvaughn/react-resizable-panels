@@ -253,6 +253,229 @@ describe("PanelGroup", () => {
     expect(element.title).toBe("bar");
   });
 
+  describe("callbacks", () => {
+    describe("onCollapse", () => {
+      it("should be called on mount if a panels initial size is 0", () => {
+        let onCollapseLeft = jest.fn();
+        let onCollapseRight = jest.fn();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel collapsible defaultSize={0} onCollapse={onCollapseLeft} />
+              <PanelResizeHandle />
+              <Panel collapsible onCollapse={onCollapseRight} />
+            </PanelGroup>
+          );
+        });
+
+        expect(onCollapseLeft).toHaveBeenCalledTimes(1);
+        expect(onCollapseRight).not.toHaveBeenCalled();
+      });
+
+      it("should be called when a panel is collapsed", () => {
+        let onCollapse = jest.fn();
+
+        let panelRef = createRef<ImperativePanelHandle>();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel collapsible onCollapse={onCollapse} ref={panelRef} />
+              <PanelResizeHandle />
+              <Panel />
+            </PanelGroup>
+          );
+        });
+
+        expect(onCollapse).not.toHaveBeenCalled();
+
+        act(() => {
+          panelRef.current?.collapse();
+        });
+
+        expect(onCollapse).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe("onExpand", () => {
+      it("should be called on mount if a collapsible panels initial size is not 0", () => {
+        let onExpandLeft = jest.fn();
+        let onExpandRight = jest.fn();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel collapsible onExpand={onExpandLeft} />
+              <PanelResizeHandle />
+              <Panel onExpand={onExpandRight} />
+            </PanelGroup>
+          );
+        });
+
+        expect(onExpandLeft).toHaveBeenCalledTimes(1);
+        expect(onExpandRight).not.toHaveBeenCalled();
+      });
+
+      it("should be called when a collapsible panel is expanded", () => {
+        let onExpand = jest.fn();
+
+        let panelRef = createRef<ImperativePanelHandle>();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel
+                collapsible
+                defaultSize={0}
+                onExpand={onExpand}
+                ref={panelRef}
+              />
+              <PanelResizeHandle />
+              <Panel />
+            </PanelGroup>
+          );
+        });
+
+        expect(onExpand).not.toHaveBeenCalled();
+
+        act(() => {
+          panelRef.current?.resize(25);
+        });
+
+        expect(onExpand).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe("onResize", () => {
+      it("should be called on mount", () => {
+        let onResizeLeft = jest.fn();
+        let onResizeMiddle = jest.fn();
+        let onResizeRight = jest.fn();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel id="left" onResize={onResizeLeft} order={1} />
+              <PanelResizeHandle />
+              <Panel
+                defaultSize={50}
+                id="middle"
+                onResize={onResizeMiddle}
+                order={2}
+              />
+              <PanelResizeHandle />
+              <Panel id="right" onResize={onResizeRight} order={3} />
+            </PanelGroup>
+          );
+        });
+
+        expect(onResizeLeft).toHaveBeenCalledTimes(1);
+        expect(onResizeLeft).toHaveBeenCalledWith(25, undefined);
+        expect(onResizeMiddle).toHaveBeenCalledTimes(1);
+        expect(onResizeMiddle).toHaveBeenCalledWith(50, undefined);
+        expect(onResizeRight).toHaveBeenCalledTimes(1);
+        expect(onResizeRight).toHaveBeenCalledWith(25, undefined);
+      });
+
+      it("should be called when a panel is added or removed from the group", () => {
+        let onResizeLeft = jest.fn();
+        let onResizeMiddle = jest.fn();
+        let onResizeRight = jest.fn();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel
+                id="middle"
+                key="middle"
+                onResize={onResizeMiddle}
+                order={2}
+              />
+            </PanelGroup>
+          );
+        });
+
+        expect(onResizeLeft).not.toHaveBeenCalled();
+        expect(onResizeMiddle).toHaveBeenCalledWith(100, undefined);
+        expect(onResizeRight).not.toHaveBeenCalled();
+
+        onResizeLeft.mockReset();
+        onResizeMiddle.mockReset();
+        onResizeRight.mockReset();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel
+                id="left"
+                key="left"
+                maxSize={25}
+                minSize={25}
+                onResize={onResizeLeft}
+                order={1}
+              />
+              <PanelResizeHandle />
+              <Panel
+                id="middle"
+                key="middle"
+                onResize={onResizeMiddle}
+                order={2}
+              />
+              <PanelResizeHandle />
+              <Panel
+                id="right"
+                key="right"
+                maxSize={25}
+                minSize={25}
+                onResize={onResizeRight}
+                order={3}
+              />
+            </PanelGroup>
+          );
+        });
+
+        expect(onResizeLeft).toHaveBeenCalledTimes(1);
+        expect(onResizeLeft).toHaveBeenCalledWith(25, undefined);
+        expect(onResizeMiddle).toHaveBeenCalledTimes(1);
+        expect(onResizeMiddle).toHaveBeenCalledWith(50, 100);
+        expect(onResizeRight).toHaveBeenCalledTimes(1);
+        expect(onResizeRight).toHaveBeenCalledWith(25, undefined);
+
+        onResizeLeft.mockReset();
+        onResizeMiddle.mockReset();
+        onResizeRight.mockReset();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel
+                id="left"
+                key="left"
+                maxSize={25}
+                minSize={25}
+                onResize={onResizeLeft}
+                order={1}
+              />
+              <PanelResizeHandle />
+              <Panel
+                id="middle"
+                key="middle"
+                onResize={onResizeMiddle}
+                order={2}
+              />
+            </PanelGroup>
+          );
+        });
+
+        expect(onResizeLeft).not.toHaveBeenCalled();
+        expect(onResizeMiddle).toHaveBeenCalledTimes(1);
+        expect(onResizeMiddle).toHaveBeenCalledWith(75, 50);
+        expect(onResizeRight).not.toHaveBeenCalled();
+      });
+    });
+  });
+
   describe("DEV warnings", () => {
     it("should warn about server rendered panels with no default size", () => {
       jest.resetModules();

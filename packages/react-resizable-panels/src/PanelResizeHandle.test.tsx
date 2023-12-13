@@ -65,4 +65,10 @@ describe("PanelResizeHandle", () => {
     expect(element.getAttribute("data-test-name")).toBe("foo");
     expect(element.title).toBe("bar");
   });
+
+  describe("callbacks", () => {
+    describe("onDragging", () => {
+      // TODO: Test this
+    });
+  });
 });

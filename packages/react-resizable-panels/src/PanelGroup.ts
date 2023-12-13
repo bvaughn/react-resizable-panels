@@ -16,7 +16,6 @@ import { computePanelFlexBoxStyle } from "./utils/computePanelFlexBoxStyle";
 import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
 import debounce from "./utils/debounce";
 import { determinePivotIndices } from "./utils/determinePivotIndices";
-import { getPanelElementsForGroup } from "./utils/dom/getPanelElementsForGroup";
 import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
 import { isKeyDown, isMouseEvent, isTouchEvent } from "./utils/events";
 import { getResizeEventCursorPosition } from "./utils/getResizeEventCursorPosition";
@@ -103,6 +102,7 @@ function PanelGroupWithForwardedRef({
 
   const [dragState, setDragState] = useState<DragState | null>(null);
   const [layout, setLayout] = useState<number[]>([]);
+  const [panelDataArray, setPanelDataArray] = useState<PanelData[]>([]);
 
   const panelIdToLastNotifiedSizeMapRef = useRef<Record<string, number>>({});
   const panelSizeBeforeCollapseRef = useRef<Map<string, number>>(new Map());
@@ -129,9 +129,11 @@ function PanelGroupWithForwardedRef({
   const eagerValuesRef = useRef<{
     layout: number[];
     panelDataArray: PanelData[];
+    panelDataArrayChanged: boolean;
   }>({
     layout,
     panelDataArray: [],
+    panelDataArrayChanged: false,
   });
 
   const devWarningsRef = useRef<{
@@ -463,26 +465,7 @@ function PanelGroupWithForwardedRef({
   }, []);
 
   const registerPanel = useCallback((panelData: PanelData) => {
-    const {
-      autoSaveId,
-      id: groupId,
-      onLayout,
-      storage,
-    } = committedValuesRef.current;
-    const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
-
-    // HACK
-    // This appears to be triggered by some React Suspense+Offscreen+StrictMode bug;
-    // see app.replay.io/recording/17b6e11d-4500-4173-b23d-61dfd141fed1
-    const index = findPanelDataIndex(panelDataArray, panelData);
-    if (index >= 0) {
-      if (panelData.idIsFromProps) {
-        console.warn(`Panel with id "${panelData.id}" registered twice`);
-      } else {
-        console.warn(`Panel registered twice`);
-      }
-      return;
-    }
+    const { panelDataArray } = eagerValuesRef.current;
 
     panelDataArray.push(panelData);
     panelDataArray.sort((panelA, panelB) => {
@@ -499,54 +482,57 @@ function PanelGroupWithForwardedRef({
       }
     });
 
-    // Wait until all panels have registered before we try to compute layout;
-    // doing it earlier is both wasteful and may trigger misleading warnings in development mode.
-    const panelElements = getPanelElementsForGroup(groupId);
-    if (panelElements.length !== panelDataArray.length) {
-      return;
-    }
+    eagerValuesRef.current.panelDataArrayChanged = true;
+  }, []);
 
-    // If this panel has been configured to persist sizing information,
-    // default size should be restored from local storage if possible.
-    let unsafeLayout: number[] | null = null;
-    if (autoSaveId) {
-      unsafeLayout = loadPanelLayout(autoSaveId, panelDataArray, storage);
-    }
+  // (Re)calculate group layout whenever panels are registered or unregistered.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useIsomorphicLayoutEffect(() => {
+    if (eagerValuesRef.current.panelDataArrayChanged) {
+      eagerValuesRef.current.panelDataArrayChanged = false;
 
-    if (unsafeLayout == null) {
-      unsafeLayout = calculateUnsafeDefaultLayout({
-        panelDataArray,
-      });
-    }
+      const { autoSaveId, onLayout, storage } = committedValuesRef.current;
+      const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
-    // Validate even saved layouts in case something has changed since last render
-    // e.g. for pixel groups, this could be the size of the window
-    const nextLayout = validatePanelGroupLayout({
-      layout: unsafeLayout,
-      panelConstraints: panelDataArray.map(
-        (panelData) => panelData.constraints
-      ),
-    });
-
-    // Offscreen mode makes this a bit weird;
-    // Panels unregister when hidden and re-register when shown again,
-    // but the overall layout doesn't change between these two cases.
-    setLayout(nextLayout);
-
-    eagerValuesRef.current.layout = nextLayout;
-
-    if (!areEqual(prevLayout, nextLayout)) {
-      if (onLayout) {
-        onLayout(nextLayout);
+      // If this panel has been configured to persist sizing information,
+      // default size should be restored from local storage if possible.
+      let unsafeLayout: number[] | null = null;
+      if (autoSaveId) {
+        unsafeLayout = loadPanelLayout(autoSaveId, panelDataArray, storage);
       }
 
-      callPanelCallbacks(
-        panelDataArray,
-        nextLayout,
-        panelIdToLastNotifiedSizeMapRef.current
-      );
+      if (unsafeLayout == null) {
+        unsafeLayout = calculateUnsafeDefaultLayout({
+          panelDataArray,
+        });
+      }
+
+      // Validate even saved layouts in case something has changed since last render
+      // e.g. for pixel groups, this could be the size of the window
+      const nextLayout = validatePanelGroupLayout({
+        layout: unsafeLayout,
+        panelConstraints: panelDataArray.map(
+          (panelData) => panelData.constraints
+        ),
+      });
+
+      if (!areEqual(prevLayout, nextLayout)) {
+        setLayout(nextLayout);
+
+        eagerValuesRef.current.layout = nextLayout;
+
+        if (onLayout) {
+          onLayout(nextLayout);
+        }
+
+        callPanelCallbacks(
+          panelDataArray,
+          nextLayout,
+          panelIdToLastNotifiedSizeMapRef.current
+        );
+      }
     }
-  }, []);
+  });
 
   const registerResizeHandle = useCallback((dragHandleId: string) => {
     return function resizeHandler(event: ResizeEvent) {
@@ -723,90 +709,21 @@ function PanelGroupWithForwardedRef({
     setDragState(null);
   }, []);
 
-  const unregisterPanelRef = useRef<{
-    pendingPanelIds: Set<string>;
-    timeout: NodeJS.Timeout | null;
-  }>({
-    pendingPanelIds: new Set(),
-    timeout: null,
-  });
   const unregisterPanel = useCallback((panelData: PanelData) => {
-    const { onLayout } = committedValuesRef.current;
-    const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
+    const { panelDataArray } = eagerValuesRef.current;
 
     const index = findPanelDataIndex(panelDataArray, panelData);
     if (index >= 0) {
       panelDataArray.splice(index, 1);
-      unregisterPanelRef.current.pendingPanelIds.add(panelData.id);
-    }
-
-    if (unregisterPanelRef.current.timeout != null) {
-      clearTimeout(unregisterPanelRef.current.timeout);
-    }
-
-    // Batch panel unmounts so that we only calculate layout once;
-    // This is more efficient and avoids misleading warnings in development mode.
-    // We can't check the DOM to detect this because Panel elements have not yet been removed.
-    unregisterPanelRef.current.timeout = setTimeout(() => {
-      const { pendingPanelIds } = unregisterPanelRef.current;
-      const panelIdToLastNotifiedSizeMap =
-        panelIdToLastNotifiedSizeMapRef.current;
 
       // TRICKY
-      // Strict effects mode
-      let unmountDueToStrictMode = false;
-      pendingPanelIds.forEach((panelId) => {
-        pendingPanelIds.delete(panelId);
+      // When a panel is removed from the group, we should delete the most recent prev-size entry for it.
+      // If we don't do this, then a conditionally rendered panel might not call onResize when it's re-mounted.
+      // Strict effects mode makes this tricky though because all panels will be registered, unregistered, then re-registered on mount.
+      delete panelIdToLastNotifiedSizeMapRef.current[panelData.id];
 
-        if (panelDataArray.find(({ id }) => id === panelId) != null) {
-          unmountDueToStrictMode = true;
-        } else {
-          // TRICKY
-          // When a panel is removed from the group, we should delete the most recent prev-size entry for it.
-          // If we don't do this, then a conditionally rendered panel might not call onResize when it's re-mounted.
-          // Strict effects mode makes this tricky though because all panels will be registered, unregistered, then re-registered on mount.
-          delete panelIdToLastNotifiedSizeMap[panelId];
-        }
-      });
-
-      if (unmountDueToStrictMode) {
-        return;
-      }
-
-      if (panelDataArray.length === 0) {
-        // The group is unmounting; skip layout calculation.
-        return;
-      }
-
-      let unsafeLayout: number[] = calculateUnsafeDefaultLayout({
-        panelDataArray,
-      });
-
-      // Validate even saved layouts in case something has changed since last render
-      // e.g. for pixel groups, this could be the size of the window
-      const nextLayout = validatePanelGroupLayout({
-        layout: unsafeLayout,
-        panelConstraints: panelDataArray.map(
-          (panelData) => panelData.constraints
-        ),
-      });
-
-      if (!areEqual(prevLayout, nextLayout)) {
-        setLayout(nextLayout);
-
-        eagerValuesRef.current.layout = nextLayout;
-
-        if (onLayout) {
-          onLayout(nextLayout);
-        }
-
-        callPanelCallbacks(
-          panelDataArray,
-          nextLayout,
-          panelIdToLastNotifiedSizeMapRef.current
-        );
-      }
-    }, 0);
+      eagerValuesRef.current.panelDataArrayChanged = true;
+    }
   }, []);
 
   const context = useMemo(

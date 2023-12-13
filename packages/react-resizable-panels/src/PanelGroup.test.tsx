@@ -2,6 +2,7 @@ import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import {
   ImperativePanelGroupHandle,
+  ImperativePanelHandle,
   Panel,
   PanelGroup,
   PanelResizeHandle,
@@ -128,6 +129,65 @@ describe("PanelGroup", () => {
     expect(element.tabIndex).toBe(123);
     expect(element.getAttribute("data-test-name")).toBe("foo");
     expect(element.title).toBe("bar");
+  });
+
+  describe("callbacks", () => {
+    describe("onLayout", () => {
+      it("should be called with the initial group layout on mount", () => {
+        let onLayout = jest.fn();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal" onLayout={onLayout}>
+              <Panel defaultSize={35} />
+              <PanelResizeHandle />
+              <Panel defaultSize={65} />
+            </PanelGroup>
+          );
+        });
+
+        expect(onLayout).toHaveBeenCalledTimes(1);
+        expect(onLayout).toHaveBeenCalledWith([35, 65]);
+      });
+
+      it("should be called any time the group layout changes", () => {
+        let onLayout = jest.fn();
+        let panelGroupRef = createRef<ImperativePanelGroupHandle>();
+        let panelRef = createRef<ImperativePanelHandle>();
+
+        act(() => {
+          root.render(
+            <PanelGroup
+              direction="horizontal"
+              onLayout={onLayout}
+              ref={panelGroupRef}
+            >
+              <Panel defaultSize={35} ref={panelRef} />
+              <PanelResizeHandle />
+              <Panel defaultSize={65} />
+            </PanelGroup>
+          );
+        });
+
+        onLayout.mockReset();
+
+        act(() => {
+          panelGroupRef.current?.setLayout([25, 75]);
+        });
+
+        expect(onLayout).toHaveBeenCalledTimes(1);
+        expect(onLayout).toHaveBeenCalledWith([25, 75]);
+
+        onLayout.mockReset();
+
+        act(() => {
+          panelRef.current?.resize(50);
+        });
+
+        expect(onLayout).toHaveBeenCalledTimes(1);
+        expect(onLayout).toHaveBeenCalledWith([50, 50]);
+      });
+    });
   });
 
   describe("DEV warnings", () => {
