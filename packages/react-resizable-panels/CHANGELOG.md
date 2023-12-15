@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+- Change local storage key for persisted sizes to avoid restoring pixel-based sizes (see #233)
+
 ## 1.0.1
 
 - Small bug fix to guard against saving an incorrect panel layout to local storage

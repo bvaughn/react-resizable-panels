@@ -14,7 +14,9 @@ function getSerializationKey(panels: PanelData[]): string {
       if (idIsFromProps) {
         return id;
       } else {
-        return `${order}:${JSON.stringify(constraints)}`;
+        return order
+          ? `${order}:${JSON.stringify(constraints)}`
+          : JSON.stringify(constraints);
       }
     })
     .sort((a, b) => a.localeCompare(b))
@@ -26,7 +28,7 @@ function loadSerializedPanelGroupState(
   storage: PanelGroupStorage
 ): SerializedPanelGroupState | null {
   try {
-    const serialized = storage.getItem(`PanelGroup:sizes:${autoSaveId}`);
+    const serialized = storage.getItem(`PanelGroup:layout:${autoSaveId}`);
     if (serialized) {
       const parsed = JSON.parse(serialized);
       if (typeof parsed === "object" && parsed != null) {
@@ -63,7 +65,7 @@ export function savePanelGroupLayout(
   state[key] = sizes;
 
   try {
-    storage.setItem(`PanelGroup:sizes:${autoSaveId}`, JSON.stringify(state));
+    storage.setItem(`PanelGroup:layout:${autoSaveId}`, JSON.stringify(state));
   } catch (error) {
     console.error(error);
   }
