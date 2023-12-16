@@ -227,8 +227,8 @@ function PanelGroupWithForwardedRef({
         debounceMap[autoSaveId] = debouncedSave;
       }
 
-      // Clone panel data array before saving since this array is mutated.
-      // If we don't clone, we run the risk of saving the wrong panel and layout pair.
+      // Clone mutable data before passing to the debounced function,
+      // else we run the risk of saving an incorrect combination of mutable and immutable values to state.
       const clonedPanelDataArray = [...panelDataArray];
       const clonedPanelSizesBeforeCollapse = new Map(
         panelSizeBeforeCollapseRef.current
