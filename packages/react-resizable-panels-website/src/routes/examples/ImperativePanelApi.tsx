@@ -221,6 +221,7 @@ function Content({
       </div>
       <div className={sharedStyles.PanelGroupWrapper}>
         <PanelGroup
+          autoSaveId="ImperativePanelApi"
           className={sharedStyles.PanelGroup}
           direction="horizontal"
           id="imperative-Panel-api"

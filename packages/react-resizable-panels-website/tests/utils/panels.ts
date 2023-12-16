@@ -149,6 +149,22 @@ export async function dragResizeTo(
   await page.mouse.up();
 }
 
+export async function imperativeCollapsePanel(page: Page, panelId: string) {
+  const panelIdSelect = page.locator("#panelIdSelect");
+  await panelIdSelect.selectOption(panelId);
+
+  const button = page.locator("#collapseButton");
+  await button.click();
+}
+
+export async function imperativeExpandPanel(page: Page, panelId: string) {
+  const panelIdSelect = page.locator("#panelIdSelect");
+  await panelIdSelect.selectOption(panelId);
+
+  const button = page.locator("#expandButton");
+  await button.click();
+}
+
 export async function imperativeResizePanel(
   page: Page,
   panelId: string,
@@ -161,8 +177,8 @@ export async function imperativeResizePanel(
   await sizeInput.focus();
   await sizeInput.fill(`${size}%`);
 
-  const resizeButton = page.locator("#resizeButton");
-  await resizeButton.click();
+  const button = page.locator("#resizeButton");
+  await button.click();
 }
 
 export async function imperativeResizePanelGroup(
