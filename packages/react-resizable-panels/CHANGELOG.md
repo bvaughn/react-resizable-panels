@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.3
 
 - Remember most recently expanded panel size in local storage (#234)
 
