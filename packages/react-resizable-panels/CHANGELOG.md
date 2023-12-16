@@ -1,8 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Remember most recently expanded panel size in local storage (#234)
+
 ## 1.0.2
 
-- Change local storage key for persisted sizes to avoid restoring pixel-based sizes (see #233)
+- Change local storage key for persisted sizes to avoid restoring pixel-based sizes (#233)
 
 ## 1.0.1
 

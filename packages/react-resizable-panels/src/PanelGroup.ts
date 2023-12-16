@@ -20,7 +20,10 @@ import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
 import { isKeyDown, isMouseEvent, isTouchEvent } from "./utils/events";
 import { getResizeEventCursorPosition } from "./utils/getResizeEventCursorPosition";
 import { initializeDefaultStorage } from "./utils/initializeDefaultStorage";
-import { loadPanelLayout, savePanelGroupLayout } from "./utils/serialization";
+import {
+  loadPanelGroupState,
+  savePanelGroupState,
+} from "./utils/serialization";
 import { validatePanelConstraints } from "./utils/validatePanelConstraints";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 import {
@@ -79,7 +82,7 @@ export type PanelGroupProps = Omit<HTMLAttributes<ElementType>, "id"> &
   }>;
 
 const debounceMap: {
-  [key: string]: typeof savePanelGroupLayout;
+  [key: string]: typeof savePanelGroupState;
 } = {};
 
 function PanelGroupWithForwardedRef({
@@ -102,7 +105,6 @@ function PanelGroupWithForwardedRef({
 
   const [dragState, setDragState] = useState<DragState | null>(null);
   const [layout, setLayout] = useState<number[]>([]);
-  const [panelDataArray, setPanelDataArray] = useState<PanelData[]>([]);
 
   const panelIdToLastNotifiedSizeMapRef = useRef<Record<string, number>>({});
   const panelSizeBeforeCollapseRef = useRef<Map<string, number>>(new Map());
@@ -218,16 +220,26 @@ function PanelGroupWithForwardedRef({
       // Limit the frequency of localStorage updates.
       if (debouncedSave == null) {
         debouncedSave = debounce(
-          savePanelGroupLayout,
+          savePanelGroupState,
           LOCAL_STORAGE_DEBOUNCE_INTERVAL
         );
 
         debounceMap[autoSaveId] = debouncedSave;
       }
 
-      // Clone panel data array before saving since this array is mutated.
-      // If we don't clone, we run the risk of saving the wrong panel and layout pair.
-      debouncedSave(autoSaveId, [...panelDataArray], layout, storage);
+      // Clone mutable data before passing to the debounced function,
+      // else we run the risk of saving an incorrect combination of mutable and immutable values to state.
+      const clonedPanelDataArray = [...panelDataArray];
+      const clonedPanelSizesBeforeCollapse = new Map(
+        panelSizeBeforeCollapseRef.current
+      );
+      debouncedSave(
+        autoSaveId,
+        clonedPanelDataArray,
+        clonedPanelSizesBeforeCollapse,
+        layout,
+        storage
+      );
     }
   }, [autoSaveId, layout, storage]);
 
@@ -500,7 +512,13 @@ function PanelGroupWithForwardedRef({
       // default size should be restored from local storage if possible.
       let unsafeLayout: number[] | null = null;
       if (autoSaveId) {
-        unsafeLayout = loadPanelLayout(autoSaveId, panelDataArray, storage);
+        const state = loadPanelGroupState(autoSaveId, panelDataArray, storage);
+        if (state) {
+          panelSizeBeforeCollapseRef.current = new Map(
+            Object.entries(state.expandToSizes)
+          );
+          unsafeLayout = state.layout;
+        }
       }
 
       if (unsafeLayout == null) {
