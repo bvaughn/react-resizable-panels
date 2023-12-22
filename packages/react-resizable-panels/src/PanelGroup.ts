@@ -454,11 +454,11 @@ function PanelGroupWithForwardedRef({
   const isPanelCollapsed = useCallback((panelData: PanelData) => {
     const { layout, panelDataArray } = eagerValuesRef.current;
 
-    const { collapsedSize, collapsible, panelSize } = panelDataHelper(
-      panelDataArray,
-      panelData,
-      layout
-    );
+    const {
+      collapsedSize = 0,
+      collapsible,
+      panelSize,
+    } = panelDataHelper(panelDataArray, panelData, layout);
 
     return collapsible === true && panelSize === collapsedSize;
   }, []);

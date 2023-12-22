@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.4
+
+- Edge case bug fix for `isCollapsed` panel method
+
 ## 1.0.3
 
 - Remember most recently expanded panel size in local storage (#234)

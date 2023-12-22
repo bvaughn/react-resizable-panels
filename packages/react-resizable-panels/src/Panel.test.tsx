@@ -89,13 +89,19 @@ describe("PanelGroup", () => {
         assert(mostRecentLayout);
 
         verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
+        expect(leftPanelRef.current?.isCollapsed()).toBe(false);
+        expect(rightPanelRef.current?.isCollapsed()).toBe(false);
         act(() => {
           leftPanelRef.current?.collapse();
         });
+        expect(leftPanelRef.current?.isCollapsed()).toBe(true);
+        expect(rightPanelRef.current?.isCollapsed()).toBe(false);
         verifyExpandedPanelGroupLayout(mostRecentLayout, [0, 100]);
         act(() => {
           leftPanelRef.current?.expand();
         });
+        expect(leftPanelRef.current?.isCollapsed()).toBe(false);
+        expect(rightPanelRef.current?.isCollapsed()).toBe(false);
         verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
       });
 
@@ -103,14 +109,20 @@ describe("PanelGroup", () => {
         assert(mostRecentLayout);
 
         verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
+        expect(leftPanelRef.current?.isCollapsed()).toBe(false);
+        expect(rightPanelRef.current?.isCollapsed()).toBe(false);
         act(() => {
           rightPanelRef.current?.collapse();
         });
         verifyExpandedPanelGroupLayout(mostRecentLayout, [100, 0]);
+        expect(leftPanelRef.current?.isCollapsed()).toBe(false);
+        expect(rightPanelRef.current?.isCollapsed()).toBe(true);
         act(() => {
           rightPanelRef.current?.expand();
         });
         verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
+        expect(leftPanelRef.current?.isCollapsed()).toBe(false);
+        expect(rightPanelRef.current?.isCollapsed()).toBe(false);
       });
 
       it("should re-expand to the most recent size before collapsing", () => {
