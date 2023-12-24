@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.5
+
+- Fix regression that broke server rendering (#240)
+
 ## 1.0.4
 
 - Edge case bug fix for `isCollapsed` panel method
