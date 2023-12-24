@@ -17,7 +17,10 @@ export const PanelGroupContext = createContext<{
   dragState: DragState | null;
   expandPanel: (panelData: PanelData) => void;
   getPanelSize: (panelData: PanelData) => number;
-  getPanelStyle: (panelData: PanelData) => CSSProperties;
+  getPanelStyle: (
+    panelData: PanelData,
+    defaultSize: number | undefined
+  ) => CSSProperties;
   groupId: string;
   isPanelCollapsed: (panelData: PanelData) => boolean;
   isPanelExpanded: (panelData: PanelData) => boolean;

@@ -6,12 +6,14 @@ import { CSSProperties } from "../vendor/react";
 
 // the % of the group's overall space this panel should occupy.
 export function computePanelFlexBoxStyle({
+  defaultSize,
   dragState,
   layout,
   panelData,
   panelIndex,
   precision = 3,
 }: {
+  defaultSize: number | undefined;
   layout: number[];
   dragState: DragState | null;
   panelData: PanelData[];
@@ -21,10 +23,12 @@ export function computePanelFlexBoxStyle({
   const size = layout[panelIndex];
 
   let flexGrow;
-  if (panelData.length === 1) {
-    flexGrow = "1";
-  } else if (size == null) {
+  if (size == null) {
     // Initial render (before panels have registered themselves)
+    // In order to support server rendering, fall back to default size if provided
+    flexGrow = defaultSize ?? "1";
+  } else if (panelData.length === 1) {
+    // Special case: Single panel group should always fill full width/height
     flexGrow = "1";
   } else {
     flexGrow = size.toPrecision(precision);
