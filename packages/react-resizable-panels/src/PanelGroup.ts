@@ -435,12 +435,13 @@ function PanelGroupWithForwardedRef({
 
   // This API should never read from committedValuesRef
   const getPanelStyle = useCallback(
-    (panelData: PanelData) => {
+    (panelData: PanelData, defaultSize: number | undefined) => {
       const { panelDataArray } = eagerValuesRef.current;
 
       const panelIndex = findPanelDataIndex(panelDataArray, panelData);
 
       return computePanelFlexBoxStyle({
+        defaultSize,
         dragState,
         layout,
         panelData: panelDataArray,

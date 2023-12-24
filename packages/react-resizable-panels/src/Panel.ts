@@ -212,7 +212,7 @@ export function PanelWithForwardedRef({
     ]
   );
 
-  const style = getPanelStyle(panelDataRef.current);
+  const style = getPanelStyle(panelDataRef.current, defaultSize);
 
   return createElement(Type, {
     ...rest,
