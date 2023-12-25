@@ -2,11 +2,11 @@
 
 ## 1.0.5
 
-- Fix regression that broke server rendering (#240)
+- Fix server rendering regression (#240); Panels will now render with their `defaultSize` during initial mount (if one is specified). This allows server-rendered components to store the most recent size in a cookie and use that value as the default for subsequent page visits.
 
 ## 1.0.4
 
-- Edge case bug fix for `isCollapsed` panel method
+- Edge case bug fix for `isCollapsed` panel method; previously an uninitialized `collapsedSize` value was not being initialized to `0`, which caused `isCollapsed` to incorrectly report `false` in some cases.
 
 ## 1.0.3
 
