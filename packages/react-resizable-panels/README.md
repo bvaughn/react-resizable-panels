@@ -178,6 +178,15 @@ No. Pixel-based constraints [added significant complexity](https://github.com/bv
 No. I think exposing two refs (one for the component's imperative API and one for a DOM element) would be awkward. This library does export several utility methods for accessing the underlying DOM elements though. For example:
 
 ```tsx
+import {
+  getPanelElement,
+  getPanelGroupElement,
+  getResizeHandleElement,
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+} from "react-resizable-panels";
+
 export function Example() {
   const refs = useRef();
 
@@ -185,19 +194,21 @@ export function Example() {
     const groupElement = getPanelGroupElement("group");
     const leftPanelElement = getPanelElement("left-panel");
     const rightPanelElement = getPanelElement("right-panel");
+    const resizeHandleElement = getResizeHandleElement("resize-handle");
 
     // If you want to, you can store them in a ref to pass around
     refs.current = {
       groupElement,
       leftPanelElement,
       rightPanelElement,
+      resizeHandleElement,
     };
   }, []);
 
   return (
     <PanelGroup direction="horizontal" id="group">
       <Panel id="left-panel">{/* ... */}</Panel>
-      <PanelResizeHandle />
+      <PanelResizeHandle id="resize-handle" />
       <Panel id="right-panel">{/* ... */}</Panel>
     </PanelGroup>
   );
