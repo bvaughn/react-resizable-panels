@@ -68,7 +68,10 @@ const defaultStorage: PanelGroupStorage = {
   },
 };
 
-export type PanelGroupProps = Omit<HTMLAttributes<keyof HTMLElementTagNameMap>, "id"> &
+export type PanelGroupProps = Omit<
+  HTMLAttributes<keyof HTMLElementTagNameMap>,
+  "id"
+> &
   PropsWithChildren<{
     autoSaveId?: string | null;
     className?: string;

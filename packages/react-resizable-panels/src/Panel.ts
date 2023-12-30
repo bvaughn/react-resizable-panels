@@ -54,7 +54,10 @@ export type ImperativePanelHandle = {
   resize: (size: number) => void;
 };
 
-export type PanelProps = Omit<HTMLAttributes<keyof HTMLElementTagNameMap>, "id" | "onResize"> &
+export type PanelProps = Omit<
+  HTMLAttributes<keyof HTMLElementTagNameMap>,
+  "id" | "onResize"
+> &
   PropsWithChildren<{
     className?: string;
     collapsedSize?: number | undefined;
