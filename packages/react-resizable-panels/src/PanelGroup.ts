@@ -40,6 +40,7 @@ import {
   useMemo,
   useRef,
   useState,
+  RefObject,
 } from "./vendor/react";
 
 const LOCAL_STORAGE_DEBOUNCE_INTERVAL = 100;
@@ -48,6 +49,7 @@ export type ImperativePanelGroupHandle = {
   getId: () => string;
   getLayout: () => number[];
   setLayout: (layout: number[]) => void;
+  elementRef: RefObject<HTMLElement>;
 };
 
 export type PanelGroupStorage = {
@@ -105,6 +107,8 @@ function PanelGroupWithForwardedRef({
 
   const [dragState, setDragState] = useState<DragState | null>(null);
   const [layout, setLayout] = useState<number[]>([]);
+
+  const panelGroupElementRef = useRef<HTMLElement>(null);
 
   const panelIdToLastNotifiedSizeMapRef = useRef<Record<string, number>>({});
   const panelSizeBeforeCollapseRef = useRef<Map<string, number>>(new Map());
@@ -184,6 +188,7 @@ function PanelGroupWithForwardedRef({
           );
         }
       },
+      elementRef: panelGroupElementRef,
     }),
     []
   );
@@ -804,6 +809,7 @@ function PanelGroupWithForwardedRef({
         ...style,
         ...styleFromProps,
       },
+      ref: panelGroupElementRef,
 
       // CSS selectors
       "data-panel-group": "",

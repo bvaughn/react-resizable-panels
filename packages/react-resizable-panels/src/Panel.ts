@@ -13,6 +13,7 @@ import {
   useContext,
   useImperativeHandle,
   useRef,
+  RefObject,
 } from "./vendor/react";
 
 export type PanelOnCollapse = () => void;
@@ -52,6 +53,7 @@ export type ImperativePanelHandle = {
   isCollapsed: () => boolean;
   isExpanded: () => boolean;
   resize: (size: number) => void;
+  elementRef: RefObject<HTMLElement>;
 };
 
 export type PanelProps = Omit<HTMLAttributes<ElementType>, "id" | "onResize"> &
@@ -111,6 +113,8 @@ export function PanelWithForwardedRef({
   } = context;
 
   const panelId = useUniqueId(idFromProps);
+
+  const panelElementRef = useRef<HTMLElement>(null);
 
   const panelDataRef = useRef<PanelData>({
     callbacks: {
@@ -201,6 +205,7 @@ export function PanelWithForwardedRef({
       resize: (size: number) => {
         resizePanel(panelDataRef.current, size);
       },
+      elementRef: panelElementRef,
     }),
     [
       collapsePanel,
@@ -223,6 +228,7 @@ export function PanelWithForwardedRef({
       ...style,
       ...styleFromProps,
     },
+    ref: panelElementRef,
 
     // CSS selectors
     "data-panel": "",
