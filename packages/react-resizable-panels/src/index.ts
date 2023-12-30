@@ -2,6 +2,15 @@ import { Panel } from "./Panel";
 import { PanelGroup } from "./PanelGroup";
 import { PanelResizeHandle } from "./PanelResizeHandle";
 import { assert } from "./utils/assert";
+import { calculateAvailablePanelSizeInPixels } from "./utils/dom/calculateAvailablePanelSizeInPixels";
+import { getAvailableGroupSizePixels } from "./utils/dom/getAvailableGroupSizePixels";
+import { getPanelElement } from "./utils/dom/getPanelElement";
+import { getPanelElementsForGroup } from "./utils/dom/getPanelElementsForGroup";
+import { getPanelGroupElement } from "./utils/dom/getPanelGroupElement";
+import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
+import { getResizeHandleElementIndex } from "./utils/dom/getResizeHandleElementIndex";
+import { getResizeHandleElementsForGroup } from "./utils/dom/getResizeHandleElementsForGroup";
+import { getResizeHandlePanelIds } from "./utils/dom/getResizeHandlePanelIds";
 
 import type {
   ImperativePanelHandle,
@@ -35,11 +44,22 @@ export {
   PanelResizeHandleOnDragging,
   PanelResizeHandleProps,
 
-  // Utiltiy methods
-  assert,
-
   // React components
   Panel,
   PanelGroup,
   PanelResizeHandle,
+
+  // Utility methods
+  assert,
+
+  // DOM helpers
+  calculateAvailablePanelSizeInPixels,
+  getAvailableGroupSizePixels,
+  getPanelElement,
+  getPanelElementsForGroup,
+  getPanelGroupElement,
+  getResizeHandleElement,
+  getResizeHandleElementIndex,
+  getResizeHandleElementsForGroup,
+  getResizeHandlePanelIds,
 };

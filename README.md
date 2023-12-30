@@ -23,6 +23,46 @@ Supported input methods include mouse, touch, and keyboard (via [Window Splitter
 
 No. Pixel-based constraints [added significant complexity](https://github.com/bvaughn/react-resizable-panels/pull/176) to the initialization and validation logic and so I've decided not to support them. You may be able to implement a version of this yourself following [a pattern like this](https://github.com/bvaughn/react-resizable-panels/issues/46#issuecomment-1368108416) but it is not officially supported by this library.
 
+### Can a attach a ref to the DOM elements?
+
+No. I think exposing two refs (one for the component's imperative API and one for a DOM element) would be awkward. This library does export several utility methods for accessing the underlying DOM elements though. For example:
+
+```tsx
+export function Example() {
+  const refs = useRef();
+
+  useEffect(() => {
+    const groupElement = getPanelGroupElement("group");
+    const leftPanelElement = getPanelElement("left-panel");
+    const rightPanelElement = getPanelElement("right-panel");
+
+    // If you want to, you can store them in a ref to pass around
+    refs.current = {
+      groupElement,
+      leftPanelElement,
+      rightPanelElement
+    };
+  }, []);
+
+  return (
+    <PanelGroup direction="horizontal" id="group">
+      <Panel id="left-panel">{/* ... */}</Panel>
+      <PanelResizeHandle />
+      <Panel id="right-panel">{/* ... */}</Panel>
+    </PanelGroup>
+  );
+}
+```
+
+### Why don't I see any resize UI?
+
+This likely means that you haven't applied any CSS to style the resize handles. By default, a resize handle is just an empty DOM element. To add styling, use the `className` or `style` props:
+
+```tsx
+// Tailwind example
+<PanelResizeHandle className="w-2 bg-blue-800" />
+```
+
 ### How can I fix layout/sizing problems with conditionally rendered panels?
 
 The `Panel` API doesn't _require_ `id` and `order` props because they aren't necessary for static layouts. When panels are conditionally rendered though, it's best to supply these values.
