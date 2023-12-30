@@ -4,7 +4,6 @@ import { PanelGroupContext } from "./PanelGroupContext";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
 import {
-  ElementType,
   ForwardedRef,
   HTMLAttributes,
   PropsWithChildren,

@@ -28,7 +28,6 @@ import { validatePanelConstraints } from "./utils/validatePanelConstraints";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 import {
   CSSProperties,
-  ElementType,
   ForwardedRef,
   HTMLAttributes,
   PropsWithChildren,

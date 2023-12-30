@@ -2,7 +2,6 @@ import useUniqueId from "./hooks/useUniqueId";
 import {
   createElement,
   CSSProperties,
-  ElementType,
   HTMLAttributes,
   PropsWithChildren,
   MouseEvent as ReactMouseEvent,
