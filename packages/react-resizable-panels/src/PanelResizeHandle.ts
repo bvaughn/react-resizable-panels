@@ -5,6 +5,7 @@ import {
   HTMLAttributes,
   PropsWithChildren,
   MouseEvent as ReactMouseEvent,
+  ReactNode,
   TouchEvent,
   useCallback,
   useContext,
@@ -24,8 +25,10 @@ import { getCursorStyle } from "./utils/cursor";
 
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 
+type HTMLElementTagName = keyof HTMLElementTagNameMap;
+
 export type PanelResizeHandleProps = Omit<
-  HTMLAttributes<keyof HTMLElementTagNameMap>,
+  HTMLAttributes<HTMLElementTagName>,
   "id"
 > &
   PropsWithChildren<{
@@ -35,7 +38,7 @@ export type PanelResizeHandleProps = Omit<
     onDragging?: PanelResizeHandleOnDragging;
     style?: CSSProperties;
     tabIndex?: number;
-    tagName?: keyof HTMLElementTagNameMap;
+    tagName?: HTMLElementTagName;
   }>;
 
 export function PanelResizeHandle({
@@ -48,7 +51,7 @@ export function PanelResizeHandle({
   tabIndex = 0,
   tagName: Type = "div",
   ...rest
-}: PanelResizeHandleProps) {
+}: PanelResizeHandleProps): ReactNode {
   const elementRef = useRef<HTMLElement>(null);
 
   // Use a ref to guard against users passing inline props

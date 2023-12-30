@@ -31,6 +31,7 @@ import {
   ForwardedRef,
   HTMLAttributes,
   PropsWithChildren,
+  ReactNode,
   createElement,
   forwardRef,
   useCallback,
@@ -67,10 +68,9 @@ const defaultStorage: PanelGroupStorage = {
   },
 };
 
-export type PanelGroupProps = Omit<
-  HTMLAttributes<keyof HTMLElementTagNameMap>,
-  "id"
-> &
+type HTMLElementTagName = keyof HTMLElementTagNameMap;
+
+export type PanelGroupProps = Omit<HTMLAttributes<HTMLElementTagName>, "id"> &
   PropsWithChildren<{
     autoSaveId?: string | null;
     className?: string;
@@ -80,7 +80,7 @@ export type PanelGroupProps = Omit<
     onLayout?: PanelGroupOnLayout | null;
     storage?: PanelGroupStorage;
     style?: CSSProperties;
-    tagName?: keyof HTMLElementTagNameMap;
+    tagName?: HTMLElementTagName;
   }>;
 
 const debounceMap: {
@@ -102,7 +102,7 @@ function PanelGroupWithForwardedRef({
   ...rest
 }: PanelGroupProps & {
   forwardedRef: ForwardedRef<ImperativePanelGroupHandle>;
-}) {
+}): ReactNode {
   const groupId = useUniqueId(idFromProps);
 
   const [dragState, setDragState] = useState<DragState | null>(null);
