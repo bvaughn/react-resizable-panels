@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.6
+
+- Export internal DOM helper methods.
+
 ## 1.0.5
 
 - Fix server rendering regression (#240); Panels will now render with their `defaultSize` during initial mount (if one is specified). This allows server-rendered components to store the most recent size in a cookie and use that value as the default for subsequent page visits.
