@@ -46,7 +46,9 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 `PanelGroup` components also expose an imperative API for manual resizing:
 | method | description
 | :-------------------------------- | :---
-| `setLayout(panelSizes: number[])` | Resize panel group to the specified _panelSizes_ (`[1 - 100, ...]`).
+| `getId(): string` | Gets the panel group's ID.
+| `getLayout(): number[]` | Gets the panel group's current _layout_ (`[1 - 100, ...]`).
+| `setLayout(layout: number[])` | Resize panel group to the specified _layout_ (`[1 - 100, ...]`).
 
 ### `Panel`
 
@@ -73,9 +75,12 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | :--------------------------- | :---
 | `collapse()` | If panel is `collapsible`, collapse it fully.
 | `expand()` | If panel is currently _collapsed_, expand it to its most recent size.
-| `getCollapsed(): boolean` | Returns `true` if the panel is currently _collapsed_ (`size === 0`).
+| `getId(): string` | Gets the ID of the panel.
+| `getSize(): number` | Gets the current size of the panel as a percentage (`1 - 100`).
+| `isCollapsed(): boolean` | Returns `true` if the panel is currently _collapsed_ (`size === 0`).
+| `isExpanded(): boolean` | Returns `true` if the panel is currently _not collapsed_ (`!isCollapsed()`).
 | `getSize(): number` | Returns the most recently commited size of the panel as a percentage (`1 - 100`).
-| `resize(percentage: number)` | Resize panel to the specified _percentage_ (`1 - 100`).
+| `resize(size: number)` | Resize panel to the specified _percentage_ (`1 - 100`).
 
 ### `PanelResizeHandle`
 
