@@ -68,7 +68,7 @@ const defaultStorage: PanelGroupStorage = {
   },
 };
 
-export type PanelGroupProps = Omit<HTMLAttributes<ElementType>, "id"> &
+export type PanelGroupProps = Omit<HTMLAttributes<keyof HTMLElementTagNameMap>, "id"> &
   PropsWithChildren<{
     autoSaveId?: string | null;
     className?: string;
@@ -78,7 +78,7 @@ export type PanelGroupProps = Omit<HTMLAttributes<ElementType>, "id"> &
     onLayout?: PanelGroupOnLayout | null;
     storage?: PanelGroupStorage;
     style?: CSSProperties;
-    tagName?: ElementType;
+    tagName?: keyof HTMLElementTagNameMap;
   }>;
 
 const debounceMap: {

@@ -25,7 +25,7 @@ import { getCursorStyle } from "./utils/cursor";
 
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 
-export type PanelResizeHandleProps = Omit<HTMLAttributes<ElementType>, "id"> &
+export type PanelResizeHandleProps = Omit<HTMLAttributes<keyof HTMLElementTagNameMap>, "id"> &
   PropsWithChildren<{
     className?: string;
     disabled?: boolean;
@@ -33,7 +33,7 @@ export type PanelResizeHandleProps = Omit<HTMLAttributes<ElementType>, "id"> &
     onDragging?: PanelResizeHandleOnDragging;
     style?: CSSProperties;
     tabIndex?: number;
-    tagName?: ElementType;
+    tagName?: keyof HTMLElementTagNameMap;
   }>;
 
 export function PanelResizeHandle({
