@@ -4,10 +4,10 @@ import { PanelGroupContext } from "./PanelGroupContext";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
 import {
-  ElementType,
   ForwardedRef,
   HTMLAttributes,
   PropsWithChildren,
+  ReactNode,
   createElement,
   forwardRef,
   useContext,
@@ -54,7 +54,10 @@ export type ImperativePanelHandle = {
   resize: (size: number) => void;
 };
 
-export type PanelProps = Omit<HTMLAttributes<ElementType>, "id" | "onResize"> &
+export type PanelProps = Omit<
+  HTMLAttributes<keyof HTMLElementTagNameMap>,
+  "id" | "onResize"
+> &
   PropsWithChildren<{
     className?: string;
     collapsedSize?: number | undefined;
@@ -68,7 +71,7 @@ export type PanelProps = Omit<HTMLAttributes<ElementType>, "id" | "onResize"> &
     onResize?: PanelOnResize;
     order?: number;
     style?: object;
-    tagName?: ElementType;
+    tagName?: keyof HTMLElementTagNameMap;
   }>;
 
 export function PanelWithForwardedRef({
@@ -90,7 +93,7 @@ export function PanelWithForwardedRef({
   ...rest
 }: PanelProps & {
   forwardedRef: ForwardedRef<ImperativePanelHandle>;
-}) {
+}): ReactNode {
   const context = useContext(PanelGroupContext);
   if (context === null) {
     throw Error(

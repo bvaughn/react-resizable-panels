@@ -2,10 +2,10 @@ import useUniqueId from "./hooks/useUniqueId";
 import {
   createElement,
   CSSProperties,
-  ElementType,
   HTMLAttributes,
   PropsWithChildren,
   MouseEvent as ReactMouseEvent,
+  ReactNode,
   TouchEvent,
   useCallback,
   useContext,
@@ -25,7 +25,10 @@ import { getCursorStyle } from "./utils/cursor";
 
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 
-export type PanelResizeHandleProps = Omit<HTMLAttributes<ElementType>, "id"> &
+export type PanelResizeHandleProps = Omit<
+  HTMLAttributes<keyof HTMLElementTagNameMap>,
+  "id"
+> &
   PropsWithChildren<{
     className?: string;
     disabled?: boolean;
@@ -33,7 +36,7 @@ export type PanelResizeHandleProps = Omit<HTMLAttributes<ElementType>, "id"> &
     onDragging?: PanelResizeHandleOnDragging;
     style?: CSSProperties;
     tabIndex?: number;
-    tagName?: ElementType;
+    tagName?: keyof HTMLElementTagNameMap;
   }>;
 
 export function PanelResizeHandle({
@@ -46,8 +49,8 @@ export function PanelResizeHandle({
   tabIndex = 0,
   tagName: Type = "div",
   ...rest
-}: PanelResizeHandleProps) {
-  const divElementRef = useRef<HTMLDivElement>(null);
+}: PanelResizeHandleProps): ReactNode {
+  const elementRef = useRef<HTMLElement>(null);
 
   // Use a ref to guard against users passing inline props
   const callbacksRef = useRef<{
@@ -85,9 +88,9 @@ export function PanelResizeHandle({
   const stopDraggingAndBlur = useCallback(() => {
     // Clicking on the drag handle shouldn't leave it focused;
     // That would cause the PanelGroup to think it was still active.
-    const divElement = divElementRef.current;
-    assert(divElement);
-    divElement.blur();
+    const element = elementRef.current;
+    assert(element);
+    element.blur();
 
     stopDragging();
 
@@ -119,10 +122,10 @@ export function PanelResizeHandle({
       resizeHandler(event);
     };
 
-    const divElement = divElementRef.current;
-    assert(divElement);
+    const element = elementRef.current;
+    assert(element);
 
-    const targetDocument = divElement.ownerDocument;
+    const targetDocument = element.ownerDocument;
 
     targetDocument.body.addEventListener("contextmenu", stopDraggingAndBlur);
     targetDocument.body.addEventListener("mousemove", onMove);
@@ -186,7 +189,7 @@ export function PanelResizeHandle({
         onDragging(true);
       }
     },
-    ref: divElementRef,
+    ref: elementRef,
     role: "separator",
     style: {
       ...style,

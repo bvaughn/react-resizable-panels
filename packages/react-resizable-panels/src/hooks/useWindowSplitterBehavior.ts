@@ -62,7 +62,7 @@ export function useWindowSplitterResizeHandlerBehavior({
             ? index + 1
             : 0;
 
-          const nextHandle = handles[nextIndex] as HTMLDivElement;
+          const nextHandle = handles[nextIndex] as HTMLElement;
           nextHandle.focus();
 
           break;
