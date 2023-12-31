@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.7
+
+- Narrow `tagName` prop to only allow `HTMLElement` names (rather than the broader `Element` type) (#251)
+
 ## 1.0.6
 
 - Export internal DOM helper methods.
