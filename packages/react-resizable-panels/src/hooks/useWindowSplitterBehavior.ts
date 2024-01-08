@@ -11,17 +11,19 @@ export function useWindowSplitterResizeHandlerBehavior({
   disabled,
   handleId,
   resizeHandler,
+  panelGroupElement,
 }: {
   disabled: boolean;
   handleId: string;
   resizeHandler: ResizeHandler | null;
+  panelGroupElement: HTMLElement | null;
 }): void {
   useEffect(() => {
-    if (disabled || resizeHandler == null) {
+    if (disabled || resizeHandler == null || panelGroupElement == null) {
       return;
     }
 
-    const handleElement = getResizeHandleElement(handleId);
+    const handleElement = getResizeHandleElement(handleId, panelGroupElement);
     if (handleElement == null) {
       return;
     }
@@ -49,8 +51,15 @@ export function useWindowSplitterResizeHandlerBehavior({
           const groupId = handleElement.getAttribute("data-panel-group-id");
           assert(groupId);
 
-          const handles = getResizeHandleElementsForGroup(groupId);
-          const index = getResizeHandleElementIndex(groupId, handleId);
+          const handles = getResizeHandleElementsForGroup(
+            groupId,
+            panelGroupElement
+          );
+          const index = getResizeHandleElementIndex(
+            groupId,
+            handleId,
+            panelGroupElement
+          );
 
           assert(index !== null);
 
@@ -74,5 +83,5 @@ export function useWindowSplitterResizeHandlerBehavior({
     return () => {
       handleElement.removeEventListener("keydown", onKeyDown);
     };
-  }, [disabled, handleId, resizeHandler]);
+  }, [panelGroupElement, disabled, handleId, resizeHandler]);
 }

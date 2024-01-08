@@ -15,6 +15,7 @@ import { createRef } from "./vendor/react";
 describe("PanelGroup", () => {
   let expectedWarnings: string[] = [];
   let root: Root;
+  let container: HTMLElement;
   let uninstallMockOffsetWidthAndHeight: () => void;
 
   function expectWarning(expectedMessage: string) {
@@ -28,7 +29,7 @@ describe("PanelGroup", () => {
     // JSDom doesn't support element sizes
     uninstallMockOffsetWidthAndHeight = mockPanelGroupOffsetWidthAndHeight();
 
-    const container = document.createElement("div");
+    container = document.createElement("div");
     document.body.appendChild(container);
 
     expectedWarnings = [];
@@ -124,7 +125,7 @@ describe("PanelGroup", () => {
       );
     });
 
-    const element = getPanelGroupElement("group");
+    const element = getPanelGroupElement("group", container);
     assert(element);
     expect(element.tabIndex).toBe(123);
     expect(element.getAttribute("data-test-name")).toBe("foo");

@@ -21,6 +21,7 @@ export function useWindowSplitterPanelGroupBehavior({
   layout,
   panelDataArray,
   setLayout,
+  panelGroupElement,
 }: {
   committedValuesRef: RefObject<{
     direction: Direction;
@@ -29,6 +30,7 @@ export function useWindowSplitterPanelGroupBehavior({
     panelDataArray: PanelData[];
   }>;
   groupId: string;
+  panelGroupElement: HTMLElement | null;
   layout: number[];
   panelDataArray: PanelData[];
   setLayout: (sizes: number[]) => void;
@@ -40,7 +42,13 @@ export function useWindowSplitterPanelGroupBehavior({
   });
 
   useIsomorphicLayoutEffect(() => {
-    const resizeHandleElements = getResizeHandleElementsForGroup(groupId);
+    if (!panelGroupElement) {
+      return;
+    }
+    const resizeHandleElements = getResizeHandleElementsForGroup(
+      groupId,
+      panelGroupElement
+    );
 
     for (let index = 0; index < panelDataArray.length - 1; index++) {
       const { valueMax, valueMin, valueNow } = calculateAriaValues({
@@ -93,15 +101,17 @@ export function useWindowSplitterPanelGroupBehavior({
   }, [groupId, layout, panelDataArray]);
 
   useEffect(() => {
+    if (!panelGroupElement) {
+      return;
+    }
     const eagerValues = eagerValuesRef.current;
     assert(eagerValues);
 
     const { panelDataArray } = eagerValues;
-
-    const groupElement = getPanelGroupElement(groupId);
+    const groupElement = getPanelGroupElement(groupId, panelGroupElement);
     assert(groupElement != null, `No group found for id "${groupId}"`);
 
-    const handles = getResizeHandleElementsForGroup(groupId);
+    const handles = getResizeHandleElementsForGroup(groupId, panelGroupElement);
     assert(handles);
 
     const cleanupFunctions = handles.map((handle) => {
@@ -111,7 +121,8 @@ export function useWindowSplitterPanelGroupBehavior({
       const [idBefore, idAfter] = getResizeHandlePanelIds(
         groupId,
         handleId,
-        panelDataArray
+        panelDataArray,
+        panelGroupElement
       );
       if (idBefore == null || idAfter == null) {
         return () => {};
@@ -150,7 +161,11 @@ export function useWindowSplitterPanelGroupBehavior({
                   panelConstraints: panelDataArray.map(
                     (panelData) => panelData.constraints
                   ),
-                  pivotIndices: determinePivotIndices(groupId, handleId),
+                  pivotIndices: determinePivotIndices(
+                    groupId,
+                    handleId,
+                    panelGroupElement
+                  ),
                   trigger: "keyboard",
                 });
                 if (layout !== nextLayout) {
@@ -174,6 +189,7 @@ export function useWindowSplitterPanelGroupBehavior({
       cleanupFunctions.forEach((cleanupFunction) => cleanupFunction());
     };
   }, [
+    panelGroupElement,
     committedValuesRef,
     eagerValuesRef,
     groupId,

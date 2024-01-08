@@ -1,8 +1,9 @@
 export function getResizeHandleElementsForGroup(
-  groupId: string
+  groupId: string,
+  panelGroupElement: HTMLElement
 ): HTMLElement[] {
   return Array.from(
-    document.querySelectorAll(
+    panelGroupElement.querySelectorAll(
       `[data-panel-resize-handle-id][data-panel-group-id="${groupId}"]`
     )
   );

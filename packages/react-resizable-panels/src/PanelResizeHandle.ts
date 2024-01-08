@@ -74,6 +74,7 @@ export function PanelResizeHandle({
     registerResizeHandle,
     startDragging,
     stopDragging,
+    panelGroupElement,
   } = panelGroupContext;
 
   const resizeHandleId = useUniqueId(idFromProps);
@@ -151,6 +152,7 @@ export function PanelResizeHandle({
     disabled,
     handleId: resizeHandleId,
     resizeHandler,
+    panelGroupElement,
   });
 
   const style: CSSProperties = {

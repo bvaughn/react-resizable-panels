@@ -7,12 +7,12 @@ import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
 describe("PanelResizeHandle", () => {
   let expectedWarnings: string[] = [];
   let root: Root;
+  let container: HTMLElement;
 
   beforeEach(() => {
     // @ts-expect-error
     global.IS_REACT_ACT_ENVIRONMENT = true;
-
-    const container = document.createElement("div");
+    container = document.createElement("div");
     document.body.appendChild(container);
 
     expectedWarnings = [];
@@ -59,7 +59,7 @@ describe("PanelResizeHandle", () => {
       );
     });
 
-    const element = getResizeHandleElement("handle");
+    const element = getResizeHandleElement("handle", container);
     assert(element);
     expect(element.tabIndex).toBe(123);
     expect(element.getAttribute("data-test-name")).toBe("foo");

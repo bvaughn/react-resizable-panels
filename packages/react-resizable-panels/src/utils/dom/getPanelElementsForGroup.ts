@@ -1,5 +1,10 @@
-export function getPanelElementsForGroup(groupId: string): HTMLElement[] {
+export function getPanelElementsForGroup(
+  groupId: string,
+  panelGroupElement: HTMLElement
+): HTMLElement[] {
   return Array.from(
-    document.querySelectorAll(`[data-panel][data-panel-group-id="${groupId}"]`)
+    panelGroupElement.querySelectorAll(
+      `[data-panel][data-panel-group-id="${groupId}"]`
+    )
   );
 }

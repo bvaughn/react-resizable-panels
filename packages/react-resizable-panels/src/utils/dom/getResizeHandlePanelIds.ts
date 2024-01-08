@@ -5,10 +5,11 @@ import { getResizeHandleElementsForGroup } from "./getResizeHandleElementsForGro
 export function getResizeHandlePanelIds(
   groupId: string,
   handleId: string,
-  panelsArray: PanelData[]
+  panelsArray: PanelData[],
+  panelGroupElement: HTMLElement
 ): [idBefore: string | null, idAfter: string | null] {
-  const handle = getResizeHandleElement(handleId);
-  const handles = getResizeHandleElementsForGroup(groupId);
+  const handle = getResizeHandleElement(handleId, panelGroupElement);
+  const handles = getResizeHandleElementsForGroup(groupId, panelGroupElement);
   const index = handle ? handles.indexOf(handle) : -1;
 
   const idBefore: string | null = panelsArray[index]?.id ?? null;

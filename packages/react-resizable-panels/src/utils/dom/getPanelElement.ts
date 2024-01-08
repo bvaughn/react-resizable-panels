@@ -1,5 +1,8 @@
-export function getPanelElement(id: string): HTMLElement | null {
-  const element = document.querySelector(`[data-panel-id="${id}"]`);
+export function getPanelElement(
+  id: string,
+  panelGroupElement: HTMLElement
+): HTMLElement | null {
+  const element = panelGroupElement.querySelector(`[data-panel-id="${id}"]`);
   if (element) {
     return element as HTMLElement;
   }
