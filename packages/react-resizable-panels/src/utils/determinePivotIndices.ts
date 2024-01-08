@@ -2,9 +2,14 @@ import { getResizeHandleElementIndex } from "../utils/dom/getResizeHandleElement
 
 export function determinePivotIndices(
   groupId: string,
-  dragHandleId: string
+  dragHandleId: string,
+  panelGroupElement: HTMLElement
 ): [indexBefore: number, indexAfter: number] {
-  const index = getResizeHandleElementIndex(groupId, dragHandleId);
+  const index = getResizeHandleElementIndex(
+    groupId,
+    dragHandleId,
+    panelGroupElement
+  );
 
   return index != null ? [index, index + 1] : [-1, -1];
 }

@@ -1,16 +1,17 @@
 import { getPanelGroupElement } from "./getPanelGroupElement";
 import { getResizeHandleElementsForGroup } from "./getResizeHandleElementsForGroup";
 
-export function getAvailableGroupSizePixels(groupId: string): number {
-  const panelGroupElement = getPanelGroupElement(groupId);
-  if (panelGroupElement == null) {
-    return NaN;
-  }
-
+export function getAvailableGroupSizePixels(
+  groupId: string,
+  panelGroupElement: HTMLElement
+): number {
   const direction = panelGroupElement.getAttribute(
     "data-panel-group-direction"
   );
-  const resizeHandles = getResizeHandleElementsForGroup(groupId);
+  const resizeHandles = getResizeHandleElementsForGroup(
+    groupId,
+    panelGroupElement
+  );
   if (direction === "horizontal") {
     return (
       panelGroupElement.offsetWidth -

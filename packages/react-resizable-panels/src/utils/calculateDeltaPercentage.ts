@@ -9,7 +9,8 @@ export function calculateDeltaPercentage(
   dragHandleId: string,
   direction: Direction,
   initialDragState: DragState | null,
-  keyboardResizeBy: number | null
+  keyboardResizeBy: number | null,
+  panelGroupElement: HTMLElement
 ): number {
   if (isKeyDown(event)) {
     const isHorizontal = direction === "horizontal";
@@ -55,7 +56,8 @@ export function calculateDeltaPercentage(
       event,
       dragHandleId,
       direction,
-      initialDragState
+      initialDragState,
+      panelGroupElement
     );
   }
 }

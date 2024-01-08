@@ -12,6 +12,7 @@ import { createRef } from "./vendor/react";
 describe("PanelGroup", () => {
   let expectedWarnings: string[] = [];
   let root: Root;
+  let container: HTMLElement;
   let uninstallMockOffsetWidthAndHeight: () => void;
 
   function expectWarning(expectedMessage: string) {
@@ -258,7 +259,7 @@ describe("PanelGroup", () => {
       );
     });
 
-    const element = getPanelElement("panel");
+    const element = getPanelElement("panel", container);
     assert(element);
     expect(element.tabIndex).toBe(123);
     expect(element.getAttribute("data-test-name")).toBe("foo");

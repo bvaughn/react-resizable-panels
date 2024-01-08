@@ -11,7 +11,7 @@ export type DragState = {
   initialLayout: number[];
 };
 
-export const PanelGroupContext = createContext<{
+export type TPanelGroupContext = {
   collapsePanel: (panelData: PanelData) => void;
   direction: "horizontal" | "vertical";
   dragState: DragState | null;
@@ -30,6 +30,8 @@ export const PanelGroupContext = createContext<{
   startDragging: (dragHandleId: string, event: ResizeEvent) => void;
   stopDragging: () => void;
   unregisterPanel: (panelData: PanelData) => void;
-} | null>(null);
+  panelGroupElement: ParentNode | null;
+};
+export const PanelGroupContext = createContext<TPanelGroupContext | null>(null);
 
 PanelGroupContext.displayName = "PanelGroupContext";
