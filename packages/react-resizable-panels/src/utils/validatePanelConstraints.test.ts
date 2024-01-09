@@ -73,6 +73,51 @@ describe("validatePanelConstraints", () => {
       validatePanelConstraints({
         panelConstraints: [
           {
+            collapsedSize: 5,
+            collapsible: true,
+            defaultSize: 5,
+            minSize: 10,
+          },
+        ],
+        panelIndex: 0,
+        panelId: "test",
+      });
+    });
+
+    verifyExpectedWarnings(() => {
+      validatePanelConstraints({
+        panelConstraints: [
+          {
+            collapsedSize: 7,
+            collapsible: true,
+            defaultSize: 5,
+            minSize: 10,
+          },
+        ],
+        panelIndex: 0,
+        panelId: "test",
+      });
+    }, "default size should not be less than min size");
+
+    verifyExpectedWarnings(() => {
+      validatePanelConstraints({
+        panelConstraints: [
+          {
+            collapsedSize: 5,
+            collapsible: false,
+            defaultSize: 5,
+            minSize: 10,
+          },
+        ],
+        panelIndex: 0,
+        panelId: "test",
+      });
+    }, "default size should not be less than min size");
+
+    verifyExpectedWarnings(() => {
+      validatePanelConstraints({
+        panelConstraints: [
+          {
             defaultSize: 101,
             maxSize: 10,
           },

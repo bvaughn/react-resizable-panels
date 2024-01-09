@@ -3,6 +3,7 @@
 ## 1.0.8
 
 - Update component signature to declare `ReactElement` return type (rather than `ReactNode`) (#256)
+- Update `Panel` dev warning to avoid warning when `defaultSize === collapsedSize` for collapsible panels (#257)
 
 ## 1.0.7
 
