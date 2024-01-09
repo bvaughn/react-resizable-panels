@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.8
+
+- Update component signature to declare `ReactElement` return type (rather than `ReactNode`) (#256)
+
 ## 1.0.7
 
 - Narrow `tagName` prop to only allow `HTMLElement` names (rather than the broader `Element` type) (#251)
