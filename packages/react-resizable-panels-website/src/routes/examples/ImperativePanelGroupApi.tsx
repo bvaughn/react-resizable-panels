@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import type { ImperativePanelGroupHandle } from "react-resizable-panels";
-import { Panel, PanelGroup, assert } from "react-resizable-panels";
+import { Panel, PanelGroup } from "react-resizable-panels";
 
 import { ResizeHandle } from "../../components/ResizeHandle";
 
@@ -73,9 +73,6 @@ function Content() {
   const left = sizes[0];
   const right = sizes[1];
 
-  assert(left != null);
-  assert(right != null);
-
   return (
     <>
       <div className={styles.TopRow}>
@@ -93,13 +90,13 @@ function Content() {
         >
           <Panel className={sharedStyles.PanelRow} minSize={10}>
             <div className={sharedStyles.Centered}>
-              left: {Math.round(left)}
+              left: {left ? Math.round(left) : "-"}
             </div>
           </Panel>
           <ResizeHandle className={sharedStyles.ResizeHandle} />
           <Panel className={sharedStyles.PanelRow} minSize={10}>
             <div className={sharedStyles.Centered}>
-              right: {Math.round(right)}
+              right: {right ? Math.round(right) : "-"}
             </div>
           </Panel>
         </PanelGroup>
