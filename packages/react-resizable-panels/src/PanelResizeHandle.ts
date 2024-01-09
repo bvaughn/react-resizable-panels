@@ -4,8 +4,8 @@ import {
   CSSProperties,
   HTMLAttributes,
   PropsWithChildren,
+  ReactElement,
   MouseEvent as ReactMouseEvent,
-  ReactNode,
   TouchEvent,
   useCallback,
   useContext,
@@ -49,7 +49,7 @@ export function PanelResizeHandle({
   tabIndex = 0,
   tagName: Type = "div",
   ...rest
-}: PanelResizeHandleProps): ReactNode {
+}: PanelResizeHandleProps): ReactElement {
   const elementRef = useRef<HTMLElement>(null);
 
   // Use a ref to guard against users passing inline props
