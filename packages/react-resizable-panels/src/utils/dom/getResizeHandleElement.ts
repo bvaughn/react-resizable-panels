@@ -1,6 +1,6 @@
 export function getResizeHandleElement(
   id: string,
-  panelGroupElement: HTMLElement
+  panelGroupElement: ParentNode
 ): HTMLElement | null {
   const element = panelGroupElement.querySelector(
     `[data-panel-resize-handle-id="${id}"]`

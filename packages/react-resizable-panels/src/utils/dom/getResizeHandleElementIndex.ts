@@ -3,7 +3,7 @@ import { getResizeHandleElementsForGroup } from "./getResizeHandleElementsForGro
 export function getResizeHandleElementIndex(
   groupId: string,
   id: string,
-  panelGroupElement: HTMLElement
+  panelGroupElement: ParentNode
 ): number | null {
   const handles = getResizeHandleElementsForGroup(groupId, panelGroupElement);
   const index = handles.findIndex(

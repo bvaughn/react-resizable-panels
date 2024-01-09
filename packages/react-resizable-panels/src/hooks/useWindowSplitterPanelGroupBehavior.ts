@@ -20,8 +20,8 @@ export function useWindowSplitterPanelGroupBehavior({
   groupId,
   layout,
   panelDataArray,
-  setLayout,
   panelGroupElement,
+  setLayout,
 }: {
   committedValuesRef: RefObject<{
     direction: Direction;
@@ -30,9 +30,9 @@ export function useWindowSplitterPanelGroupBehavior({
     panelDataArray: PanelData[];
   }>;
   groupId: string;
-  panelGroupElement: HTMLElement | null;
   layout: number[];
   panelDataArray: PanelData[];
+  panelGroupElement: ParentNode | null;
   setLayout: (sizes: number[]) => void;
 }): void {
   const devWarningsRef = useRef<{
@@ -98,7 +98,7 @@ export function useWindowSplitterPanelGroupBehavior({
         resizeHandleElement.removeAttribute("aria-valuenow");
       });
     };
-  }, [groupId, layout, panelDataArray]);
+  }, [groupId, layout, panelDataArray, panelGroupElement]);
 
   useEffect(() => {
     if (!panelGroupElement) {

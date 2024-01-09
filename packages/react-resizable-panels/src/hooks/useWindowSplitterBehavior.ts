@@ -16,7 +16,7 @@ export function useWindowSplitterResizeHandlerBehavior({
   disabled: boolean;
   handleId: string;
   resizeHandler: ResizeHandler | null;
-  panelGroupElement: HTMLElement | null;
+  panelGroupElement: ParentNode | null;
 }): void {
   useEffect(() => {
     if (disabled || resizeHandler == null || panelGroupElement == null) {

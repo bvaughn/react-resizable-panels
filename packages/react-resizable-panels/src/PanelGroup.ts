@@ -564,112 +564,107 @@ function PanelGroupWithForwardedRef({
     }
   });
 
-  const registerResizeHandle = useCallback(
-    (dragHandleId: string) => {
-      return function resizeHandler(event: ResizeEvent) {
-        event.preventDefault();
-        const panelElement = panelGroupElementRef.current;
-        if (!panelElement) {
-          return () => null;
-        }
-        const {
-          direction,
-          dragState,
-          id: groupId,
-          keyboardResizeBy,
-          onLayout,
-        } = committedValuesRef.current;
-        const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
+  const registerResizeHandle = useCallback((dragHandleId: string) => {
+    return function resizeHandler(event: ResizeEvent) {
+      event.preventDefault();
+      const panelGroupElement = panelGroupElementRef.current;
+      if (!panelGroupElement) {
+        return () => null;
+      }
+      const {
+        direction,
+        dragState,
+        id: groupId,
+        keyboardResizeBy,
+        onLayout,
+      } = committedValuesRef.current;
+      const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
-        const { initialLayout } = dragState ?? {};
+      const { initialLayout } = dragState ?? {};
 
-        const pivotIndices = determinePivotIndices(
-          groupId,
-          dragHandleId,
-          panelElement
-        );
+      const pivotIndices = determinePivotIndices(
+        groupId,
+        dragHandleId,
+        panelGroupElement
+      );
 
-        let delta = calculateDeltaPercentage(
-          event,
-          dragHandleId,
-          direction,
-          dragState,
-          keyboardResizeBy,
-          panelElement
-        );
-        if (delta === 0) {
-          return;
-        }
+      let delta = calculateDeltaPercentage(
+        event,
+        dragHandleId,
+        direction,
+        dragState,
+        keyboardResizeBy,
+        panelGroupElement
+      );
+      if (delta === 0) {
+        return;
+      }
 
-        // Support RTL layouts
-        const isHorizontal = direction === "horizontal";
-        if (document.dir === "rtl" && isHorizontal) {
-          delta = -delta;
-        }
+      // Support RTL layouts
+      const isHorizontal = direction === "horizontal";
+      if (document.dir === "rtl" && isHorizontal) {
+        delta = -delta;
+      }
 
-        const panelConstraints = panelDataArray.map(
-          (panelData) => panelData.constraints
-        );
+      const panelConstraints = panelDataArray.map(
+        (panelData) => panelData.constraints
+      );
 
-        const nextLayout = adjustLayoutByDelta({
-          delta,
-          layout: initialLayout ?? prevLayout,
-          panelConstraints,
-          pivotIndices,
-          trigger: isKeyDown(event) ? "keyboard" : "mouse-or-touch",
-        });
+      const nextLayout = adjustLayoutByDelta({
+        delta,
+        layout: initialLayout ?? prevLayout,
+        panelConstraints,
+        pivotIndices,
+        trigger: isKeyDown(event) ? "keyboard" : "mouse-or-touch",
+      });
 
-        const layoutChanged = !compareLayouts(prevLayout, nextLayout);
+      const layoutChanged = !compareLayouts(prevLayout, nextLayout);
 
-        // Only update the cursor for layout changes triggered by touch/mouse events (not keyboard)
-        // Update the cursor even if the layout hasn't changed (we may need to show an invalid cursor state)
-        if (isMouseEvent(event) || isTouchEvent(event)) {
-          // Watch for multiple subsequent deltas; this might occur for tiny cursor movements.
-          // In this case, Panel sizes might not change–
-          // but updating cursor in this scenario would cause a flicker.
-          if (prevDeltaRef.current != delta) {
-            prevDeltaRef.current = delta;
+      // Only update the cursor for layout changes triggered by touch/mouse events (not keyboard)
+      // Update the cursor even if the layout hasn't changed (we may need to show an invalid cursor state)
+      if (isMouseEvent(event) || isTouchEvent(event)) {
+        // Watch for multiple subsequent deltas; this might occur for tiny cursor movements.
+        // In this case, Panel sizes might not change–
+        // but updating cursor in this scenario would cause a flicker.
+        if (prevDeltaRef.current != delta) {
+          prevDeltaRef.current = delta;
 
-            if (!layoutChanged) {
-              // If the pointer has moved too far to resize the panel any further,
-              // update the cursor style for a visual clue.
-              // This mimics VS Code behavior.
+          if (!layoutChanged) {
+            // If the pointer has moved too far to resize the panel any further,
+            // update the cursor style for a visual clue.
+            // This mimics VS Code behavior.
 
-              if (isHorizontal) {
-                setGlobalCursorStyle(
-                  delta < 0 ? "horizontal-min" : "horizontal-max"
-                );
-              } else {
-                setGlobalCursorStyle(
-                  delta < 0 ? "vertical-min" : "vertical-max"
-                );
-              }
+            if (isHorizontal) {
+              setGlobalCursorStyle(
+                delta < 0 ? "horizontal-min" : "horizontal-max"
+              );
             } else {
-              // Reset the cursor style to the the normal resize cursor.
-              setGlobalCursorStyle(isHorizontal ? "horizontal" : "vertical");
+              setGlobalCursorStyle(delta < 0 ? "vertical-min" : "vertical-max");
             }
+          } else {
+            // Reset the cursor style to the the normal resize cursor.
+            setGlobalCursorStyle(isHorizontal ? "horizontal" : "vertical");
           }
         }
+      }
 
-        if (layoutChanged) {
-          setLayout(nextLayout);
+      if (layoutChanged) {
+        setLayout(nextLayout);
 
-          eagerValuesRef.current.layout = nextLayout;
+        eagerValuesRef.current.layout = nextLayout;
 
-          if (onLayout) {
-            onLayout(nextLayout);
-          }
-
-          callPanelCallbacks(
-            panelDataArray,
-            nextLayout,
-            panelIdToLastNotifiedSizeMapRef.current
-          );
+        if (onLayout) {
+          onLayout(nextLayout);
         }
-      };
-    },
-    [panelGroupElementRef.current]
-  );
+
+        callPanelCallbacks(
+          panelDataArray,
+          nextLayout,
+          panelIdToLastNotifiedSizeMapRef.current
+        );
+      }
+    };
+  }, []);
 
   // External APIs are safe to memoize via committed values ref
   const resizePanel = useCallback(
@@ -749,7 +744,7 @@ function PanelGroupWithForwardedRef({
         initialLayout: layout,
       });
     },
-    [panelGroupElementRef.current]
+    []
   );
 
   const stopDragging = useCallback(() => {
@@ -795,7 +790,6 @@ function PanelGroupWithForwardedRef({
         panelGroupElement: panelGroupElementRef.current,
       }) satisfies TPanelGroupContext,
     [
-      panelGroupElementRef.current,
       collapsePanel,
       dragState,
       direction,
