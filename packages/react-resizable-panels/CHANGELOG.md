@@ -4,6 +4,7 @@
 
 - Update component signature to declare `ReactElement` return type (rather than `ReactNode`) (#256)
 - Update `Panel` dev warning to avoid warning when `defaultSize === collapsedSize` for collapsible panels (#257)
+- Support shadow dom by removing direct references to / dependencies on the root `document` (#204)
 
 ## 1.0.7
 
