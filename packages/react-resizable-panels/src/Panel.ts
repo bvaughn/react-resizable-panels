@@ -7,7 +7,7 @@ import {
   ForwardedRef,
   HTMLAttributes,
   PropsWithChildren,
-  ReactNode,
+  ReactElement,
   createElement,
   forwardRef,
   useContext,
@@ -93,7 +93,7 @@ export function PanelWithForwardedRef({
   ...rest
 }: PanelProps & {
   forwardedRef: ForwardedRef<ImperativePanelHandle>;
-}): ReactNode {
+}): ReactElement {
   const context = useContext(PanelGroupContext);
   if (context === null) {
     throw Error(

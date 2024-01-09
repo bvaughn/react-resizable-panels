@@ -31,7 +31,7 @@ import {
   ForwardedRef,
   HTMLAttributes,
   PropsWithChildren,
-  ReactNode,
+  ReactElement,
   createElement,
   forwardRef,
   useCallback,
@@ -103,7 +103,7 @@ function PanelGroupWithForwardedRef({
   ...rest
 }: PanelGroupProps & {
   forwardedRef: ForwardedRef<ImperativePanelGroupHandle>;
-}): ReactNode {
+}): ReactElement {
   const groupId = useUniqueId(idFromProps);
 
   const [dragState, setDragState] = useState<DragState | null>(null);
