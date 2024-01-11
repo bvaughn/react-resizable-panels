@@ -177,7 +177,7 @@ const FILES: File[] = FILE_PATHS.map(([path, code]) => {
 const CODE = `
 <PanelGroup direction="horizontal">
   <SideTabBar />
-  <Panel collapsible={true} collapsedSizePixels={35} minSize={10}>
+  <Panel collapsible={true} collapsedSize={35} minSize={10}>
     <SourceBrowser />
   </Panel>
   <PanelResizeHandle />

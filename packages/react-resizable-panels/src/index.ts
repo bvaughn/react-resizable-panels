@@ -2,8 +2,6 @@ import { Panel } from "./Panel";
 import { PanelGroup } from "./PanelGroup";
 import { PanelResizeHandle } from "./PanelResizeHandle";
 import { assert } from "./utils/assert";
-import { calculateAvailablePanelSizeInPixels } from "./utils/dom/calculateAvailablePanelSizeInPixels";
-import { getAvailableGroupSizePixels } from "./utils/dom/getAvailableGroupSizePixels";
 import { getPanelElement } from "./utils/dom/getPanelElement";
 import { getPanelElementsForGroup } from "./utils/dom/getPanelElementsForGroup";
 import { getPanelGroupElement } from "./utils/dom/getPanelGroupElement";
@@ -53,8 +51,6 @@ export {
   assert,
 
   // DOM helpers
-  calculateAvailablePanelSizeInPixels,
-  getAvailableGroupSizePixels,
   getPanelElement,
   getPanelElementsForGroup,
   getPanelGroupElement,
