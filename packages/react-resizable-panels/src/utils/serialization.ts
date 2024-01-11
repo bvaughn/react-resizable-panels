@@ -6,7 +6,7 @@ export type PanelGroupState = {
     [panelId: string]: number;
   };
   layout: number[];
-  hash?: Record<string, number>;
+  panelSizes?: Record<string, number>;
 };
 
 function getPanelGroupKey(autoSaveId: string): string {
@@ -85,8 +85,8 @@ export function loadPanelGroupState(
 
   return {
     expandToSizes: state.expandToSizes || {},
-    layout: panels.map(({ id }) => state?.hash?.[id] || 0),
-    hash: state.hash || {},
+    layout: panels.map(({ id }) => state?.panelSizes?.[id] || 0),
+    panelSizes: state.panelSizes || {},
   };
 }
 
@@ -101,8 +101,8 @@ export function savePanelGroupState(
   const oldState = loadPanelGroupState(autoSaveId, panels, storage);
   const newState = {
     expandToSizes: Object.fromEntries(panelSizesBeforeCollapse.entries()),
-    hash: {
-      ...oldState?.hash,
+    panelSizes: {
+      ...oldState?.panelSizes,
       ...panels.reduce<Record<string, number>>((acc, panel, i) => {
         acc[panel.id] = sizes[i] || 0;
         return acc;
