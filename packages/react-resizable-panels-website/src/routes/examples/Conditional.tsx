@@ -66,7 +66,13 @@ function Content({
       >
         {showLeftPanel && (
           <>
-            <Panel className={styles.Panel} id="left" minSize={10} order={1}>
+            <Panel
+              collapsible={true}
+              className={styles.Panel}
+              id="left"
+              minSize={10}
+              order={1}
+            >
               <div className={styles.Centered}>left</div>
             </Panel>
             <ResizeHandle className={styles.ResizeHandle} />
