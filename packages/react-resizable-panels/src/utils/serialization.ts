@@ -1,15 +1,12 @@
 import { PanelData } from "../Panel";
 import { PanelGroupStorage } from "../PanelGroup";
 
-export type PanelConfigurationState = {
+export type PanelGroupState = {
   expandToSizes: {
     [panelId: string]: number;
   };
   layout: number[];
-};
-
-export type SerializedPanelGroupState = {
-  [panelIds: string]: PanelConfigurationState;
+  hash?: Record<string, number>;
 };
 
 function getPanelGroupKey(autoSaveId: string): string {
@@ -20,6 +17,7 @@ function getPanelGroupKey(autoSaveId: string): string {
 // so they should not be used as part of the serialization key.
 // Using the min/max size attributes should work well enough as a backup.
 // Pre-sorting by minSize allows remembering layouts even if panels are re-ordered/dragged.
+/*
 function getPanelKey(panels: PanelData[]): string {
   return panels
     .map((panel) => {
@@ -35,33 +33,61 @@ function getPanelKey(panels: PanelData[]): string {
     .sort((a, b) => a.localeCompare(b))
     .join(",");
 }
+*/
 
 function loadSerializedPanelGroupState(
   autoSaveId: string,
   storage: PanelGroupStorage
-): SerializedPanelGroupState | null {
+): PanelGroupState | null {
   try {
     const panelGroupKey = getPanelGroupKey(autoSaveId);
     const serialized = storage.getItem(panelGroupKey);
     if (serialized) {
       const parsed = JSON.parse(serialized);
       if (typeof parsed === "object" && parsed != null) {
-        return parsed as SerializedPanelGroupState;
+        return parsed as PanelGroupState;
       }
     }
   } catch (error) {}
 
   return null;
 }
+function removeLayoutItem(
+  oldKey: string,
+  oldState: PanelGroupState,
+  newKey: string
+) {
+  const oldValues = oldKey
+    .split(",")
+    .reduce<Record<string, number>>((acc, panelKey: string, i) => {
+      acc[panelKey] = oldState.layout[i] || 0;
+      return acc;
+    }, {});
 
+  const newValues = newKey.split(",").reduce<number[]>((acc, newKey) => {
+    const oldValue = oldValues[newKey];
+    if (oldValue) {
+      acc.push(oldValue);
+    }
+    return acc;
+  }, []);
+  return newValues;
+}
 export function loadPanelGroupState(
   autoSaveId: string,
   panels: PanelData[],
   storage: PanelGroupStorage
-): PanelConfigurationState | null {
-  const state = loadSerializedPanelGroupState(autoSaveId, storage) ?? {};
-  const panelKey = getPanelKey(panels);
-  return state[panelKey] ?? null;
+): PanelGroupState | null {
+  const state = loadSerializedPanelGroupState(autoSaveId, storage);
+  if (!state) {
+    return null;
+  }
+
+  return {
+    expandToSizes: state.expandToSizes || {},
+    layout: panels.map(({ id }) => state?.hash?.[id] || 0),
+    hash: state.hash || {},
+  };
 }
 
 export function savePanelGroupState(
@@ -72,15 +98,20 @@ export function savePanelGroupState(
   storage: PanelGroupStorage
 ): void {
   const panelGroupKey = getPanelGroupKey(autoSaveId);
-  const panelKey = getPanelKey(panels);
-  const state = loadSerializedPanelGroupState(autoSaveId, storage) ?? {};
-  state[panelKey] = {
+  const oldState = loadPanelGroupState(autoSaveId, panels, storage);
+  const newState = {
     expandToSizes: Object.fromEntries(panelSizesBeforeCollapse.entries()),
-    layout: sizes,
+    hash: {
+      ...oldState?.hash,
+      ...panels.reduce<Record<string, number>>((acc, panel, i) => {
+        acc[panel.id] = sizes[i] || 0;
+        return acc;
+      }, {}),
+    },
   };
 
   try {
-    storage.setItem(panelGroupKey, JSON.stringify(state));
+    storage.setItem(panelGroupKey, JSON.stringify(newState));
   } catch (error) {
     console.error(error);
   }
