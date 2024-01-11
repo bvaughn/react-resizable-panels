@@ -5,8 +5,11 @@ export type PanelGroupState = {
   expandToSizes: {
     [panelId: string]: number;
   };
-  layout: number[];
   panelSizes?: Record<string, number>;
+};
+
+type GroupPanelLayouts = Pick<PanelGroupState, "expandToSizes"> & {
+  layout: number[];
 };
 
 function getPanelGroupKey(autoSaveId: string): string {
@@ -52,32 +55,12 @@ function loadSerializedPanelGroupState(
 
   return null;
 }
-function removeLayoutItem(
-  oldKey: string,
-  oldState: PanelGroupState,
-  newKey: string
-) {
-  const oldValues = oldKey
-    .split(",")
-    .reduce<Record<string, number>>((acc, panelKey: string, i) => {
-      acc[panelKey] = oldState.layout[i] || 0;
-      return acc;
-    }, {});
 
-  const newValues = newKey.split(",").reduce<number[]>((acc, newKey) => {
-    const oldValue = oldValues[newKey];
-    if (oldValue) {
-      acc.push(oldValue);
-    }
-    return acc;
-  }, []);
-  return newValues;
-}
 export function loadPanelGroupState(
   autoSaveId: string,
   panels: PanelData[],
   storage: PanelGroupStorage
-): PanelGroupState | null {
+): GroupPanelLayouts | null {
   const state = loadSerializedPanelGroupState(autoSaveId, storage);
   if (!state) {
     return null;
@@ -86,7 +69,6 @@ export function loadPanelGroupState(
   return {
     expandToSizes: state.expandToSizes || {},
     layout: panels.map(({ id }) => state?.panelSizes?.[id] || 0),
-    panelSizes: state.panelSizes || {},
   };
 }
 
@@ -98,7 +80,7 @@ export function savePanelGroupState(
   storage: PanelGroupStorage
 ): void {
   const panelGroupKey = getPanelGroupKey(autoSaveId);
-  const oldState = loadPanelGroupState(autoSaveId, panels, storage);
+  const oldState = loadSerializedPanelGroupState(autoSaveId, storage);
   const newState = {
     expandToSizes: Object.fromEntries(panelSizesBeforeCollapse.entries()),
     panelSizes: {
