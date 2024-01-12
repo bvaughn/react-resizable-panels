@@ -1,6 +1,6 @@
 export function getResizeHandleElementsForGroup(
   groupId: string,
-  panelGroupElement: ParentNode
+  panelGroupElement: ParentNode | HTMLElement = document
 ): HTMLElement[] {
   return Array.from(
     panelGroupElement.querySelectorAll(

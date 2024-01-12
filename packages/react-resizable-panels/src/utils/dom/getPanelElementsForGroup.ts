@@ -1,6 +1,6 @@
 export function getPanelElementsForGroup(
   groupId: string,
-  panelGroupElement: HTMLElement
+  panelGroupElement: ParentNode | HTMLElement = document
 ): HTMLElement[] {
   return Array.from(
     panelGroupElement.querySelectorAll(

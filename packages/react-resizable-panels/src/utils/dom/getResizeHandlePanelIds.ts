@@ -6,7 +6,7 @@ export function getResizeHandlePanelIds(
   groupId: string,
   handleId: string,
   panelsArray: PanelData[],
-  panelGroupElement: ParentNode
+  panelGroupElement: ParentNode | HTMLElement = document
 ): [idBefore: string | null, idAfter: string | null] {
   const handle = getResizeHandleElement(handleId, panelGroupElement);
   const handles = getResizeHandleElementsForGroup(groupId, panelGroupElement);
