@@ -1,6 +1,6 @@
 export function getPanelGroupElement(
   id: string,
-  rootElement: ParentNode | HTMLElement
+  rootElement: ParentNode | HTMLElement = document
 ): HTMLElement | null {
   //If the root element is the PanelGroup
   if (

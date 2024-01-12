@@ -1,6 +1,6 @@
 export function getPanelElement(
   id: string,
-  panelGroupElement: HTMLElement
+  panelGroupElement: ParentNode | HTMLElement = document
 ): HTMLElement | null {
   const element = panelGroupElement.querySelector(`[data-panel-id="${id}"]`);
   if (element) {
