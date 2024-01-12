@@ -6,10 +6,10 @@ export function getResizeHandlePanelIds(
   groupId: string,
   handleId: string,
   panelsArray: PanelData[],
-  panelGroupElement: ParentNode | HTMLElement = document
+  scope: ParentNode | HTMLElement = document
 ): [idBefore: string | null, idAfter: string | null] {
-  const handle = getResizeHandleElement(handleId, panelGroupElement);
-  const handles = getResizeHandleElementsForGroup(groupId, panelGroupElement);
+  const handle = getResizeHandleElement(handleId, scope);
+  const handles = getResizeHandleElementsForGroup(groupId, scope);
   const index = handle ? handles.indexOf(handle) : -1;
 
   const idBefore: string | null = panelsArray[index]?.id ?? null;

@@ -3,9 +3,9 @@ import { getResizeHandleElementsForGroup } from "./getResizeHandleElementsForGro
 export function getResizeHandleElementIndex(
   groupId: string,
   id: string,
-  panelGroupElement: ParentNode | HTMLElement = document
+  scope: ParentNode | HTMLElement = document
 ): number | null {
-  const handles = getResizeHandleElementsForGroup(groupId, panelGroupElement);
+  const handles = getResizeHandleElementsForGroup(groupId, scope);
   const index = handles.findIndex(
     (handle) => handle.getAttribute("data-panel-resize-handle-id") === id
   );

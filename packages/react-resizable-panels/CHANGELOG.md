@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.9
+
+- DOM util methods scope param defaults to `document` (#262)
+
 ## 1.0.8
 
 - Update component signature to declare `ReactElement` return type (rather than `ReactNode`) (#256)
