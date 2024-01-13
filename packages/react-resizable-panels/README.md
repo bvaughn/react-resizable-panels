@@ -63,7 +63,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `maxSize`       | `?number = 100`           | Maximum allowable size of panel (numeric value between 1-100); defaults to `100`              |
 | `minSize`       | `?number = 10`            | Minimum allowable size of panel (numeric value between 1-100); defaults to `10`               |
 | `onCollapse`    | `?() => void`             | Called when panel is collapsed                                                                |
-| `onExpande`     | `?() => void`             | Called when panel is expanded                                                                 |
+| `onExpand`     | `?() => void`             | Called when panel is expanded                                                                 |
 | `onResize`      | `?(size: number) => void` | Called when panel is resized; `size` parameter is a numeric value between 1-100. <sup>1</sup> |
 | `order`         | `?number`                 | Order of panel within group; required for groups with conditionally rendered panels           |
 | `style`         | `?CSSProperties`          | CSS style to attach to root element                                                           |
