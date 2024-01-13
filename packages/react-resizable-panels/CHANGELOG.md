@@ -3,6 +3,7 @@
 ## 1.0.9
 
 - DOM util methods scope param defaults to `document` (#262)
+- Updating a `Panel`'s pixel constraints will trigger revalidation of the `Panel`'s size (#266)
 
 ## 1.0.8
 
