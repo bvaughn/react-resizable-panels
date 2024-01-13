@@ -108,6 +108,7 @@ export function PanelWithForwardedRef({
     getPanelStyle,
     groupId,
     isPanelCollapsed,
+    reevaluatePanelConstraints,
     registerPanel,
     resizePanel,
     unregisterPanel,
@@ -155,6 +156,8 @@ export function PanelWithForwardedRef({
   useIsomorphicLayoutEffect(() => {
     const { callbacks, constraints } = panelDataRef.current;
 
+    const prevConstraints = { ...constraints };
+
     panelDataRef.current.id = panelId;
     panelDataRef.current.idIsFromProps = idFromProps !== undefined;
     panelDataRef.current.order = order;
@@ -168,6 +171,17 @@ export function PanelWithForwardedRef({
     constraints.defaultSize = defaultSize;
     constraints.maxSize = maxSize;
     constraints.minSize = minSize;
+
+    // If constraints have changed, we should revisit panel sizes.
+    // This is uncommon but may happen if people are trying to implement pixel based constraints.
+    if (
+      prevConstraints.collapsedSize !== constraints.collapsedSize ||
+      prevConstraints.collapsible !== constraints.collapsible ||
+      prevConstraints.maxSize !== constraints.maxSize ||
+      prevConstraints.minSize !== constraints.minSize
+    ) {
+      reevaluatePanelConstraints(panelDataRef.current, prevConstraints);
+    }
   });
 
   useIsomorphicLayoutEffect(() => {

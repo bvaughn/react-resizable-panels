@@ -1,4 +1,4 @@
-import { PanelData } from "./Panel";
+import { PanelConstraints, PanelData } from "./Panel";
 import { CSSProperties, createContext } from "./vendor/react";
 
 export type ResizeEvent = KeyboardEvent | MouseEvent | TouchEvent;
@@ -24,6 +24,10 @@ export type TPanelGroupContext = {
   groupId: string;
   isPanelCollapsed: (panelData: PanelData) => boolean;
   isPanelExpanded: (panelData: PanelData) => boolean;
+  reevaluatePanelConstraints: (
+    panelData: PanelData,
+    prevConstraints: PanelConstraints
+  ) => void;
   registerPanel: (panelData: PanelData) => void;
   registerResizeHandle: (dragHandleId: string) => ResizeHandler;
   resizePanel: (panelData: PanelData, size: number) => void;

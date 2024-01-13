@@ -1,5 +1,5 @@
 import { isDevelopment } from "#is-development";
-import { PanelData } from "./Panel";
+import { PanelConstraints, PanelData } from "./Panel";
 import {
   DragState,
   PanelGroupContext,
@@ -719,6 +719,49 @@ function PanelGroupWithForwardedRef({
     []
   );
 
+  const reevaluatePanelConstraints = useCallback(
+    (panelData: PanelData, prevConstraints: PanelConstraints) => {
+      const { layout, panelDataArray } = eagerValuesRef.current;
+
+      const {
+        collapsedSize: prevCollapsedSize = 0,
+        collapsible: prevCollapsible,
+        defaultSize: prevDefaultSize,
+        maxSize: prevMaxSize = 100,
+        minSize: prevMinSize = 0,
+      } = prevConstraints;
+
+      const {
+        collapsedSize: nextCollapsedSize = 0,
+        collapsible: nextCollapsible,
+        defaultSize: nextDefaultSize,
+        maxSize: nextMaxSize = 100,
+        minSize: nextMinSize = 0,
+      } = panelData.constraints;
+
+      const { panelSize: prevPanelSize } = panelDataHelper(
+        panelDataArray,
+        panelData,
+        layout
+      );
+      assert(prevPanelSize != null);
+
+      if (
+        prevCollapsible &&
+        nextCollapsible &&
+        prevCollapsedSize !== nextCollapsedSize &&
+        prevPanelSize === prevCollapsedSize
+      ) {
+        resizePanel(panelData, nextCollapsedSize);
+      } else if (prevPanelSize < nextMinSize) {
+        resizePanel(panelData, nextMinSize);
+      } else if (prevPanelSize > nextMaxSize) {
+        resizePanel(panelData, nextMaxSize);
+      }
+    },
+    [resizePanel]
+  );
+
   const startDragging = useCallback(
     (dragHandleId: string, event: ResizeEvent) => {
       const { direction } = committedValuesRef.current;
@@ -781,6 +824,7 @@ function PanelGroupWithForwardedRef({
         groupId,
         isPanelCollapsed,
         isPanelExpanded,
+        reevaluatePanelConstraints,
         registerPanel,
         registerResizeHandle,
         resizePanel,
@@ -799,6 +843,7 @@ function PanelGroupWithForwardedRef({
       groupId,
       isPanelCollapsed,
       isPanelExpanded,
+      reevaluatePanelConstraints,
       registerPanel,
       registerResizeHandle,
       resizePanel,
@@ -858,12 +903,7 @@ function panelDataHelper(
   panelData: PanelData,
   layout: number[]
 ) {
-  const panelConstraintsArray = panelDataArray.map(
-    (panelData) => panelData.constraints
-  );
-
   const panelIndex = findPanelDataIndex(panelDataArray, panelData);
-  const panelConstraints = panelConstraintsArray[panelIndex];
 
   const isLastPanel = panelIndex === panelDataArray.length - 1;
   const pivotIndices = isLastPanel
@@ -873,7 +913,7 @@ function panelDataHelper(
   const panelSize = layout[panelIndex];
 
   return {
-    ...panelConstraints,
+    ...panelData.constraints,
     panelSize,
     pivotIndices,
   };

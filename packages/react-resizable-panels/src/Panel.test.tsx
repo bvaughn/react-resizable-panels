@@ -266,6 +266,140 @@ describe("PanelGroup", () => {
     expect(element.title).toBe("bar");
   });
 
+  describe("constraints", () => {
+    it("should resize a collapsed panel if the collapsedSize prop changes", () => {
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal">
+            <Panel
+              id="left"
+              collapsedSize={10}
+              collapsible
+              defaultSize={10}
+              minSize={25}
+            />
+            <PanelResizeHandle />
+            <Panel id="middle" />
+            <PanelResizeHandle />
+            <Panel
+              id="right"
+              collapsedSize={10}
+              collapsible
+              defaultSize={10}
+              minSize={25}
+            />
+          </PanelGroup>
+        );
+      });
+
+      let leftElement = getPanelElement("left", container);
+      let middleElement = getPanelElement("middle", container);
+      let rightElement = getPanelElement("right", container);
+      assert(leftElement);
+      assert(middleElement);
+      assert(rightElement);
+      expect(leftElement.getAttribute("data-panel-size")).toBe("10.0");
+      expect(middleElement.getAttribute("data-panel-size")).toBe("80.0");
+      expect(rightElement.getAttribute("data-panel-size")).toBe("10.0");
+
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal">
+            <Panel id="left" collapsedSize={5} collapsible minSize={25} />
+            <PanelResizeHandle />
+            <Panel id="middle" />
+            <PanelResizeHandle />
+            <Panel id="right" collapsedSize={5} collapsible minSize={25} />
+          </PanelGroup>
+        );
+      });
+
+      expect(leftElement.getAttribute("data-panel-size")).toBe("5.0");
+      expect(middleElement.getAttribute("data-panel-size")).toBe("90.0");
+      expect(rightElement.getAttribute("data-panel-size")).toBe("5.0");
+    });
+
+    it("should resize a panel if the minSize prop changes", () => {
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal">
+            <Panel id="left" defaultSize={15} minSize={10} />
+            <PanelResizeHandle />
+            <Panel id="middle" />
+            <PanelResizeHandle />
+            <Panel id="right" defaultSize={15} minSize={10} />
+          </PanelGroup>
+        );
+      });
+
+      let leftElement = getPanelElement("left", container);
+      let middleElement = getPanelElement("middle", container);
+      let rightElement = getPanelElement("right", container);
+      assert(leftElement);
+      assert(middleElement);
+      assert(rightElement);
+      expect(leftElement.getAttribute("data-panel-size")).toBe("15.0");
+      expect(middleElement.getAttribute("data-panel-size")).toBe("70.0");
+      expect(rightElement.getAttribute("data-panel-size")).toBe("15.0");
+
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal">
+            <Panel id="left" minSize={20} />
+            <PanelResizeHandle />
+            <Panel id="middle" />
+            <PanelResizeHandle />
+            <Panel id="right" minSize={20} />
+          </PanelGroup>
+        );
+      });
+
+      expect(leftElement.getAttribute("data-panel-size")).toBe("20.0");
+      expect(middleElement.getAttribute("data-panel-size")).toBe("60.0");
+      expect(rightElement.getAttribute("data-panel-size")).toBe("20.0");
+    });
+
+    it("should resize a panel if the maxSize prop changes", () => {
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal">
+            <Panel id="left" defaultSize={25} maxSize={30} />
+            <PanelResizeHandle />
+            <Panel id="middle" />
+            <PanelResizeHandle />
+            <Panel id="right" defaultSize={25} maxSize={30} />
+          </PanelGroup>
+        );
+      });
+
+      let leftElement = getPanelElement("left", container);
+      let middleElement = getPanelElement("middle", container);
+      let rightElement = getPanelElement("right", container);
+      assert(leftElement);
+      assert(middleElement);
+      assert(rightElement);
+      expect(leftElement.getAttribute("data-panel-size")).toBe("25.0");
+      expect(middleElement.getAttribute("data-panel-size")).toBe("50.0");
+      expect(rightElement.getAttribute("data-panel-size")).toBe("25.0");
+
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal">
+            <Panel id="left" maxSize={20} />
+            <PanelResizeHandle />
+            <Panel id="middle" />
+            <PanelResizeHandle />
+            <Panel id="right" maxSize={20} />
+          </PanelGroup>
+        );
+      });
+
+      expect(leftElement.getAttribute("data-panel-size")).toBe("20.0");
+      expect(middleElement.getAttribute("data-panel-size")).toBe("60.0");
+      expect(rightElement.getAttribute("data-panel-size")).toBe("20.0");
+    });
+  });
+
   describe("callbacks", () => {
     describe("onCollapse", () => {
       it("should be called on mount if a panels initial size is 0", () => {
