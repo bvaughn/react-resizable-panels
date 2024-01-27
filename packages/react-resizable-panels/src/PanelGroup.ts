@@ -726,15 +726,11 @@ function PanelGroupWithForwardedRef({
       const {
         collapsedSize: prevCollapsedSize = 0,
         collapsible: prevCollapsible,
-        defaultSize: prevDefaultSize,
-        maxSize: prevMaxSize = 100,
-        minSize: prevMinSize = 0,
       } = prevConstraints;
 
       const {
         collapsedSize: nextCollapsedSize = 0,
         collapsible: nextCollapsible,
-        defaultSize: nextDefaultSize,
         maxSize: nextMaxSize = 100,
         minSize: nextMinSize = 0,
       } = panelData.constraints;
@@ -749,10 +745,13 @@ function PanelGroupWithForwardedRef({
       if (
         prevCollapsible &&
         nextCollapsible &&
-        prevCollapsedSize !== nextCollapsedSize &&
         prevPanelSize === prevCollapsedSize
       ) {
-        resizePanel(panelData, nextCollapsedSize);
+        if (prevCollapsedSize !== nextCollapsedSize) {
+          resizePanel(panelData, nextCollapsedSize);
+        } else {
+          // Stay collapsed
+        }
       } else if (prevPanelSize < nextMinSize) {
         resizePanel(panelData, nextMinSize);
       } else if (prevPanelSize > nextMaxSize) {

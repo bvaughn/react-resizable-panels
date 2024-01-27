@@ -319,6 +319,58 @@ describe("PanelGroup", () => {
       expect(rightElement.getAttribute("data-panel-size")).toBe("5.0");
     });
 
+    it("it should not expand a collapsed panel if other constraints change", () => {
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal">
+            <Panel
+              id="left"
+              collapsedSize={10}
+              collapsible
+              defaultSize={10}
+              minSize={25}
+            />
+            <PanelResizeHandle />
+            <Panel id="middle" />
+            <PanelResizeHandle />
+            <Panel
+              id="right"
+              collapsedSize={10}
+              collapsible
+              defaultSize={10}
+              minSize={25}
+            />
+          </PanelGroup>
+        );
+      });
+
+      let leftElement = getPanelElement("left", container);
+      let middleElement = getPanelElement("middle", container);
+      let rightElement = getPanelElement("right", container);
+      assert(leftElement);
+      assert(middleElement);
+      assert(rightElement);
+      expect(leftElement.getAttribute("data-panel-size")).toBe("10.0");
+      expect(middleElement.getAttribute("data-panel-size")).toBe("80.0");
+      expect(rightElement.getAttribute("data-panel-size")).toBe("10.0");
+
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal">
+            <Panel id="left" collapsedSize={10} collapsible minSize={20} />
+            <PanelResizeHandle />
+            <Panel id="middle" />
+            <PanelResizeHandle />
+            <Panel id="right" collapsedSize={10} collapsible minSize={20} />
+          </PanelGroup>
+        );
+      });
+
+      expect(leftElement.getAttribute("data-panel-size")).toBe("10.0");
+      expect(middleElement.getAttribute("data-panel-size")).toBe("80.0");
+      expect(rightElement.getAttribute("data-panel-size")).toBe("10.0");
+    });
+
     it("should resize a panel if the minSize prop changes", () => {
       act(() => {
         root.render(
