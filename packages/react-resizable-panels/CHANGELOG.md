@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.10
+
+- Fixed edge case constraints check bug that could cause a collapsed panel to re-expand unnecessarily (#273)
+
 ## 1.0.9
 
 - DOM util methods scope param defaults to `document` (#262)
