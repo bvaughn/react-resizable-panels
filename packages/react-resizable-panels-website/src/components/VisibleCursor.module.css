@@ -1,0 +1,19 @@
+.VisibleCursor {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2rem;
+  height: 2rem;
+  border: 2px dotted #ffffffaa;
+  border-radius: 1rem;
+  margin-left: -1rem;
+  margin-top: -1rem;
+  transition: background-color 250ms;
+}
+.VisibleCursor[data-state="down"] {
+  background-color: #ff000066;
+}
+.VisibleCursor[data-state="up"] {
+  background-color: #00000066;
+}

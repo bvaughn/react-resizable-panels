@@ -23,7 +23,7 @@ if (process.env.DEBUG) {
     headless: false,
 
     launchOptions: {
-      slowMo: DEBUG ? 250 : undefined,
+      slowMo: DEBUG ? 50 : undefined,
     },
   };
 }

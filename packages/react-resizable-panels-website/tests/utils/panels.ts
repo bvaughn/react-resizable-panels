@@ -2,11 +2,18 @@ import { Locator, Page, expect } from "@playwright/test";
 import { assert } from "react-resizable-panels";
 import { getBodyCursorStyle } from "./cursor";
 import { verifyFuzzySizes } from "./verify";
+import { getIntersectingRectangle, intersects } from "./rect";
 
 type Operation = {
   expectedCursor?: string;
   expectedSizes?: number[];
   size: number;
+};
+
+type IntersectingOperation = {
+  expectedCursor?: string;
+  sizeX?: number;
+  sizeY?: number;
 };
 
 export async function dragResizeBy(
@@ -32,6 +39,93 @@ export async function dragResizeBy(
     direction === "vertical" ? pageY + delta : pageY
   );
   await page.mouse.up();
+}
+
+export async function dragResizeIntersecting(
+  page: Page,
+  outerGroupId: string,
+  resizeHandleIds: [string, string],
+  ...operationsArray: IntersectingOperation[]
+) {
+  const [idOne, idTwo] = resizeHandleIds;
+
+  const dragHandleOne = page.locator(
+    `[data-panel-resize-handle-id="${idOne}"]`
+  );
+  const dragHandleTwo = page.locator(
+    `[data-panel-resize-handle-id="${idTwo}"]`
+  );
+
+  const rectOne = (await dragHandleOne.boundingBox())!;
+  const rectTwo = (await dragHandleTwo.boundingBox())!;
+
+  expect(intersects(rectOne, rectTwo)).toBe(true);
+
+  const rect = getIntersectingRectangle(rectOne, rectTwo);
+  const centerPageX = rect.x + rect.width / 2;
+  const centerPageY = rect.y + rect.height / 2;
+
+  const panelGroup = page.locator(
+    `[data-panel-group][data-panel-group-id="${outerGroupId}"]`
+  );
+  const panelGroupRect = (await panelGroup.boundingBox())!;
+
+  await page.mouse.move(centerPageX, centerPageY);
+  await expect(
+    await dragHandleOne.getAttribute("data-resize-handle-state")
+  ).toBe("hover");
+  await expect(
+    await dragHandleTwo.getAttribute("data-resize-handle-state")
+  ).toBe("hover");
+
+  await page.mouse.down();
+  await expect(
+    await dragHandleOne.getAttribute("data-resize-handle-state")
+  ).toBe("drag");
+  await expect(
+    await dragHandleTwo.getAttribute("data-resize-handle-state")
+  ).toBe("drag");
+
+  let increment = 20;
+  let currentX = centerPageX;
+  let currentY = centerPageY;
+
+  for (let index = 0; index < operationsArray.length; index++) {
+    const { expectedCursor, sizeX, sizeY } = operationsArray[index]!;
+
+    const pageX =
+      sizeX != null
+        ? panelGroupRect.x + panelGroupRect.width * sizeX
+        : centerPageX;
+    const pageY =
+      sizeY != null
+        ? panelGroupRect.y + panelGroupRect.height * sizeY
+        : centerPageY;
+
+    while (currentX !== pageX || currentY !== pageY) {
+      currentX =
+        currentX < pageX
+          ? Math.min(pageX, currentX + increment)
+          : Math.max(pageX, currentX - increment);
+      currentY =
+        currentY < pageY
+          ? Math.min(pageY, currentY + increment)
+          : Math.max(pageY, currentY - increment);
+
+      await page.mouse.move(currentX, currentY);
+    }
+
+    const actualCursor = await getBodyCursorStyle(page);
+    await expect(actualCursor).toBe(expectedCursor);
+  }
+
+  await page.mouse.up();
+  await expect(
+    await dragHandleOne.getAttribute("data-resize-handle-state")
+  ).toBe("inactive");
+  await expect(
+    await dragHandleTwo.getAttribute("data-resize-handle-state")
+  ).toBe("inactive");
 }
 
 export async function dragResizeTo(

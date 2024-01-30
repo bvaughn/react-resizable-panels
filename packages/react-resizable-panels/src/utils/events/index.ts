@@ -1,4 +1,4 @@
-import { ResizeEvent } from "../PanelGroupContext";
+import { ResizeEvent } from "../../PanelGroupContext";
 
 export function isKeyDown(event: ResizeEvent): event is KeyboardEvent {
   return event.type === "keydown";

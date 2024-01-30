@@ -3,7 +3,7 @@ import { Direction } from "../types";
 import { assert } from "./assert";
 import { getPanelGroupElement } from "./dom/getPanelGroupElement";
 import { getResizeHandleElement } from "./dom/getResizeHandleElement";
-import { getResizeEventCursorPosition } from "./getResizeEventCursorPosition";
+import { getResizeEventCursorPosition } from "./events/getResizeEventCursorPosition";
 
 export function calculateDragOffsetPercentage(
   event: ResizeEvent,
