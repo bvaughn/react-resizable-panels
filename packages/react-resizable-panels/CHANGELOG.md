@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1
+
+- Fixed a regression introduced in 2.0.0 that caused React `onClick` and `onMouseUp` handlers not to fire.
+
 ## 2.0.0
 
 - Support resizing multiple (intersecting) panels at once (#274)

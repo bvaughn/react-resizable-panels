@@ -80,12 +80,12 @@ function handlePointerDown(event: ResizeEvent) {
 
   isPointerDown = true;
 
-  updateResizeHandlerStates("down", event);
-
   recalculateIntersectingHandles({ x, y });
   updateListeners();
 
   if (intersectingHandles.length > 0) {
+    updateResizeHandlerStates("down", event);
+
     event.preventDefault();
   }
 }
