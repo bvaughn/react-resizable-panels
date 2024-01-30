@@ -18,6 +18,7 @@ import {
   ResizeHandler,
 } from "./PanelGroupContext";
 import {
+  PointerHitAreaMargins,
   registerResizeHandle,
   ResizeHandlerAction,
   ResizeHandlerState,
@@ -33,7 +34,7 @@ export type PanelResizeHandleProps = Omit<
   PropsWithChildren<{
     className?: string;
     disabled?: boolean;
-    gutter?: number;
+    hitAreaMargins?: PointerHitAreaMargins;
     id?: string | null;
     onDragging?: PanelResizeHandleOnDragging;
     style?: CSSProperties;
@@ -45,7 +46,7 @@ export function PanelResizeHandle({
   children = null,
   className: classNameFromProps = "",
   disabled = false,
-  gutter = 5,
+  hitAreaMargins,
   id: idFromProps,
   onDragging,
   style: styleFromProps = {},
@@ -136,13 +137,18 @@ export function PanelResizeHandle({
       resizeHandleId,
       element,
       direction,
-      gutter,
+      {
+        // Coarse inputs (e.g. finger/touch)
+        coarse: hitAreaMargins?.coarse ?? 15,
+        // Fine inputs (e.g. mouse)
+        fine: hitAreaMargins?.fine ?? 5,
+      },
       setResizeHandlerState
     );
   }, [
     direction,
     disabled,
-    gutter,
+    hitAreaMargins,
     registerResizeHandleWithParentGroup,
     resizeHandleId,
     resizeHandler,

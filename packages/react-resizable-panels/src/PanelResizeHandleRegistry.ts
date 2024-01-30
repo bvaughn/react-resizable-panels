@@ -1,6 +1,7 @@
 import { Direction, ResizeEvent } from "./types";
 import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
 import { getResizeEventCoordinates } from "./utils/events/getResizeEventCoordinates";
+import { getInputType } from "./utils/getInputType";
 
 export type ResizeHandlerAction = "down" | "move" | "up";
 export type ResizeHandlerState = "drag" | "hover" | "inactive";
@@ -10,10 +11,15 @@ export type SetResizeHandlerState = (
   event: ResizeEvent
 ) => void;
 
+export type PointerHitAreaMargins = {
+  coarse: number;
+  fine: number;
+};
+
 export type ResizeHandlerData = {
   direction: Direction;
   element: HTMLElement;
-  gutter: number;
+  hitAreaMargins: PointerHitAreaMargins;
   setResizeHandlerState: SetResizeHandlerState;
 };
 
@@ -21,6 +27,8 @@ export const EXCEEDED_HORIZONTAL_MIN = 0b0001;
 export const EXCEEDED_HORIZONTAL_MAX = 0b0010;
 export const EXCEEDED_VERTICAL_MIN = 0b0100;
 export const EXCEEDED_VERTICAL_MAX = 0b1000;
+
+const isCoarsePointer = getInputType() === "coarse";
 
 let intersectingHandles: ResizeHandlerData[] = [];
 let isPointerDown = false;
@@ -33,7 +41,7 @@ export function registerResizeHandle(
   resizeHandleId: string,
   element: HTMLElement,
   direction: Direction,
-  gutter: number,
+  hitAreaMargins: PointerHitAreaMargins,
   setResizeHandlerState: SetResizeHandlerState
 ) {
   const { ownerDocument } = element;
@@ -41,7 +49,7 @@ export function registerResizeHandle(
   const data: ResizeHandlerData = {
     direction,
     element,
-    gutter,
+    hitAreaMargins,
     setResizeHandlerState,
   };
 
@@ -122,31 +130,24 @@ function handlePointerUp(event: ResizeEvent) {
   updateListeners();
 }
 
-function intersects({
-  data,
-  x,
-  y,
-}: {
-  data: ResizeHandlerData;
-  x: number;
-  y: number;
-}) {
-  const { element, gutter } = data;
-  const { bottom, left, right, top } = element.getBoundingClientRect();
-
-  return (
-    x >= left - gutter &&
-    x <= right + gutter &&
-    y >= top - gutter &&
-    y <= bottom + gutter
-  );
-}
-
 function recalculateIntersectingHandles({ x, y }: { x: number; y: number }) {
   intersectingHandles.splice(0);
 
   registeredResizeHandlers.forEach((data) => {
-    if (intersects({ data, x, y })) {
+    const { element, hitAreaMargins } = data;
+    const { bottom, left, right, top } = element.getBoundingClientRect();
+
+    const margin = isCoarsePointer
+      ? hitAreaMargins.coarse
+      : hitAreaMargins.fine;
+
+    const intersects =
+      x >= left - margin &&
+      x <= right + margin &&
+      y >= top - margin &&
+      y <= bottom + margin;
+
+    if (intersects) {
       intersectingHandles.push(data);
     }
   });

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.0
+
+- Support resizing multiple (intersecting) panels at once (#274)
+This behavior can be customized using a new `hitAreaMargins` prop; defaults to a 15 pixel margin for _coarse_ inputs and a 5 pixel margin for _fine_ inputs.
+
 ## 1.0.10
 
 - Fixed edge case constraints check bug that could cause a collapsed panel to re-expand unnecessarily (#273)
