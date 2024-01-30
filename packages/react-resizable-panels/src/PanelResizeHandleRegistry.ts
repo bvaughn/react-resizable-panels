@@ -1,0 +1,281 @@
+import { Direction, ResizeEvent } from "./types";
+import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
+import { isMouseEvent, isTouchEvent } from "./utils/events";
+
+export type ResizeHandlerAction = "down" | "move" | "up";
+export type ResizeHandlerState = "drag" | "hover" | "inactive";
+export type SetResizeHandlerState = (
+  action: ResizeHandlerAction,
+  state: ResizeHandlerState,
+  event: ResizeEvent
+) => void;
+
+export type ResizeHandlerData = {
+  direction: Direction;
+  element: HTMLElement;
+  gutter: number;
+  setResizeHandlerState: SetResizeHandlerState;
+};
+
+export const EXCEEDED_HORIZONTAL_MIN = 0b0001;
+export const EXCEEDED_HORIZONTAL_MAX = 0b0010;
+export const EXCEEDED_VERTICAL_MIN = 0b0100;
+export const EXCEEDED_VERTICAL_MAX = 0b1000;
+
+let intersectingHandles: ResizeHandlerData[] = [];
+let isPointerDown = false;
+let ownerDocumentCounts: Map<Document, number> = new Map();
+let panelConstraintFlags: Map<string, number> = new Map();
+
+const registeredResizeHandlers = new Set<ResizeHandlerData>();
+
+export function registerResizeHandle(
+  resizeHandleId: string,
+  element: HTMLElement,
+  direction: Direction,
+  gutter: number,
+  setResizeHandlerState: SetResizeHandlerState
+) {
+  const { ownerDocument } = element;
+
+  const data: ResizeHandlerData = {
+    direction,
+    element,
+    gutter,
+    setResizeHandlerState,
+  };
+
+  const count = ownerDocumentCounts.get(ownerDocument) ?? 0;
+  ownerDocumentCounts.set(ownerDocument, count + 1);
+
+  registeredResizeHandlers.add(data);
+
+  updateListeners();
+
+  return function unregisterResizeHandle() {
+    panelConstraintFlags.delete(resizeHandleId);
+    registeredResizeHandlers.delete(data);
+
+    const count = ownerDocumentCounts.get(ownerDocument) ?? 1;
+    ownerDocumentCounts.set(ownerDocument, count - 1);
+
+    updateListeners();
+
+    if (count === 1) {
+      ownerDocumentCounts.delete(ownerDocument);
+    }
+  };
+}
+
+function getEventCoordinates(event: ResizeEvent) {
+  if (isMouseEvent(event)) {
+    return {
+      x: event.pageX,
+      y: event.pageY,
+    };
+  } else if (isTouchEvent(event)) {
+    const touch = event.touches[0];
+    if (touch && touch.pageX && touch.pageY) {
+      return {
+        x: touch.pageX,
+        y: touch.pageY,
+      };
+    }
+  }
+
+  return {
+    x: Infinity,
+    y: Infinity,
+  };
+}
+
+function handlePointerDown(event: ResizeEvent) {
+  isPointerDown = true;
+
+  updateResizeHandlerStates("down", event);
+
+  updateListeners();
+
+  if (intersectingHandles.length > 0) {
+    event.preventDefault();
+  }
+}
+
+function handlePointerMove(event: ResizeEvent) {
+  const { x, y } = getEventCoordinates(event);
+
+  if (isPointerDown) {
+    intersectingHandles.forEach((data) => {
+      const { setResizeHandlerState } = data;
+
+      setResizeHandlerState("move", "drag", event);
+    });
+
+    // Update cursor based on return value(s) from active handles
+    updateCursor();
+  } else {
+    recalculateIntersectingHandles({ x, y });
+    updateResizeHandlerStates("move", event);
+    updateCursor();
+  }
+
+  if (intersectingHandles.length > 0) {
+    event.preventDefault();
+  }
+}
+
+function handlePointerUp(event: ResizeEvent) {
+  const { x, y } = getEventCoordinates(event);
+
+  panelConstraintFlags.clear();
+  isPointerDown = false;
+
+  if (intersectingHandles.length > 0) {
+    event.preventDefault();
+  }
+
+  recalculateIntersectingHandles({ x, y });
+  updateResizeHandlerStates("up", event);
+  updateCursor();
+
+  updateListeners();
+}
+
+function intersects({
+  data,
+  x,
+  y,
+}: {
+  data: ResizeHandlerData;
+  x: number;
+  y: number;
+}) {
+  const { element, gutter } = data;
+  const { bottom, left, right, top } = element.getBoundingClientRect();
+
+  return (
+    x >= left - gutter &&
+    x <= right + gutter &&
+    y >= top - gutter &&
+    y <= bottom + gutter
+  );
+}
+
+function recalculateIntersectingHandles({ x, y }: { x: number; y: number }) {
+  intersectingHandles.splice(0);
+
+  registeredResizeHandlers.forEach((data) => {
+    if (intersects({ data, x, y })) {
+      intersectingHandles.push(data);
+    }
+  });
+}
+
+export function reportConstraintsViolation(
+  resizeHandleId: string,
+  flag: number
+) {
+  panelConstraintFlags.set(resizeHandleId, flag);
+}
+
+function updateCursor() {
+  let intersectsHorizontal = false;
+  let intersectsVertical = false;
+
+  intersectingHandles.forEach((data) => {
+    const { direction } = data;
+
+    if (direction === "horizontal") {
+      intersectsHorizontal = true;
+    } else {
+      intersectsVertical = true;
+    }
+  });
+
+  let constraintFlags = 0;
+  panelConstraintFlags.forEach((flag) => {
+    constraintFlags |= flag;
+  });
+
+  if (intersectsHorizontal && intersectsVertical) {
+    setGlobalCursorStyle("intersection", constraintFlags);
+  } else if (intersectsHorizontal) {
+    setGlobalCursorStyle("horizontal", constraintFlags);
+  } else if (intersectsVertical) {
+    setGlobalCursorStyle("vertical", constraintFlags);
+  } else {
+    resetGlobalCursorStyle();
+  }
+}
+
+function updateListeners() {
+  ownerDocumentCounts.forEach((_, ownerDocument) => {
+    const { body } = ownerDocument;
+
+    body.removeEventListener("contextmenu", handlePointerUp);
+    body.removeEventListener("mousedown", handlePointerDown);
+    body.removeEventListener("mouseleave", handlePointerMove);
+    body.removeEventListener("mousemove", handlePointerMove);
+    body.removeEventListener("touchmove", handlePointerMove);
+    body.removeEventListener("touchstart", handlePointerDown);
+  });
+
+  window.removeEventListener("mouseup", handlePointerUp);
+  window.removeEventListener("touchcancel", handlePointerUp);
+  window.removeEventListener("touchend", handlePointerUp);
+
+  if (registerResizeHandle.length > 0) {
+    if (isPointerDown) {
+      if (intersectingHandles.length > 0) {
+        ownerDocumentCounts.forEach((count, ownerDocument) => {
+          const { body } = ownerDocument;
+
+          if (count > 0) {
+            body.addEventListener("contextmenu", handlePointerUp);
+            body.addEventListener("mousemove", handlePointerMove);
+            body.addEventListener("touchmove", handlePointerMove, {
+              passive: false,
+            });
+            body.addEventListener("mouseleave", handlePointerMove);
+          }
+        });
+      }
+
+      window.addEventListener("mouseup", handlePointerUp);
+      window.addEventListener("touchcancel", handlePointerUp);
+      window.addEventListener("touchend", handlePointerUp);
+    } else {
+      ownerDocumentCounts.forEach((count, ownerDocument) => {
+        const { body } = ownerDocument;
+
+        if (count > 0) {
+          body.addEventListener("mousedown", handlePointerDown);
+          body.addEventListener("mousemove", handlePointerMove);
+          body.addEventListener("touchmove", handlePointerMove, {
+            passive: false,
+          });
+          body.addEventListener("touchstart", handlePointerDown);
+        }
+      });
+    }
+  }
+}
+
+function updateResizeHandlerStates(
+  action: ResizeHandlerAction,
+  event: ResizeEvent
+) {
+  registeredResizeHandlers.forEach((data) => {
+    const { setResizeHandlerState } = data;
+
+    if (intersectingHandles.includes(data)) {
+      if (isPointerDown) {
+        setResizeHandlerState(action, "drag", event);
+      } else {
+        setResizeHandlerState(action, "hover", event);
+      }
+    } else {
+      setResizeHandlerState(action, "inactive", event);
+    }
+  });
+}

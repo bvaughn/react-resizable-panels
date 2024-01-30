@@ -1,54 +1,84 @@
-type CursorState =
-  | "horizontal"
-  | "horizontal-max"
-  | "horizontal-min"
-  | "vertical"
-  | "vertical-max"
-  | "vertical-min";
+import {
+  EXCEEDED_HORIZONTAL_MAX,
+  EXCEEDED_HORIZONTAL_MIN,
+  EXCEEDED_VERTICAL_MAX,
+  EXCEEDED_VERTICAL_MIN,
+} from "../PanelResizeHandleRegistry";
 
-let currentState: CursorState | null = null;
-let element: HTMLStyleElement | null = null;
+type CursorState = "horizontal" | "intersection" | "vertical";
 
-export function getCursorStyle(state: CursorState): string {
+let currentCursorStyle: string | null = null;
+let styleElement: HTMLStyleElement | null = null;
+
+export function getCursorStyle(
+  state: CursorState,
+  constraintFlags: number
+): string {
+  if (constraintFlags) {
+    const horizontalMin = (constraintFlags & EXCEEDED_HORIZONTAL_MIN) !== 0;
+    const horizontalMax = (constraintFlags & EXCEEDED_HORIZONTAL_MAX) !== 0;
+    const verticalMin = (constraintFlags & EXCEEDED_VERTICAL_MIN) !== 0;
+    const verticalMax = (constraintFlags & EXCEEDED_VERTICAL_MAX) !== 0;
+
+    if (horizontalMin) {
+      if (verticalMin) {
+        return "se-resize";
+      } else if (verticalMax) {
+        return "ne-resize";
+      } else {
+        return "e-resize";
+      }
+    } else if (horizontalMax) {
+      if (verticalMin) {
+        return "sw-resize";
+      } else if (verticalMax) {
+        return "nw-resize";
+      } else {
+        return "w-resize";
+      }
+    } else if (verticalMin) {
+      return "s-resize";
+    } else if (verticalMax) {
+      return "n-resize";
+    }
+  }
+
   switch (state) {
     case "horizontal":
       return "ew-resize";
-    case "horizontal-max":
-      return "w-resize";
-    case "horizontal-min":
-      return "e-resize";
+    case "intersection":
+      return "move";
     case "vertical":
       return "ns-resize";
-    case "vertical-max":
-      return "n-resize";
-    case "vertical-min":
-      return "s-resize";
   }
 }
 
 export function resetGlobalCursorStyle() {
-  if (element !== null) {
-    document.head.removeChild(element);
+  if (styleElement !== null) {
+    document.head.removeChild(styleElement);
 
-    currentState = null;
-    element = null;
+    currentCursorStyle = null;
+    styleElement = null;
   }
 }
 
-export function setGlobalCursorStyle(state: CursorState) {
-  if (currentState === state) {
+export function setGlobalCursorStyle(
+  state: CursorState,
+  constraintFlags: number
+) {
+  const style = getCursorStyle(state, constraintFlags);
+
+  if (currentCursorStyle === style) {
     return;
   }
 
-  currentState = state;
+  currentCursorStyle = style;
 
-  const style = getCursorStyle(state);
+  if (styleElement === null) {
+    styleElement = document.createElement("style");
 
-  if (element === null) {
-    element = document.createElement("style");
-
-    document.head.appendChild(element);
+    document.head.appendChild(styleElement);
   }
 
-  element.innerHTML = `*{cursor: ${style}!important;}`;
+  styleElement.innerHTML = `*{cursor: ${style}!important;}`;
 }

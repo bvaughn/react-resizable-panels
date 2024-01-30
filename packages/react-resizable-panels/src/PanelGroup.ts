@@ -6,6 +6,13 @@ import {
   ResizeEvent,
   TPanelGroupContext,
 } from "./PanelGroupContext";
+import {
+  EXCEEDED_HORIZONTAL_MAX,
+  EXCEEDED_HORIZONTAL_MIN,
+  EXCEEDED_VERTICAL_MAX,
+  EXCEEDED_VERTICAL_MIN,
+  reportConstraintsViolation,
+} from "./PanelResizeHandleRegistry";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
 import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterPanelGroupBehavior";
@@ -571,6 +578,7 @@ function PanelGroupWithForwardedRef({
       if (!panelGroupElement) {
         return () => null;
       }
+
       const {
         direction,
         dragState,
@@ -630,20 +638,21 @@ function PanelGroupWithForwardedRef({
           prevDeltaRef.current = delta;
 
           if (!layoutChanged) {
-            // If the pointer has moved too far to resize the panel any further,
-            // update the cursor style for a visual clue.
+            // If the pointer has moved too far to resize the panel any further, note this so we can update the cursor.
             // This mimics VS Code behavior.
-
             if (isHorizontal) {
-              setGlobalCursorStyle(
-                delta < 0 ? "horizontal-min" : "horizontal-max"
+              reportConstraintsViolation(
+                dragHandleId,
+                delta < 0 ? EXCEEDED_HORIZONTAL_MIN : EXCEEDED_HORIZONTAL_MAX
               );
             } else {
-              setGlobalCursorStyle(delta < 0 ? "vertical-min" : "vertical-max");
+              reportConstraintsViolation(
+                dragHandleId,
+                delta < 0 ? EXCEEDED_VERTICAL_MIN : EXCEEDED_VERTICAL_MAX
+              );
             }
           } else {
-            // Reset the cursor style to the the normal resize cursor.
-            setGlobalCursorStyle(isHorizontal ? "horizontal" : "vertical");
+            reportConstraintsViolation(dragHandleId, 0);
           }
         }
       }
@@ -790,7 +799,6 @@ function PanelGroupWithForwardedRef({
   );
 
   const stopDragging = useCallback(() => {
-    resetGlobalCursorStyle();
     setDragState(null);
   }, []);
 

@@ -21,6 +21,7 @@ import { urlPanelGroupToPanelGroup, urlToUrlData } from "../../utils/UrlData";
 import DebugLog, { ImperativeDebugLogHandle } from "../examples/DebugLog";
 import "./styles.css";
 import styles from "./styles.module.css";
+import { VisibleCursor } from "../../components/VisibleCursor";
 
 // Special route that can be configured via URL parameters.
 
@@ -296,6 +297,7 @@ export default function Page() {
   return (
     <ErrorBoundary>
       <EndToEndTesting />
+      <VisibleCursor />
     </ErrorBoundary>
   );
 }

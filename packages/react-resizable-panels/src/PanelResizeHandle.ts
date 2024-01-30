@@ -5,9 +5,6 @@ import {
   HTMLAttributes,
   PropsWithChildren,
   ReactElement,
-  MouseEvent as ReactMouseEvent,
-  TouchEvent,
-  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -20,8 +17,12 @@ import {
   ResizeEvent,
   ResizeHandler,
 } from "./PanelGroupContext";
+import {
+  registerResizeHandle,
+  ResizeHandlerAction,
+  ResizeHandlerState,
+} from "./PanelResizeHandleRegistry";
 import { assert } from "./utils/assert";
-import { getCursorStyle } from "./utils/cursor";
 
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 
@@ -32,6 +33,7 @@ export type PanelResizeHandleProps = Omit<
   PropsWithChildren<{
     className?: string;
     disabled?: boolean;
+    gutter?: number;
     id?: string | null;
     onDragging?: PanelResizeHandleOnDragging;
     style?: CSSProperties;
@@ -43,6 +45,7 @@ export function PanelResizeHandle({
   children = null,
   className: classNameFromProps = "",
   disabled = false,
+  gutter = 5,
   id: idFromProps,
   onDragging,
   style: styleFromProps = {},
@@ -69,16 +72,16 @@ export function PanelResizeHandle({
 
   const {
     direction,
-    dragState,
     groupId,
-    registerResizeHandle,
+    registerResizeHandle: registerResizeHandleWithParentGroup,
     startDragging,
     stopDragging,
     panelGroupElement,
   } = panelGroupContext;
 
   const resizeHandleId = useUniqueId(idFromProps);
-  const isDragging = dragState?.dragHandleId === resizeHandleId;
+
+  const [state, setState] = useState<ResizeHandlerState>("inactive");
 
   const [isFocused, setIsFocused] = useState(false);
 
@@ -86,67 +89,66 @@ export function PanelResizeHandle({
     null
   );
 
-  const stopDraggingAndBlur = useCallback(() => {
-    // Clicking on the drag handle shouldn't leave it focused;
-    // That would cause the PanelGroup to think it was still active.
-    const element = elementRef.current;
-    assert(element);
-    element.blur();
-
-    stopDragging();
-
-    const { onDragging } = callbacksRef.current;
-    if (onDragging) {
-      onDragging(false);
-    }
-  }, [stopDragging]);
-
   useEffect(() => {
     if (disabled) {
       setResizeHandler(null);
     } else {
-      const resizeHandler = registerResizeHandle(resizeHandleId);
+      const resizeHandler = registerResizeHandleWithParentGroup(resizeHandleId);
       setResizeHandler(() => resizeHandler);
     }
-  }, [disabled, resizeHandleId, registerResizeHandle]);
+  }, [disabled, resizeHandleId, registerResizeHandleWithParentGroup]);
 
   useEffect(() => {
-    if (disabled || resizeHandler == null || !isDragging) {
+    if (disabled || resizeHandler == null) {
       return;
     }
-
-    const onMove = (event: ResizeEvent) => {
-      resizeHandler(event);
-    };
-
-    const onMouseLeave = (event: MouseEvent) => {
-      resizeHandler(event);
-    };
 
     const element = elementRef.current;
     assert(element);
 
-    const targetDocument = element.ownerDocument;
+    const setResizeHandlerState = (
+      action: ResizeHandlerAction,
+      state: ResizeHandlerState,
+      event: ResizeEvent
+    ) => {
+      setState(state);
 
-    targetDocument.body.addEventListener("contextmenu", stopDraggingAndBlur);
-    targetDocument.body.addEventListener("mousemove", onMove);
-    targetDocument.body.addEventListener("touchmove", onMove);
-    targetDocument.body.addEventListener("mouseleave", onMouseLeave);
-    window.addEventListener("mouseup", stopDraggingAndBlur);
-    window.addEventListener("touchend", stopDraggingAndBlur);
+      switch (action) {
+        case "down": {
+          startDragging(resizeHandleId, event);
+          break;
+        }
+        case "up": {
+          stopDragging();
+          break;
+        }
+      }
 
-    return () => {
-      targetDocument.body.removeEventListener(
-        "contextmenu",
-        stopDraggingAndBlur
-      );
-      targetDocument.body.removeEventListener("mousemove", onMove);
-      targetDocument.body.removeEventListener("touchmove", onMove);
-      targetDocument.body.removeEventListener("mouseleave", onMouseLeave);
-      window.removeEventListener("mouseup", stopDraggingAndBlur);
-      window.removeEventListener("touchend", stopDraggingAndBlur);
+      switch (state) {
+        case "drag": {
+          resizeHandler(event);
+          break;
+        }
+      }
     };
-  }, [direction, disabled, isDragging, resizeHandler, stopDraggingAndBlur]);
+
+    return registerResizeHandle(
+      resizeHandleId,
+      element,
+      direction,
+      gutter,
+      setResizeHandlerState
+    );
+  }, [
+    direction,
+    disabled,
+    gutter,
+    registerResizeHandleWithParentGroup,
+    resizeHandleId,
+    resizeHandler,
+    startDragging,
+    stopDragging,
+  ]);
 
   useWindowSplitterResizeHandlerBehavior({
     disabled,
@@ -156,7 +158,6 @@ export function PanelResizeHandle({
   });
 
   const style: CSSProperties = {
-    cursor: getCursorStyle(direction),
     touchAction: "none",
     userSelect: "none",
   };
@@ -168,29 +169,6 @@ export function PanelResizeHandle({
     className: classNameFromProps,
     onBlur: () => setIsFocused(false),
     onFocus: () => setIsFocused(true),
-    onMouseDown: (event: ReactMouseEvent) => {
-      startDragging(resizeHandleId, event.nativeEvent);
-
-      const callbacks = callbacksRef.current;
-      assert(callbacks);
-      const { onDragging } = callbacks;
-      if (onDragging) {
-        onDragging(true);
-      }
-    },
-    onMouseUp: stopDraggingAndBlur,
-    onTouchCancel: stopDraggingAndBlur,
-    onTouchEnd: stopDraggingAndBlur,
-    onTouchStart: (event: TouchEvent) => {
-      startDragging(resizeHandleId, event.nativeEvent);
-
-      const callbacks = callbacksRef.current;
-      assert(callbacks);
-      const { onDragging } = callbacks;
-      if (onDragging) {
-        onDragging(true);
-      }
-    },
     ref: elementRef,
     role: "separator",
     style: {
@@ -203,11 +181,9 @@ export function PanelResizeHandle({
     "data-panel-group-direction": direction,
     "data-panel-group-id": groupId,
     "data-resize-handle": "",
-    "data-resize-handle-active": isDragging
-      ? "pointer"
-      : isFocused
-      ? "keyboard"
-      : undefined,
+    "data-resize-handle-active":
+      state === "drag" ? "pointer" : isFocused ? "keyboard" : undefined,
+    "data-resize-handle-state": state,
     "data-panel-resize-handle-enabled": !disabled,
     "data-panel-resize-handle-id": resizeHandleId,
   });

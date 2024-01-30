@@ -2,34 +2,16 @@ import { expect, Page, test } from "@playwright/test";
 import { createElement } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { getBodyCursorStyle } from "./utils/cursor";
-import { dragResizeTo } from "./utils/panels";
+import { dragResizeIntersecting, dragResizeTo } from "./utils/panels";
 
 import { goToUrl } from "./utils/url";
-
-type CursorState =
-  | "horizontal"
-  | "horizontal-max"
-  | "horizontal-min"
-  | "vertical"
-  | "vertical-max"
-  | "vertical-min";
-
-function getCursorStyle(state: CursorState) {
-  switch (state) {
-    case "horizontal":
-      return "ew-resize";
-    case "horizontal-max":
-      return "w-resize";
-    case "horizontal-min":
-      return "e-resize";
-    case "vertical":
-      return "ns-resize";
-    case "vertical-max":
-      return "n-resize";
-    case "vertical-min":
-      return "s-resize";
-  }
-}
+import { getCursorStyle } from "../../react-resizable-panels/src/utils/cursor";
+import {
+  EXCEEDED_HORIZONTAL_MAX,
+  EXCEEDED_HORIZONTAL_MIN,
+  EXCEEDED_VERTICAL_MAX,
+  EXCEEDED_VERTICAL_MIN,
+} from "../../react-resizable-panels/src/PanelResizeHandleRegistry";
 
 test.describe("cursor style", () => {
   async function openPage(page: Page, direction: "horizontal" | "vertical") {
@@ -78,12 +60,18 @@ test.describe("cursor style", () => {
     await dragResizeTo(
       page,
       "first-panel",
-      { size: 15, expectedCursor: getCursorStyle("horizontal") },
-      { size: 5, expectedCursor: getCursorStyle("horizontal-min") },
-      { size: 15, expectedCursor: getCursorStyle("horizontal") },
-      { size: 85, expectedCursor: getCursorStyle("horizontal") },
-      { size: 95, expectedCursor: getCursorStyle("horizontal-max") },
-      { size: 85, expectedCursor: getCursorStyle("horizontal") }
+      { size: 15, expectedCursor: getCursorStyle("horizontal", 0) },
+      {
+        size: 5,
+        expectedCursor: getCursorStyle("horizontal", EXCEEDED_HORIZONTAL_MIN),
+      },
+      { size: 15, expectedCursor: getCursorStyle("horizontal", 0) },
+      { size: 85, expectedCursor: getCursorStyle("horizontal", 0) },
+      {
+        size: 95,
+        expectedCursor: getCursorStyle("horizontal", EXCEEDED_HORIZONTAL_MAX),
+      },
+      { size: 85, expectedCursor: getCursorStyle("horizontal", 0) }
     );
 
     await openPage(page, "vertical");
@@ -91,12 +79,127 @@ test.describe("cursor style", () => {
     await dragResizeTo(
       page,
       "first-panel",
-      { size: 15, expectedCursor: getCursorStyle("vertical") },
-      { size: 5, expectedCursor: getCursorStyle("vertical-min") },
-      { size: 15, expectedCursor: getCursorStyle("vertical") },
-      { size: 85, expectedCursor: getCursorStyle("vertical") },
-      { size: 95, expectedCursor: getCursorStyle("vertical-max") },
-      { size: 85, expectedCursor: getCursorStyle("vertical") }
+      { size: 15, expectedCursor: getCursorStyle("vertical", 0) },
+      {
+        size: 5,
+        expectedCursor: getCursorStyle("vertical", EXCEEDED_VERTICAL_MIN),
+      },
+      { size: 15, expectedCursor: getCursorStyle("vertical", 0) },
+      { size: 85, expectedCursor: getCursorStyle("vertical", 0) },
+      {
+        size: 95,
+        expectedCursor: getCursorStyle("vertical", EXCEEDED_VERTICAL_MAX),
+      },
+      { size: 85, expectedCursor: getCursorStyle("vertical", 0) }
+    );
+  });
+
+  test("should update cursor when dragging intersecting panels (like tmux)", async ({
+    page,
+  }) => {
+    await goToUrl(
+      page,
+      createElement(
+        PanelGroup,
+        { direction: "horizontal", id: "outer-group" },
+        createElement(Panel, {
+          defaultSize: 50,
+          minSize: 25,
+          maxSize: 75,
+        }),
+        createElement(PanelResizeHandle, {
+          id: "horizontal-handle",
+        }),
+        createElement(
+          Panel,
+          {
+            defaultSize: 50,
+            minSize: 25,
+            maxSize: 75,
+          },
+          createElement(
+            PanelGroup,
+            { direction: "vertical" },
+            createElement(Panel, {
+              defaultSize: 50,
+              minSize: 25,
+              maxSize: 75,
+            }),
+            createElement(PanelResizeHandle, {
+              id: "vertical-handle",
+            }),
+            createElement(Panel, {
+              defaultSize: 50,
+              minSize: 25,
+              maxSize: 75,
+            })
+          )
+        )
+      )
+    );
+
+    await dragResizeIntersecting(
+      page,
+      "outer-group",
+      ["horizontal-handle", "vertical-handle"],
+      {
+        expectedCursor: getCursorStyle("intersection", 0),
+        sizeX: 0.4,
+        sizeY: 0.4,
+      },
+      {
+        expectedCursor: getCursorStyle("intersection", 0),
+        sizeX: 0.6,
+        sizeY: 0.6,
+      },
+      {
+        expectedCursor: getCursorStyle("intersection", EXCEEDED_HORIZONTAL_MIN),
+        sizeX: 0.1,
+      },
+      {
+        expectedCursor: getCursorStyle("intersection", EXCEEDED_HORIZONTAL_MAX),
+        sizeX: 0.9,
+      },
+      {
+        expectedCursor: getCursorStyle("intersection", EXCEEDED_VERTICAL_MIN),
+        sizeY: 0.1,
+      },
+      {
+        expectedCursor: getCursorStyle("intersection", EXCEEDED_VERTICAL_MAX),
+        sizeY: 0.9,
+      },
+      {
+        expectedCursor: getCursorStyle(
+          "intersection",
+          EXCEEDED_HORIZONTAL_MIN | EXCEEDED_VERTICAL_MIN
+        ),
+        sizeX: 0.1,
+        sizeY: 0.1,
+      },
+      {
+        expectedCursor: getCursorStyle(
+          "intersection",
+          EXCEEDED_HORIZONTAL_MIN | EXCEEDED_VERTICAL_MAX
+        ),
+        sizeX: 0.1,
+        sizeY: 0.9,
+      },
+      {
+        expectedCursor: getCursorStyle(
+          "intersection",
+          EXCEEDED_HORIZONTAL_MAX | EXCEEDED_VERTICAL_MIN
+        ),
+        sizeX: 0.9,
+        sizeY: 0.1,
+      },
+      {
+        expectedCursor: getCursorStyle(
+          "intersection",
+          EXCEEDED_HORIZONTAL_MAX | EXCEEDED_VERTICAL_MAX
+        ),
+        sizeX: 0.9,
+        sizeY: 0.9,
+      }
     );
   });
 });
