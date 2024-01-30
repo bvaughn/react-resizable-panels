@@ -1,5 +1,6 @@
 import { useLayoutEffect } from "react";
 import styles from "./VisibleCursor.module.css";
+import { getResizeEventCoordinates } from "../../../react-resizable-panels/src/utils/events/getResizeEventCoordinates";
 
 export function VisibleCursor() {
   useLayoutEffect(() => {
@@ -13,9 +14,10 @@ export function VisibleCursor() {
       element.setAttribute("data-state", "down");
     };
 
-    const onMouseMove = (event: MouseEvent) => {
-      element.style.left = event.pageX + "px";
-      element.style.top = event.pageY + "px";
+    const onMouseMove = (event: MouseEvent | TouchEvent) => {
+      const { x, y } = getResizeEventCoordinates(event);
+      element.style.left = x + "px";
+      element.style.top = y + "px";
     };
 
     const onMouseUp = () => {
@@ -25,6 +27,10 @@ export function VisibleCursor() {
     document.addEventListener("mousedown", onMouseDown, true);
     document.addEventListener("mousemove", onMouseMove, true);
     document.addEventListener("mouseup", onMouseUp, true);
+    document.addEventListener("touchcancel", onMouseUp, true);
+    document.addEventListener("touchend", onMouseUp, true);
+    document.addEventListener("touchmove", onMouseMove, true);
+    document.addEventListener("touchstart", onMouseDown, true);
 
     return () => {
       document.body.removeChild(element);
@@ -32,6 +38,10 @@ export function VisibleCursor() {
       document.removeEventListener("mousedown", onMouseDown, true);
       document.removeEventListener("mousemove", onMouseMove, true);
       document.removeEventListener("mouseup", onMouseUp, true);
+      document.removeEventListener("touchcancel", onMouseUp, true);
+      document.removeEventListener("touchend", onMouseUp, true);
+      document.removeEventListener("touchmove", onMouseMove, true);
+      document.removeEventListener("touchstart", onMouseDown, true);
     };
   });
 

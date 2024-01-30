@@ -11,7 +11,7 @@
   background-color: var(--color-resize-bar-drag);
 }
 
-@media (max-width: 500px) {
+@media (pointer: coarse) {
   .ResizeHandle {
     flex: 0 0 1rem;
   }

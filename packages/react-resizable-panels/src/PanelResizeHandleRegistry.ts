@@ -1,6 +1,6 @@
 import { Direction, ResizeEvent } from "./types";
 import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
-import { isMouseEvent, isTouchEvent } from "./utils/events";
+import { getResizeEventCoordinates } from "./utils/events/getResizeEventCoordinates";
 
 export type ResizeHandlerAction = "down" | "move" | "up";
 export type ResizeHandlerState = "drag" | "hover" | "inactive";
@@ -67,33 +67,14 @@ export function registerResizeHandle(
   };
 }
 
-function getEventCoordinates(event: ResizeEvent) {
-  if (isMouseEvent(event)) {
-    return {
-      x: event.pageX,
-      y: event.pageY,
-    };
-  } else if (isTouchEvent(event)) {
-    const touch = event.touches[0];
-    if (touch && touch.pageX && touch.pageY) {
-      return {
-        x: touch.pageX,
-        y: touch.pageY,
-      };
-    }
-  }
-
-  return {
-    x: Infinity,
-    y: Infinity,
-  };
-}
-
 function handlePointerDown(event: ResizeEvent) {
+  const { x, y } = getResizeEventCoordinates(event);
+
   isPointerDown = true;
 
   updateResizeHandlerStates("down", event);
 
+  recalculateIntersectingHandles({ x, y });
   updateListeners();
 
   if (intersectingHandles.length > 0) {
@@ -102,7 +83,7 @@ function handlePointerDown(event: ResizeEvent) {
 }
 
 function handlePointerMove(event: ResizeEvent) {
-  const { x, y } = getEventCoordinates(event);
+  const { x, y } = getResizeEventCoordinates(event);
 
   if (isPointerDown) {
     intersectingHandles.forEach((data) => {
@@ -125,7 +106,7 @@ function handlePointerMove(event: ResizeEvent) {
 }
 
 function handlePointerUp(event: ResizeEvent) {
-  const { x, y } = getEventCoordinates(event);
+  const { x, y } = getResizeEventCoordinates(event);
 
   panelConstraintFlags.clear();
   isPointerDown = false;
@@ -232,11 +213,11 @@ function updateListeners() {
 
           if (count > 0) {
             body.addEventListener("contextmenu", handlePointerUp);
+            body.addEventListener("mouseleave", handlePointerMove);
             body.addEventListener("mousemove", handlePointerMove);
             body.addEventListener("touchmove", handlePointerMove, {
               passive: false,
             });
-            body.addEventListener("mouseleave", handlePointerMove);
           }
         });
       }

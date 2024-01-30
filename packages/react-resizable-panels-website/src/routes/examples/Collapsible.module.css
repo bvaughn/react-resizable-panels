@@ -15,7 +15,7 @@
   background-color: var(--color-button-background-hover);
 }
 
-@media (max-width: 500px) {
+@media (pointer: coarse) {
   .ResizeHandle,
   .ResizeHandleCollapsed {
     width: 1rem;

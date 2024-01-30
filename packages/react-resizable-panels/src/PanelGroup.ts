@@ -30,7 +30,7 @@ import debounce from "./utils/debounce";
 import { determinePivotIndices } from "./utils/determinePivotIndices";
 import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
 import { isKeyDown, isMouseEvent, isTouchEvent } from "./utils/events";
-import { getResizeEventCursorPosition } from "./utils/getResizeEventCursorPosition";
+import { getResizeEventCursorPosition } from "./utils/events/getResizeEventCursorPosition";
 import { initializeDefaultStorage } from "./utils/initializeDefaultStorage";
 import {
   loadPanelGroupState,
