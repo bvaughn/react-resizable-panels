@@ -72,8 +72,8 @@
     "eslint": "^8.37.0",
     "eslint-plugin-no-restricted-imports": "^0.0.0",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "react": "latest",
-    "react-dom": "latest"
+    "react": "experimental",
+    "react-dom": "experimental"
   },
   "peerDependencies": {
     "react": "^16.14.0 || ^17.0.0 || ^18.0.0",
