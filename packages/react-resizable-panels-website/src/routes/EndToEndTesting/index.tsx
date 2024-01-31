@@ -222,7 +222,6 @@ function EndToEndTesting() {
             className={styles.Input}
             id="panelIdSelect"
             onChange={onPanelIdSelectChange}
-            placeholder="Panel id"
           >
             {panelIds.map((panelId) => (
               <option key={panelId} value={panelId}>
@@ -263,7 +262,6 @@ function EndToEndTesting() {
             className={styles.Input}
             id="panelGroupIdSelect"
             onChange={onPanelGroupIdSelectChange}
-            placeholder="Panel group id"
           >
             {panelGroupIds.map((panelGroupId) => (
               <option key={panelGroupId} value={panelGroupId}>
