@@ -25,7 +25,6 @@ import { calculateUnsafeDefaultLayout } from "./utils/calculateUnsafeDefaultLayo
 import { callPanelCallbacks } from "./utils/callPanelCallbacks";
 import { compareLayouts } from "./utils/compareLayouts";
 import { computePanelFlexBoxStyle } from "./utils/computePanelFlexBoxStyle";
-import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
 import debounce from "./utils/debounce";
 import { determinePivotIndices } from "./utils/determinePivotIndices";
 import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
@@ -570,6 +569,14 @@ function PanelGroupWithForwardedRef({
       }
     }
   });
+
+  // Reset the cached layout if hidden by the Activity/Offscreen API
+  useIsomorphicLayoutEffect(() => {
+    const eagerValues = eagerValuesRef.current;
+    return () => {
+      eagerValues.layout = [];
+    };
+  }, []);
 
   const registerResizeHandle = useCallback((dragHandleId: string) => {
     return function resizeHandler(event: ResizeEvent) {

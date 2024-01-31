@@ -1,3 +1,6 @@
+// @ts-expect-error This is an experimental API
+// eslint-disable-next-line no-restricted-imports
+import { unstable_Activity as Activity } from "react";
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import {
@@ -6,6 +9,7 @@ import {
   Panel,
   PanelGroup,
   PanelResizeHandle,
+  getPanelElement,
 } from ".";
 import { assert } from "./utils/assert";
 import { getPanelGroupElement } from "./utils/dom/getPanelGroupElement";
@@ -60,6 +64,67 @@ describe("PanelGroup", () => {
     });
 
     expect(expectedWarnings).toHaveLength(0);
+  });
+
+  it("should recalculate layout after being hidden by Activity", () => {
+    const panelRef = createRef<ImperativePanelHandle>();
+
+    let mostRecentLayout: number[] | null = null;
+
+    const onLayout = (layout: number[]) => {
+      mostRecentLayout = layout;
+    };
+
+    act(() => {
+      root.render(
+        <Activity mode="visible">
+          <PanelGroup direction="horizontal" onLayout={onLayout}>
+            <Panel id="left" ref={panelRef} />
+            <PanelResizeHandle />
+            <Panel defaultSize={40} id="right" />
+          </PanelGroup>
+        </Activity>
+      );
+    });
+
+    expect(mostRecentLayout).toEqual([60, 40]);
+    expect(panelRef.current?.getSize()).toEqual(60);
+
+    const leftPanelElement = getPanelElement("left");
+    const rightPanelElement = getPanelElement("right");
+    expect(leftPanelElement?.getAttribute("data-panel-size")).toBe("60.0");
+    expect(rightPanelElement?.getAttribute("data-panel-size")).toBe("40.0");
+
+    act(() => {
+      root.render(
+        <Activity mode="hidden">
+          <PanelGroup direction="horizontal" onLayout={onLayout}>
+            <Panel id="left" ref={panelRef} />
+            <PanelResizeHandle />
+            <Panel defaultSize={40} id="right" />
+          </PanelGroup>
+        </Activity>
+      );
+    });
+
+    act(() => {
+      root.render(
+        <Activity mode="visible">
+          <PanelGroup direction="horizontal" onLayout={onLayout}>
+            <Panel id="left" ref={panelRef} />
+            <PanelResizeHandle />
+            <Panel defaultSize={40} id="right" />
+          </PanelGroup>
+        </Activity>
+      );
+    });
+
+    expect(mostRecentLayout).toEqual([60, 40]);
+    expect(panelRef.current?.getSize()).toEqual(60);
+
+    // This bug is only observable in the DOM; callbacks will not re-fire
+    expect(leftPanelElement?.getAttribute("data-panel-size")).toBe("60.0");
+    expect(rightPanelElement?.getAttribute("data-panel-size")).toBe("40.0");
   });
 
   describe("imperative handle API", () => {
