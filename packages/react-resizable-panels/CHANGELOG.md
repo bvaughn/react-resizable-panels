@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.2
+
+- Fixed an issue where size might not be re-initialized correctly after a panel was hidden by the `unstable_Activity` (previously "Offscreen") API.
+
 ## 2.0.1
 
 - Fixed a regression introduced in 2.0.0 that caused React `onClick` and `onMouseUp` handlers not to fire.
