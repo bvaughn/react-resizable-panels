@@ -2,6 +2,33 @@ import { assert } from "./assert";
 
 const util = require("util");
 
+export function dispatchPointerEvent(type: string, target: HTMLElement) {
+  const rect = target.getBoundingClientRect();
+
+  const clientX = rect.left + rect.width / 2;
+  const clientY = rect.top + rect.height / 2;
+
+  const event = new MouseEvent(type, {
+    bubbles: true,
+    clientX,
+    clientY,
+  });
+  Object.defineProperties(event, {
+    pageX: {
+      get() {
+        return clientX;
+      },
+    },
+    pageY: {
+      get() {
+        return clientY;
+      },
+    },
+  });
+
+  target.dispatchEvent(event);
+}
+
 export function expectToBeCloseToArray(
   actualNumbers: number[],
   expectedNumbers: number[]
