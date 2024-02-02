@@ -72,6 +72,8 @@
     "eslint": "^8.37.0",
     "eslint-plugin-no-restricted-imports": "^0.0.0",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "react": "experimental",
     "react-dom": "experimental"
   },
