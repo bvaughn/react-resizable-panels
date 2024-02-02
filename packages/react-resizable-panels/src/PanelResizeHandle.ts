@@ -117,10 +117,20 @@ export function PanelResizeHandle({
       switch (action) {
         case "down": {
           startDragging(resizeHandleId, event);
+
+          const { onDragging } = callbacksRef.current;
+          if (onDragging) {
+            onDragging(true);
+          }
           break;
         }
         case "up": {
           stopDragging();
+
+          const { onDragging } = callbacksRef.current;
+          if (onDragging) {
+            onDragging(false);
+          }
           break;
         }
       }

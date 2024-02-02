@@ -3,6 +3,7 @@ import { act } from "react-dom/test-utils";
 import { Panel, PanelGroup, PanelResizeHandle } from ".";
 import { assert } from "./utils/assert";
 import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
+import { dispatchPointerEvent } from "./utils/test-utils";
 
 describe("PanelResizeHandle", () => {
   let expectedWarnings: string[] = [];
@@ -68,7 +69,45 @@ describe("PanelResizeHandle", () => {
 
   describe("callbacks", () => {
     describe("onDragging", () => {
-      // TODO: Test this
+      it("should fire when dragging starts/stops", async () => {
+        const onDragging = jest.fn();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel />
+              <PanelResizeHandle
+                id="handle"
+                onDragging={onDragging}
+                tabIndex={123}
+                title="bar"
+              />
+              <Panel />
+            </PanelGroup>
+          );
+        });
+
+        const handleElement = container.querySelector(
+          '[data-panel-resize-handle-id="handle"]'
+        ) as HTMLElement;
+
+        act(() => {
+          dispatchPointerEvent("mouseover", handleElement);
+        });
+        expect(onDragging).not.toHaveBeenCalled();
+
+        act(() => {
+          dispatchPointerEvent("mousedown", handleElement);
+        });
+        expect(onDragging).toHaveBeenCalledTimes(1);
+        expect(onDragging).toHaveBeenCalledWith(true);
+
+        act(() => {
+          dispatchPointerEvent("mouseup", handleElement);
+        });
+        expect(onDragging).toHaveBeenCalledTimes(2);
+        expect(onDragging).toHaveBeenCalledWith(false);
+      });
     });
   });
 });

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.3
+
+- Fix resize handle onDragging callback (#278)
+
 ## 2.0.2
 
 - Fixed an issue where size might not be re-initialized correctly after a panel was hidden by the `unstable_Activity` (previously "Offscreen") API.
