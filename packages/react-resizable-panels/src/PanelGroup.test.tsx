@@ -13,7 +13,10 @@ import {
 } from ".";
 import { assert } from "./utils/assert";
 import { getPanelGroupElement } from "./utils/dom/getPanelGroupElement";
-import { mockPanelGroupOffsetWidthAndHeight } from "./utils/test-utils";
+import {
+  mockPanelGroupOffsetWidthAndHeight,
+  verifyAttribute,
+} from "./utils/test-utils";
 import { createRef } from "./vendor/react";
 
 describe("PanelGroup", () => {
@@ -253,6 +256,23 @@ describe("PanelGroup", () => {
         expect(onLayout).toHaveBeenCalledTimes(1);
         expect(onLayout).toHaveBeenCalledWith([50, 50]);
       });
+    });
+  });
+
+  describe("data attributes", () => {
+    it("should initialize with the correct props based attributes", () => {
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal" id="test-group"></PanelGroup>
+        );
+      });
+
+      const element = getPanelGroupElement("test-group", container);
+      assert(element);
+
+      verifyAttribute(element, "data-panel-group", "");
+      verifyAttribute(element, "data-panel-group-direction", "horizontal");
+      verifyAttribute(element, "data-panel-group-id", "test-group");
     });
   });
 

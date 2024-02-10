@@ -21,11 +21,11 @@ import {
   PointerHitAreaMargins,
   registerResizeHandle,
   ResizeHandlerAction,
-  ResizeHandlerState,
 } from "./PanelResizeHandleRegistry";
 import { assert } from "./utils/assert";
 
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
+export type ResizeHandlerState = "drag" | "hover" | "inactive";
 
 export type PanelResizeHandleProps = Omit<
   HTMLAttributes<keyof HTMLElementTagNameMap>,
@@ -109,37 +109,42 @@ export function PanelResizeHandle({
 
     const setResizeHandlerState = (
       action: ResizeHandlerAction,
-      state: ResizeHandlerState,
+      isActive: boolean,
       event: ResizeEvent
     ) => {
-      setState(state);
+      if (isActive) {
+        switch (action) {
+          case "down": {
+            setState("drag");
 
-      switch (action) {
-        case "down": {
-          startDragging(resizeHandleId, event);
+            startDragging(resizeHandleId, event);
 
-          const { onDragging } = callbacksRef.current;
-          if (onDragging) {
-            onDragging(true);
+            const { onDragging } = callbacksRef.current;
+            if (onDragging) {
+              onDragging(true);
+            }
+            break;
           }
-          break;
-        }
-        case "up": {
-          stopDragging();
+          case "move": {
+            setState("hover");
 
-          const { onDragging } = callbacksRef.current;
-          if (onDragging) {
-            onDragging(false);
+            resizeHandler(event);
+            break;
           }
-          break;
-        }
-      }
+          case "up": {
+            setState("hover");
 
-      switch (state) {
-        case "drag": {
-          resizeHandler(event);
-          break;
+            stopDragging();
+
+            const { onDragging } = callbacksRef.current;
+            if (onDragging) {
+              onDragging(false);
+            }
+            break;
+          }
         }
+      } else {
+        setState("inactive");
       }
     };
 

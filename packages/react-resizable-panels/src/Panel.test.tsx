@@ -5,6 +5,7 @@ import { assert } from "./utils/assert";
 import { getPanelElement } from "./utils/dom/getPanelElement";
 import {
   mockPanelGroupOffsetWidthAndHeight,
+  verifyAttribute,
   verifyExpandedPanelGroupLayout,
 } from "./utils/test-utils";
 import { createRef } from "./vendor/react";
@@ -672,6 +673,68 @@ describe("PanelGroup", () => {
         expect(onResizeMiddle).toHaveBeenCalledWith(75, 50);
         expect(onResizeRight).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("data attributes", () => {
+    it("should initialize with the correct props based attributes", () => {
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal" id="test-group">
+            <Panel defaultSize={75} id="left-panel" />
+            <PanelResizeHandle />
+            <Panel collapsible id="right-panel" />
+          </PanelGroup>
+        );
+      });
+
+      const leftElement = getPanelElement("left-panel", container);
+      const rightElement = getPanelElement("right-panel", container);
+
+      assert(leftElement);
+      assert(rightElement);
+
+      verifyAttribute(leftElement, "data-panel", "");
+      verifyAttribute(leftElement, "data-panel-id", "left-panel");
+      verifyAttribute(leftElement, "data-panel-group-id", "test-group");
+      verifyAttribute(leftElement, "data-panel-size", "75.0");
+      verifyAttribute(leftElement, "data-panel-collapsible", null);
+
+      verifyAttribute(rightElement, "data-panel", "");
+      verifyAttribute(rightElement, "data-panel-id", "right-panel");
+      verifyAttribute(rightElement, "data-panel-group-id", "test-group");
+      verifyAttribute(rightElement, "data-panel-size", "25.0");
+      verifyAttribute(rightElement, "data-panel-collapsible", "true");
+    });
+
+    it("should update the data-panel-size attribute when the panel resizes", () => {
+      const leftPanelRef = createRef<ImperativePanelHandle>();
+
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal" id="test-group">
+            <Panel defaultSize={75} id="left-panel" ref={leftPanelRef} />
+            <PanelResizeHandle />
+            <Panel collapsible id="right-panel" />
+          </PanelGroup>
+        );
+      });
+
+      const leftElement = getPanelElement("left-panel", container);
+      const rightElement = getPanelElement("right-panel", container);
+
+      assert(leftElement);
+      assert(rightElement);
+
+      verifyAttribute(leftElement, "data-panel-size", "75.0");
+      verifyAttribute(rightElement, "data-panel-size", "25.0");
+
+      act(() => {
+        leftPanelRef.current?.resize(30);
+      });
+
+      verifyAttribute(leftElement, "data-panel-size", "30.0");
+      verifyAttribute(rightElement, "data-panel-size", "70.0");
     });
   });
 
