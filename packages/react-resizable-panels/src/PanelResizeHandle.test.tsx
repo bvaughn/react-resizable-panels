@@ -225,6 +225,14 @@ describe("PanelResizeHandle", () => {
       verifyAttribute(rightElement, "data-resize-handle-state", "inactive");
 
       act(() => {
+        dispatchPointerEvent("mousemove", leftElement);
+      });
+      verifyAttribute(leftElement, "data-resize-handle-active", "pointer");
+      verifyAttribute(rightElement, "data-resize-handle-active", null);
+      verifyAttribute(leftElement, "data-resize-handle-state", "drag");
+      verifyAttribute(rightElement, "data-resize-handle-state", "inactive");
+
+      act(() => {
         dispatchPointerEvent("mouseup", leftElement);
       });
       verifyAttribute(leftElement, "data-resize-handle-active", null);

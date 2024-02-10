@@ -7,6 +7,7 @@ import {
   ReactElement,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "./vendor/react";
@@ -90,6 +91,16 @@ export function PanelResizeHandle({
     null
   );
 
+  const committedValuesRef = useRef<{
+    state: ResizeHandlerState;
+  }>({
+    state,
+  });
+
+  useLayoutEffect(() => {
+    committedValuesRef.current.state = state;
+  });
+
   useEffect(() => {
     if (disabled) {
       setResizeHandler(null);
@@ -126,7 +137,11 @@ export function PanelResizeHandle({
             break;
           }
           case "move": {
-            setState("hover");
+            const { state } = committedValuesRef.current;
+
+            if (state !== "drag") {
+              setState("hover");
+            }
 
             resizeHandler(event);
             break;
