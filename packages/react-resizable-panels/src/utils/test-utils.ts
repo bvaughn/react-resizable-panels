@@ -47,6 +47,36 @@ export function expectToBeCloseToArray(
   }
 }
 
+export function mockBoundingClientRect(
+  element: HTMLElement,
+  rect: {
+    height: number;
+    width: number;
+    x: number;
+    y: number;
+  }
+) {
+  const { height, width, x, y } = rect;
+
+  Object.defineProperty(element, "getBoundingClientRect", {
+    configurable: true,
+    value: () =>
+      ({
+        bottom: y + height,
+        height,
+        left: x,
+        right: x + width,
+        toJSON() {
+          return "";
+        },
+        top: y,
+        width,
+        x,
+        y,
+      }) satisfies DOMRect,
+  });
+}
+
 export function mockPanelGroupOffsetWidthAndHeight(
   mockWidth = 1_000,
   mockHeight = 1_000

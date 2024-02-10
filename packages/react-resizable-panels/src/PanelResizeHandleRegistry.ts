@@ -4,10 +4,9 @@ import { getResizeEventCoordinates } from "./utils/events/getResizeEventCoordina
 import { getInputType } from "./utils/getInputType";
 
 export type ResizeHandlerAction = "down" | "move" | "up";
-export type ResizeHandlerState = "drag" | "hover" | "inactive";
 export type SetResizeHandlerState = (
   action: ResizeHandlerAction,
-  state: ResizeHandlerState,
+  isActive: boolean,
   event: ResizeEvent
 ) => void;
 
@@ -93,20 +92,17 @@ function handlePointerDown(event: ResizeEvent) {
 function handlePointerMove(event: ResizeEvent) {
   const { x, y } = getResizeEventCoordinates(event);
 
-  if (isPointerDown) {
-    intersectingHandles.forEach((data) => {
-      const { setResizeHandlerState } = data;
-
-      setResizeHandlerState("move", "drag", event);
-    });
-
-    // Update cursor based on return value(s) from active handles
-    updateCursor();
-  } else {
+  if (!isPointerDown) {
+    // Recalculate intersecting handles whenever the pointer moves, except if it has already been pressed
+    // at that point, the handles may not move with the pointer (depending on constraints)
+    // but the same set of active handles should be locked until the pointer is released
     recalculateIntersectingHandles({ x, y });
-    updateResizeHandlerStates("move", event);
-    updateCursor();
   }
+
+  updateResizeHandlerStates("move", event);
+
+  // Update cursor based on return value(s) from active handles
+  updateCursor();
 
   if (intersectingHandles.length > 0) {
     event.preventDefault();
@@ -250,14 +246,8 @@ function updateResizeHandlerStates(
   registeredResizeHandlers.forEach((data) => {
     const { setResizeHandlerState } = data;
 
-    if (intersectingHandles.includes(data)) {
-      if (isPointerDown) {
-        setResizeHandlerState(action, "drag", event);
-      } else {
-        setResizeHandlerState(action, "hover", event);
-      }
-    } else {
-      setResizeHandlerState(action, "inactive", event);
-    }
+    const isActive = intersectingHandles.includes(data);
+
+    setResizeHandlerState(action, isActive, event);
   });
 }
