@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.4
+
+- Fixed `PanelResizeHandle` `onDragging` prop to only be called for the handle being dragged (#289)
+
 ## 2.0.3
 
 - Fix resize handle onDragging callback (#278)
