@@ -132,6 +132,15 @@ export function mockPanelGroupOffsetWidthAndHeight(
   };
 }
 
+export function verifyAttribute(
+  element: HTMLElement,
+  attributeName: string,
+  expectedValue: string | null
+) {
+  const actualValue = element.getAttribute(attributeName);
+  expect(actualValue).toBe(expectedValue);
+}
+
 export function verifyExpandedPanelGroupLayout(
   actualLayout: number[],
   expectedLayout: number[]

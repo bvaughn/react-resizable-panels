@@ -1,13 +1,14 @@
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
+import type { PanelResizeHandleProps } from "react-resizable-panels";
 import { Panel, PanelGroup, PanelResizeHandle } from ".";
 import { assert } from "./utils/assert";
 import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
 import {
   dispatchPointerEvent,
   mockBoundingClientRect,
+  verifyAttribute,
 } from "./utils/test-utils";
-import type { PanelResizeHandleProps } from "react-resizable-panels";
 
 describe("PanelResizeHandle", () => {
   let expectedWarnings: string[] = [];
@@ -90,13 +91,11 @@ describe("PanelResizeHandle", () => {
       );
     });
 
-    const leftElement = container.querySelector(
-      '[data-panel-resize-handle-id="handle-left"]'
-    ) as HTMLElement;
+    const leftElement = getResizeHandleElement("handle-left", container);
+    const rightElement = getResizeHandleElement("handle-right", container);
 
-    const rightElement = container.querySelector(
-      '[data-panel-resize-handle-id="handle-right"]'
-    ) as HTMLElement;
+    assert(leftElement);
+    assert(rightElement);
 
     // JSDom doesn't properly handle bounding rects
     mockBoundingClientRect(leftElement, {
@@ -178,15 +177,6 @@ describe("PanelResizeHandle", () => {
   });
 
   describe("data attributes", () => {
-    function verifyAttribute(
-      element: HTMLElement,
-      attributeName: string,
-      expectedValue: string | null
-    ) {
-      const actualValue = element.getAttribute(attributeName);
-      expect(actualValue).toBe(expectedValue);
-    }
-
     it("should initialize with the correct props based attributes", () => {
       const { leftElement, rightElement } = setupMockedGroup();
 
