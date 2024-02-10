@@ -1,7 +1,9 @@
+import { compare } from "stacking-order";
 import { Direction, ResizeEvent } from "./types";
 import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
 import { getResizeEventCoordinates } from "./utils/events/getResizeEventCoordinates";
 import { getInputType } from "./utils/getInputType";
+import { intersects } from "./utils/rects/intersects";
 
 export type ResizeHandlerAction = "down" | "move" | "up";
 export type SetResizeHandlerState = (
@@ -75,11 +77,12 @@ export function registerResizeHandle(
 }
 
 function handlePointerDown(event: ResizeEvent) {
+  const { target } = event;
   const { x, y } = getResizeEventCoordinates(event);
 
   isPointerDown = true;
 
-  recalculateIntersectingHandles({ x, y });
+  recalculateIntersectingHandles({ target, x, y });
   updateListeners();
 
   if (intersectingHandles.length > 0) {
@@ -93,10 +96,12 @@ function handlePointerMove(event: ResizeEvent) {
   const { x, y } = getResizeEventCoordinates(event);
 
   if (!isPointerDown) {
+    const { target } = event;
+
     // Recalculate intersecting handles whenever the pointer moves, except if it has already been pressed
     // at that point, the handles may not move with the pointer (depending on constraints)
     // but the same set of active handles should be locked until the pointer is released
-    recalculateIntersectingHandles({ x, y });
+    recalculateIntersectingHandles({ target, x, y });
   }
 
   updateResizeHandlerStates("move", event);
@@ -110,6 +115,7 @@ function handlePointerMove(event: ResizeEvent) {
 }
 
 function handlePointerUp(event: ResizeEvent) {
+  const { target } = event;
   const { x, y } = getResizeEventCoordinates(event);
 
   panelConstraintFlags.clear();
@@ -119,31 +125,92 @@ function handlePointerUp(event: ResizeEvent) {
     event.preventDefault();
   }
 
-  recalculateIntersectingHandles({ x, y });
   updateResizeHandlerStates("up", event);
+  recalculateIntersectingHandles({ target, x, y });
   updateCursor();
 
   updateListeners();
 }
 
-function recalculateIntersectingHandles({ x, y }: { x: number; y: number }) {
+function recalculateIntersectingHandles({
+  target,
+  x,
+  y,
+}: {
+  target: EventTarget | null;
+  x: number;
+  y: number;
+}) {
   intersectingHandles.splice(0);
 
+  let targetElement: HTMLElement | null = null;
+  if (target instanceof HTMLElement) {
+    targetElement = target;
+  }
+
   registeredResizeHandlers.forEach((data) => {
-    const { element, hitAreaMargins } = data;
-    const { bottom, left, right, top } = element.getBoundingClientRect();
+    const { element: dragHandleElement, hitAreaMargins } = data;
+
+    const dragHandleRect = dragHandleElement.getBoundingClientRect();
+    const { bottom, left, right, top } = dragHandleRect;
 
     const margin = isCoarsePointer
       ? hitAreaMargins.coarse
       : hitAreaMargins.fine;
 
-    const intersects =
+    const eventIntersects =
       x >= left - margin &&
       x <= right + margin &&
       y >= top - margin &&
       y <= bottom + margin;
 
-    if (intersects) {
+    if (eventIntersects) {
+      // TRICKY
+      // We listen for pointers events at the root in order to support hit area margins
+      // (determining when the pointer is close enough to an element to be considered a "hit")
+      // Clicking on an element "above" a handle (e.g. a modal) should prevent a hit though
+      // so at this point we need to compare stacking order of a potentially intersecting drag handle,
+      // and the element that was actually clicked/touched
+      if (
+        targetElement !== null &&
+        dragHandleElement !== targetElement &&
+        !dragHandleElement.contains(targetElement) &&
+        !targetElement.contains(dragHandleElement) &&
+        // Calculating stacking order has a cost, so we should avoid it if possible
+        // That is why we only check potentially intersecting handles,
+        // and why we skip if the event target is within the handle's DOM
+        compare(targetElement, dragHandleElement) > 0
+      ) {
+        // If the target is above the drag handle, then we also need to confirm they overlap
+        // If they are beside each other (e.g. a panel and its drag handle) then the handle is still interactive
+        //
+        // It's not enough to compare only the target
+        // The target might be a small element inside of a larger container
+        // (For example, a SPAN or a DIV inside of a larger modal dialog)
+        let currentElement: HTMLElement | null = targetElement;
+        let didIntersect = false;
+        while (currentElement) {
+          if (currentElement.contains(dragHandleElement)) {
+            break;
+          } else if (
+            intersects(
+              currentElement.getBoundingClientRect(),
+              dragHandleRect,
+              true
+            )
+          ) {
+            didIntersect = true;
+            break;
+          }
+
+          currentElement = currentElement.parentElement;
+        }
+
+        if (didIntersect) {
+          return;
+        }
+      }
+
       intersectingHandles.push(data);
     }
   });

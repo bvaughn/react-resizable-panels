@@ -1,8 +1,11 @@
 import { Locator, Page, expect } from "@playwright/test";
-import { assert } from "react-resizable-panels";
+import {
+  assert,
+  getIntersectingRectangle,
+  intersects,
+} from "react-resizable-panels";
 import { getBodyCursorStyle } from "./cursor";
 import { verifyFuzzySizes } from "./verify";
-import { getIntersectingRectangle, intersects } from "./rect";
 
 type Operation = {
   expectedCursor?: string;
@@ -59,9 +62,9 @@ export async function dragResizeIntersecting(
   const rectOne = (await dragHandleOne.boundingBox())!;
   const rectTwo = (await dragHandleTwo.boundingBox())!;
 
-  expect(intersects(rectOne, rectTwo)).toBe(true);
+  expect(intersects(rectOne, rectTwo, false)).toBe(true);
 
-  const rect = getIntersectingRectangle(rectOne, rectTwo);
+  const rect = getIntersectingRectangle(rectOne, rectTwo, false);
   const centerPageX = rect.x + rect.width / 2;
   const centerPageY = rect.y + rect.height / 2;
 
@@ -122,10 +125,10 @@ export async function dragResizeIntersecting(
   await page.mouse.up();
   await expect(
     await dragHandleOne.getAttribute("data-resize-handle-state")
-  ).toBe("inactive");
+  ).toBe("hover");
   await expect(
     await dragHandleTwo.getAttribute("data-resize-handle-state")
-  ).toBe("inactive");
+  ).toBe("hover");
 }
 
 export async function dragResizeTo(

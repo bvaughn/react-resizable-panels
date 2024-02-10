@@ -14,5 +14,11 @@
 
 .PanelResizeHandle {
   flex: 0 0 2px;
-  background: rgba(255, 255, 255, 0.25);
+  background: #ffffff55;
+}
+.PanelResizeHandle[data-resize-handle-state="drag"] {
+  background: #ff0000;
+}
+.PanelResizeHandle[data-resize-handle-state="hover"] {
+  background: #ffffffaa;
 }
