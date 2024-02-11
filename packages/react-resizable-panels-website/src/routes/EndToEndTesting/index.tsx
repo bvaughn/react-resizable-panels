@@ -307,7 +307,7 @@ function EndToEndTesting() {
 
 function Modal() {
   return (
-    <div className={styles.Modal}>
+    <div className={styles.Modal} data-test-id="ModalBox">
       <p>Modal dialog</p>
       <p>Block clicks events</p>
     </div>

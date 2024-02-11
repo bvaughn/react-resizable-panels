@@ -42,7 +42,31 @@ describe("intersects", () => {
     it("should support fully overlapping rects", () => {
       verify(rect, rect, true);
 
-      // TODO
+      verify(rect, forkRect({ x: 35, width: 30 }), true);
+      verify(rect, forkRect({ y: 35, height: 30 }), true);
+      verify(
+        rect,
+        forkRect({
+          x: 35,
+          y: 35,
+          width: 30,
+          height: 30,
+        }),
+        true
+      );
+
+      verify(rect, forkRect({ x: 10, width: 100 }), true);
+      verify(rect, forkRect({ y: 10, height: 100 }), true);
+      verify(
+        rect,
+        forkRect({
+          x: 10,
+          y: 10,
+          width: 100,
+          height: 100,
+        }),
+        true
+      );
     });
 
     it("should support partially overlapping rects", () => {
@@ -102,7 +126,31 @@ describe("intersects", () => {
     it("should support fully overlapping rects", () => {
       verify(rect, rect, true);
 
-      // TODO
+      verify(rect, forkRect({ x: 35, width: 30 }), true);
+      verify(rect, forkRect({ y: 35, height: 30 }), true);
+      verify(
+        rect,
+        forkRect({
+          x: 35,
+          y: 35,
+          width: 30,
+          height: 30,
+        }),
+        true
+      );
+
+      verify(rect, forkRect({ x: 10, width: 100 }), true);
+      verify(rect, forkRect({ y: 10, height: 100 }), true);
+      verify(
+        rect,
+        forkRect({
+          x: 10,
+          y: 10,
+          width: 100,
+          height: 100,
+        }),
+        true
+      );
     });
 
     it("should support partially overlapping rects", () => {

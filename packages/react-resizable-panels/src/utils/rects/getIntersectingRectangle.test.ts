@@ -93,11 +93,25 @@ describe("getIntersectingRectangle", () => {
     });
 
     it("should support non-overlapping rects", () => {
-      // TODO
+      verify(rect, forkRect({ x: 100, y: 100 }), emptyRect);
     });
 
     it("should support all negative coordinates", () => {
-      // TODO
+      verify(
+        {
+          x: -100,
+          y: -100,
+          width: 50,
+          height: 50,
+        },
+        { x: -80, y: -80, width: 50, height: 50 },
+        {
+          x: -80,
+          y: -80,
+          width: 30,
+          height: 30,
+        }
+      );
     });
   });
 
@@ -160,11 +174,25 @@ describe("getIntersectingRectangle", () => {
     });
 
     it("should support non-overlapping rects", () => {
-      // TODO
+      verify(rect, forkRect({ x: 100, y: 100 }), emptyRect);
     });
 
     it("should support all negative coordinates", () => {
-      // TODO
+      verify(
+        {
+          x: -100,
+          y: -100,
+          width: 50,
+          height: 50,
+        },
+        { x: -80, y: -80, width: 50, height: 50 },
+        {
+          x: -80,
+          y: -80,
+          width: 30,
+          height: 30,
+        }
+      );
     });
   });
 });
