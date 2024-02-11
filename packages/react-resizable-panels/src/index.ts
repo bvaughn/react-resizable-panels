@@ -9,6 +9,8 @@ import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
 import { getResizeHandleElementIndex } from "./utils/dom/getResizeHandleElementIndex";
 import { getResizeHandleElementsForGroup } from "./utils/dom/getResizeHandleElementsForGroup";
 import { getResizeHandlePanelIds } from "./utils/dom/getResizeHandlePanelIds";
+import { getIntersectingRectangle } from "./utils/rects/getIntersectingRectangle";
+import { intersects } from "./utils/rects/intersects";
 
 import type {
   ImperativePanelHandle,
@@ -49,6 +51,8 @@ export {
 
   // Utility methods
   assert,
+  getIntersectingRectangle,
+  intersects,
 
   // DOM helpers
   getPanelElement,

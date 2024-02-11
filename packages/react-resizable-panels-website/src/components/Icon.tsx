@@ -5,6 +5,7 @@ export type IconType =
   | "close"
   | "collapse"
   | "css"
+  | "dialog"
   | "expand"
   | "files"
   | "horizontal-collapse"
@@ -42,6 +43,10 @@ export default function Icon({
     case "css":
       path =
         "M5,3L4.35,6.34H17.94L17.5,8.5H3.92L3.26,11.83H16.85L16.09,15.64L10.61,17.45L5.86,15.64L6.19,14H2.85L2.06,18L9.91,21L18.96,18L20.16,11.97L20.4,10.76L21.94,3H5Z";
+      break;
+    case "dialog":
+      path =
+        "M18 18V20H4A2 2 0 0 1 2 18V8H4V18M22 6V14A2 2 0 0 1 20 16H8A2 2 0 0 1 6 14V6A2 2 0 0 1 8 4H20A2 2 0 0 1 22 6M20 6H8V14H20Z";
       break;
     case "expand":
       path =

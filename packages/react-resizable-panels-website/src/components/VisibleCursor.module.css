@@ -5,15 +5,15 @@
   left: 0;
   width: 2rem;
   height: 2rem;
-  border: 2px dotted #ffffffaa;
+  border: 2px dashed #ffffffaa;
   border-radius: 1rem;
   margin-left: -1rem;
   margin-top: -1rem;
-  transition: background-color 250ms;
+  transition: border 250ms;
+  background-color: #00000044;
 }
 .VisibleCursor[data-state="down"] {
-  background-color: #ff000066;
+  border: 2px solid #ff0000;
 }
 .VisibleCursor[data-state="up"] {
-  background-color: #00000066;
 }

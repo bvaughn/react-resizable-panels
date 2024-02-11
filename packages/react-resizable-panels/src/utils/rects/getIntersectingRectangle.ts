@@ -1,15 +1,12 @@
-export interface Rectangle {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
+import { intersects } from "./intersects";
+import { Rectangle } from "./types";
 
 export function getIntersectingRectangle(
   rectOne: Rectangle,
-  rectTwo: Rectangle
+  rectTwo: Rectangle,
+  strict: boolean
 ): Rectangle {
-  if (!intersects(rectOne, rectTwo)) {
+  if (!intersects(rectOne, rectTwo, strict)) {
     return {
       x: 0,
       y: 0,
@@ -28,13 +25,4 @@ export function getIntersectingRectangle(
       Math.min(rectOne.y + rectOne.height, rectTwo.y + rectTwo.height) -
       Math.max(rectOne.y, rectTwo.y),
   };
-}
-
-export function intersects(rectOne: Rectangle, rectTwo: Rectangle): boolean {
-  return (
-    rectOne.x <= rectTwo.x + rectTwo.width &&
-    rectOne.x + rectOne.width >= rectTwo.x &&
-    rectOne.y <= rectTwo.y + rectTwo.height &&
-    rectOne.y + rectOne.height >= rectTwo.y
-  );
 }

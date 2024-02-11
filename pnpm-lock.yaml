@@ -77,6 +77,10 @@ importers:
         version: 5.1.6
 
   packages/react-resizable-panels:
+    dependencies:
+      stacking-order:
+        specifier: ^1
+        version: 1.0.0
     devDependencies:
       '@babel/plugin-proposal-nullish-coalescing-operator':
         specifier: 7.18.6
@@ -240,7 +244,7 @@ packages:
       '@babel/core': ^7.0.0
     dependencies:
       '@babel/helper-annotate-as-pure': 7.22.5
-      '@babel/helper-environment-visitor': 7.22.5
+      '@babel/helper-environment-visitor': 7.22.20
       '@babel/helper-function-name': 7.22.5
       '@babel/helper-member-expression-to-functions': 7.22.5
       '@babel/helper-optimise-call-expression': 7.22.5
@@ -322,7 +326,7 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0
     dependencies:
-      '@babel/helper-environment-visitor': 7.22.5
+      '@babel/helper-environment-visitor': 7.22.20
       '@babel/helper-member-expression-to-functions': 7.22.5
       '@babel/helper-optimise-call-expression': 7.22.5
     dev: true
@@ -5459,6 +5463,10 @@ packages:
     dependencies:
       escape-string-regexp: 2.0.0
     dev: true
+
+  /stacking-order@1.0.0:
+    resolution: {integrity: sha512-aa/U/p5o6GoEPV1FUFSEhsK6SYI0lq97AQRi8jwIUBGNhKXEbW2tkOdUFplmg7GAJdPqKNuKOhBXHDvfiNDeBg==}
+    dev: false
 
   /string-length@4.0.2:
     resolution: {integrity: sha512-+l6rNN5fYHNhZZy41RXsYptCjA2Igmq4EG7kZAYFQI1E1VTXarr6ZPXBg6eq7Y6eK4FEhY6AJlyuFIb/v/S0VQ==}

@@ -48,6 +48,7 @@ function EndToEndTesting() {
     return urlToUrlData(url);
   });
 
+  const [showModal, setShowModal] = useState(false);
   const [panelId, setPanelId] = useState("");
   const [panelIds, setPanelIds] = useState<string[]>([]);
   const [panelGroupId, setPanelGroupId] = useState("");
@@ -214,6 +215,10 @@ function EndToEndTesting() {
     }
   };
 
+  const onToggleModalButtonClick = () => {
+    setShowModal(!showModal);
+  };
+
   return (
     <div className={styles.Container}>
       <div className={styles.FormRow}>
@@ -258,6 +263,14 @@ function EndToEndTesting() {
             <Icon type="resize" />
           </button>
           <div className={styles.Spacer} />
+          <button
+            id="toggleModalButton"
+            onClick={onToggleModalButtonClick}
+            title={showModal ? "Hide modal" : "Show modal"}
+          >
+            <Icon type="dialog" />
+          </button>
+          <div className={styles.Spacer} />
           <select
             className={styles.Input}
             id="panelGroupIdSelect"
@@ -287,6 +300,16 @@ function EndToEndTesting() {
       </div>
       <DebugLog apiRef={debugLogRef} />
       <div className={styles.Children}>{children}</div>
+      {showModal && <Modal />}
+    </div>
+  );
+}
+
+function Modal() {
+  return (
+    <div className={styles.Modal} data-test-id="ModalBox">
+      <p>Modal dialog</p>
+      <p>Block clicks events</p>
     </div>
   );
 }
