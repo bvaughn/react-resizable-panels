@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.5
+
+- Resize handle hit detection considers [stacking context](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_positioned_layout/Understanding_z-index/Stacking_context) when determining hit detection (#291)
+
 ## 2.0.4
 
 - Fixed `PanelResizeHandle` `onDragging` prop to only be called for the handle being dragged (#289)
