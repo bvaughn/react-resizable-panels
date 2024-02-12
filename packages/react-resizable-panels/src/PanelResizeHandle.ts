@@ -7,7 +7,6 @@ import {
   ReactElement,
   useContext,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from "./vendor/react";
@@ -24,6 +23,7 @@ import {
   ResizeHandlerAction,
 } from "./PanelResizeHandleRegistry";
 import { assert } from "./utils/assert";
+import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 export type ResizeHandlerState = "drag" | "hover" | "inactive";
@@ -97,7 +97,7 @@ export function PanelResizeHandle({
     state,
   });
 
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     committedValuesRef.current.state = state;
   });
 
