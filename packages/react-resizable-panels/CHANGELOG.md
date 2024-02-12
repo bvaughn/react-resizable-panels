@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.6
+
+- Replace `useLayoutEffect` usage with SSR-safe wrapper hook (#294)
+
 ## 2.0.5
 
 - Resize handle hit detection considers [stacking context](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_positioned_layout/Understanding_z-index/Stacking_context) when determining hit detection (#291)
