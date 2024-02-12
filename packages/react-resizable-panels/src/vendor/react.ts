@@ -39,6 +39,8 @@ const {
 // `toString()` prevents bundlers from trying to `import { useId } from 'react'`
 const useId = (React as any)["useId".toString()] as () => string;
 
+const useLayoutEffect_do_not_use_directly = useLayoutEffect;
+
 export {
   createElement,
   createContext,
@@ -49,7 +51,7 @@ export {
   useEffect,
   useId,
   useImperativeHandle,
-  useLayoutEffect,
+  useLayoutEffect_do_not_use_directly,
   useMemo,
   useRef,
   useState,
