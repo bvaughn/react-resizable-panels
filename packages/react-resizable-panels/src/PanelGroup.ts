@@ -880,14 +880,16 @@ function PanelGroupWithForwardedRef({
     { value: context },
     createElement(Type, {
       ...rest,
-      id: groupId,
+
       children,
       className: classNameFromProps,
+      id: groupId,
+      ref: panelGroupElementRef,
       style: {
         ...style,
         ...styleFromProps,
       },
-      ref: panelGroupElementRef,
+
       // CSS selectors
       "data-panel-group": "",
       "data-panel-group-direction": direction,
