@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.8
+
+- `Panel`/`PanelGroup`/`PanelResizeHandle`` pass "id" prop through to DOM (#299)
+- `Panel` attributes `data-panel-collapsible` and `data-panel-size` are no longer DEV-only (#297)
+
 ## 2.0.7
 
 - Group default layouts use `toPrecision` to avoid small layout shifts due to floating point precision differences between initial server rendering and client hydration (#295)
