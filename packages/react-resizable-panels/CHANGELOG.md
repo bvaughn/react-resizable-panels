@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.7
+
+- Group default layouts use `toPrecision` to avoid small layout shifts due to floating point precision differences between initial server rendering and client hydration (#295)
+
 ## 2.0.6
 
 - Replace `useLayoutEffect` usage with SSR-safe wrapper hook (#294)
