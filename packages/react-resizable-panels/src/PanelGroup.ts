@@ -883,7 +883,7 @@ function PanelGroupWithForwardedRef({
 
       children,
       className: classNameFromProps,
-      id: groupId,
+      id: idFromProps,
       ref: panelGroupElementRef,
       style: {
         ...style,

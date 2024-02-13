@@ -203,7 +203,7 @@ export function PanelResizeHandle({
 
     children,
     className: classNameFromProps,
-    id: resizeHandleId,
+    id: idFromProps,
     onBlur: () => setIsFocused(false),
     onFocus: () => setIsFocused(true),
     ref: elementRef,
