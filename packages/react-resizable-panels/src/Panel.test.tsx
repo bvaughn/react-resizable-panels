@@ -738,6 +738,38 @@ describe("PanelGroup", () => {
     });
   });
 
+  describe("a11y", () => {
+    it("should pass explicit id prop to DOM", () => {
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal">
+            <Panel id="explicit-id" />
+          </PanelGroup>
+        );
+      });
+
+      const element = container.querySelector("[data-panel]");
+
+      expect(element).not.toBeNull();
+      expect(element?.getAttribute("id")).toBe("explicit-id");
+    });
+
+    it("should not pass auto-generated id prop to DOM", () => {
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal">
+            <Panel />
+          </PanelGroup>
+        );
+      });
+
+      const element = container.querySelector("[data-panel]");
+
+      expect(element).not.toBeNull();
+      expect(element?.getAttribute("id")).toBeNull();
+    });
+  });
+
   describe("DEV warnings", () => {
     it("should warn about server rendered panels with no default size", () => {
       jest.resetModules();

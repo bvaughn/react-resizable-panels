@@ -236,6 +236,7 @@ export function PanelWithForwardedRef({
 
     children,
     className: classNameFromProps,
+    id: idFromProps,
     style: {
       ...style,
       ...styleFromProps,
