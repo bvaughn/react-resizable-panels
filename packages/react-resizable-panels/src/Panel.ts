@@ -243,16 +243,10 @@ export function PanelWithForwardedRef({
 
     // CSS selectors
     "data-panel": "",
-    "data-panel-id": panelId,
+    "data-panel-collapsible": collapsible || undefined,
     "data-panel-group-id": groupId,
-
-    // e2e test attributes
-    "data-panel-collapsible": isDevelopment
-      ? collapsible || undefined
-      : undefined,
-    "data-panel-size": isDevelopment
-      ? parseFloat("" + style.flexGrow).toFixed(1)
-      : undefined,
+    "data-panel-id": panelId,
+    "data-panel-size": parseFloat("" + style.flexGrow).toFixed(1),
   });
 }
 
