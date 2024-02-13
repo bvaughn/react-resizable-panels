@@ -880,6 +880,7 @@ function PanelGroupWithForwardedRef({
     { value: context },
     createElement(Type, {
       ...rest,
+      id: groupId,
       children,
       className: classNameFromProps,
       style: {

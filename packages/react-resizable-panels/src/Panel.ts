@@ -233,7 +233,7 @@ export function PanelWithForwardedRef({
 
   return createElement(Type, {
     ...rest,
-
+    id: panelId,
     children,
     className: classNameFromProps,
     style: {

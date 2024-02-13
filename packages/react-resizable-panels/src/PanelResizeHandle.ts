@@ -200,7 +200,7 @@ export function PanelResizeHandle({
 
   return createElement(Type, {
     ...rest,
-
+    id: resizeHandleId,
     children,
     className: classNameFromProps,
     onBlur: () => setIsFocused(false),
