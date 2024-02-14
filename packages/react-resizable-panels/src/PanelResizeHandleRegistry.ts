@@ -1,9 +1,9 @@
-import { compare } from "stacking-order";
 import { Direction, ResizeEvent } from "./types";
 import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
 import { getResizeEventCoordinates } from "./utils/events/getResizeEventCoordinates";
 import { getInputType } from "./utils/getInputType";
 import { intersects } from "./utils/rects/intersects";
+import { compare } from "./vendor/stacking-order";
 
 export type ResizeHandlerAction = "down" | "move" | "up";
 export type SetResizeHandlerState = (
