@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.9
+
+- Fix Flex stacking context bug (#301)
+- Fix case where pointer event listeners were sometimes added to the document unnecessarily
+
 ## 2.0.8
 
 - `Panel`/`PanelGroup`/`PanelResizeHandle`` pass "id" prop through to DOM (#299)
