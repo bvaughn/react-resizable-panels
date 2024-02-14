@@ -269,7 +269,7 @@ function updateListeners() {
   window.removeEventListener("touchcancel", handlePointerUp);
   window.removeEventListener("touchend", handlePointerUp);
 
-  if (registerResizeHandle.length > 0) {
+  if (registeredResizeHandlers.size > 0) {
     if (isPointerDown) {
       if (intersectingHandles.length > 0) {
         ownerDocumentCounts.forEach((count, ownerDocument) => {
