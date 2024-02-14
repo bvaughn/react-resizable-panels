@@ -1,9 +1,13 @@
 import { Page, expect, test } from "@playwright/test";
 import { createElement } from "react";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import {
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+  assert,
+} from "react-resizable-panels";
 
 import { goToUrl } from "./utils/url";
-import assert from "assert";
 import { getBodyCursorStyle } from "./utils/cursor";
 
 test.describe("stacking order", () => {

@@ -66,9 +66,6 @@
     "test:watch": "jest --config=jest.config.js --watch",
     "watch": "parcel watch --port=2345"
   },
-  "dependencies": {
-    "stacking-order": "^1"
-  },
   "devDependencies": {
     "@babel/plugin-proposal-nullish-coalescing-operator": "7.18.6",
     "@babel/plugin-proposal-optional-chaining": "7.21.0",
