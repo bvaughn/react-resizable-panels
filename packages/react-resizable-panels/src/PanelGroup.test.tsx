@@ -1,6 +1,6 @@
 // @ts-expect-error This is an experimental API
 // eslint-disable-next-line no-restricted-imports
-import { unstable_Activity as Activity } from "react";
+import { unstable_Activity as Activity, Fragment } from "react";
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import {
@@ -128,6 +128,110 @@ describe("PanelGroup", () => {
     // This bug is only observable in the DOM; callbacks will not re-fire
     expect(leftPanelElement?.getAttribute("data-panel-size")).toBe("60.0");
     expect(rightPanelElement?.getAttribute("data-panel-size")).toBe("40.0");
+  });
+
+  it("should rerender properly after the entire layout is changed", () => {
+    const layouts = [
+      {
+        id: "parent",
+        direction: "vertical",
+        children: [
+          {
+            id: "foo",
+            props: {
+              area: {
+                min: 30,
+              },
+            },
+          },
+          {
+            id: "bar",
+            props: {
+              area: {
+                min: 70,
+              },
+            },
+          },
+        ],
+      },
+      {
+        id: "parent",
+        direction: "horizontal",
+        children: [
+          {
+            id: "baz",
+          },
+          {
+            id: "bon",
+            props: {
+              area: {
+                max: 25,
+              },
+            },
+          },
+        ],
+      },
+    ];
+
+    // Helper components
+    const isContainer = (node: any) => "children" in node;
+
+    const CustomPanel = ({ panel }: any) => {
+      return <div>{panel.id}</div>;
+    };
+
+    const Container = ({ container: { id, direction, children } }: any) => {
+      return (
+        <PanelGroup id={id} direction={direction} key={id}>
+          <Panel
+            id={children[0].id}
+            defaultSize={children[0].props?.area?.min}
+            minSize={children[0].props?.area?.min}
+            maxSize={children[0].props?.area?.max}
+          >
+            {isContainer(children[0]) ? (
+              <Container container={children[0]} />
+            ) : (
+              <CustomPanel panel={children[0]} />
+            )}
+          </Panel>
+          <PanelResizeHandle
+            style={{ height: "2px", backgroundColor: "red" }}
+          />
+          {children.slice(1).map((child: any, index: any) => {
+            return (
+              <Fragment key={child.id}>
+                <Panel
+                  id={child.id}
+                  defaultSize={child.props?.area?.min}
+                  minSize={child.props?.area?.min}
+                  maxSize={child.props?.area?.max}
+                >
+                  {isContainer(child) ? (
+                    <Container container={child} />
+                  ) : (
+                    <CustomPanel panel={child} />
+                  )}
+                </Panel>
+                {index < children.length - 2 && (
+                  <PanelResizeHandle
+                    style={{ height: "2px", backgroundColor: "red" }}
+                  />
+                )}
+              </Fragment>
+            );
+          })}
+        </PanelGroup>
+      );
+    };
+
+    act(() => {
+      root.render(<Container container={layouts[0]} />);
+    });
+
+    act(() => {
+      root.render(<Container container={layouts[1]} />);
+    });
   });
 
   describe("imperative handle API", () => {
