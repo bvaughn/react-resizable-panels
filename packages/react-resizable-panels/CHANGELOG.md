@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.11
+
+- Fix resize handle cursor hit detection when when viewport is scrolled (#305)
+
 ## 2.0.10
 
 - Fix conditional layout edge case (#309)
