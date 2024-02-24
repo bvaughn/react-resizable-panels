@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.10
+
+- Fix conditional layout edge case (#309)
+
 ## 2.0.9
 
 - Fix Flex stacking context bug (#301)
