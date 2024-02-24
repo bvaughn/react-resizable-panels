@@ -130,6 +130,35 @@ describe("PanelGroup", () => {
     expect(rightPanelElement?.getAttribute("data-panel-size")).toBe("40.0");
   });
 
+  // github.com/bvaughn/react-resizable-panels/issues/303
+  it("should recalculate layout after panels are changed", () => {
+    let mostRecentLayout: number[] | null = null;
+
+    const onLayout = (layout: number[]) => {
+      mostRecentLayout = layout;
+    };
+
+    act(() => {
+      root.render(
+        <PanelGroup direction="vertical" onLayout={onLayout}>
+          <Panel id="foo" minSize={30} order={0} />
+          <PanelResizeHandle />
+          <Panel id="bar" minSize={70} order={1} />
+        </PanelGroup>
+      );
+    });
+    expect(mostRecentLayout).toEqual([30, 70]);
+
+    act(() => {
+      root.render(
+        <PanelGroup direction="vertical" onLayout={onLayout}>
+          <Panel id="bar" minSize={70} order={0} />
+        </PanelGroup>
+      );
+    });
+    expect(mostRecentLayout).toEqual([100]);
+  });
+
   describe("imperative handle API", () => {
     it("should report the most recently rendered group id", () => {
       const ref = createRef<ImperativePanelGroupHandle>();
