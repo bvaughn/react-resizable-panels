@@ -302,7 +302,7 @@ function PanelGroupWithForwardedRef({
           panelIndex++
         ) {
           const panelData = panelDataArray[panelIndex];
-          assert(panelData);
+          assert(panelData, `Panel data not found for index ${panelIndex}`);
 
           const isValid = validatePanelConstraints({
             panelConstraints,
@@ -336,7 +336,10 @@ function PanelGroupWithForwardedRef({
         pivotIndices,
       } = panelDataHelper(panelDataArray, panelData, prevLayout);
 
-      assert(panelSize != null);
+      assert(
+        panelSize != null,
+        `Panel size not found for panel "${panelData.id}"`
+      );
 
       if (panelSize !== collapsedSize) {
         // Store size before collapse;
@@ -443,7 +446,10 @@ function PanelGroupWithForwardedRef({
 
     const { panelSize } = panelDataHelper(panelDataArray, panelData, layout);
 
-    assert(panelSize != null);
+    assert(
+      panelSize != null,
+      `Panel size not found for panel "${panelData.id}"`
+    );
 
     return panelSize;
   }, []);
@@ -489,7 +495,10 @@ function PanelGroupWithForwardedRef({
       panelSize,
     } = panelDataHelper(panelDataArray, panelData, layout);
 
-    assert(panelSize != null);
+    assert(
+      panelSize != null,
+      `Panel size not found for panel "${panelData.id}"`
+    );
 
     return !collapsible || panelSize > collapsedSize;
   }, []);
@@ -699,7 +708,10 @@ function PanelGroupWithForwardedRef({
         prevLayout
       );
 
-      assert(panelSize != null);
+      assert(
+        panelSize != null,
+        `Panel size not found for panel "${panelData.id}"`
+      );
 
       const isLastPanel =
         findPanelDataIndex(panelDataArray, panelData) ===
@@ -756,7 +768,10 @@ function PanelGroupWithForwardedRef({
         panelData,
         layout
       );
-      assert(prevPanelSize != null);
+      assert(
+        prevPanelSize != null,
+        `Previous panel size not found for panel "${panelData.id}"`
+      );
 
       if (
         prevCollapsible &&
@@ -788,7 +803,10 @@ function PanelGroupWithForwardedRef({
         dragHandleId,
         panelGroupElementRef.current
       );
-      assert(handleElement);
+      assert(
+        handleElement,
+        `Drag handle element not found for id "${dragHandleId}"`
+      );
 
       const initialCursorPosition = getResizeEventCursorPosition(
         direction,

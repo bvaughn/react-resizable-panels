@@ -72,7 +72,7 @@ export function useWindowSplitterPanelGroupBehavior({
         }
       } else {
         const panelData = panelDataArray[index];
-        assert(panelData);
+        assert(panelData, `No panel data found for index "${index}"`);
 
         resizeHandleElement.setAttribute("aria-controls", panelData.id);
         resizeHandleElement.setAttribute(
@@ -105,18 +105,18 @@ export function useWindowSplitterPanelGroupBehavior({
       return;
     }
     const eagerValues = eagerValuesRef.current;
-    assert(eagerValues);
+    assert(eagerValues, `Eager values not found`);
 
     const { panelDataArray } = eagerValues;
     const groupElement = getPanelGroupElement(groupId, panelGroupElement);
     assert(groupElement != null, `No group found for id "${groupId}"`);
 
     const handles = getResizeHandleElementsForGroup(groupId, panelGroupElement);
-    assert(handles);
+    assert(handles, `No resize handles found for group id "${groupId}"`);
 
     const cleanupFunctions = handles.map((handle) => {
       const handleId = handle.getAttribute("data-panel-resize-handle-id");
-      assert(handleId);
+      assert(handleId, `Resize handle element has no handle id attribute`);
 
       const [idBefore, idAfter] = getResizeHandlePanelIds(
         groupId,
@@ -142,7 +142,7 @@ export function useWindowSplitterPanelGroupBehavior({
             );
             if (index >= 0) {
               const panelData = panelDataArray[index];
-              assert(panelData);
+              assert(panelData, `No panel data found for index ${index}`);
 
               const size = layout[index];
 

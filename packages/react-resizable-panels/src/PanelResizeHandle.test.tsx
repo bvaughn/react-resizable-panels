@@ -66,7 +66,7 @@ describe("PanelResizeHandle", () => {
     });
 
     const element = getResizeHandleElement("handle", container);
-    assert(element);
+    assert(element, "");
     expect(element.tabIndex).toBe(123);
     expect(element.getAttribute("data-test-name")).toBe("foo");
     expect(element.title).toBe("bar");
@@ -94,8 +94,8 @@ describe("PanelResizeHandle", () => {
     const leftElement = getResizeHandleElement("handle-left", container);
     const rightElement = getResizeHandleElement("handle-right", container);
 
-    assert(leftElement);
-    assert(rightElement);
+    assert(leftElement, "");
+    assert(rightElement, "");
 
     // JSDom doesn't properly handle bounding rects
     mockBoundingClientRect(leftElement, {

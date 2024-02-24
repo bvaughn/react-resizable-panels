@@ -200,7 +200,7 @@ type FilesState = {
 };
 
 const FIRST_FILE = FILES[0];
-assert(FIRST_FILE);
+assert(FIRST_FILE, "No file found");
 
 const initialState: FilesState = {
   currentFileIndex: 0,

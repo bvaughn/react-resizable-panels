@@ -109,7 +109,7 @@ const stages = frames.filter((step): step is Stage => step.type === "stage");
 
 for (let index = 0; index < frames.length; index++) {
   const frame = frames[index];
-  assert(frame);
+  assert(frame, `No frame found for index ${index}`);
 
   switch (frame.type) {
     case "pause":
@@ -120,7 +120,7 @@ for (let index = 0; index < frames.length; index++) {
 
       const index = stages.indexOf(fromStage);
       const toStage = index + 1 < stages.length ? stages[index + 1] : stages[0];
-      assert(toStage != null);
+      assert(toStage != null, "Stage not found");
 
       const changedProperties: AnimatedProperty[] = [];
 

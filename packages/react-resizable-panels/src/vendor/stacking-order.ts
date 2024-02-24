@@ -27,7 +27,10 @@ export function compare(a: HTMLElement, b: HTMLElement): number {
     common_ancestor = a;
   }
 
-  assert(common_ancestor);
+  assert(
+    common_ancestor,
+    "Stacking order can only be calculated for elements with a common ancestor"
+  );
 
   const z_indexes = {
     a: get_z_index(find_stacking_context(ancestors.a)),
@@ -99,7 +102,7 @@ function find_stacking_context(nodes: HTMLElement[]) {
 
   while (i--) {
     const node = nodes[i];
-    assert(node);
+    assert(node, "Missing node");
     if (creates_stacking_context(node)) return node;
   }
 

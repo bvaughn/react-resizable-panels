@@ -45,7 +45,7 @@ test.describe("stacking order", () => {
     await expect(await modal.isHidden()).toBe(false);
 
     const dragHandleRect = await modal.boundingBox();
-    assert(dragHandleRect);
+    assert(dragHandleRect, "No bounding box found for modal");
 
     const pageX = dragHandleRect.x + dragHandleRect.width / 2;
     const pageY = dragHandleRect.y + dragHandleRect.height / 2;

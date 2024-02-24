@@ -32,7 +32,7 @@ export async function verifyFuzzySizes(
     "onLayout"
   );
   const logEntry = logEntries[logEntries.length - 1];
-  assert(logEntry);
+  assert(logEntry, `No log entry found for index ${logEntries.length - 1}`);
 
   const actualSizes = logEntry.layout;
 
@@ -40,10 +40,10 @@ export async function verifyFuzzySizes(
 
   for (let index = 0; index < actualSizes.length; index++) {
     const actualSize = actualSizes[index];
-    assert(actualSize);
+    assert(actualSize, `No actual size found for index ${index}`);
 
     const expectedSize = expectedSizes[index];
-    assert(expectedSize);
+    assert(expectedSize, `No expected size found for index ${index}`);
 
     expect(actualSize).toBeGreaterThanOrEqual(expectedSize - precision);
     expect(actualSize).toBeLessThanOrEqual(expectedSize + precision);

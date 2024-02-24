@@ -14,7 +14,10 @@ export function resizePanel({
   size: number;
 }) {
   const panelConstraints = panelConstraintsArray[panelIndex];
-  assert(panelConstraints != null);
+  assert(
+    panelConstraints != null,
+    `Panel constraints not found for index ${panelIndex}`
+  );
 
   let {
     collapsedSize = 0,

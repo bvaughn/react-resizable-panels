@@ -16,7 +16,7 @@ export function calculateAriaValues({
   let totalMaxSize = 0;
 
   const firstIndex = pivotIndices[0];
-  assert(firstIndex != null);
+  assert(firstIndex != null, "No pivot index found");
 
   // A panel's effective min/max sizes also need to account for other panel's sizes.
   panelsArray.forEach((panelData, index) => {

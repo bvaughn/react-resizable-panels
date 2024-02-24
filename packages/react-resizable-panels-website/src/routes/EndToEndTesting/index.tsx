@@ -69,7 +69,7 @@ function EndToEndTesting() {
       );
 
       const firstPanelId = panelIds[0];
-      assert(firstPanelId != null);
+      assert(firstPanelId != null, "First panel id not found");
 
       setPanelIds(panelIds);
       setPanelId(firstPanelId);
@@ -81,7 +81,7 @@ function EndToEndTesting() {
       );
 
       const firstPanelGroupId = panelGroupIds[0];
-      assert(firstPanelGroupId != null);
+      assert(firstPanelGroupId != null, "First PanelGroup id not found");
 
       setPanelGroupIds(panelGroupIds);
       setPanelGroupId(firstPanelGroupId);

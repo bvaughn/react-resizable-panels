@@ -38,7 +38,7 @@ export function expectToBeCloseToArray(
   try {
     actualNumbers.forEach((actualNumber, index) => {
       const expectedNumber = expectedNumbers[index];
-      assert(expectedNumber != null);
+      assert(expectedNumber != null, `Expected number not found`);
 
       expect(actualNumber).toBeCloseTo(expectedNumber, 1);
     });

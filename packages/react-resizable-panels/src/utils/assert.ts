@@ -1,6 +1,6 @@
 export function assert(
   expectedCondition: any,
-  message: string = "Assertion failed!"
+  message: string
 ): asserts expectedCondition {
   if (!expectedCondition) {
     console.error(message);

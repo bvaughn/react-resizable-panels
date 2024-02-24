@@ -37,7 +37,7 @@ export function validatePanelGroupLayout({
     }
     for (let index = 0; index < panelConstraints.length; index++) {
       const unsafeSize = nextLayout[index];
-      assert(unsafeSize != null);
+      assert(unsafeSize != null, `No layout data found for index ${index}`);
       const safeSize = (100 / nextLayoutTotalSize) * unsafeSize;
       nextLayout[index] = safeSize;
     }
@@ -48,7 +48,7 @@ export function validatePanelGroupLayout({
   // First pass: Validate the proposed layout given each panel's constraints
   for (let index = 0; index < panelConstraints.length; index++) {
     const unsafeSize = nextLayout[index];
-    assert(unsafeSize != null);
+    assert(unsafeSize != null, `No layout data found for index ${index}`);
 
     const safeSize = resizePanel({
       panelConstraints,
@@ -68,7 +68,7 @@ export function validatePanelGroupLayout({
   if (!fuzzyNumbersEqual(remainingSize, 0)) {
     for (let index = 0; index < panelConstraints.length; index++) {
       const prevSize = nextLayout[index];
-      assert(prevSize != null);
+      assert(prevSize != null, `No layout data found for index ${index}`);
       const unsafeSize = prevSize + remainingSize;
       const safeSize = resizePanel({
         panelConstraints,

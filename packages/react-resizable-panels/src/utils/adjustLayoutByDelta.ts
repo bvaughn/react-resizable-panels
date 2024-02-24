@@ -25,8 +25,8 @@ export function adjustLayoutByDelta({
   const nextLayout = [...prevLayout];
 
   const [firstPivotIndex, secondPivotIndex] = pivotIndices;
-  assert(firstPivotIndex != null);
-  assert(secondPivotIndex != null);
+  assert(firstPivotIndex != null, "Invalid first pivot index");
+  assert(secondPivotIndex != null, "Invalid second pivot index");
 
   let deltaApplied = 0;
 
@@ -53,17 +53,25 @@ export function adjustLayoutByDelta({
         // Check if we should expand a collapsed panel
         const index = delta < 0 ? secondPivotIndex : firstPivotIndex;
         const panelConstraints = panelConstraintsArray[index];
-        assert(panelConstraints);
+        assert(
+          panelConstraints,
+          `Panel constraints not found for index ${index}`
+        );
+
+        const {
+          collapsedSize = 0,
+          collapsible,
+          minSize = 0,
+        } = panelConstraints;
 
         //DEBUG.push(`edge case check 1: ${index}`);
         //DEBUG.push(`  -> collapsible? ${constraints.collapsible}`);
-        if (panelConstraints.collapsible) {
+        if (collapsible) {
           const prevSize = prevLayout[index];
-          assert(prevSize != null);
-
-          const panelConstraints = panelConstraintsArray[index];
-          assert(panelConstraints);
-          const { collapsedSize = 0, minSize = 0 } = panelConstraints;
+          assert(
+            prevSize != null,
+            `Previous layout not found for panel index ${index}`
+          );
 
           if (fuzzyNumbersEqual(prevSize, collapsedSize)) {
             const localDelta = minSize - prevSize;
@@ -81,18 +89,25 @@ export function adjustLayoutByDelta({
         // Check if we should collapse a panel at its minimum size
         const index = delta < 0 ? firstPivotIndex : secondPivotIndex;
         const panelConstraints = panelConstraintsArray[index];
-        assert(panelConstraints);
-        const { collapsible } = panelConstraints;
+        assert(
+          panelConstraints,
+          `No panel constraints found for index ${index}`
+        );
+
+        const {
+          collapsedSize = 0,
+          collapsible,
+          minSize = 0,
+        } = panelConstraints;
 
         //DEBUG.push(`edge case check 2: ${index}`);
         //DEBUG.push(`  -> collapsible? ${collapsible}`);
         if (collapsible) {
           const prevSize = prevLayout[index];
-          assert(prevSize != null);
-
-          const panelConstraints = panelConstraintsArray[index];
-          assert(panelConstraints);
-          const { collapsedSize = 0, minSize = 0 } = panelConstraints;
+          assert(
+            prevSize != null,
+            `Previous layout not found for panel index ${index}`
+          );
 
           if (fuzzyNumbersEqual(prevSize, minSize)) {
             const localDelta = prevSize - collapsedSize;
@@ -124,7 +139,10 @@ export function adjustLayoutByDelta({
     //DEBUG.push("pre calc...");
     while (true) {
       const prevSize = prevLayout[index];
-      assert(prevSize != null);
+      assert(
+        prevSize != null,
+        `Previous layout not found for panel index ${index}`
+      );
 
       const maxSafeSize = resizePanel({
         panelConstraints: panelConstraintsArray,
@@ -158,7 +176,10 @@ export function adjustLayoutByDelta({
       const deltaRemaining = Math.abs(delta) - Math.abs(deltaApplied);
 
       const prevSize = prevLayout[index];
-      assert(prevSize != null);
+      assert(
+        prevSize != null,
+        `Previous layout not found for panel index ${index}`
+      );
 
       const unsafeSize = prevSize - deltaRemaining;
       const safeSize = resizePanel({
@@ -206,7 +227,10 @@ export function adjustLayoutByDelta({
     const pivotIndex = delta < 0 ? secondPivotIndex : firstPivotIndex;
 
     const prevSize = prevLayout[pivotIndex];
-    assert(prevSize != null);
+    assert(
+      prevSize != null,
+      `Previous layout not found for panel index ${pivotIndex}`
+    );
 
     const unsafeSize = prevSize + deltaApplied;
     const safeSize = resizePanel({
@@ -226,7 +250,10 @@ export function adjustLayoutByDelta({
       let index = pivotIndex;
       while (index >= 0 && index < panelConstraintsArray.length) {
         const prevSize = nextLayout[index];
-        assert(prevSize != null);
+        assert(
+          prevSize != null,
+          `Previous layout not found for panel index ${index}`
+        );
 
         const unsafeSize = prevSize + deltaRemaining;
         const safeSize = resizePanel({

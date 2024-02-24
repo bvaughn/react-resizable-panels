@@ -150,7 +150,7 @@ export async function dragResizeTo(
     }
   }
 
-  assert(panel !== null);
+  assert(panel !== null, `Panel not found for id "${panelId}"`);
 
   const dragHandles = page.locator("[data-panel-resize-handle-id]");
   const dragHandlesCount = await dragHandles.count();
@@ -184,7 +184,7 @@ export async function dragResizeTo(
     pageY = Math.min(pageYMax - 1, Math.max(pageYMin + 1, pageY));
 
     const operations = operationsArray[index];
-    assert(operations);
+    assert(operations != null, `No operation found for index ${index}`);
 
     const { expectedSizes, expectedCursor, size: nextSize } = operations;
 

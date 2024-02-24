@@ -15,7 +15,10 @@ export function validatePanelConstraints({
     const warnings = [];
 
     const panelConstraints = panelConstraintsArray[panelIndex];
-    assert(panelConstraints);
+    assert(
+      panelConstraints,
+      `No panel constraints found for index ${panelIndex}`
+    );
 
     const {
       collapsedSize = 0,

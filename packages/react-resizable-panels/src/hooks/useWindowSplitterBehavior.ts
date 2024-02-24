@@ -49,7 +49,7 @@ export function useWindowSplitterResizeHandlerBehavior({
           event.preventDefault();
 
           const groupId = handleElement.getAttribute("data-panel-group-id");
-          assert(groupId);
+          assert(groupId, `No group element found for id "${groupId}"`);
 
           const handles = getResizeHandleElementsForGroup(
             groupId,
@@ -61,7 +61,10 @@ export function useWindowSplitterResizeHandlerBehavior({
             panelGroupElement
           );
 
-          assert(index !== null);
+          assert(
+            index !== null,
+            `No resize element found for id "${handleId}"`
+          );
 
           const nextIndex = event.shiftKey
             ? index > 0

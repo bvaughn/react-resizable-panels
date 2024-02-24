@@ -15,17 +15,20 @@ export function calculateDragOffsetPercentage(
   const isHorizontal = direction === "horizontal";
 
   const handleElement = getResizeHandleElement(dragHandleId, panelGroupElement);
-  assert(handleElement);
+  assert(
+    handleElement,
+    `No resize handle element found for id "${dragHandleId}"`
+  );
 
   const groupId = handleElement.getAttribute("data-panel-group-id");
-  assert(groupId);
+  assert(groupId, `Resize handle element has no group id attribute`);
 
   let { initialCursorPosition } = initialDragState;
 
   const cursorPosition = getResizeEventCursorPosition(direction, event);
 
   const groupElement = getPanelGroupElement(groupId, panelGroupElement);
-  assert(groupElement);
+  assert(groupElement, `No group element found for id "${groupId}"`);
 
   const groupRect = groupElement.getBoundingClientRect();
   const groupSizeInPixels = isHorizontal ? groupRect.width : groupRect.height;

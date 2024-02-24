@@ -18,7 +18,7 @@ export function calculateUnsafeDefaultLayout({
   // Distribute default sizes first
   for (let index = 0; index < panelDataArray.length; index++) {
     const panelConstraints = panelConstraintsArray[index];
-    assert(panelConstraints);
+    assert(panelConstraints, `Panel constraints not found for index ${index}`);
     const { defaultSize } = panelConstraints;
 
     if (defaultSize != null) {
@@ -31,7 +31,7 @@ export function calculateUnsafeDefaultLayout({
   // Remaining size should be distributed evenly between panels without default sizes
   for (let index = 0; index < panelDataArray.length; index++) {
     const panelConstraints = panelConstraintsArray[index];
-    assert(panelConstraints);
+    assert(panelConstraints, `Panel constraints not found for index ${index}`);
     const { defaultSize } = panelConstraints;
 
     if (defaultSize != null) {

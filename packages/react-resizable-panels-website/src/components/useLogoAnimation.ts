@@ -32,7 +32,7 @@ export function useLogoAnimation(
       let accumulatedDuration = 0;
       for (let index = 0; index < sequence.length; index++) {
         segment = sequence[index];
-        assert(segment);
+        assert(segment, `No segment found for index "${index}"`);
 
         if (
           elapsed >= accumulatedDuration &&

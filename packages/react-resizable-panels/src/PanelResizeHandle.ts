@@ -116,7 +116,7 @@ export function PanelResizeHandle({
     }
 
     const element = elementRef.current;
-    assert(element);
+    assert(element, "Element ref not attached");
 
     const setResizeHandlerState = (
       action: ResizeHandlerAction,

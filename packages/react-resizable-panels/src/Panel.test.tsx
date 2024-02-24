@@ -88,7 +88,7 @@ describe("PanelGroup", () => {
       });
 
       it("should expand and collapse the first panel in a group", () => {
-        assert(mostRecentLayout);
+        assert(mostRecentLayout, "");
 
         verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
         expect(leftPanelRef.current?.isCollapsed()).toBe(false);
@@ -108,7 +108,7 @@ describe("PanelGroup", () => {
       });
 
       it("should expand and collapse the last panel in a group", () => {
-        assert(mostRecentLayout);
+        assert(mostRecentLayout, "");
 
         verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
         expect(leftPanelRef.current?.isCollapsed()).toBe(false);
@@ -128,7 +128,7 @@ describe("PanelGroup", () => {
       });
 
       it("should re-expand to the most recent size before collapsing", () => {
-        assert(mostRecentLayout);
+        assert(mostRecentLayout, "");
 
         verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
         act(() => {
@@ -178,7 +178,7 @@ describe("PanelGroup", () => {
       });
 
       it("should resize the first panel in a group", () => {
-        assert(mostRecentLayout);
+        assert(mostRecentLayout, "");
 
         verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 60, 20]);
         act(() => {
@@ -188,7 +188,7 @@ describe("PanelGroup", () => {
       });
 
       it("should resize the middle panel in a group", () => {
-        assert(mostRecentLayout);
+        assert(mostRecentLayout, "");
 
         verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 60, 20]);
         act(() => {
@@ -198,7 +198,7 @@ describe("PanelGroup", () => {
       });
 
       it("should resize the last panel in a group", () => {
-        assert(mostRecentLayout);
+        assert(mostRecentLayout, "");
 
         verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 60, 20]);
         act(() => {
@@ -261,7 +261,7 @@ describe("PanelGroup", () => {
     });
 
     const element = getPanelElement("panel", container);
-    assert(element);
+    assert(element, "");
     expect(element.tabIndex).toBe(123);
     expect(element.getAttribute("data-test-name")).toBe("foo");
     expect(element.title).toBe("bar");
@@ -296,9 +296,9 @@ describe("PanelGroup", () => {
       let leftElement = getPanelElement("left", container);
       let middleElement = getPanelElement("middle", container);
       let rightElement = getPanelElement("right", container);
-      assert(leftElement);
-      assert(middleElement);
-      assert(rightElement);
+      assert(leftElement, "");
+      assert(middleElement, "");
+      assert(rightElement, "");
       expect(leftElement.getAttribute("data-panel-size")).toBe("10.0");
       expect(middleElement.getAttribute("data-panel-size")).toBe("80.0");
       expect(rightElement.getAttribute("data-panel-size")).toBe("10.0");
@@ -348,9 +348,9 @@ describe("PanelGroup", () => {
       let leftElement = getPanelElement("left", container);
       let middleElement = getPanelElement("middle", container);
       let rightElement = getPanelElement("right", container);
-      assert(leftElement);
-      assert(middleElement);
-      assert(rightElement);
+      assert(leftElement, "");
+      assert(middleElement, "");
+      assert(rightElement, "");
       expect(leftElement.getAttribute("data-panel-size")).toBe("10.0");
       expect(middleElement.getAttribute("data-panel-size")).toBe("80.0");
       expect(rightElement.getAttribute("data-panel-size")).toBe("10.0");
@@ -388,9 +388,9 @@ describe("PanelGroup", () => {
       let leftElement = getPanelElement("left", container);
       let middleElement = getPanelElement("middle", container);
       let rightElement = getPanelElement("right", container);
-      assert(leftElement);
-      assert(middleElement);
-      assert(rightElement);
+      assert(leftElement, "");
+      assert(middleElement, "");
+      assert(rightElement, "");
       expect(leftElement.getAttribute("data-panel-size")).toBe("15.0");
       expect(middleElement.getAttribute("data-panel-size")).toBe("70.0");
       expect(rightElement.getAttribute("data-panel-size")).toBe("15.0");
@@ -428,9 +428,9 @@ describe("PanelGroup", () => {
       let leftElement = getPanelElement("left", container);
       let middleElement = getPanelElement("middle", container);
       let rightElement = getPanelElement("right", container);
-      assert(leftElement);
-      assert(middleElement);
-      assert(rightElement);
+      assert(leftElement, "");
+      assert(middleElement, "");
+      assert(rightElement, "");
       expect(leftElement.getAttribute("data-panel-size")).toBe("25.0");
       expect(middleElement.getAttribute("data-panel-size")).toBe("50.0");
       expect(rightElement.getAttribute("data-panel-size")).toBe("25.0");
@@ -691,8 +691,8 @@ describe("PanelGroup", () => {
       const leftElement = getPanelElement("left-panel", container);
       const rightElement = getPanelElement("right-panel", container);
 
-      assert(leftElement);
-      assert(rightElement);
+      assert(leftElement, "");
+      assert(rightElement, "");
 
       verifyAttribute(leftElement, "data-panel", "");
       verifyAttribute(leftElement, "data-panel-id", "left-panel");
@@ -723,8 +723,8 @@ describe("PanelGroup", () => {
       const leftElement = getPanelElement("left-panel", container);
       const rightElement = getPanelElement("right-panel", container);
 
-      assert(leftElement);
-      assert(rightElement);
+      assert(leftElement, "");
+      assert(rightElement, "");
 
       verifyAttribute(leftElement, "data-panel-size", "75.0");
       verifyAttribute(rightElement, "data-panel-size", "25.0");

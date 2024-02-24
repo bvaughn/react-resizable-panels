@@ -9,7 +9,7 @@ export function callPanelCallbacks(
 ) {
   layout.forEach((size, index) => {
     const panelData = panelsArray[index];
-    assert(panelData);
+    assert(panelData, `Panel data not found for index ${index}`);
 
     const { callbacks, constraints, id: panelId } = panelData;
     const { collapsedSize = 0, collapsible } = constraints;

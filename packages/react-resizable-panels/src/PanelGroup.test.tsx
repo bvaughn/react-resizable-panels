@@ -1,6 +1,6 @@
 // @ts-expect-error This is an experimental API
 // eslint-disable-next-line no-restricted-imports
-import { unstable_Activity as Activity } from "react";
+import { unstable_Activity as Activity, Fragment } from "react";
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import {
@@ -194,7 +194,7 @@ describe("PanelGroup", () => {
     });
 
     const element = getPanelGroupElement("group", container);
-    assert(element);
+    assert(element, "");
     expect(element.tabIndex).toBe(123);
     expect(element.getAttribute("data-test-name")).toBe("foo");
     expect(element.title).toBe("bar");
@@ -268,7 +268,7 @@ describe("PanelGroup", () => {
       });
 
       const element = getPanelGroupElement("test-group", container);
-      assert(element);
+      assert(element, "");
 
       verifyAttribute(element, "data-panel-group", "");
       verifyAttribute(element, "data-panel-group-direction", "horizontal");
