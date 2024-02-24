@@ -768,10 +768,10 @@ function PanelGroupWithForwardedRef({
         panelData,
         layout
       );
-      assert(
-        prevPanelSize != null,
-        `Previous panel size not found for panel "${panelData.id}"`
-      );
+      if (prevPanelSize == null) {
+        // It's possible that the panels in this group have changed since the last render
+        return;
+      }
 
       if (
         prevCollapsible &&
