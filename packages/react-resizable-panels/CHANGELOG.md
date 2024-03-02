@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.12
+
+- Improve resize for edge cases with collapsed panels; intermediate resize states should now fall back to the most recent valid layout rather than the initial layout (#311)
+
 ## 2.0.11
 
 - Fix resize handle cursor hit detection when when viewport is scrolled (#305)
