@@ -157,7 +157,7 @@ export function useWindowSplitterPanelGroupBehavior({
                   delta: fuzzyNumbersEqual(size, collapsedSize)
                     ? minSize - collapsedSize
                     : collapsedSize - size,
-                  layout,
+                  initialLayout: layout,
                   panelConstraints: panelDataArray.map(
                     (panelData) => panelData.constraints
                   ),
@@ -166,6 +166,7 @@ export function useWindowSplitterPanelGroupBehavior({
                     handleId,
                     panelGroupElement
                   ),
+                  prevLayout: layout,
                   trigger: "keyboard",
                 });
                 if (layout !== nextLayout) {

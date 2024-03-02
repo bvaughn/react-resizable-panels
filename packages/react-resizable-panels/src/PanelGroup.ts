@@ -355,9 +355,10 @@ function PanelGroupWithForwardedRef({
 
         const nextLayout = adjustLayoutByDelta({
           delta,
-          layout: prevLayout,
+          initialLayout: prevLayout,
           panelConstraints: panelConstraintsArray,
           pivotIndices,
+          prevLayout,
           trigger: "imperative-api",
         });
 
@@ -415,9 +416,10 @@ function PanelGroupWithForwardedRef({
 
         const nextLayout = adjustLayoutByDelta({
           delta,
-          layout: prevLayout,
+          initialLayout: prevLayout,
           panelConstraints: panelConstraintsArray,
           pivotIndices,
+          prevLayout,
           trigger: "imperative-api",
         });
 
@@ -636,9 +638,10 @@ function PanelGroupWithForwardedRef({
 
       const nextLayout = adjustLayoutByDelta({
         delta,
-        layout: initialLayout ?? prevLayout,
+        initialLayout: initialLayout ?? prevLayout,
         panelConstraints,
         pivotIndices,
+        prevLayout,
         trigger: isKeyDown(event) ? "keyboard" : "mouse-or-touch",
       });
 
@@ -722,9 +725,10 @@ function PanelGroupWithForwardedRef({
 
       const nextLayout = adjustLayoutByDelta({
         delta,
-        layout: prevLayout,
+        initialLayout: prevLayout,
         panelConstraints: panelConstraintsArray,
         pivotIndices,
+        prevLayout,
         trigger: "imperative-api",
       });
 
