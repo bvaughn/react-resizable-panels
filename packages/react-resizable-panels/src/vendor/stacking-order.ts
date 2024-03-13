@@ -1,5 +1,6 @@
 // Forked from NPM stacking-order@2.0.0
 // Background at https://github.com/Rich-Harris/stacking-order/issues/3
+// Background at https://github.com/Rich-Harris/stacking-order/issues/6
 
 import { assert } from "..";
 
@@ -61,7 +62,7 @@ const props =
 
 /** @param {HTMLElement} node */
 function is_flex_item(node: HTMLElement) {
-  const display = getComputedStyle(get_parent(node)).display;
+  const display = getComputedStyle(get_parent(node) ?? node).display;
   return display === "flex" || display === "inline-flex";
 }
 
@@ -129,5 +130,5 @@ function get_ancestors(node: HTMLElement) {
 /** @param {HTMLElement} node */
 function get_parent(node: HTMLElement) {
   // @ts-ignore
-  return node.parentNode?.host || node.parentNode;
+  return node.parentNode?.host;
 }
