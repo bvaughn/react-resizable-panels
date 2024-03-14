@@ -62,6 +62,7 @@ const props =
 
 /** @param {HTMLElement} node */
 function is_flex_item(node: HTMLElement) {
+  // @ts-ignore
   const display = getComputedStyle(get_parent(node) ?? node).display;
   return display === "flex" || display === "inline-flex";
 }
@@ -116,11 +117,12 @@ function get_z_index(node: HTMLElement | null) {
 }
 
 /** @param {HTMLElement} node */
-function get_ancestors(node: HTMLElement) {
+function get_ancestors(node: HTMLElement | null) {
   const ancestors = [];
 
   while (node) {
     ancestors.push(node);
+    // @ts-ignore
     node = get_parent(node);
   }
 
@@ -129,6 +131,9 @@ function get_ancestors(node: HTMLElement) {
 
 /** @param {HTMLElement} node */
 function get_parent(node: HTMLElement) {
-  // @ts-ignore
-  return node.parentNode?.host;
+  const { parentNode } = node;
+  if (parentNode && parentNode instanceof ShadowRoot) {
+    return parentNode.host
+  }
+  return parentNode;
 }
