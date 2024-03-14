@@ -1,9 +1,5 @@
 # Changelog
 
-## 2.0.13
-
-- Fix potential cycle in stacking-order logic for an unmounted node (#315)
-
 ## 2.0.12
 
 - Improve resize for edge cases with collapsed panels; intermediate resize states should now fall back to the most recent valid layout rather than the initial layout (#311)
