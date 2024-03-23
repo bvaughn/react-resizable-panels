@@ -5,13 +5,17 @@ export function fuzzyCompareNumbers(
   expected: number,
   fractionDigits: number = PRECISION
 ): number {
-  actual = parseFloat(actual.toFixed(fractionDigits));
-  expected = parseFloat(expected.toFixed(fractionDigits));
-
-  const delta = actual - expected;
-  if (delta === 0) {
+  if (actual.toFixed(fractionDigits) === expected.toFixed(fractionDigits)) {
     return 0;
   } else {
-    return delta > 0 ? 1 : -1;
+    return actual > expected ? 1 : -1;
   }
+}
+
+export function fuzzyNumbersEqual(
+  actual: number,
+  expected: number,
+  fractionDigits: number = PRECISION
+): boolean {
+  return fuzzyCompareNumbers(actual, expected, fractionDigits) === 0;
 }

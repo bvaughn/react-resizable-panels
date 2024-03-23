@@ -144,6 +144,55 @@ describe("PanelGroup", () => {
         });
         verifyExpandedPanelGroupLayout(mostRecentLayout, [30, 70]);
       });
+
+      it("should report the correct state with collapsedSizes that have many decimal places", () => {
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel
+                collapsedSize={3.8764385221078133}
+                collapsible
+                defaultSize={50}
+                minSize={15}
+                ref={leftPanelRef}
+              />
+              <PanelResizeHandle />
+              <Panel collapsible defaultSize={50} ref={rightPanelRef} />
+            </PanelGroup>
+          );
+        });
+
+        act(() => {
+          leftPanelRef.current?.collapse();
+        });
+        expect(leftPanelRef.current?.isCollapsed()).toBe(true);
+        expect(leftPanelRef.current?.isExpanded()).toBe(false);
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel
+                collapsedSize={3.8764385221078132}
+                collapsible
+                defaultSize={50}
+                minSize={15}
+                ref={leftPanelRef}
+              />
+              <PanelResizeHandle />
+              <Panel collapsible defaultSize={50} ref={rightPanelRef} />
+            </PanelGroup>
+          );
+        });
+
+        expect(leftPanelRef.current?.isCollapsed()).toBe(true);
+        expect(leftPanelRef.current?.isExpanded()).toBe(false);
+
+        act(() => {
+          leftPanelRef.current?.expand();
+        });
+        expect(leftPanelRef.current?.isCollapsed()).toBe(false);
+        expect(leftPanelRef.current?.isExpanded()).toBe(true);
+      });
     });
 
     describe("resize", () => {

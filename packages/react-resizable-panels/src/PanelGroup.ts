@@ -32,6 +32,10 @@ import { isKeyDown, isMouseEvent, isTouchEvent } from "./utils/events";
 import { getResizeEventCursorPosition } from "./utils/events/getResizeEventCursorPosition";
 import { initializeDefaultStorage } from "./utils/initializeDefaultStorage";
 import {
+  fuzzyCompareNumbers,
+  fuzzyNumbersEqual,
+} from "./utils/numbers/fuzzyCompareNumbers";
+import {
   loadPanelGroupState,
   savePanelGroupState,
 } from "./utils/serialization";
@@ -341,7 +345,7 @@ function PanelGroupWithForwardedRef({
         `Panel size not found for panel "${panelData.id}"`
       );
 
-      if (panelSize !== collapsedSize) {
+      if (!fuzzyNumbersEqual(panelSize, collapsedSize)) {
         // Store size before collapse;
         // This is the size that gets restored if the expand() API is used.
         panelSizeBeforeCollapseRef.current.set(panelData.id, panelSize);
@@ -393,12 +397,12 @@ function PanelGroupWithForwardedRef({
 
       const {
         collapsedSize = 0,
-        panelSize,
+        panelSize = 0,
         minSize = 0,
         pivotIndices,
       } = panelDataHelper(panelDataArray, panelData, prevLayout);
 
-      if (panelSize === collapsedSize) {
+      if (fuzzyNumbersEqual(panelSize, collapsedSize)) {
         // Restore this panel to the size it was before it was collapsed, if possible.
         const prevPanelSize = panelSizeBeforeCollapseRef.current.get(
           panelData.id
@@ -484,7 +488,12 @@ function PanelGroupWithForwardedRef({
       panelSize,
     } = panelDataHelper(panelDataArray, panelData, layout);
 
-    return collapsible === true && panelSize === collapsedSize;
+    assert(
+      panelSize != null,
+      `Panel size not found for panel "${panelData.id}"`
+    );
+
+    return collapsible === true && fuzzyNumbersEqual(panelSize, collapsedSize);
   }, []);
 
   // External APIs are safe to memoize via committed values ref
@@ -502,7 +511,7 @@ function PanelGroupWithForwardedRef({
       `Panel size not found for panel "${panelData.id}"`
     );
 
-    return !collapsible || panelSize > collapsedSize;
+    return !collapsible || fuzzyCompareNumbers(panelSize, collapsedSize) > 0;
   }, []);
 
   const registerPanel = useCallback((panelData: PanelData) => {
@@ -780,9 +789,9 @@ function PanelGroupWithForwardedRef({
       if (
         prevCollapsible &&
         nextCollapsible &&
-        prevPanelSize === prevCollapsedSize
+        fuzzyNumbersEqual(prevPanelSize, prevCollapsedSize)
       ) {
-        if (prevCollapsedSize !== nextCollapsedSize) {
+        if (!fuzzyNumbersEqual(prevCollapsedSize, nextCollapsedSize)) {
           resizePanel(panelData, nextCollapsedSize);
         } else {
           // Stay collapsed
