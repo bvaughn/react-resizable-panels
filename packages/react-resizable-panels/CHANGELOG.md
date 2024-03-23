@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.14
+
+- Better account for high-precision `collapsedSize` values (#325)
+
 ## 2.0.13
 
 - Fix potential cycle in stacking-order logic for an unmounted node (#317)
