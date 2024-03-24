@@ -200,8 +200,8 @@ export function adjustLayoutByDelta({
 
         if (
           deltaApplied
-            .toPrecision(3)
-            .localeCompare(Math.abs(delta).toPrecision(3), undefined, {
+            .toFixed(3)
+            .localeCompare(Math.abs(delta).toFixed(3), undefined, {
               numeric: true,
             }) >= 0
         ) {
