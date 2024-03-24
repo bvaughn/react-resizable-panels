@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.15
+
+- Better account for high-precision sizes with `onCollapse` and `onExpand` callbacks (#325)
+
 ## 2.0.14
 
 - Better account for high-precision `collapsedSize` values (#325)
