@@ -545,6 +545,44 @@ describe("PanelGroup", () => {
 
         expect(onCollapse).toHaveBeenCalledTimes(1);
       });
+
+      it("should be called with collapsedSizes that have many decimal places", () => {
+        let onCollapse = jest.fn();
+
+        let panelRef = createRef<ImperativePanelHandle>();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel
+                collapsible
+                onCollapse={onCollapse}
+                collapsedSize={3.8764385221078133}
+                minSize={10}
+                ref={panelRef}
+              />
+              <PanelResizeHandle />
+              <Panel />
+            </PanelGroup>
+          );
+        });
+        expect(onCollapse).not.toHaveBeenCalled();
+
+        act(() => {
+          panelRef.current?.collapse();
+        });
+        expect(onCollapse).toHaveBeenCalledTimes(1);
+
+        act(() => {
+          panelRef.current?.expand();
+        });
+        expect(onCollapse).toHaveBeenCalledTimes(1);
+
+        act(() => {
+          panelRef.current?.collapse();
+        });
+        expect(onCollapse).toHaveBeenCalledTimes(2);
+      });
     });
 
     describe("onExpand", () => {
@@ -593,6 +631,45 @@ describe("PanelGroup", () => {
         });
 
         expect(onExpand).toHaveBeenCalledTimes(1);
+      });
+
+      it("should be called with collapsedSizes that have many decimal places", () => {
+        let onExpand = jest.fn();
+
+        let panelRef = createRef<ImperativePanelHandle>();
+
+        act(() => {
+          root.render(
+            <PanelGroup direction="horizontal">
+              <Panel
+                collapsible
+                collapsedSize={3.8764385221078133}
+                defaultSize={3.8764385221078133}
+                minSize={10}
+                onExpand={onExpand}
+                ref={panelRef}
+              />
+              <PanelResizeHandle />
+              <Panel />
+            </PanelGroup>
+          );
+        });
+        expect(onExpand).not.toHaveBeenCalled();
+
+        act(() => {
+          panelRef.current?.resize(25);
+        });
+        expect(onExpand).toHaveBeenCalledTimes(1);
+
+        act(() => {
+          panelRef.current?.collapse();
+        });
+        expect(onExpand).toHaveBeenCalledTimes(1);
+
+        act(() => {
+          panelRef.current?.expand();
+        });
+        expect(onExpand).toHaveBeenCalledTimes(2);
       });
     });
 
@@ -722,6 +799,33 @@ describe("PanelGroup", () => {
         expect(onResizeMiddle).toHaveBeenCalledWith(75, 50);
         expect(onResizeRight).not.toHaveBeenCalled();
       });
+    });
+
+    it("should support sizes with many decimal places", () => {
+      let panelRef = createRef<ImperativePanelHandle>();
+      let onResize = jest.fn();
+
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal">
+            <Panel onResize={onResize} ref={panelRef} />
+            <PanelResizeHandle />
+            <Panel />
+          </PanelGroup>
+        );
+      });
+      expect(onResize).toHaveBeenCalledTimes(1);
+
+      act(() => {
+        panelRef.current?.resize(3.8764385221078133);
+      });
+      expect(onResize).toHaveBeenCalledTimes(2);
+
+      // An overly-high precision change should be ignored
+      act(() => {
+        panelRef.current?.resize(3.8764385221078132);
+      });
+      expect(onResize).toHaveBeenCalledTimes(2);
     });
   });
 

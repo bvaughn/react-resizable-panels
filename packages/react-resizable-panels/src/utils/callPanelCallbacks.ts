@@ -1,5 +1,6 @@
 import { PanelData } from "../Panel";
 import { assert } from "./assert";
+import { fuzzyNumbersEqual } from "./numbers/fuzzyCompareNumbers";
 
 // Layout should be pre-converted into percentages
 export function callPanelCallbacks(
@@ -27,16 +28,18 @@ export function callPanelCallbacks(
       if (collapsible && (onCollapse || onExpand)) {
         if (
           onExpand &&
-          (lastNotifiedSize == null || lastNotifiedSize === collapsedSize) &&
-          size !== collapsedSize
+          (lastNotifiedSize == null ||
+            fuzzyNumbersEqual(lastNotifiedSize, collapsedSize)) &&
+          !fuzzyNumbersEqual(size, collapsedSize)
         ) {
           onExpand();
         }
 
         if (
           onCollapse &&
-          (lastNotifiedSize == null || lastNotifiedSize !== collapsedSize) &&
-          size === collapsedSize
+          (lastNotifiedSize == null ||
+            !fuzzyNumbersEqual(lastNotifiedSize, collapsedSize)) &&
+          fuzzyNumbersEqual(size, collapsedSize)
         ) {
           onCollapse();
         }
