@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.16
+
+- Replaced `.toPrecision()` with `.toFixed()` to avoid undesirable layout shift (#323)
+
 ## 2.0.15
 
 - Better account for high-precision sizes with `onCollapse` and `onExpand` callbacks (#325)
