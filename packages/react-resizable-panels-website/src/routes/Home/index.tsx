@@ -107,6 +107,18 @@ function InstallationPanel() {
         <br />
         <span className="tok-operator">yarn add </span>
         <span className="tok-variableName">react-resizable-panels</span>
+        <br />
+        <br />
+        <span className="tok-comment"># pnpm</span>
+        <br />
+        <span className="tok-operator">pnpm add </span>
+        <span className="tok-variableName">react-resizable-panels</span>
+        <br />
+        <br />
+        <span className="tok-comment"># bun</span>
+        <br />
+        <span className="tok-operator">bun add </span>
+        <span className="tok-variableName">react-resizable-panels</span>
       </div>
     </div>
   );
