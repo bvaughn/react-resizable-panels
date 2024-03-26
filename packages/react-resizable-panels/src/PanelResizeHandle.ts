@@ -24,6 +24,7 @@ import {
 } from "./PanelResizeHandleRegistry";
 import { assert } from "./utils/assert";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
+import { resetGlobalCursorStyle } from "./utils/cursor";
 
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 export type ResizeHandlerState = "drag" | "hover" | "inactive";
@@ -101,9 +102,17 @@ export function PanelResizeHandle({
     committedValuesRef.current.state = state;
   });
 
+  // Reset cursor style on unmount
+  useEffect(() => {
+    return () => {
+      resetGlobalCursorStyle();
+    };
+  }, []);
+
   useEffect(() => {
     if (disabled) {
       setResizeHandler(null);
+      resetGlobalCursorStyle();
     } else {
       const resizeHandler = registerResizeHandleWithParentGroup(resizeHandleId);
       setResizeHandler(() => resizeHandler);
