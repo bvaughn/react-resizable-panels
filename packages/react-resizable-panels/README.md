@@ -74,7 +74,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 `Panel` components also expose an imperative API for manual resizing:
 | method                   | description                                                                        |
 | :----------------------- | :--------------------------------------------------------------------------------- |
-| `collapse()`v            | If panel is `collapsible`, collapse it fully.                                      |
+| `collapse()`             | If panel is `collapsible`, collapse it fully.                                      |
 | `expand()`               | If panel is currently _collapsed_, expand it to its most recent size.              |
 | `getId(): string`        | Gets the ID of the panel.                                                          |
 | `getSize(): number`      | Gets the current size of the panel as a percentage (`1 - 100`).                    |
