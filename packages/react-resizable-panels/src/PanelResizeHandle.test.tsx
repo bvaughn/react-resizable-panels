@@ -127,18 +127,18 @@ describe("PanelResizeHandle", () => {
         });
 
         act(() => {
-          dispatchPointerEvent("mousemove", leftElement);
+          dispatchPointerEvent("pointermove", leftElement);
         });
         expect(onDragging).not.toHaveBeenCalled();
 
         act(() => {
-          dispatchPointerEvent("mousedown", leftElement);
+          dispatchPointerEvent("pointerdown", leftElement);
         });
         expect(onDragging).toHaveBeenCalledTimes(1);
         expect(onDragging).toHaveBeenCalledWith(true);
 
         act(() => {
-          dispatchPointerEvent("mouseup", leftElement);
+          dispatchPointerEvent("pointerup", leftElement);
         });
         expect(onDragging).toHaveBeenCalledTimes(2);
         expect(onDragging).toHaveBeenCalledWith(false);
@@ -154,20 +154,20 @@ describe("PanelResizeHandle", () => {
         });
 
         act(() => {
-          dispatchPointerEvent("mousemove", leftElement);
+          dispatchPointerEvent("pointermove", leftElement);
         });
         expect(onDraggingLeft).not.toHaveBeenCalled();
         expect(onDraggingRight).not.toHaveBeenCalled();
 
         act(() => {
-          dispatchPointerEvent("mousedown", leftElement);
+          dispatchPointerEvent("pointerdown", leftElement);
         });
         expect(onDraggingLeft).toHaveBeenCalledTimes(1);
         expect(onDraggingLeft).toHaveBeenCalledWith(true);
         expect(onDraggingRight).not.toHaveBeenCalled();
 
         act(() => {
-          dispatchPointerEvent("mouseup", leftElement);
+          dispatchPointerEvent("pointerup", leftElement);
         });
         expect(onDraggingLeft).toHaveBeenCalledTimes(2);
         expect(onDraggingLeft).toHaveBeenCalledWith(false);
@@ -209,7 +209,7 @@ describe("PanelResizeHandle", () => {
       verifyAttribute(rightElement, "data-resize-handle-state", "inactive");
 
       act(() => {
-        dispatchPointerEvent("mousemove", leftElement);
+        dispatchPointerEvent("pointermove", leftElement);
       });
       verifyAttribute(leftElement, "data-resize-handle-active", null);
       verifyAttribute(rightElement, "data-resize-handle-active", null);
@@ -217,7 +217,7 @@ describe("PanelResizeHandle", () => {
       verifyAttribute(rightElement, "data-resize-handle-state", "inactive");
 
       act(() => {
-        dispatchPointerEvent("mousedown", leftElement);
+        dispatchPointerEvent("pointerdown", leftElement);
       });
       verifyAttribute(leftElement, "data-resize-handle-active", "pointer");
       verifyAttribute(rightElement, "data-resize-handle-active", null);
@@ -225,7 +225,7 @@ describe("PanelResizeHandle", () => {
       verifyAttribute(rightElement, "data-resize-handle-state", "inactive");
 
       act(() => {
-        dispatchPointerEvent("mousemove", leftElement);
+        dispatchPointerEvent("pointermove", leftElement);
       });
       verifyAttribute(leftElement, "data-resize-handle-active", "pointer");
       verifyAttribute(rightElement, "data-resize-handle-active", null);
@@ -233,7 +233,7 @@ describe("PanelResizeHandle", () => {
       verifyAttribute(rightElement, "data-resize-handle-state", "inactive");
 
       act(() => {
-        dispatchPointerEvent("mouseup", leftElement);
+        dispatchPointerEvent("pointerup", leftElement);
       });
       verifyAttribute(leftElement, "data-resize-handle-active", null);
       verifyAttribute(rightElement, "data-resize-handle-active", null);
@@ -241,7 +241,7 @@ describe("PanelResizeHandle", () => {
       verifyAttribute(rightElement, "data-resize-handle-state", "inactive");
 
       act(() => {
-        dispatchPointerEvent("mousemove", rightElement);
+        dispatchPointerEvent("pointermove", rightElement);
       });
       verifyAttribute(leftElement, "data-resize-handle-active", null);
       verifyAttribute(rightElement, "data-resize-handle-active", null);

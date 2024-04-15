@@ -89,6 +89,7 @@ function handlePointerDown(event: ResizeEvent) {
     updateResizeHandlerStates("down", event);
 
     event.preventDefault();
+    event.stopPropagation();
   }
 }
 
@@ -258,16 +259,13 @@ function updateListeners() {
     const { body } = ownerDocument;
 
     body.removeEventListener("contextmenu", handlePointerUp);
-    body.removeEventListener("mousedown", handlePointerDown);
-    body.removeEventListener("mouseleave", handlePointerMove);
-    body.removeEventListener("mousemove", handlePointerMove);
-    body.removeEventListener("touchmove", handlePointerMove);
-    body.removeEventListener("touchstart", handlePointerDown);
+    body.removeEventListener("pointerdown", handlePointerDown);
+    body.removeEventListener("pointerleave", handlePointerMove);
+    body.removeEventListener("pointermove", handlePointerMove);
   });
 
-  window.removeEventListener("mouseup", handlePointerUp);
-  window.removeEventListener("touchcancel", handlePointerUp);
-  window.removeEventListener("touchend", handlePointerUp);
+  window.removeEventListener("pointerup", handlePointerUp);
+  window.removeEventListener("pointercancel", handlePointerUp);
 
   if (registeredResizeHandlers.size > 0) {
     if (isPointerDown) {
@@ -277,29 +275,23 @@ function updateListeners() {
 
           if (count > 0) {
             body.addEventListener("contextmenu", handlePointerUp);
-            body.addEventListener("mouseleave", handlePointerMove);
-            body.addEventListener("mousemove", handlePointerMove);
-            body.addEventListener("touchmove", handlePointerMove, {
-              passive: false,
-            });
+            body.addEventListener("pointerleave", handlePointerMove);
+            body.addEventListener("pointermove", handlePointerMove);
           }
         });
       }
 
-      window.addEventListener("mouseup", handlePointerUp);
-      window.addEventListener("touchcancel", handlePointerUp);
-      window.addEventListener("touchend", handlePointerUp);
+      window.addEventListener("pointerup", handlePointerUp);
+      window.addEventListener("pointercancel", handlePointerUp);
     } else {
       ownerDocumentCounts.forEach((count, ownerDocument) => {
         const { body } = ownerDocument;
 
         if (count > 0) {
-          body.addEventListener("mousedown", handlePointerDown);
-          body.addEventListener("mousemove", handlePointerMove);
-          body.addEventListener("touchmove", handlePointerMove, {
-            passive: false,
+          body.addEventListener("pointerdown", handlePointerDown, {
+            capture: true,
           });
-          body.addEventListener("touchstart", handlePointerDown);
+          body.addEventListener("pointermove", handlePointerMove);
         }
       });
     }

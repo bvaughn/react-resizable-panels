@@ -1,20 +1,19 @@
 import { ResizeEvent } from "../../types";
-import { isMouseEvent, isTouchEvent } from ".";
+import { isMouseEvent, isPointerEvent } from ".";
 
 export function getResizeEventCoordinates(event: ResizeEvent) {
-  if (isMouseEvent(event)) {
+  if (isPointerEvent(event)) {
+    if (event.isPrimary) {
+      return {
+        x: event.clientX,
+        y: event.clientY,
+      };
+    }
+  } else if (isMouseEvent(event)) {
     return {
       x: event.clientX,
       y: event.clientY,
     };
-  } else if (isTouchEvent(event)) {
-    const touch = event.touches[0];
-    if (touch && touch.clientX && touch.clientY) {
-      return {
-        x: touch.clientX,
-        y: touch.clientY,
-      };
-    }
   }
 
   return {

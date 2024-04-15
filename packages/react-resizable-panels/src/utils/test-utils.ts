@@ -24,6 +24,9 @@ export function dispatchPointerEvent(type: string, target: HTMLElement) {
         return clientY;
       },
     },
+    isPrimary: {
+      value: true
+    }
   });
 
   target.dispatchEvent(event);
