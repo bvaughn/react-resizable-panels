@@ -1,8 +1,12 @@
 # Changelog
 
-## 2.0.16
+## 2.0.17
 
 - Prevent pointer events handled by resize handles from triggering elements behind/underneath (#338)
+
+## 2.0.16
+
+- Replaced .toPrecision() with .toFixed() to avoid undesirable layout shift (#323)
 
 ## 2.0.15
 
