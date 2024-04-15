@@ -1,6 +1,6 @@
 import { useLayoutEffect } from "react";
-import styles from "./VisibleCursor.module.css";
 import { getResizeEventCoordinates } from "../../../react-resizable-panels/src/utils/events/getResizeEventCoordinates";
+import styles from "./VisibleCursor.module.css";
 
 export function VisibleCursor() {
   useLayoutEffect(() => {
@@ -14,7 +14,7 @@ export function VisibleCursor() {
       element.setAttribute("data-state", "down");
     };
 
-    const onMouseMove = (event: MouseEvent | TouchEvent) => {
+    const onMouseMove = (event: PointerEvent) => {
       const { x, y } = getResizeEventCoordinates(event);
       element.style.left = x + "px";
       element.style.top = y + "px";
@@ -24,24 +24,16 @@ export function VisibleCursor() {
       element.setAttribute("data-state", "up");
     };
 
-    document.addEventListener("mousedown", onMouseDown, true);
-    document.addEventListener("mousemove", onMouseMove, true);
-    document.addEventListener("mouseup", onMouseUp, true);
-    document.addEventListener("touchcancel", onMouseUp, true);
-    document.addEventListener("touchend", onMouseUp, true);
-    document.addEventListener("touchmove", onMouseMove, true);
-    document.addEventListener("touchstart", onMouseDown, true);
+    document.addEventListener("pointerdown", onMouseDown, true);
+    document.addEventListener("pointermove", onMouseMove, true);
+    document.addEventListener("pointerup", onMouseUp, true);
 
     return () => {
       document.body.removeChild(element);
 
-      document.removeEventListener("mousedown", onMouseDown, true);
-      document.removeEventListener("mousemove", onMouseMove, true);
-      document.removeEventListener("mouseup", onMouseUp, true);
-      document.removeEventListener("touchcancel", onMouseUp, true);
-      document.removeEventListener("touchend", onMouseUp, true);
-      document.removeEventListener("touchmove", onMouseMove, true);
-      document.removeEventListener("touchstart", onMouseDown, true);
+      document.removeEventListener("pointerdown", onMouseDown, true);
+      document.removeEventListener("pointermove", onMouseMove, true);
+      document.removeEventListener("pointerup", onMouseUp, true);
     };
   });
 
