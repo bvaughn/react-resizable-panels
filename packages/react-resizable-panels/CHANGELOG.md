@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.16
+
+- Prevent pointer events handled by resize handles from triggering elements behind/underneath (#338)
+
 ## 2.0.15
 
 - Better account for high-precision sizes with `onCollapse` and `onExpand` callbacks (#325)
