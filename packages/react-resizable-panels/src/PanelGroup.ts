@@ -28,7 +28,7 @@ import { computePanelFlexBoxStyle } from "./utils/computePanelFlexBoxStyle";
 import debounce from "./utils/debounce";
 import { determinePivotIndices } from "./utils/determinePivotIndices";
 import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
-import { isKeyDown, isMouseEvent, isTouchEvent } from "./utils/events";
+import { isKeyDown, isMouseEvent, isPointerEvent } from "./utils/events";
 import { getResizeEventCursorPosition } from "./utils/events/getResizeEventCursorPosition";
 import { initializeDefaultStorage } from "./utils/initializeDefaultStorage";
 import {
@@ -658,7 +658,7 @@ function PanelGroupWithForwardedRef({
 
       // Only update the cursor for layout changes triggered by touch/mouse events (not keyboard)
       // Update the cursor even if the layout hasn't changed (we may need to show an invalid cursor state)
-      if (isMouseEvent(event) || isTouchEvent(event)) {
+      if (isPointerEvent(event) || isMouseEvent(event)) {
         // Watch for multiple subsequent deltas; this might occur for tiny cursor movements.
         // In this case, Panel sizes might not change–
         // but updating cursor in this scenario would cause a flicker.
