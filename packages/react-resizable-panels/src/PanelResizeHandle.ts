@@ -110,6 +110,11 @@ export function PanelResizeHandle({
     }
   }, [disabled, resizeHandleId, registerResizeHandleWithParentGroup]);
 
+  // Extract hit area margins before passing them to the effect's dependency array
+  // so that inline object values won't trigger re-renders
+  const coarseHitAreaMargins = hitAreaMargins?.coarse ?? 15;
+  const fineHitAreaMargins = hitAreaMargins?.fine ?? 5;
+
   useEffect(() => {
     if (disabled || resizeHandler == null) {
       return;
@@ -168,17 +173,16 @@ export function PanelResizeHandle({
       element,
       direction,
       {
-        // Coarse inputs (e.g. finger/touch)
-        coarse: hitAreaMargins?.coarse ?? 15,
-        // Fine inputs (e.g. mouse)
-        fine: hitAreaMargins?.fine ?? 5,
+        coarse: coarseHitAreaMargins,
+        fine: fineHitAreaMargins,
       },
       setResizeHandlerState
     );
   }, [
+    coarseHitAreaMargins,
     direction,
     disabled,
-    hitAreaMargins,
+    fineHitAreaMargins,
     registerResizeHandleWithParentGroup,
     resizeHandleId,
     resizeHandler,
