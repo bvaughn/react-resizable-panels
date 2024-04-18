@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.18
+
+- Inline object `hitAreaMargins` will not trigger re-initialization logic unless inner values change (#342)
+
 ## 2.0.17
 
 - Prevent pointer events handled by resize handles from triggering elements behind/underneath (#338)
