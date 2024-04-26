@@ -1,7 +1,11 @@
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import type { PanelResizeHandleProps } from "react-resizable-panels";
-import { Panel, PanelGroup, PanelResizeHandle } from ".";
+import {
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+  type PanelResizeHandleProps,
+} from ".";
 import { assert } from "./utils/assert";
 import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
 import {
@@ -9,6 +13,12 @@ import {
   mockBoundingClientRect,
   verifyAttribute,
 } from "./utils/test-utils";
+import * as cursorUtils from "./utils/cursor";
+
+jest.mock("./utils/cursor", () => ({
+  ...jest.requireActual("./utils/cursor"),
+  resetGlobalCursorStyle: jest.fn(),
+}));
 
 describe("PanelResizeHandle", () => {
   let expectedWarnings: string[] = [];
@@ -70,6 +80,24 @@ describe("PanelResizeHandle", () => {
     expect(element.tabIndex).toBe(123);
     expect(element.getAttribute("data-test-name")).toBe("foo");
     expect(element.title).toBe("bar");
+  });
+
+  it("resets the global cursor style on unmount", () => {
+    act(() => {
+      root.render(
+        <PanelGroup direction="horizontal">
+          <Panel />
+          <PanelResizeHandle />
+          <Panel />
+        </PanelGroup>
+      );
+    });
+
+    act(() => {
+      root.unmount();
+    });
+
+    expect(cursorUtils.resetGlobalCursorStyle).toHaveBeenCalled();
   });
 
   function setupMockedGroup({
