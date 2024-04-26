@@ -73,7 +73,46 @@ export function registerResizeHandle(
     if (count === 1) {
       ownerDocumentCounts.delete(ownerDocument);
     }
+
+    recalculateIntersectingHandlesAfterUnregister(element);
   };
+}
+
+function recalculateIntersectingHandlesAfterUnregister(
+  excludedElement: HTMLElement
+) {
+  intersectingHandles.splice(0); // Clear current intersecting handles
+
+  registeredResizeHandlers.forEach((data) => {
+    if (data.element !== excludedElement) {
+      const intersects = checkIfHandleIntersects(data);
+      if (intersects) {
+        intersectingHandles.push(data);
+      }
+    }
+  });
+
+  if (intersectingHandles.length > 0) {
+    updateCursor();
+  } else {
+    resetGlobalCursorStyle();
+  }
+}
+
+function checkIfHandleIntersects(data: ResizeHandlerData): boolean {
+  const { element, hitAreaMargins } = data;
+  const rect = element.getBoundingClientRect();
+  const margin = isCoarsePointer ? hitAreaMargins.coarse : hitAreaMargins.fine;
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+
+  // Simplified intersection check with viewport
+  return (
+    rect.left <= viewportWidth + margin &&
+    rect.right >= -margin &&
+    rect.top <= viewportHeight + margin &&
+    rect.bottom >= -margin
+  );
 }
 
 function handlePointerDown(event: ResizeEvent) {
