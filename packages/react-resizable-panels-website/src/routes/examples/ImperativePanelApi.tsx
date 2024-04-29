@@ -72,10 +72,11 @@ export default function ImperativePanelApiRoute() {
             <li>
               <Code
                 className={sharedStyles.InlineCode}
-                code="expand(): void"
+                code="expand(minSize?: number): void"
                 language="typescript"
               />
-              Expand the panel to its previous size
+              Expand the panel to its previous size (or the min size if there is
+              no previous size)
             </li>
             <li>
               <Code
