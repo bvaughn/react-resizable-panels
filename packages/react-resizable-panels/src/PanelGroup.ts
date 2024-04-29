@@ -386,65 +386,72 @@ function PanelGroupWithForwardedRef({
   }, []);
 
   // External APIs are safe to memoize via committed values ref
-  const expandPanel = useCallback((panelData: PanelData) => {
-    const { onLayout } = committedValuesRef.current;
-    const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
+  const expandPanel = useCallback(
+    (panelData: PanelData, minSizeOverride?: number) => {
+      const { onLayout } = committedValuesRef.current;
+      const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
-    if (panelData.constraints.collapsible) {
-      const panelConstraintsArray = panelDataArray.map(
-        (panelData) => panelData.constraints
-      );
-
-      const {
-        collapsedSize = 0,
-        panelSize = 0,
-        minSize = 0,
-        pivotIndices,
-      } = panelDataHelper(panelDataArray, panelData, prevLayout);
-
-      if (fuzzyNumbersEqual(panelSize, collapsedSize)) {
-        // Restore this panel to the size it was before it was collapsed, if possible.
-        const prevPanelSize = panelSizeBeforeCollapseRef.current.get(
-          panelData.id
+      if (panelData.constraints.collapsible) {
+        const panelConstraintsArray = panelDataArray.map(
+          (panelData) => panelData.constraints
         );
 
-        const baseSize =
-          prevPanelSize != null && prevPanelSize >= minSize
-            ? prevPanelSize
-            : minSize;
-
-        const isLastPanel =
-          findPanelDataIndex(panelDataArray, panelData) ===
-          panelDataArray.length - 1;
-        const delta = isLastPanel ? panelSize - baseSize : baseSize - panelSize;
-
-        const nextLayout = adjustLayoutByDelta({
-          delta,
-          initialLayout: prevLayout,
-          panelConstraints: panelConstraintsArray,
+        const {
+          collapsedSize = 0,
+          panelSize = 0,
+          minSize: minSizeFromProps = 0,
           pivotIndices,
-          prevLayout,
-          trigger: "imperative-api",
-        });
+        } = panelDataHelper(panelDataArray, panelData, prevLayout);
 
-        if (!compareLayouts(prevLayout, nextLayout)) {
-          setLayout(nextLayout);
+        const minSize = minSizeOverride ?? minSizeFromProps;
 
-          eagerValuesRef.current.layout = nextLayout;
-
-          if (onLayout) {
-            onLayout(nextLayout);
-          }
-
-          callPanelCallbacks(
-            panelDataArray,
-            nextLayout,
-            panelIdToLastNotifiedSizeMapRef.current
+        if (fuzzyNumbersEqual(panelSize, collapsedSize)) {
+          // Restore this panel to the size it was before it was collapsed, if possible.
+          const prevPanelSize = panelSizeBeforeCollapseRef.current.get(
+            panelData.id
           );
+
+          const baseSize =
+            prevPanelSize != null && prevPanelSize >= minSize
+              ? prevPanelSize
+              : minSize;
+
+          const isLastPanel =
+            findPanelDataIndex(panelDataArray, panelData) ===
+            panelDataArray.length - 1;
+          const delta = isLastPanel
+            ? panelSize - baseSize
+            : baseSize - panelSize;
+
+          const nextLayout = adjustLayoutByDelta({
+            delta,
+            initialLayout: prevLayout,
+            panelConstraints: panelConstraintsArray,
+            pivotIndices,
+            prevLayout,
+            trigger: "imperative-api",
+          });
+
+          if (!compareLayouts(prevLayout, nextLayout)) {
+            setLayout(nextLayout);
+
+            eagerValuesRef.current.layout = nextLayout;
+
+            if (onLayout) {
+              onLayout(nextLayout);
+            }
+
+            callPanelCallbacks(
+              panelDataArray,
+              nextLayout,
+              panelIdToLastNotifiedSizeMapRef.current
+            );
+          }
         }
       }
-    }
-  }, []);
+    },
+    []
+  );
 
   // External APIs are safe to memoize via committed values ref
   const getPanelSize = useCallback((panelData: PanelData) => {

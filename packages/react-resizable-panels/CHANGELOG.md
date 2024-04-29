@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.19
+
+- Add optional `minSize` override param to panel `expand` imperative API
+
 ## 2.0.18
 
 - Inline object `hitAreaMargins` will not trigger re-initialization logic unless inner values change (#342)

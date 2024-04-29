@@ -193,6 +193,111 @@ describe("PanelGroup", () => {
         expect(leftPanelRef.current?.isCollapsed()).toBe(false);
         expect(leftPanelRef.current?.isExpanded()).toBe(true);
       });
+
+      describe("when a panel is mounted in a collapsed state", () => {
+        beforeEach(() => {
+          act(() => {
+            root.unmount();
+          });
+        });
+
+        it("should expand to the panel's minSize", () => {
+          const panelRef = createRef<ImperativePanelHandle>();
+
+          root = createRoot(container);
+
+          function renderPanelGroup() {
+            act(() => {
+              root.render(
+                <PanelGroup direction="horizontal">
+                  <Panel
+                    collapsible
+                    defaultSize={0}
+                    minSize={5}
+                    ref={panelRef}
+                  />
+                  <PanelResizeHandle />
+                  <Panel />
+                </PanelGroup>
+              );
+            });
+          }
+
+          // Re-render and confirmed collapsed by default
+          renderPanelGroup();
+          act(() => {
+            panelRef.current?.collapse();
+          });
+          expect(panelRef.current?.getSize()).toEqual(0);
+
+          // Toggling a panel should expand to the minSize (since there's no previous size to restore to)
+          act(() => {
+            panelRef.current?.expand();
+          });
+          expect(panelRef.current?.getSize()).toEqual(5);
+
+          // Collapse again
+          act(() => {
+            panelRef.current?.collapse();
+          });
+          expect(panelRef.current?.getSize()).toEqual(0);
+
+          // Toggling the panel should expand to the minSize override if one is specified
+          // Note this only works because the previous non-collapsed size is less than the minSize override
+          act(() => {
+            panelRef.current?.expand(15);
+          });
+          expect(panelRef.current?.getSize()).toEqual(15);
+        });
+
+        it("should support the (optional) default size", () => {
+          const panelRef = createRef<ImperativePanelHandle>();
+
+          root = createRoot(container);
+
+          function renderPanelGroup() {
+            act(() => {
+              root.render(
+                <PanelGroup autoSaveId="test" direction="horizontal">
+                  <Panel
+                    collapsible
+                    defaultSize={0}
+                    minSize={0}
+                    ref={panelRef}
+                  />
+                  <PanelResizeHandle />
+                  <Panel />
+                </PanelGroup>
+              );
+            });
+          }
+
+          // Re-render and confirmed collapsed by default
+          renderPanelGroup();
+          act(() => {
+            panelRef.current?.collapse();
+          });
+          expect(panelRef.current?.getSize()).toEqual(0);
+
+          // In this case, toggling the panel to expanded will not change its size
+          act(() => {
+            panelRef.current?.expand();
+          });
+          expect(panelRef.current?.getSize()).toEqual(0);
+
+          // But we can override the toggle behavior by passing an explicit min size
+          act(() => {
+            panelRef.current?.expand(10);
+          });
+          expect(panelRef.current?.getSize()).toEqual(10);
+
+          // Toggling an already-expanded panel should not do anything even if we pass a default size
+          act(() => {
+            panelRef.current?.expand(15);
+          });
+          expect(panelRef.current?.getSize()).toEqual(10);
+        });
+      });
     });
 
     describe("resize", () => {

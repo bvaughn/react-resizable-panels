@@ -16,7 +16,7 @@ export type TPanelGroupContext = {
   collapsePanel: (panelData: PanelData) => void;
   direction: "horizontal" | "vertical";
   dragState: DragState | null;
-  expandPanel: (panelData: PanelData) => void;
+  expandPanel: (panelData: PanelData, minSizeOverride?: number) => void;
   getPanelSize: (panelData: PanelData) => number;
   getPanelStyle: (
     panelData: PanelData,

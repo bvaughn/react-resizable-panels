@@ -46,7 +46,7 @@ export type PanelData = {
 
 export type ImperativePanelHandle = {
   collapse: () => void;
-  expand: () => void;
+  expand: (minSize?: number) => void;
   getId(): string;
   getSize(): number;
   isCollapsed: () => boolean;
@@ -200,8 +200,8 @@ export function PanelWithForwardedRef({
       collapse: () => {
         collapsePanel(panelDataRef.current);
       },
-      expand: () => {
-        expandPanel(panelDataRef.current);
+      expand: (minSize?: number) => {
+        expandPanel(panelDataRef.current, minSize);
       },
       getId() {
         return panelId;
