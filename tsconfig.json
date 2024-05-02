@@ -7,6 +7,7 @@
     "moduleResolution": "bundler",
     "noImplicitAny": true,
     "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
     "strict": true,
     "typeRoots": ["node_modules/@types"],
     "types": ["jest", "node"],
