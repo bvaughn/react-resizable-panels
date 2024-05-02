@@ -15,8 +15,7 @@ const config: PlaywrightTestConfig = {
   ],
   reporter: [
     process.env.REPLAY_API_KEY
-      ? // @ts-ignore
-        createReplayReporterConfig({
+      ? createReplayReporterConfig({
           apiKey: process.env.REPLAY_API_KEY,
           upload: true,
         })
