@@ -14,11 +14,13 @@ const config: PlaywrightTestConfig = {
     },
   ],
   reporter: [
-    // @ts-ignore
-    createReplayReporterConfig({
-      apiKey: process.env.REPLAY_API_KEY,
-      upload: true,
-    }),
+    process.env.REPLAY_API_KEY
+      ? // @ts-ignore
+        createReplayReporterConfig({
+          apiKey: process.env.REPLAY_API_KEY,
+          upload: true,
+        })
+      : ["line"],
   ],
   use: {
     browserName: "chromium",
