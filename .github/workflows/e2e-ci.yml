@@ -19,4 +19,3 @@ jobs:
         run: cd packages/react-resizable-panels-website && pnpm test:e2e --project replay-chromium
         env:
           REPLAY_API_KEY: ${{ secrets.REPLAY_API_KEY }}
-          REPLAY_PLAYWRIGHT_FIXTURE: 1

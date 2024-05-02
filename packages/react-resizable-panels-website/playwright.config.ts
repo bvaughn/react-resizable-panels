@@ -1,5 +1,5 @@
 import type { PlaywrightTestConfig } from "@playwright/test";
-import { devices as replayDevices } from "@replayio/playwright";
+import { createReplayReporterConfig, devices as replayDevices } from "@replayio/playwright";
 
 const { DEBUG } = process.env;
 
@@ -7,17 +7,14 @@ const config: PlaywrightTestConfig = {
   projects: [
     {
       name: "replay-chromium",
-      use: { ...(replayDevices["Replay Chromium"] as any) },
+      use: { ...replayDevices["Replay Chromium"] },
     },
   ],
   reporter: [
-    [
-      "@replayio/playwright/reporter",
-      {
-        apiKey: process.env.REPLAY_API_KEY,
-        upload: true,
-      },
-    ],
+    createReplayReporterConfig({
+      apiKey: process.env.REPLAY_API_KEY,
+      upload: true,
+    })
   ],
   use: {
     browserName: "chromium",
