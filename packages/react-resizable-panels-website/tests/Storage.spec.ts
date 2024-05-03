@@ -27,7 +27,7 @@ const panelGroupABC = createElement(
 
 test.describe("Storage", () => {
   test.describe("localStorage (default)", () => {
-    test.only("should restore previous layout if autoSaveId prop has been provided", async ({
+    test("should restore previous layout if autoSaveId prop has been provided", async ({
       page,
     }) => {
       await goToUrl(page, panelGroupABC);
