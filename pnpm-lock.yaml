@@ -37,8 +37,8 @@ importers:
         specifier: ^1.37.0
         version: 1.37.0
       '@replayio/playwright':
-        specifier: 3.0.0-alpha.6
-        version: 3.0.0-alpha.6(@playwright/test@1.37.0)
+        specifier: 3.0.0-alpha.7
+        version: 3.0.0-alpha.7(@playwright/test@1.37.0)
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
@@ -2038,8 +2038,8 @@ packages:
     engines: {node: '>=14.0.0'}
     dev: false
 
-  /@replayio/playwright@3.0.0-alpha.6(@playwright/test@1.37.0):
-    resolution: {integrity: sha512-5ODrssKVVjCkYWMykF7WjiH/ctJEqmJu6C/J5onXrEd0txj+5fYQAarmnQfW/fhBYCcBwc75/3I8KdH5PFhkNw==}
+  /@replayio/playwright@3.0.0-alpha.7(@playwright/test@1.37.0):
+    resolution: {integrity: sha512-uaGxNvcQmH3okTqDa7+9anmLfB8IldTY3dWgKvN/h+7F++p44d87iVNStZUyDKFk2kjGSEMD1p56mNiv/TjEwQ==}
     hasBin: true
     requiresBuild: true
     peerDependencies:
