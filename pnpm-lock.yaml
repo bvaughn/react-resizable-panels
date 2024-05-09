@@ -37,8 +37,8 @@ importers:
         specifier: ^1.37.0
         version: 1.37.0
       '@replayio/playwright':
-        specifier: 3.0.0-alpha.7
-        version: 3.0.0-alpha.7(@playwright/test@1.37.0)
+        specifier: 3.0.0-alpha.9
+        version: 3.0.0-alpha.9(@playwright/test@1.37.0)
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
@@ -2038,15 +2038,15 @@ packages:
     engines: {node: '>=14.0.0'}
     dev: false
 
-  /@replayio/playwright@3.0.0-alpha.7(@playwright/test@1.37.0):
-    resolution: {integrity: sha512-uaGxNvcQmH3okTqDa7+9anmLfB8IldTY3dWgKvN/h+7F++p44d87iVNStZUyDKFk2kjGSEMD1p56mNiv/TjEwQ==}
+  /@replayio/playwright@3.0.0-alpha.9(@playwright/test@1.37.0):
+    resolution: {integrity: sha512-dcrc6Y6Z1slcI6AZsUrRBNGqaSYXZwRIMfvyLKvAhNMScURfB9U5YYMJ8QFa5x300W8lsXR3FbSoxcul8XCdJw==}
     hasBin: true
     requiresBuild: true
     peerDependencies:
       '@playwright/test': 1.x
     dependencies:
       '@playwright/test': 1.37.0
-      '@replayio/replay': 0.22.3
+      '@replayio/replay': 0.22.4
       '@replayio/test-utils': 2.0.1
       debug: 4.3.4
       uuid: 8.3.2
@@ -2058,8 +2058,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@replayio/replay@0.22.3:
-    resolution: {integrity: sha512-KXUGYRQ5a8P+1xDEhCMpWvzEHYrCH2mG2ZdPxcZhXzYTOI5uf7+lRoaskhbju5pwF2SOEXJSOfCn27BKTCqCEg==}
+  /@replayio/replay@0.22.4:
+    resolution: {integrity: sha512-E4JJicf1akAujdMbPMEOlDzlwRWoCevOzw4bXNVU6gxJSohl8Aqp18dNcWMBAW7zg+PJCYg1TY2hF8S0yJwDCQ==}
     hasBin: true
     dependencies:
       '@replayio/sourcemap-upload': 2.0.3
@@ -2101,7 +2101,7 @@ packages:
   /@replayio/test-utils@2.0.1:
     resolution: {integrity: sha512-+0RJyN4yS2dS7MbstIaaS+EomBEu3IcWFvkHPme1Pu4l+Bq+ozbl8FF23SRkpOm7J9R4ZCe+07BQpZP4YWlkuA==}
     dependencies:
-      '@replayio/replay': 0.22.3
+      '@replayio/replay': 0.22.4
       debug: 4.3.4
       node-fetch: 2.7.0
       sha-1: 1.0.0

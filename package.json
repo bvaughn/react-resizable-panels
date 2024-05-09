@@ -23,7 +23,7 @@
   "devDependencies": {
     "@babel/preset-typescript": "^7.22.5",
     "@playwright/test": "^1.37.0",
-    "@replayio/playwright": "3.0.0-alpha.7",
+    "@replayio/playwright": "3.0.0-alpha.9",
     "@types/jest": "^29.5.3",
     "@types/node": "^18.17.5",
     "@types/react": "latest",
