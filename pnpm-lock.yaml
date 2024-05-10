@@ -34,11 +34,11 @@ importers:
         specifier: ^7.22.5
         version: 7.22.5
       '@playwright/test':
-        specifier: ^1.37.0
-        version: 1.37.0
+        specifier: ^1.44.0
+        version: 1.44.0
       '@replayio/playwright':
         specifier: 3.0.0-alpha.9
-        version: 3.0.0-alpha.9(@playwright/test@1.37.0)
+        version: 3.0.0-alpha.9(@playwright/test@1.44.0)
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
@@ -1965,15 +1965,12 @@ packages:
       '@parcel/utils': 2.9.3
       nullthrows: 1.1.1
 
-  /@playwright/test@1.37.0:
-    resolution: {integrity: sha512-181WBLk4SRUyH1Q96VZl7BP6HcK0b7lbdeKisn3N/vnjitk+9HbdlFz/L5fey05vxaAhldIDnzo8KUoy8S3mmQ==}
+  /@playwright/test@1.44.0:
+    resolution: {integrity: sha512-rNX5lbNidamSUorBhB4XZ9SQTjAqfe5M+p37Z8ic0jPFBMo5iCtQz1kRWkEMg+rYOKSlVycpQmpqjSFq7LXOfg==}
     engines: {node: '>=16'}
     hasBin: true
     dependencies:
-      '@types/node': 18.17.5
-      playwright-core: 1.37.0
-    optionalDependencies:
-      fsevents: 2.3.2
+      playwright: 1.44.0
     dev: true
 
   /@preconstruct/cli@2.8.1:
@@ -2038,14 +2035,14 @@ packages:
     engines: {node: '>=14.0.0'}
     dev: false
 
-  /@replayio/playwright@3.0.0-alpha.9(@playwright/test@1.37.0):
+  /@replayio/playwright@3.0.0-alpha.9(@playwright/test@1.44.0):
     resolution: {integrity: sha512-dcrc6Y6Z1slcI6AZsUrRBNGqaSYXZwRIMfvyLKvAhNMScURfB9U5YYMJ8QFa5x300W8lsXR3FbSoxcul8XCdJw==}
     hasBin: true
     requiresBuild: true
     peerDependencies:
       '@playwright/test': 1.x
     dependencies:
-      '@playwright/test': 1.37.0
+      '@playwright/test': 1.44.0
       '@replayio/replay': 0.22.4
       '@replayio/test-utils': 2.0.1
       debug: 4.3.4
@@ -5570,10 +5567,20 @@ packages:
       find-up: 4.1.0
     dev: true
 
-  /playwright-core@1.37.0:
-    resolution: {integrity: sha512-1c46jhTH/myQw6sesrcuHVtLoSNfJv8Pfy9t3rs6subY7kARv0HRw5PpyfPYPpPtQvBOmgbE6K+qgYUpj81LAA==}
+  /playwright-core@1.44.0:
+    resolution: {integrity: sha512-ZTbkNpFfYcGWohvTTl+xewITm7EOuqIqex0c7dNZ+aXsbrLj0qI8XlGKfPpipjm0Wny/4Lt4CJsWJk1stVS5qQ==}
     engines: {node: '>=16'}
     hasBin: true
+    dev: true
+
+  /playwright@1.44.0:
+    resolution: {integrity: sha512-F9b3GUCLQ3Nffrfb6dunPOkE5Mh68tR7zN32L4jCk4FjQamgesGay7/dAAe1WaMEGV04DkdJfcJzjoCKygUaRQ==}
+    engines: {node: '>=16'}
+    hasBin: true
+    dependencies:
+      playwright-core: 1.44.0
+    optionalDependencies:
+      fsevents: 2.3.2
     dev: true
 
   /point-utilities@0.0.2:
