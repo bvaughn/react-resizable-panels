@@ -142,4 +142,7 @@ export function ClientComponent({
 }
 ```
 
+> [!NOTE]
+> Do provide `defaultValue` value for each `Panel` component. Even if there's only two panels. Otherwise flickering may still appear.
+
 A demo of this is available [here](https://github.com/bvaughn/react-resizable-panels-demo-ssr).
