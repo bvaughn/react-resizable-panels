@@ -224,6 +224,6 @@ export function ClientComponent({
 ```
 
 > [!NOTE]
-> Do provide `defaultValue` value for each `Panel` component. Even if there's only two panels. Otherwise flickering may still appear.
+> Be sure to specify a `defaultSize` prop for **every** `Panel` component to avoid layout flicker.
 
 A demo of this is available [here](https://github.com/bvaughn/react-resizable-panels-demo-ssr).
