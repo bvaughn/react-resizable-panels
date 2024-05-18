@@ -223,4 +223,7 @@ export function ClientComponent({
 }
 ```
 
+> [!NOTE]
+> Be sure to specify a `defaultSize` prop for **every** `Panel` component to avoid layout flicker.
+
 A demo of this is available [here](https://github.com/bvaughn/react-resizable-panels-demo-ssr).
