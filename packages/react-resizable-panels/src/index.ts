@@ -29,9 +29,7 @@ import type {
   PanelResizeHandleOnDragging,
   PanelResizeHandleProps,
 } from "./PanelResizeHandle";
-import type {
-  PointerHitAreaMargins,
-} from "./PanelResizeHandleRegistry";
+import type { PointerHitAreaMargins } from "./PanelResizeHandleRegistry";
 
 export {
   // TypeScript types
