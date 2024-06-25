@@ -29,6 +29,7 @@ import type {
   PanelResizeHandleOnDragging,
   PanelResizeHandleProps,
 } from "./PanelResizeHandle";
+import type { PointerHitAreaMargins } from "./PanelResizeHandleRegistry";
 
 export {
   // TypeScript types
@@ -43,6 +44,7 @@ export {
   PanelProps,
   PanelResizeHandleOnDragging,
   PanelResizeHandleProps,
+  PointerHitAreaMargins,
 
   // React components
   Panel,
