@@ -31,11 +31,7 @@ import type {
 } from "./PanelResizeHandle";
 import type {
   PointerHitAreaMargins,
-  ResizeHandlerAction,
-  ResizeHandlerData,
-  SetResizeHandlerState,
 } from "./PanelResizeHandleRegistry";
-import type { Direction, ResizeEvent, ResizeHandler } from "./types";
 
 export {
   // TypeScript types
@@ -51,12 +47,6 @@ export {
   PanelResizeHandleOnDragging,
   PanelResizeHandleProps,
   PointerHitAreaMargins,
-  ResizeHandlerAction,
-  ResizeHandlerData,
-  SetResizeHandlerState,
-  Direction,
-  ResizeEvent,
-  ResizeHandler,
 
   // React components
   Panel,
