@@ -74,6 +74,7 @@ export function registerResizeHandle(
       ownerDocumentCounts.delete(ownerDocument);
     }
 
+    // Reset the global cursor style if necessary
     const dummyEvent = { target: null, x: 0, y: 0 };
     recalculateIntersectingHandles(dummyEvent);
     updateCursor();
