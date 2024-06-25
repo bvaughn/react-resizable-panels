@@ -49,12 +49,12 @@ describe("PanelResizeHandle", () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
-    jest.resetModules();
-
     act(() => {
       root.unmount();
     });
+
+    jest.clearAllMocks();
+    jest.resetModules();
 
     expect(expectedWarnings).toHaveLength(0);
   });
@@ -92,6 +92,8 @@ describe("PanelResizeHandle", () => {
         </PanelGroup>
       );
     });
+
+    expect(cursorUtils.resetGlobalCursorStyle).not.toHaveBeenCalled();
 
     act(() => {
       root.unmount();
