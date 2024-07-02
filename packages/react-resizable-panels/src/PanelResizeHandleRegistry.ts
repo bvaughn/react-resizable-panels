@@ -74,10 +74,16 @@ export function registerResizeHandle(
       ownerDocumentCounts.delete(ownerDocument);
     }
 
-    // Reset the global cursor style if necessary
-    const dummyEvent = { target: null, x: 0, y: 0 };
-    recalculateIntersectingHandles(dummyEvent);
-    updateCursor();
+    // If the resize handle that is currently unmounting is intersecting with the pointer,
+    // update the global pointer to account for the change
+    if (intersectingHandles.includes(data)) {
+      const index = intersectingHandles.indexOf(data);
+      if (index >= 0) {
+        intersectingHandles.splice(index, 1);
+      }
+
+      updateCursor();
+    }
   };
 }
 
