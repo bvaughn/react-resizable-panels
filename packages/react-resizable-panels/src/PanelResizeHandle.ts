@@ -208,8 +208,14 @@ export function PanelResizeHandle({
     children,
     className: classNameFromProps,
     id: idFromProps,
-    onBlur: () => setIsFocused(false),
-    onFocus: () => setIsFocused(true),
+    onBlur: (e: React.FocusEvent<keyof HTMLElementTagNameMap>) => {
+      setIsFocused(false);
+      rest?.onBlur?.(e);
+    },
+    onFocus: () => (e: React.FocusEvent<keyof HTMLElementTagNameMap>) => {
+      setIsFocused(true);
+      rest?.onFocus?.(e);
+    },
     ref: elementRef,
     role: "separator",
     style: {
