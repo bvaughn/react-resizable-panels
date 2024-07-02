@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Resize handle supports (optional) `onFocus` or `onBlur` props (#370)
+
 ## 2.0.19
 
 - Add optional `minSize` override param to panel `expand` imperative API
