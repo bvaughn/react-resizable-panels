@@ -15,7 +15,6 @@ import { assert } from "./utils/assert";
 import {
   createElement,
   CSSProperties,
-  FocusEvent,
   HTMLAttributes,
   PropsWithChildren,
   ReactElement,
@@ -30,14 +29,16 @@ export type ResizeHandlerState = "drag" | "hover" | "inactive";
 
 export type PanelResizeHandleProps = Omit<
   HTMLAttributes<keyof HTMLElementTagNameMap>,
-  "id"
+  "id" | "onBlur" | "onFocus"
 > &
   PropsWithChildren<{
     className?: string;
     disabled?: boolean;
     hitAreaMargins?: PointerHitAreaMargins;
     id?: string | null;
+    onBlur?: () => void;
     onDragging?: PanelResizeHandleOnDragging;
+    onFocus?: () => void;
     style?: CSSProperties;
     tabIndex?: number;
     tagName?: keyof HTMLElementTagNameMap;
@@ -49,7 +50,9 @@ export function PanelResizeHandle({
   disabled = false,
   hitAreaMargins,
   id: idFromProps,
+  onBlur,
   onDragging,
+  onFocus,
   style: styleFromProps = {},
   tabIndex = 0,
   tagName: Type = "div",
@@ -208,13 +211,13 @@ export function PanelResizeHandle({
     children,
     className: classNameFromProps,
     id: idFromProps,
-    onBlur: (event: FocusEvent<keyof HTMLElementTagNameMap>) => {
+    onBlur: () => {
       setIsFocused(false);
-      rest?.onBlur?.(event);
+      onBlur?.();
     },
-    onFocus: () => (event: FocusEvent<keyof HTMLElementTagNameMap>) => {
+    onFocus: () => {
       setIsFocused(true);
-      rest?.onFocus?.(event);
+      onFocus?.();
     },
     ref: elementRef,
     role: "separator",
