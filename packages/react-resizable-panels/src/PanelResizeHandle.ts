@@ -24,6 +24,7 @@ import {
 } from "./PanelResizeHandleRegistry";
 import { assert } from "./utils/assert";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
+import { FocusEvent } from "react";
 
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 export type ResizeHandlerState = "drag" | "hover" | "inactive";
@@ -208,13 +209,13 @@ export function PanelResizeHandle({
     children,
     className: classNameFromProps,
     id: idFromProps,
-    onBlur: (e: React.FocusEvent<keyof HTMLElementTagNameMap>) => {
+    onBlur: (event: FocusEvent<keyof HTMLElementTagNameMap>) => {
       setIsFocused(false);
-      rest?.onBlur?.(e);
+      rest?.onBlur?.(event);
     },
-    onFocus: () => (e: React.FocusEvent<keyof HTMLElementTagNameMap>) => {
+    onFocus: () => (event: FocusEvent<keyof HTMLElementTagNameMap>) => {
       setIsFocused(true);
-      rest?.onFocus?.(e);
+      rest?.onFocus?.(event);
     },
     ref: elementRef,
     role: "separator",
