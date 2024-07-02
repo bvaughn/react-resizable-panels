@@ -11,6 +11,7 @@ import * as React from "react";
 import type {
   CSSProperties,
   ElementType,
+  FocusEvent,
   ForwardedRef,
   HTMLAttributes,
   MouseEvent,
@@ -60,6 +61,7 @@ export {
 export type {
   CSSProperties,
   ElementType,
+  FocusEvent,
   ForwardedRef,
   HTMLAttributes,
   MouseEvent,

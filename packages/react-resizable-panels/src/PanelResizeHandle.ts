@@ -1,16 +1,5 @@
+import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
-import {
-  createElement,
-  CSSProperties,
-  HTMLAttributes,
-  PropsWithChildren,
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "./vendor/react";
-
 import { useWindowSplitterResizeHandlerBehavior } from "./hooks/useWindowSplitterBehavior";
 import {
   PanelGroupContext,
@@ -23,8 +12,18 @@ import {
   ResizeHandlerAction,
 } from "./PanelResizeHandleRegistry";
 import { assert } from "./utils/assert";
-import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
-import { FocusEvent } from "react";
+import {
+  createElement,
+  CSSProperties,
+  FocusEvent,
+  HTMLAttributes,
+  PropsWithChildren,
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "./vendor/react";
 
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 export type ResizeHandlerState = "drag" | "hover" | "inactive";
