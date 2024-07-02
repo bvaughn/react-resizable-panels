@@ -1,14 +1,25 @@
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import type { PanelResizeHandleProps } from "react-resizable-panels";
-import { Panel, PanelGroup, PanelResizeHandle } from ".";
+import {
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+  type PanelResizeHandleProps,
+} from ".";
 import { assert } from "./utils/assert";
+import * as cursorUtils from "./utils/cursor";
 import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
 import {
   dispatchPointerEvent,
   mockBoundingClientRect,
   verifyAttribute,
 } from "./utils/test-utils";
+
+jest.mock("./utils/cursor", () => ({
+  getCursorStyle: jest.fn(),
+  resetGlobalCursorStyle: jest.fn(),
+  setGlobalCursorStyle: jest.fn(),
+}));
 
 describe("PanelResizeHandle", () => {
   let expectedWarnings: string[] = [];
@@ -304,5 +315,34 @@ describe("PanelResizeHandle", () => {
       expect(element).not.toBeNull();
       expect(element?.getAttribute("id")).toBeNull();
     });
+  });
+
+  it("resets the global cursor style on unmount", () => {
+    const onDraggingLeft = jest.fn();
+
+    const { leftElement } = setupMockedGroup({
+      leftProps: { onDragging: onDraggingLeft },
+      rightProps: {},
+    });
+
+    act(() => {
+      dispatchPointerEvent("pointermove", leftElement);
+    });
+
+    act(() => {
+      dispatchPointerEvent("pointerdown", leftElement);
+    });
+    expect(onDraggingLeft).toHaveBeenCalledTimes(1);
+    expect(onDraggingLeft).toHaveBeenCalledWith(true);
+
+    expect(cursorUtils.resetGlobalCursorStyle).not.toHaveBeenCalled();
+    expect(cursorUtils.setGlobalCursorStyle).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      root.unmount();
+    });
+
+    expect(cursorUtils.resetGlobalCursorStyle).toHaveBeenCalled();
+    expect(cursorUtils.setGlobalCursorStyle).toHaveBeenCalledTimes(1);
   });
 });

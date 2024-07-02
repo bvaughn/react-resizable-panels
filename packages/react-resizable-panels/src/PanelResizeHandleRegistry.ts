@@ -73,6 +73,17 @@ export function registerResizeHandle(
     if (count === 1) {
       ownerDocumentCounts.delete(ownerDocument);
     }
+
+    // If the resize handle that is currently unmounting is intersecting with the pointer,
+    // update the global pointer to account for the change
+    if (intersectingHandles.includes(data)) {
+      const index = intersectingHandles.indexOf(data);
+      if (index >= 0) {
+        intersectingHandles.splice(index, 1);
+      }
+
+      updateCursor();
+    }
   };
 }
 
