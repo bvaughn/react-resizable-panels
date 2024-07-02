@@ -779,7 +779,7 @@ describe("PanelGroup", () => {
     });
 
     describe("onResize", () => {
-      it("should be called on mount", () => {
+      it("should be called on mount when default size is not provided", () => {
         let onResizeLeft = jest.fn();
         let onResizeMiddle = jest.fn();
         let onResizeRight = jest.fn();
@@ -803,8 +803,7 @@ describe("PanelGroup", () => {
 
         expect(onResizeLeft).toHaveBeenCalledTimes(1);
         expect(onResizeLeft).toHaveBeenCalledWith(25, undefined);
-        expect(onResizeMiddle).toHaveBeenCalledTimes(1);
-        expect(onResizeMiddle).toHaveBeenCalledWith(50, undefined);
+        expect(onResizeMiddle).not.toHaveBeenCalled();
         expect(onResizeRight).toHaveBeenCalledTimes(1);
         expect(onResizeRight).toHaveBeenCalledWith(25, undefined);
       });

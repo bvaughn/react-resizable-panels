@@ -13,15 +13,15 @@ export function callPanelCallbacks(
     assert(panelData, `Panel data not found for index ${index}`);
 
     const { callbacks, constraints, id: panelId } = panelData;
-    const { collapsedSize = 0, collapsible } = constraints;
+    const { collapsedSize = 0, collapsible, defaultSize } = constraints;
 
     const lastNotifiedSize = panelIdToLastNotifiedSizeMap[panelId];
-    if (lastNotifiedSize == null || size !== lastNotifiedSize) {
+    const isFirstCall = lastNotifiedSize == null;
+    if (isFirstCall || size !== lastNotifiedSize) {
       panelIdToLastNotifiedSizeMap[panelId] = size;
 
       const { onCollapse, onExpand, onResize } = callbacks;
-
-      if (onResize) {
+      if (onResize && (!isFirstCall || defaultSize !== size)) {
         onResize(size, lastNotifiedSize);
       }
 
