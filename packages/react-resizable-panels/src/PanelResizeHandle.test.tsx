@@ -7,13 +7,13 @@ import {
   type PanelResizeHandleProps,
 } from ".";
 import { assert } from "./utils/assert";
+import * as cursorUtils from "./utils/cursor";
 import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
 import {
   dispatchPointerEvent,
   mockBoundingClientRect,
   verifyAttribute,
 } from "./utils/test-utils";
-import * as cursorUtils from "./utils/cursor";
 
 jest.mock("./utils/cursor", () => ({
   getCursorStyle: jest.fn(),
@@ -50,12 +50,12 @@ describe("PanelResizeHandle", () => {
   });
 
   afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetModules();
+
     act(() => {
       root.unmount();
     });
-
-    jest.clearAllMocks();
-    jest.resetModules();
 
     expect(expectedWarnings).toHaveLength(0);
   });
@@ -268,7 +268,7 @@ describe("PanelResizeHandle", () => {
       act(() => {
         leftElement.focus();
       });
-      // expect(document.activeElement).toBe(leftElement);
+      expect(document.activeElement).toBe(leftElement);
       verifyAttribute(leftElement, "data-resize-handle-active", "keyboard");
       verifyAttribute(rightElement, "data-resize-handle-active", null);
 
@@ -317,7 +317,7 @@ describe("PanelResizeHandle", () => {
     });
   });
 
-  fit("resets the global cursor style on unmount", () => {
+  it("resets the global cursor style on unmount", () => {
     const onDraggingLeft = jest.fn();
 
     const { leftElement } = setupMockedGroup({
