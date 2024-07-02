@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.0.20
 
+- Reset global cursor if an active resize handle is unmounted (#313)
 - Resize handle supports (optional) `onFocus` or `onBlur` props (#370)
 
 ## 2.0.19
