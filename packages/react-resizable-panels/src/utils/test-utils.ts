@@ -2,11 +2,16 @@ import { assert } from "./assert";
 
 const util = require("util");
 
-export function dispatchPointerEvent(type: string, target: HTMLElement) {
+interface IDispatchPointerEventOption {
+  clientX?: number;
+  clientY?: number;
+}
+export function dispatchPointerEvent(type: string, target: HTMLElement, options: IDispatchPointerEventOption = {}) {
   const rect = target.getBoundingClientRect();
 
-  const clientX = rect.left + rect.width / 2;
-  const clientY = rect.top + rect.height / 2;
+  const { clientX: initClientX, clientY: initClientY } = options;
+  const clientX = initClientX || rect.left + rect.width / 2;
+  const clientY = initClientY || rect.top + rect.height / 2;
 
   const event = new MouseEvent(type, {
     bubbles: true,

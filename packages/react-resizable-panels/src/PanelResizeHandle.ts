@@ -193,6 +193,28 @@ export function PanelResizeHandle({
     stopDragging,
   ]);
 
+  useEffect(() => {
+    const handleMouseOut = (event: MouseEvent) => {
+      if (
+        event.clientX < 0 ||
+        event.clientY < 0 ||
+        event.clientX > window.innerWidth ||
+        event.clientY > window.innerHeight
+      ) {
+        setState("hover");
+        stopDragging();
+        const { onDragging } = callbacksRef.current;
+        if (onDragging) {
+          onDragging(false);
+        }
+      }
+    };
+    window.addEventListener('mouseout', handleMouseOut);
+    return () => {
+      window.removeEventListener('mouseout', handleMouseOut);
+    };
+  }, []);
+
   useWindowSplitterResizeHandlerBehavior({
     disabled,
     handleId: resizeHandleId,

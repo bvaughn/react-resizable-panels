@@ -279,6 +279,18 @@ describe("PanelResizeHandle", () => {
       verifyAttribute(leftElement, "data-resize-handle-active", null);
       verifyAttribute(rightElement, "data-resize-handle-active", null);
     });
+
+    it("should stop dragging when the mouse goes beyond the browser size", () => {
+      const { leftElement, rightElement } = setupMockedGroup();
+      verifyAttribute(leftElement, "data-resize-handle-active", null);
+      verifyAttribute(rightElement, "data-resize-handle-active", null);
+
+      act(() => {
+        dispatchPointerEvent("pointermove", leftElement, { clientX: -1 });
+      });
+      verifyAttribute(leftElement, "data-resize-handle-state", "inactive");
+      verifyAttribute(rightElement, "data-resize-handle-state", "inactive");
+    });
   });
 
   describe("a11y", () => {
