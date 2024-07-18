@@ -87,7 +87,7 @@ export function registerResizeHandle(
   };
 }
 
-function handlePointerDown(event: ResizeEvent) {
+function handlePointerDown(event: PointerEvent) {
   const { target } = event;
   const { x, y } = getResizeEventCoordinates(event);
 
@@ -104,8 +104,16 @@ function handlePointerDown(event: ResizeEvent) {
   }
 }
 
-function handlePointerMove(event: ResizeEvent) {
+function handlePointerMove(event: PointerEvent) {
   const { x, y } = getResizeEventCoordinates(event);
+
+  // Edge case (see #340)
+  // Detect when the pointer has been released outside an iframe on a different domain
+  if (event.buttons === 0) {
+    isPointerDown = false;
+
+    updateResizeHandlerStates("up", event);
+  }
 
   if (!isPointerDown) {
     const { target } = event;

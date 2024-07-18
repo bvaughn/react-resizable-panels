@@ -12,6 +12,7 @@ export function dispatchPointerEvent(type: string, target: HTMLElement) {
     bubbles: true,
     clientX,
     clientY,
+    buttons: 1,
   });
   Object.defineProperties(event, {
     pageX: {

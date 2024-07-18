@@ -18,6 +18,25 @@ export async function goToUrl(
   await page.goto(url.toString());
 }
 
+export async function goToUrlWithIframe(
+  page: Page,
+  element: ReactElement<PanelGroupProps>,
+  sameOrigin: boolean
+) {
+  const encodedString = UrlPanelGroupToEncodedString(element);
+
+  const url = new URL("http://localhost:1234/__e2e/iframe");
+  url.searchParams.set("urlPanelGroup", encodedString);
+  if (sameOrigin) {
+    url.searchParams.set("sameOrigin", "");
+  }
+
+  // Uncomment when testing for easier repros
+  // console.log(url.toString());
+
+  await page.goto(url.toString());
+}
+
 export async function updateUrl(
   page: Page,
   element: ReactElement<PanelGroupProps> | null

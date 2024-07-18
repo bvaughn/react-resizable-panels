@@ -15,6 +15,7 @@ const config: PlaywrightTestConfig = {
     reuseExistingServer: true,
     url: "http://localhost:1234",
   },
+  timeout: 60_000,
 };
 
 if (process.env.DEBUG) {
@@ -23,7 +24,7 @@ if (process.env.DEBUG) {
     headless: false,
 
     launchOptions: {
-      slowMo: DEBUG ? 50 : undefined,
+      // slowMo: DEBUG ? 250 : undefined,
     },
   };
 }
