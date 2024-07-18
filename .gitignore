@@ -9,3 +9,4 @@ node_modules
 .parcel-cache
 .pnp.*
 .yarn
+.vscode

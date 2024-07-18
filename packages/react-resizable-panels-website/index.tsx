@@ -14,6 +14,7 @@ import PersistenceExampleRoute from "./src/routes/examples/Persistence";
 import CollapsibleExampleRoute from "./src/routes/examples/Collapsible";
 import VerticalExampleRoute from "./src/routes/examples/Vertical";
 import EndToEndTestingRoute from "./src/routes/EndToEndTesting";
+import IframeRoute from "./src/routes/iframe";
 
 const router = createBrowserRouter([
   {
@@ -65,6 +66,10 @@ const router = createBrowserRouter([
   {
     path: "/__e2e",
     element: <EndToEndTestingRoute />,
+  },
+  {
+    path: "/__e2e/iframe",
+    element: <IframeRoute />,
   },
 ]);
 

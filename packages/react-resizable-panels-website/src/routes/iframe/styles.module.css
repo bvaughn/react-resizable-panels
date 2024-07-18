@@ -1,0 +1,14 @@
+.Root {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-logo-background);
+}
+
+.IFrame {
+  width: 400px;
+  height: 200px;
+  border: none;
+}
