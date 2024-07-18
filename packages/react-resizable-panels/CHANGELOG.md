@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.21
+
+- Handle pointer event edge case with different origin iframes (#374)
+
 ## 2.0.20
 
 - Reset global cursor if an active resize handle is unmounted (#313)
