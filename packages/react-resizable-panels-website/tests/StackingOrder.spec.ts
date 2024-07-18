@@ -50,6 +50,8 @@ test.describe("stacking order", () => {
     const pageX = dragHandleRect.x + dragHandleRect.width / 2;
     const pageY = dragHandleRect.y + dragHandleRect.height / 2;
 
+    page.mouse.down();
+
     {
       page.mouse.move(pageX, pageY);
 

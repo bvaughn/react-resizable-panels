@@ -1,23 +1,32 @@
-import { useState } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import styles from "./styles.module.css";
 
 export default function Page() {
-  const [url] = useState(() => {
-    const url = new URL(
-      typeof window !== undefined ? window.location.href : ""
-    );
+  const urlString = useSyncExternalStore(
+    function subscribe(onChange) {
+      window.addEventListener("navigate", onChange);
+      return function unsubscribe() {
+        window.removeEventListener("navigate", onChange);
+      };
+    },
+    function read() {
+      return window.location.href;
+    }
+  );
 
-    return `${url.origin}/__e2e/?urlPanelGroup=${url.searchParams.get(
-      "urlPanelGroup"
-    )}`;
-  });
+  const url = useMemo(() => new URL(urlString), [urlString]);
 
   return (
     <div className={styles.Root}>
       <iframe
         className={styles.IFrame}
-        sandbox="allow-scripts"
-        src={url}
+        id="frame"
+        sandbox={
+          url.searchParams.has("sameOrigin") ? undefined : "allow-scripts"
+        }
+        src={`${url.origin}/__e2e/?urlPanelGroup=${url.searchParams.get(
+          "urlPanelGroup"
+        )}`}
       ></iframe>
     </div>
   );

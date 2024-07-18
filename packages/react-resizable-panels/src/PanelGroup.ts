@@ -638,9 +638,6 @@ function PanelGroupWithForwardedRef({
         keyboardResizeBy,
         panelGroupElement
       );
-      if (delta === 0) {
-        return;
-      }
 
       // Support RTL layouts
       const isHorizontal = direction === "horizontal";
