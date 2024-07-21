@@ -13,6 +13,7 @@ import {
   EXCEEDED_VERTICAL_MIN,
   reportConstraintsViolation,
 } from "./PanelResizeHandleRegistry";
+import { useForceUpdate } from "./hooks/useForceUpdate";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
 import { useWindowSplitterPanelGroupBehavior } from "./hooks/useWindowSplitterPanelGroupBehavior";
@@ -123,6 +124,7 @@ function PanelGroupWithForwardedRef({
   const panelGroupElementRef = useRef<HTMLDivElement | null>(null);
   const [dragState, setDragState] = useState<DragState | null>(null);
   const [layout, setLayout] = useState<number[]>([]);
+  const forceUpdate = useForceUpdate();
 
   const panelIdToLastNotifiedSizeMapRef = useRef<Record<string, number>>({});
   const panelSizeBeforeCollapseRef = useRef<Map<string, number>>(new Map());
@@ -521,26 +523,31 @@ function PanelGroupWithForwardedRef({
     return !collapsible || fuzzyCompareNumbers(panelSize, collapsedSize) > 0;
   }, []);
 
-  const registerPanel = useCallback((panelData: PanelData) => {
-    const { panelDataArray } = eagerValuesRef.current;
+  const registerPanel = useCallback(
+    (panelData: PanelData) => {
+      const { panelDataArray } = eagerValuesRef.current;
 
-    panelDataArray.push(panelData);
-    panelDataArray.sort((panelA, panelB) => {
-      const orderA = panelA.order;
-      const orderB = panelB.order;
-      if (orderA == null && orderB == null) {
-        return 0;
-      } else if (orderA == null) {
-        return -1;
-      } else if (orderB == null) {
-        return 1;
-      } else {
-        return orderA - orderB;
-      }
-    });
+      panelDataArray.push(panelData);
+      panelDataArray.sort((panelA, panelB) => {
+        const orderA = panelA.order;
+        const orderB = panelB.order;
+        if (orderA == null && orderB == null) {
+          return 0;
+        } else if (orderA == null) {
+          return -1;
+        } else if (orderB == null) {
+          return 1;
+        } else {
+          return orderA - orderB;
+        }
+      });
 
-    eagerValuesRef.current.panelDataArrayChanged = true;
-  }, []);
+      eagerValuesRef.current.panelDataArrayChanged = true;
+
+      forceUpdate();
+    },
+    [forceUpdate]
+  );
 
   // (Re)calculate group layout whenever panels are registered or unregistered.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -844,22 +851,27 @@ function PanelGroupWithForwardedRef({
     setDragState(null);
   }, []);
 
-  const unregisterPanel = useCallback((panelData: PanelData) => {
-    const { panelDataArray } = eagerValuesRef.current;
+  const unregisterPanel = useCallback(
+    (panelData: PanelData) => {
+      const { panelDataArray } = eagerValuesRef.current;
 
-    const index = findPanelDataIndex(panelDataArray, panelData);
-    if (index >= 0) {
-      panelDataArray.splice(index, 1);
+      const index = findPanelDataIndex(panelDataArray, panelData);
+      if (index >= 0) {
+        panelDataArray.splice(index, 1);
 
-      // TRICKY
-      // When a panel is removed from the group, we should delete the most recent prev-size entry for it.
-      // If we don't do this, then a conditionally rendered panel might not call onResize when it's re-mounted.
-      // Strict effects mode makes this tricky though because all panels will be registered, unregistered, then re-registered on mount.
-      delete panelIdToLastNotifiedSizeMapRef.current[panelData.id];
+        // TRICKY
+        // When a panel is removed from the group, we should delete the most recent prev-size entry for it.
+        // If we don't do this, then a conditionally rendered panel might not call onResize when it's re-mounted.
+        // Strict effects mode makes this tricky though because all panels will be registered, unregistered, then re-registered on mount.
+        delete panelIdToLastNotifiedSizeMapRef.current[panelData.id];
 
-      eagerValuesRef.current.panelDataArrayChanged = true;
-    }
-  }, []);
+        eagerValuesRef.current.panelDataArrayChanged = true;
+
+        forceUpdate();
+      }
+    },
+    [forceUpdate]
+  );
 
   const context = useMemo(
     () =>
