@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.22
+
+- Force eager layout re-calculation after panel added/removed (#375)
+
 ## 2.0.21
 
 - Handle pointer event edge case with different origin iframes (#374)
