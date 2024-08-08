@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.23
+
+- Improve obfuscation for `React.useId` references (#382)
+
 ## 2.0.22
 
 - Force eager layout re-calculation after panel added/removed (#375)
