@@ -36,8 +36,10 @@ const {
   useState,
 } = React;
 
-// `toString()` prevents bundlers from trying to `import { useId } from 'react'`
-const useId = (React as any)["useId".toString()] as () => string;
+// `Math.random()` and `.slice(0, 5)` prevents bundlers from trying to `import { useId } from 'react'`
+const useId = (React as any)[
+  `useId${Math.random()}`.slice(0, 5)
+] as () => string;
 
 const useLayoutEffect_do_not_use_directly = useLayoutEffect;
 
