@@ -3,11 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "parcel build 'index.html'",
+    "build": "parcel build \"index.html\"",
     "kill-port": "kill-port ${PORT:-1234}",
     "test:e2e": "playwright test",
     "test:e2e:debug": "DEBUG=true playwright test",
-    "watch": "parcel 'index.html'"
+    "watch": "parcel \"index.html\""
   },
   "dependencies": {
     "@codemirror/lang-css": "latest",
