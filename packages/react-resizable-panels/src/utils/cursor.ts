@@ -80,7 +80,7 @@ export function setGlobalCursorStyle(
 
     const nonce = getNonce();
     if (nonce) {
-      styleElement.nonce = nonce;
+      styleElement.setAttribute("nonce", nonce);
     }
 
     document.head.appendChild(styleElement);
