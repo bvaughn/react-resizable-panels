@@ -227,3 +227,19 @@ export function ClientComponent({
 > Be sure to specify a `defaultSize` prop for **every** `Panel` component to avoid layout flicker.
 
 A demo of this is available [here](https://github.com/bvaughn/react-resizable-panels-demo-ssr).
+
+#### How can I set the [CSP `"nonce"`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce) attribute?
+
+```js
+import { setNonce } from "react-resizable-panels";
+
+setNonce("your-nonce-value-here");
+```
+
+#### How can I disable global cursor styles?
+
+```js
+import { disableGlobalCursorStyles } from "react-resizable-panels";
+
+disableGlobalCursorStyles();
+```
