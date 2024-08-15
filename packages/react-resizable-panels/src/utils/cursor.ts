@@ -4,6 +4,7 @@ import {
   EXCEEDED_VERTICAL_MAX,
   EXCEEDED_VERTICAL_MIN,
 } from "../PanelResizeHandleRegistry";
+import { getNonce } from "./csp";
 
 type CursorState = "horizontal" | "intersection" | "vertical";
 
@@ -76,6 +77,11 @@ export function setGlobalCursorStyle(
 
   if (styleElement === null) {
     styleElement = document.createElement("style");
+
+    const nonce = getNonce();
+    if (nonce) {
+      styleElement.setAttribute("nonce", nonce);
+    }
 
     document.head.appendChild(styleElement);
   }
