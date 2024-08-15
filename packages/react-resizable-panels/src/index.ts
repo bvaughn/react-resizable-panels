@@ -3,6 +3,10 @@ import { PanelGroup } from "./PanelGroup";
 import { PanelResizeHandle } from "./PanelResizeHandle";
 import { assert } from "./utils/assert";
 import { setNonce } from "./utils/csp";
+import {
+  enableGlobalCursorStyles,
+  disableGlobalCursorStyles,
+} from "./utils/cursor";
 import { getPanelElement } from "./utils/dom/getPanelElement";
 import { getPanelElementsForGroup } from "./utils/dom/getPanelElementsForGroup";
 import { getPanelGroupElement } from "./utils/dom/getPanelGroupElement";
@@ -66,6 +70,8 @@ export {
   getResizeHandleElementsForGroup,
   getResizeHandlePanelIds,
 
-  // CSP (see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)
+  // Styles and CSP (see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)
+  enableGlobalCursorStyles,
+  disableGlobalCursorStyles,
   setNonce,
 };

@@ -9,7 +9,16 @@ import { getNonce } from "./csp";
 type CursorState = "horizontal" | "intersection" | "vertical";
 
 let currentCursorStyle: string | null = null;
+let enabled: boolean = true;
 let styleElement: HTMLStyleElement | null = null;
+
+export function disableGlobalCursorStyles() {
+  enabled = false;
+}
+
+export function enableGlobalCursorStyles() {
+  enabled = true;
+}
 
 export function getCursorStyle(
   state: CursorState,
@@ -67,6 +76,10 @@ export function setGlobalCursorStyle(
   state: CursorState,
   constraintFlags: number
 ) {
+  if (!enabled) {
+    return;
+  }
+
   const style = getCursorStyle(state, constraintFlags);
 
   if (currentCursorStyle === style) {
