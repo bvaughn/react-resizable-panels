@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.0
+
+* Add opt-in support for setting the [`"nonce"` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce) for the global cursor style (#386)
+- Support disabling global cursor styles (#387)
+
 ## 2.0.23
 
 - Improve obfuscation for `React.useId` references (#382)
