@@ -676,7 +676,7 @@ function PanelGroupWithForwardedRef({
         if (prevDeltaRef.current != delta) {
           prevDeltaRef.current = delta;
 
-          if (!layoutChanged) {
+          if (!layoutChanged && delta !== 0) {
             // If the pointer has moved too far to resize the panel any further, note this so we can update the cursor.
             // This mimics VS Code behavior.
             if (isHorizontal) {
