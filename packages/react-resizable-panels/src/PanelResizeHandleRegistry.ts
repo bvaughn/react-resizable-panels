@@ -109,7 +109,7 @@ function handlePointerMove(event: PointerEvent) {
 
   // Edge case (see #340)
   // Detect when the pointer has been released outside an iframe on a different domain
-  if (event.buttons === 0) {
+  if (isPointerDown && event.buttons === 0) {
     isPointerDown = false;
 
     updateResizeHandlerStates("up", event);
