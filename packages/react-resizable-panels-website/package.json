@@ -4,6 +4,9 @@
   "private": true,
   "scripts": {
     "build": "parcel build \"index.html\"",
+    "clear": "pnpm run clear:parcel-cache & pnpm run clear:node_modules",
+    "clear:node_modules": "rm -rf ./node_modules",
+    "clear:parcel-cache": "rm -rf ./.parcel-cache",
     "kill-port": "kill-port ${PORT:-1234}",
     "test:e2e": "playwright test",
     "test:e2e:debug": "DEBUG=true playwright test",
