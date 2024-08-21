@@ -4,11 +4,16 @@
   "workspaces": [
     "packages/*"
   ],
+  "engines": {
+    "node": ">=18",
+    "pnpm": "=8"
+  },
   "scripts": {
-    "clear": "npm run clear:parcel-cache & npm run clear:builds & npm run clear:node_modules",
-    "clear:builds": "rm -rf ./packages/*/dist",
-    "clear:parcel-cache": "rm -rf ./.parcel-cache",
-    "clear:node_modules": "rm -rf ./node_modules && rm -rf ./packages/*/node_modules",
+    "clear": "pnpm run clear:git & pnpm run clear:library & pnpm run clear:node_modules & pnpm run clear:website",
+    "clear:git": "git clean -dfx",
+    "clear:library": "cd packages/react-resizable-panels && pnpm run clear",
+    "clear:node_modules": "rm -rf ./node_modules",
+    "clear:website": "cd packages/react-resizable-panels-website && pnpm run clear",
     "dev": "pnpm run /^dev:.*/",
     "dev:core": "cd packages/react-resizable-panels && pnpm watch",
     "dev:website": "cd packages/react-resizable-panels-website && pnpm watch",

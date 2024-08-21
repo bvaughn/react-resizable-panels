@@ -61,6 +61,9 @@
   },
   "types": "dist/react-resizable-panels.cjs.d.ts",
   "scripts": {
+    "clear": "pnpm run clear:builds & pnpm run clear:node_modules",
+    "clear:builds": "rm -rf ./packages/*/dist",
+    "clear:node_modules": "rm -rf ./node_modules",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "test": "jest --config=jest.config.js",
     "test:watch": "jest --config=jest.config.js --watch",
