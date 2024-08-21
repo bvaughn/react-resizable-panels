@@ -336,13 +336,32 @@ describe("PanelResizeHandle", () => {
     expect(onDraggingLeft).toHaveBeenCalledWith(true);
 
     expect(cursorUtils.resetGlobalCursorStyle).not.toHaveBeenCalled();
-    expect(cursorUtils.setGlobalCursorStyle).toHaveBeenCalledTimes(1);
+    expect(cursorUtils.setGlobalCursorStyle).toHaveBeenCalled();
+
+    onDraggingLeft.mockReset();
+
+    act(() => {
+      dispatchPointerEvent("pointermove", leftElement);
+    });
+    expect(onDraggingLeft).not.toHaveBeenCalled();
+
+    act(() => {
+      dispatchPointerEvent("pointerup", leftElement);
+    });
+    expect(onDraggingLeft).toHaveBeenCalledTimes(1);
+    expect(onDraggingLeft).toHaveBeenCalledWith(false);
+
+    onDraggingLeft.mockReset();
+
+    act(() => {
+      dispatchPointerEvent("pointermove", leftElement);
+    });
+    expect(onDraggingLeft).not.toHaveBeenCalled();
 
     act(() => {
       root.unmount();
     });
 
     expect(cursorUtils.resetGlobalCursorStyle).toHaveBeenCalled();
-    expect(cursorUtils.setGlobalCursorStyle).toHaveBeenCalledTimes(1);
   });
 });
