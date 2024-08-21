@@ -12,7 +12,9 @@ export default function withAutoSizer<ComponentProps>(
       width: number;
     }
   >,
-  autoSizerProps?: Partial<AutoSizerProps>
+  autoSizerProps?: Partial<
+    Omit<AutoSizerProps, "disableHeight" | "disableWidth">
+  >
 ): FunctionComponent<Omit<ComponentProps, "height" | "width">> {
   const AutoSizerWrapper = (
     props: Omit<ComponentProps, "height" | "width">
