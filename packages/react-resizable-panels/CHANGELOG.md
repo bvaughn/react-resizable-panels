@@ -1,8 +1,13 @@
 # Changelog
 
+## 2.1.1
+
+- Fix `onDragging` regression (#391)
+- Fix cursor icon behavior in nested panels (#390)
+
 ## 2.1.0
 
-* Add opt-in support for setting the [`"nonce"` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce) for the global cursor style (#386)
+- Add opt-in support for setting the [`"nonce"` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce) for the global cursor style (#386)
 - Support disabling global cursor styles (#387)
 
 ## 2.0.23
