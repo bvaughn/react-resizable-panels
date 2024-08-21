@@ -5,10 +5,11 @@
     "packages/*"
   ],
   "scripts": {
-    "clear": "npm run clear:parcel-cache & npm run clear:builds & npm run clear:node_modules",
-    "clear:builds": "rm -rf ./packages/*/dist",
-    "clear:parcel-cache": "rm -rf ./.parcel-cache",
-    "clear:node_modules": "rm -rf ./node_modules && rm -rf ./packages/*/node_modules",
+    "clear": "pnpm run clear:git & pnpm run clear:library & pnpm run clear:node_modules & pnpm run clear:website",
+    "clear:git": "git clean -dfx",
+    "clear:library": "cd packages/react-resizable-panels && pnpm run clear",
+    "clear:node_modules": "rm -rf ./node_modules",
+    "clear:website": "cd packages/react-resizable-panels-website && pnpm run clear",
     "dev": "pnpm run /^dev:.*/",
     "dev:core": "cd packages/react-resizable-panels && pnpm watch",
     "dev:website": "cd packages/react-resizable-panels-website && pnpm watch",
@@ -21,7 +22,8 @@
     "typescript:watch": "tsc --noEmit --watch"
   },
   "devDependencies": {
-    "@babel/preset-typescript": "^7.22.5",
+    "@babel/core": "^7",
+    "@babel/preset-typescript": "^7",
     "@playwright/test": "^1.37.0",
     "@types/jest": "^29.5.3",
     "@types/node": "^18.17.5",
@@ -31,19 +33,19 @@
     "@typescript-eslint/parser": "^5.62.0",
     "@typescript-eslint/type-utils": "^5.62.0",
     "eslint": "^8.47.0",
-    "parcel": "^2.9.3",
+    "parcel": "^2",
     "prettier": "latest",
     "process": "^0.11.10",
     "ts-jest": "^29.1.1",
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "@parcel/config-default": "^2.9.3",
-    "@parcel/core": "^2.9.3",
-    "@parcel/packager-ts": "^2.9.3",
-    "@parcel/transformer-js": "^2.9.3",
-    "@parcel/transformer-react-refresh-wrap": "^2.9.3",
-    "@parcel/transformer-typescript-types": "^2.9.3",
+    "@parcel/config-default": "^2",
+    "@parcel/core": "^2.12.0",
+    "@parcel/packager-ts": "^2",
+    "@parcel/transformer-js": "^2",
+    "@parcel/transformer-react-refresh-wrap": "^2",
+    "@parcel/transformer-typescript-types": "^2.12.0",
     "@preconstruct/cli": "^2.8.1"
   },
   "preconstruct": {
