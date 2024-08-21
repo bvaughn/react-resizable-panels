@@ -10,7 +10,7 @@
     "kill-port": "kill-port ${PORT:-1234}",
     "test:e2e": "playwright test",
     "test:e2e:debug": "DEBUG=true playwright test",
-    "watch": "parcel \"index.html\" --watch-dir=../.."
+    "watch": "parcel \"index.html\""
   },
   "dependencies": {
     "@codemirror/lang-css": "latest",
