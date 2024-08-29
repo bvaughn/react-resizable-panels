@@ -418,5 +418,26 @@ describe("PanelGroup", () => {
         ref.current?.setLayout([60, 80]);
       });
     });
+
+    it("should warn about an empty layout", () => {
+      act(() => {
+        root.render(
+          <PanelGroup direction="horizontal" id="group-without-handle">
+            <Panel />
+          </PanelGroup>
+        );
+      });
+
+      // Since the layout is empty, no warning is expected (even though the sizes won't total 100%)
+
+      act(() => {
+        root.render(
+          <PanelGroup
+            direction="horizontal"
+            id="group-without-handle"
+          ></PanelGroup>
+        );
+      });
+    });
   });
 });
