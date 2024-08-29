@@ -25,7 +25,10 @@ export function validatePanelGroupLayout({
         .map((size) => `${size}%`)
         .join(", ")}`
     );
-  } else if (!fuzzyNumbersEqual(nextLayoutTotalSize, 100)) {
+  } else if (
+    !fuzzyNumbersEqual(nextLayoutTotalSize, 100) &&
+    nextLayout.length > 0
+  ) {
     // This is not ideal so we should warn about it, but it may be recoverable in some cases
     // (especially if the amount is small)
     if (isDevelopment) {
