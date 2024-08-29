@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.2
+- Suppress invalid layout warning for empty panel groups (#396)
+
 ## 2.1.1
 
 - Fix `onDragging` regression (#391)
