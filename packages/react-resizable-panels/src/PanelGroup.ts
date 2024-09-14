@@ -816,6 +816,7 @@ function PanelGroupWithForwardedRef({
     [resizePanel]
   );
 
+  // TODO Multiple drag handles can be active at the same time so this API is a bit awkward now
   const startDragging = useCallback(
     (dragHandleId: string, event: ResizeEvent) => {
       const { direction } = committedValuesRef.current;

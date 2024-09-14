@@ -129,12 +129,14 @@ export function PanelResizeHandle({
     const setResizeHandlerState = (
       action: ResizeHandlerAction,
       isActive: boolean,
-      event: ResizeEvent
+      event: ResizeEvent | null
     ) => {
       if (isActive) {
         switch (action) {
           case "down": {
             setState("drag");
+
+            assert(event, 'Expected event to be defined for "down" action');
 
             startDragging(resizeHandleId, event);
 
@@ -150,6 +152,8 @@ export function PanelResizeHandle({
             if (state !== "drag") {
               setState("hover");
             }
+
+            assert(event, 'Expected event to be defined for "move" action');
 
             resizeHandler(event);
             break;
