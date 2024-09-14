@@ -9,7 +9,7 @@ export type ResizeHandlerAction = "down" | "move" | "up";
 export type SetResizeHandlerState = (
   action: ResizeHandlerAction,
   isActive: boolean,
-  event: ResizeEvent
+  event: ResizeEvent | null
 ) => void;
 
 export type PointerHitAreaMargins = {
@@ -83,6 +83,10 @@ export function registerResizeHandle(
       }
 
       updateCursor();
+
+      // Also instruct the handle to stop dragging; this prevents the parent group from being left in an inconsistent state
+      // See github.com/bvaughn/react-resizable-panels/issues/402
+      setResizeHandlerState("up", true, null);
     }
   };
 }
