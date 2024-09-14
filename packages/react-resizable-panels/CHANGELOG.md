@@ -1,6 +1,11 @@
 # Changelog
 
+## 2.1.3
+
+- Edge case bug fix for a resize handle unmounting while being dragged (#402)
+
 ## 2.1.2
+
 - Suppress invalid layout warning for empty panel groups (#396)
 
 ## 2.1.1
