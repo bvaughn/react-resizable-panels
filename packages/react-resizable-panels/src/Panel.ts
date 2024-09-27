@@ -54,10 +54,9 @@ export type ImperativePanelHandle = {
   resize: (size: number) => void;
 };
 
-export type PanelProps = Omit<
-  HTMLAttributes<keyof HTMLElementTagNameMap>,
-  "id" | "onResize"
-> &
+export type PanelProps<
+  T extends keyof HTMLElementTagNameMap = keyof HTMLElementTagNameMap,
+> = Omit<HTMLAttributes<HTMLElementTagNameMap[T]>, "id" | "onResize"> &
   PropsWithChildren<{
     className?: string;
     collapsedSize?: number | undefined;
@@ -71,7 +70,7 @@ export type PanelProps = Omit<
     onResize?: PanelOnResize;
     order?: number;
     style?: object;
-    tagName?: keyof HTMLElementTagNameMap;
+    tagName?: T;
   }>;
 
 export function PanelWithForwardedRef({
