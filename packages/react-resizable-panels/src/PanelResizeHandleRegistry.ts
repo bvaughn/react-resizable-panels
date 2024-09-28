@@ -197,6 +197,7 @@ function recalculateIntersectingHandles({
       // and the element that was actually clicked/touched
       if (
         targetElement !== null &&
+        document.contains(targetElement) &&
         dragHandleElement !== targetElement &&
         !dragHandleElement.contains(targetElement) &&
         !targetElement.contains(dragHandleElement) &&
