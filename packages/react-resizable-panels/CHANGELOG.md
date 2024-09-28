@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.4
+
+- Improve TypeScript HTML tag type generics (#407)
+- Edge case check to make sure resize handle hasn't been unmounted while dragging (#410)
+
 ## 2.1.3
 
 - Edge case bug fix for a resize handle unmounting while being dragged (#402)
