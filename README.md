@@ -91,7 +91,7 @@ This likely means that you haven't applied any CSS to style the resize handles. 
 
 ```tsx
 // Tailwind example
-<PanelResizeHandle className="w-2 bg-blue-800" />
+<PanelResizeHandle className="w-2 bg-blue-600 data-[resize-handle-state=hover]:bg-blue-800" />
 ```
 
 ### How can I use persistent layouts with SSR?
