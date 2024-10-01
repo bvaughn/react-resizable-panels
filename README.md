@@ -43,7 +43,7 @@ The `Panel` API doesn't _require_ `id` and `order` props because they aren't nec
 </PanelGroup>
 ```
 
-### Can a attach a ref to the DOM elements?
+### Can I attach a ref to the DOM elements?
 
 No. I think exposing two refs (one for the component's imperative API and one for a DOM element) would be awkward. This library does export several utility methods for accessing the underlying DOM elements though. For example:
 
