@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.5
+
+- Add react v19 to peer deps
+
 ## 2.1.4
 
 - Improve TypeScript HTML tag type generics (#407)
