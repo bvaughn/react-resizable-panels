@@ -648,9 +648,10 @@ function PanelGroupWithForwardedRef({
 
       // Support RTL layouts
       const isHorizontal = direction === "horizontal";
-      if (document.dir === "rtl" && isHorizontal) {
+      const isElmentsRtl = (rest.dir ?? document.dir) === "rtl";
+      if (isHorizontal && isElmentsRtl) {
         delta = -delta;
-      }
+      };
 
       const panelConstraints = panelDataArray.map(
         (panelData) => panelData.constraints
