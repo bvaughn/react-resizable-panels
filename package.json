@@ -4,10 +4,7 @@
   "workspaces": [
     "packages/*"
   ],
-  "engines": {
-    "node": ">=18",
-    "pnpm": "=8"
-  },
+  "packageManager": "pnpm@8.15.9",
   "scripts": {
     "clear": "pnpm run clear:git & pnpm run clear:library & pnpm run clear:node_modules & pnpm run clear:website",
     "clear:git": "git clean -dfx",
