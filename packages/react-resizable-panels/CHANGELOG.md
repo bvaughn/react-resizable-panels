@@ -1,5 +1,10 @@
 # Changelog
 
+# 2.1.6
+
+- Removed `"engines"` block and replaced with `"packageManager"`
+- Don't read `document.direction` for RTL detection; use inherited style instead
+
 ## 2.1.5
 
 - Add react v19 to peer deps
