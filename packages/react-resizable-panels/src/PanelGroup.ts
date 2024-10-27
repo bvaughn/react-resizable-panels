@@ -98,6 +98,9 @@ export type PanelGroupProps = Omit<
     storage?: PanelGroupStorage;
     style?: CSSProperties;
     tagName?: keyof HTMLElementTagNameMap;
+
+    // Better TypeScript hinting
+    dir?: "auto" | "ltr" | "rtl" | undefined;
   }>;
 
 const debounceMap: {
@@ -613,8 +616,19 @@ function PanelGroupWithForwardedRef({
   }, []);
 
   const registerResizeHandle = useCallback((dragHandleId: string) => {
+    let isRTL = false;
+
+    const panelGroupElement = panelGroupElementRef.current;
+    if (panelGroupElement) {
+      const style = window.getComputedStyle(panelGroupElement, null);
+      if (style.getPropertyValue("direction") === "rtl") {
+        isRTL = true;
+      }
+    }
+
     return function resizeHandler(event: ResizeEvent) {
       event.preventDefault();
+
       const panelGroupElement = panelGroupElementRef.current;
       if (!panelGroupElement) {
         return () => null;
@@ -646,9 +660,9 @@ function PanelGroupWithForwardedRef({
         panelGroupElement
       );
 
-      // Support RTL layouts
       const isHorizontal = direction === "horizontal";
-      if (document.dir === "rtl" && isHorizontal) {
+
+      if (isHorizontal && isRTL) {
         delta = -delta;
       }
 
