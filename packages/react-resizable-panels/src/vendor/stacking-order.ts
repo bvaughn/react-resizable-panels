@@ -7,10 +7,10 @@ import { assert } from "..";
 /**
  * Determine which of two nodes appears in front of the other —
  * if `a` is in front, returns 1, otherwise returns -1
- * @param {HTMLElement} a
- * @param {HTMLElement} b
+ * @param {HTMLElement | SVGElement} a
+ * @param {HTMLElement | SVGElement} b
  */
-export function compare(a: HTMLElement, b: HTMLElement): number {
+export function compare(a: HTMLElement | SVGElement, b: HTMLElement | SVGElement): number {
   if (a === b) throw new Error("Cannot compare node with itself");
 
   const ancestors = {
@@ -60,15 +60,15 @@ export function compare(a: HTMLElement, b: HTMLElement): number {
 const props =
   /\b(?:position|zIndex|opacity|transform|webkitTransform|mixBlendMode|filter|webkitFilter|isolation)\b/;
 
-/** @param {HTMLElement} node */
-function is_flex_item(node: HTMLElement) {
+/** @param {HTMLElement | SVGElement} node */
+function is_flex_item(node: HTMLElement | SVGElement) {
   // @ts-ignore
   const display = getComputedStyle(get_parent(node) ?? node).display;
   return display === "flex" || display === "inline-flex";
 }
 
-/** @param {HTMLElement} node */
-function creates_stacking_context(node: HTMLElement) {
+/** @param {HTMLElement | SVGElement} node */
+function creates_stacking_context(node: HTMLElement | SVGElement) {
   const style = getComputedStyle(node);
 
   // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Positioning/Understanding_z_index/The_stacking_context
@@ -98,8 +98,8 @@ function creates_stacking_context(node: HTMLElement) {
   return false;
 }
 
-/** @param {HTMLElement[]} nodes */
-function find_stacking_context(nodes: HTMLElement[]) {
+/** @param {(HTMLElement| SVGElement)[]} nodes */
+function find_stacking_context(nodes: (HTMLElement | SVGElement)[]) {
   let i = nodes.length;
 
   while (i--) {
@@ -111,13 +111,13 @@ function find_stacking_context(nodes: HTMLElement[]) {
   return null;
 }
 
-/** @param {HTMLElement} node */
-function get_z_index(node: HTMLElement | null) {
+/** @param {HTMLElement | SVGElement} node */
+function get_z_index(node: HTMLElement | SVGElement | null) {
   return (node && Number(getComputedStyle(node).zIndex)) || 0;
 }
 
 /** @param {HTMLElement} node */
-function get_ancestors(node: HTMLElement | null) {
+function get_ancestors(node: HTMLElement | SVGElement | null) {
   const ancestors = [];
 
   while (node) {

@@ -167,8 +167,8 @@ function recalculateIntersectingHandles({
 }) {
   intersectingHandles.splice(0);
 
-  let targetElement: HTMLElement | null = null;
-  if (target instanceof HTMLElement) {
+  let targetElement: HTMLElement | SVGElement | null = null;
+  if (target instanceof HTMLElement || target instanceof SVGElement) {
     targetElement = target;
   }
 
@@ -212,7 +212,7 @@ function recalculateIntersectingHandles({
         // It's not enough to compare only the target
         // The target might be a small element inside of a larger container
         // (For example, a SPAN or a DIV inside of a larger modal dialog)
-        let currentElement: HTMLElement | null = targetElement;
+        let currentElement: HTMLElement | SVGElement | null = targetElement;
         let didIntersect = false;
         while (currentElement) {
           if (currentElement.contains(dragHandleElement)) {
