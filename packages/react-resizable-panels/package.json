@@ -11,6 +11,12 @@
   "source": "src/index.ts",
   "main": "dist/react-resizable-panels.cjs.js",
   "module": "dist/react-resizable-panels.esm.js",
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
   "exports": {
     ".": {
       "types": {
