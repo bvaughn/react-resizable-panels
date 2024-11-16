@@ -1,5 +1,10 @@
 # Changelog
 
+# 2.1.7
+
+- [#427](https://github.com/bvaughn/react-resizable-panels/pull/427): Stacking order checks also check for `SVGElement`s (bug fix)
+- [#433](https://github.com/bvaughn/react-resizable-panels/pull/433): Exclude `src` directory from NPM package
+
 # 2.1.6
 
 - Removed `"engines"` block and replaced with `"packageManager"`
