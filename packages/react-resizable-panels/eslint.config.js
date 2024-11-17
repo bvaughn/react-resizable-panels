@@ -39,6 +39,7 @@ export default tseslint.config(
         },
       ],
       "no-restricted-imports": ["error", { paths: ["react"] }],
+      "prefer-const": "off",
     },
   }
 );
