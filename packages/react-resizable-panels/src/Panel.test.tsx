@@ -21,7 +21,7 @@ describe("PanelGroup", () => {
   }
 
   beforeEach(() => {
-    // @ts-expect-error No type definitions for global
+    // @ts-expect-error global.IS_REACT_ACT_ENVIRONMENT is not typed
     global.IS_REACT_ACT_ENVIRONMENT = true;
 
     uninstallMockOffsetWidthAndHeight = mockPanelGroupOffsetWidthAndHeight();
