@@ -175,6 +175,10 @@ This likely means that you haven't applied any CSS to style the resize handles. 
 <PanelResizeHandle className="w-2 bg-blue-800" />
 ```
 
+### Can panel sizes be persistent?
+
+Yes. Panel groups with an `autoSaveId` prop will automatically save and restore their layouts on mount.
+
 ### How can I use persistent layouts with SSR?
 
 By default, this library uses `localStorage` to persist layouts. With server rendering, this can cause a flicker when the default layout (rendered on the server) is replaced with the persisted layout (in `localStorage`). The way to avoid this flicker is to also persist the layout with a cookie like so:
