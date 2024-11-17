@@ -243,7 +243,7 @@ export function PanelWithForwardedRef({
 
     // CSS selectors
     "data-panel": "",
-    "data-panel-collapsible": collapsible || undefined,
+    "data-panel-collapsible": collapsible ?? undefined,
     "data-panel-group-id": groupId,
     "data-panel-id": panelId,
     "data-panel-size": parseFloat("" + style.flexGrow).toFixed(1),

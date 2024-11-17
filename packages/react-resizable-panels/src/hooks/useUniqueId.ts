@@ -10,7 +10,7 @@ export default function useUniqueId(
 ): string {
   const idFromUseId = wrappedUseId();
 
-  const idRef = useRef<string | null>(idFromParams || idFromUseId || null);
+  const idRef = useRef<string | null>(idFromParams ?? idFromUseId ?? null);
   if (idRef.current === null) {
     idRef.current = "" + counter++;
   }

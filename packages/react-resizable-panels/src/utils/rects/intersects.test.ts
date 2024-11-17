@@ -9,7 +9,7 @@ function forkRect(partial: Partial<Rectangle>, baseRect: Rectangle = rect) {
 }
 
 describe("intersects", () => {
-  let strict: boolean = false;
+  let strict = false;
 
   function verify(rectOne: Rectangle, rectTwo: Rectangle, expected: boolean) {
     const actual = intersects(rectOne, rectTwo, strict);
