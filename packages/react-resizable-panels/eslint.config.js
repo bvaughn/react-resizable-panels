@@ -25,6 +25,7 @@ export default tseslint.config(
       ...reactPlugin.configs["jsx-runtime"].rules,
       ...hooksPlugin.configs.recommended.rules,
       "@typescript-eslint/no-non-null-assertion": "error",
+      "@typescript-eslint/prefer-nullish-coalescing": "off",
       "@typescript-eslint/consistent-type-definitions": "off",
       "@typescript-eslint/no-unused-vars": [
         "error",
