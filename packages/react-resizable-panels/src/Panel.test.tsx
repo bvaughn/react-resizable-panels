@@ -1032,10 +1032,7 @@ describe("PanelGroup", () => {
       const { TextEncoder } = await import("util");
       global.TextEncoder = TextEncoder;
 
-      const { renderToStaticMarkup } = (await import(
-        // @ts-expect-error No type definitions for server.browser
-        "react-dom/server.browser"
-      )) as typeof import("react-dom/server");
+      const { renderToStaticMarkup } = await import("react-dom/server");
       const { act } = await import("react-dom/test-utils");
       const { Panel } = await import("./Panel");
       const { PanelGroup } = await import("./PanelGroup");
