@@ -629,7 +629,6 @@ describe("PanelGroup", () => {
 
       it("should be called when a panel is collapsed", () => {
         const onCollapse = jest.fn();
-
         const panelRef = createRef<ImperativePanelHandle>();
 
         act(() => {
@@ -653,7 +652,6 @@ describe("PanelGroup", () => {
 
       it("should be called with collapsedSizes that have many decimal places", () => {
         const onCollapse = jest.fn();
-
         const panelRef = createRef<ImperativePanelHandle>();
 
         act(() => {
