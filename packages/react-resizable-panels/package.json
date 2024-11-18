@@ -86,7 +86,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "react": "experimental",
     "react-dom": "experimental",
-    "typescript-eslint": "^8.14.0"
+    "typescript-eslint": "^8.15.0"
   },
   "peerDependencies": {
     "react": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc",
