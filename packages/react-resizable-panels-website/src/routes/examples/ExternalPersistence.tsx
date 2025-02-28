@@ -18,7 +18,7 @@ export default function ExternalPersistence() {
           <p>
             By default, a <code>PanelGroup</code> with an{" "}
             <code>autoSaveId</code> will store layout information in{" "}
-            <code>localStorage</code>. This example shows how the how to use the{" "}
+            <code>localStorage</code>. This example shows how to use the{" "}
             <code>storage</code> prop to override that behavior. For this demo,
             layout is saved as part of the URL hash.
           </p>
