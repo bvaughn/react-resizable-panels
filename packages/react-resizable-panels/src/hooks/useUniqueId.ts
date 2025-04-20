@@ -1,4 +1,7 @@
-import { useId, useRef } from "../vendor/react";
+import * as React from "react";
+import { useRef } from "react";
+
+const useId = (React as any)["useId".toString()] as (() => string) | undefined;
 
 const wrappedUseId: () => string | null =
   typeof useId === "function" ? useId : (): null => null;

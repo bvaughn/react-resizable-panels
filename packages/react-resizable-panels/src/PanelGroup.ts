@@ -56,7 +56,7 @@ import {
   useMemo,
   useRef,
   useState,
-} from "./vendor/react";
+} from "react";
 
 const LOCAL_STORAGE_DEBOUNCE_INTERVAL = 100;
 

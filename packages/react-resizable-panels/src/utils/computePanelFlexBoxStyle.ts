@@ -2,7 +2,7 @@
 
 import { PanelData } from "../Panel";
 import { DragState } from "../PanelGroupContext";
-import { CSSProperties } from "../vendor/react";
+import { CSSProperties } from "react";
 
 // the % of the group's overall space this panel should occupy.
 export function computePanelFlexBoxStyle({

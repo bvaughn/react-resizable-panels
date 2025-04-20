@@ -1,5 +1,5 @@
 import { PanelConstraints, PanelData } from "./Panel";
-import { CSSProperties, createContext } from "./vendor/react";
+import { CSSProperties, createContext } from "react";
 
 // The "contextmenu" event is not supported as a PointerEvent in all browsers yet, so MouseEvent still need to be handled
 export type ResizeEvent = KeyboardEvent | PointerEvent | MouseEvent;

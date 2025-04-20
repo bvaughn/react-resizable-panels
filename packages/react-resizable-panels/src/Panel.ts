@@ -13,7 +13,7 @@ import {
   useContext,
   useImperativeHandle,
   useRef,
-} from "./vendor/react";
+} from "react";
 
 export type PanelOnCollapse = () => void;
 export type PanelOnExpand = () => void;
