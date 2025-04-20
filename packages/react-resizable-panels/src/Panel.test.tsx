@@ -1012,7 +1012,7 @@ describe("PanelGroup", () => {
       expect(element?.getAttribute("id")).toBe("explicit-id");
     });
 
-    it("should not pass auto-generated id prop to DOM", () => {
+    it("should pass auto-generated id prop to DOM", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal">
@@ -1024,7 +1024,7 @@ describe("PanelGroup", () => {
       const element = container.querySelector("[data-panel]");
 
       expect(element).not.toBeNull();
-      expect(element?.getAttribute("id")).toBeNull();
+      expect(element?.getAttribute("id")).not.toBeNull();
     });
   });
 
