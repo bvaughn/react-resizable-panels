@@ -1,4 +1,4 @@
-import { useCallback, useState } from "../vendor/react";
+import { useCallback, useState } from "react";
 
 export function useForceUpdate() {
   const [_, setCount] = useState(0);

@@ -3,7 +3,7 @@ import { assert } from "../utils/assert";
 import { getResizeHandleElement } from "../utils/dom/getResizeHandleElement";
 import { getResizeHandleElementIndex } from "../utils/dom/getResizeHandleElementIndex";
 import { getResizeHandleElementsForGroup } from "../utils/dom/getResizeHandleElementsForGroup";
-import { useEffect } from "../vendor/react";
+import { useEffect } from "react";
 
 // https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/
 

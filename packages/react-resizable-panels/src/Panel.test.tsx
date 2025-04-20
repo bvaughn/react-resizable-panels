@@ -8,7 +8,7 @@ import {
   verifyAttribute,
   verifyExpandedPanelGroupLayout,
 } from "./utils/test-utils";
-import { createRef } from "./vendor/react";
+import { createRef } from "react";
 
 describe("PanelGroup", () => {
   let expectedWarnings: string[] = [];

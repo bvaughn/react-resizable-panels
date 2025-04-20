@@ -9,7 +9,7 @@ import { getPanelGroupElement } from "../utils/dom/getPanelGroupElement";
 import { getResizeHandleElementsForGroup } from "../utils/dom/getResizeHandleElementsForGroup";
 import { getResizeHandlePanelIds } from "../utils/dom/getResizeHandlePanelIds";
 import { fuzzyNumbersEqual } from "../utils/numbers/fuzzyNumbersEqual";
-import { RefObject, useEffect, useRef } from "../vendor/react";
+import { RefObject, useEffect, useRef } from "react";
 import useIsomorphicLayoutEffect from "./useIsomorphicEffect";
 
 // https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/

@@ -22,7 +22,7 @@ import {
   useEffect,
   useRef,
   useState,
-} from "./vendor/react";
+} from "react";
 
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 export type ResizeHandlerState = "drag" | "hover" | "inactive";
