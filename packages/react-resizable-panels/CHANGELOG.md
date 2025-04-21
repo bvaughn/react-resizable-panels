@@ -1,5 +1,12 @@
 # Changelog
 
+# 2.1.8
+
+- [#463](https://github.com/bvaughn/react-resizable-panels/pull/463): Fix `aria-controls` attribute value for auto-generated ids
+- [#464](https://github.com/bvaughn/react-resizable-panels/pull/464): Fix duplicate type declarations for React
+- [#465](https://github.com/bvaughn/react-resizable-panels/pull/465): Add `onPointerDown`, `onPointerUp`, and `onClick` callbacks to `PanelResizeHandle` so users can implement double-click
+- [#466](https://github.com/bvaughn/react-resizable-panels/pull/466): Fix bad `removeEventListener` call that caused pointer state to get broken between pages/routes
+
 # 2.1.7
 
 - [#427](https://github.com/bvaughn/react-resizable-panels/pull/427): Stacking order checks also check for `SVGElement`s (bug fix)
