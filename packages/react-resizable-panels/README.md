@@ -44,6 +44,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 - `setItem: (name: string, value: string) => void`
 
 `PanelGroup` components also expose an imperative API for manual resizing:
+
 | method                        | description                                                      |
 | :---------------------------- | :--------------------------------------------------------------- |
 | `getId(): string`             | Gets the panel group's ID.                                       |
@@ -72,6 +73,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 <sup>1</sup>: If any `Panel` has an `onResize` callback, the `order` prop should be provided for all `Panel`s.
 
 `Panel` components also expose an imperative API for manual resizing:
+
 | method                   | description                                                                        |
 | :----------------------- | :--------------------------------------------------------------------------------- |
 | `collapse()`             | If panel is `collapsible`, collapse it fully.                                      |
@@ -85,16 +87,17 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 ### `PanelResizeHandle`
 
-| prop             | type                                          | description                                                                     |
-| :--------------- | :-------------------------------------------- | :------------------------------------------------------------------------------ |
-| `children`       | `?ReactNode`                                  | Custom drag UI; can be any arbitrary React element(s)                           |
-| `className`      | `?string`                                     | Class name to attach to root element                                            |
-| `hitAreaMargins` | `?{ coarse: number = 15; fine: number = 5; }` | Allow this much margin when determining resizable handle hit detection          |
-| `disabled`       | `?boolean`                                    | Disable drag handle                                                             |
-| `id`             | `?string`                                     | Resize handle id (unique within group); falls back to `useId` when not provided |
-| `onDragging`     | `?(isDragging: boolean) => void`              | Called when group layout changes                                                |
-| `style`          | `?CSSProperties`                              | CSS style to attach to root element                                             |
-| `tagName`        | `?string = "div"`                             | HTML element tag name for root element                                          |
+| prop              | type                                          | description                                                                     |
+| :---------------- | :-------------------------------------------- | :------------------------------------------------------------------------------ |
+| `children`        | `?ReactNode`                                  | Custom drag UI; can be any arbitrary React element(s)                           |
+| `className`       | `?string`                                     | Class name to attach to root element                                            |
+| `hitAreaMargins`  | `?{ coarse: number = 15; fine: number = 5; }` | Allow this much margin when determining resizable handle hit detection          |
+| `disabled`        | `?boolean`                                    | Disable drag handle                                                             |
+| `id`              | `?string`                                     | Resize handle id (unique within group); falls back to `useId` when not provided |
+| `onDragging`      | `?(isDragging: boolean) => void`              | Called when group layout changes                                                |
+| `style`           | `?CSSProperties`                              | CSS style to attach to root element                                             |
+| `tagName`         | `?string = "div"`                             | HTML element tag name for root element                                          |
+| `propagateEvents` | `?boolean`                                    | Propagate pointer events (usually are stopped to support hitAreaMargins)        |
 
 ---
 
