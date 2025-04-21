@@ -29,7 +29,7 @@ export type ResizeHandlerState = "drag" | "hover" | "inactive";
 
 export type PanelResizeHandleProps = Omit<
   HTMLAttributes<keyof HTMLElementTagNameMap>,
-  "id" | "onBlur" | "onFocus"
+  "id" | "onBlur" | "onClick" | "onFocus" | "onPointerDown" | "onPointerUp"
 > &
   PropsWithChildren<{
     className?: string;
@@ -37,8 +37,11 @@ export type PanelResizeHandleProps = Omit<
     hitAreaMargins?: PointerHitAreaMargins;
     id?: string | null;
     onBlur?: () => void;
+    onClick?: () => void;
     onDragging?: PanelResizeHandleOnDragging;
     onFocus?: () => void;
+    onPointerDown?: () => void;
+    onPointerUp?: () => void;
     style?: CSSProperties;
     tabIndex?: number;
     tagName?: keyof HTMLElementTagNameMap;
@@ -51,8 +54,11 @@ export function PanelResizeHandle({
   hitAreaMargins,
   id: idFromProps,
   onBlur,
+  onClick,
   onDragging,
   onFocus,
+  onPointerDown,
+  onPointerUp,
   style: styleFromProps = {},
   tabIndex = 0,
   tagName: Type = "div",
@@ -62,10 +68,16 @@ export function PanelResizeHandle({
 
   // Use a ref to guard against users passing inline props
   const callbacksRef = useRef<{
+    onClick: (() => void) | undefined;
     onDragging: PanelResizeHandleOnDragging | undefined;
-  }>({ onDragging });
+    onPointerDown: (() => void) | undefined;
+    onPointerUp: (() => void) | undefined;
+  }>({ onClick, onDragging, onPointerDown, onPointerUp });
   useEffect(() => {
+    callbacksRef.current.onClick = onClick;
     callbacksRef.current.onDragging = onDragging;
+    callbacksRef.current.onPointerDown = onPointerDown;
+    callbacksRef.current.onPointerUp = onPointerUp;
   });
 
   const panelGroupContext = useContext(PanelGroupContext);
@@ -126,6 +138,8 @@ export function PanelResizeHandle({
     const element = elementRef.current;
     assert(element, "Element ref not attached");
 
+    let didMove = false;
+
     const setResizeHandlerState = (
       action: ResizeHandlerAction,
       isActive: boolean,
@@ -136,18 +150,21 @@ export function PanelResizeHandle({
           case "down": {
             setState("drag");
 
+            didMove = false;
+
             assert(event, 'Expected event to be defined for "down" action');
 
             startDragging(resizeHandleId, event);
 
-            const { onDragging } = callbacksRef.current;
-            if (onDragging) {
-              onDragging(true);
-            }
+            const { onDragging, onPointerDown } = callbacksRef.current;
+            onDragging?.(true);
+            onPointerDown?.();
             break;
           }
           case "move": {
             const { state } = committedValuesRef.current;
+
+            didMove = true;
 
             if (state !== "drag") {
               setState("hover");
@@ -163,9 +180,12 @@ export function PanelResizeHandle({
 
             stopDragging();
 
-            const { onDragging } = callbacksRef.current;
-            if (onDragging) {
-              onDragging(false);
+            const { onClick, onDragging, onPointerUp } = callbacksRef.current;
+            onDragging?.(false);
+            onPointerUp?.();
+
+            if (!didMove) {
+              onClick?.();
             }
             break;
           }
