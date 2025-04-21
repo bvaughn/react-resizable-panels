@@ -283,7 +283,9 @@ function updateListeners() {
     const { body } = ownerDocument;
 
     body.removeEventListener("contextmenu", handlePointerUp);
-    body.removeEventListener("pointerdown", handlePointerDown);
+    body.removeEventListener("pointerdown", handlePointerDown, {
+      capture: true,
+    });
     body.removeEventListener("pointerleave", handlePointerMove);
     body.removeEventListener("pointermove", handlePointerMove);
   });
