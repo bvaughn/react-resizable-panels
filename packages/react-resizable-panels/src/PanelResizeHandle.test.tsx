@@ -129,61 +129,131 @@ describe("PanelResizeHandle", () => {
   }
 
   describe("callbacks", () => {
-    describe("onDragging", () => {
-      it("should fire when dragging starts/stops", () => {
-        const onDragging = jest.fn();
+    it("should fire when dragging starts/stops", () => {
+      const onDragging = jest.fn();
+      const onPointerDown = jest.fn();
+      const onPointerUp = jest.fn();
 
-        const { leftElement } = setupMockedGroup({
-          leftProps: { onDragging },
-        });
-
-        act(() => {
-          dispatchPointerEvent("pointermove", leftElement);
-        });
-        expect(onDragging).not.toHaveBeenCalled();
-
-        act(() => {
-          dispatchPointerEvent("pointerdown", leftElement);
-        });
-        expect(onDragging).toHaveBeenCalledTimes(1);
-        expect(onDragging).toHaveBeenCalledWith(true);
-
-        act(() => {
-          dispatchPointerEvent("pointerup", leftElement);
-        });
-        expect(onDragging).toHaveBeenCalledTimes(2);
-        expect(onDragging).toHaveBeenCalledWith(false);
+      const { leftElement } = setupMockedGroup({
+        leftProps: { onDragging, onPointerDown, onPointerUp },
       });
 
-      it("should only fire for the handle that has been dragged", () => {
-        const onDraggingLeft = jest.fn();
-        const onDraggingRight = jest.fn();
-
-        const { leftElement } = setupMockedGroup({
-          leftProps: { onDragging: onDraggingLeft },
-          rightProps: { onDragging: onDraggingRight },
-        });
-
-        act(() => {
-          dispatchPointerEvent("pointermove", leftElement);
-        });
-        expect(onDraggingLeft).not.toHaveBeenCalled();
-        expect(onDraggingRight).not.toHaveBeenCalled();
-
-        act(() => {
-          dispatchPointerEvent("pointerdown", leftElement);
-        });
-        expect(onDraggingLeft).toHaveBeenCalledTimes(1);
-        expect(onDraggingLeft).toHaveBeenCalledWith(true);
-        expect(onDraggingRight).not.toHaveBeenCalled();
-
-        act(() => {
-          dispatchPointerEvent("pointerup", leftElement);
-        });
-        expect(onDraggingLeft).toHaveBeenCalledTimes(2);
-        expect(onDraggingLeft).toHaveBeenCalledWith(false);
-        expect(onDraggingRight).not.toHaveBeenCalled();
+      act(() => {
+        dispatchPointerEvent("pointermove", leftElement);
       });
+      expect(onPointerDown).not.toHaveBeenCalled();
+      expect(onDragging).not.toHaveBeenCalled();
+      expect(onPointerUp).not.toHaveBeenCalled();
+
+      act(() => {
+        dispatchPointerEvent("pointerdown", leftElement);
+      });
+      expect(onPointerDown).toHaveBeenCalledTimes(1);
+      expect(onDragging).toHaveBeenCalledTimes(1);
+      expect(onDragging).toHaveBeenCalledWith(true);
+      expect(onPointerUp).not.toHaveBeenCalled();
+
+      act(() => {
+        dispatchPointerEvent("pointerup", leftElement);
+      });
+      expect(onPointerDown).toHaveBeenCalledTimes(1);
+      expect(onDragging).toHaveBeenCalledTimes(2);
+      expect(onDragging).toHaveBeenCalledWith(false);
+      expect(onPointerUp).toHaveBeenCalledTimes(1);
+    });
+
+    it("should fire on-click if not dragged", () => {
+      const onClick = jest.fn();
+      const onDragging = jest.fn();
+
+      const { leftElement } = setupMockedGroup({
+        leftProps: { onClick, onDragging },
+      });
+
+      act(() => {
+        dispatchPointerEvent("pointermove", leftElement);
+      });
+      expect(onDragging).not.toHaveBeenCalled();
+      expect(onClick).not.toHaveBeenCalled();
+
+      act(() => {
+        dispatchPointerEvent("pointerdown", leftElement);
+      });
+      expect(onDragging).toHaveBeenCalledTimes(1);
+      expect(onDragging).toHaveBeenCalledWith(true);
+      expect(onClick).not.toHaveBeenCalled();
+
+      act(() => {
+        dispatchPointerEvent("pointerup", leftElement);
+      });
+      expect(onDragging).toHaveBeenCalledTimes(2);
+      expect(onDragging).toHaveBeenCalledWith(false);
+      expect(onClick).toHaveBeenCalledTimes(1);
+    });
+
+    it("should not fire on-click if dragged", () => {
+      const onClick = jest.fn();
+      const onDragging = jest.fn();
+
+      const { leftElement } = setupMockedGroup({
+        leftProps: { onClick, onDragging },
+      });
+
+      act(() => {
+        dispatchPointerEvent("pointermove", leftElement);
+      });
+      expect(onDragging).not.toHaveBeenCalled();
+      expect(onClick).not.toHaveBeenCalled();
+
+      act(() => {
+        dispatchPointerEvent("pointerdown", leftElement);
+      });
+      expect(onDragging).toHaveBeenCalledTimes(1);
+      expect(onDragging).toHaveBeenCalledWith(true);
+      expect(onClick).not.toHaveBeenCalled();
+
+      act(() => {
+        dispatchPointerEvent("pointermove", leftElement);
+      });
+      expect(onDragging).toHaveBeenCalledTimes(1);
+      expect(onClick).not.toHaveBeenCalled();
+
+      act(() => {
+        dispatchPointerEvent("pointerup", leftElement);
+      });
+      expect(onDragging).toHaveBeenCalledTimes(2);
+      expect(onDragging).toHaveBeenCalledWith(false);
+      expect(onClick).not.toHaveBeenCalled();
+    });
+
+    it("should only fire for the handle that has been dragged", () => {
+      const onDraggingLeft = jest.fn();
+      const onDraggingRight = jest.fn();
+
+      const { leftElement } = setupMockedGroup({
+        leftProps: { onDragging: onDraggingLeft },
+        rightProps: { onDragging: onDraggingRight },
+      });
+
+      act(() => {
+        dispatchPointerEvent("pointermove", leftElement);
+      });
+      expect(onDraggingLeft).not.toHaveBeenCalled();
+      expect(onDraggingRight).not.toHaveBeenCalled();
+
+      act(() => {
+        dispatchPointerEvent("pointerdown", leftElement);
+      });
+      expect(onDraggingLeft).toHaveBeenCalledTimes(1);
+      expect(onDraggingLeft).toHaveBeenCalledWith(true);
+      expect(onDraggingRight).not.toHaveBeenCalled();
+
+      act(() => {
+        dispatchPointerEvent("pointerup", leftElement);
+      });
+      expect(onDraggingLeft).toHaveBeenCalledTimes(2);
+      expect(onDraggingLeft).toHaveBeenCalledWith(false);
+      expect(onDraggingRight).not.toHaveBeenCalled();
     });
   });
 
