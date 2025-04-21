@@ -1,4 +1,6 @@
 import { isDevelopment } from "#is-development";
+import { RefObject, useEffect, useRef } from "react";
+import { RESIZE_HANDLE_ATTRIBUTES } from "../constants";
 import { PanelData } from "../Panel";
 import { Direction } from "../types";
 import { adjustLayoutByDelta } from "../utils/adjustLayoutByDelta";
@@ -9,7 +11,6 @@ import { getPanelGroupElement } from "../utils/dom/getPanelGroupElement";
 import { getResizeHandleElementsForGroup } from "../utils/dom/getResizeHandleElementsForGroup";
 import { getResizeHandlePanelIds } from "../utils/dom/getResizeHandlePanelIds";
 import { fuzzyNumbersEqual } from "../utils/numbers/fuzzyNumbersEqual";
-import { RefObject, useEffect, useRef } from "react";
 import useIsomorphicLayoutEffect from "./useIsomorphicEffect";
 
 // https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/
@@ -115,7 +116,7 @@ export function useWindowSplitterPanelGroupBehavior({
     assert(handles, `No resize handles found for group id "${groupId}"`);
 
     const cleanupFunctions = handles.map((handle) => {
-      const handleId = handle.getAttribute("data-panel-resize-handle-id");
+      const handleId = handle.getAttribute(RESIZE_HANDLE_ATTRIBUTES.id);
       assert(handleId, `Resize handle element has no handle id attribute`);
 
       const [idBefore, idAfter] = getResizeHandlePanelIds(

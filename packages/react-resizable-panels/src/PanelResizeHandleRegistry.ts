@@ -1,3 +1,4 @@
+import { RESIZE_HANDLE_ATTRIBUTES } from "./constants";
 import { Direction, ResizeEvent } from "./types";
 import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
 import { getResizeEventCoordinates } from "./utils/events/getResizeEventCoordinates";
@@ -103,8 +104,22 @@ function handlePointerDown(event: PointerEvent) {
   if (intersectingHandles.length > 0) {
     updateResizeHandlerStates("down", event);
 
-    event.preventDefault();
-    event.stopPropagation();
+    let propagateEvents: boolean | undefined;
+    if (target instanceof HTMLElement || target instanceof SVGElement) {
+      const resizeHandleElement = target.hasAttribute(
+        RESIZE_HANDLE_ATTRIBUTES.root
+      )
+        ? target
+        : target.closest(`[${RESIZE_HANDLE_ATTRIBUTES.root}]`);
+      propagateEvents = resizeHandleElement?.hasAttribute(
+        RESIZE_HANDLE_ATTRIBUTES.propagateEvents
+      );
+    }
+
+    if (!propagateEvents) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
   }
 }
 
@@ -278,49 +293,44 @@ function updateCursor() {
   }
 }
 
+let listenersAbortController = new AbortController();
+
 function updateListeners() {
-  ownerDocumentCounts.forEach((_, ownerDocument) => {
-    const { body } = ownerDocument;
+  listenersAbortController.abort();
+  listenersAbortController = new AbortController();
+  const { signal } = listenersAbortController;
 
-    body.removeEventListener("contextmenu", handlePointerUp);
-    body.removeEventListener("pointerdown", handlePointerDown, {
-      capture: true,
-    });
-    body.removeEventListener("pointerleave", handlePointerMove);
-    body.removeEventListener("pointermove", handlePointerMove);
-  });
+  if (!registeredResizeHandlers.size) {
+    return;
+  }
 
-  window.removeEventListener("pointerup", handlePointerUp);
-  window.removeEventListener("pointercancel", handlePointerUp);
-
-  if (registeredResizeHandlers.size > 0) {
-    if (isPointerDown) {
-      if (intersectingHandles.length > 0) {
-        ownerDocumentCounts.forEach((count, ownerDocument) => {
-          const { body } = ownerDocument;
-
-          if (count > 0) {
-            body.addEventListener("contextmenu", handlePointerUp);
-            body.addEventListener("pointerleave", handlePointerMove);
-            body.addEventListener("pointermove", handlePointerMove);
-          }
-        });
-      }
-
-      window.addEventListener("pointerup", handlePointerUp);
-      window.addEventListener("pointercancel", handlePointerUp);
-    } else {
+  if (isPointerDown) {
+    if (intersectingHandles.length > 0) {
       ownerDocumentCounts.forEach((count, ownerDocument) => {
         const { body } = ownerDocument;
 
         if (count > 0) {
-          body.addEventListener("pointerdown", handlePointerDown, {
-            capture: true,
-          });
-          body.addEventListener("pointermove", handlePointerMove);
+          body.addEventListener("contextmenu", handlePointerUp, { signal });
+          body.addEventListener("pointerleave", handlePointerMove, { signal });
+          body.addEventListener("pointermove", handlePointerMove, { signal });
         }
       });
     }
+
+    window.addEventListener("pointerup", handlePointerUp, { signal });
+    window.addEventListener("pointercancel", handlePointerUp, { signal });
+  } else {
+    ownerDocumentCounts.forEach((count, ownerDocument) => {
+      const { body } = ownerDocument;
+
+      if (count > 0) {
+        body.addEventListener("pointerdown", handlePointerDown, {
+          capture: true,
+          signal,
+        });
+        body.addEventListener("pointermove", handlePointerMove, { signal });
+      }
+    });
   }
 }
 
