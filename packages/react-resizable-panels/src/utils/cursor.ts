@@ -10,6 +10,7 @@ type CursorState = "horizontal" | "intersection" | "vertical";
 
 let currentCursorStyle: string | null = null;
 let enabled: boolean = true;
+let prevRuleIndex = -1;
 let styleElement: HTMLStyleElement | null = null;
 
 export function disableGlobalCursorStyles() {
@@ -69,6 +70,7 @@ export function resetGlobalCursorStyle() {
 
     currentCursorStyle = null;
     styleElement = null;
+    prevRuleIndex = -1;
   }
 }
 
@@ -99,5 +101,10 @@ export function setGlobalCursorStyle(
     document.head.appendChild(styleElement);
   }
 
-  styleElement.sheet?.insertRule(`*{cursor: ${style}!important;}`)
+  if (prevRuleIndex >= 0) {
+    styleElement.sheet?.removeRule(prevRuleIndex);
+  }
+
+  prevRuleIndex =
+    styleElement.sheet?.insertRule(`*{cursor: ${style} !important;}`) ?? -1;
 }
