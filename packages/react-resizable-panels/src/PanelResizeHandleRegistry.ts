@@ -1,4 +1,4 @@
-import { RESIZE_HANDLE_ATTRIBUTES } from "./constants";
+import { DATA_ATTRIBUTES } from "./constants";
 import { Direction, ResizeEvent } from "./types";
 import { resetGlobalCursorStyle, setGlobalCursorStyle } from "./utils/cursor";
 import { getResizeEventCoordinates } from "./utils/events/getResizeEventCoordinates";
@@ -168,7 +168,7 @@ function isWithinResizeHandle(element: HTMLElement | null) {
   let currentElement = element;
 
   while (currentElement) {
-    if (currentElement.hasAttribute(RESIZE_HANDLE_ATTRIBUTES.root)) {
+    if (currentElement.hasAttribute(DATA_ATTRIBUTES.resizeHandle)) {
       return true;
     }
 

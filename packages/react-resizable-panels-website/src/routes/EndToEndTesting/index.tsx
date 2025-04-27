@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import {
+  DATA_ATTRIBUTES,
   ImperativePanelGroupHandle,
   ImperativePanelHandle,
   assert,
@@ -17,11 +18,11 @@ import {
   assertImperativePanelHandle,
 } from "../../../tests/utils/assert";
 import Icon from "../../components/Icon";
+import { VisibleCursor } from "../../components/VisibleCursor";
 import { urlPanelGroupToPanelGroup, urlToUrlData } from "../../utils/UrlData";
 import DebugLog, { ImperativeDebugLogHandle } from "../examples/DebugLog";
 import "./styles.css";
 import styles from "./styles.module.css";
-import { VisibleCursor } from "../../components/VisibleCursor";
 
 // Special route that can be configured via URL parameters.
 
@@ -65,7 +66,7 @@ function EndToEndTesting() {
     const populateDropDowns = () => {
       const panelElements = document.querySelectorAll("[data-panel-id]");
       const panelIds = Array.from(panelElements).map(
-        (element) => element.getAttribute("data-panel-id")!
+        (element) => element.getAttribute(DATA_ATTRIBUTES.panelId)!
       );
 
       const firstPanelId = panelIds[0];
@@ -77,7 +78,7 @@ function EndToEndTesting() {
       const panelGroupElements =
         document.querySelectorAll("[data-panel-group]");
       const panelGroupIds = Array.from(panelGroupElements).map(
-        (element) => element.getAttribute("data-panel-group-id")!
+        (element) => element.getAttribute(DATA_ATTRIBUTES.groupId)!
       );
 
       const firstPanelGroupId = panelGroupIds[0];
@@ -108,7 +109,7 @@ function EndToEndTesting() {
 
       // Let layout effects fire first
       setTimeout(() => {
-        const panelId = panelElement.getAttribute("data-panel-id");
+        const panelId = panelElement.getAttribute(DATA_ATTRIBUTES.panelId);
         if (panelId != null) {
           const panel = idToRefMapRef.current.get(
             panelId

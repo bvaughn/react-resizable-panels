@@ -1,4 +1,4 @@
-import { RESIZE_HANDLE_ATTRIBUTES } from "../../constants";
+import { DATA_ATTRIBUTES } from "../../constants";
 
 export function getResizeHandleElementsForGroup(
   groupId: string,
@@ -6,7 +6,7 @@ export function getResizeHandleElementsForGroup(
 ): HTMLElement[] {
   return Array.from(
     scope.querySelectorAll(
-      `[${RESIZE_HANDLE_ATTRIBUTES.id}][data-panel-group-id="${groupId}"]`
+      `[${DATA_ATTRIBUTES.resizeHandleId}][data-panel-group-id="${groupId}"]`
     )
   );
 }

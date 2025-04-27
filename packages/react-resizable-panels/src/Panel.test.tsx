@@ -1,6 +1,13 @@
+import { createRef } from "react";
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from ".";
+import {
+  DATA_ATTRIBUTES,
+  ImperativePanelHandle,
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+} from ".";
 import { assert } from "./utils/assert";
 import { getPanelElement } from "./utils/dom/getPanelElement";
 import {
@@ -8,7 +15,6 @@ import {
   verifyAttribute,
   verifyExpandedPanelGroupLayout,
 } from "./utils/test-utils";
-import { createRef } from "react";
 
 describe("PanelGroup", () => {
   let expectedWarnings: string[] = [];
@@ -453,9 +459,11 @@ describe("PanelGroup", () => {
       assert(leftElement, "");
       assert(middleElement, "");
       assert(rightElement, "");
-      expect(leftElement.getAttribute("data-panel-size")).toBe("10.0");
-      expect(middleElement.getAttribute("data-panel-size")).toBe("80.0");
-      expect(rightElement.getAttribute("data-panel-size")).toBe("10.0");
+      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("10.0");
+      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "80.0"
+      );
+      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("10.0");
 
       act(() => {
         root.render(
@@ -469,9 +477,11 @@ describe("PanelGroup", () => {
         );
       });
 
-      expect(leftElement.getAttribute("data-panel-size")).toBe("5.0");
-      expect(middleElement.getAttribute("data-panel-size")).toBe("90.0");
-      expect(rightElement.getAttribute("data-panel-size")).toBe("5.0");
+      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("5.0");
+      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "90.0"
+      );
+      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("5.0");
     });
 
     it("it should not expand a collapsed panel if other constraints change", () => {
@@ -505,9 +515,11 @@ describe("PanelGroup", () => {
       assert(leftElement, "");
       assert(middleElement, "");
       assert(rightElement, "");
-      expect(leftElement.getAttribute("data-panel-size")).toBe("10.0");
-      expect(middleElement.getAttribute("data-panel-size")).toBe("80.0");
-      expect(rightElement.getAttribute("data-panel-size")).toBe("10.0");
+      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("10.0");
+      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "80.0"
+      );
+      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("10.0");
 
       act(() => {
         root.render(
@@ -521,9 +533,11 @@ describe("PanelGroup", () => {
         );
       });
 
-      expect(leftElement.getAttribute("data-panel-size")).toBe("10.0");
-      expect(middleElement.getAttribute("data-panel-size")).toBe("80.0");
-      expect(rightElement.getAttribute("data-panel-size")).toBe("10.0");
+      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("10.0");
+      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "80.0"
+      );
+      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("10.0");
     });
 
     it("should resize a panel if the minSize prop changes", () => {
@@ -545,9 +559,11 @@ describe("PanelGroup", () => {
       assert(leftElement, "");
       assert(middleElement, "");
       assert(rightElement, "");
-      expect(leftElement.getAttribute("data-panel-size")).toBe("15.0");
-      expect(middleElement.getAttribute("data-panel-size")).toBe("70.0");
-      expect(rightElement.getAttribute("data-panel-size")).toBe("15.0");
+      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("15.0");
+      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "70.0"
+      );
+      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("15.0");
 
       act(() => {
         root.render(
@@ -561,9 +577,11 @@ describe("PanelGroup", () => {
         );
       });
 
-      expect(leftElement.getAttribute("data-panel-size")).toBe("20.0");
-      expect(middleElement.getAttribute("data-panel-size")).toBe("60.0");
-      expect(rightElement.getAttribute("data-panel-size")).toBe("20.0");
+      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("20.0");
+      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "60.0"
+      );
+      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("20.0");
     });
 
     it("should resize a panel if the maxSize prop changes", () => {
@@ -585,9 +603,11 @@ describe("PanelGroup", () => {
       assert(leftElement, "");
       assert(middleElement, "");
       assert(rightElement, "");
-      expect(leftElement.getAttribute("data-panel-size")).toBe("25.0");
-      expect(middleElement.getAttribute("data-panel-size")).toBe("50.0");
-      expect(rightElement.getAttribute("data-panel-size")).toBe("25.0");
+      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("25.0");
+      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "50.0"
+      );
+      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("25.0");
 
       act(() => {
         root.render(
@@ -601,9 +621,11 @@ describe("PanelGroup", () => {
         );
       });
 
-      expect(leftElement.getAttribute("data-panel-size")).toBe("20.0");
-      expect(middleElement.getAttribute("data-panel-size")).toBe("60.0");
-      expect(rightElement.getAttribute("data-panel-size")).toBe("20.0");
+      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("20.0");
+      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "60.0"
+      );
+      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("20.0");
     });
   });
 
@@ -952,17 +974,17 @@ describe("PanelGroup", () => {
       assert(leftElement, "");
       assert(rightElement, "");
 
-      verifyAttribute(leftElement, "data-panel", "");
-      verifyAttribute(leftElement, "data-panel-id", "left-panel");
-      verifyAttribute(leftElement, "data-panel-group-id", "test-group");
-      verifyAttribute(leftElement, "data-panel-size", "75.0");
-      verifyAttribute(leftElement, "data-panel-collapsible", null);
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.panel, "");
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.panelId, "left-panel");
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.groupId, "test-group");
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.panelSize, "75.0");
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.panelCollapsible, null);
 
-      verifyAttribute(rightElement, "data-panel", "");
-      verifyAttribute(rightElement, "data-panel-id", "right-panel");
-      verifyAttribute(rightElement, "data-panel-group-id", "test-group");
-      verifyAttribute(rightElement, "data-panel-size", "25.0");
-      verifyAttribute(rightElement, "data-panel-collapsible", "true");
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.panel, "");
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.panelId, "right-panel");
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.groupId, "test-group");
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.panelSize, "25.0");
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.panelCollapsible, "true");
     });
 
     it("should update the data-panel-size attribute when the panel resizes", () => {
@@ -984,15 +1006,15 @@ describe("PanelGroup", () => {
       assert(leftElement, "");
       assert(rightElement, "");
 
-      verifyAttribute(leftElement, "data-panel-size", "75.0");
-      verifyAttribute(rightElement, "data-panel-size", "25.0");
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.panelSize, "75.0");
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.panelSize, "25.0");
 
       act(() => {
         leftPanelRef.current?.resize(30);
       });
 
-      verifyAttribute(leftElement, "data-panel-size", "30.0");
-      verifyAttribute(rightElement, "data-panel-size", "70.0");
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.panelSize, "30.0");
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.panelSize, "70.0");
     });
   });
 

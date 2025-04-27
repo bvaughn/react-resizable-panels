@@ -1,4 +1,4 @@
-import { RESIZE_HANDLE_ATTRIBUTES } from "../constants";
+import { DATA_ATTRIBUTES } from "../constants";
 import { assert } from "./assert";
 
 const util = require("util");
@@ -99,9 +99,9 @@ export function mockPanelGroupOffsetWidthAndHeight(
   Object.defineProperty(HTMLElement.prototype, "offsetHeight", {
     configurable: true,
     get: function () {
-      if (this.hasAttribute(RESIZE_HANDLE_ATTRIBUTES.root)) {
+      if (this.hasAttribute(DATA_ATTRIBUTES.resizeHandle)) {
         return 0;
-      } else if (this.hasAttribute("data-panel-group")) {
+      } else if (this.hasAttribute(DATA_ATTRIBUTES.group)) {
         return mockHeight;
       }
     },
@@ -110,9 +110,9 @@ export function mockPanelGroupOffsetWidthAndHeight(
   Object.defineProperty(HTMLElement.prototype, "offsetWidth", {
     configurable: true,
     get: function () {
-      if (this.hasAttribute(RESIZE_HANDLE_ATTRIBUTES.root)) {
+      if (this.hasAttribute(DATA_ATTRIBUTES.resizeHandle)) {
         return 0;
-      } else if (this.hasAttribute("data-panel-group")) {
+      } else if (this.hasAttribute(DATA_ATTRIBUTES.group)) {
         return mockWidth;
       }
     },

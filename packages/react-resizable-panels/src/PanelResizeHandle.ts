@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { RESIZE_HANDLE_ATTRIBUTES } from "./constants";
+import { DATA_ATTRIBUTES } from "./constants";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
 import { useWindowSplitterResizeHandlerBehavior } from "./hooks/useWindowSplitterBehavior";
@@ -254,14 +254,14 @@ export function PanelResizeHandle({
     tabIndex,
 
     // CSS selectors
-    "data-panel-group-direction": direction,
-    "data-panel-group-id": groupId,
-    [RESIZE_HANDLE_ATTRIBUTES.root]: "",
-    [RESIZE_HANDLE_ATTRIBUTES.active]:
+    [DATA_ATTRIBUTES.groupDirection]: direction,
+    [DATA_ATTRIBUTES.groupId]: groupId,
+    [DATA_ATTRIBUTES.resizeHandle]: "",
+    [DATA_ATTRIBUTES.resizeHandleActive]:
       state === "drag" ? "pointer" : isFocused ? "keyboard" : undefined,
-    [RESIZE_HANDLE_ATTRIBUTES.state]: state,
-    [RESIZE_HANDLE_ATTRIBUTES.enabled]: !disabled,
-    [RESIZE_HANDLE_ATTRIBUTES.id]: resizeHandleId,
+    [DATA_ATTRIBUTES.resizeHandleEnabled]: !disabled,
+    [DATA_ATTRIBUTES.resizeHandleId]: resizeHandleId,
+    [DATA_ATTRIBUTES.resizeHandleState]: state,
   });
 }
 

@@ -1,3 +1,4 @@
+import { DATA_ATTRIBUTES } from "..";
 import { ResizeHandler } from "../types";
 import { assert } from "../utils/assert";
 import { getResizeHandleElement } from "../utils/dom/getResizeHandleElement";
@@ -48,7 +49,7 @@ export function useWindowSplitterResizeHandlerBehavior({
         case "F6": {
           event.preventDefault();
 
-          const groupId = handleElement.getAttribute("data-panel-group-id");
+          const groupId = handleElement.getAttribute(DATA_ATTRIBUTES.groupId);
           assert(groupId, `No group element found for id "${groupId}"`);
 
           const handles = getResizeHandleElementsForGroup(

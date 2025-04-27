@@ -1,8 +1,5 @@
 import { isBrowser } from "#is-browser";
 import { isDevelopment } from "#is-development";
-import { PanelGroupContext } from "./PanelGroupContext";
-import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
-import useUniqueId from "./hooks/useUniqueId";
 import {
   ForwardedRef,
   HTMLAttributes,
@@ -14,6 +11,10 @@ import {
   useImperativeHandle,
   useRef,
 } from "react";
+import { PanelGroupContext } from "./PanelGroupContext";
+import { DATA_ATTRIBUTES } from "./constants";
+import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
+import useUniqueId from "./hooks/useUniqueId";
 
 export type PanelOnCollapse = () => void;
 export type PanelOnExpand = () => void;
@@ -242,11 +243,11 @@ export function PanelWithForwardedRef({
     },
 
     // CSS selectors
-    "data-panel": "",
-    "data-panel-collapsible": collapsible || undefined,
-    "data-panel-group-id": groupId,
-    "data-panel-id": panelId,
-    "data-panel-size": parseFloat("" + style.flexGrow).toFixed(1),
+    [DATA_ATTRIBUTES.groupId]: groupId,
+    [DATA_ATTRIBUTES.panel]: "",
+    [DATA_ATTRIBUTES.panelCollapsible]: collapsible || undefined,
+    [DATA_ATTRIBUTES.panelId]: panelId,
+    [DATA_ATTRIBUTES.panelSize]: parseFloat("" + style.flexGrow).toFixed(1),
   });
 }
 
