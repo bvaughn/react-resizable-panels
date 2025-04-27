@@ -1,6 +1,11 @@
 import { expect, test } from "@playwright/test";
 import { createElement } from "react";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import {
+  DATA_ATTRIBUTES,
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+} from "react-resizable-panels";
 
 import { goToUrl, goToUrlWithIframe } from "./utils/url";
 import assert from "assert";
@@ -27,28 +32,28 @@ test.describe("Resize handle", () => {
     const last = resizeHandles.last();
 
     await expect(
-      await first.getAttribute("data-resize-handle-active")
+      await first.getAttribute(DATA_ATTRIBUTES.resizeHandleActive)
     ).toBeNull();
     await expect(
-      await last.getAttribute("data-resize-handle-active")
+      await last.getAttribute(DATA_ATTRIBUTES.resizeHandleActive)
     ).toBeNull();
 
     await first.focus();
 
-    await expect(await first.getAttribute("data-resize-handle-active")).toBe(
-      "keyboard"
-    );
     await expect(
-      await last.getAttribute("data-resize-handle-active")
+      await first.getAttribute(DATA_ATTRIBUTES.resizeHandleActive)
+    ).toBe("keyboard");
+    await expect(
+      await last.getAttribute(DATA_ATTRIBUTES.resizeHandleActive)
     ).toBeNull();
 
     await first.blur();
 
     await expect(
-      await first.getAttribute("data-resize-handle-active")
+      await first.getAttribute(DATA_ATTRIBUTES.resizeHandleActive)
     ).toBeNull();
     await expect(
-      await last.getAttribute("data-resize-handle-active")
+      await last.getAttribute(DATA_ATTRIBUTES.resizeHandleActive)
     ).toBeNull();
 
     const bounds = (await last.boundingBox())!;
@@ -56,19 +61,19 @@ test.describe("Resize handle", () => {
     await page.mouse.down();
 
     await expect(
-      await first.getAttribute("data-resize-handle-active")
+      await first.getAttribute(DATA_ATTRIBUTES.resizeHandleActive)
     ).toBeNull();
-    await expect(await last.getAttribute("data-resize-handle-active")).toBe(
-      "pointer"
-    );
+    await expect(
+      await last.getAttribute(DATA_ATTRIBUTES.resizeHandleActive)
+    ).toBe("pointer");
 
     await page.mouse.up();
 
     await expect(
-      await first.getAttribute("data-resize-handle-active")
+      await first.getAttribute(DATA_ATTRIBUTES.resizeHandleActive)
     ).toBeNull();
     await expect(
-      await last.getAttribute("data-resize-handle-active")
+      await last.getAttribute(DATA_ATTRIBUTES.resizeHandleActive)
     ).toBeNull();
   });
 
@@ -93,7 +98,9 @@ test.describe("Resize handle", () => {
       assert(iframeBounds);
 
       const panel = page.frameLocator("#frame").locator("[data-panel]").first();
-      await expect(await panel.getAttribute("data-panel-size")).toBe("50.0");
+      await expect(await panel.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "50.0"
+      );
 
       const handle = page
         .frameLocator("#frame")
@@ -108,37 +115,51 @@ test.describe("Resize handle", () => {
 
       // Mouse move to iframe edge (and verify resize)
       await page.mouse.move(iframeBounds.x, iframeBounds.y);
-      await expect(await panel.getAttribute("data-panel-size")).toBe("10.0");
+      await expect(await panel.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "10.0"
+      );
 
       // Mouse move outside of iframe (and verify no resize)
       await page.mouse.move(iframeBounds.x - 10, iframeBounds.y - 10);
-      await expect(await panel.getAttribute("data-panel-size")).toBe("10.0");
+      await expect(await panel.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "10.0"
+      );
 
       // Mouse move within frame (and verify resize)
       await page.mouse.move(iframeBounds.x, iframeBounds.y);
       await page.mouse.move(handleBounds.x, handleBounds.y);
-      await expect(await panel.getAttribute("data-panel-size")).toBe("50.0");
+      await expect(await panel.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "50.0"
+      );
 
       // Mouse move to iframe edge
       await page.mouse.move(
         iframeBounds.x + iframeBounds.width,
         iframeBounds.y + iframeBounds.height
       );
-      await expect(await panel.getAttribute("data-panel-size")).toBe("90.0");
+      await expect(await panel.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "90.0"
+      );
 
       // Mouse move outside of iframe and release
       await page.mouse.move(
         iframeBounds.x + iframeBounds.width + 10,
         iframeBounds.y + iframeBounds.height + 10
       );
-      await expect(await panel.getAttribute("data-panel-size")).toBe("90.0");
+      await expect(await panel.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "90.0"
+      );
       await page.mouse.up();
 
       // Mouse move within frame (and verify no resize)
       await page.mouse.move(handleBounds.x, handleBounds.y);
-      await expect(await panel.getAttribute("data-panel-size")).toBe("90.0");
+      await expect(await panel.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "90.0"
+      );
       await page.mouse.move(iframeBounds.x, iframeBounds.y);
-      await expect(await panel.getAttribute("data-panel-size")).toBe("90.0");
+      await expect(await panel.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+        "90.0"
+      );
     }
   });
 });

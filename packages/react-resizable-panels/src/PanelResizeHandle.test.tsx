@@ -6,7 +6,7 @@ import {
   PanelResizeHandle,
   type PanelResizeHandleProps,
 } from ".";
-import { RESIZE_HANDLE_ATTRIBUTES } from "./constants";
+import { DATA_ATTRIBUTES } from "./constants";
 import { assert } from "./utils/assert";
 import * as cursorUtils from "./utils/cursor";
 import { getResizeHandleElement } from "./utils/dom/getResizeHandleElement";
@@ -262,89 +262,145 @@ describe("PanelResizeHandle", () => {
     it("should initialize with the correct props based attributes", () => {
       const { leftElement, rightElement } = setupMockedGroup();
 
-      verifyAttribute(leftElement, "data-panel-group-id", "test-group");
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.root, "");
-      verifyAttribute(leftElement, "data-panel-group-direction", "horizontal");
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.enabled, "true");
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.id, "handle-left");
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.groupId, "test-group");
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.resizeHandle, "");
+      verifyAttribute(
+        leftElement,
+        DATA_ATTRIBUTES.groupDirection,
+        "horizontal"
+      );
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.resizeHandleEnabled, "true");
+      verifyAttribute(
+        leftElement,
+        DATA_ATTRIBUTES.resizeHandleId,
+        "handle-left"
+      );
 
-      verifyAttribute(rightElement, "data-panel-group-id", "test-group");
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.root, "");
-      verifyAttribute(rightElement, "data-panel-group-direction", "horizontal");
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.enabled, "true");
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.groupId, "test-group");
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.resizeHandle, "");
       verifyAttribute(
         rightElement,
-        RESIZE_HANDLE_ATTRIBUTES.id,
+        DATA_ATTRIBUTES.groupDirection,
+        "horizontal"
+      );
+      verifyAttribute(
+        rightElement,
+        DATA_ATTRIBUTES.resizeHandleEnabled,
+        "true"
+      );
+      verifyAttribute(
+        rightElement,
+        DATA_ATTRIBUTES.resizeHandleId,
         "handle-right"
       );
     });
 
-    it(`should update ${RESIZE_HANDLE_ATTRIBUTES.active} and ${RESIZE_HANDLE_ATTRIBUTES.state} when dragging starts/stops`, () => {
+    it(`should update ${DATA_ATTRIBUTES.resizeHandleActive} and ${DATA_ATTRIBUTES.resizeHandleState} when dragging starts/stops`, () => {
       const { leftElement, rightElement } = setupMockedGroup();
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.active, null);
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.active, null);
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.state, "inactive");
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.state, "inactive");
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.resizeHandleActive, null);
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.resizeHandleActive, null);
+      verifyAttribute(
+        leftElement,
+        DATA_ATTRIBUTES.resizeHandleState,
+        "inactive"
+      );
+      verifyAttribute(
+        rightElement,
+        DATA_ATTRIBUTES.resizeHandleState,
+        "inactive"
+      );
 
       act(() => {
         dispatchPointerEvent("pointermove", leftElement);
       });
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.active, null);
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.active, null);
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.state, "hover");
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.state, "inactive");
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.resizeHandleActive, null);
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.resizeHandleActive, null);
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.resizeHandleState, "hover");
+      verifyAttribute(
+        rightElement,
+        DATA_ATTRIBUTES.resizeHandleState,
+        "inactive"
+      );
 
       act(() => {
         dispatchPointerEvent("pointerdown", leftElement);
       });
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.active, "pointer");
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.active, null);
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.state, "drag");
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.state, "inactive");
+      verifyAttribute(
+        leftElement,
+        DATA_ATTRIBUTES.resizeHandleActive,
+        "pointer"
+      );
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.resizeHandleActive, null);
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.resizeHandleState, "drag");
+      verifyAttribute(
+        rightElement,
+        DATA_ATTRIBUTES.resizeHandleState,
+        "inactive"
+      );
 
       act(() => {
         dispatchPointerEvent("pointermove", leftElement);
       });
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.active, "pointer");
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.active, null);
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.state, "drag");
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.state, "inactive");
+      verifyAttribute(
+        leftElement,
+        DATA_ATTRIBUTES.resizeHandleActive,
+        "pointer"
+      );
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.resizeHandleActive, null);
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.resizeHandleState, "drag");
+      verifyAttribute(
+        rightElement,
+        DATA_ATTRIBUTES.resizeHandleState,
+        "inactive"
+      );
 
       act(() => {
         dispatchPointerEvent("pointerup", leftElement);
       });
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.active, null);
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.active, null);
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.state, "hover");
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.state, "inactive");
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.resizeHandleActive, null);
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.resizeHandleActive, null);
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.resizeHandleState, "hover");
+      verifyAttribute(
+        rightElement,
+        DATA_ATTRIBUTES.resizeHandleState,
+        "inactive"
+      );
 
       act(() => {
         dispatchPointerEvent("pointermove", rightElement);
       });
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.active, null);
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.active, null);
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.state, "inactive");
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.state, "hover");
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.resizeHandleActive, null);
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.resizeHandleActive, null);
+      verifyAttribute(
+        leftElement,
+        DATA_ATTRIBUTES.resizeHandleState,
+        "inactive"
+      );
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.resizeHandleState, "hover");
     });
 
-    it(`should update ${RESIZE_HANDLE_ATTRIBUTES.active} when focused`, () => {
+    it(`should update ${DATA_ATTRIBUTES.resizeHandleActive} when focused`, () => {
       const { leftElement, rightElement } = setupMockedGroup();
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.active, null);
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.active, null);
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.resizeHandleActive, null);
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.resizeHandleActive, null);
 
       act(() => {
         leftElement.focus();
       });
       expect(document.activeElement).toBe(leftElement);
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.active, "keyboard");
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.active, null);
+      verifyAttribute(
+        leftElement,
+        DATA_ATTRIBUTES.resizeHandleActive,
+        "keyboard"
+      );
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.resizeHandleActive, null);
 
       act(() => {
         leftElement.blur();
       });
       expect(document.activeElement).not.toBe(leftElement);
-      verifyAttribute(leftElement, RESIZE_HANDLE_ATTRIBUTES.active, null);
-      verifyAttribute(rightElement, RESIZE_HANDLE_ATTRIBUTES.active, null);
+      verifyAttribute(leftElement, DATA_ATTRIBUTES.resizeHandleActive, null);
+      verifyAttribute(rightElement, DATA_ATTRIBUTES.resizeHandleActive, null);
     });
   });
 
@@ -361,7 +417,7 @@ describe("PanelResizeHandle", () => {
       });
 
       const element = container.querySelector(
-        `[${RESIZE_HANDLE_ATTRIBUTES.root}]`
+        `[${DATA_ATTRIBUTES.resizeHandle}]`
       );
 
       expect(element).not.toBeNull();
@@ -380,7 +436,7 @@ describe("PanelResizeHandle", () => {
       });
 
       const element = container.querySelector(
-        `[${RESIZE_HANDLE_ATTRIBUTES.root}]`
+        `[${DATA_ATTRIBUTES.resizeHandle}]`
       );
 
       expect(element).not.toBeNull();

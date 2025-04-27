@@ -1,4 +1,19 @@
 import { isDevelopment } from "#is-development";
+import {
+  CSSProperties,
+  ForwardedRef,
+  HTMLAttributes,
+  PropsWithChildren,
+  ReactElement,
+  createElement,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { PanelConstraints, PanelData } from "./Panel";
 import {
   DragState,
@@ -13,6 +28,7 @@ import {
   EXCEEDED_VERTICAL_MIN,
   reportConstraintsViolation,
 } from "./PanelResizeHandleRegistry";
+import { DATA_ATTRIBUTES } from "./constants";
 import { useForceUpdate } from "./hooks/useForceUpdate";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
@@ -42,21 +58,6 @@ import {
 } from "./utils/serialization";
 import { validatePanelConstraints } from "./utils/validatePanelConstraints";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
-import {
-  CSSProperties,
-  ForwardedRef,
-  HTMLAttributes,
-  PropsWithChildren,
-  ReactElement,
-  createElement,
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
 
 const LOCAL_STORAGE_DEBOUNCE_INTERVAL = 100;
 
@@ -953,9 +954,9 @@ function PanelGroupWithForwardedRef({
       },
 
       // CSS selectors
-      "data-panel-group": "",
-      "data-panel-group-direction": direction,
-      "data-panel-group-id": groupId,
+      [DATA_ATTRIBUTES.group]: "",
+      [DATA_ATTRIBUTES.groupDirection]: direction,
+      [DATA_ATTRIBUTES.groupId]: groupId,
     })
   );
 }

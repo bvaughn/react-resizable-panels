@@ -1,11 +1,12 @@
 import { Panel } from "./Panel";
 import { PanelGroup } from "./PanelGroup";
 import { PanelResizeHandle } from "./PanelResizeHandle";
+import { DATA_ATTRIBUTES } from "./constants";
 import { assert } from "./utils/assert";
 import { setNonce } from "./utils/csp";
 import {
-  enableGlobalCursorStyles,
   disableGlobalCursorStyles,
+  enableGlobalCursorStyles,
 } from "./utils/cursor";
 import { getPanelElement } from "./utils/dom/getPanelElement";
 import { getPanelElementsForGroup } from "./utils/dom/getPanelElementsForGroup";
@@ -74,4 +75,7 @@ export {
   enableGlobalCursorStyles,
   disableGlobalCursorStyles,
   setNonce,
+
+  // Data attributes (primarily intended for e2e testing)
+  DATA_ATTRIBUTES,
 };

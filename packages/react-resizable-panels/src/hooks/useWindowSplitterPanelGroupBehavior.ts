@@ -1,7 +1,7 @@
 import { isDevelopment } from "#is-development";
 import { RefObject, useEffect, useRef } from "react";
-import { RESIZE_HANDLE_ATTRIBUTES } from "../constants";
 import { PanelData } from "../Panel";
+import { DATA_ATTRIBUTES } from "../constants";
 import { Direction } from "../types";
 import { adjustLayoutByDelta } from "../utils/adjustLayoutByDelta";
 import { assert } from "../utils/assert";
@@ -116,7 +116,7 @@ export function useWindowSplitterPanelGroupBehavior({
     assert(handles, `No resize handles found for group id "${groupId}"`);
 
     const cleanupFunctions = handles.map((handle) => {
-      const handleId = handle.getAttribute(RESIZE_HANDLE_ATTRIBUTES.id);
+      const handleId = handle.getAttribute(DATA_ATTRIBUTES.resizeHandleId);
       assert(handleId, `Resize handle element has no handle id attribute`);
 
       const [idBefore, idAfter] = getResizeHandlePanelIds(

@@ -1,9 +1,10 @@
 // @ts-expect-error This is an experimental API
 // eslint-disable-next-line no-restricted-imports
-import { unstable_Activity as Activity, Fragment } from "react";
+import { unstable_Activity as Activity, createRef } from "react";
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import {
+  DATA_ATTRIBUTES,
   ImperativePanelGroupHandle,
   ImperativePanelHandle,
   Panel,
@@ -17,7 +18,6 @@ import {
   mockPanelGroupOffsetWidthAndHeight,
   verifyAttribute,
 } from "./utils/test-utils";
-import { createRef } from "react";
 
 describe("PanelGroup", () => {
   let expectedWarnings: string[] = [];
@@ -95,8 +95,12 @@ describe("PanelGroup", () => {
 
     const leftPanelElement = getPanelElement("left");
     const rightPanelElement = getPanelElement("right");
-    expect(leftPanelElement?.getAttribute("data-panel-size")).toBe("60.0");
-    expect(rightPanelElement?.getAttribute("data-panel-size")).toBe("40.0");
+    expect(leftPanelElement?.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+      "60.0"
+    );
+    expect(rightPanelElement?.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+      "40.0"
+    );
 
     act(() => {
       root.render(
@@ -126,8 +130,12 @@ describe("PanelGroup", () => {
     expect(panelRef.current?.getSize()).toEqual(60);
 
     // This bug is only observable in the DOM; callbacks will not re-fire
-    expect(leftPanelElement?.getAttribute("data-panel-size")).toBe("60.0");
-    expect(rightPanelElement?.getAttribute("data-panel-size")).toBe("40.0");
+    expect(leftPanelElement?.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+      "60.0"
+    );
+    expect(rightPanelElement?.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
+      "40.0"
+    );
   });
 
   // github.com/bvaughn/react-resizable-panels/issues/303
@@ -299,9 +307,9 @@ describe("PanelGroup", () => {
       const element = getPanelGroupElement("test-group", container);
       assert(element, "");
 
-      verifyAttribute(element, "data-panel-group", "");
-      verifyAttribute(element, "data-panel-group-direction", "horizontal");
-      verifyAttribute(element, "data-panel-group-id", "test-group");
+      verifyAttribute(element, DATA_ATTRIBUTES.group, "");
+      verifyAttribute(element, DATA_ATTRIBUTES.groupDirection, "horizontal");
+      verifyAttribute(element, DATA_ATTRIBUTES.groupId, "test-group");
     });
   });
 

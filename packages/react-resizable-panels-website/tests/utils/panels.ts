@@ -1,5 +1,6 @@
 import { Locator, Page, expect } from "@playwright/test";
 import {
+  DATA_ATTRIBUTES,
   assert,
   getIntersectingRectangle,
   intersects,
@@ -28,7 +29,7 @@ export async function dragResizeBy(
     `[data-panel-resize-handle-id="${panelResizeHandleId}"]`
   );
   const direction = await dragHandle.getAttribute(
-    "data-panel-group-direction"
+    DATA_ATTRIBUTES.groupDirection
   )!;
 
   let dragHandleRect = (await dragHandle.boundingBox())!;
@@ -75,18 +76,18 @@ export async function dragResizeIntersecting(
 
   await page.mouse.move(centerPageX, centerPageY);
   await expect(
-    await dragHandleOne.getAttribute("data-resize-handle-state")
+    await dragHandleOne.getAttribute(DATA_ATTRIBUTES.resizeHandleState)
   ).toBe("hover");
   await expect(
-    await dragHandleTwo.getAttribute("data-resize-handle-state")
+    await dragHandleTwo.getAttribute(DATA_ATTRIBUTES.resizeHandleState)
   ).toBe("hover");
 
   await page.mouse.down();
   await expect(
-    await dragHandleOne.getAttribute("data-resize-handle-state")
+    await dragHandleOne.getAttribute(DATA_ATTRIBUTES.resizeHandleState)
   ).toBe("drag");
   await expect(
-    await dragHandleTwo.getAttribute("data-resize-handle-state")
+    await dragHandleTwo.getAttribute(DATA_ATTRIBUTES.resizeHandleState)
   ).toBe("drag");
 
   let increment = 20;
@@ -124,10 +125,10 @@ export async function dragResizeIntersecting(
 
   await page.mouse.up();
   await expect(
-    await dragHandleOne.getAttribute("data-resize-handle-state")
+    await dragHandleOne.getAttribute(DATA_ATTRIBUTES.resizeHandleState)
   ).toBe("hover");
   await expect(
-    await dragHandleTwo.getAttribute("data-resize-handle-state")
+    await dragHandleTwo.getAttribute(DATA_ATTRIBUTES.resizeHandleState)
   ).toBe("hover");
 }
 
@@ -144,7 +145,7 @@ export async function dragResizeTo(
   for (panelIndex = 0; panelIndex < panelCount; panelIndex++) {
     panel = panels.nth(panelIndex);
 
-    const id = await panel.getAttribute("data-panel-id");
+    const id = await panel.getAttribute(DATA_ATTRIBUTES.panelId);
     if (id === panelId) {
       break;
     }
@@ -159,11 +160,13 @@ export async function dragResizeTo(
   );
   const dragHandleRect = (await dragHandle.boundingBox())!;
 
-  const panelGroupId = await dragHandle.getAttribute("data-panel-group-id");
+  const panelGroupId = await dragHandle.getAttribute(DATA_ATTRIBUTES.groupId);
   const panelGroup = page.locator(
     `[data-panel-group][data-panel-group-id="${panelGroupId}"]`
   );
-  const direction = await panelGroup.getAttribute("data-panel-group-direction");
+  const direction = await panelGroup.getAttribute(
+    DATA_ATTRIBUTES.groupDirection
+  );
   const panelGroupRect = (await panelGroup.boundingBox())!;
 
   let pageX = dragHandleRect.x + dragHandleRect.width / 2;
@@ -188,7 +191,7 @@ export async function dragResizeTo(
 
     const { expectedSizes, expectedCursor, size: nextSize } = operations;
 
-    const prevSize = (await panel.getAttribute("data-panel-size"))!;
+    const prevSize = (await panel.getAttribute(DATA_ATTRIBUTES.panelSize))!;
     const isExpanding = parseFloat(prevSize) < nextSize;
 
     // Last panel should drag the handle before it back (left/up)
@@ -216,7 +219,9 @@ export async function dragResizeTo(
 
       await page.mouse.move(pageX, pageY);
 
-      const currentSizeString = (await panel.getAttribute("data-panel-size"))!;
+      const currentSizeString = (await panel.getAttribute(
+        DATA_ATTRIBUTES.panelSize
+      ))!;
       const currentSize = parseFloat(currentSizeString);
 
       if (isExpanding) {
@@ -298,7 +303,7 @@ export async function verifyPanelSizePercentage(
   locator: Locator,
   expectedSize: number
 ) {
-  await expect(await locator.getAttribute("data-panel-size")).toBe(
+  await expect(await locator.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
     expectedSize.toFixed(1)
   );
 }
