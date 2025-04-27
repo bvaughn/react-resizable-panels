@@ -1,10 +1,5 @@
 # Changelog
 
-# 2.1.9
-- [#467](https://github.com/bvaughn/react-resizable-panels/pull/467): Only stop propagate for pointer events with targets that are outside of a resize handle
-- [#444](https://github.com/bvaughn/react-resizable-panels/pull/444): Replace `innerHtml` with `insertRule` to better support [Trusted Types](https://developer.mozilla.org/en-US/docs/Web/API/Trusted_Types_API)
-- [#471](https://github.com/bvaughn/react-resizable-panels/pull/471): Export typed `DATA_ATTRIBUTES` object to simplify e2e tests.
-
 # 2.1.8
 
 - [#463](https://github.com/bvaughn/react-resizable-panels/pull/463): Fix `aria-controls` attribute value for auto-generated ids
