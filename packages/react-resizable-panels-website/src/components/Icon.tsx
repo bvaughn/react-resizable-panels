@@ -1,3 +1,4 @@
+import { SVGAttributes } from "react";
 import styles from "./Icon.module.css";
 
 export type IconType =
@@ -6,6 +7,7 @@ export type IconType =
   | "collapse"
   | "css"
   | "dialog"
+  | "drag"
   | "expand"
   | "files"
   | "horizontal-collapse"
@@ -23,7 +25,8 @@ export type IconType =
 export default function Icon({
   className = "",
   type,
-}: {
+  ...rest
+}: SVGAttributes<SVGElement> & {
   className?: string;
   type: IconType;
 }) {
@@ -47,6 +50,10 @@ export default function Icon({
     case "dialog":
       path =
         "M18 18V20H4A2 2 0 0 1 2 18V8H4V18M22 6V14A2 2 0 0 1 20 16H8A2 2 0 0 1 6 14V6A2 2 0 0 1 8 4H20A2 2 0 0 1 22 6M20 6H8V14H20Z";
+      break;
+    case "drag":
+      path =
+        "M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2m-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2m0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2";
       break;
     case "expand":
       path =
@@ -103,7 +110,11 @@ export default function Icon({
   }
 
   return (
-    <svg className={[className, styles.Icon].join(" ")} viewBox="0 0 24 24">
+    <svg
+      className={[styles.Icon, className].join(" ")}
+      viewBox="0 0 24 24"
+      {...rest}
+    >
       <path fill="currentColor" d={path} />
     </svg>
   );

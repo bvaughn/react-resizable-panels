@@ -1,18 +1,29 @@
 .ResizeHandle {
-  flex: 0 0 0.25rem;
+  flex: 0 0 0.5rem;
   display: flex;
-  justify-content: stretch;
-  align-items: stretch;
+  justify-content: center;
+  align-items: center;
   outline: none;
-  transition: background-color 0.2s linear;
+  color: var(--color-scroll-thumb);
 }
-.ResizeHandle[data-resize-handle-active="keyboard"],
-.ResizeHandle[data-resize-handle-active="pointer"] {
-  background-color: var(--color-resize-bar-drag);
+.ResizeHandle:hover {
+  color: var(--color-scroll-thumb-hover);
+}
+.ResizeHandle[data-resize-handle-active] {
+  color: var(--color-scroll-thumb-active);
 }
 
 @media (pointer: coarse) {
   .ResizeHandle {
     flex: 0 0 1rem;
   }
+}
+
+.ResizeHandle .ResizeHandleThumb {
+  flex: 0 0 1.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.ResizeHandle .ResizeHandleThumb[data-direction="vertical"] {
+  rotate: 90deg;
 }

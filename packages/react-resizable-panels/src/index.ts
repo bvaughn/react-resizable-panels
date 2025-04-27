@@ -2,6 +2,7 @@ import { Panel } from "./Panel";
 import { PanelGroup } from "./PanelGroup";
 import { PanelResizeHandle } from "./PanelResizeHandle";
 import { DATA_ATTRIBUTES } from "./constants";
+import { usePanelGroupContext } from "./hooks/usePanelGroupContext";
 import { assert } from "./utils/assert";
 import { setNonce } from "./utils/csp";
 import {
@@ -56,6 +57,9 @@ export {
   Panel,
   PanelGroup,
   PanelResizeHandle,
+
+  // Hooks
+  usePanelGroupContext,
 
   // Utility methods
   assert,
