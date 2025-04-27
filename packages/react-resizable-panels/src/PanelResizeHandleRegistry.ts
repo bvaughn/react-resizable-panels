@@ -104,22 +104,8 @@ function handlePointerDown(event: PointerEvent) {
   if (intersectingHandles.length > 0) {
     updateResizeHandlerStates("down", event);
 
-    let propagateEvents: boolean | undefined;
-    if (target instanceof HTMLElement || target instanceof SVGElement) {
-      const resizeHandleElement = target.hasAttribute(
-        RESIZE_HANDLE_ATTRIBUTES.root
-      )
-        ? target
-        : target.closest(`[${RESIZE_HANDLE_ATTRIBUTES.root}]`);
-      propagateEvents = resizeHandleElement?.hasAttribute(
-        RESIZE_HANDLE_ATTRIBUTES.propagateEvents
-      );
-    }
-
-    if (!propagateEvents) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
+    event.preventDefault();
+    event.stopPropagation();
   }
 }
 
