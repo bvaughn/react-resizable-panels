@@ -13,12 +13,18 @@
   color: var(--color-resize-bar-active);
 }
 
-@media (pointer: coarse) {
-  .ResizeHandle {
-    flex: 0 0 1rem;
-  }
-}
-
 .ResizeHandle .ResizeHandleThumb[data-direction="vertical"] {
   rotate: 90deg;
+}
+
+@media (pointer: coarse) {
+  .ResizeHandle {
+    flex: 0 0 2rem;
+  }
+
+  .ResizeHandle .ResizeHandleThumb {
+    flex: 0 0 1.25rem;
+    height: 1.25rem;
+    width: 1.25rem;
+  }
 }
