@@ -46,7 +46,7 @@
     "@parcel/transformer-js": "^2.9.3",
     "@parcel/transformer-react-refresh-wrap": "^2.9.3",
     "@parcel/transformer-typescript-types": "^2.9.3",
-    "@preconstruct/cli": "^2.8.1"
+    "@preconstruct/cli": "^2.8.12"
   },
   "preconstruct": {
     "packages": [
@@ -56,7 +56,9 @@
       "importConditionDefaultExport": "default"
     },
     "___experimentalFlags_WILL_CHANGE_IN_PATCH": {
-      "importsConditions": true
+      "distInRoot": true,
+      "importsConditions": true,
+      "typeModule": true
     }
   },
   "@parcel/resolver-default": {
