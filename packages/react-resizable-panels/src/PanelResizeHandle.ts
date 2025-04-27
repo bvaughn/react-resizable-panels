@@ -1,3 +1,15 @@
+import {
+  createElement,
+  CSSProperties,
+  HTMLAttributes,
+  PropsWithChildren,
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { RESIZE_HANDLE_ATTRIBUTES } from "./constants";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
 import { useWindowSplitterResizeHandlerBehavior } from "./hooks/useWindowSplitterBehavior";
@@ -12,17 +24,6 @@ import {
   ResizeHandlerAction,
 } from "./PanelResizeHandleRegistry";
 import { assert } from "./utils/assert";
-import {
-  createElement,
-  CSSProperties,
-  HTMLAttributes,
-  PropsWithChildren,
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
 
 export type PanelResizeHandleOnDragging = (isDragging: boolean) => void;
 export type ResizeHandlerState = "drag" | "hover" | "inactive";
@@ -145,53 +146,54 @@ export function PanelResizeHandle({
       isActive: boolean,
       event: ResizeEvent | null
     ) => {
-      if (isActive) {
-        switch (action) {
-          case "down": {
-            setState("drag");
-
-            didMove = false;
-
-            assert(event, 'Expected event to be defined for "down" action');
-
-            startDragging(resizeHandleId, event);
-
-            const { onDragging, onPointerDown } = callbacksRef.current;
-            onDragging?.(true);
-            onPointerDown?.();
-            break;
-          }
-          case "move": {
-            const { state } = committedValuesRef.current;
-
-            didMove = true;
-
-            if (state !== "drag") {
-              setState("hover");
-            }
-
-            assert(event, 'Expected event to be defined for "move" action');
-
-            resizeHandler(event);
-            break;
-          }
-          case "up": {
-            setState("hover");
-
-            stopDragging();
-
-            const { onClick, onDragging, onPointerUp } = callbacksRef.current;
-            onDragging?.(false);
-            onPointerUp?.();
-
-            if (!didMove) {
-              onClick?.();
-            }
-            break;
-          }
-        }
-      } else {
+      if (!isActive) {
         setState("inactive");
+        return;
+      }
+
+      switch (action) {
+        case "down": {
+          setState("drag");
+
+          didMove = false;
+
+          assert(event, 'Expected event to be defined for "down" action');
+
+          startDragging(resizeHandleId, event);
+
+          const { onDragging, onPointerDown } = callbacksRef.current;
+          onDragging?.(true);
+          onPointerDown?.();
+          break;
+        }
+        case "move": {
+          const { state } = committedValuesRef.current;
+
+          didMove = true;
+
+          if (state !== "drag") {
+            setState("hover");
+          }
+
+          assert(event, 'Expected event to be defined for "move" action');
+
+          resizeHandler(event);
+          break;
+        }
+        case "up": {
+          setState("hover");
+
+          stopDragging();
+
+          const { onClick, onDragging, onPointerUp } = callbacksRef.current;
+          onDragging?.(false);
+          onPointerUp?.();
+
+          if (!didMove) {
+            onClick?.();
+          }
+          break;
+        }
       }
     };
 
@@ -254,12 +256,12 @@ export function PanelResizeHandle({
     // CSS selectors
     "data-panel-group-direction": direction,
     "data-panel-group-id": groupId,
-    "data-resize-handle": "",
-    "data-resize-handle-active":
+    [RESIZE_HANDLE_ATTRIBUTES.root]: "",
+    [RESIZE_HANDLE_ATTRIBUTES.active]:
       state === "drag" ? "pointer" : isFocused ? "keyboard" : undefined,
-    "data-resize-handle-state": state,
-    "data-panel-resize-handle-enabled": !disabled,
-    "data-panel-resize-handle-id": resizeHandleId,
+    [RESIZE_HANDLE_ATTRIBUTES.state]: state,
+    [RESIZE_HANDLE_ATTRIBUTES.enabled]: !disabled,
+    [RESIZE_HANDLE_ATTRIBUTES.id]: resizeHandleId,
   });
 }
 
