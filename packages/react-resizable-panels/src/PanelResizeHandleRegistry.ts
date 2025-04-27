@@ -104,21 +104,10 @@ function handlePointerDown(event: PointerEvent) {
   if (intersectingHandles.length > 0) {
     updateResizeHandlerStates("down", event);
 
-    let propagateEvents: boolean | undefined;
-    if (target instanceof HTMLElement || target instanceof SVGElement) {
-      const resizeHandleElement = target.hasAttribute(
-        RESIZE_HANDLE_ATTRIBUTES.root
-      )
-        ? target
-        : target.closest(`[${RESIZE_HANDLE_ATTRIBUTES.root}]`);
-      propagateEvents = resizeHandleElement?.hasAttribute(
-        RESIZE_HANDLE_ATTRIBUTES.propagateEvents
-      );
-    }
+    event.preventDefault();
 
-    if (!propagateEvents) {
-      event.preventDefault();
-      event.stopPropagation();
+    if (!isWithinResizeHandle(target as HTMLElement)) {
+      event.stopImmediatePropagation();
     }
   }
 }
@@ -162,6 +151,10 @@ function handlePointerUp(event: ResizeEvent) {
 
   if (intersectingHandles.length > 0) {
     event.preventDefault();
+
+    if (!isWithinResizeHandle(target as HTMLElement)) {
+      event.stopImmediatePropagation();
+    }
   }
 
   updateResizeHandlerStates("up", event);
@@ -169,6 +162,20 @@ function handlePointerUp(event: ResizeEvent) {
   updateCursor();
 
   updateListeners();
+}
+
+function isWithinResizeHandle(element: HTMLElement | null) {
+  let currentElement = element;
+
+  while (currentElement) {
+    if (currentElement.hasAttribute(RESIZE_HANDLE_ATTRIBUTES.root)) {
+      return true;
+    }
+
+    currentElement = currentElement.parentElement;
+  }
+
+  return false;
 }
 
 function recalculateIntersectingHandles({
@@ -298,7 +305,11 @@ let listenersAbortController = new AbortController();
 function updateListeners() {
   listenersAbortController.abort();
   listenersAbortController = new AbortController();
-  const { signal } = listenersAbortController;
+
+  const options: AddEventListenerOptions = {
+    capture: true,
+    signal: listenersAbortController.signal,
+  };
 
   if (!registeredResizeHandlers.size) {
     return;
@@ -310,25 +321,22 @@ function updateListeners() {
         const { body } = ownerDocument;
 
         if (count > 0) {
-          body.addEventListener("contextmenu", handlePointerUp, { signal });
-          body.addEventListener("pointerleave", handlePointerMove, { signal });
-          body.addEventListener("pointermove", handlePointerMove, { signal });
+          body.addEventListener("contextmenu", handlePointerUp, options);
+          body.addEventListener("pointerleave", handlePointerMove, options);
+          body.addEventListener("pointermove", handlePointerMove, options);
         }
       });
     }
 
-    window.addEventListener("pointerup", handlePointerUp, { signal });
-    window.addEventListener("pointercancel", handlePointerUp, { signal });
+    window.addEventListener("pointerup", handlePointerUp, options);
+    window.addEventListener("pointercancel", handlePointerUp, options);
   } else {
     ownerDocumentCounts.forEach((count, ownerDocument) => {
       const { body } = ownerDocument;
 
       if (count > 0) {
-        body.addEventListener("pointerdown", handlePointerDown, {
-          capture: true,
-          signal,
-        });
-        body.addEventListener("pointermove", handlePointerMove, { signal });
+        body.addEventListener("pointerdown", handlePointerDown, options);
+        body.addEventListener("pointermove", handlePointerMove, options);
       }
     });
   }

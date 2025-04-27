@@ -46,7 +46,6 @@ export type PanelResizeHandleProps = Omit<
     style?: CSSProperties;
     tabIndex?: number;
     tagName?: keyof HTMLElementTagNameMap;
-    propagateEvents?: boolean;
   }>;
 
 export function PanelResizeHandle({
@@ -64,7 +63,6 @@ export function PanelResizeHandle({
   style: styleFromProps = {},
   tabIndex = 0,
   tagName: Type = "div",
-  propagateEvents = false,
   ...rest
 }: PanelResizeHandleProps): ReactElement {
   const elementRef = useRef<HTMLElement>(null);
@@ -264,7 +262,6 @@ export function PanelResizeHandle({
     [RESIZE_HANDLE_ATTRIBUTES.state]: state,
     [RESIZE_HANDLE_ATTRIBUTES.enabled]: !disabled,
     [RESIZE_HANDLE_ATTRIBUTES.id]: resizeHandleId,
-    [RESIZE_HANDLE_ATTRIBUTES.propagateEvents]: propagateEvents || undefined,
   });
 }
 
