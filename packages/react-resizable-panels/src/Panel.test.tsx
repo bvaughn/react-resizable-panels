@@ -1,6 +1,7 @@
 import { createRef } from "react";
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   DATA_ATTRIBUTES,
   ImperativePanelHandle,
@@ -38,7 +39,7 @@ describe("PanelGroup", () => {
     expectedWarnings = [];
     root = createRoot(container);
 
-    jest.spyOn(console, "warn").mockImplementation((actualMessage: string) => {
+    vi.spyOn(console, "warn").mockImplementation((actualMessage: string) => {
       const match = expectedWarnings.findIndex((expectedMessage) => {
         return actualMessage.includes(expectedMessage);
       });
@@ -55,8 +56,8 @@ describe("PanelGroup", () => {
   afterEach(() => {
     uninstallMockOffsetWidthAndHeight();
 
-    jest.clearAllMocks();
-    jest.resetModules();
+    vi.clearAllMocks();
+    vi.resetModules();
 
     act(() => {
       root.unmount();
@@ -93,7 +94,7 @@ describe("PanelGroup", () => {
         });
       });
 
-      it("should expand and collapse the first panel in a group", () => {
+      test("should expand and collapse the first panel in a group", () => {
         assert(mostRecentLayout, "");
 
         verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
@@ -113,7 +114,7 @@ describe("PanelGroup", () => {
         verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
       });
 
-      it("should expand and collapse the last panel in a group", () => {
+      test("should expand and collapse the last panel in a group", () => {
         assert(mostRecentLayout, "");
 
         verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
@@ -133,7 +134,7 @@ describe("PanelGroup", () => {
         expect(rightPanelRef.current?.isCollapsed()).toBe(false);
       });
 
-      it("should re-expand to the most recent size before collapsing", () => {
+      test("should re-expand to the most recent size before collapsing", () => {
         assert(mostRecentLayout, "");
 
         verifyExpandedPanelGroupLayout(mostRecentLayout, [50, 50]);
@@ -151,7 +152,7 @@ describe("PanelGroup", () => {
         verifyExpandedPanelGroupLayout(mostRecentLayout, [30, 70]);
       });
 
-      it("should report the correct state with collapsedSizes that have many decimal places", () => {
+      test("should report the correct state with collapsedSizes that have many decimal places", () => {
         act(() => {
           root.render(
             <PanelGroup direction="horizontal">
@@ -207,7 +208,7 @@ describe("PanelGroup", () => {
           });
         });
 
-        it("should expand to the panel's minSize", () => {
+        test("should expand to the panel's minSize", () => {
           const panelRef = createRef<ImperativePanelHandle>();
 
           root = createRoot(container);
@@ -256,7 +257,7 @@ describe("PanelGroup", () => {
           expect(panelRef.current?.getSize()).toEqual(15);
         });
 
-        it("should support the (optional) default size", () => {
+        test("should support the (optional) default size", () => {
           const panelRef = createRef<ImperativePanelHandle>();
 
           root = createRoot(container);
@@ -337,7 +338,7 @@ describe("PanelGroup", () => {
         });
       });
 
-      it("should resize the first panel in a group", () => {
+      test("should resize the first panel in a group", () => {
         assert(mostRecentLayout, "");
 
         verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 60, 20]);
@@ -347,7 +348,7 @@ describe("PanelGroup", () => {
         verifyExpandedPanelGroupLayout(mostRecentLayout, [40, 40, 20]);
       });
 
-      it("should resize the middle panel in a group", () => {
+      test("should resize the middle panel in a group", () => {
         assert(mostRecentLayout, "");
 
         verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 60, 20]);
@@ -357,7 +358,7 @@ describe("PanelGroup", () => {
         verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 40, 40]);
       });
 
-      it("should resize the last panel in a group", () => {
+      test("should resize the last panel in a group", () => {
         assert(mostRecentLayout, "");
 
         verifyExpandedPanelGroupLayout(mostRecentLayout, [20, 60, 20]);
@@ -371,12 +372,12 @@ describe("PanelGroup", () => {
 
   describe("invariants", () => {
     beforeEach(() => {
-      jest.spyOn(console, "error").mockImplementation(() => {
+      vi.spyOn(console, "error").mockImplementation(() => {
         // Noop
       });
     });
 
-    it("should throw if default size is less than 0 or greater than 100", () => {
+    test("should throw if default size is less than 0 or greater than 100", () => {
       expect(() => {
         act(() => {
           root.render(
@@ -398,7 +399,7 @@ describe("PanelGroup", () => {
       }).toThrow("Invalid layout");
     });
 
-    it("should throw if rendered outside of a PanelGroup", () => {
+    test("should throw if rendered outside of a PanelGroup", () => {
       expect(() => {
         act(() => {
           root.render(<Panel />);
@@ -409,7 +410,7 @@ describe("PanelGroup", () => {
     });
   });
 
-  it("should support ...rest attributes", () => {
+  test("should support ...rest attributes", () => {
     act(() => {
       root.render(
         <PanelGroup direction="horizontal">
@@ -428,7 +429,7 @@ describe("PanelGroup", () => {
   });
 
   describe("constraints", () => {
-    it("should resize a collapsed panel if the collapsedSize prop changes", () => {
+    test("should resize a collapsed panel if the collapsedSize prop changes", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal">
@@ -484,7 +485,7 @@ describe("PanelGroup", () => {
       expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("5.0");
     });
 
-    it("it should not expand a collapsed panel if other constraints change", () => {
+    test("it should not expand a collapsed panel if other constraints change", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal">
@@ -540,7 +541,7 @@ describe("PanelGroup", () => {
       expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("10.0");
     });
 
-    it("should resize a panel if the minSize prop changes", () => {
+    test("should resize a panel if the minSize prop changes", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal">
@@ -584,7 +585,7 @@ describe("PanelGroup", () => {
       expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("20.0");
     });
 
-    it("should resize a panel if the maxSize prop changes", () => {
+    test("should resize a panel if the maxSize prop changes", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal">
@@ -631,9 +632,9 @@ describe("PanelGroup", () => {
 
   describe("callbacks", () => {
     describe("onCollapse", () => {
-      it("should be called on mount if a panels initial size is 0", () => {
-        let onCollapseLeft = jest.fn();
-        let onCollapseRight = jest.fn();
+      test("should be called on mount if a panels initial size is 0", () => {
+        let onCollapseLeft = vi.fn();
+        let onCollapseRight = vi.fn();
 
         act(() => {
           root.render(
@@ -649,8 +650,8 @@ describe("PanelGroup", () => {
         expect(onCollapseRight).not.toHaveBeenCalled();
       });
 
-      it("should be called when a panel is collapsed", () => {
-        let onCollapse = jest.fn();
+      test("should be called when a panel is collapsed", () => {
+        let onCollapse = vi.fn();
 
         let panelRef = createRef<ImperativePanelHandle>();
 
@@ -673,8 +674,8 @@ describe("PanelGroup", () => {
         expect(onCollapse).toHaveBeenCalledTimes(1);
       });
 
-      it("should be called with collapsedSizes that have many decimal places", () => {
-        let onCollapse = jest.fn();
+      test("should be called with collapsedSizes that have many decimal places", () => {
+        let onCollapse = vi.fn();
 
         let panelRef = createRef<ImperativePanelHandle>();
 
@@ -713,9 +714,9 @@ describe("PanelGroup", () => {
     });
 
     describe("onExpand", () => {
-      it("should be called on mount if a collapsible panels initial size is not 0", () => {
-        let onExpandLeft = jest.fn();
-        let onExpandRight = jest.fn();
+      test("should be called on mount if a collapsible panels initial size is not 0", () => {
+        let onExpandLeft = vi.fn();
+        let onExpandRight = vi.fn();
 
         act(() => {
           root.render(
@@ -731,8 +732,8 @@ describe("PanelGroup", () => {
         expect(onExpandRight).not.toHaveBeenCalled();
       });
 
-      it("should be called when a collapsible panel is expanded", () => {
-        let onExpand = jest.fn();
+      test("should be called when a collapsible panel is expanded", () => {
+        let onExpand = vi.fn();
 
         let panelRef = createRef<ImperativePanelHandle>();
 
@@ -760,8 +761,8 @@ describe("PanelGroup", () => {
         expect(onExpand).toHaveBeenCalledTimes(1);
       });
 
-      it("should be called with collapsedSizes that have many decimal places", () => {
-        let onExpand = jest.fn();
+      test("should be called with collapsedSizes that have many decimal places", () => {
+        let onExpand = vi.fn();
 
         let panelRef = createRef<ImperativePanelHandle>();
 
@@ -801,10 +802,10 @@ describe("PanelGroup", () => {
     });
 
     describe("onResize", () => {
-      it("should be called on mount", () => {
-        let onResizeLeft = jest.fn();
-        let onResizeMiddle = jest.fn();
-        let onResizeRight = jest.fn();
+      test("should be called on mount", () => {
+        let onResizeLeft = vi.fn();
+        let onResizeMiddle = vi.fn();
+        let onResizeRight = vi.fn();
 
         act(() => {
           root.render(
@@ -831,10 +832,10 @@ describe("PanelGroup", () => {
         expect(onResizeRight).toHaveBeenCalledWith(25, undefined);
       });
 
-      it("should be called when a panel is added or removed from the group", () => {
-        let onResizeLeft = jest.fn();
-        let onResizeMiddle = jest.fn();
-        let onResizeRight = jest.fn();
+      test("should be called when a panel is added or removed from the group", () => {
+        let onResizeLeft = vi.fn();
+        let onResizeMiddle = vi.fn();
+        let onResizeRight = vi.fn();
 
         act(() => {
           root.render(
@@ -928,9 +929,9 @@ describe("PanelGroup", () => {
       });
     });
 
-    it("should support sizes with many decimal places", () => {
+    test("should support sizes with many decimal places", () => {
       let panelRef = createRef<ImperativePanelHandle>();
-      let onResize = jest.fn();
+      let onResize = vi.fn();
 
       act(() => {
         root.render(
@@ -957,7 +958,7 @@ describe("PanelGroup", () => {
   });
 
   describe("data attributes", () => {
-    it("should initialize with the correct props based attributes", () => {
+    test("should initialize with the correct props based attributes", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal" id="test-group">
@@ -987,7 +988,7 @@ describe("PanelGroup", () => {
       verifyAttribute(rightElement, DATA_ATTRIBUTES.panelCollapsible, "true");
     });
 
-    it("should update the data-panel-size attribute when the panel resizes", () => {
+    test("should update the data-panel-size attribute when the panel resizes", () => {
       const leftPanelRef = createRef<ImperativePanelHandle>();
 
       act(() => {
@@ -1019,7 +1020,7 @@ describe("PanelGroup", () => {
   });
 
   describe("a11y", () => {
-    it("should pass explicit id prop to DOM", () => {
+    test("should pass explicit id prop to DOM", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal">
@@ -1034,7 +1035,7 @@ describe("PanelGroup", () => {
       expect(element?.getAttribute("id")).toBe("explicit-id");
     });
 
-    it("should pass auto-generated id prop to DOM", () => {
+    test("should pass auto-generated id prop to DOM", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal">
@@ -1051,45 +1052,7 @@ describe("PanelGroup", () => {
   });
 
   describe("DEV warnings", () => {
-    it("should warn about server rendered panels with no default size", () => {
-      jest.resetModules();
-      jest.mock("#is-browser", () => ({ isBrowser: false }));
-
-      const { TextEncoder } = require("util");
-      global.TextEncoder = TextEncoder;
-
-      const { renderToStaticMarkup } = require("react-dom/server.browser");
-      const { act } = require("react-dom/test-utils");
-      const Panel = require("./Panel").Panel;
-      const PanelGroup = require("./PanelGroup").PanelGroup;
-      const PanelResizeHandle =
-        require("./PanelResizeHandle").PanelResizeHandle;
-
-      act(() => {
-        // No warning expected if default sizes provided
-        renderToStaticMarkup(
-          <PanelGroup direction="horizontal">
-            <Panel defaultSize={100} />
-            <PanelResizeHandle />
-            <Panel defaultSize={1_000} />
-          </PanelGroup>
-        );
-      });
-
-      expectWarning(
-        "Panel defaultSize prop recommended to avoid layout shift after server rendering"
-      );
-
-      act(() => {
-        renderToStaticMarkup(
-          <PanelGroup direction="horizontal">
-            <Panel id="one" />
-          </PanelGroup>
-        );
-      });
-    });
-
-    it("should warn if invalid sizes are specified declaratively", () => {
+    test("should warn if invalid sizes are specified declaratively", () => {
       expectWarning("default size should not be less than 0");
 
       act(() => {

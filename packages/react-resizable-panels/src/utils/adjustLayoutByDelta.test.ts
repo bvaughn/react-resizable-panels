@@ -1,7 +1,8 @@
+import { describe, expect, test } from "vitest";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 
 describe("adjustLayoutByDelta", () => {
-  it("[1++,2]", () => {
+  test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 1,
@@ -14,7 +15,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([51, 49]);
   });
 
-  it("[1++,2]", () => {
+  test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
@@ -37,7 +38,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([100, 0]);
   });
 
-  it("[1++,2]", () => {
+  test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
@@ -59,7 +60,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([60, 40]);
   });
 
-  it("[1++,2]", () => {
+  test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
@@ -79,7 +80,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([75, 25]);
   });
 
-  it("[1++,2]", () => {
+  test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 40,
@@ -101,7 +102,7 @@ describe("adjustLayoutByDelta", () => {
 
   // Edge case
   // Expanding from a collapsed state to less than the min size via imperative API should do nothing
-  it("[1++,2]", () => {
+  test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 5,
@@ -123,7 +124,7 @@ describe("adjustLayoutByDelta", () => {
 
   // Edge case
   // Keyboard interactions should always expand a collapsed panel
-  it("[1++,2]", () => {
+  test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 5,
@@ -145,7 +146,7 @@ describe("adjustLayoutByDelta", () => {
 
   // Edge case
   // Keyboard interactions should always collapse a collapsible panel once it's at the minimum size
-  it("[1++,2]", () => {
+  test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 5,
@@ -166,7 +167,7 @@ describe("adjustLayoutByDelta", () => {
 
   // Edge case
   // Expanding from a collapsed state to less than the min size via imperative API should do nothing
-  it("[1++,2]", () => {
+  test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 1,
@@ -192,7 +193,7 @@ describe("adjustLayoutByDelta", () => {
 
   // Edge case
   // Expanding from a collapsed state to less than the min size via keyboard should snap to min size
-  it("[1++,2]", () => {
+  test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 1,
@@ -218,7 +219,7 @@ describe("adjustLayoutByDelta", () => {
 
   // Edge case
   // Expanding from a collapsed state to greater than the max size
-  it("[1++,2]", () => {
+  test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
@@ -244,7 +245,7 @@ describe("adjustLayoutByDelta", () => {
 
   // Edge case
   // Expanding from a collapsed state mimicking an imperative API call
-  it("[1++,2]", () => {
+  test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 30,
@@ -269,7 +270,7 @@ describe("adjustLayoutByDelta", () => {
 
   // Edge case
   // Expanding from a collapsed state mimicking an keyboard event
-  it("[1++,2]", () => {
+  test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 30,
@@ -294,7 +295,7 @@ describe("adjustLayoutByDelta", () => {
 
   // Edge case
   // Expanding from a collapsed state mimicking an keyboard event when there is no min size
-  it("[1++,2]", () => {
+  test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 30,
@@ -315,7 +316,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([30, 70]);
   });
 
-  it("[1--,2]", () => {
+  test("[1--,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -1,
@@ -328,7 +329,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([49, 51]);
   });
 
-  it("[1--,2]", () => {
+  test("[1--,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -25,
@@ -341,7 +342,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 75]);
   });
 
-  it("[1--,2]", () => {
+  test("[1--,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
@@ -354,7 +355,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([0, 100]);
   });
 
-  it("[1--,2]", () => {
+  test("[1--,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
@@ -376,7 +377,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([20, 80]);
   });
 
-  it("[1--,2]", () => {
+  test("[1--,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -25,
@@ -396,7 +397,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 75]);
   });
 
-  it("[1--,2]", () => {
+  test("[1--,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -30,
@@ -434,7 +435,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([5, 95]);
   });
 
-  it("[1--,2]", () => {
+  test("[1--,2]", () => {
     // Edge case
     // The second panel should prevent the first panel from collapsing
     expect(
@@ -458,7 +459,7 @@ describe("adjustLayoutByDelta", () => {
 
   // Edge case
   // Keyboard interactions should always expand a collapsed panel
-  it("[1--,2]", () => {
+  test("[1--,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -5,
@@ -480,7 +481,7 @@ describe("adjustLayoutByDelta", () => {
 
   // Edge case
   // Keyboard interactions should always collapse a collapsible panel once it's at the minimum size
-  it("[1++,2]", () => {
+  test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -5,
@@ -500,7 +501,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([10, 90]);
   });
 
-  it("[1++,2,3]", () => {
+  test("[1++,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 1,
@@ -513,7 +514,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([26, 49, 25]);
   });
 
-  it("[1++,2,3]", () => {
+  test("[1++,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
@@ -526,7 +527,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([50, 25, 25]);
   });
 
-  it("[1++,2,3]", () => {
+  test("[1++,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
@@ -539,7 +540,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([75, 0, 25]);
   });
 
-  it("[1++,2,3]", () => {
+  test("[1++,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 75,
@@ -552,7 +553,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([100, 0, 0]);
   });
 
-  it("[1++,2,3]", () => {
+  test("[1++,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
@@ -565,7 +566,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([35, 40, 25]);
   });
 
-  it("[1++,2,3]", () => {
+  test("[1++,2,3]", () => {
     // Any further than the max size should stop the drag/keyboard resize
     expect(
       adjustLayoutByDelta({
@@ -579,7 +580,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([35, 40, 25]);
   });
 
-  it("[1++,2,3]", () => {
+  test("[1++,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 5,
@@ -600,7 +601,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([30, 35, 35]);
   });
 
-  it("[1++,2,3]", () => {
+  test("[1++,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 26,
@@ -621,7 +622,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([60, 5, 35]);
   });
 
-  it("[1++,2,3]", () => {
+  test("[1++,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 80,
@@ -642,7 +643,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([70, 5, 25]);
   });
 
-  it("[1--,2,3]", () => {
+  test("[1--,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -1,
@@ -655,7 +656,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([24, 51, 25]);
   });
 
-  it("[1--,2,3]", () => {
+  test("[1--,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -25,
@@ -668,7 +669,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([0, 75, 25]);
   });
 
-  it("[1--,2,3]", () => {
+  test("[1--,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -1,
@@ -681,7 +682,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([24, 51, 25]);
   });
 
-  it("[1--,2,3]", () => {
+  test("[1--,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
@@ -694,7 +695,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([20, 55, 25]);
   });
 
-  it("[1--,2,3]", () => {
+  test("[1--,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -5,
@@ -713,7 +714,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([20, 55, 25]);
   });
 
-  it("[1--,2,3]", () => {
+  test("[1--,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -20,
@@ -732,7 +733,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([10, 65, 25]);
   });
 
-  it("[1--,2,3]", () => {
+  test("[1--,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
@@ -753,7 +754,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([15, 60, 25]);
   });
 
-  it("[1--,2,3]", () => {
+  test("[1--,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -20,
@@ -774,7 +775,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([5, 70, 25]);
   });
 
-  it("[1--,2,3]", () => {
+  test("[1--,2,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -20,
@@ -797,7 +798,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 50, 25]);
   });
 
-  it("[1,2++,3]", () => {
+  test("[1,2++,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -1,
@@ -810,7 +811,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 49, 26]);
   });
 
-  it("[1,2++,3]", () => {
+  test("[1,2++,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -25,
@@ -823,7 +824,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 25, 50]);
   });
 
-  it("[1,2++,3]", () => {
+  test("[1,2++,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
@@ -836,7 +837,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 0, 75]);
   });
 
-  it("[1,2++,3]", () => {
+  test("[1,2++,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -75,
@@ -849,7 +850,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([0, 0, 100]);
   });
 
-  it("[1,2++,3]", () => {
+  test("[1,2++,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 5,
@@ -862,7 +863,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 55, 20]);
   });
 
-  it("[1,2++,3]", () => {
+  test("[1,2++,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 20,
@@ -875,7 +876,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 60, 15]);
   });
 
-  it("[1,2++,3]", () => {
+  test("[1,2++,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 5,
@@ -888,7 +889,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 55, 20]);
   });
 
-  it("[1,2++,3]", () => {
+  test("[1,2++,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 10,
@@ -912,7 +913,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 75, 0]);
   });
 
-  it("[1,2--,3]", () => {
+  test("[1,2--,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 1,
@@ -925,7 +926,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 51, 24]);
   });
 
-  it("[1,2--,3]", () => {
+  test("[1,2--,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
@@ -938,7 +939,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 75, 0]);
   });
 
-  it("[1,2--,3]", () => {
+  test("[1,2--,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -20,
@@ -951,7 +952,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([15, 40, 45]);
   });
 
-  it("[1,2--,3]", () => {
+  test("[1,2--,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
@@ -964,7 +965,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 45, 30]);
   });
 
-  it("[1,2--,3]", () => {
+  test("[1,2--,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -35,
@@ -1004,7 +1005,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 5, 70]);
   });
 
-  it("[1,2--,3]", () => {
+  test("[1,2--,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
@@ -1045,7 +1046,7 @@ describe("adjustLayoutByDelta", () => {
   });
 
   // Edge case
-  it("[1,2--,3]", () => {
+  test("[1,2--,3]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -100,
@@ -1058,7 +1059,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([0, 0, 100]);
   });
 
-  it("[1++,2,3,4]", () => {
+  test("[1++,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 1,
@@ -1071,7 +1072,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([26, 24, 25, 25]);
   });
 
-  it("[1++,2,3,4]", () => {
+  test("[1++,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
@@ -1084,7 +1085,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([50, 0, 25, 25]);
   });
 
-  it("[1++,2,3,4]", () => {
+  test("[1++,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
@@ -1097,7 +1098,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([75, 0, 0, 25]);
   });
 
-  it("[1++,2,3,4]", () => {
+  test("[1++,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 75,
@@ -1110,7 +1111,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([100, 0, 0, 0]);
   });
 
-  it("[1++,2,3,4]", () => {
+  test("[1++,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 25,
@@ -1123,7 +1124,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([35, 15, 25, 25]);
   });
 
-  it("[1++,2,3,4]", () => {
+  test("[1++,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 100,
@@ -1141,7 +1142,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([70, 10, 10, 10]);
   });
 
-  it("[1++,2,3,4]", () => {
+  test("[1++,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 10,
@@ -1199,7 +1200,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([45, 5, 25, 25]);
   });
 
-  it("[1++,2,3,4]", () => {
+  test("[1++,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 40,
@@ -1229,7 +1230,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([65, 5, 5, 25]);
   });
 
-  it("[1++,2,3,4]", () => {
+  test("[1++,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 100,
@@ -1259,7 +1260,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([85, 5, 5, 5]);
   });
 
-  it("[1--,2,3,4]", () => {
+  test("[1--,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -1,
@@ -1272,7 +1273,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([24, 26, 25, 25]);
   });
 
-  it("[1--,2,3,4]", () => {
+  test("[1--,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -25,
@@ -1285,7 +1286,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([0, 50, 25, 25]);
   });
 
-  it("[1--,2,3,4]", () => {
+  test("[1--,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
@@ -1298,7 +1299,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([20, 30, 25, 25]);
   });
 
-  it("[1--,2,3,4]", () => {
+  test("[1--,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -25,
@@ -1311,7 +1312,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([0, 35, 40, 25]);
   });
 
-  it("[1--,2,3,4]", () => {
+  test("[1--,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
@@ -1353,7 +1354,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([5, 45, 25, 25]);
   });
 
-  it("[1--,2,3,4]", () => {
+  test("[1--,2,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
@@ -1395,7 +1396,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([5, 35, 35, 25]);
   });
 
-  it("[1--,2,3,4]", () => {
+  test("[1--,2,3,4]", () => {
     // This might be controversial behavior;
     // Perhaps the 1st panel should collapse
     // rather than being blocked by the max size constraints of the 2nd panel
@@ -1423,7 +1424,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([20, 30, 25, 25]);
   });
 
-  it("[1--,2,3,4]", () => {
+  test("[1--,2,3,4]", () => {
     // This might be controversial behavior;
     // Perhaps the 1st panel should collapse
     // rather than being blocked by the max size constraints of the 2nd panel
@@ -1452,7 +1453,7 @@ describe("adjustLayoutByDelta", () => {
   });
 
   // Edge case (issues/210)
-  it("[1--,2,3,4]", () => {
+  test("[1--,2,3,4]", () => {
     // If the size doesn't drop below the halfway point, the panel should not collapse
     expect(
       adjustLayoutByDelta({
@@ -1498,7 +1499,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([5, 35, 35, 25]);
   });
 
-  it("[1,2++,3,4]", () => {
+  test("[1,2++,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 10,
@@ -1511,7 +1512,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 35, 15, 25]);
   });
 
-  it("[1,2++,3,4]", () => {
+  test("[1,2++,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 30,
@@ -1524,7 +1525,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 55, 0, 20]);
   });
 
-  it("[1,2++,3,4]", () => {
+  test("[1,2++,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
@@ -1537,7 +1538,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 75, 0, 0]);
   });
 
-  it("[1,2++,3,4]", () => {
+  test("[1,2++,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
@@ -1550,7 +1551,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([65, 35, 0, 0]);
   });
 
-  it("[1,2++,3,4]", () => {
+  test("[1,2++,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
@@ -1563,7 +1564,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 55, 20, 0]);
   });
 
-  it("[1,2++,3,4]", () => {
+  test("[1,2++,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 10,
@@ -1585,7 +1586,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 35, 15, 25]);
   });
 
-  it("[1,2++,3,4]", () => {
+  test("[1,2++,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 30,
@@ -1607,7 +1608,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 55, 5, 15]);
   });
 
-  it("[1,2++,3,4]", () => {
+  test("[1,2++,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
@@ -1629,7 +1630,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 60, 5, 10]);
   });
 
-  it("[1,2--,3,4]", () => {
+  test("[1,2--,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -25,
@@ -1642,7 +1643,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 0, 50, 25]);
   });
 
-  it("[1,2--,3,4]", () => {
+  test("[1,2--,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
@@ -1655,7 +1656,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([0, 0, 75, 25]);
   });
 
-  it("[1,2--,3,4]", () => {
+  test("[1,2--,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
@@ -1668,7 +1669,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([0, 20, 55, 25]);
   });
 
-  it("[1,2--,3,4]", () => {
+  test("[1,2--,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
@@ -1681,7 +1682,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([20, 0, 55, 25]);
   });
 
-  it("[1,2--,3,4]", () => {
+  test("[1,2--,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
@@ -1694,7 +1695,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([20, 20, 35, 25]);
   });
 
-  it("[1,2--,3,4]", () => {
+  test("[1,2--,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -5,
@@ -1716,7 +1717,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 20, 30, 25]);
   });
 
-  it("[1,2--,3,4]", () => {
+  test("[1,2--,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
@@ -1738,7 +1739,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([5, 0, 70, 25]);
   });
 
-  it("[1,2--,3,4]", () => {
+  test("[1,2--,3,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
@@ -1760,7 +1761,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([0, 5, 70, 25]);
   });
 
-  it("[1,2,3++,4]", () => {
+  test("[1,2,3++,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 10,
@@ -1773,7 +1774,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 25, 35, 15]);
   });
 
-  it("[1,2,3++,4]", () => {
+  test("[1,2,3++,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 30,
@@ -1786,7 +1787,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 25, 50, 0]);
   });
 
-  it("[1,2,3++,4]", () => {
+  test("[1,2,3++,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 30,
@@ -1799,7 +1800,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 35, 40, 0]);
   });
 
-  it("[1,2,3++,4]", () => {
+  test("[1,2,3++,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 30,
@@ -1812,7 +1813,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 25, 40, 10]);
   });
 
-  it("[1,2,3++,4]", () => {
+  test("[1,2,3++,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 5,
@@ -1834,7 +1835,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 25, 30, 20]);
   });
 
-  it("[1,2,3++,4]", () => {
+  test("[1,2,3++,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: 50,
@@ -1856,7 +1857,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 25, 45, 5]);
   });
 
-  it("[1,2,3--,4]", () => {
+  test("[1,2,3--,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -10,
@@ -1869,7 +1870,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 25, 15, 35]);
   });
 
-  it("[1,2,3--,4]", () => {
+  test("[1,2,3--,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -40,
@@ -1882,7 +1883,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 10, 0, 65]);
   });
 
-  it("[1,2,3--,4]", () => {
+  test("[1,2,3--,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -100,
@@ -1895,7 +1896,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([0, 0, 0, 100]);
   });
 
-  it("[1,2,3--,4]", () => {
+  test("[1,2,3--,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
@@ -1913,7 +1914,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([10, 10, 10, 70]);
   });
 
-  it("[1,2,3--,4]", () => {
+  test("[1,2,3--,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
@@ -1926,7 +1927,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([25, 25, 10, 40]);
   });
 
-  it("[1,2,3--,4]", () => {
+  test("[1,2,3--,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -50,
@@ -1939,7 +1940,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([20, 5, 0, 75]);
   });
 
-  it("[1,2,3--,4]", () => {
+  test("[1,2,3--,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -100,
@@ -1969,7 +1970,7 @@ describe("adjustLayoutByDelta", () => {
     ).toEqual([5, 5, 5, 85]);
   });
 
-  it("[1,2,3--,4]", () => {
+  test("[1,2,3--,4]", () => {
     expect(
       adjustLayoutByDelta({
         delta: -100,
@@ -1996,7 +1997,7 @@ describe("adjustLayoutByDelta", () => {
   });
 
   describe("invalid layouts", () => {
-    it("should ignore changes that violate max or min size constraints", () => {
+    test("should ignore changes that violate max or min size constraints", () => {
       expect(
         adjustLayoutByDelta({
           delta: 1,
@@ -2022,7 +2023,7 @@ describe("adjustLayoutByDelta", () => {
   });
 
   // Edge case (issues/311)
-  it("should fallback to the previous layout if an intermediate layout is invalid", () => {
+  test("should fallback to the previous layout if an intermediate layout is invalid", () => {
     expect(
       adjustLayoutByDelta({
         delta: 1,
@@ -2041,7 +2042,7 @@ describe("adjustLayoutByDelta", () => {
   });
 
   // Edge case (issues/311)
-  it("should (re)collapse an already-collapsed panel that's been expanded and (re)collapsed as part of a single drag", () => {
+  test("should (re)collapse an already-collapsed panel that's been expanded and (re)collapsed as part of a single drag", () => {
     expect(
       adjustLayoutByDelta({
         delta: -3,

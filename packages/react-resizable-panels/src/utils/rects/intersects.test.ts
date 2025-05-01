@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, test } from "vitest";
 import { intersects } from "./intersects";
 import { Rectangle } from "./types";
 
@@ -35,11 +36,11 @@ describe("intersects", () => {
       strict = false;
     });
 
-    it("should handle empty rects", () => {
+    test("should handle empty rects", () => {
       verify(emptyRect, emptyRect, true);
     });
 
-    it("should support fully overlapping rects", () => {
+    test("should support fully overlapping rects", () => {
       verify(rect, rect, true);
 
       verify(rect, forkRect({ x: 35, width: 30 }), true);
@@ -69,7 +70,7 @@ describe("intersects", () => {
       );
     });
 
-    it("should support partially overlapping rects", () => {
+    test("should support partially overlapping rects", () => {
       const cases: Partial<Rectangle>[] = [
         { x: 0 },
         { y: 0 },
@@ -88,7 +89,7 @@ describe("intersects", () => {
       });
     });
 
-    it("should support non-overlapping rects", () => {
+    test("should support non-overlapping rects", () => {
       const cases: Partial<Rectangle>[] = [
         { x: 100 },
         { x: -100 },
@@ -103,7 +104,7 @@ describe("intersects", () => {
       });
     });
 
-    it("should support all negative coordinates", () => {
+    test("should support all negative coordinates", () => {
       expect(
         intersects(
           { x: -100, y: -100, width: 50, height: 50 },
@@ -119,11 +120,11 @@ describe("intersects", () => {
       strict = true;
     });
 
-    it("should handle empty rects", () => {
+    test("should handle empty rects", () => {
       verify(emptyRect, emptyRect, false);
     });
 
-    it("should support fully overlapping rects", () => {
+    test("should support fully overlapping rects", () => {
       verify(rect, rect, true);
 
       verify(rect, forkRect({ x: 35, width: 30 }), true);
@@ -153,7 +154,7 @@ describe("intersects", () => {
       );
     });
 
-    it("should support partially overlapping rects", () => {
+    test("should support partially overlapping rects", () => {
       const cases: Partial<Rectangle>[] = [{ x: 0 }, { y: 0 }];
 
       cases.forEach((partial) => {
@@ -161,7 +162,7 @@ describe("intersects", () => {
       });
     });
 
-    it("should support non-overlapping rects", () => {
+    test("should support non-overlapping rects", () => {
       const cases: Partial<Rectangle>[] = [
         { x: 100 },
         { x: -100 },
@@ -184,7 +185,7 @@ describe("intersects", () => {
       });
     });
 
-    it("should support all negative coordinates", () => {
+    test("should support all negative coordinates", () => {
       expect(
         intersects(
           { x: -100, y: -100, width: 50, height: 50 },

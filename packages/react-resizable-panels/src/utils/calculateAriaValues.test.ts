@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, test } from "vitest";
 import { PanelConstraints, PanelData } from "../Panel";
 import { calculateAriaValues } from "./calculateAriaValues";
 
@@ -24,7 +25,7 @@ describe("calculateAriaValues", () => {
     orderCounter = 0;
   });
 
-  it("should work correctly for panels with no min/max constraints", () => {
+  test("should work correctly for panels with no min/max constraints", () => {
     expect(
       calculateAriaValues({
         layout: [50, 50],
@@ -62,7 +63,7 @@ describe("calculateAriaValues", () => {
     });
   });
 
-  it("should work correctly for panels with min/max constraints", () => {
+  test("should work correctly for panels with min/max constraints", () => {
     expect(
       calculateAriaValues({
         layout: [25, 75],
