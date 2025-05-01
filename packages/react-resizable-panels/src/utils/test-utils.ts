@@ -1,8 +1,7 @@
 import { expect } from "vitest";
 import { DATA_ATTRIBUTES } from "../constants";
 import { assert } from "./assert";
-
-const util = require("util");
+import util from "node:util";
 
 export function dispatchPointerEvent(type: string, target: HTMLElement) {
   const rect = target.getBoundingClientRect();

@@ -48,6 +48,7 @@
     "clear:node_modules": "rm -rf ./node_modules",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "test": "vitest",
+    "test:node": "vitest -c vitest.node.config.ts",
     "test:watch": "vitest --watch",
     "watch": "parcel watch --port=2345"
   },
@@ -57,7 +58,7 @@
     "@vitest/ui": "^3.1.2",
     "eslint": "^8.37.0",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "jsdom": "^24.0.0",
+    "happy-dom": "^17.4.6",
     "react": "experimental",
     "react-dom": "experimental",
     "save-dev": "0.0.1-security",
