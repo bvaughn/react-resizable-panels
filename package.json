@@ -25,8 +25,7 @@
   "devDependencies": {
     "@babel/preset-typescript": "^7.22.5",
     "@playwright/test": "^1.37.0",
-    "@types/jest": "^29.5.3",
-    "@types/node": "^18.17.5",
+    "@types/node": "^22.15.3",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
@@ -36,8 +35,7 @@
     "parcel": "^2.9.3",
     "prettier": "latest",
     "process": "^0.11.10",
-    "ts-jest": "^29.1.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "@parcel/config-default": "^2.9.3",
@@ -46,7 +44,7 @@
     "@parcel/transformer-js": "^2.9.3",
     "@parcel/transformer-react-refresh-wrap": "^2.9.3",
     "@parcel/transformer-typescript-types": "^2.9.3",
-    "@preconstruct/cli": "^2.8.1"
+    "@preconstruct/cli": "^2.8.12"
   },
   "preconstruct": {
     "packages": [
@@ -56,7 +54,9 @@
       "importConditionDefaultExport": "default"
     },
     "___experimentalFlags_WILL_CHANGE_IN_PATCH": {
-      "importsConditions": true
+      "distInRoot": true,
+      "importsConditions": true,
+      "typeModule": true
     }
   },
   "@parcel/resolver-default": {

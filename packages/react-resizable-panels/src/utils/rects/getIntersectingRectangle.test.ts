@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, test } from "vitest";
 import { getIntersectingRectangle } from "./getIntersectingRectangle";
 import { Rectangle } from "./types";
 
@@ -39,11 +40,11 @@ describe("getIntersectingRectangle", () => {
       strict = false;
     });
 
-    it("should support empty rects", () => {
+    test("should support empty rects", () => {
       verify(emptyRect, emptyRect, emptyRect);
     });
 
-    it("should support fully overlapping rects", () => {
+    test("should support fully overlapping rects", () => {
       verify(rect, forkRect({ x: 35, width: 30 }), {
         x: 35,
         y: 25,
@@ -76,7 +77,7 @@ describe("getIntersectingRectangle", () => {
       );
     });
 
-    it("should support partially overlapping rects", () => {
+    test("should support partially overlapping rects", () => {
       verify(rect, forkRect({ x: 10, y: 10 }), {
         x: 25,
         y: 25,
@@ -92,11 +93,11 @@ describe("getIntersectingRectangle", () => {
       });
     });
 
-    it("should support non-overlapping rects", () => {
+    test("should support non-overlapping rects", () => {
       verify(rect, forkRect({ x: 100, y: 100 }), emptyRect);
     });
 
-    it("should support all negative coordinates", () => {
+    test("should support all negative coordinates", () => {
       verify(
         {
           x: -100,
@@ -120,11 +121,11 @@ describe("getIntersectingRectangle", () => {
       strict = true;
     });
 
-    it("should support empty rects", () => {
+    test("should support empty rects", () => {
       verify(emptyRect, emptyRect, emptyRect);
     });
 
-    it("should support fully overlapping rects", () => {
+    test("should support fully overlapping rects", () => {
       verify(rect, forkRect({ x: 35, width: 30 }), {
         x: 35,
         y: 25,
@@ -157,7 +158,7 @@ describe("getIntersectingRectangle", () => {
       );
     });
 
-    it("should support partially overlapping rects", () => {
+    test("should support partially overlapping rects", () => {
       verify(rect, forkRect({ x: 10, y: 10 }), {
         x: 25,
         y: 25,
@@ -173,11 +174,11 @@ describe("getIntersectingRectangle", () => {
       });
     });
 
-    it("should support non-overlapping rects", () => {
+    test("should support non-overlapping rects", () => {
       verify(rect, forkRect({ x: 100, y: 100 }), emptyRect);
     });
 
-    it("should support all negative coordinates", () => {
+    test("should support all negative coordinates", () => {
       verify(
         {
           x: -100,
