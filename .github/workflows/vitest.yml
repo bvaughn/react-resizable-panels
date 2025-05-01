@@ -15,3 +15,5 @@ jobs:
         run: pnpm run prerelease
       - name: Run tests
         run: cd packages/react-resizable-panels && pnpm run test
+      - name: Run node tests
+        run: cd packages/react-resizable-panels && pnpm run test:node

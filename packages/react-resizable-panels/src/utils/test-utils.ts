@@ -1,8 +1,7 @@
 import { expect } from "vitest";
 import { DATA_ATTRIBUTES } from "../constants";
 import { assert } from "./assert";
-
-const util = require("util");
+import util from "node:util";
 
 export function dispatchPointerEvent(type: string, target: HTMLElement) {
   const rect = target.getBoundingClientRect();
@@ -162,7 +161,8 @@ export function verifyExpectedWarnings(
     const message = util.format(format, ...args);
 
     for (let index = 0; index < expectedMessages.length; index++) {
-      const expectedMessage = expectedMessages[index];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const expectedMessage = expectedMessages[index]!;
       if (message.includes(expectedMessage)) {
         expectedMessages.splice(index, 1);
         return;
