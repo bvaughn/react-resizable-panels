@@ -58,7 +58,7 @@
     "@vitest/ui": "^3.1.2",
     "eslint": "^8.37.0",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "happy-dom": "^17.4.6",
+    "jsdom": "^26.1.0",
     "react": "experimental",
     "react-dom": "experimental",
     "save-dev": "0.0.1-security",

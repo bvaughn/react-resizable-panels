@@ -161,7 +161,8 @@ export function verifyExpectedWarnings(
     const message = util.format(format, ...args);
 
     for (let index = 0; index < expectedMessages.length; index++) {
-      const expectedMessage = expectedMessages[index];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const expectedMessage = expectedMessages[index]!;
       if (message.includes(expectedMessage)) {
         expectedMessages.splice(index, 1);
         return;
