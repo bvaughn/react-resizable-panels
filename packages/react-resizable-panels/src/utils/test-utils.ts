@@ -1,3 +1,4 @@
+import { expect } from "vitest";
 import { DATA_ATTRIBUTES } from "../constants";
 import { assert } from "./assert";
 

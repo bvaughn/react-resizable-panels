@@ -9,7 +9,7 @@
     "noUncheckedIndexedAccess": true,
     "strict": true,
     "typeRoots": ["node_modules/@types"],
-    "types": ["jest", "node"],
+    "types": ["node"],
   },
   "exclude": ["node_modules"],
   "include": ["declaration.d.ts", "packages/**/*.ts", "packages/**/*.tsx"],

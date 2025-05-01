@@ -1,3 +1,4 @@
+import { describe, expect, test } from "vitest";
 import { PanelConstraints, PanelData } from "../Panel";
 import { computePanelFlexBoxStyle } from "./computePanelFlexBoxStyle";
 
@@ -12,7 +13,7 @@ describe("computePanelFlexBoxStyle", () => {
     };
   }
 
-  it("should observe a panel's default size if group layout has not yet been computed", () => {
+  test("should observe a panel's default size if group layout has not yet been computed", () => {
     expect(
       computePanelFlexBoxStyle({
         defaultSize: 0.1233456789,
@@ -38,7 +39,7 @@ describe("computePanelFlexBoxStyle", () => {
 `);
   });
 
-  it("should always fill the full width for single-panel groups", () => {
+  test("should always fill the full width for single-panel groups", () => {
     expect(
       computePanelFlexBoxStyle({
         defaultSize: undefined,
@@ -59,7 +60,7 @@ describe("computePanelFlexBoxStyle", () => {
 `);
   });
 
-  it("should round sizes to avoid floating point precision errors", () => {
+  test("should round sizes to avoid floating point precision errors", () => {
     const layout = [0.25435, 0.5758, 0.1698];
     const panelData = [createPanelData(), createPanelData(), createPanelData()];
 

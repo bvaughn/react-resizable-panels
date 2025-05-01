@@ -1,4 +1,4 @@
-name: "Jest"
+name: "Vitest"
 on: [pull_request]
 jobs:
   tests-e2e:

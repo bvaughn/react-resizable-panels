@@ -1,8 +1,9 @@
+import { describe, test } from "vitest";
 import { verifyExpectedWarnings } from "./test-utils";
 import { validatePanelConstraints } from "./validatePanelConstraints";
 
 describe("validatePanelConstraints", () => {
-  it("should not warn if there are no validation errors", () => {
+  test("should not warn if there are no validation errors", () => {
     verifyExpectedWarnings(() => {
       validatePanelConstraints({
         panelConstraints: [{}],
@@ -12,7 +13,7 @@ describe("validatePanelConstraints", () => {
     });
   });
 
-  it("should warn about conflicting min/max sizes", () => {
+  test("should warn about conflicting min/max sizes", () => {
     verifyExpectedWarnings(() => {
       validatePanelConstraints({
         panelConstraints: [
@@ -27,7 +28,7 @@ describe("validatePanelConstraints", () => {
     }, "min size (10%) should not be greater than max size (5%)");
   });
 
-  it("should warn about conflicting collapsed and min sizes", () => {
+  test("should warn about conflicting collapsed and min sizes", () => {
     verifyExpectedWarnings(() => {
       validatePanelConstraints({
         panelConstraints: [
@@ -42,7 +43,7 @@ describe("validatePanelConstraints", () => {
     }, "collapsed size should not be greater than min size");
   });
 
-  it("should warn about conflicting default and min/max sizes", () => {
+  test("should warn about conflicting default and min/max sizes", () => {
     verifyExpectedWarnings(() => {
       validatePanelConstraints({
         panelConstraints: [

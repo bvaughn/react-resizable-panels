@@ -1,5 +1,6 @@
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   Panel,
   PanelGroup,
@@ -16,10 +17,10 @@ import {
   verifyAttribute,
 } from "./utils/test-utils";
 
-jest.mock("./utils/cursor", () => ({
-  getCursorStyle: jest.fn(),
-  resetGlobalCursorStyle: jest.fn(),
-  setGlobalCursorStyle: jest.fn(),
+vi.mock("./utils/cursor", () => ({
+  getCursorStyle: vi.fn(),
+  resetGlobalCursorStyle: vi.fn(),
+  setGlobalCursorStyle: vi.fn(),
 }));
 
 describe("PanelResizeHandle", () => {
@@ -36,7 +37,7 @@ describe("PanelResizeHandle", () => {
     expectedWarnings = [];
     root = createRoot(container);
 
-    jest.spyOn(console, "warn").mockImplementation((actualMessage: string) => {
+    vi.spyOn(console, "warn").mockImplementation((actualMessage: string) => {
       const match = expectedWarnings.findIndex((expectedMessage) => {
         return actualMessage.includes(expectedMessage);
       });
@@ -51,8 +52,8 @@ describe("PanelResizeHandle", () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
-    jest.resetModules();
+    vi.clearAllMocks();
+    vi.resetModules();
 
     act(() => {
       root.unmount();
@@ -61,7 +62,7 @@ describe("PanelResizeHandle", () => {
     expect(expectedWarnings).toHaveLength(0);
   });
 
-  it("should support ...rest attributes", () => {
+  test("should support ...rest attributes", () => {
     act(() => {
       root.render(
         <PanelGroup direction="horizontal">
@@ -130,10 +131,10 @@ describe("PanelResizeHandle", () => {
   }
 
   describe("callbacks", () => {
-    it("should fire when dragging starts/stops", () => {
-      const onDragging = jest.fn();
-      const onPointerDown = jest.fn();
-      const onPointerUp = jest.fn();
+    test("should fire when dragging starts/stops", () => {
+      const onDragging = vi.fn();
+      const onPointerDown = vi.fn();
+      const onPointerUp = vi.fn();
 
       const { leftElement } = setupMockedGroup({
         leftProps: { onDragging, onPointerDown, onPointerUp },
@@ -163,9 +164,9 @@ describe("PanelResizeHandle", () => {
       expect(onPointerUp).toHaveBeenCalledTimes(1);
     });
 
-    it("should fire on-click if not dragged", () => {
-      const onClick = jest.fn();
-      const onDragging = jest.fn();
+    test("should fire on-click if not dragged", () => {
+      const onClick = vi.fn();
+      const onDragging = vi.fn();
 
       const { leftElement } = setupMockedGroup({
         leftProps: { onClick, onDragging },
@@ -192,9 +193,9 @@ describe("PanelResizeHandle", () => {
       expect(onClick).toHaveBeenCalledTimes(1);
     });
 
-    it("should not fire on-click if dragged", () => {
-      const onClick = jest.fn();
-      const onDragging = jest.fn();
+    test("should not fire on-click if dragged", () => {
+      const onClick = vi.fn();
+      const onDragging = vi.fn();
 
       const { leftElement } = setupMockedGroup({
         leftProps: { onClick, onDragging },
@@ -227,9 +228,9 @@ describe("PanelResizeHandle", () => {
       expect(onClick).not.toHaveBeenCalled();
     });
 
-    it("should only fire for the handle that has been dragged", () => {
-      const onDraggingLeft = jest.fn();
-      const onDraggingRight = jest.fn();
+    test("should only fire for the handle that has been dragged", () => {
+      const onDraggingLeft = vi.fn();
+      const onDraggingRight = vi.fn();
 
       const { leftElement } = setupMockedGroup({
         leftProps: { onDragging: onDraggingLeft },
@@ -259,7 +260,7 @@ describe("PanelResizeHandle", () => {
   });
 
   describe("data attributes", () => {
-    it("should initialize with the correct props based attributes", () => {
+    test("should initialize with the correct props based attributes", () => {
       const { leftElement, rightElement } = setupMockedGroup();
 
       verifyAttribute(leftElement, DATA_ATTRIBUTES.groupId, "test-group");
@@ -295,7 +296,7 @@ describe("PanelResizeHandle", () => {
       );
     });
 
-    it(`should update ${DATA_ATTRIBUTES.resizeHandleActive} and ${DATA_ATTRIBUTES.resizeHandleState} when dragging starts/stops`, () => {
+    test(`should update ${DATA_ATTRIBUTES.resizeHandleActive} and ${DATA_ATTRIBUTES.resizeHandleState} when dragging starts/stops`, () => {
       const { leftElement, rightElement } = setupMockedGroup();
       verifyAttribute(leftElement, DATA_ATTRIBUTES.resizeHandleActive, null);
       verifyAttribute(rightElement, DATA_ATTRIBUTES.resizeHandleActive, null);
@@ -379,7 +380,7 @@ describe("PanelResizeHandle", () => {
       verifyAttribute(rightElement, DATA_ATTRIBUTES.resizeHandleState, "hover");
     });
 
-    it(`should update ${DATA_ATTRIBUTES.resizeHandleActive} when focused`, () => {
+    test(`should update ${DATA_ATTRIBUTES.resizeHandleActive} when focused`, () => {
       const { leftElement, rightElement } = setupMockedGroup();
       verifyAttribute(leftElement, DATA_ATTRIBUTES.resizeHandleActive, null);
       verifyAttribute(rightElement, DATA_ATTRIBUTES.resizeHandleActive, null);
@@ -405,7 +406,7 @@ describe("PanelResizeHandle", () => {
   });
 
   describe("a11y", () => {
-    it("should pass explicit id prop to DOM", () => {
+    test("should pass explicit id prop to DOM", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal">
@@ -424,7 +425,7 @@ describe("PanelResizeHandle", () => {
       expect(element?.getAttribute("id")).toBe("explicit-id");
     });
 
-    it("should not pass auto-generated id prop to DOM", () => {
+    test("should not pass auto-generated id prop to DOM", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal">
@@ -444,8 +445,8 @@ describe("PanelResizeHandle", () => {
     });
   });
 
-  it("resets the global cursor style on unmount", () => {
-    const onDraggingLeft = jest.fn();
+  test("resets the global cursor style on unmount", () => {
+    const onDraggingLeft = vi.fn();
 
     const { leftElement } = setupMockedGroup({
       leftProps: { onDragging: onDraggingLeft },

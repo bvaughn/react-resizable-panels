@@ -1,8 +1,9 @@
+import { describe, expect, test } from "vitest";
 import { verifyExpectedWarnings } from "./test-utils";
 import { validatePanelGroupLayout } from "./validatePanelGroupLayout";
 
 describe("validatePanelGroupLayout", () => {
-  it("should accept requested layout if there are no constraints provided", () => {
+  test("should accept requested layout if there are no constraints provided", () => {
     expect(
       validatePanelGroupLayout({
         layout: [10, 60, 30],
@@ -11,7 +12,7 @@ describe("validatePanelGroupLayout", () => {
     ).toEqual([10, 60, 30]);
   });
 
-  it("should normalize layouts that do not total 100%", () => {
+  test("should normalize layouts that do not total 100%", () => {
     let layout;
     verifyExpectedWarnings(() => {
       layout = validatePanelGroupLayout({
@@ -30,7 +31,7 @@ describe("validatePanelGroupLayout", () => {
     expect(layout).toEqual([25, 50, 25]);
   });
 
-  it("should reject layouts that do not match the number of panels", () => {
+  test("should reject layouts that do not match the number of panels", () => {
     expect(() =>
       validatePanelGroupLayout({
         layout: [10, 20, 30],
@@ -47,7 +48,7 @@ describe("validatePanelGroupLayout", () => {
   });
 
   describe("minimum size constraints", () => {
-    it("should adjust the layout to account for minimum percentage sizes", () => {
+    test("should adjust the layout to account for minimum percentage sizes", () => {
       expect(
         validatePanelGroupLayout({
           layout: [25, 75],
@@ -61,7 +62,7 @@ describe("validatePanelGroupLayout", () => {
       ).toEqual([35, 65]);
     });
 
-    it("should account for multiple panels with minimum size constraints", () => {
+    test("should account for multiple panels with minimum size constraints", () => {
       expect(
         validatePanelGroupLayout({
           layout: [20, 60, 20],
@@ -80,7 +81,7 @@ describe("validatePanelGroupLayout", () => {
   });
 
   describe("maximum size constraints", () => {
-    it("should adjust the layout to account for maximum percentage sizes", () => {
+    test("should adjust the layout to account for maximum percentage sizes", () => {
       expect(
         validatePanelGroupLayout({
           layout: [25, 75],
@@ -89,7 +90,7 @@ describe("validatePanelGroupLayout", () => {
       ).toEqual([35, 65]);
     });
 
-    it("should account for multiple panels with maximum size constraints", () => {
+    test("should account for multiple panels with maximum size constraints", () => {
       expect(
         validatePanelGroupLayout({
           layout: [20, 60, 20],
@@ -106,7 +107,7 @@ describe("validatePanelGroupLayout", () => {
   });
 
   describe("collapsible panels", () => {
-    it("should not collapse a panel that's at or above the minimum size", () => {
+    test("should not collapse a panel that's at or above the minimum size", () => {
       expect(
         validatePanelGroupLayout({
           layout: [25, 75],
@@ -115,7 +116,7 @@ describe("validatePanelGroupLayout", () => {
       ).toEqual([25, 75]);
     });
 
-    it("should collapse a panel once it drops below the halfway point between collapsed and minimum percentage sizes", () => {
+    test("should collapse a panel once it drops below the halfway point between collapsed and minimum percentage sizes", () => {
       expect(
         validatePanelGroupLayout({
           layout: [15, 85],

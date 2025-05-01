@@ -25,7 +25,6 @@
   "devDependencies": {
     "@babel/preset-typescript": "^7.22.5",
     "@playwright/test": "^1.37.0",
-    "@types/jest": "^29.5.3",
     "@types/node": "^18.17.5",
     "@types/react": "latest",
     "@types/react-dom": "latest",
@@ -36,7 +35,6 @@
     "parcel": "^2.9.3",
     "prettier": "latest",
     "process": "^0.11.10",
-    "ts-jest": "^29.1.1",
     "typescript": "^5.1.6"
   },
   "dependencies": {

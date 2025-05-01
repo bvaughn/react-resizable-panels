@@ -3,6 +3,7 @@
 import { unstable_Activity as Activity, createRef } from "react";
 import { Root, createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   DATA_ATTRIBUTES,
   ImperativePanelGroupHandle,
@@ -42,7 +43,7 @@ describe("PanelGroup", () => {
     expectedWarnings = [];
     root = createRoot(container);
 
-    jest.spyOn(console, "warn").mockImplementation((actualMessage: string) => {
+    vi.spyOn(console, "warn").mockImplementation((actualMessage: string) => {
       const match = expectedWarnings.findIndex((expectedMessage) => {
         return actualMessage.includes(expectedMessage);
       });
@@ -59,8 +60,8 @@ describe("PanelGroup", () => {
   afterEach(() => {
     uninstallMockOffsetWidthAndHeight();
 
-    jest.clearAllMocks();
-    jest.resetModules();
+    vi.clearAllMocks();
+    vi.resetModules();
 
     act(() => {
       root.unmount();
@@ -69,7 +70,7 @@ describe("PanelGroup", () => {
     expect(expectedWarnings).toHaveLength(0);
   });
 
-  it("should recalculate layout after being hidden by Activity", () => {
+  test("should recalculate layout after being hidden by Activity", () => {
     const panelRef = createRef<ImperativePanelHandle>();
 
     let mostRecentLayout: number[] | null = null;
@@ -139,7 +140,7 @@ describe("PanelGroup", () => {
   });
 
   // github.com/bvaughn/react-resizable-panels/issues/303
-  it("should recalculate layout after panels are changed", () => {
+  test("should recalculate layout after panels are changed", () => {
     let mostRecentLayout: number[] | null = null;
 
     const onLayout = (layout: number[]) => {
@@ -168,7 +169,7 @@ describe("PanelGroup", () => {
   });
 
   describe("imperative handle API", () => {
-    it("should report the most recently rendered group id", () => {
+    test("should report the most recently rendered group id", () => {
       const ref = createRef<ImperativePanelGroupHandle>();
 
       act(() => {
@@ -184,7 +185,7 @@ describe("PanelGroup", () => {
       expect(ref.current?.getId()).toBe("two");
     });
 
-    it("should get and set layouts", () => {
+    test("should get and set layouts", () => {
       const ref = createRef<ImperativePanelGroupHandle>();
 
       let mostRecentLayout: number[] | null = null;
@@ -213,7 +214,7 @@ describe("PanelGroup", () => {
     });
   });
 
-  it("should support ...rest attributes", () => {
+  test("should support ...rest attributes", () => {
     act(() => {
       root.render(
         <PanelGroup
@@ -239,8 +240,8 @@ describe("PanelGroup", () => {
 
   describe("callbacks", () => {
     describe("onLayout", () => {
-      it("should be called with the initial group layout on mount", () => {
-        let onLayout = jest.fn();
+      test("should be called with the initial group layout on mount", () => {
+        let onLayout = vi.fn();
 
         act(() => {
           root.render(
@@ -256,8 +257,8 @@ describe("PanelGroup", () => {
         expect(onLayout).toHaveBeenCalledWith([35, 65]);
       });
 
-      it("should be called any time the group layout changes", () => {
-        let onLayout = jest.fn();
+      test("should be called any time the group layout changes", () => {
+        let onLayout = vi.fn();
         let panelGroupRef = createRef<ImperativePanelGroupHandle>();
         let panelRef = createRef<ImperativePanelHandle>();
 
@@ -297,7 +298,7 @@ describe("PanelGroup", () => {
   });
 
   describe("data attributes", () => {
-    it("should initialize with the correct props based attributes", () => {
+    test("should initialize with the correct props based attributes", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal" id="test-group"></PanelGroup>
@@ -314,7 +315,7 @@ describe("PanelGroup", () => {
   });
 
   describe("a11y", () => {
-    it("should pass explicit id prop to DOM", () => {
+    test("should pass explicit id prop to DOM", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal" id="explicit-id">
@@ -331,7 +332,7 @@ describe("PanelGroup", () => {
       expect(element?.getAttribute("id")).toBe("explicit-id");
     });
 
-    it("should not pass auto-generated id prop to DOM", () => {
+    test("should not pass auto-generated id prop to DOM", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal">
@@ -350,7 +351,7 @@ describe("PanelGroup", () => {
   });
 
   describe("DEV warnings", () => {
-    it("should warn about unstable layouts without id and order props", () => {
+    test("should warn about unstable layouts without id and order props", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal">
@@ -374,7 +375,7 @@ describe("PanelGroup", () => {
       });
     });
 
-    it("should warn about missing resize handles", () => {
+    test("should warn about missing resize handles", () => {
       expectWarning(
         'Missing resize handle for PanelGroup "group-without-handle"'
       );
@@ -389,7 +390,7 @@ describe("PanelGroup", () => {
       });
     });
 
-    it("should warn about an invalid declarative layout", () => {
+    test("should warn about an invalid declarative layout", () => {
       expectWarning("Invalid layout total size: 60%, 80%");
 
       act(() => {
@@ -403,7 +404,7 @@ describe("PanelGroup", () => {
       });
     });
 
-    it("should warn about an invalid layout set via the imperative api", () => {
+    test("should warn about an invalid layout set via the imperative api", () => {
       const ref = createRef<ImperativePanelGroupHandle>();
 
       act(() => {
@@ -427,7 +428,7 @@ describe("PanelGroup", () => {
       });
     });
 
-    it("should warn about an empty layout", () => {
+    test("should warn about an empty layout", () => {
       act(() => {
         root.render(
           <PanelGroup direction="horizontal" id="group-without-handle">
