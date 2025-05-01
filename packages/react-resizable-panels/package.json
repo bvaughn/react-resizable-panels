@@ -47,9 +47,8 @@
     "clear:builds": "rm -rf ./packages/*/dist",
     "clear:node_modules": "rm -rf ./node_modules",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "test": "vitest",
+    "test:browser": "vitest",
     "test:node": "vitest -c vitest.node.config.ts",
-    "test:watch": "vitest --watch",
     "watch": "parcel watch --port=2345"
   },
   "devDependencies": {

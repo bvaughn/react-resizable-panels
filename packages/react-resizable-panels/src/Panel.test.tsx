@@ -377,7 +377,7 @@ describe("PanelGroup", () => {
       });
     });
 
-    test.skip("should throw if default size is less than 0 or greater than 100", () => {
+    test("should throw if default size is less than 0 or greater than 100", () => {
       expect(() => {
         act(() => {
           root.render(

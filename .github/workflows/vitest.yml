@@ -13,7 +13,7 @@ jobs:
         run: pnpm install --frozen-lockfile --recursive
       - name: Build NPM packages
         run: pnpm run prerelease
-      - name: Run tests
-        run: cd packages/react-resizable-panels && pnpm run test
+      - name: Run browser tests
+        run: cd packages/react-resizable-panels && pnpm run test:browser
       - name: Run node tests
         run: cd packages/react-resizable-panels && pnpm run test:node
