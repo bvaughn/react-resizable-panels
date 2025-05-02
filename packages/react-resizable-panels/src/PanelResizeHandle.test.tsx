@@ -31,6 +31,7 @@ describe("PanelResizeHandle", () => {
   beforeEach(() => {
     // @ts-expect-error
     global.IS_REACT_ACT_ENVIRONMENT = true;
+
     container = document.createElement("div");
     document.body.appendChild(container);
 
@@ -256,6 +257,42 @@ describe("PanelResizeHandle", () => {
       expect(onDraggingLeft).toHaveBeenCalledTimes(2);
       expect(onDraggingLeft).toHaveBeenCalledWith(false);
       expect(onDraggingRight).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("portals and child windows", () => {
+    test("should add the pointerup event to the separate document NOT the main document", () => {
+      act(() => {
+        root.unmount();
+      });
+
+      const separateWindowDocument =
+        document.implementation.createHTMLDocument();
+
+      container = separateWindowDocument.createElement("div");
+
+      separateWindowDocument.body.appendChild(container);
+
+      vi.spyOn(separateWindowDocument.body, "addEventListener");
+      vi.spyOn(document.body, "addEventListener");
+
+      expectedWarnings = [];
+
+      root = createRoot(container);
+
+      const { leftElement } = setupMockedGroup();
+
+      act(() => {
+        dispatchPointerEvent("pointerdown", leftElement);
+        dispatchPointerEvent("pointerup", leftElement);
+      });
+
+      expect(separateWindowDocument.body.addEventListener).toHaveBeenCalledWith(
+        "pointerup",
+        expect.anything(),
+        expect.anything()
+      );
+      expect(document.body.addEventListener).not.toHaveBeenCalled();
     });
   });
 
