@@ -41,7 +41,7 @@
       "default": "./src/env-conditions/unknown.ts"
     }
   },
-  "types": "dist/react-resizable-panels.cjs.d.ts",
+  "types": "dist/react-resizable-panels.d.ts",
   "scripts": {
     "clear": "pnpm run clear:builds & pnpm run clear:node_modules",
     "clear:builds": "rm -rf ./packages/*/dist",
