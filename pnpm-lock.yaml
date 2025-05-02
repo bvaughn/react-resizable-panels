@@ -96,9 +96,6 @@ importers:
       react-dom:
         specifier: experimental
         version: 0.0.0-experimental-247738465-20240130(react@0.0.0-experimental-247738465-20240130)
-      save-dev:
-        specifier: 0.0.1-security
-        version: 0.0.1-security
       vitest:
         specifier: ^3.1.2
         version: 3.1.2(@types/node@22.15.3)(@vitest/ui@3.1.2)(jsdom@26.1.0)
@@ -4295,10 +4292,6 @@ packages:
 
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
-    dev: true
-
-  /save-dev@0.0.1-security:
-    resolution: {integrity: sha512-k6knZTDNK8PKKbIqnvxiOveJinuw2LcQjqDoaorZWP9M5AR2EPsnpDeSbeoZZ0pHr5ze1uoaKdK8NBGQrJ34Uw==}
     dev: true
 
   /saxes@6.0.0:

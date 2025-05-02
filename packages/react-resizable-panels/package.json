@@ -60,7 +60,6 @@
     "jsdom": "^26.1.0",
     "react": "experimental",
     "react-dom": "experimental",
-    "save-dev": "0.0.1-security",
     "vitest": "^3.1.2"
   },
   "peerDependencies": {
