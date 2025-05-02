@@ -1,5 +1,10 @@
 # Changelog
 
+# 3.0.0
+
+- [#478](https://github.com/bvaughn/react-resizable-panels/pull/478): Module is ESM-only in order to better work with modern tooling.
+- [#475](https://github.com/bvaughn/react-resizable-panels/pull/475): `"pointerup"` and `"pointercancel"` listeners are now attached to the `ownerDocument` body to better support edge cases like portals being rendered into a child window.
+
 # 2.1.9
 - [#467](https://github.com/bvaughn/react-resizable-panels/pull/467): Only stop propagate for pointer events with targets that are outside of a resize handle
 - [#473](https://github.com/bvaughn/react-resizable-panels/pull/473): Replace `innerHtml` with `insertRule` to better support [Trusted Types](https://developer.mozilla.org/en-US/docs/Web/API/Trusted_Types_API)
