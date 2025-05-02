@@ -327,8 +327,10 @@ function updateListeners() {
         }
       });
     }
-    ownerDocumentCounts.forEach((count, ownerDocument) => {
+
+    ownerDocumentCounts.forEach((_, ownerDocument) => {
       const { body } = ownerDocument;
+
       body.addEventListener("pointerup", handlePointerUp, options);
       body.addEventListener("pointercancel", handlePointerUp, options);
     });

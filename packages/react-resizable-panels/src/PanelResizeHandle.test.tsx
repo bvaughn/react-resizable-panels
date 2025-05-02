@@ -31,6 +31,7 @@ describe("PanelResizeHandle", () => {
   beforeEach(() => {
     // @ts-expect-error
     global.IS_REACT_ACT_ENVIRONMENT = true;
+
     container = document.createElement("div");
     document.body.appendChild(container);
 
@@ -259,23 +260,26 @@ describe("PanelResizeHandle", () => {
     });
   });
 
+  describe("portals and child windows", () => {
+    test("should add the pointerup event to the separate document NOT the main document", () => {
+      act(() => {
+        root.unmount();
+      });
 
-  describe("event handlers when rendered in a separate document", () => {
-    let separateWindowDocument: Document;
-    beforeEach(() => {
-      // @ts-expect-error
-      global.IS_REACT_ACT_ENVIRONMENT = true;
+      const separateWindowDocument =
+        document.implementation.createHTMLDocument();
 
-      separateWindowDocument = document.implementation.createHTMLDocument();
       container = separateWindowDocument.createElement("div");
-      separateWindowDocument.body.appendChild(container);
-      jest.spyOn(separateWindowDocument.body,"addEventListener");
-      jest.spyOn(document.body,"addEventListener");
-      expectedWarnings = [];
-      root = createRoot(container);
-    });
 
-    it("should add the pointerup event to the separate document NOT the main document", () => {
+      separateWindowDocument.body.appendChild(container);
+
+      vi.spyOn(separateWindowDocument.body, "addEventListener");
+      vi.spyOn(document.body, "addEventListener");
+
+      expectedWarnings = [];
+
+      root = createRoot(container);
+
       const { leftElement } = setupMockedGroup();
 
       act(() => {
@@ -283,12 +287,14 @@ describe("PanelResizeHandle", () => {
         dispatchPointerEvent("pointerup", leftElement);
       });
 
-      expect(separateWindowDocument.body.addEventListener).toHaveBeenCalledWith("pointerup", expect.anything(), expect.anything());
+      expect(separateWindowDocument.body.addEventListener).toHaveBeenCalledWith(
+        "pointerup",
+        expect.anything(),
+        expect.anything()
+      );
       expect(document.body.addEventListener).not.toHaveBeenCalled();
-
     });
   });
-
 
   describe("data attributes", () => {
     test("should initialize with the correct props based attributes", () => {
