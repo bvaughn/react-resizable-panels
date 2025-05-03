@@ -1,5 +1,10 @@
 # Changelog
 
+# 3.0.1
+
+- [#479](https://github.com/bvaughn/react-resizable-panels/pull/479): Improve support for Cloudflare Workers and Vercel Functions
+- [#480](https://github.com/bvaughn/react-resizable-panels/pull/480): Fixed `package.json#types` reference
+
 # 3.0.0
 
 - [#478](https://github.com/bvaughn/react-resizable-panels/pull/478): Module is ESM-only in order to better work with modern tooling.
