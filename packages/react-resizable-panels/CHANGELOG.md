@@ -1,5 +1,9 @@
 # Changelog
 
+# 3.0.2
+
+- Fallback for type of `HTMLElement` to better support portal edge cases
+
 # 3.0.1
 
 - [#479](https://github.com/bvaughn/react-resizable-panels/pull/479): Improve support for Cloudflare Workers and Vercel Functions
