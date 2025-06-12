@@ -300,10 +300,10 @@ function updateCursor() {
   }
 }
 
-let listenersAbortController = new AbortController();
+let listenersAbortController: AbortController | undefined;
 
 function updateListeners() {
-  listenersAbortController.abort();
+  listenersAbortController?.abort();
   listenersAbortController = new AbortController();
 
   const options: AddEventListenerOptions = {
