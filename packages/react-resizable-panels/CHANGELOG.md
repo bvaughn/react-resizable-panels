@@ -1,5 +1,9 @@
 # Changelog
 
+# 3.0.3
+
+- [#492](https://github.com/bvaughn/react-resizable-panels/pull/492): Fix compatibility with cloudflare workers
+
 # 3.0.2
 
 - Fallback for type of `HTMLElement` to better support portal edge cases
