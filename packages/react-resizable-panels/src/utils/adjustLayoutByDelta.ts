@@ -3,6 +3,7 @@ import { assert } from "./assert";
 import { fuzzyCompareNumbers } from "./numbers/fuzzyCompareNumbers";
 import { fuzzyLayoutsEqual } from "./numbers/fuzzyLayoutsEqual";
 import { fuzzyNumbersEqual } from "./numbers/fuzzyNumbersEqual";
+import { roundByStep, roundToMultiple } from "./numbers/roundByStep";
 import { resizePanel } from "./resizePanel";
 
 // All units must be in percentages; pixel values should be pre-converted
@@ -13,6 +14,7 @@ export function adjustLayoutByDelta({
   pivotIndices,
   prevLayout,
   trigger,
+  step,
 }: {
   delta: number;
   initialLayout: number[];
@@ -20,6 +22,7 @@ export function adjustLayoutByDelta({
   pivotIndices: number[];
   prevLayout: number[];
   trigger: "imperative-api" | "keyboard" | "mouse-or-touch";
+  step?: number;
 }): number[] {
   if (fuzzyNumbersEqual(delta, 0)) {
     return initialLayout;
@@ -187,10 +190,15 @@ export function adjustLayoutByDelta({
       );
 
       const unsafeSize = prevSize - deltaRemaining;
+
+      const roundedSize = step
+        ? roundByStep({number:unsafeSize, step})
+        : unsafeSize;
+
       const safeSize = resizePanel({
         panelConstraints: panelConstraintsArray,
         panelIndex: index,
-        size: unsafeSize,
+        size: roundedSize,
       });
 
       if (!fuzzyNumbersEqual(prevSize, safeSize)) {
@@ -263,10 +271,15 @@ export function adjustLayoutByDelta({
         );
 
         const unsafeSize = prevSize + deltaRemaining;
+
+        const roundedSize = step
+          ? roundByStep({number:unsafeSize, step})
+          : unsafeSize;
+
         const safeSize = resizePanel({
           panelConstraints: panelConstraintsArray,
           panelIndex: index,
-          size: unsafeSize,
+          size: roundedSize,
         });
 
         if (!fuzzyNumbersEqual(prevSize, safeSize)) {

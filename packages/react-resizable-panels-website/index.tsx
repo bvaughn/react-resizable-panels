@@ -15,6 +15,7 @@ import CollapsibleExampleRoute from "./src/routes/examples/Collapsible";
 import VerticalExampleRoute from "./src/routes/examples/Vertical";
 import EndToEndTestingRoute from "./src/routes/EndToEndTesting";
 import IframeRoute from "./src/routes/iframe";
+import CustomStepRoute from "./src/routes/examples/CustomStep";
 
 const router = createBrowserRouter([
   {
@@ -61,7 +62,10 @@ const router = createBrowserRouter([
     path: "/examples/vertical",
     element: <VerticalExampleRoute />,
   },
-
+  {
+    path: "/examples/custom-step",
+    element: <CustomStepRoute />,
+  },
   // Special route used by e2e tests
   {
     path: "/__e2e",

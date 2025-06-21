@@ -1,0 +1,29 @@
+
+
+.ChangeStepRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.ChangeStepForm {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1ch;
+  margin: 0;
+}
+
+.StepInput {
+  width: 7ch;
+  padding: 0 0 0 1ch;
+  background-color: var(--color-input-background);
+  border: 2px solid var(--color-input-border);
+  color: var(--color-input);
+  border-radius: 0.5rem;
+  outline: none;
+}
+.StepInput:focus {
+  outline: none;
+  border-color: var(--color-input-border-focused);
+}

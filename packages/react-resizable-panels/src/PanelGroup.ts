@@ -99,7 +99,7 @@ export type PanelGroupProps = Omit<
     storage?: PanelGroupStorage;
     style?: CSSProperties;
     tagName?: keyof HTMLElementTagNameMap;
-
+    step?: number;
     // Better TypeScript hinting
     dir?: "auto" | "ltr" | "rtl" | undefined;
   }>;
@@ -120,6 +120,7 @@ function PanelGroupWithForwardedRef({
   storage = defaultStorage,
   style: styleFromProps,
   tagName: Type = "div",
+  step,
   ...rest
 }: PanelGroupProps & {
   forwardedRef: ForwardedRef<ImperativePanelGroupHandle>;
@@ -142,6 +143,7 @@ function PanelGroupWithForwardedRef({
     keyboardResizeBy: number | null;
     onLayout: PanelGroupOnLayout | null;
     storage: PanelGroupStorage;
+    step?: number;
   }>({
     autoSaveId,
     direction,
@@ -150,6 +152,7 @@ function PanelGroupWithForwardedRef({
     keyboardResizeBy,
     onLayout,
     storage,
+    step,
   });
 
   const eagerValuesRef = useRef<{
@@ -182,7 +185,7 @@ function PanelGroupWithForwardedRef({
         return layout;
       },
       setLayout: (unsafeLayout: number[]) => {
-        const { onLayout } = committedValuesRef.current;
+        const { onLayout, step } = committedValuesRef.current;
         const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
         const safeLayout = validatePanelGroupLayout({
@@ -190,6 +193,7 @@ function PanelGroupWithForwardedRef({
           panelConstraints: panelDataArray.map(
             (panelData) => panelData.constraints
           ),
+          step,
         });
 
         if (!areEqual(prevLayout, safeLayout)) {
@@ -219,6 +223,7 @@ function PanelGroupWithForwardedRef({
     committedValuesRef.current.id = groupId;
     committedValuesRef.current.onLayout = onLayout;
     committedValuesRef.current.storage = storage;
+    committedValuesRef.current.step = step;
   });
 
   useWindowSplitterPanelGroupBehavior({
@@ -559,7 +564,8 @@ function PanelGroupWithForwardedRef({
     if (eagerValuesRef.current.panelDataArrayChanged) {
       eagerValuesRef.current.panelDataArrayChanged = false;
 
-      const { autoSaveId, onLayout, storage } = committedValuesRef.current;
+      const { autoSaveId, onLayout, storage, step } =
+        committedValuesRef.current;
       const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
       // If this panel has been configured to persist sizing information,
@@ -588,8 +594,8 @@ function PanelGroupWithForwardedRef({
         panelConstraints: panelDataArray.map(
           (panelData) => panelData.constraints
         ),
+        step,
       });
-
       if (!areEqual(prevLayout, nextLayout)) {
         setLayout(nextLayout);
 
@@ -641,6 +647,7 @@ function PanelGroupWithForwardedRef({
         id: groupId,
         keyboardResizeBy,
         onLayout,
+        step,
       } = committedValuesRef.current;
       const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
@@ -678,6 +685,7 @@ function PanelGroupWithForwardedRef({
         pivotIndices,
         prevLayout,
         trigger: isKeyDown(event) ? "keyboard" : "mouse-or-touch",
+        step,
       });
 
       const layoutChanged = !compareLayouts(prevLayout, nextLayout);
@@ -732,7 +740,7 @@ function PanelGroupWithForwardedRef({
   // External APIs are safe to memoize via committed values ref
   const resizePanel = useCallback(
     (panelData: PanelData, unsafePanelSize: number) => {
-      const { onLayout } = committedValuesRef.current;
+      const { onLayout, step } = committedValuesRef.current;
 
       const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
@@ -765,6 +773,7 @@ function PanelGroupWithForwardedRef({
         pivotIndices,
         prevLayout,
         trigger: "imperative-api",
+        step,
       });
 
       if (!compareLayouts(prevLayout, nextLayout)) {

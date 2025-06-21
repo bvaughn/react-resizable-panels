@@ -2,15 +2,18 @@ import { isDevelopment } from "#is-development";
 import { PanelConstraints } from "../Panel";
 import { assert } from "./assert";
 import { fuzzyNumbersEqual } from "./numbers/fuzzyNumbersEqual";
+import { roundByStep } from "./numbers/roundByStep";
 import { resizePanel } from "./resizePanel";
 
 // All units must be in percentages; pixel values should be pre-converted
 export function validatePanelGroupLayout({
   layout: prevLayout,
   panelConstraints,
+  step,
 }: {
   layout: number[];
   panelConstraints: PanelConstraints[];
+  step?:number
 }): number[] {
   const nextLayout = [...prevLayout];
   const nextLayoutTotalSize = nextLayout.reduce(
@@ -52,12 +55,15 @@ export function validatePanelGroupLayout({
   for (let index = 0; index < panelConstraints.length; index++) {
     const unsafeSize = nextLayout[index];
     assert(unsafeSize != null, `No layout data found for index ${index}`);
+    
+    const roundedSize=step?roundByStep({number:unsafeSize, step}):unsafeSize;
 
     const safeSize = resizePanel({
       panelConstraints,
       panelIndex: index,
-      size: unsafeSize,
+      size: roundedSize,
     });
+
 
     if (unsafeSize != safeSize) {
       remainingSize += unsafeSize - safeSize;

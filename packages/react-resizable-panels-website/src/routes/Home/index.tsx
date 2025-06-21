@@ -16,6 +16,7 @@ const LINKS = [
   { path: "external-persistence", title: "External persistence" },
   { path: "imperative-panel-api", title: "Imperative Panel API" },
   { path: "imperative-panel-group-api", title: "Imperative PanelGroup API" },
+  { path: "custom-step", title: "Layout with custom step" },
 ];
 
 export default function HomeRoute() {
