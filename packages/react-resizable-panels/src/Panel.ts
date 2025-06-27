@@ -66,6 +66,7 @@ export type PanelProps<
     id?: string;
     maxSize?: number | undefined;
     minSize?: number | undefined;
+    precision?: number;
     onCollapse?: PanelOnCollapse;
     onExpand?: PanelOnExpand;
     onResize?: PanelOnResize;
@@ -84,6 +85,7 @@ export function PanelWithForwardedRef({
   id: idFromProps,
   maxSize,
   minSize,
+  precision = 1,
   onCollapse,
   onExpand,
   onResize,
@@ -229,7 +231,7 @@ export function PanelWithForwardedRef({
     ]
   );
 
-  const style = getPanelStyle(panelDataRef.current, defaultSize);
+  const style = getPanelStyle(panelDataRef.current, defaultSize, precision);
 
   return createElement(Type, {
     ...rest,
@@ -247,7 +249,7 @@ export function PanelWithForwardedRef({
     [DATA_ATTRIBUTES.panel]: "",
     [DATA_ATTRIBUTES.panelCollapsible]: collapsible || undefined,
     [DATA_ATTRIBUTES.panelId]: panelId,
-    [DATA_ATTRIBUTES.panelSize]: parseFloat("" + style.flexGrow).toFixed(1),
+    [DATA_ATTRIBUTES.panelSize]: parseFloat("" + style.flexGrow).toFixed(precision),
   });
 }
 

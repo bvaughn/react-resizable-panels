@@ -35,9 +35,10 @@ function Content() {
       <PanelGroup className={styles.PanelGroup} direction="vertical">
         <Panel
           className={styles.PanelColumn}
-          defaultSize={50}
+          defaultSize={50.25}
           maxSize={75}
           minSize={10}
+          precision={2}
         >
           <div className={styles.Centered}>top</div>
         </Panel>
