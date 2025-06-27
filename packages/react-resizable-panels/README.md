@@ -52,22 +52,23 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 ### `Panel`
 
-| prop            | type                      | description                                                                                   |
-| :-------------- | :------------------------ | :-------------------------------------------------------------------------------------------- |
-| `children`      | `ReactNode`               | Arbitrary React element(s)                                                                    |
-| `className`     | `?string`                 | Class name to attach to root element                                                          |
-| `collapsedSize` | `?number=0`               | Panel should collapse to this size                                                            |
-| `collapsible`   | `?boolean=false`          | Panel should collapse when resized beyond its `minSize`                                       |
-| `defaultSize`   | `?number`                 | Initial size of panel (numeric value between 1-100)                                           |
-| `id`            | `?string`                 | Panel id (unique within group); falls back to `useId` when not provided                       |
-| `maxSize`       | `?number = 100`           | Maximum allowable size of panel (numeric value between 1-100); defaults to `100`              |
-| `minSize`       | `?number = 10`            | Minimum allowable size of panel (numeric value between 1-100); defaults to `10`               |
-| `onCollapse`    | `?() => void`             | Called when panel is collapsed                                                                |
-| `onExpand`      | `?() => void`             | Called when panel is expanded                                                                 |
-| `onResize`      | `?(size: number) => void` | Called when panel is resized; `size` parameter is a numeric value between 1-100. <sup>1</sup> |
-| `order`         | `?number`                 | Order of panel within group; required for groups with conditionally rendered panels           |
-| `style`         | `?CSSProperties`          | CSS style to attach to root element                                                           |
-| `tagName`       | `?string = "div"`         | HTML element tag name for root element                                                        |
+| prop             | type                      | description                                                                                     |
+|:-----------------|:--------------------------|:------------------------------------------------------------------------------------------------|
+| `children`       | `ReactNode`               | Arbitrary React element(s)                                                                      |
+| `className`      | `?string`                 | Class name to attach to root element                                                            |
+| `collapsedSize`  | `?number=0`               | Panel should collapse to this size                                                              |
+| `collapsible`    | `?boolean=false`          | Panel should collapse when resized beyond its `minSize`                                         |
+| `defaultSize`    | `?number`                 | Initial size of panel (numeric value between 1-100)                                             |
+| `id`             | `?string`                 | Panel id (unique within group); falls back to `useId` when not provided                         |
+| `maxSize`        | `?number = 100`           | Maximum allowable size of panel (numeric value between 1-100); defaults to `100`                |
+| `minSize`        | `?number = 10`            | Minimum allowable size of panel (numeric value between 1-100); defaults to `10`                 |
+| `precision`      | `?number = 1`             | Decimal precision of `data-panel-size`. defaults to `1`                                         |
+| `onCollapse`     | `?() => void`             | Called when panel is collapsed                                                                  |
+| `onExpand`       | `?() => void`             | Called when panel is expanded                                                                   |
+| `onResize`       | `?(size: number) => void` | Called when panel is resized; `size` parameter is a numeric value between 1-100. <sup>1</sup>   |
+| `order`          | `?number`                 | Order of panel within group; required for groups with conditionally rendered panels             |
+| `style`          | `?CSSProperties`          | CSS style to attach to root element                                                             |
+| `tagName`        | `?string = "div"`         | HTML element tag name for root element                                                          |
 
 <sup>1</sup>: If any `Panel` has an `onResize` callback, the `order` prop should be provided for all `Panel`s.
 
