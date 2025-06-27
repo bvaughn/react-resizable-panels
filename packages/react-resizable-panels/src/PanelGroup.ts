@@ -475,7 +475,7 @@ function PanelGroupWithForwardedRef({
 
   // This API should never read from committedValuesRef
   const getPanelStyle = useCallback(
-    (panelData: PanelData, defaultSize: number | undefined) => {
+    (panelData: PanelData, defaultSize: number | undefined, precision = 1) => {
       const { panelDataArray } = eagerValuesRef.current;
 
       const panelIndex = findPanelDataIndex(panelDataArray, panelData);
@@ -486,6 +486,7 @@ function PanelGroupWithForwardedRef({
         layout,
         panelData: panelDataArray,
         panelIndex,
+        precision: precision + 2
       });
     },
     [dragState, layout]

@@ -20,7 +20,8 @@ export type TPanelGroupContext = {
   getPanelSize: (panelData: PanelData) => number;
   getPanelStyle: (
     panelData: PanelData,
-    defaultSize: number | undefined
+    defaultSize: number | undefined,
+    precision: number
   ) => CSSProperties;
   groupId: string;
   isPanelCollapsed: (panelData: PanelData) => boolean;
