@@ -1,6 +1,7 @@
 import { isDevelopment } from "#is-development";
 import { RefObject, useEffect, useRef } from "react";
 import { PanelData } from "../Panel";
+import { ValidateLayout } from "../PanelGroup";
 import { DATA_ATTRIBUTES } from "../constants";
 import { Direction } from "../types";
 import { adjustLayoutByDelta } from "../utils/adjustLayoutByDelta";
@@ -23,6 +24,7 @@ export function useWindowSplitterPanelGroupBehavior({
   panelDataArray,
   panelGroupElement,
   setLayout,
+  validateLayout,
 }: {
   committedValuesRef: RefObject<{
     direction: Direction;
@@ -35,6 +37,7 @@ export function useWindowSplitterPanelGroupBehavior({
   panelDataArray: PanelData[];
   panelGroupElement: ParentNode | null;
   setLayout: (sizes: number[]) => void;
+  validateLayout: ValidateLayout;
 }): void {
   const devWarningsRef = useRef<{
     didWarnAboutMissingResizeHandle: boolean;
@@ -169,6 +172,7 @@ export function useWindowSplitterPanelGroupBehavior({
                   ),
                   prevLayout: layout,
                   trigger: "keyboard",
+                  validateLayout,
                 });
                 if (layout !== nextLayout) {
                   setLayout(nextLayout);
@@ -198,5 +202,6 @@ export function useWindowSplitterPanelGroupBehavior({
     layout,
     panelDataArray,
     setLayout,
+    validateLayout,
   ]);
 }

@@ -1,5 +1,6 @@
 import { isDevelopment } from "#is-development";
 import { PanelConstraints } from "../Panel";
+import { ValidateLayout } from "../PanelGroup";
 import { assert } from "./assert";
 import { fuzzyNumbersEqual } from "./numbers/fuzzyNumbersEqual";
 import { resizePanel } from "./resizePanel";
@@ -8,11 +9,13 @@ import { resizePanel } from "./resizePanel";
 export function validatePanelGroupLayout({
   layout: prevLayout,
   panelConstraints,
+  validateLayout,
 }: {
   layout: number[];
   panelConstraints: PanelConstraints[];
+  validateLayout: ValidateLayout;
 }): number[] {
-  const nextLayout = [...prevLayout];
+  const nextLayout = validateLayout([...prevLayout], [...prevLayout]);
   const nextLayoutTotalSize = nextLayout.reduce(
     (accumulated, current) => accumulated + current,
     0

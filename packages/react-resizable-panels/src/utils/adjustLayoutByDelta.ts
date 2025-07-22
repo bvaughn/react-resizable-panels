@@ -1,4 +1,5 @@
 import { PanelConstraints } from "../Panel";
+import { ValidateLayout } from "../PanelGroup";
 import { assert } from "./assert";
 import { fuzzyCompareNumbers } from "./numbers/fuzzyCompareNumbers";
 import { fuzzyLayoutsEqual } from "./numbers/fuzzyLayoutsEqual";
@@ -13,6 +14,7 @@ export function adjustLayoutByDelta({
   pivotIndices,
   prevLayout,
   trigger,
+  validateLayout,
 }: {
   delta: number;
   initialLayout: number[];
@@ -20,6 +22,7 @@ export function adjustLayoutByDelta({
   pivotIndices: number[];
   prevLayout: number[];
   trigger: "imperative-api" | "keyboard" | "mouse-or-touch";
+  validateLayout: ValidateLayout;
 }): number[] {
   if (fuzzyNumbersEqual(delta, 0)) {
     return initialLayout;
@@ -291,7 +294,12 @@ export function adjustLayoutByDelta({
   // DEBUG.push(`  deltaApplied: ${deltaApplied}`);
   // DEBUG.push("");
 
-  const totalSize = nextLayout.reduce((total, size) => size + total, 0);
+  const nextLayoutValidated = validateLayout(nextLayout, prevLayout);
+
+  const totalSize = nextLayoutValidated.reduce(
+    (total, size) => size + total,
+    0
+  );
   // DEBUG.push(`total size: ${totalSize}`);
 
   // If our new layout doesn't add up to 100%, that means the requested delta can't be applied
@@ -304,5 +312,5 @@ export function adjustLayoutByDelta({
   }
 
   // console.log(DEBUG.join("\n"));
-  return nextLayout;
+  return nextLayoutValidated;
 }

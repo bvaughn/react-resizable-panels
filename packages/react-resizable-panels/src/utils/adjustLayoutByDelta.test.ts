@@ -1,6 +1,10 @@
 import { describe, expect, test } from "vitest";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 
+function validateLayout(layout: number[]) {
+  return layout;
+}
+
 describe("adjustLayoutByDelta", () => {
   test("[1++,2]", () => {
     expect(
@@ -11,6 +15,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [50, 50],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([51, 49]);
   });
@@ -24,6 +29,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [50, 50],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([75, 25]);
     expect(
@@ -34,6 +40,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [50, 50],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([100, 0]);
   });
@@ -56,6 +63,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [50, 50],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([60, 40]);
   });
@@ -76,6 +84,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [50, 50],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([75, 25]);
   });
@@ -96,6 +105,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [50, 50],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([95, 5]);
   });
@@ -118,6 +128,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [10, 90],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([10, 90]);
   });
@@ -140,6 +151,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [10, 90],
         trigger: "keyboard",
+        validateLayout,
       })
     ).toEqual([25, 75]);
   });
@@ -161,6 +173,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [75, 25],
         trigger: "keyboard",
+        validateLayout,
       })
     ).toEqual([100, 0]);
   });
@@ -187,6 +200,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [4, 96],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([4, 96]);
   });
@@ -213,6 +227,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [4, 96],
         trigger: "keyboard",
+        validateLayout,
       })
     ).toEqual([6, 94]);
   });
@@ -239,6 +254,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [4, 96],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([15, 85]);
   });
@@ -264,6 +280,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [5, 95],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([35, 65]);
   });
@@ -289,6 +306,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [5, 95],
         trigger: "keyboard",
+        validateLayout,
       })
     ).toEqual([35, 65]);
   });
@@ -312,6 +330,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [0, 100],
         trigger: "keyboard",
+        validateLayout,
       })
     ).toEqual([30, 70]);
   });
@@ -325,6 +344,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [50, 50],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([49, 51]);
   });
@@ -338,6 +358,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [50, 50],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 75]);
   });
@@ -351,6 +372,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [50, 50],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([0, 100]);
   });
@@ -373,6 +395,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [50, 50],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([20, 80]);
   });
@@ -393,6 +416,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [50, 50],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 75]);
   });
@@ -413,6 +437,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [50, 50],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 75]);
 
@@ -431,6 +456,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [50, 50],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([5, 95]);
   });
@@ -453,6 +479,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [50, 50],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 75]);
   });
@@ -475,6 +502,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [90, 10],
         trigger: "keyboard",
+        validateLayout,
       })
     ).toEqual([75, 25]);
   });
@@ -497,6 +525,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 75],
         trigger: "keyboard",
+        validateLayout,
       })
     ).toEqual([10, 90]);
   });
@@ -510,6 +539,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([26, 49, 25]);
   });
@@ -523,6 +553,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([50, 25, 25]);
   });
@@ -536,6 +567,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([75, 0, 25]);
   });
@@ -549,6 +581,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([100, 0, 0]);
   });
@@ -562,6 +595,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([35, 40, 25]);
   });
@@ -576,6 +610,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([35, 40, 25]);
   });
@@ -597,6 +632,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 40, 35],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([30, 35, 35]);
   });
@@ -618,6 +654,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 40, 35],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([60, 5, 35]);
   });
@@ -639,6 +676,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 40, 35],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([70, 5, 25]);
   });
@@ -652,6 +690,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([24, 51, 25]);
   });
@@ -665,6 +704,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([0, 75, 25]);
   });
@@ -678,6 +718,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([24, 51, 25]);
   });
@@ -691,6 +732,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([20, 55, 25]);
   });
@@ -710,6 +752,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([20, 55, 25]);
   });
@@ -729,6 +772,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([10, 65, 25]);
   });
@@ -750,6 +794,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([15, 60, 25]);
   });
@@ -771,6 +816,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([5, 70, 25]);
   });
@@ -794,6 +840,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [45, 50, 5],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 50, 25]);
   });
@@ -807,6 +854,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 49, 26]);
   });
@@ -820,6 +868,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 25, 50]);
   });
@@ -833,6 +882,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 0, 75]);
   });
@@ -846,6 +896,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([0, 0, 100]);
   });
@@ -859,6 +910,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 55, 20]);
   });
@@ -872,6 +924,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 60, 15]);
   });
@@ -885,6 +938,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 55, 20]);
   });
@@ -898,6 +952,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 55, 20]);
 
@@ -909,6 +964,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 75, 0]);
   });
@@ -922,6 +978,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 51, 24]);
   });
@@ -935,6 +992,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 75, 0]);
   });
@@ -948,6 +1006,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([15, 40, 45]);
   });
@@ -961,6 +1020,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 45, 30]);
   });
@@ -982,6 +1042,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([20, 20, 60]);
 
@@ -1001,6 +1062,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 50, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 5, 70]);
   });
@@ -1022,6 +1084,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 0, 75],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([20, 0, 80]);
 
@@ -1041,6 +1104,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 0, 75],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([5, 0, 95]);
   });
@@ -1055,6 +1119,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [100 / 3, 100 / 3, 100 / 3],
         trigger: "mouse-or-touch",
+        validateLayout,
       })
     ).toEqual([0, 0, 100]);
   });
@@ -1068,6 +1133,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([26, 24, 25, 25]);
   });
@@ -1081,6 +1147,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([50, 0, 25, 25]);
   });
@@ -1094,6 +1161,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([75, 0, 0, 25]);
   });
@@ -1107,6 +1175,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([100, 0, 0, 0]);
   });
@@ -1120,6 +1189,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([35, 15, 25, 25]);
   });
@@ -1138,6 +1208,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([70, 10, 10, 10]);
   });
@@ -1168,6 +1239,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([35, 20, 20, 25]);
 
@@ -1196,6 +1268,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([45, 5, 25, 25]);
   });
@@ -1226,6 +1299,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([65, 5, 5, 25]);
   });
@@ -1256,6 +1330,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([85, 5, 5, 5]);
   });
@@ -1269,6 +1344,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([24, 26, 25, 25]);
   });
@@ -1282,6 +1358,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([0, 50, 25, 25]);
   });
@@ -1295,6 +1372,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([20, 30, 25, 25]);
   });
@@ -1308,6 +1386,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([0, 35, 40, 25]);
   });
@@ -1330,6 +1409,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([20, 30, 25, 25]);
 
@@ -1350,6 +1430,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([5, 45, 25, 25]);
   });
@@ -1372,6 +1453,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([20, 30, 25, 25]);
 
@@ -1392,6 +1474,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([5, 35, 35, 25]);
   });
@@ -1420,6 +1503,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([20, 30, 25, 25]);
   });
@@ -1448,6 +1532,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([20, 30, 25, 25]);
   });
@@ -1472,6 +1557,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([20, 30, 25, 25]);
 
@@ -1495,6 +1581,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([5, 35, 35, 25]);
   });
@@ -1508,6 +1595,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 35, 15, 25]);
   });
@@ -1521,6 +1609,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 55, 0, 20]);
   });
@@ -1534,6 +1623,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 75, 0, 0]);
   });
@@ -1547,6 +1637,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([65, 35, 0, 0]);
   });
@@ -1560,6 +1651,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 55, 20, 0]);
   });
@@ -1582,6 +1674,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 35, 15, 25]);
   });
@@ -1604,6 +1697,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 55, 5, 15]);
   });
@@ -1626,6 +1720,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 60, 5, 10]);
   });
@@ -1639,6 +1734,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 0, 50, 25]);
   });
@@ -1652,6 +1748,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([0, 0, 75, 25]);
   });
@@ -1665,6 +1762,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([0, 20, 55, 25]);
   });
@@ -1678,6 +1776,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([20, 0, 55, 25]);
   });
@@ -1691,6 +1790,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([20, 20, 35, 25]);
   });
@@ -1713,6 +1813,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 20, 30, 25]);
   });
@@ -1735,6 +1836,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([5, 0, 70, 25]);
   });
@@ -1757,6 +1859,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [1, 2],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([0, 5, 70, 25]);
   });
@@ -1770,6 +1873,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [2, 3],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 25, 35, 15]);
   });
@@ -1783,6 +1887,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [2, 3],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 25, 50, 0]);
   });
@@ -1796,6 +1901,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [2, 3],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 35, 40, 0]);
   });
@@ -1809,6 +1915,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [2, 3],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 25, 40, 10]);
   });
@@ -1831,6 +1938,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [2, 3],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 25, 30, 20]);
   });
@@ -1853,6 +1961,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [2, 3],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 25, 45, 5]);
   });
@@ -1866,6 +1975,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [2, 3],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 25, 15, 35]);
   });
@@ -1879,6 +1989,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [2, 3],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 10, 0, 65]);
   });
@@ -1892,6 +2003,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [2, 3],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([0, 0, 0, 100]);
   });
@@ -1910,6 +2022,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [2, 3],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([10, 10, 10, 70]);
   });
@@ -1923,6 +2036,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [2, 3],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([25, 25, 10, 40]);
   });
@@ -1936,6 +2050,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [2, 3],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([20, 5, 0, 75]);
   });
@@ -1966,6 +2081,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [2, 3],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([5, 5, 5, 85]);
   });
@@ -1992,6 +2108,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [2, 3],
         prevLayout: [25, 25, 25, 25],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([20, 5, 20, 55]);
   });
@@ -2006,6 +2123,7 @@ describe("adjustLayoutByDelta", () => {
           pivotIndices: [0, 1],
           prevLayout: [50, 50],
           trigger: "imperative-api",
+          validateLayout,
         })
       ).toEqual([50, 50]);
 
@@ -2017,6 +2135,7 @@ describe("adjustLayoutByDelta", () => {
           pivotIndices: [0, 1],
           prevLayout: [50, 50],
           trigger: "imperative-api",
+          validateLayout,
         })
       ).toEqual([50, 50]);
     });
@@ -2037,6 +2156,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [5, 30, 30, 36],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([5, 30, 30, 36]);
   });
@@ -2056,6 +2176,7 @@ describe("adjustLayoutByDelta", () => {
         pivotIndices: [0, 1],
         prevLayout: [15, 15, 30, 36],
         trigger: "imperative-api",
+        validateLayout,
       })
     ).toEqual([5, 15, 40, 40]);
   });
