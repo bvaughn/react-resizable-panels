@@ -85,6 +85,11 @@ const defaultStorage: PanelGroupStorage = {
   },
 };
 
+export type ValidateLayout = (
+  nextLayout: number[],
+  prevLayout: number[]
+) => number[];
+
 export type PanelGroupProps = Omit<
   HTMLAttributes<keyof HTMLElementTagNameMap>,
   "id"
@@ -99,6 +104,7 @@ export type PanelGroupProps = Omit<
     storage?: PanelGroupStorage;
     style?: CSSProperties;
     tagName?: keyof HTMLElementTagNameMap;
+    validateLayout?: ValidateLayout;
 
     // Better TypeScript hinting
     dir?: "auto" | "ltr" | "rtl" | undefined;
@@ -120,6 +126,7 @@ function PanelGroupWithForwardedRef({
   storage = defaultStorage,
   style: styleFromProps,
   tagName: Type = "div",
+  validateLayout = defaultValidateLayout,
   ...rest
 }: PanelGroupProps & {
   forwardedRef: ForwardedRef<ImperativePanelGroupHandle>;
@@ -156,10 +163,12 @@ function PanelGroupWithForwardedRef({
     layout: number[];
     panelDataArray: PanelData[];
     panelDataArrayChanged: boolean;
+    validateLayoutChanged: boolean;
   }>({
     layout,
     panelDataArray: [],
     panelDataArrayChanged: false,
+    validateLayoutChanged: false,
   });
 
   const devWarningsRef = useRef<{
@@ -190,6 +199,7 @@ function PanelGroupWithForwardedRef({
           panelConstraints: panelDataArray.map(
             (panelData) => panelData.constraints
           ),
+          validateLayout,
         });
 
         if (!areEqual(prevLayout, safeLayout)) {
@@ -209,7 +219,7 @@ function PanelGroupWithForwardedRef({
         }
       },
     }),
-    []
+    [validateLayout]
   );
 
   useIsomorphicLayoutEffect(() => {
@@ -221,6 +231,10 @@ function PanelGroupWithForwardedRef({
     committedValuesRef.current.storage = storage;
   });
 
+  useIsomorphicLayoutEffect(() => {
+    eagerValuesRef.current.validateLayoutChanged = true;
+  }, [validateLayout]);
+
   useWindowSplitterPanelGroupBehavior({
     committedValuesRef,
     eagerValuesRef,
@@ -229,6 +243,7 @@ function PanelGroupWithForwardedRef({
     panelDataArray: eagerValuesRef.current.panelDataArray,
     setLayout,
     panelGroupElement: panelGroupElementRef.current,
+    validateLayout,
   });
 
   useEffect(() => {
@@ -331,65 +346,69 @@ function PanelGroupWithForwardedRef({
   });
 
   // External APIs are safe to memoize via committed values ref
-  const collapsePanel = useCallback((panelData: PanelData) => {
-    const { onLayout } = committedValuesRef.current;
-    const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
+  const collapsePanel = useCallback(
+    (panelData: PanelData) => {
+      const { onLayout } = committedValuesRef.current;
+      const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
-    if (panelData.constraints.collapsible) {
-      const panelConstraintsArray = panelDataArray.map(
-        (panelData) => panelData.constraints
-      );
+      if (panelData.constraints.collapsible) {
+        const panelConstraintsArray = panelDataArray.map(
+          (panelData) => panelData.constraints
+        );
 
-      const {
-        collapsedSize = 0,
-        panelSize,
-        pivotIndices,
-      } = panelDataHelper(panelDataArray, panelData, prevLayout);
-
-      assert(
-        panelSize != null,
-        `Panel size not found for panel "${panelData.id}"`
-      );
-
-      if (!fuzzyNumbersEqual(panelSize, collapsedSize)) {
-        // Store size before collapse;
-        // This is the size that gets restored if the expand() API is used.
-        panelSizeBeforeCollapseRef.current.set(panelData.id, panelSize);
-
-        const isLastPanel =
-          findPanelDataIndex(panelDataArray, panelData) ===
-          panelDataArray.length - 1;
-        const delta = isLastPanel
-          ? panelSize - collapsedSize
-          : collapsedSize - panelSize;
-
-        const nextLayout = adjustLayoutByDelta({
-          delta,
-          initialLayout: prevLayout,
-          panelConstraints: panelConstraintsArray,
+        const {
+          collapsedSize = 0,
+          panelSize,
           pivotIndices,
-          prevLayout,
-          trigger: "imperative-api",
-        });
+        } = panelDataHelper(panelDataArray, panelData, prevLayout);
 
-        if (!compareLayouts(prevLayout, nextLayout)) {
-          setLayout(nextLayout);
+        assert(
+          panelSize != null,
+          `Panel size not found for panel "${panelData.id}"`
+        );
 
-          eagerValuesRef.current.layout = nextLayout;
+        if (!fuzzyNumbersEqual(panelSize, collapsedSize)) {
+          // Store size before collapse;
+          // This is the size that gets restored if the expand() API is used.
+          panelSizeBeforeCollapseRef.current.set(panelData.id, panelSize);
 
-          if (onLayout) {
-            onLayout(nextLayout);
+          const isLastPanel =
+            findPanelDataIndex(panelDataArray, panelData) ===
+            panelDataArray.length - 1;
+          const delta = isLastPanel
+            ? panelSize - collapsedSize
+            : collapsedSize - panelSize;
+
+          const nextLayout = adjustLayoutByDelta({
+            delta,
+            initialLayout: prevLayout,
+            panelConstraints: panelConstraintsArray,
+            pivotIndices,
+            prevLayout,
+            trigger: "imperative-api",
+            validateLayout,
+          });
+
+          if (!compareLayouts(prevLayout, nextLayout)) {
+            setLayout(nextLayout);
+
+            eagerValuesRef.current.layout = nextLayout;
+
+            if (onLayout) {
+              onLayout(nextLayout);
+            }
+
+            callPanelCallbacks(
+              panelDataArray,
+              nextLayout,
+              panelIdToLastNotifiedSizeMapRef.current
+            );
           }
-
-          callPanelCallbacks(
-            panelDataArray,
-            nextLayout,
-            panelIdToLastNotifiedSizeMapRef.current
-          );
         }
       }
-    }
-  }, []);
+    },
+    [validateLayout]
+  );
 
   // External APIs are safe to memoize via committed values ref
   const expandPanel = useCallback(
@@ -436,6 +455,7 @@ function PanelGroupWithForwardedRef({
             pivotIndices,
             prevLayout,
             trigger: "imperative-api",
+            validateLayout,
           });
 
           if (!compareLayouts(prevLayout, nextLayout)) {
@@ -456,7 +476,7 @@ function PanelGroupWithForwardedRef({
         }
       }
     },
-    []
+    [validateLayout]
   );
 
   // External APIs are safe to memoize via committed values ref
@@ -556,8 +576,12 @@ function PanelGroupWithForwardedRef({
   // (Re)calculate group layout whenever panels are registered or unregistered.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useIsomorphicLayoutEffect(() => {
-    if (eagerValuesRef.current.panelDataArrayChanged) {
+    if (
+      eagerValuesRef.current.panelDataArrayChanged ||
+      eagerValuesRef.current.validateLayoutChanged
+    ) {
       eagerValuesRef.current.panelDataArrayChanged = false;
+      eagerValuesRef.current.validateLayoutChanged = false;
 
       const { autoSaveId, onLayout, storage } = committedValuesRef.current;
       const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
@@ -588,6 +612,7 @@ function PanelGroupWithForwardedRef({
         panelConstraints: panelDataArray.map(
           (panelData) => panelData.constraints
         ),
+        validateLayout,
       });
 
       if (!areEqual(prevLayout, nextLayout)) {
@@ -616,118 +641,122 @@ function PanelGroupWithForwardedRef({
     };
   }, []);
 
-  const registerResizeHandle = useCallback((dragHandleId: string) => {
-    let isRTL = false;
-
-    const panelGroupElement = panelGroupElementRef.current;
-    if (panelGroupElement) {
-      const style = window.getComputedStyle(panelGroupElement, null);
-      if (style.getPropertyValue("direction") === "rtl") {
-        isRTL = true;
-      }
-    }
-
-    return function resizeHandler(event: ResizeEvent) {
-      event.preventDefault();
+  const registerResizeHandle = useCallback(
+    (dragHandleId: string) => {
+      let isRTL = false;
 
       const panelGroupElement = panelGroupElementRef.current;
-      if (!panelGroupElement) {
-        return () => null;
+      if (panelGroupElement) {
+        const style = window.getComputedStyle(panelGroupElement, null);
+        if (style.getPropertyValue("direction") === "rtl") {
+          isRTL = true;
+        }
       }
 
-      const {
-        direction,
-        dragState,
-        id: groupId,
-        keyboardResizeBy,
-        onLayout,
-      } = committedValuesRef.current;
-      const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
+      return function resizeHandler(event: ResizeEvent) {
+        event.preventDefault();
 
-      const { initialLayout } = dragState ?? {};
+        const panelGroupElement = panelGroupElementRef.current;
+        if (!panelGroupElement) {
+          return () => null;
+        }
 
-      const pivotIndices = determinePivotIndices(
-        groupId,
-        dragHandleId,
-        panelGroupElement
-      );
+        const {
+          direction,
+          dragState,
+          id: groupId,
+          keyboardResizeBy,
+          onLayout,
+        } = committedValuesRef.current;
+        const { layout: prevLayout, panelDataArray } = eagerValuesRef.current;
 
-      let delta = calculateDeltaPercentage(
-        event,
-        dragHandleId,
-        direction,
-        dragState,
-        keyboardResizeBy,
-        panelGroupElement
-      );
+        const { initialLayout } = dragState ?? {};
 
-      const isHorizontal = direction === "horizontal";
+        const pivotIndices = determinePivotIndices(
+          groupId,
+          dragHandleId,
+          panelGroupElement
+        );
 
-      if (isHorizontal && isRTL) {
-        delta = -delta;
-      }
+        let delta = calculateDeltaPercentage(
+          event,
+          dragHandleId,
+          direction,
+          dragState,
+          keyboardResizeBy,
+          panelGroupElement
+        );
 
-      const panelConstraints = panelDataArray.map(
-        (panelData) => panelData.constraints
-      );
+        const isHorizontal = direction === "horizontal";
 
-      const nextLayout = adjustLayoutByDelta({
-        delta,
-        initialLayout: initialLayout ?? prevLayout,
-        panelConstraints,
-        pivotIndices,
-        prevLayout,
-        trigger: isKeyDown(event) ? "keyboard" : "mouse-or-touch",
-      });
+        if (isHorizontal && isRTL) {
+          delta = -delta;
+        }
 
-      const layoutChanged = !compareLayouts(prevLayout, nextLayout);
+        const panelConstraints = panelDataArray.map(
+          (panelData) => panelData.constraints
+        );
 
-      // Only update the cursor for layout changes triggered by touch/mouse events (not keyboard)
-      // Update the cursor even if the layout hasn't changed (we may need to show an invalid cursor state)
-      if (isPointerEvent(event) || isMouseEvent(event)) {
-        // Watch for multiple subsequent deltas; this might occur for tiny cursor movements.
-        // In this case, Panel sizes might not change–
-        // but updating cursor in this scenario would cause a flicker.
-        if (prevDeltaRef.current != delta) {
-          prevDeltaRef.current = delta;
+        const nextLayout = adjustLayoutByDelta({
+          delta,
+          initialLayout: initialLayout ?? prevLayout,
+          panelConstraints,
+          pivotIndices,
+          prevLayout,
+          trigger: isKeyDown(event) ? "keyboard" : "mouse-or-touch",
+          validateLayout,
+        });
 
-          if (!layoutChanged && delta !== 0) {
-            // If the pointer has moved too far to resize the panel any further, note this so we can update the cursor.
-            // This mimics VS Code behavior.
-            if (isHorizontal) {
-              reportConstraintsViolation(
-                dragHandleId,
-                delta < 0 ? EXCEEDED_HORIZONTAL_MIN : EXCEEDED_HORIZONTAL_MAX
-              );
+        const layoutChanged = !compareLayouts(prevLayout, nextLayout);
+
+        // Only update the cursor for layout changes triggered by touch/mouse events (not keyboard)
+        // Update the cursor even if the layout hasn't changed (we may need to show an invalid cursor state)
+        if (isPointerEvent(event) || isMouseEvent(event)) {
+          // Watch for multiple subsequent deltas; this might occur for tiny cursor movements.
+          // In this case, Panel sizes might not change–
+          // but updating cursor in this scenario would cause a flicker.
+          if (prevDeltaRef.current != delta) {
+            prevDeltaRef.current = delta;
+
+            if (!layoutChanged && delta !== 0) {
+              // If the pointer has moved too far to resize the panel any further, note this so we can update the cursor.
+              // This mimics VS Code behavior.
+              if (isHorizontal) {
+                reportConstraintsViolation(
+                  dragHandleId,
+                  delta < 0 ? EXCEEDED_HORIZONTAL_MIN : EXCEEDED_HORIZONTAL_MAX
+                );
+              } else {
+                reportConstraintsViolation(
+                  dragHandleId,
+                  delta < 0 ? EXCEEDED_VERTICAL_MIN : EXCEEDED_VERTICAL_MAX
+                );
+              }
             } else {
-              reportConstraintsViolation(
-                dragHandleId,
-                delta < 0 ? EXCEEDED_VERTICAL_MIN : EXCEEDED_VERTICAL_MAX
-              );
+              reportConstraintsViolation(dragHandleId, 0);
             }
-          } else {
-            reportConstraintsViolation(dragHandleId, 0);
           }
         }
-      }
 
-      if (layoutChanged) {
-        setLayout(nextLayout);
+        if (layoutChanged) {
+          setLayout(nextLayout);
 
-        eagerValuesRef.current.layout = nextLayout;
+          eagerValuesRef.current.layout = nextLayout;
 
-        if (onLayout) {
-          onLayout(nextLayout);
+          if (onLayout) {
+            onLayout(nextLayout);
+          }
+
+          callPanelCallbacks(
+            panelDataArray,
+            nextLayout,
+            panelIdToLastNotifiedSizeMapRef.current
+          );
         }
-
-        callPanelCallbacks(
-          panelDataArray,
-          nextLayout,
-          panelIdToLastNotifiedSizeMapRef.current
-        );
-      }
-    };
-  }, []);
+      };
+    },
+    [validateLayout]
+  );
 
   // External APIs are safe to memoize via committed values ref
   const resizePanel = useCallback(
@@ -765,6 +794,7 @@ function PanelGroupWithForwardedRef({
         pivotIndices,
         prevLayout,
         trigger: "imperative-api",
+        validateLayout,
       });
 
       if (!compareLayouts(prevLayout, nextLayout)) {
@@ -783,7 +813,7 @@ function PanelGroupWithForwardedRef({
         );
       }
     },
-    []
+    [validateLayout]
   );
 
   const reevaluatePanelConstraints = useCallback(
@@ -997,4 +1027,8 @@ function panelDataHelper(
     panelSize,
     pivotIndices,
   };
+}
+
+function defaultValidateLayout(layout: number[]) {
+  return layout;
 }
