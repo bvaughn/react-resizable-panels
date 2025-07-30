@@ -60,18 +60,26 @@ test.describe("cursor style", () => {
     await dragResizeTo(
       page,
       "first-panel",
-      { size: 15, expectedCursor: getCursorStyle("horizontal", 0) },
+      { size: 15, expectedCursor: getCursorStyle("horizontal", 0, false) },
       {
         size: 5,
-        expectedCursor: getCursorStyle("horizontal", EXCEEDED_HORIZONTAL_MIN),
+        expectedCursor: getCursorStyle(
+          "horizontal",
+          EXCEEDED_HORIZONTAL_MIN,
+          false
+        ),
       },
-      { size: 15, expectedCursor: getCursorStyle("horizontal", 0) },
-      { size: 85, expectedCursor: getCursorStyle("horizontal", 0) },
+      { size: 15, expectedCursor: getCursorStyle("horizontal", 0, false) },
+      { size: 85, expectedCursor: getCursorStyle("horizontal", 0, false) },
       {
         size: 95,
-        expectedCursor: getCursorStyle("horizontal", EXCEEDED_HORIZONTAL_MAX),
+        expectedCursor: getCursorStyle(
+          "horizontal",
+          EXCEEDED_HORIZONTAL_MAX,
+          false
+        ),
       },
-      { size: 85, expectedCursor: getCursorStyle("horizontal", 0) }
+      { size: 85, expectedCursor: getCursorStyle("horizontal", 0, false) }
     );
 
     await openPage(page, "vertical");
@@ -79,18 +87,26 @@ test.describe("cursor style", () => {
     await dragResizeTo(
       page,
       "first-panel",
-      { size: 15, expectedCursor: getCursorStyle("vertical", 0) },
+      { size: 15, expectedCursor: getCursorStyle("vertical", 0, false) },
       {
         size: 5,
-        expectedCursor: getCursorStyle("vertical", EXCEEDED_VERTICAL_MIN),
+        expectedCursor: getCursorStyle(
+          "vertical",
+          EXCEEDED_VERTICAL_MIN,
+          false
+        ),
       },
-      { size: 15, expectedCursor: getCursorStyle("vertical", 0) },
-      { size: 85, expectedCursor: getCursorStyle("vertical", 0) },
+      { size: 15, expectedCursor: getCursorStyle("vertical", 0, false) },
+      { size: 85, expectedCursor: getCursorStyle("vertical", 0, false) },
       {
         size: 95,
-        expectedCursor: getCursorStyle("vertical", EXCEEDED_VERTICAL_MAX),
+        expectedCursor: getCursorStyle(
+          "vertical",
+          EXCEEDED_VERTICAL_MAX,
+          false
+        ),
       },
-      { size: 85, expectedCursor: getCursorStyle("vertical", 0) }
+      { size: 85, expectedCursor: getCursorStyle("vertical", 0, false) }
     );
   });
 
@@ -143,35 +159,52 @@ test.describe("cursor style", () => {
       "outer-group",
       ["horizontal-handle", "vertical-handle"],
       {
-        expectedCursor: getCursorStyle("intersection", 0),
+        expectedCursor: getCursorStyle("intersection", 0, false),
         sizeX: 0.4,
         sizeY: 0.4,
       },
       {
-        expectedCursor: getCursorStyle("intersection", 0),
+        expectedCursor: getCursorStyle("intersection", 0, false),
         sizeX: 0.6,
         sizeY: 0.6,
       },
       {
-        expectedCursor: getCursorStyle("intersection", EXCEEDED_HORIZONTAL_MIN),
+        expectedCursor: getCursorStyle(
+          "intersection",
+          EXCEEDED_HORIZONTAL_MIN,
+          false
+        ),
         sizeX: 0.1,
       },
       {
-        expectedCursor: getCursorStyle("intersection", EXCEEDED_HORIZONTAL_MAX),
+        expectedCursor: getCursorStyle(
+          "intersection",
+          EXCEEDED_HORIZONTAL_MAX,
+          false
+        ),
         sizeX: 0.9,
       },
       {
-        expectedCursor: getCursorStyle("intersection", EXCEEDED_VERTICAL_MIN),
+        expectedCursor: getCursorStyle(
+          "intersection",
+          EXCEEDED_VERTICAL_MIN,
+          false
+        ),
         sizeY: 0.1,
       },
       {
-        expectedCursor: getCursorStyle("intersection", EXCEEDED_VERTICAL_MAX),
+        expectedCursor: getCursorStyle(
+          "intersection",
+          EXCEEDED_VERTICAL_MAX,
+          false
+        ),
         sizeY: 0.9,
       },
       {
         expectedCursor: getCursorStyle(
           "intersection",
-          EXCEEDED_HORIZONTAL_MIN | EXCEEDED_VERTICAL_MIN
+          EXCEEDED_HORIZONTAL_MIN | EXCEEDED_VERTICAL_MIN,
+          false
         ),
         sizeX: 0.1,
         sizeY: 0.1,
@@ -179,7 +212,8 @@ test.describe("cursor style", () => {
       {
         expectedCursor: getCursorStyle(
           "intersection",
-          EXCEEDED_HORIZONTAL_MIN | EXCEEDED_VERTICAL_MAX
+          EXCEEDED_HORIZONTAL_MIN | EXCEEDED_VERTICAL_MAX,
+          false
         ),
         sizeX: 0.1,
         sizeY: 0.9,
@@ -187,7 +221,8 @@ test.describe("cursor style", () => {
       {
         expectedCursor: getCursorStyle(
           "intersection",
-          EXCEEDED_HORIZONTAL_MAX | EXCEEDED_VERTICAL_MIN
+          EXCEEDED_HORIZONTAL_MAX | EXCEEDED_VERTICAL_MIN,
+          false
         ),
         sizeX: 0.9,
         sizeY: 0.1,
@@ -195,7 +230,8 @@ test.describe("cursor style", () => {
       {
         expectedCursor: getCursorStyle(
           "intersection",
-          EXCEEDED_HORIZONTAL_MAX | EXCEEDED_VERTICAL_MAX
+          EXCEEDED_HORIZONTAL_MAX | EXCEEDED_VERTICAL_MAX,
+          false
         ),
         sizeX: 0.9,
         sizeY: 0.9,

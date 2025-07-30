@@ -6,6 +6,7 @@ import { usePanelGroupContext } from "./hooks/usePanelGroupContext";
 import { assert } from "./utils/assert";
 import { setNonce } from "./utils/csp";
 import {
+  customizeGlobalCursorStyles,
   disableGlobalCursorStyles,
   enableGlobalCursorStyles,
 } from "./utils/cursor";
@@ -37,6 +38,7 @@ import type {
   PanelResizeHandleProps,
 } from "./PanelResizeHandle";
 import type { PointerHitAreaMargins } from "./PanelResizeHandleRegistry";
+import type { CustomCursorStyleConfig } from "./utils/cursor";
 
 export {
   // TypeScript types
@@ -76,9 +78,13 @@ export {
   getResizeHandlePanelIds,
 
   // Styles and CSP (see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)
-  enableGlobalCursorStyles,
-  disableGlobalCursorStyles,
   setNonce,
+
+  // Global cursor configuration
+  customizeGlobalCursorStyles,
+  disableGlobalCursorStyles,
+  enableGlobalCursorStyles,
+  CustomCursorStyleConfig,
 
   // Data attributes (primarily intended for e2e testing)
   DATA_ATTRIBUTES,
