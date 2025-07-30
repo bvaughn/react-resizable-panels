@@ -8,10 +8,29 @@ import { getNonce } from "./csp";
 
 type CursorState = "horizontal" | "intersection" | "vertical";
 
+export type CustomCursorStyleConfig = {
+  exceedsHorizontalMaximum: boolean;
+  exceedsHorizontalMinimum: boolean;
+  exceedsVerticalMaximum: boolean;
+  exceedsVerticalMinimum: boolean;
+  intersectsHorizontalDragHandle: boolean;
+  intersectsVerticalDragHandle: boolean;
+  isPointerDown: boolean;
+};
+
+type GetCustomCursorStyleFunction = (config: CustomCursorStyleConfig) => string;
+
 let currentCursorStyle: string | null = null;
 let enabled: boolean = true;
+let getCustomCursorStyleFunction: GetCustomCursorStyleFunction | null = null;
 let prevRuleIndex = -1;
 let styleElement: HTMLStyleElement | null = null;
+
+export function customizeGlobalCursorStyles(
+  callback: GetCustomCursorStyleFunction | null
+) {
+  getCustomCursorStyleFunction = callback;
+}
 
 export function disableGlobalCursorStyles() {
   enabled = false;
@@ -23,14 +42,29 @@ export function enableGlobalCursorStyles() {
 
 export function getCursorStyle(
   state: CursorState,
-  constraintFlags: number
+  constraintFlags: number,
+  isPointerDown: boolean
 ): string {
-  if (constraintFlags) {
-    const horizontalMin = (constraintFlags & EXCEEDED_HORIZONTAL_MIN) !== 0;
-    const horizontalMax = (constraintFlags & EXCEEDED_HORIZONTAL_MAX) !== 0;
-    const verticalMin = (constraintFlags & EXCEEDED_VERTICAL_MIN) !== 0;
-    const verticalMax = (constraintFlags & EXCEEDED_VERTICAL_MAX) !== 0;
+  const horizontalMin = (constraintFlags & EXCEEDED_HORIZONTAL_MIN) !== 0;
+  const horizontalMax = (constraintFlags & EXCEEDED_HORIZONTAL_MAX) !== 0;
+  const verticalMin = (constraintFlags & EXCEEDED_VERTICAL_MIN) !== 0;
+  const verticalMax = (constraintFlags & EXCEEDED_VERTICAL_MAX) !== 0;
 
+  if (getCustomCursorStyleFunction) {
+    return getCustomCursorStyleFunction({
+      exceedsHorizontalMaximum: horizontalMax,
+      exceedsHorizontalMinimum: horizontalMin,
+      exceedsVerticalMaximum: verticalMax,
+      exceedsVerticalMinimum: verticalMin,
+      intersectsHorizontalDragHandle:
+        state === "horizontal" || state === "intersection",
+      intersectsVerticalDragHandle:
+        state === "vertical" || state === "intersection",
+      isPointerDown,
+    });
+  }
+
+  if (constraintFlags) {
     if (horizontalMin) {
       if (verticalMin) {
         return "se-resize";
@@ -76,13 +110,14 @@ export function resetGlobalCursorStyle() {
 
 export function setGlobalCursorStyle(
   state: CursorState,
-  constraintFlags: number
+  constraintFlags: number,
+  isPointerDown: boolean
 ) {
   if (!enabled) {
     return;
   }
 
-  const style = getCursorStyle(state, constraintFlags);
+  const style = getCursorStyle(state, constraintFlags, isPointerDown);
 
   if (currentCursorStyle === style) {
     return;

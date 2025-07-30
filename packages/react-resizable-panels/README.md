@@ -247,3 +247,15 @@ import { disableGlobalCursorStyles } from "react-resizable-panels";
 
 disableGlobalCursorStyles();
 ```
+
+#### How can I override the global cursor styles?
+
+```js
+import { customizeGlobalCursorStyles, type CustomCursorStyleConfig } from "react-resizable-panels";
+
+function customCursor({ isPointerDown }: CustomCursorStyleConfig) {
+  return isPointerDown ? "grabbing" : "grab";
+}
+
+customizeGlobalCursorStyles(customCursor);
+```

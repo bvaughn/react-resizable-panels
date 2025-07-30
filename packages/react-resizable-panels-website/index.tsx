@@ -1,9 +1,12 @@
-import { StrictMode, useEffect } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
+import EndToEndTestingRoute from "./src/routes/EndToEndTesting";
 import HomeRoute from "./src/routes/Home";
+import CollapsibleExampleRoute from "./src/routes/examples/Collapsible";
 import ConditionalExampleRoute from "./src/routes/examples/Conditional";
+import CustomCursorExampleRoute from "./src/routes/examples/CustomCursorExampleRoute";
 import ExternalPersistenceExampleRoute from "./src/routes/examples/ExternalPersistence";
 import HorizontalExampleRoute from "./src/routes/examples/Horizontal";
 import ImperativePanelApiExampleRoute from "./src/routes/examples/ImperativePanelApi";
@@ -11,9 +14,7 @@ import ImperativePanelGroupApiExampleRoute from "./src/routes/examples/Imperativ
 import NestedExampleRoute from "./src/routes/examples/Nested";
 import OverflowExampleRoute from "./src/routes/examples/Overflow";
 import PersistenceExampleRoute from "./src/routes/examples/Persistence";
-import CollapsibleExampleRoute from "./src/routes/examples/Collapsible";
 import VerticalExampleRoute from "./src/routes/examples/Vertical";
-import EndToEndTestingRoute from "./src/routes/EndToEndTesting";
 import IframeRoute from "./src/routes/iframe";
 
 const router = createBrowserRouter([
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
   {
     path: "/examples/conditional",
     element: <ConditionalExampleRoute />,
+  },
+  {
+    path: "/examples/custom-cursor",
+    element: <CustomCursorExampleRoute />,
   },
   {
     path: "/examples/external-persistence",

@@ -104,6 +104,9 @@ function handlePointerDown(event: PointerEvent) {
   if (intersectingHandles.length > 0) {
     updateResizeHandlerStates("down", event);
 
+    // Update cursor based on return value(s) from active handles
+    updateCursor();
+
     event.preventDefault();
 
     if (!isWithinResizeHandle(target as HTMLElement)) {
@@ -290,11 +293,11 @@ function updateCursor() {
   });
 
   if (intersectsHorizontal && intersectsVertical) {
-    setGlobalCursorStyle("intersection", constraintFlags);
+    setGlobalCursorStyle("intersection", constraintFlags, isPointerDown);
   } else if (intersectsHorizontal) {
-    setGlobalCursorStyle("horizontal", constraintFlags);
+    setGlobalCursorStyle("horizontal", constraintFlags, isPointerDown);
   } else if (intersectsVertical) {
-    setGlobalCursorStyle("vertical", constraintFlags);
+    setGlobalCursorStyle("vertical", constraintFlags, isPointerDown);
   } else {
     resetGlobalCursorStyle();
   }
