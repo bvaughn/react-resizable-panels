@@ -1,5 +1,9 @@
 # Changelog
 
+# 3.0.4
+
+- [#503](https://github.com/bvaughn/react-resizable-panels/pull/503): Support custom cursors
+
 # 3.0.3
 
 - [#492](https://github.com/bvaughn/react-resizable-panels/pull/492): Fix compatibility with cloudflare workers
