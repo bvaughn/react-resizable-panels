@@ -68,6 +68,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `order`         | `?number`                 | Order of panel within group; required for groups with conditionally rendered panels           |
 | `style`         | `?CSSProperties`          | CSS style to attach to root element                                                           |
 | `tagName`       | `?string = "div"`         | HTML element tag name for root element                                                        |
+| `precision`      | `?number = 1`             | Decimal precision of `data-panel-size`. defaults to `1`                                         |
 
 <sup>1</sup>: If any `Panel` has an `onResize` callback, the `order` prop should be provided for all `Panel`s.
 
