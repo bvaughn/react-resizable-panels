@@ -80,7 +80,6 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `getSize(): number`      | Gets the current size of the panel as a percentage (`1 - 100`).                    |
 | `isCollapsed(): boolean` | Returns `true` if the panel is currently _collapsed_ (`size === 0`).               |
 | `isExpanded(): boolean`  | Returns `true` if the panel is currently _not collapsed_ (`!isCollapsed()`).       |
-| `getSize(): number`      | Returns the most recently committed size of the panel as a percentage (`1 - 100`). |
 | `resize(size: number)`   | Resize panel to the specified _percentage_ (`1 - 100`).                            |
 
 ### `PanelResizeHandle`
