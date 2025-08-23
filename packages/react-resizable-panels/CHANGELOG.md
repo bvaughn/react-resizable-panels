@@ -1,5 +1,8 @@
 # Changelog
 
+# 3.0.5
+- [#512](https://github.com/bvaughn/react-resizable-panels/pull/512): Fixed size precision regression from 2.0.17
+
 # 3.0.4
 
 - [#503](https://github.com/bvaughn/react-resizable-panels/pull/503): Support custom cursors
