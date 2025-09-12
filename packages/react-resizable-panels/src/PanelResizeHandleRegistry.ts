@@ -120,7 +120,12 @@ function handlePointerMove(event: PointerEvent) {
 
   // Edge case (see #340)
   // Detect when the pointer has been released outside an iframe on a different domain
-  if (isPointerDown && event.buttons === 0) {
+  if (
+    isPointerDown &&
+    // Skip this check for "pointerleave" events, else Firefox triggers a false positive (see #514)
+    event.type !== "pointerleave" &&
+    event.buttons === 0
+  ) {
     isPointerDown = false;
 
     updateResizeHandlerStates("up", event);
