@@ -1,5 +1,8 @@
 # Changelog
 
+# 3.0.6
+- [#517](https://github.com/bvaughn/react-resizable-panels/pull/517): Fixed Firefox bug that caused resizing to be interrupted unexpected
+
 # 3.0.5
 - [#512](https://github.com/bvaughn/react-resizable-panels/pull/512): Fixed size precision regression from 2.0.17
 
