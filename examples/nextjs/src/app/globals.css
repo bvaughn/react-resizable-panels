@@ -1,0 +1,91 @@
+:root {
+  --color-background-code: #050a15;
+  --color-background-default: #081120;
+  --color-brand: #dcadff;
+  --color-button-background: #2a3343;
+  --color-button-background-hover: #39414d;
+  --color-button-border: #18181a;
+  --color-code: #dcadff;
+  --color-default: #ffffff;
+  --color-dim: #91a0ba;
+  --color-horizontal-rule: #39414d;
+  --color-input: #ffffff;
+  --color-input-background: #18181a;
+  --color-input-border: #39414d;
+  --color-input-border-focused: #dcadff;
+  --color-link: #dcadff;
+  --color-panel-background: #192230;
+  --color-panel-background-alternate: #202124;
+  --color-resize-bar: #515b6a;
+  --color-resize-bar-active: #b1bdd0;
+  --color-resize-bar-hover: #515b6a;
+  --color-warning-background: #7400cc;
+
+  --color-scroll-thumb: #515b6a;
+}
+
+:root,
+html,
+body {
+  padding: 0;
+  margin: 0;
+  max-width: 100vw;
+  overflow-x: hidden;
+
+  background-color: var(--color-background-default);
+  color: var(--color-default);
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+}
+
+* {
+  box-sizing: border-box;
+  line-height: 1.5em;
+}
+
+p {
+  margin: 0.5rem 0;
+}
+
+code {
+  color: var(--color-code);
+  background-color: var(--color-background-code);
+  font-family: monospace;
+  padding: 0 0.25em;
+  border-radius: 0.25em;
+}
+
+h1,
+h2 {
+  font-weight: normal;
+  margin: 0.5rem 0;
+}
+
+a {
+  color: var(--color-link);
+}
+
+::-webkit-scrollbar {
+  width: 0.75rem;
+  height: 0.75rem;
+  background: transparent;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 0.75rem;
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 0.75rem;
+  background: var(--color-scroll-thumb);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-resize-bar-hover);
+}

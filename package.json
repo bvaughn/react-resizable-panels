@@ -14,6 +14,7 @@
     "dev": "pnpm run /^dev:.*/",
     "dev:core": "cd packages/react-resizable-panels && pnpm watch",
     "dev:website": "cd packages/react-resizable-panels-website && pnpm watch",
+    "next:dev": "pnpm --filter react-resizable-panels-nextjs dev",
     "docs": "cd packages/react-resizable-panels-website && pnpm build",
     "lint": "cd packages/react-resizable-panels && pnpm lint",
     "prerelease": "preconstruct build",
