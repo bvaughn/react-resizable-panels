@@ -1,11 +1,16 @@
 import { PanelData } from "../Panel";
 import { PanelGroupStorage } from "../PanelGroup";
 
+export type PanelLayoutItem = {
+  panelId: string;
+  size: number;
+};
+
 export type PanelConfigurationState = {
   expandToSizes: {
     [panelId: string]: number;
   };
-  layout: number[];
+  layout: PanelLayoutItem[];
 };
 
 export type SerializedPanelGroupState = {
@@ -63,10 +68,55 @@ export function loadPanelGroupState(
   autoSaveId: string,
   panels: PanelData[],
   storage: PanelGroupStorage
-): PanelConfigurationState | null {
+): { layout: number[]; expandToSizes: Record<string, number> } | null {
   const state = loadSerializedPanelGroupState(autoSaveId, storage) ?? {};
   const panelKey = getPanelKey(panels);
-  return state[panelKey] ?? null;
+  const savedState = state[panelKey];
+
+  if (!savedState) {
+    return null;
+  }
+
+  // Handle both old format (number[]) and new format (PanelLayoutItem[])
+  let layout: number[];
+  if (Array.isArray(savedState.layout)) {
+    if (
+      savedState.layout.length > 0 &&
+      typeof savedState.layout[0] === "object" &&
+      savedState.layout[0] !== null &&
+      "panelId" in savedState.layout[0]
+    ) {
+      // New format: PanelLayoutItem[]
+      const layoutWithIds = savedState.layout as PanelLayoutItem[];
+
+      // Create a map of panelId to value for quick lookup
+      const panelIdToValue = new Map<string, number>();
+      layoutWithIds.forEach((item) => {
+        panelIdToValue.set(item.panelId, item.size);
+      });
+
+      // Map the layout to match current panel order
+      layout = panels.map((panel) => panelIdToValue.get(panel.id) || 0);
+
+      // If we don't have values for all panels, fall back to null
+      if (
+        layout.some((size) => size === 0) &&
+        layoutWithIds.length !== panels.length
+      ) {
+        return null;
+      }
+    } else {
+      // Old format: number[] - need to cast through unknown to handle type mismatch
+      layout = savedState.layout as unknown as number[];
+    }
+  } else {
+    return null;
+  }
+
+  return {
+    layout,
+    expandToSizes: savedState.expandToSizes || {},
+  };
 }
 
 export function savePanelGroupState(
@@ -79,9 +129,16 @@ export function savePanelGroupState(
   const panelGroupKey = getPanelGroupKey(autoSaveId);
   const panelKey = getPanelKey(panels);
   const state = loadSerializedPanelGroupState(autoSaveId, storage) ?? {};
+
+  // Convert number[] layout to PanelLayoutItem[] with panel IDs
+  const layoutWithIds: PanelLayoutItem[] = sizes.map((size, index) => ({
+    panelId: panels[index]?.id || `panel-${index}`,
+    size,
+  }));
+
   state[panelKey] = {
     expandToSizes: Object.fromEntries(panelSizesBeforeCollapse.entries()),
-    layout: sizes,
+    layout: layoutWithIds,
   };
 
   try {

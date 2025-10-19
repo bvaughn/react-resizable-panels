@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import {
   DEFAULT_STORAGE_KEY_PREFIX,
+  PanelLayoutItem,
   SerializedPanelGroupState,
 } from "./utils/serialization";
 import { DATA_ATTRIBUTES } from "./constants";
@@ -38,62 +39,31 @@ function persist(
     }
   } catch (error) {}
 
-  console.log("PersistScript loaded", p);
-
-  let layout = null;
+  let layout: PanelLayoutItem[] | null = null;
   if (p && typeof p === "object") {
     const keys = Object.keys(p);
     if (keys.length > 0) {
       const firstKey = keys[0];
-      const stateData = p[firstKey];
+      const stateData = firstKey ? p[firstKey] : null;
       if (stateData && typeof stateData === "object" && "layout" in stateData) {
         layout = stateData.layout;
       }
     }
   }
 
-  console.log("Extracted layout:", layout);
-
-  // // find element with data attribute
-  // const panelGroupElement = document.querySelector(
-  //   `[${v}="${i}"]`
-  // ) as HTMLElement | null;
-
-  // console.log("Found panel group element:", panelGroupElement);
-
-  // // find immediate children with data-panel attributes
-  // const panelElements = panelGroupElement?.querySelectorAll(
-  //   `:scope > [${w}=""]`
-  // ) as NodeListOf<HTMLElement>;
-
-  // console.log("Found panel elements:", panelElements);
-
-  // // go through panelElements and add css variable --panel-size
-  // if (panelElements && layout && Array.isArray(layout)) {
-  //   panelElements.forEach((el, index) => {
-  //     const size = layout ? layout[index] : null;
-  //     if (size != null) {
-  //       el.style.setProperty("--panel-size", `${size}%`);
-  //       console.log(
-  //         `Set --panel-size for panel ${index} to ${size}%`,
-  //         el,
-  //         size
-  //       );
-  //     }
-  //   });
-  // }
-
   // find the panel with the panelId
   const panel = document.querySelector(
     `[data-panel-id="${x}"]`
   ) as HTMLElement | null;
 
-  console.log("Found panel element:", panel);
-
   // set the --panel-size css variable on the panel
   if (panel && layout) {
-    panel.style.setProperty("--panel-size-x", `${layout}%`);
-    console.log(`Set --panel-size for panel ${x} to ${layout}%`, panel);
+    // find element in layout by panelId
+    const item = layout.find((item) => item.panelId === x);
+    if (item) {
+      panel.style.setProperty("--panel-size", `${item.size}%`);
+      console.log(`Set --panel-size for panel ${x} to ${item.size}%`, panel);
+    }
   }
 }
 
