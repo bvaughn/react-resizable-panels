@@ -23,7 +23,12 @@ export default function Home() {
               <div className={styles.Centered}>left</div>
             </Panel>
             <ResizeHandle className={styles.ResizeHandle} />
-            <Panel className={styles.PanelRow} minSize={35} order={2}>
+            <Panel
+              className={styles.PanelRow}
+              minSize={35}
+              defaultSize={60}
+              order={2}
+            >
               <PanelGroup
                 className={styles.PanelGroup}
                 autoSaveId="persistence2"
@@ -38,17 +43,32 @@ export default function Home() {
                   <div className={styles.Centered}>top</div>
                 </Panel>
                 <ResizeHandle className={styles.ResizeHandle} />
-                <Panel className={styles.PanelColumn} minSize={10} order={2}>
+                <Panel
+                  className={styles.PanelColumn}
+                  defaultSize={65}
+                  minSize={10}
+                  order={2}
+                >
                   <PanelGroup
                     className={styles.PanelGroup}
                     autoSaveId="persistence3"
                     direction="horizontal"
                   >
-                    <Panel className={styles.PanelRow} minSize={10} order={1}>
+                    <Panel
+                      className={styles.PanelRow}
+                      defaultSize={50}
+                      minSize={10}
+                      order={1}
+                    >
                       <div className={styles.Centered}>left</div>
                     </Panel>
                     <ResizeHandle className={styles.ResizeHandle} />
-                    <Panel className={styles.PanelRow} minSize={10} order={2}>
+                    <Panel
+                      className={styles.PanelRow}
+                      defaultSize={50}
+                      minSize={10}
+                      order={2}
+                    >
                       <div className={styles.Centered}>right</div>
                     </Panel>
                   </PanelGroup>
