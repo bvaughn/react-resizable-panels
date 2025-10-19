@@ -4,6 +4,8 @@ import { PanelData } from "../Panel";
 import { DragState } from "../PanelGroupContext";
 import { CSSProperties } from "react";
 
+export const panelSizeCssVar = "--panel-size";
+
 // the % of the group's overall space this panel should occupy.
 export function computePanelFlexBoxStyle({
   defaultSize,
@@ -35,8 +37,9 @@ export function computePanelFlexBoxStyle({
   }
 
   return {
+    [panelSizeCssVar]: flexGrow,
     flexBasis: 0,
-    flexGrow,
+    flexGrow: `var(${panelSizeCssVar})`,
     flexShrink: 1,
 
     // Without this, Panel sizes may be unintentionally overridden by their content
@@ -45,5 +48,5 @@ export function computePanelFlexBoxStyle({
     // Disable pointer events inside of a panel during resize
     // This avoid edge cases like nested iframes
     pointerEvents: dragState !== null ? "none" : undefined,
-  };
+  } as CSSProperties;
 }

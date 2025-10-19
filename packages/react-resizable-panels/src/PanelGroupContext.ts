@@ -36,6 +36,7 @@ export type TPanelGroupContext = {
   stopDragging: () => void;
   unregisterPanel: (panelData: PanelData) => void;
   panelGroupElement: ParentNode | null;
+  autoSaveId?: string | null;
 };
 export const PanelGroupContext = createContext<TPanelGroupContext | null>(null);
 

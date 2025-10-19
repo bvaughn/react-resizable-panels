@@ -909,6 +909,7 @@ function PanelGroupWithForwardedRef({
         stopDragging,
         unregisterPanel,
         panelGroupElement: panelGroupElementRef.current,
+        autoSaveId,
       }) satisfies TPanelGroupContext,
     [
       collapsePanel,
@@ -927,6 +928,7 @@ function PanelGroupWithForwardedRef({
       startDragging,
       stopDragging,
       unregisterPanel,
+      autoSaveId,
     ]
   );
 
@@ -957,6 +959,7 @@ function PanelGroupWithForwardedRef({
       [DATA_ATTRIBUTES.group]: "",
       [DATA_ATTRIBUTES.groupDirection]: direction,
       [DATA_ATTRIBUTES.groupId]: groupId,
+      [DATA_ATTRIBUTES.autoSaveId]: autoSaveId || undefined,
     })
   );
 }

@@ -12,8 +12,13 @@ export type SerializedPanelGroupState = {
   [panelIds: string]: PanelConfigurationState;
 };
 
-function getPanelGroupKey(autoSaveId: string): string {
-  return `react-resizable-panels:${autoSaveId}`;
+export const DEFAULT_STORAGE_KEY_PREFIX = "react-resizable-panels";
+
+export function getPanelGroupKey(
+  autoSaveId: string,
+  prefix = DEFAULT_STORAGE_KEY_PREFIX
+): string {
+  return `${prefix}:${autoSaveId}`;
 }
 
 // Note that Panel ids might be user-provided (stable) or useId generated (non-deterministic)

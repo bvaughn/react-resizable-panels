@@ -2,6 +2,7 @@ import { isBrowser } from "#is-browser";
 import { isDevelopment } from "#is-development";
 import {
   ForwardedRef,
+  Fragment,
   HTMLAttributes,
   PropsWithChildren,
   ReactElement,
@@ -15,6 +16,8 @@ import { PanelGroupContext } from "./PanelGroupContext";
 import { DATA_ATTRIBUTES } from "./constants";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
+import { panelSizeCssVar } from "./utils/computePanelFlexBoxStyle";
+import { PersistScript } from "./PersistScript";
 
 export type PanelOnCollapse = () => void;
 export type PanelOnExpand = () => void;
@@ -102,6 +105,7 @@ export function PanelWithForwardedRef({
   }
 
   const {
+    autoSaveId,
     collapsePanel,
     expandPanel,
     getPanelSize,
@@ -234,7 +238,15 @@ export function PanelWithForwardedRef({
   return createElement(Type, {
     ...rest,
 
-    children,
+    children: createElement(
+      Fragment,
+      null,
+      createElement(PersistScript, {
+        autoSaveId,
+        panelId,
+      }),
+      children
+    ),
     className: classNameFromProps,
     id: panelId,
     style: {
@@ -247,7 +259,10 @@ export function PanelWithForwardedRef({
     [DATA_ATTRIBUTES.panel]: "",
     [DATA_ATTRIBUTES.panelCollapsible]: collapsible || undefined,
     [DATA_ATTRIBUTES.panelId]: panelId,
-    [DATA_ATTRIBUTES.panelSize]: parseFloat("" + style.flexGrow).toFixed(1),
+    [DATA_ATTRIBUTES.panelSize]: parseFloat(
+      "" + (style as any)[panelSizeCssVar]
+    ).toFixed(1),
+    suppressHydrationWarning: true,
   });
 }
 

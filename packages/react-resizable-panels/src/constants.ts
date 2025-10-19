@@ -11,6 +11,7 @@ export const DATA_ATTRIBUTES = {
   resizeHandleEnabled: "data-panel-resize-handle-enabled",
   resizeHandleId: "data-panel-resize-handle-id",
   resizeHandleState: "data-resize-handle-state",
+  autoSaveId: "data-panel-auto-save-id",
 } as const;
 
 export const PRECISION = 10;
