@@ -5,46 +5,34 @@ import {
   SerializedPanelGroupState,
 } from "./utils/serialization";
 import { DATA_ATTRIBUTES } from "./constants";
+import { panelSizeCssVar } from "./utils/computePanelFlexBoxStyle";
 
 function persist(
-  /**
-   * autoSaveId
-   */
-  i: string | null,
-  /**
-   * storageKeyPrefix
-   */
-  k?: string,
-  /**
-   * autoSaveId data attribute
-   */
-  v?: string,
-  /**
-   * panel data attribute
-   */
-  w?: string,
-  /**
-   * panelId
-   */
-  x?: string
+  autoSaveId: string | null,
+  storageKeyPrefix: string,
+  panelIdDataAttributeName: string,
+  panelOrderDataAttributeName: string,
+  panelId: string,
+  panelSizeCssVar: string
 ) {
-  let p: SerializedPanelGroupState | null = null;
+  let state: SerializedPanelGroupState | null = null;
   try {
-    const r = i && localStorage.getItem(`${k}:${i}`);
-    if (r) {
-      const d = JSON.parse(r);
-      if (typeof d === "object" && d != null) {
-        p = d as SerializedPanelGroupState;
+    const rawState =
+      autoSaveId && localStorage.getItem(`${storageKeyPrefix}:${autoSaveId}`);
+    if (rawState) {
+      const parsedState = JSON.parse(rawState);
+      if (typeof parsedState === "object" && parsedState != null) {
+        state = parsedState as SerializedPanelGroupState;
       }
     }
   } catch (error) {}
 
   let layout: PanelLayoutItem[] | null = null;
-  if (p && typeof p === "object") {
-    const keys = Object.keys(p);
+  if (state && typeof state === "object") {
+    const keys = Object.keys(state);
     if (keys.length > 0) {
       const firstKey = keys[0];
-      const stateData = firstKey ? p[firstKey] : null;
+      const stateData = firstKey ? state[firstKey] : null;
       if (stateData && typeof stateData === "object" && "layout" in stateData) {
         layout = stateData.layout;
       }
@@ -52,16 +40,18 @@ function persist(
   }
 
   const panel = document.querySelector(
-    `[data-panel-id="${x}"]`
+    `[${panelIdDataAttributeName}="${panelId}"]`
   ) as HTMLElement | null;
 
   if (panel && layout) {
-    const panelOrderAttr = panel.getAttribute("data-panel-order");
+    const panelOrderAttr = panel.getAttribute(
+      panelOrderDataAttributeName || ""
+    );
     if (panelOrderAttr) {
       const panelOrder = parseInt(panelOrderAttr, 10);
       const item = layout.find((item) => item.order === panelOrder);
       if (item) {
-        panel.style.setProperty("--panel-size", `${item.size}`);
+        panel.style.setProperty(panelSizeCssVar, `${item.size}`);
       }
     }
   }
@@ -70,10 +60,10 @@ function persist(
 const PERSIST_STR = persist.toString();
 
 export interface PersistScriptProps {
-  nonce?: string;
-  autoSaveId?: string | null;
+  panelId: string;
+  autoSaveId: string | null;
   storageKeyPrefix?: string;
-  panelId?: string;
+  nonce?: string;
 }
 
 export const PersistScript = ({
@@ -85,9 +75,10 @@ export const PersistScript = ({
   const scriptArgs = JSON.stringify([
     autoSaveId,
     storageKeyPrefix,
-    DATA_ATTRIBUTES.autoSaveId,
-    DATA_ATTRIBUTES.panel,
+    DATA_ATTRIBUTES.panelId,
+    DATA_ATTRIBUTES.panelOrder,
     panelId,
+    panelSizeCssVar,
   ]).slice(1, -1);
 
   return createElement("script", {

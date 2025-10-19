@@ -241,10 +241,12 @@ export function PanelWithForwardedRef({
     children: createElement(
       Fragment,
       null,
-      createElement(PersistScript, {
-        autoSaveId,
-        panelId,
-      }),
+      autoSaveId
+        ? createElement(PersistScript, {
+            autoSaveId,
+            panelId,
+          })
+        : null,
       children
     ),
     className: classNameFromProps,
@@ -264,6 +266,8 @@ export function PanelWithForwardedRef({
     [DATA_ATTRIBUTES.panelSize]: parseFloat(
       "" + (style as any)[panelSizeCssVar]
     ).toFixed(1),
+
+    // TODO: find a way to avoid suppressHydrationWarning globally, maybe add CSS variable to the body, but then variable should contain groupId and order, e.g --panel-size-<groupId>-<order>
     suppressHydrationWarning: true,
   });
 }

@@ -86,19 +86,15 @@ export function loadPanelGroupState(
       savedState.layout[0] !== null &&
       "order" in savedState.layout[0]
     ) {
-      // New format: PanelLayoutItem[]
       const layoutWithIds = savedState.layout as PanelLayoutItem[];
 
-      // Create a map of order to size for quick lookup
       const orderToValue = new Map<number, number>();
       layoutWithIds.forEach((item) => {
         orderToValue.set(item.order, item.size);
       });
 
-      // Map the layout to match current panel order
       layout = panels.map((panel) => orderToValue.get(panel.order ?? 0) || 0);
 
-      // If we don't have values for all panels, fall back to null
       if (
         layout.some((size) => size === 0) &&
         layoutWithIds.length !== panels.length
@@ -106,7 +102,6 @@ export function loadPanelGroupState(
         return null;
       }
     } else {
-      // Old format: number[] - need to cast through unknown to handle type mismatch
       layout = savedState.layout as unknown as number[];
     }
   } else {
