@@ -51,18 +51,18 @@ function persist(
     }
   }
 
-  // find the panel with the panelId
   const panel = document.querySelector(
     `[data-panel-id="${x}"]`
   ) as HTMLElement | null;
 
-  // set the --panel-size css variable on the panel
   if (panel && layout) {
-    // find element in layout by panelId
-    const item = layout.find((item) => item.panelId === x);
-    if (item) {
-      panel.style.setProperty("--panel-size", `${item.size}%`);
-      console.log(`Set --panel-size for panel ${x} to ${item.size}%`, panel);
+    const panelOrderAttr = panel.getAttribute("data-panel-order");
+    if (panelOrderAttr) {
+      const panelOrder = parseInt(panelOrderAttr, 10);
+      const item = layout.find((item) => item.order === panelOrder);
+      if (item) {
+        panel.style.setProperty("--panel-size", `${item.size}`);
+      }
     }
   }
 }

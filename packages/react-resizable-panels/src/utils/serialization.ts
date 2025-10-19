@@ -2,7 +2,7 @@ import { PanelData } from "../Panel";
 import { PanelGroupStorage } from "../PanelGroup";
 
 export type PanelLayoutItem = {
-  panelId: string;
+  order: number;
   size: number;
 };
 
@@ -84,19 +84,19 @@ export function loadPanelGroupState(
       savedState.layout.length > 0 &&
       typeof savedState.layout[0] === "object" &&
       savedState.layout[0] !== null &&
-      "panelId" in savedState.layout[0]
+      "order" in savedState.layout[0]
     ) {
       // New format: PanelLayoutItem[]
       const layoutWithIds = savedState.layout as PanelLayoutItem[];
 
-      // Create a map of panelId to value for quick lookup
-      const panelIdToValue = new Map<string, number>();
+      // Create a map of order to size for quick lookup
+      const orderToValue = new Map<number, number>();
       layoutWithIds.forEach((item) => {
-        panelIdToValue.set(item.panelId, item.size);
+        orderToValue.set(item.order, item.size);
       });
 
       // Map the layout to match current panel order
-      layout = panels.map((panel) => panelIdToValue.get(panel.id) || 0);
+      layout = panels.map((panel) => orderToValue.get(panel.order ?? 0) || 0);
 
       // If we don't have values for all panels, fall back to null
       if (
@@ -130,9 +130,8 @@ export function savePanelGroupState(
   const panelKey = getPanelKey(panels);
   const state = loadSerializedPanelGroupState(autoSaveId, storage) ?? {};
 
-  // Convert number[] layout to PanelLayoutItem[] with panel IDs
   const layoutWithIds: PanelLayoutItem[] = sizes.map((size, index) => ({
-    panelId: panels[index]?.id || `panel-${index}`,
+    order: panels[index]?.order ?? index,
     size,
   }));
 

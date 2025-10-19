@@ -14,11 +14,16 @@ export default function Home() {
             autoSaveId="persistence1"
             direction="horizontal"
           >
-            <Panel className={styles.PanelRow} defaultSize={20} minSize={10}>
+            <Panel
+              className={styles.PanelRow}
+              defaultSize={20}
+              minSize={10}
+              order={1}
+            >
               <div className={styles.Centered}>left</div>
             </Panel>
             <ResizeHandle className={styles.ResizeHandle} />
-            <Panel className={styles.PanelRow} minSize={35}>
+            <Panel className={styles.PanelRow} minSize={35} order={2}>
               <PanelGroup
                 className={styles.PanelGroup}
                 autoSaveId="persistence2"
@@ -28,21 +33,22 @@ export default function Home() {
                   className={styles.PanelColumn}
                   defaultSize={35}
                   minSize={10}
+                  order={1}
                 >
                   <div className={styles.Centered}>top</div>
                 </Panel>
                 <ResizeHandle className={styles.ResizeHandle} />
-                <Panel className={styles.PanelColumn} minSize={10}>
+                <Panel className={styles.PanelColumn} minSize={10} order={2}>
                   <PanelGroup
                     className={styles.PanelGroup}
                     autoSaveId="persistence3"
                     direction="horizontal"
                   >
-                    <Panel className={styles.PanelRow} minSize={10}>
+                    <Panel className={styles.PanelRow} minSize={10} order={1}>
                       <div className={styles.Centered}>left</div>
                     </Panel>
                     <ResizeHandle className={styles.ResizeHandle} />
-                    <Panel className={styles.PanelRow} minSize={10}>
+                    <Panel className={styles.PanelRow} minSize={10} order={2}>
                       <div className={styles.Centered}>right</div>
                     </Panel>
                   </PanelGroup>
@@ -50,7 +56,12 @@ export default function Home() {
               </PanelGroup>
             </Panel>
             <ResizeHandle className={styles.ResizeHandle} />
-            <Panel className={styles.PanelRow} defaultSize={20} minSize={10}>
+            <Panel
+              className={styles.PanelRow}
+              defaultSize={20}
+              minSize={10}
+              order={3}
+            >
               <div className={styles.Centered}>right</div>
             </Panel>
           </PanelGroup>
