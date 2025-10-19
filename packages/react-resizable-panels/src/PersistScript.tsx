@@ -27,6 +27,10 @@ function persist(
     }
   } catch (error) {}
 
+  if (!state) {
+    return;
+  }
+
   let layout: PanelLayoutItem[] | null = null;
   if (state && typeof state === "object") {
     const keys = Object.keys(state);
