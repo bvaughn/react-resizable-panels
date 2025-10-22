@@ -18,7 +18,7 @@ export default function Home() {
               className={styles.PanelRow}
               defaultSize={20}
               minSize={10}
-              order={1}
+              // order={1}
               id="l1:left"
             >
               <PanelPersistScript panelId="l1:left" autoSaveId="l1" />
@@ -29,7 +29,7 @@ export default function Home() {
               className={styles.PanelRow}
               minSize={35}
               defaultSize={60}
-              order={2}
+              // order={2}
               id="l1:middle"
             >
               <PanelPersistScript panelId="l1:middle" autoSaveId="l1" />

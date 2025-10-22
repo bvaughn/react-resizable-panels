@@ -103,7 +103,6 @@ export function PanelWithForwardedRef({
   }
 
   const {
-    autoSaveId,
     collapsePanel,
     expandPanel,
     getPanelSize,

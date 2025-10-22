@@ -30,8 +30,9 @@ describe("computePanelFlexBoxStyle", () => {
       })
     ).toMatchInlineSnapshot(`
 {
+  "--panel-size": "0.12",
   "flexBasis": 0,
-  "flexGrow": "0.12",
+  "flexGrow": "var(--panel-size)",
   "flexShrink": 1,
   "overflow": "hidden",
   "pointerEvents": undefined,
@@ -51,8 +52,9 @@ describe("computePanelFlexBoxStyle", () => {
       })
     ).toMatchInlineSnapshot(`
 {
+  "--panel-size": "1",
   "flexBasis": 0,
-  "flexGrow": "1",
+  "flexGrow": "var(--panel-size)",
   "flexShrink": 1,
   "overflow": "hidden",
   "pointerEvents": undefined,
@@ -75,8 +77,9 @@ describe("computePanelFlexBoxStyle", () => {
       })
     ).toMatchInlineSnapshot(`
 {
+  "--panel-size": "0.25",
   "flexBasis": 0,
-  "flexGrow": "0.25",
+  "flexGrow": "var(--panel-size)",
   "flexShrink": 1,
   "overflow": "hidden",
   "pointerEvents": undefined,
@@ -94,8 +97,9 @@ describe("computePanelFlexBoxStyle", () => {
       })
     ).toMatchInlineSnapshot(`
 {
+  "--panel-size": "0.58",
   "flexBasis": 0,
-  "flexGrow": "0.58",
+  "flexGrow": "var(--panel-size)",
   "flexShrink": 1,
   "overflow": "hidden",
   "pointerEvents": undefined,
@@ -113,8 +117,9 @@ describe("computePanelFlexBoxStyle", () => {
       })
     ).toMatchInlineSnapshot(`
 {
+  "--panel-size": "0.17",
   "flexBasis": 0,
-  "flexGrow": "0.17",
+  "flexGrow": "var(--panel-size)",
   "flexShrink": 1,
   "overflow": "hidden",
   "pointerEvents": undefined,

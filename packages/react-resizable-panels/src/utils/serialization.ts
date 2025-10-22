@@ -86,10 +86,10 @@ export function loadPanelGroupState(
       savedState.layout[0] !== null &&
       "order" in savedState.layout[0]
     ) {
-      const layoutWithIds = savedState.layout as PanelLayoutItem[];
+      const panelLayoutItems = savedState.layout as PanelLayoutItem[];
 
       const orderToValue = new Map<number, number>();
-      layoutWithIds.forEach((item) => {
+      panelLayoutItems.forEach((item) => {
         orderToValue.set(item.order, item.size);
       });
 
@@ -97,7 +97,7 @@ export function loadPanelGroupState(
 
       if (
         layout.some((size) => size === 0) &&
-        layoutWithIds.length !== panels.length
+        panelLayoutItems.length !== panels.length
       ) {
         return null;
       }
@@ -125,14 +125,14 @@ export function savePanelGroupState(
   const panelKey = getPanelKey(panels);
   const state = loadSerializedPanelGroupState(autoSaveId, storage) ?? {};
 
-  const layoutWithIds: PanelLayoutItem[] = sizes.map((size, index) => ({
+  const layout: PanelLayoutItem[] = sizes.map((size, index) => ({
     order: panels[index]?.order ?? index,
     size,
   }));
 
   state[panelKey] = {
     expandToSizes: Object.fromEntries(panelSizesBeforeCollapse.entries()),
-    layout: layoutWithIds,
+    layout,
   };
 
   try {
