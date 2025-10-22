@@ -70,7 +70,7 @@ export interface PersistScriptProps {
   nonce?: string;
 }
 
-export const PersistScript = ({
+export const PanelPersistScript = ({
   nonce,
   autoSaveId,
   storageKeyPrefix = DEFAULT_STORAGE_KEY_PREFIX,

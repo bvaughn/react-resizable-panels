@@ -2,7 +2,6 @@ import { isBrowser } from "#is-browser";
 import { isDevelopment } from "#is-development";
 import {
   ForwardedRef,
-  Fragment,
   HTMLAttributes,
   PropsWithChildren,
   ReactElement,
@@ -17,7 +16,6 @@ import { DATA_ATTRIBUTES } from "./constants";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
 import { panelSizeCssVar } from "./utils/computePanelFlexBoxStyle";
-import { PersistScript } from "./PersistScript";
 
 export type PanelOnCollapse = () => void;
 export type PanelOnExpand = () => void;
@@ -238,17 +236,7 @@ export function PanelWithForwardedRef({
   return createElement(Type, {
     ...rest,
 
-    children: createElement(
-      Fragment,
-      null,
-      autoSaveId
-        ? createElement(PersistScript, {
-            autoSaveId,
-            panelId,
-          })
-        : null,
-      children
-    ),
+    children,
     className: classNameFromProps,
     id: panelId,
     style: {

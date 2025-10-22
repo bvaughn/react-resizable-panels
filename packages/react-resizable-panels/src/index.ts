@@ -1,7 +1,7 @@
 import { Panel } from "./Panel";
 import { PanelGroup } from "./PanelGroup";
 import { PanelResizeHandle } from "./PanelResizeHandle";
-import { PersistScript } from "./PersistScript";
+import { PanelPersistScript } from "./PanelPersistScript";
 import { DATA_ATTRIBUTES } from "./constants";
 import { usePanelGroupContext } from "./hooks/usePanelGroupContext";
 import { assert } from "./utils/assert";
@@ -60,7 +60,7 @@ export {
   Panel,
   PanelGroup,
   PanelResizeHandle,
-  PersistScript,
+  PanelPersistScript,
 
   // Hooks
   usePanelGroupContext,
