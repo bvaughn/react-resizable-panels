@@ -93,7 +93,29 @@ export function loadPanelGroupState(
         orderToValue.set(item.order, item.size);
       });
 
-      layout = panels.map((panel) => orderToValue.get(panel.order ?? 0) || 0);
+      const explicitOrders = new Set<number>();
+      panels.forEach((panel) => {
+        if (panel.order !== undefined) {
+          explicitOrders.add(panel.order);
+        }
+      });
+
+      let nextAvailableOrder = 0;
+      layout = panels.map((panel) => {
+        let order: number;
+
+        if (panel.order !== undefined) {
+          order = panel.order;
+        } else {
+          while (explicitOrders.has(nextAvailableOrder)) {
+            nextAvailableOrder++;
+          }
+          order = nextAvailableOrder;
+          nextAvailableOrder++;
+        }
+
+        return orderToValue.get(order) || 0;
+      });
 
       if (
         layout.some((size) => size === 0) &&
@@ -125,10 +147,30 @@ export function savePanelGroupState(
   const panelKey = getPanelKey(panels);
   const state = loadSerializedPanelGroupState(autoSaveId, storage) ?? {};
 
-  const layout: PanelLayoutItem[] = sizes.map((size, index) => ({
-    order: panels[index]?.order ?? index,
-    size,
-  }));
+  const explicitOrders = new Set<number>();
+  panels.forEach((panel) => {
+    if (panel.order !== undefined) {
+      explicitOrders.add(panel.order);
+    }
+  });
+
+  let nextAvailableOrder = 0;
+  const layout: PanelLayoutItem[] = sizes.map((size, index) => {
+    const panel = panels[index];
+    let order: number;
+
+    if (panel?.order !== undefined) {
+      order = panel.order;
+    } else {
+      while (explicitOrders.has(nextAvailableOrder)) {
+        nextAvailableOrder++;
+      }
+      order = nextAvailableOrder;
+      nextAvailableOrder++;
+    }
+
+    return { order, size };
+  });
 
   state[panelKey] = {
     expandToSizes: Object.fromEntries(panelSizesBeforeCollapse.entries()),
