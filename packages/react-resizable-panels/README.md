@@ -95,6 +95,14 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `style`          | `?CSSProperties`                              | CSS style to attach to root element                                             |
 | `tagName`        | `?string = "div"`                             | HTML element tag name for root element                                          |
 
+
+### `PanelPersistScript`
+
+| prop         | type          | description                                                                                   |
+| :----------- | :------------ | :-------------------------------------------------------------------------------------------- |
+| `autoSaveId` | `string`      | Must match the parent `PanelGroup`'s `autoSaveId` prop                                                |
+| `panelId`    | `string`      | Must match the parent `Panel`'s `id` prop                                                            |
+
 ---
 
 ## FAQ
@@ -180,9 +188,49 @@ Yes. Panel groups with an `autoSaveId` prop will automatically save and restore 
 
 ### How can I use persistent layouts with SSR?
 
-By default, this library uses `localStorage` to persist layouts. With server rendering, this can cause a flicker when the default layout (rendered on the server) is replaced with the persisted layout (in `localStorage`). The way to avoid this flicker is to also persist the layout with a cookie like so:
+By default, this library uses `localStorage` to persist layouts. With server rendering, this can cause a flicker when the default layout (rendered on the server) is replaced with the persisted layout (in `localStorage`). There are two ways to avoid this flicker:
 
-#### Server component
+#### Option 1: Using `PanelPersistScript`
+
+The `PanelPersistScript` component synchronously applies the persisted layout before React hydration, eliminating layout flicker.
+
+**Requirements:**
+
+- `id` and `order` props are **required** on each `Panel` component
+- `PanelPersistScript` must be placed as the **first child** of each `Panel`
+- `panelId` prop must match the `Panel`'s `id`
+- `autoSaveId` prop must match the `PanelGroup`'s `autoSaveId`
+
+```tsx
+"use client";
+
+import { Panel, PanelGroup, PanelResizeHandle, PanelPersistScript } from "react-resizable-panels";
+
+export function ClientComponent() {
+  return (
+    <PanelGroup direction="horizontal" autoSaveId="my-layout">
+      <Panel id="left-panel" defaultSize={33} order={1}>
+        <PanelPersistScript panelId="left-panel" autoSaveId="my-layout" />
+        {/* Panel content */}
+      </Panel>
+      <PanelResizeHandle />
+      <Panel id="right-panel" defaultSize={67} order={2}>
+        <PanelPersistScript panelId="right-panel" autoSaveId="my-layout" />
+        {/* Panel content */}
+      </Panel>
+    </PanelGroup>
+  );
+}
+```
+
+> [!NOTE]
+> A working example is available in [`examples/nextjs`](https://github.com/bvaughn/react-resizable-panels/tree/main/examples/nextjs).
+
+#### Option 2: Cookie-based persistence
+
+Alternatively, you can persist the layout with cookies and pass it from the server to the client.
+
+**Server component:**
 
 ```tsx
 import ResizablePanels from "@/app/ResizablePanels";
@@ -200,7 +248,7 @@ export function ServerComponent() {
 }
 ```
 
-#### Client component
+**Client component:**
 
 ```tsx
 "use client";
