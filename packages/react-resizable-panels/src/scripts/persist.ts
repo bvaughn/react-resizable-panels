@@ -6,7 +6,7 @@
  * It gets minified and transformed by minify-persist.ts during the build.
  */
 
-import {
+import type {
   PanelLayoutItem,
   SerializedPanelGroupState,
 } from "../utils/serialization";
