@@ -56,19 +56,26 @@
     "clear:builds": "rm -rf ./packages/*/dist",
     "clear:node_modules": "rm -rf ./node_modules",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "minify:persist": "tsx scripts/minify.ts src/scripts/persist.ts src/scripts/persist.minified.ts",
+    "prebuild": "pnpm run minify:persist",
     "test:browser": "vitest",
     "test:node": "vitest -c vitest.node.config.ts",
     "watch": "parcel watch --port=2345"
   },
   "devDependencies": {
+    "@babel/core": "^7.22.0",
     "@babel/plugin-proposal-nullish-coalescing-operator": "7.18.6",
     "@babel/plugin-proposal-optional-chaining": "7.21.0",
+    "@babel/preset-env": "^7.22.0",
+    "@types/babel__core": "^7.20.0",
     "@vitest/ui": "^3.1.2",
     "eslint": "^8.37.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "jsdom": "^26.1.0",
     "react": "experimental",
     "react-dom": "experimental",
+    "terser": "^5.19.0",
+    "tsx": "^4.7.0",
     "vitest": "^3.1.2"
   },
   "peerDependencies": {
