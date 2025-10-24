@@ -200,6 +200,7 @@ The `PanelPersistScript` component synchronously applies the persisted layout be
 - `PanelPersistScript` must be placed as the **first child** of each `Panel`
 - `panelId` prop must match the `Panel`'s `id`
 - `autoSaveId` prop must match the `PanelGroup`'s `autoSaveId`
+- `suppressHydrationWarning` prop should be added to `Panel` components that may have different sizes between server and client renders
 
 ```tsx
 "use client";
@@ -208,13 +209,13 @@ import { Panel, PanelGroup, PanelResizeHandle, PanelPersistScript } from "react-
 
 export function ClientComponent() {
   return (
-    <PanelGroup direction="horizontal" autoSaveId="my-layout">
-      <Panel id="left-panel" defaultSize={33} order={1}>
+    <PanelGroup direction="horizontal" autoSaveId="my-layout" >
+      <Panel id="left-panel" defaultSize={33} order={1} suppressHydrationWarning>
         <PanelPersistScript panelId="left-panel" autoSaveId="my-layout" />
         {/* Panel content */}
       </Panel>
       <PanelResizeHandle />
-      <Panel id="right-panel" defaultSize={67} order={2}>
+      <Panel id="right-panel" defaultSize={67} order={2} suppressHydrationWarning>
         <PanelPersistScript panelId="right-panel" autoSaveId="my-layout" />
         {/* Panel content */}
       </Panel>

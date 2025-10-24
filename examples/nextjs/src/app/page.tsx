@@ -20,6 +20,7 @@ export default function Home() {
               minSize={10}
               order={1}
               id="l1:left"
+              suppressHydrationWarning
             >
               <PanelPersistScript panelId="l1:left" autoSaveId="l1" />
               <div className={styles.Centered}>left</div>
@@ -31,6 +32,7 @@ export default function Home() {
               defaultSize={60}
               order={2}
               id="l1:middle"
+              suppressHydrationWarning
             >
               <PanelPersistScript panelId="l1:middle" autoSaveId="l1" />
               <PanelGroup
@@ -44,6 +46,7 @@ export default function Home() {
                   minSize={10}
                   order={1}
                   id="l2:top"
+                  suppressHydrationWarning
                 >
                   <PanelPersistScript panelId="l2:top" autoSaveId="l2" />
                   <div className={styles.Centered}>top</div>
@@ -55,6 +58,7 @@ export default function Home() {
                   minSize={10}
                   order={2}
                   id="l2:bottom"
+                  suppressHydrationWarning
                 >
                   <PanelPersistScript panelId="l2:bottom" autoSaveId="l2" />
                   <PanelGroup
@@ -68,6 +72,7 @@ export default function Home() {
                       minSize={10}
                       order={1}
                       id="l3:left"
+                      suppressHydrationWarning
                     >
                       <PanelPersistScript panelId="l3:left" autoSaveId="l3" />
                       <div className={styles.Centered}>left</div>
@@ -79,6 +84,7 @@ export default function Home() {
                       minSize={10}
                       order={2}
                       id="l3:right"
+                      suppressHydrationWarning
                     >
                       <PanelPersistScript panelId="l3:right" autoSaveId="l3" />
                       <div className={styles.Centered}>right</div>
@@ -94,6 +100,7 @@ export default function Home() {
               minSize={10}
               order={3}
               id="l1:right"
+              suppressHydrationWarning
             >
               <PanelPersistScript panelId="l1:right" autoSaveId="l1" />
               <div className={styles.Centered}>right</div>
