@@ -3,6 +3,7 @@ import { DEFAULT_STORAGE_KEY_PREFIX } from "./utils/serialization";
 import { DATA_ATTRIBUTES } from "./constants";
 import { panelSizeCssVar } from "./utils/computePanelFlexBoxStyle";
 import { MINIFIED_PERSIST } from "./scripts/persist.minified";
+import { useIsSSR } from "./hooks/useIsSSR";
 
 export interface PersistScriptProps {
   panelId: string;
@@ -17,6 +18,12 @@ export const PanelPersistScript = ({
   storageKeyPrefix = DEFAULT_STORAGE_KEY_PREFIX,
   panelId,
 }: PersistScriptProps) => {
+  const isSSR = useIsSSR();
+
+  if (!isSSR) {
+    return null;
+  }
+
   const scriptArgs = JSON.stringify([
     autoSaveId,
     storageKeyPrefix,
