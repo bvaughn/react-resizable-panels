@@ -257,9 +257,6 @@ export function PanelWithForwardedRef({
     [DATA_ATTRIBUTES.panelCollapsible]: collapsible || undefined,
     [DATA_ATTRIBUTES.panelId]: panelId,
     [DATA_ATTRIBUTES.panelOrder]: assignedOrderRef.current.toString(),
-    [DATA_ATTRIBUTES.panelSize]: parseFloat(
-      "" + (style as any)[panelSizeCssVar]
-    ).toFixed(1),
   });
 }
 

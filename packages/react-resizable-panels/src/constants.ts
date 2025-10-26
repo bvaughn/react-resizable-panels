@@ -6,7 +6,6 @@ export const DATA_ATTRIBUTES = {
   panelCollapsible: "data-panel-collapsible",
   panelId: "data-panel-id",
   panelOrder: "data-panel-order",
-  panelSize: "data-panel-size",
   resizeHandle: "data-resize-handle",
   resizeHandleActive: "data-resize-handle-active",
   resizeHandleEnabled: "data-panel-resize-handle-enabled",

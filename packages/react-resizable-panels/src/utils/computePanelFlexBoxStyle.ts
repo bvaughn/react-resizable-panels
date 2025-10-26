@@ -1,45 +1,21 @@
-// This method returns a number between 1 and 100 representing
+// This method returns flex styles using CSS variables for panel sizes
 
-import { PanelData } from "../Panel";
 import { DragState } from "../PanelGroupContext";
 import { CSSProperties } from "react";
 
 export const panelSizeCssVar = "--panel-size";
 
-// the % of the group's overall space this panel should occupy.
+// Returns flex styles that use CSS variables for panel sizes
 export function computePanelFlexBoxStyle({
-  defaultSize,
   dragState,
-  layout,
-  panelData,
-  panelIndex,
-  precision = 3,
+  order,
 }: {
-  defaultSize: number | undefined;
-  layout: number[];
   dragState: DragState | null;
-  panelData: PanelData[];
-  panelIndex: number;
-  precision?: number;
+  order: number;
 }): CSSProperties {
-  const size = layout[panelIndex];
-
-  let flexGrow;
-  if (size == null) {
-    // Initial render (before panels have registered themselves)
-    // In order to support server rendering, fall back to default size if provided
-    flexGrow = defaultSize != undefined ? defaultSize.toFixed(precision) : "1";
-  } else if (panelData.length === 1) {
-    // Special case: Single panel group should always fill full width/height
-    flexGrow = "1";
-  } else {
-    flexGrow = size.toFixed(precision);
-  }
-
   return {
-    [panelSizeCssVar]: flexGrow,
     flexBasis: 0,
-    flexGrow: `var(${panelSizeCssVar})`,
+    flexGrow: `var(--panel-${order}-size)`,
     flexShrink: 1,
 
     // Without this, Panel sizes may be unintentionally overridden by their content

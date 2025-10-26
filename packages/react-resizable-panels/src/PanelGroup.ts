@@ -477,19 +477,12 @@ function PanelGroupWithForwardedRef({
   // This API should never read from committedValuesRef
   const getPanelStyle = useCallback(
     (panelData: PanelData, defaultSize: number | undefined) => {
-      const { panelDataArray } = eagerValuesRef.current;
-
-      const panelIndex = findPanelDataIndex(panelDataArray, panelData);
-
       return computePanelFlexBoxStyle({
-        defaultSize,
         dragState,
-        layout,
-        panelData: panelDataArray,
-        panelIndex,
+        order: panelData.order,
       });
     },
-    [dragState, layout]
+    [dragState]
   );
 
   // External APIs are safe to memoize via committed values ref
@@ -941,12 +934,43 @@ function PanelGroupWithForwardedRef({
     ]
   );
 
+  const generatePanelSizeCssVars = useCallback(
+    (precision: number = 3) => {
+      const { panelDataArray } = eagerValuesRef.current;
+      const cssVars: Record<string, string> = {};
+
+      for (let i = 0; i < panelDataArray.length; i++) {
+        const panelData = panelDataArray[i];
+        if (!panelData) continue;
+
+        const size = layout[i];
+
+        let flexGrow: string;
+        if (size == null) {
+          const defaultSize = panelData.constraints.defaultSize;
+          flexGrow =
+            defaultSize != undefined ? defaultSize.toFixed(precision) : "1";
+        } else if (panelDataArray.length === 1) {
+          flexGrow = "1";
+        } else {
+          flexGrow = size.toFixed(precision);
+        }
+
+        cssVars[`--panel-${panelData.order}-size`] = flexGrow;
+      }
+
+      return cssVars;
+    },
+    [layout]
+  );
+
   const style: CSSProperties = {
     display: "flex",
     flexDirection: direction === "horizontal" ? "row" : "column",
     height: "100%",
     overflow: "hidden",
     width: "100%",
+    ...generatePanelSizeCssVars(),
   };
 
   return createElement(
@@ -969,6 +993,8 @@ function PanelGroupWithForwardedRef({
       [DATA_ATTRIBUTES.groupDirection]: direction,
       [DATA_ATTRIBUTES.groupId]: groupId,
       [DATA_ATTRIBUTES.autoSaveId]: autoSaveId || undefined,
+
+      suppressHydrationWarning: true,
     })
   );
 }

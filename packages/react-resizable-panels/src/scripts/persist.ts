@@ -18,10 +18,8 @@ import type {
 function persist(
   autoSaveId: string | null,
   storageKeyPrefix: string,
-  panelIdDataAttributeName: string,
-  panelOrderDataAttributeName: string,
-  panelId: string,
-  panelSizeCssVar: string
+  panelAutoSaveIdDataAttributeName: string,
+  precision = 3
 ): void {
   let state: SerializedPanelGroupState | null = null;
   try {
@@ -46,28 +44,20 @@ function persist(
       const firstKey = keys[0];
       const stateData = firstKey ? state[firstKey] : null;
       if (stateData && typeof stateData === "object" && "layout" in stateData) {
-        layout = stateData.layout;
+        layout = stateData.layout as PanelLayoutItem[];
       }
     }
   }
 
-  const panel = document.querySelector(
-    "[" + panelIdDataAttributeName + '="' + panelId + '"]'
+  const panelGroup = document.querySelector(
+    "[" + panelAutoSaveIdDataAttributeName + '="' + autoSaveId + '"]'
   ) as HTMLElement | null;
 
-  if (panel && layout) {
-    const panelOrderAttr = panel.getAttribute(
-      panelOrderDataAttributeName || ""
-    );
-    if (panelOrderAttr) {
-      const panelOrder = parseInt(panelOrderAttr, 10);
-      const item = layout.find(function (item) {
-        return item.order === panelOrder;
-      });
-      if (item) {
-        panel.style.setProperty(panelSizeCssVar, String(item.size));
-      }
-    }
+  if (panelGroup && layout) {
+    layout.forEach((item) => {
+      const cssVarName = `--panel-${item.order}-size`;
+      panelGroup.style.setProperty(cssVarName, item.size.toFixed(precision));
+    });
   }
 }
 
