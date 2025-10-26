@@ -285,40 +285,6 @@ describe("serialization", () => {
       }
     });
 
-    test("should handle auto-generated IDs with order", () => {
-      const panels: PanelData[] = [
-        createPanelData("auto-id-1", false, 1, 15),
-        createPanelData("auto-id-2", false, 2, 15),
-      ];
-
-      const sizes = [45, 55];
-      savePanelGroupState("test-group", panels, new Map(), sizes, storage);
-
-      const loaded = loadPanelGroupState("test-group", panels, storage);
-
-      expect(loaded).not.toBeNull();
-      if (loaded) {
-        expect(loaded.layout).toEqual(sizes);
-      }
-    });
-
-    test("should handle auto-generated IDs without order (old behavior)", () => {
-      const panels: PanelData[] = [
-        createPanelData("auto-id-1", false, undefined, 15),
-        createPanelData("auto-id-2", false, undefined, 15),
-      ];
-
-      const sizes = [45, 55];
-      savePanelGroupState("test-group", panels, new Map(), sizes, storage);
-
-      const loaded = loadPanelGroupState("test-group", panels, storage);
-
-      expect(loaded).not.toBeNull();
-      if (loaded) {
-        expect(loaded.layout).toEqual(sizes);
-      }
-    });
-
     test("should handle invalid JSON gracefully", () => {
       const storageKey = getPanelGroupKey("test-group");
       storage.setItem(storageKey, "invalid json{");

@@ -10,11 +10,18 @@ export type PanelConfigurationState = {
   expandToSizes: {
     [panelId: string]: number;
   };
-  layout: PanelLayoutItem[];
+  layout: number[];
+};
+
+export type PanelSerializedConfigurationState = {
+  expandToSizes: {
+    [panelId: string]: number;
+  };
+  layout: PanelLayoutItem[] | number[];
 };
 
 export type SerializedPanelGroupState = {
-  [panelIds: string]: PanelConfigurationState;
+  [panelIds: string]: PanelSerializedConfigurationState;
 };
 
 export const DEFAULT_STORAGE_KEY_PREFIX = "react-resizable-panels";
@@ -64,11 +71,73 @@ function loadSerializedPanelGroupState(
   return null;
 }
 
+function getExplicitOrders(panels: PanelData[]): Set<number> {
+  const explicitOrders = new Set<number>();
+  panels.forEach((panel) => {
+    if (panel.order !== undefined) {
+      explicitOrders.add(panel.order);
+    }
+  });
+  return explicitOrders;
+}
+
+function assignOrdersToPanels(panels: PanelData[]): number[] {
+  const explicitOrders = getExplicitOrders(panels);
+  let nextAvailableOrder = 0;
+
+  return panels.map((panel) => {
+    if (panel.order !== undefined) {
+      return panel.order;
+    } else {
+      while (explicitOrders.has(nextAvailableOrder)) {
+        nextAvailableOrder++;
+      }
+      const order = nextAvailableOrder;
+      nextAvailableOrder++;
+      return order;
+    }
+  });
+}
+
+function isOldFormat(
+  savedLayout: PanelSerializedConfigurationState["layout"]
+): savedLayout is number[] {
+  return savedLayout.every((item) => typeof item === "number");
+}
+
+function parseLayoutFromSavedState(
+  savedLayout: PanelSerializedConfigurationState["layout"],
+  panels: PanelData[]
+): number[] | null {
+  if (isOldFormat(savedLayout)) {
+    return savedLayout;
+  }
+
+  const orderToValue = new Map<number, number>();
+  savedLayout.forEach((item) => {
+    orderToValue.set(item.order, item.size);
+  });
+
+  const panelOrders = assignOrdersToPanels(panels);
+  const layout = panelOrders.map((order) => {
+    return orderToValue.get(order) || 0;
+  });
+
+  if (
+    layout.some((size) => size === 0) &&
+    savedLayout.length !== panels.length
+  ) {
+    return null;
+  }
+
+  return layout;
+}
+
 export function loadPanelGroupState(
   autoSaveId: string,
   panels: PanelData[],
   storage: PanelGroupStorage
-): { layout: number[]; expandToSizes: Record<string, number> } | null {
+): PanelConfigurationState | null {
   const state = loadSerializedPanelGroupState(autoSaveId, storage) ?? {};
   const panelKey = getPanelKey(panels);
   const savedState = state[panelKey];
@@ -77,56 +146,8 @@ export function loadPanelGroupState(
     return null;
   }
 
-  // Handle both old format (number[]) and new format (PanelLayoutItem[])
-  let layout: number[];
-  if (Array.isArray(savedState.layout)) {
-    if (
-      savedState.layout.length > 0 &&
-      typeof savedState.layout[0] === "object" &&
-      savedState.layout[0] !== null &&
-      "order" in savedState.layout[0]
-    ) {
-      const panelLayoutItems = savedState.layout as PanelLayoutItem[];
-
-      const orderToValue = new Map<number, number>();
-      panelLayoutItems.forEach((item) => {
-        orderToValue.set(item.order, item.size);
-      });
-
-      const explicitOrders = new Set<number>();
-      panels.forEach((panel) => {
-        if (panel.order !== undefined) {
-          explicitOrders.add(panel.order);
-        }
-      });
-
-      let nextAvailableOrder = 0;
-      layout = panels.map((panel) => {
-        let order: number;
-
-        if (panel.order !== undefined) {
-          order = panel.order;
-        } else {
-          while (explicitOrders.has(nextAvailableOrder)) {
-            nextAvailableOrder++;
-          }
-          order = nextAvailableOrder;
-          nextAvailableOrder++;
-        }
-
-        return orderToValue.get(order) || 0;
-      });
-
-      if (
-        layout.some((size) => size === 0) &&
-        panelLayoutItems.length !== panels.length
-      ) {
-        return null;
-      }
-    } else {
-      layout = savedState.layout as unknown as number[];
-    }
-  } else {
+  const layout = parseLayoutFromSavedState(savedState.layout, panels);
+  if (!layout) {
     return null;
   }
 
@@ -147,28 +168,12 @@ export function savePanelGroupState(
   const panelKey = getPanelKey(panels);
   const state = loadSerializedPanelGroupState(autoSaveId, storage) ?? {};
 
-  const explicitOrders = new Set<number>();
-  panels.forEach((panel) => {
-    if (panel.order !== undefined) {
-      explicitOrders.add(panel.order);
-    }
-  });
-
-  let nextAvailableOrder = 0;
+  const panelOrders = assignOrdersToPanels(panels);
   const layout: PanelLayoutItem[] = sizes.map((size, index) => {
-    const panel = panels[index];
-    let order: number;
-
-    if (panel?.order !== undefined) {
-      order = panel.order;
-    } else {
-      while (explicitOrders.has(nextAvailableOrder)) {
-        nextAvailableOrder++;
-      }
-      order = nextAvailableOrder;
-      nextAvailableOrder++;
+    const order = panelOrders[index];
+    if (order === undefined) {
+      throw new Error(`Order for panel at index ${index} is undefined`);
     }
-
     return { order, size };
   });
 
