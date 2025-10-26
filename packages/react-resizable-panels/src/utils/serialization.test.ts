@@ -51,7 +51,7 @@ describe("serialization", () => {
     const createPanelData = (
       id: string,
       idIsFromProps: boolean,
-      order?: number,
+      order: number,
       minSize?: number
     ): PanelData => ({
       callbacks: {},
@@ -119,35 +119,6 @@ describe("serialization", () => {
       }
     });
 
-    test("should handle old format from localStorage (number array)", () => {
-      const panels: PanelData[] = [
-        createPanelData("p1", false, undefined, 10),
-        createPanelData("p2", false, undefined, 10),
-        createPanelData("p3", false, undefined, 10),
-      ];
-
-      // Simulate old format in localStorage
-      const oldFormatData = {
-        '{"minSize":10},{"minSize":10},{"minSize":10}': {
-          expandToSizes: {},
-          layout: [20.6563247098, 35.1228707735, 44.2208045167],
-        },
-      };
-
-      const storageKey = getPanelGroupKey("test-group");
-      storage.setItem(storageKey, JSON.stringify(oldFormatData));
-
-      const loaded = loadPanelGroupState("test-group", panels, storage);
-
-      expect(loaded).not.toBeNull();
-      if (loaded) {
-        expect(loaded.layout).toEqual([
-          20.6563247098, 35.1228707735, 44.2208045167,
-        ]);
-        expect(loaded.expandToSizes).toEqual({});
-      }
-    });
-
     test("should handle new format from localStorage (with order)", () => {
       const panels: PanelData[] = [
         createPanelData("left", true, 1, 10),
@@ -174,57 +145,6 @@ describe("serialization", () => {
       if (loaded) {
         expect(loaded.layout).toEqual([42.7459658713, 57.2540341287]);
         expect(loaded.expandToSizes).toEqual({});
-      }
-    });
-
-    test("should work with panels without order (backwards compatibility)", () => {
-      const panels: PanelData[] = [
-        createPanelData("panel1", true, undefined, 10),
-        createPanelData("panel2", true, undefined, 10),
-      ];
-
-      const sizes = [30, 70];
-      const panelSizesBeforeCollapse = new Map<string, number>();
-
-      savePanelGroupState(
-        "test-group",
-        panels,
-        panelSizesBeforeCollapse,
-        sizes,
-        storage
-      );
-
-      const loaded = loadPanelGroupState("test-group", panels, storage);
-
-      expect(loaded).not.toBeNull();
-      if (loaded) {
-        expect(loaded.layout).toEqual(sizes);
-      }
-    });
-
-    test("should handle mixed panels (some with order, some without)", () => {
-      const panels: PanelData[] = [
-        createPanelData("panel1", true, 1, 10),
-        createPanelData("panel2", true, undefined, 10),
-        createPanelData("panel3", true, 3, 10),
-      ];
-
-      const sizes = [25, 35, 40];
-      const panelSizesBeforeCollapse = new Map<string, number>();
-
-      savePanelGroupState(
-        "test-group",
-        panels,
-        panelSizesBeforeCollapse,
-        sizes,
-        storage
-      );
-
-      const loaded = loadPanelGroupState("test-group", panels, storage);
-
-      expect(loaded).not.toBeNull();
-      if (loaded) {
-        expect(loaded.layout).toEqual(sizes);
       }
     });
 
