@@ -10,6 +10,7 @@ import {
   useContext,
   useImperativeHandle,
   useRef,
+  useState,
 } from "react";
 import { PanelGroupContext } from "./PanelGroupContext";
 import { DATA_ATTRIBUTES } from "./constants";
@@ -43,7 +44,7 @@ export type PanelData = {
   constraints: PanelConstraints;
   id: string;
   idIsFromProps: boolean;
-  order: number | undefined;
+  order: number;
 };
 
 export type ImperativePanelHandle = {
@@ -88,7 +89,7 @@ export function PanelWithForwardedRef({
   onCollapse,
   onExpand,
   onResize,
-  order,
+  order: orderFromProps,
   style: styleFromProps,
   tagName: Type = "div",
   ...rest
@@ -109,6 +110,7 @@ export function PanelWithForwardedRef({
     getPanelStyle,
     groupId,
     isPanelCollapsed,
+    assignPanelOrder,
     reevaluatePanelConstraints,
     registerPanel,
     resizePanel,
@@ -116,6 +118,12 @@ export function PanelWithForwardedRef({
   } = context;
 
   const panelId = useUniqueId(idFromProps);
+
+  const assignedOrderRef = useRef<number | null>(null);
+
+  if (assignedOrderRef.current === null) {
+    assignedOrderRef.current = assignPanelOrder(orderFromProps);
+  }
 
   const panelDataRef = useRef<PanelData>({
     callbacks: {
@@ -132,7 +140,7 @@ export function PanelWithForwardedRef({
     },
     id: panelId,
     idIsFromProps: idFromProps !== undefined,
-    order,
+    order: assignedOrderRef.current,
   });
 
   const devWarningsRef = useRef<{
@@ -161,7 +169,7 @@ export function PanelWithForwardedRef({
 
     panelDataRef.current.id = panelId;
     panelDataRef.current.idIsFromProps = idFromProps !== undefined;
-    panelDataRef.current.order = order;
+    panelDataRef.current.order = assignedOrderRef.current as number;
 
     callbacks.onCollapse = onCollapse;
     callbacks.onExpand = onExpand;
@@ -193,7 +201,7 @@ export function PanelWithForwardedRef({
     return () => {
       unregisterPanel(panelData);
     };
-  }, [order, panelId, registerPanel, unregisterPanel]);
+  }, [orderFromProps, panelId, registerPanel, unregisterPanel]);
 
   useImperativeHandle(
     forwardedRef,
@@ -248,8 +256,7 @@ export function PanelWithForwardedRef({
     [DATA_ATTRIBUTES.panel]: "",
     [DATA_ATTRIBUTES.panelCollapsible]: collapsible || undefined,
     [DATA_ATTRIBUTES.panelId]: panelId,
-    [DATA_ATTRIBUTES.panelOrder]:
-      order !== undefined ? order.toString() : undefined,
+    [DATA_ATTRIBUTES.panelOrder]: assignedOrderRef.current.toString(),
     [DATA_ATTRIBUTES.panelSize]: parseFloat(
       "" + (style as any)[panelSizeCssVar]
     ).toFixed(1),

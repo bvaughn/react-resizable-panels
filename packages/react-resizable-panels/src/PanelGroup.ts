@@ -133,6 +133,7 @@ function PanelGroupWithForwardedRef({
   const panelIdToLastNotifiedSizeMapRef = useRef<Record<string, number>>({});
   const panelSizeBeforeCollapseRef = useRef<Map<string, number>>(new Map());
   const prevDeltaRef = useRef<number>(0);
+  const nextAvailableOrderRef = useRef<number>(1);
 
   const committedValuesRef = useRef<{
     autoSaveId: string | null;
@@ -527,23 +528,29 @@ function PanelGroupWithForwardedRef({
     return !collapsible || fuzzyCompareNumbers(panelSize, collapsedSize) > 0;
   }, []);
 
+  const assignPanelOrder = useCallback((explicitOrder?: number) => {
+    if (explicitOrder !== undefined) {
+      // Update next available order to avoid conflicts
+      nextAvailableOrderRef.current = Math.max(
+        nextAvailableOrderRef.current,
+        explicitOrder + 1
+      );
+      return explicitOrder;
+    } else {
+      // Assign auto-increment order
+      const currentOrder = nextAvailableOrderRef.current;
+      nextAvailableOrderRef.current++;
+      return currentOrder;
+    }
+  }, []);
+
   const registerPanel = useCallback(
     (panelData: PanelData) => {
       const { panelDataArray } = eagerValuesRef.current;
 
       panelDataArray.push(panelData);
       panelDataArray.sort((panelA, panelB) => {
-        const orderA = panelA.order;
-        const orderB = panelB.order;
-        if (orderA == null && orderB == null) {
-          return 0;
-        } else if (orderA == null) {
-          return -1;
-        } else if (orderB == null) {
-          return 1;
-        } else {
-          return orderA - orderB;
-        }
+        return panelA.order - panelB.order;
       });
 
       eagerValuesRef.current.panelDataArrayChanged = true;
@@ -901,6 +908,7 @@ function PanelGroupWithForwardedRef({
         groupId,
         isPanelCollapsed,
         isPanelExpanded,
+        assignPanelOrder,
         reevaluatePanelConstraints,
         registerPanel,
         registerResizeHandle,
@@ -921,6 +929,7 @@ function PanelGroupWithForwardedRef({
       groupId,
       isPanelCollapsed,
       isPanelExpanded,
+      assignPanelOrder,
       reevaluatePanelConstraints,
       registerPanel,
       registerResizeHandle,

@@ -18,7 +18,7 @@ export default function Home() {
               className={styles.PanelRow}
               defaultSize={20}
               minSize={10}
-              order={1}
+              // order={1}
               id="l1:left"
               suppressHydrationWarning
             >
@@ -30,7 +30,7 @@ export default function Home() {
               className={styles.PanelRow}
               minSize={35}
               defaultSize={60}
-              order={2}
+              // order={2}
               id="l1:middle"
               suppressHydrationWarning
             >
@@ -44,7 +44,7 @@ export default function Home() {
                   className={styles.PanelColumn}
                   defaultSize={35}
                   minSize={10}
-                  order={1}
+                  // order={1}
                   id="l2:top"
                   suppressHydrationWarning
                 >
@@ -56,7 +56,7 @@ export default function Home() {
                   className={styles.PanelColumn}
                   defaultSize={65}
                   minSize={10}
-                  order={2}
+                  // order={2}
                   id="l2:bottom"
                   suppressHydrationWarning
                 >
@@ -70,7 +70,7 @@ export default function Home() {
                       className={styles.PanelRow}
                       defaultSize={50}
                       minSize={10}
-                      order={1}
+                      // order={1}
                       id="l3:left"
                       suppressHydrationWarning
                     >
@@ -82,7 +82,7 @@ export default function Home() {
                       className={styles.PanelRow}
                       defaultSize={50}
                       minSize={10}
-                      order={2}
+                      // order={2}
                       id="l3:right"
                       suppressHydrationWarning
                     >
@@ -98,7 +98,7 @@ export default function Home() {
               className={styles.PanelRow}
               defaultSize={20}
               minSize={10}
-              order={3}
+              // order={3}
               id="l1:right"
               suppressHydrationWarning
             >

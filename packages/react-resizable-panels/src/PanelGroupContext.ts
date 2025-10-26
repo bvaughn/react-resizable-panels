@@ -1,5 +1,5 @@
 import { PanelConstraints, PanelData } from "./Panel";
-import { CSSProperties, createContext } from "react";
+import { CSSProperties, createContext, MutableRefObject } from "react";
 
 // The "contextmenu" event is not supported as a PointerEvent in all browsers yet, so MouseEvent still need to be handled
 export type ResizeEvent = KeyboardEvent | PointerEvent | MouseEvent;
@@ -25,6 +25,7 @@ export type TPanelGroupContext = {
   groupId: string;
   isPanelCollapsed: (panelData: PanelData) => boolean;
   isPanelExpanded: (panelData: PanelData) => boolean;
+  assignPanelOrder: (explicitOrder?: number) => number;
   reevaluatePanelConstraints: (
     panelData: PanelData,
     prevConstraints: PanelConstraints

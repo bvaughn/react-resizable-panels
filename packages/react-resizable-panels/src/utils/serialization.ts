@@ -44,9 +44,7 @@ function getPanelKey(panels: PanelData[]): string {
       if (idIsFromProps) {
         return id;
       } else {
-        return order
-          ? `${order}:${JSON.stringify(constraints)}`
-          : JSON.stringify(constraints);
+        return `${order}:${JSON.stringify(constraints)}`;
       }
     })
     .sort((a, b) => a.localeCompare(b))
@@ -71,34 +69,6 @@ function loadSerializedPanelGroupState(
   return null;
 }
 
-function getExplicitOrders(panels: PanelData[]): Set<number> {
-  const explicitOrders = new Set<number>();
-  panels.forEach((panel) => {
-    if (panel.order !== undefined) {
-      explicitOrders.add(panel.order);
-    }
-  });
-  return explicitOrders;
-}
-
-function assignOrdersToPanels(panels: PanelData[]): number[] {
-  const explicitOrders = getExplicitOrders(panels);
-  let nextAvailableOrder = 0;
-
-  return panels.map((panel) => {
-    if (panel.order !== undefined) {
-      return panel.order;
-    } else {
-      while (explicitOrders.has(nextAvailableOrder)) {
-        nextAvailableOrder++;
-      }
-      const order = nextAvailableOrder;
-      nextAvailableOrder++;
-      return order;
-    }
-  });
-}
-
 function isOldFormat(
   savedLayout: PanelSerializedConfigurationState["layout"]
 ): savedLayout is number[] {
@@ -118,8 +88,8 @@ function parseLayoutFromSavedState(
     orderToValue.set(item.order, item.size);
   });
 
-  const panelOrders = assignOrdersToPanels(panels);
-  const layout = panelOrders.map((order) => {
+  const layout = panels.map((panel) => {
+    const order = panel.order;
     return orderToValue.get(order) || 0;
   });
 
@@ -168,12 +138,14 @@ export function savePanelGroupState(
   const panelKey = getPanelKey(panels);
   const state = loadSerializedPanelGroupState(autoSaveId, storage) ?? {};
 
-  const panelOrders = assignOrdersToPanels(panels);
   const layout: PanelLayoutItem[] = sizes.map((size, index) => {
-    const order = panelOrders[index];
-    if (order === undefined) {
-      throw new Error(`Order for panel at index ${index} is undefined`);
+    const panel = panels[index];
+    if (!panel) {
+      throw new Error(
+        `No panel found at index ${index} while saving panel group state`
+      );
     }
+    const order = panel.order;
     return { order, size };
   });
 
