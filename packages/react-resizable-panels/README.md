@@ -100,7 +100,6 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 | prop         | type          | description                                                                                   |
 | :----------- | :------------ | :-------------------------------------------------------------------------------------------- |
-| `autoSaveId` | `string`      | Must match the parent `PanelGroup`'s `autoSaveId` prop                                                |
 
 ---
 
@@ -192,12 +191,7 @@ By default, this library uses `localStorage` to persist layouts. With server ren
 #### Option 1: Using `PersistScript`
 
 The `PersistScript` component synchronously applies the persisted layout before React hydration, eliminating layout flicker.
-
-**Requirements:**
-
-- `PersistScript` must be placed as the **first child** of each `PanelGroup`
-- `autoSaveId` prop must match the `PanelGroup`'s `autoSaveId`
-- `suppressHydrationWarning` prop should be added to `PanelGroup` components to avoid hydration warnings
+It injects CSS variable rules into an adopted stylesheet based on the saved layout in `localStorage`.
 
 ```tsx
 "use client";
@@ -206,17 +200,28 @@ import { Panel, PanelGroup, PanelResizeHandle, PersistScript } from "react-resiz
 
 export function ClientComponent() {
   return (
-    <PanelGroup direction="horizontal" autoSaveId="my-layout" suppressHydrationWarning>
-      <PersistScript autoSaveId="my-layout" />
-      <Panel defaultSize={33} >
-        {/* Panel content */}
-      </Panel>
-      <PanelResizeHandle />
-      <Panel defaultSize={67}>
-        {/* Panel content */}
-      </Panel>
-    </PanelGroup>
+    <>
+      <PersistScript/>
+      <PanelGroup direction="horizontal" autoSaveId="my-layout">
+        <Panel defaultSize={33} >
+          {/* Panel content */}
+        </Panel>
+        <PanelResizeHandle />
+        <Panel defaultSize={67}>
+          {/* Panel content */}
+        </Panel>
+      </PanelGroup>
+    </>
   );
+}
+```
+
+Here's the example of injected CSS variables:
+
+```css
+:root {
+    --panel-my-layout-1-size: 60.000;
+    --panel-my-layout-2-size: 40.000;
 }
 ```
 
