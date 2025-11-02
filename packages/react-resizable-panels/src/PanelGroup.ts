@@ -1000,8 +1000,6 @@ function PanelGroupWithForwardedRef({
       [DATA_ATTRIBUTES.groupDirection]: direction,
       [DATA_ATTRIBUTES.groupId]: groupId,
       [DATA_ATTRIBUTES.autoSaveId]: autoSaveId || undefined,
-
-      suppressHydrationWarning: true,
     })
   );
 }
