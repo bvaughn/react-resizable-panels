@@ -28,7 +28,7 @@ import {
   EXCEEDED_VERTICAL_MIN,
   reportConstraintsViolation,
 } from "./PanelResizeHandleRegistry";
-import { DATA_ATTRIBUTES } from "./constants";
+import { DATA_ATTRIBUTES, PANEL_SIZE_CSS_VARIABLE_TEMPLATE } from "./constants";
 import { useForceUpdate } from "./hooks/useForceUpdate";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
@@ -957,7 +957,12 @@ function PanelGroupWithForwardedRef({
           flexGrow = size.toFixed(precision);
         }
 
-        cssVars[`--panel-${panelData.order}-size`] = flexGrow;
+        cssVars[
+          PANEL_SIZE_CSS_VARIABLE_TEMPLATE.replace(
+            "%s",
+            panelData.order.toString()
+          )
+        ] = flexGrow;
       }
 
       return cssVars;

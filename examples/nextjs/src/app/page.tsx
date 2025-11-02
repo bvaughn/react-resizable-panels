@@ -19,7 +19,6 @@ export default function Home() {
               className={styles.PanelRow}
               defaultSize={20}
               minSize={10}
-              id="l1:left"
               suppressHydrationWarning
             >
               <div className={styles.Centered}>left</div>
@@ -29,7 +28,6 @@ export default function Home() {
               className={styles.PanelRow}
               minSize={35}
               defaultSize={60}
-              id="l1:middle"
               suppressHydrationWarning
             >
               <PanelGroup
@@ -42,7 +40,6 @@ export default function Home() {
                   className={styles.PanelColumn}
                   defaultSize={35}
                   minSize={10}
-                  id="l2:top"
                   suppressHydrationWarning
                 >
                   <div className={styles.Centered}>top</div>
@@ -52,7 +49,6 @@ export default function Home() {
                   className={styles.PanelColumn}
                   defaultSize={65}
                   minSize={10}
-                  id="l2:bottom"
                   suppressHydrationWarning
                 >
                   <PanelGroup
@@ -65,7 +61,6 @@ export default function Home() {
                       className={styles.PanelRow}
                       defaultSize={50}
                       minSize={10}
-                      id="l3:left"
                       suppressHydrationWarning
                     >
                       <div className={styles.Centered}>left</div>
@@ -75,7 +70,6 @@ export default function Home() {
                       className={styles.PanelRow}
                       defaultSize={50}
                       minSize={10}
-                      id="l3:right"
                       suppressHydrationWarning
                     >
                       <div className={styles.Centered}>right</div>
@@ -89,7 +83,6 @@ export default function Home() {
               className={styles.PanelRow}
               defaultSize={20}
               minSize={10}
-              id="l1:right"
               suppressHydrationWarning
             >
               <div className={styles.Centered}>right</div>

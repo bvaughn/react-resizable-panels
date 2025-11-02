@@ -19,6 +19,7 @@ function persist(
   autoSaveId: string | null,
   storageKeyPrefix: string,
   panelAutoSaveIdDataAttributeName: string,
+  panelSizeCssVariableTemplate: string,
   precision = 3
 ): void {
   let state: SerializedPanelGroupState | null = null;
@@ -55,7 +56,10 @@ function persist(
 
   if (panelGroup && layout) {
     layout.forEach((item) => {
-      const cssVarName = `--panel-${item.order}-size`;
+      const cssVarName = panelSizeCssVariableTemplate.replace(
+        "%s",
+        item.order.toString()
+      );
       panelGroup.style.setProperty(cssVarName, item.size.toFixed(precision));
     });
   }

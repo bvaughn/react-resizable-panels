@@ -1,6 +1,6 @@
 import { createElement } from "react";
 import { DEFAULT_STORAGE_KEY_PREFIX } from "./utils/serialization";
-import { DATA_ATTRIBUTES } from "./constants";
+import { DATA_ATTRIBUTES, PANEL_SIZE_CSS_VARIABLE_TEMPLATE } from "./constants";
 import { MINIFIED_PERSIST } from "./scripts/persist.minified";
 import { useIsSSR } from "./hooks/useIsSSR";
 
@@ -25,6 +25,7 @@ export const PersistScript = ({
     autoSaveId,
     storageKeyPrefix,
     DATA_ATTRIBUTES.autoSaveId,
+    PANEL_SIZE_CSS_VARIABLE_TEMPLATE,
   ]).slice(1, -1);
 
   return createElement("script", {

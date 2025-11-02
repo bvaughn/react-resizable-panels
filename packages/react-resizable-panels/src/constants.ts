@@ -15,3 +15,5 @@ export const DATA_ATTRIBUTES = {
 } as const;
 
 export const PRECISION = 10;
+
+export const PANEL_SIZE_CSS_VARIABLE_TEMPLATE = "--panel-%s-size";

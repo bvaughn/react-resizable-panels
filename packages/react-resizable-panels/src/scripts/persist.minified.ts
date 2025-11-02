@@ -6,4 +6,4 @@
  * Minified version of persist.ts
  * Pre-minified to match browser bundle transformations.
  */
-export const MINIFIED_PERSIST = "function persist(t,e,o,l=3){let c=null;try{const o=t&&localStorage.getItem(e+\":\"+t);if(o){const t=JSON.parse(o);\"object\"==typeof t&&null!=t&&(c=t)}}catch(t){}if(!c)return;let n=null;if(c&&\"object\"==typeof c){const t=Object.keys(c);if(t.length>0){const e=t[0],o=e?c[e]:null;o&&\"object\"==typeof o&&\"layout\"in o&&(n=o.layout)}}const s=document.querySelector(\"[\"+o+'=\"'+t+'\"]');s&&n&&n.forEach((t=>{const e=`--panel-${t.order}-size`;s.style.setProperty(e,t.size.toFixed(l))}))}";
+export const MINIFIED_PERSIST = "function persist(t,e,o,c,l=3){let n=null;try{const o=t&&localStorage.getItem(e+\":\"+t);if(o){const t=JSON.parse(o);\"object\"==typeof t&&null!=t&&(n=t)}}catch(t){}if(!n)return;let r=null;if(n&&\"object\"==typeof n){const t=Object.keys(n);if(t.length>0){const e=t[0],o=e?n[e]:null;o&&\"object\"==typeof o&&\"layout\"in o&&(r=o.layout)}}const s=document.querySelector(\"[\"+o+'=\"'+t+'\"]');s&&r&&r.forEach((t=>{const e=c.replace(\"%s\",t.order.toString());s.style.setProperty(e,t.size.toFixed(l))}))}";
