@@ -22,9 +22,7 @@ export const PersistScript = ({
   }
 
   const scriptArgs = JSON.stringify([
-    autoSaveId,
     storageKeyPrefix,
-    DATA_ATTRIBUTES.autoSaveId,
     PANEL_SIZE_CSS_VARIABLE_TEMPLATE,
   ]).slice(1, -1);
 

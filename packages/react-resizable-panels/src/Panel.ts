@@ -16,7 +16,6 @@ import { PanelGroupContext } from "./PanelGroupContext";
 import { DATA_ATTRIBUTES } from "./constants";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
-import { panelSizeCssVar } from "./utils/computePanelFlexBoxStyle";
 
 export type PanelOnCollapse = () => void;
 export type PanelOnExpand = () => void;

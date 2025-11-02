@@ -16,4 +16,5 @@ export const DATA_ATTRIBUTES = {
 
 export const PRECISION = 10;
 
+// %s will be replaced with `order` or `autoSaveId-order`
 export const PANEL_SIZE_CSS_VARIABLE_TEMPLATE = "--panel-%s-size";

@@ -481,9 +481,10 @@ function PanelGroupWithForwardedRef({
       return computePanelFlexBoxStyle({
         dragState,
         order: panelData.order,
+        autoSaveId,
       });
     },
-    [dragState]
+    [dragState, autoSaveId]
   );
 
   // External APIs are safe to memoize via committed values ref
