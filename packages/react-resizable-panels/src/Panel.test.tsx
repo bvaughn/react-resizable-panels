@@ -11,6 +11,7 @@ import {
 } from ".";
 import { assert } from "./utils/assert";
 import { getPanelElement } from "./utils/dom/getPanelElement";
+import { getPanelGroupElement } from "./utils/dom/getPanelGroupElement";
 import {
   mockPanelGroupOffsetWidthAndHeight,
   verifyAttribute,
@@ -430,9 +431,11 @@ describe("PanelGroup", () => {
 
   describe("constraints", () => {
     test("should resize a collapsed panel if the collapsedSize prop changes", () => {
+      const panelGroupId = "test-panel-group-collapsed";
+
       act(() => {
         root.render(
-          <PanelGroup direction="horizontal">
+          <PanelGroup id={panelGroupId} direction="horizontal">
             <Panel
               id="left"
               collapsedSize={10}
@@ -454,21 +457,42 @@ describe("PanelGroup", () => {
         );
       });
 
-      let leftElement = getPanelElement("left", container);
-      let middleElement = getPanelElement("middle", container);
-      let rightElement = getPanelElement("right", container);
-      assert(leftElement, "");
-      assert(middleElement, "");
-      assert(rightElement, "");
-      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("10.0");
-      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
-        "80.0"
+      const leftPanelElement = getPanelElement("left", container);
+      const leftElementOrder = leftPanelElement?.getAttribute(
+        DATA_ATTRIBUTES.panelOrder
       );
-      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("10.0");
+      const middlePanelElement = getPanelElement("middle", container);
+      const middleElementOrder = middlePanelElement?.getAttribute(
+        DATA_ATTRIBUTES.panelOrder
+      );
+      const rightPanelElement = getPanelElement("right", container);
+      const rightElementOrder = rightPanelElement?.getAttribute(
+        DATA_ATTRIBUTES.panelOrder
+      );
+
+      expect(leftElementOrder).toBe("1");
+      expect(middleElementOrder).toBe("2");
+      expect(rightElementOrder).toBe("3");
+
+      // get panel group element and select css variable with order
+      const panelGroupElement = getPanelGroupElement(panelGroupId, container);
+      const leftPanelSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${leftElementOrder}-size`
+      );
+      const middlePanelSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${middleElementOrder}-size`
+      );
+      const rightPanelSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${rightElementOrder}-size`
+      );
+
+      expect(leftPanelSize).toBe("10.000");
+      expect(middlePanelSize).toBe("80.000");
+      expect(rightPanelSize).toBe("10.000");
 
       act(() => {
         root.render(
-          <PanelGroup direction="horizontal">
+          <PanelGroup id={panelGroupId} direction="horizontal">
             <Panel id="left" collapsedSize={5} collapsible minSize={25} />
             <PanelResizeHandle />
             <Panel id="middle" />
@@ -478,17 +502,27 @@ describe("PanelGroup", () => {
         );
       });
 
-      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("5.0");
-      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
-        "90.0"
+      const leftPanelSizeAfter = panelGroupElement?.style.getPropertyValue(
+        `--panel-${leftElementOrder}-size`
       );
-      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("5.0");
+      const middlePanelSizeAfter = panelGroupElement?.style.getPropertyValue(
+        `--panel-${middleElementOrder}-size`
+      );
+      const rightPanelSizeAfter = panelGroupElement?.style.getPropertyValue(
+        `--panel-${rightElementOrder}-size`
+      );
+
+      expect(leftPanelSizeAfter).toBe("5.000");
+      expect(middlePanelSizeAfter).toBe("90.000");
+      expect(rightPanelSizeAfter).toBe("5.000");
     });
 
     test("it should not expand a collapsed panel if other constraints change", () => {
+      const panelGroupId = "test-panel-group-expand";
+
       act(() => {
         root.render(
-          <PanelGroup direction="horizontal">
+          <PanelGroup id={panelGroupId} direction="horizontal">
             <Panel
               id="left"
               collapsedSize={10}
@@ -510,21 +544,42 @@ describe("PanelGroup", () => {
         );
       });
 
-      let leftElement = getPanelElement("left", container);
-      let middleElement = getPanelElement("middle", container);
-      let rightElement = getPanelElement("right", container);
-      assert(leftElement, "");
-      assert(middleElement, "");
-      assert(rightElement, "");
-      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("10.0");
-      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
-        "80.0"
+      const leftPanelElement = getPanelElement("left", container);
+      const leftElementOrder = leftPanelElement?.getAttribute(
+        DATA_ATTRIBUTES.panelOrder
       );
-      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("10.0");
+      const middlePanelElement = getPanelElement("middle", container);
+      const middleElementOrder = middlePanelElement?.getAttribute(
+        DATA_ATTRIBUTES.panelOrder
+      );
+      const rightPanelElement = getPanelElement("right", container);
+      const rightElementOrder = rightPanelElement?.getAttribute(
+        DATA_ATTRIBUTES.panelOrder
+      );
+
+      expect(leftElementOrder).toBe("1");
+      expect(middleElementOrder).toBe("2");
+      expect(rightElementOrder).toBe("3");
+
+      // get panel group element and select css variable with order
+      const panelGroupElement = getPanelGroupElement(panelGroupId, container);
+      const leftPanelSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${leftElementOrder}-size`
+      );
+      const middlePanelSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${middleElementOrder}-size`
+      );
+      const rightPanelSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${rightElementOrder}-size`
+      );
+
+      expect(leftPanelSize).toBe("10.000");
+      expect(middlePanelSize).toBe("80.000");
+      expect(rightPanelSize).toBe("10.000");
 
       act(() => {
         root.render(
-          <PanelGroup direction="horizontal">
+          <PanelGroup id={panelGroupId} direction="horizontal">
             <Panel id="left" collapsedSize={10} collapsible minSize={20} />
             <PanelResizeHandle />
             <Panel id="middle" />
@@ -534,17 +589,27 @@ describe("PanelGroup", () => {
         );
       });
 
-      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("10.0");
-      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
-        "80.0"
+      const leftPanelSizeAfter = panelGroupElement?.style.getPropertyValue(
+        `--panel-${leftElementOrder}-size`
       );
-      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("10.0");
+      const middlePanelSizeAfter = panelGroupElement?.style.getPropertyValue(
+        `--panel-${middleElementOrder}-size`
+      );
+      const rightPanelSizeAfter = panelGroupElement?.style.getPropertyValue(
+        `--panel-${rightElementOrder}-size`
+      );
+
+      expect(leftPanelSizeAfter).toBe("10.000");
+      expect(middlePanelSizeAfter).toBe("80.000");
+      expect(rightPanelSizeAfter).toBe("10.000");
     });
 
     test("should resize a panel if the minSize prop changes", () => {
+      const panelGroupId = "test-panel-group-minsize";
+
       act(() => {
         root.render(
-          <PanelGroup direction="horizontal">
+          <PanelGroup id={panelGroupId} direction="horizontal">
             <Panel id="left" defaultSize={15} minSize={10} />
             <PanelResizeHandle />
             <Panel id="middle" />
@@ -554,21 +619,42 @@ describe("PanelGroup", () => {
         );
       });
 
-      let leftElement = getPanelElement("left", container);
-      let middleElement = getPanelElement("middle", container);
-      let rightElement = getPanelElement("right", container);
-      assert(leftElement, "");
-      assert(middleElement, "");
-      assert(rightElement, "");
-      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("15.0");
-      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
-        "70.0"
+      const leftPanelElement = getPanelElement("left", container);
+      const leftElementOrder = leftPanelElement?.getAttribute(
+        DATA_ATTRIBUTES.panelOrder
       );
-      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("15.0");
+      const middlePanelElement = getPanelElement("middle", container);
+      const middleElementOrder = middlePanelElement?.getAttribute(
+        DATA_ATTRIBUTES.panelOrder
+      );
+      const rightPanelElement = getPanelElement("right", container);
+      const rightElementOrder = rightPanelElement?.getAttribute(
+        DATA_ATTRIBUTES.panelOrder
+      );
+
+      expect(leftElementOrder).toBe("1");
+      expect(middleElementOrder).toBe("2");
+      expect(rightElementOrder).toBe("3");
+
+      // get panel group element and select css variable with order
+      const panelGroupElement = getPanelGroupElement(panelGroupId, container);
+      const leftPanelSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${leftElementOrder}-size`
+      );
+      const middlePanelSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${middleElementOrder}-size`
+      );
+      const rightPanelSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${rightElementOrder}-size`
+      );
+
+      expect(leftPanelSize).toBe("15.000");
+      expect(middlePanelSize).toBe("70.000");
+      expect(rightPanelSize).toBe("15.000");
 
       act(() => {
         root.render(
-          <PanelGroup direction="horizontal">
+          <PanelGroup id={panelGroupId} direction="horizontal">
             <Panel id="left" minSize={20} />
             <PanelResizeHandle />
             <Panel id="middle" />
@@ -578,17 +664,27 @@ describe("PanelGroup", () => {
         );
       });
 
-      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("20.0");
-      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
-        "60.0"
+      const leftPanelSizeAfter = panelGroupElement?.style.getPropertyValue(
+        `--panel-${leftElementOrder}-size`
       );
-      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("20.0");
+      const middlePanelSizeAfter = panelGroupElement?.style.getPropertyValue(
+        `--panel-${middleElementOrder}-size`
+      );
+      const rightPanelSizeAfter = panelGroupElement?.style.getPropertyValue(
+        `--panel-${rightElementOrder}-size`
+      );
+
+      expect(leftPanelSizeAfter).toBe("20.000");
+      expect(middlePanelSizeAfter).toBe("60.000");
+      expect(rightPanelSizeAfter).toBe("20.000");
     });
 
     test("should resize a panel if the maxSize prop changes", () => {
+      const panelGroupId = "test-panel-group";
+
       act(() => {
         root.render(
-          <PanelGroup direction="horizontal">
+          <PanelGroup id={panelGroupId} direction="horizontal">
             <Panel id="left" defaultSize={25} maxSize={30} />
             <PanelResizeHandle />
             <Panel id="middle" />
@@ -598,21 +694,42 @@ describe("PanelGroup", () => {
         );
       });
 
-      let leftElement = getPanelElement("left", container);
-      let middleElement = getPanelElement("middle", container);
-      let rightElement = getPanelElement("right", container);
-      assert(leftElement, "");
-      assert(middleElement, "");
-      assert(rightElement, "");
-      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("25.0");
-      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
-        "50.0"
+      const leftPanelElement = getPanelElement("left", container);
+      const leftElementOrder = leftPanelElement?.getAttribute(
+        DATA_ATTRIBUTES.panelOrder
       );
-      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("25.0");
+      const middlePanelElement = getPanelElement("middle", container);
+      const middleElementOrder = middlePanelElement?.getAttribute(
+        DATA_ATTRIBUTES.panelOrder
+      );
+      const rightPanelElement = getPanelElement("right", container);
+      const rightElementOrder = rightPanelElement?.getAttribute(
+        DATA_ATTRIBUTES.panelOrder
+      );
+
+      expect(leftElementOrder).toBe("1");
+      expect(middleElementOrder).toBe("2");
+      expect(rightElementOrder).toBe("3");
+
+      // get panel group element and select css variable with order
+      const panelGroupElement = getPanelGroupElement(panelGroupId, container);
+      const leftPanelSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${leftElementOrder}-size`
+      );
+      const middlePanelSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${middleElementOrder}-size`
+      );
+      const rightPanelSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${rightElementOrder}-size`
+      );
+
+      expect(leftPanelSize).toBe("25.000");
+      expect(middlePanelSize).toBe("50.000");
+      expect(rightPanelSize).toBe("25.000");
 
       act(() => {
         root.render(
-          <PanelGroup direction="horizontal">
+          <PanelGroup id={panelGroupId} direction="horizontal">
             <Panel id="left" maxSize={20} />
             <PanelResizeHandle />
             <Panel id="middle" />
@@ -622,11 +739,19 @@ describe("PanelGroup", () => {
         );
       });
 
-      expect(leftElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("20.0");
-      expect(middleElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
-        "60.0"
+      const leftPanelSizeAfter = panelGroupElement?.style.getPropertyValue(
+        `--panel-${leftElementOrder}-size`
       );
-      expect(rightElement.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe("20.0");
+      const middlePanelSizeAfter = panelGroupElement?.style.getPropertyValue(
+        `--panel-${middleElementOrder}-size`
+      );
+      const rightPanelSizeAfter = panelGroupElement?.style.getPropertyValue(
+        `--panel-${rightElementOrder}-size`
+      );
+
+      expect(leftPanelSizeAfter).toBe("20.000");
+      expect(middlePanelSizeAfter).toBe("60.000");
+      expect(rightPanelSizeAfter).toBe("20.000");
     });
   });
 
@@ -978,22 +1103,21 @@ describe("PanelGroup", () => {
       verifyAttribute(leftElement, DATA_ATTRIBUTES.panel, "");
       verifyAttribute(leftElement, DATA_ATTRIBUTES.panelId, "left-panel");
       verifyAttribute(leftElement, DATA_ATTRIBUTES.groupId, "test-group");
-      verifyAttribute(leftElement, DATA_ATTRIBUTES.panelSize, "75.0");
       verifyAttribute(leftElement, DATA_ATTRIBUTES.panelCollapsible, null);
 
       verifyAttribute(rightElement, DATA_ATTRIBUTES.panel, "");
       verifyAttribute(rightElement, DATA_ATTRIBUTES.panelId, "right-panel");
       verifyAttribute(rightElement, DATA_ATTRIBUTES.groupId, "test-group");
-      verifyAttribute(rightElement, DATA_ATTRIBUTES.panelSize, "25.0");
       verifyAttribute(rightElement, DATA_ATTRIBUTES.panelCollapsible, "true");
     });
 
-    test("should update the data-panel-size attribute when the panel resizes", () => {
+    test("should update the CSS variables when the panel resizes", () => {
       const leftPanelRef = createRef<ImperativePanelHandle>();
+      const panelGroupId = "test-group-resize";
 
       act(() => {
         root.render(
-          <PanelGroup direction="horizontal" id="test-group">
+          <PanelGroup direction="horizontal" id={panelGroupId}>
             <Panel defaultSize={75} id="left-panel" ref={leftPanelRef} />
             <PanelResizeHandle />
             <Panel collapsible id="right-panel" />
@@ -1007,15 +1131,42 @@ describe("PanelGroup", () => {
       assert(leftElement, "");
       assert(rightElement, "");
 
-      verifyAttribute(leftElement, DATA_ATTRIBUTES.panelSize, "75.0");
-      verifyAttribute(rightElement, DATA_ATTRIBUTES.panelSize, "25.0");
+      const leftElementOrder = leftElement.getAttribute(
+        DATA_ATTRIBUTES.panelOrder
+      );
+      const rightElementOrder = rightElement.getAttribute(
+        DATA_ATTRIBUTES.panelOrder
+      );
+      const panelGroupElement = getPanelGroupElement(panelGroupId, container);
+
+      expect(leftElementOrder).toBe("1");
+      expect(rightElementOrder).toBe("2");
+
+      // Check initial CSS variable values
+      const leftInitialSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${leftElementOrder}-size`
+      );
+      const rightInitialSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${rightElementOrder}-size`
+      );
+
+      expect(leftInitialSize).toBe("75.000");
+      expect(rightInitialSize).toBe("25.000");
 
       act(() => {
         leftPanelRef.current?.resize(30);
       });
 
-      verifyAttribute(leftElement, DATA_ATTRIBUTES.panelSize, "30.0");
-      verifyAttribute(rightElement, DATA_ATTRIBUTES.panelSize, "70.0");
+      // Check CSS variable values after resize
+      const leftResizedSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${leftElementOrder}-size`
+      );
+      const rightResizedSize = panelGroupElement?.style.getPropertyValue(
+        `--panel-${rightElementOrder}-size`
+      );
+
+      expect(leftResizedSize).toBe("30.000");
+      expect(rightResizedSize).toBe("70.000");
     });
   });
 

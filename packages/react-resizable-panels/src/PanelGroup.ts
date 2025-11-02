@@ -290,7 +290,8 @@ function PanelGroupWithForwardedRef({
         if (panelsHaveChanged) {
           if (
             panelDataArray.find(
-              ({ idIsFromProps, order }) => !idIsFromProps || order == null
+              ({ idIsFromProps, orderIsFromProps }) =>
+                !idIsFromProps || !orderIsFromProps
             )
           ) {
             devWarningsRef.current.didLogIdAndOrderWarning = true;

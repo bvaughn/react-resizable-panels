@@ -45,6 +45,7 @@ export type PanelData = {
   id: string;
   idIsFromProps: boolean;
   order: number;
+  orderIsFromProps: boolean;
 };
 
 export type ImperativePanelHandle = {
@@ -141,6 +142,7 @@ export function PanelWithForwardedRef({
     id: panelId,
     idIsFromProps: idFromProps !== undefined,
     order: assignedOrderRef.current,
+    orderIsFromProps: orderFromProps !== undefined,
   });
 
   const devWarningsRef = useRef<{
@@ -170,6 +172,7 @@ export function PanelWithForwardedRef({
     panelDataRef.current.id = panelId;
     panelDataRef.current.idIsFromProps = idFromProps !== undefined;
     panelDataRef.current.order = assignedOrderRef.current as number;
+    panelDataRef.current.orderIsFromProps = orderFromProps !== undefined;
 
     callbacks.onCollapse = onCollapse;
     callbacks.onExpand = onExpand;

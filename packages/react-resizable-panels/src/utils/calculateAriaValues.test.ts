@@ -17,6 +17,7 @@ describe("calculateAriaValues", () => {
       id: `${idCounter++}`,
       idIsFromProps: false,
       order: orderCounter++,
+      orderIsFromProps: false,
     };
   }
 
