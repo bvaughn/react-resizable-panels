@@ -1,6 +1,6 @@
 "use client";
 
-import { Panel, PanelGroup, PanelPersistScript } from "react-resizable-panels";
+import { Panel, PanelGroup, PersistScript } from "react-resizable-panels";
 import { ResizeHandle } from "@/components/ResizeHandle";
 import styles from "@/components/shared.module.css";
 
@@ -14,7 +14,7 @@ export default function Home() {
             autoSaveId="l1"
             direction="horizontal"
           >
-            <PanelPersistScript autoSaveId="l1" />
+            <PersistScript autoSaveId="l1" />
             <Panel
               className={styles.PanelRow}
               defaultSize={20}
@@ -37,7 +37,7 @@ export default function Home() {
                 autoSaveId="l2"
                 direction="vertical"
               >
-                <PanelPersistScript autoSaveId="l2" />
+                <PersistScript autoSaveId="l2" />
                 <Panel
                   className={styles.PanelColumn}
                   defaultSize={35}
@@ -60,7 +60,7 @@ export default function Home() {
                     autoSaveId="l3"
                     direction="horizontal"
                   >
-                    <PanelPersistScript autoSaveId="l3" />
+                    <PersistScript autoSaveId="l3" />
                     <Panel
                       className={styles.PanelRow}
                       defaultSize={50}

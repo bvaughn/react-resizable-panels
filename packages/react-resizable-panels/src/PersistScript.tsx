@@ -1,7 +1,6 @@
 import { createElement } from "react";
 import { DEFAULT_STORAGE_KEY_PREFIX } from "./utils/serialization";
 import { DATA_ATTRIBUTES } from "./constants";
-import { panelSizeCssVar } from "./utils/computePanelFlexBoxStyle";
 import { MINIFIED_PERSIST } from "./scripts/persist.minified";
 import { useIsSSR } from "./hooks/useIsSSR";
 
@@ -11,7 +10,7 @@ export interface PersistScriptProps {
   nonce?: string;
 }
 
-export const PanelPersistScript = ({
+export const PersistScript = ({
   nonce,
   autoSaveId,
   storageKeyPrefix = DEFAULT_STORAGE_KEY_PREFIX,
