@@ -18,6 +18,7 @@ describe("calculateUnsafeDefaultLayout", () => {
       id: `${idCounter++}`,
       idIsFromProps: false,
       order: orderCounter++,
+      orderIsFromProps: false,
     };
   }
 

@@ -6,7 +6,6 @@ export const DATA_ATTRIBUTES = {
   panelCollapsible: "data-panel-collapsible",
   panelId: "data-panel-id",
   panelOrder: "data-panel-order",
-  panelSize: "data-panel-size",
   resizeHandle: "data-resize-handle",
   resizeHandleActive: "data-resize-handle-active",
   resizeHandleEnabled: "data-panel-resize-handle-enabled",
@@ -16,3 +15,6 @@ export const DATA_ATTRIBUTES = {
 } as const;
 
 export const PRECISION = 10;
+
+// %s will be replaced with `order` or `autoSaveId-order`
+export const PANEL_SIZE_CSS_VARIABLE_TEMPLATE = "--panel-%s-size";

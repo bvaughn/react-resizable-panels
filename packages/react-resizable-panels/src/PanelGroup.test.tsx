@@ -71,6 +71,7 @@ describe("PanelGroup", () => {
   });
 
   test("should recalculate layout after being hidden by Activity", () => {
+    const panelGroupId = "test-panel-group";
     const panelRef = createRef<ImperativePanelHandle>();
 
     let mostRecentLayout: number[] | null = null;
@@ -82,7 +83,11 @@ describe("PanelGroup", () => {
     act(() => {
       root.render(
         <Activity mode="visible">
-          <PanelGroup direction="horizontal" onLayout={onLayout}>
+          <PanelGroup
+            id={panelGroupId}
+            direction="horizontal"
+            onLayout={onLayout}
+          >
             <Panel id="left" ref={panelRef} />
             <PanelResizeHandle />
             <Panel defaultSize={40} id="right" />
@@ -95,13 +100,28 @@ describe("PanelGroup", () => {
     expect(panelRef.current?.getSize()).toEqual(60);
 
     const leftPanelElement = getPanelElement("left");
+    const leftElementOrder = leftPanelElement?.getAttribute(
+      DATA_ATTRIBUTES.panelOrder
+    );
     const rightPanelElement = getPanelElement("right");
-    expect(leftPanelElement?.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
-      "60.0"
+    const rightElementOrder = rightPanelElement?.getAttribute(
+      DATA_ATTRIBUTES.panelOrder
     );
-    expect(rightPanelElement?.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
-      "40.0"
+
+    expect(leftElementOrder).toBe("1");
+    expect(rightElementOrder).toBe("2");
+
+    // get panel group element and select css variable with order
+    const panelGroupElement = getPanelGroupElement(panelGroupId, container);
+    const leftPanelOrder = panelGroupElement?.style.getPropertyValue(
+      `--panel-${leftElementOrder}-size`
     );
+    const rightPanelOrder = panelGroupElement?.style.getPropertyValue(
+      `--panel-${rightElementOrder}-size`
+    );
+
+    expect(leftPanelOrder).toBe("60.000");
+    expect(rightPanelOrder).toBe("40.000");
 
     act(() => {
       root.render(
@@ -131,12 +151,8 @@ describe("PanelGroup", () => {
     expect(panelRef.current?.getSize()).toEqual(60);
 
     // This bug is only observable in the DOM; callbacks will not re-fire
-    expect(leftPanelElement?.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
-      "60.0"
-    );
-    expect(rightPanelElement?.getAttribute(DATA_ATTRIBUTES.panelSize)).toBe(
-      "40.0"
-    );
+    expect(leftPanelOrder).toBe("60.000");
+    expect(rightPanelOrder).toBe("40.000");
   });
 
   // github.com/bvaughn/react-resizable-panels/issues/303

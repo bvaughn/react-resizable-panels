@@ -16,7 +16,6 @@ import { PanelGroupContext } from "./PanelGroupContext";
 import { DATA_ATTRIBUTES } from "./constants";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
-import { panelSizeCssVar } from "./utils/computePanelFlexBoxStyle";
 
 export type PanelOnCollapse = () => void;
 export type PanelOnExpand = () => void;
@@ -45,6 +44,7 @@ export type PanelData = {
   id: string;
   idIsFromProps: boolean;
   order: number;
+  orderIsFromProps: boolean;
 };
 
 export type ImperativePanelHandle = {
@@ -141,6 +141,7 @@ export function PanelWithForwardedRef({
     id: panelId,
     idIsFromProps: idFromProps !== undefined,
     order: assignedOrderRef.current,
+    orderIsFromProps: orderFromProps !== undefined,
   });
 
   const devWarningsRef = useRef<{
@@ -170,6 +171,7 @@ export function PanelWithForwardedRef({
     panelDataRef.current.id = panelId;
     panelDataRef.current.idIsFromProps = idFromProps !== undefined;
     panelDataRef.current.order = assignedOrderRef.current as number;
+    panelDataRef.current.orderIsFromProps = orderFromProps !== undefined;
 
     callbacks.onCollapse = onCollapse;
     callbacks.onExpand = onExpand;
@@ -257,9 +259,6 @@ export function PanelWithForwardedRef({
     [DATA_ATTRIBUTES.panelCollapsible]: collapsible || undefined,
     [DATA_ATTRIBUTES.panelId]: panelId,
     [DATA_ATTRIBUTES.panelOrder]: assignedOrderRef.current.toString(),
-    [DATA_ATTRIBUTES.panelSize]: parseFloat(
-      "" + (style as any)[panelSizeCssVar]
-    ).toFixed(1),
   });
 }
 

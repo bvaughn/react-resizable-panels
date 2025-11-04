@@ -1,22 +1,19 @@
 import { createElement } from "react";
 import { DEFAULT_STORAGE_KEY_PREFIX } from "./utils/serialization";
-import { DATA_ATTRIBUTES } from "./constants";
-import { panelSizeCssVar } from "./utils/computePanelFlexBoxStyle";
+import { DATA_ATTRIBUTES, PANEL_SIZE_CSS_VARIABLE_TEMPLATE } from "./constants";
 import { MINIFIED_PERSIST } from "./scripts/persist.minified";
 import { useIsSSR } from "./hooks/useIsSSR";
 
 export interface PersistScriptProps {
-  panelId: string;
   autoSaveId: string | null;
   storageKeyPrefix?: string;
   nonce?: string;
 }
 
-export const PanelPersistScript = ({
+export const PersistScript = ({
   nonce,
   autoSaveId,
   storageKeyPrefix = DEFAULT_STORAGE_KEY_PREFIX,
-  panelId,
 }: PersistScriptProps) => {
   const isSSR = useIsSSR();
 
@@ -25,12 +22,8 @@ export const PanelPersistScript = ({
   }
 
   const scriptArgs = JSON.stringify([
-    autoSaveId,
     storageKeyPrefix,
-    DATA_ATTRIBUTES.panelId,
-    DATA_ATTRIBUTES.panelOrder,
-    panelId,
-    panelSizeCssVar,
+    PANEL_SIZE_CSS_VARIABLE_TEMPLATE,
   ]).slice(1, -1);
 
   return createElement("script", {

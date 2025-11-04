@@ -59,6 +59,7 @@ describe("serialization", () => {
       id,
       idIsFromProps,
       order,
+      orderIsFromProps: false,
     });
 
     test("should save and load panel state with new format (with order)", () => {

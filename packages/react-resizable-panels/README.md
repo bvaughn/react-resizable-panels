@@ -96,12 +96,10 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 | `tagName`        | `?string = "div"`                             | HTML element tag name for root element                                          |
 
 
-### `PanelPersistScript`
+### `PersistScript`
 
 | prop         | type          | description                                                                                   |
 | :----------- | :------------ | :-------------------------------------------------------------------------------------------- |
-| `autoSaveId` | `string`      | Must match the parent `PanelGroup`'s `autoSaveId` prop                                                |
-| `panelId`    | `string`      | Must match the parent `Panel`'s `id` prop                                                            |
 
 ---
 
@@ -190,37 +188,40 @@ Yes. Panel groups with an `autoSaveId` prop will automatically save and restore 
 
 By default, this library uses `localStorage` to persist layouts. With server rendering, this can cause a flicker when the default layout (rendered on the server) is replaced with the persisted layout (in `localStorage`). There are two ways to avoid this flicker:
 
-#### Option 1: Using `PanelPersistScript`
+#### Option 1: Using `PersistScript`
 
-The `PanelPersistScript` component synchronously applies the persisted layout before React hydration, eliminating layout flicker.
-
-**Requirements:**
-
-- `id` and `order` props are **required** on each `Panel` component
-- `PanelPersistScript` must be placed as the **first child** of each `Panel`
-- `panelId` prop must match the `Panel`'s `id`
-- `autoSaveId` prop must match the `PanelGroup`'s `autoSaveId`
-- `suppressHydrationWarning` prop should be added to `Panel` components that may have different sizes between server and client renders
+The `PersistScript` component synchronously applies the persisted layout before React hydration, eliminating layout flicker.
+It injects CSS variable rules into an adopted stylesheet based on the saved layout in `localStorage`.
 
 ```tsx
 "use client";
 
-import { Panel, PanelGroup, PanelResizeHandle, PanelPersistScript } from "react-resizable-panels";
+import { Panel, PanelGroup, PanelResizeHandle, PersistScript } from "react-resizable-panels";
 
 export function ClientComponent() {
   return (
-    <PanelGroup direction="horizontal" autoSaveId="my-layout" >
-      <Panel id="left-panel" defaultSize={33} order={1} suppressHydrationWarning>
-        <PanelPersistScript panelId="left-panel" autoSaveId="my-layout" />
-        {/* Panel content */}
-      </Panel>
-      <PanelResizeHandle />
-      <Panel id="right-panel" defaultSize={67} order={2} suppressHydrationWarning>
-        <PanelPersistScript panelId="right-panel" autoSaveId="my-layout" />
-        {/* Panel content */}
-      </Panel>
-    </PanelGroup>
+    <>
+      <PersistScript/>
+      <PanelGroup direction="horizontal" autoSaveId="my-layout">
+        <Panel defaultSize={33} >
+          {/* Panel content */}
+        </Panel>
+        <PanelResizeHandle />
+        <Panel defaultSize={67}>
+          {/* Panel content */}
+        </Panel>
+      </PanelGroup>
+    </>
   );
+}
+```
+
+Here's the example of injected CSS variables:
+
+```css
+:root {
+    --panel-my-layout-1-size: 60.000;
+    --panel-my-layout-2-size: 40.000;
 }
 ```
 

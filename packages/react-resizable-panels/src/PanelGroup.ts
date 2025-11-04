@@ -28,7 +28,7 @@ import {
   EXCEEDED_VERTICAL_MIN,
   reportConstraintsViolation,
 } from "./PanelResizeHandleRegistry";
-import { DATA_ATTRIBUTES } from "./constants";
+import { DATA_ATTRIBUTES, PANEL_SIZE_CSS_VARIABLE_TEMPLATE } from "./constants";
 import { useForceUpdate } from "./hooks/useForceUpdate";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicEffect";
 import useUniqueId from "./hooks/useUniqueId";
@@ -290,7 +290,8 @@ function PanelGroupWithForwardedRef({
         if (panelsHaveChanged) {
           if (
             panelDataArray.find(
-              ({ idIsFromProps, order }) => !idIsFromProps || order == null
+              ({ idIsFromProps, orderIsFromProps }) =>
+                !idIsFromProps || !orderIsFromProps
             )
           ) {
             devWarningsRef.current.didLogIdAndOrderWarning = true;
@@ -477,19 +478,13 @@ function PanelGroupWithForwardedRef({
   // This API should never read from committedValuesRef
   const getPanelStyle = useCallback(
     (panelData: PanelData, defaultSize: number | undefined) => {
-      const { panelDataArray } = eagerValuesRef.current;
-
-      const panelIndex = findPanelDataIndex(panelDataArray, panelData);
-
       return computePanelFlexBoxStyle({
-        defaultSize,
         dragState,
-        layout,
-        panelData: panelDataArray,
-        panelIndex,
+        order: panelData.order,
+        autoSaveId,
       });
     },
-    [dragState, layout]
+    [dragState, autoSaveId]
   );
 
   // External APIs are safe to memoize via committed values ref
@@ -941,12 +936,48 @@ function PanelGroupWithForwardedRef({
     ]
   );
 
+  const generatePanelSizeCssVars = useCallback(
+    (precision: number = 3) => {
+      const { panelDataArray } = eagerValuesRef.current;
+      const cssVars: Record<string, string> = {};
+
+      for (let i = 0; i < panelDataArray.length; i++) {
+        const panelData = panelDataArray[i];
+        if (!panelData) continue;
+
+        const size = layout[i];
+
+        let flexGrow: string;
+        if (size == null) {
+          const defaultSize = panelData.constraints.defaultSize;
+          flexGrow =
+            defaultSize != undefined ? defaultSize.toFixed(precision) : "1";
+        } else if (panelDataArray.length === 1) {
+          flexGrow = "1";
+        } else {
+          flexGrow = size.toFixed(precision);
+        }
+
+        cssVars[
+          PANEL_SIZE_CSS_VARIABLE_TEMPLATE.replace(
+            "%s",
+            panelData.order.toString()
+          )
+        ] = flexGrow;
+      }
+
+      return cssVars;
+    },
+    [layout]
+  );
+
   const style: CSSProperties = {
     display: "flex",
     flexDirection: direction === "horizontal" ? "row" : "column",
     height: "100%",
     overflow: "hidden",
     width: "100%",
+    ...generatePanelSizeCssVars(),
   };
 
   return createElement(
