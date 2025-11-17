@@ -31,7 +31,7 @@ export function Group({
   disableCursor,
   id: idProp,
   onLayoutChange: onLayoutChangeUnstable,
-  storage: _TODO_storage = localStorage,
+  storage: _TODO_storage,
   style
 }: GroupProps) {
   let autoSave = !!autoSaveProp;

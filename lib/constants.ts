@@ -1,6 +1,16 @@
 // Constants used for memoization
 export const EMPTY_ARRAY: unknown[] = [];
-export const EMPTY_DOM_RECT = new DOMRect(0, 0, 0, 0);
+export const EMPTY_DOM_RECT: DOMRectReadOnly = {
+  bottom: 0,
+  height: 0,
+  left: 0,
+  right: 0,
+  toJSON: () => {},
+  top: 0,
+  width: 0,
+  x: 0,
+  y: 0
+};
 export const EMPTY_OBJECT = {};
 export const EMPTY_POINT = { x: 0, y: 0 };
 export const NOOP_FUNCTION = () => {};

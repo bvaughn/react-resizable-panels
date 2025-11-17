@@ -2,13 +2,16 @@ import type { Properties } from "csstype";
 import { read } from "../mutableState";
 import { getCursorStyle } from "./getCursorStyle";
 
-const styleSheet = new CSSStyleSheet();
-
-document.adoptedStyleSheets = [styleSheet];
-
 let prevCursor: Properties["cursor"] | null = null;
+let styleSheet: CSSStyleSheet | undefined = undefined;
 
 export function updateCursorStyle() {
+  if (styleSheet === undefined) {
+    styleSheet = new CSSStyleSheet();
+
+    document.adoptedStyleSheets = [styleSheet];
+  }
+
   const { cursorFlags, interactionState } = read();
 
   switch (interactionState.state) {

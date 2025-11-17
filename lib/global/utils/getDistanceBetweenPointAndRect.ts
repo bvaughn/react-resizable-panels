@@ -1,6 +1,9 @@
 import type { Point } from "../../types";
 
-export function getDistanceBetweenPointAndRect(point: Point, rect: DOMRect) {
+export function getDistanceBetweenPointAndRect(
+  point: Point,
+  rect: DOMRectReadOnly
+) {
   return {
     x:
       point.x >= rect.left && point.x <= rect.right

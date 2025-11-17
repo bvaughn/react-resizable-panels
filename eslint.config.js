@@ -26,6 +26,7 @@ export default tseslint.config([
           patterns: ["*/../lib/*"]
         }
       ],
+      "no-restricted-globals": [],
       "no-restricted-properties": [
         "error",
         {
