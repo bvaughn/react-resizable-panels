@@ -27,7 +27,7 @@ export function ComponentProps({
         <Header section={section} title={`${json.name} component`} />
         <ExternalLink
           className="text-sm text-emerald-300 hover:text-white"
-          href={`${repository.url.replace(".git", "")}/blob/master/${json.filePath}`}
+          href={`${repository.url.replace(".git", "")}/blob/main/${json.filePath}`}
         >
           <ArrowTopRightOnSquareIcon className="inline-block size-4 fill-current" />
         </ExternalLink>
