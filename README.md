@@ -69,7 +69,8 @@ Documentation for this project is available at [react-resizable-panels.vercel.ap
     </tr>
     <tr>
       <td>disableCursor</td>
-      <td><p>Prevent library from setting CSS cursor style for elements within this group.</p>
+      <td><p>This library sets custom mouse cursor styles to indicate drag state.
+Use this prop to disable that behavior for Panels and ResizeHandles in this group.</p>
 </td>
     </tr>
     <tr>
@@ -88,6 +89,8 @@ Falls back to <code>useId</code> when not provided.</p>
     <tr>
       <td>storage</td>
       <td><p>Storage API to use for persisted layouts; defaults to <code>localStorage</code>.</p>
+<p>Use this prop support environments where <code>localStorage</code> is not available,
+such as server-side rendering or in a browser with cookies/storage disabled.</p>
 <p>ℹ️ The <code>storage</code> API is synchronous.
 Async values should be pre-fetched during the initial render using e.g. Suspense.</p>
 <p>ℹ️ Calls to <code>storage.setItem</code> are debounced by 100ms.</p>

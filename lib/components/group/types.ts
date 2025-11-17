@@ -63,7 +63,8 @@ export type GroupProps = {
   direction?: Direction;
 
   /**
-   * Prevent library from setting CSS cursor style for elements within this group.
+   * This library sets custom mouse cursor styles to indicate drag state.
+   * Use this prop to disable that behavior for Panels and ResizeHandles in this group.
    */
   disableCursor?: boolean;
 
@@ -84,6 +85,9 @@ export type GroupProps = {
 
   /**
    * Storage API to use for persisted layouts; defaults to `localStorage`.
+   *
+   * Use this prop support environments where `localStorage` is not available,
+   * such as server-side rendering or in a browser with cookies/storage disabled.
    *
    * ℹ️ The `storage` API is synchronous.
    * Async values should be pre-fetched during the initial render using e.g. Suspense.

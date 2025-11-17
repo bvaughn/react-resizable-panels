@@ -64,7 +64,7 @@
     "disableCursor": {
       "description": [
         {
-          "content": "Prevent library from setting CSS cursor style for elements within this group."
+          "content": "This library sets custom mouse cursor styles to indicate drag state.\nUse this prop to disable that behavior for Panels and ResizeHandles in this group."
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disableCursor</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
@@ -103,6 +103,9 @@
       "description": [
         {
           "content": "Storage API to use for persisted layouts; defaults to <code>localStorage</code>."
+        },
+        {
+          "content": "Use this prop support environments where <code>localStorage</code> is not available,\nsuch as server-side rendering or in a browser with cookies/storage disabled."
         },
         {
           "content": "The <code>storage</code> API is synchronous.\nAsync values should be pre-fetched during the initial render using e.g. Suspense.",
