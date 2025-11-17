@@ -31,17 +31,6 @@ Documentation for this project is available at [react-resizable-panels.vercel.ap
 
 <!-- Group:required:begin -->
 
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
-
 <!-- Group:required:end -->
 
 #### Optional props
@@ -112,17 +101,6 @@ Falls back to <code>useId</code> when not provided.</p>
 #### Required props
 
 <!-- Panel:required:begin -->
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
 
 <!-- Panel:required:end -->
 
@@ -199,17 +177,6 @@ Falls back to <code>useId</code> when not provided.</p>
 #### Required props
 
 <!-- ResizeHandle:required:begin -->
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
 
 <!-- ResizeHandle:required:end -->
 
