@@ -46,7 +46,12 @@ export default function LayoutBasicsRoute() {
       </Group>
       <Code html={ResizeHandleHTML} />
       <Callout intent="primary">
-        Explicit resize handles are important for keyboard accessibility.
+        Resize handles improve keyboard accessibility by providing a
+        tab-focusable{" "}
+        <ExternalLink href="https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/">
+          window splitter
+        </ExternalLink>{" "}
+        element.
       </Callout>
     </Box>
   );

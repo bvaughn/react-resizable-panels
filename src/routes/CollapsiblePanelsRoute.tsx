@@ -21,13 +21,17 @@ export default function CollapsiblePanelsRoute() {
         <Panel collapsible maxSize="25%" minSize={100} showSizeInPixels />
         <ResizeHandle />
         <Panel>
-          The panel on the left is will collapse if resized smaller than 100
-          pixels.
+          The panel on the left is will collapse if resized below 50 pixels.
         </Panel>
       </Group>
+      <Callout intent="primary">
+        It's usually a good idea to include a <code>ResizeHandle</code> for
+        panels that can be collapsed fully. This panel gives users something to
+        click to re-open a panel after it's been collapsed.
+      </Callout>
       <div>
-        The <code>collapsedSize</code> property can also be used to specify a
-        custom collapsed size.
+        The <code>collapsedSize</code> property can also be provided to prevent
+        a panel from disappearing fully when collapsed.
       </div>
       <Code html={ExampleWithCollapsedSizeHTML} />
       <Group className="h-15 gap-1">
@@ -38,12 +42,11 @@ export default function CollapsiblePanelsRoute() {
           minSize={100}
           showSizeInPixels
         ></Panel>
-        <Panel>The panel on the left collapses to a size of 25 pixels.</Panel>
+        <Panel>The panel on the left collapses to a width of 25 pixels.</Panel>
       </Group>
       <div>This enables building UIs like VS Code's "Folders" side panel.</div>
       <Callout intent="primary">
-        It's usually a good idea to include a <code>ResizeHandle</code> for
-        panels that can be collapsed fully, as this helps when reopening them.
+        A panel's collapse threshold is half its minimum size.
       </Callout>
     </Box>
   );

@@ -17,9 +17,15 @@ export default function PersistentLayoutsRoute() {
       </div>
       <Code html={ExampleHTML} />
       <Group autoSave className="h-15 gap-1" id="auto-save-example">
-        <Panel minSize={50}>left</Panel>
-        <Panel minSize={50}>center</Panel>
-        <Panel minSize={50}>right</Panel>
+        <Panel minSize={50} showSizeAsPercentage>
+          left
+        </Panel>
+        <Panel minSize={50} showSizeAsPercentage>
+          center
+        </Panel>
+        <Panel minSize={50} showSizeAsPercentage>
+          right
+        </Panel>
       </Group>
       <Callout intent="warning">
         In order to re-associate saved layouts with the appropriate group,
