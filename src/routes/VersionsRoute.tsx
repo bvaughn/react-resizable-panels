@@ -33,8 +33,14 @@ const VERSIONS = {
     "3.0.6":
       "https://react-resizable-panels-au2wmqbbr-brian-vaughns-projects.vercel.app/"
   },
-  "2": {},
-  "1": {}
+  "2": {
+    "2.1.7":
+      "https://react-resizable-panels-ca7gk2gh5-brian-vaughns-projects.vercel.app/",
+    "2.0.23": ""
+  },
+  "1": {
+    "1.0.10": ""
+  }
 };
 
 function VersionLink({ url, version }: { url: string; version: string }) {
