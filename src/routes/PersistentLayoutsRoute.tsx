@@ -1,10 +1,10 @@
-import { Group, Panel } from "react-resizable-panels";
+import { Group } from "react-resizable-panels";
 import { html as ExampleHTML } from "../../public/generated/code-snippets/PersistentLayouts.json";
 import { Box } from "../components/Box";
 import { Callout } from "../components/Callout";
 import { Code } from "../components/code/Code";
 import { Header } from "../components/Header";
-import { Text } from "../components/Text";
+import { Panel } from "../components/styled/Panel";
 
 export default function PersistentLayoutsRoute() {
   return (
@@ -16,25 +16,10 @@ export default function PersistentLayoutsRoute() {
         panels below and then reload the page to see an example.
       </div>
       <Code html={ExampleHTML} />
-      <Group className="h-15 gap-1">
-        <Panel
-          className="border border-2 border-slate-700 rounded"
-          minSize={50}
-        >
-          <Text>left</Text>
-        </Panel>
-        <Panel
-          className="border border-2 border-slate-700 rounded"
-          minSize={50}
-        >
-          <Text>center</Text>
-        </Panel>
-        <Panel
-          className="border border-2 border-slate-700 rounded"
-          minSize={50}
-        >
-          <Text>right</Text>
-        </Panel>
+      <Group autoSave className="h-15 gap-1" id="auto-save-example">
+        <Panel minSize={50}>left</Panel>
+        <Panel minSize={50}>center</Panel>
+        <Panel minSize={50}>right</Panel>
       </Group>
       <Callout intent="warning">
         In order to re-associate saved layouts with the appropriate group,

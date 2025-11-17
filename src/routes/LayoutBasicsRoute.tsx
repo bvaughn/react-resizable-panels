@@ -1,4 +1,4 @@
-import { Group, Panel, ResizeHandle } from "react-resizable-panels";
+import { Group } from "react-resizable-panels";
 import { html as HorizontalHTML } from "../../public/generated/code-snippets/LayoutBasicsHorizontal.json";
 import { html as ResizeHandleHTML } from "../../public/generated/code-snippets/LayoutBasicsResizeHandle.json";
 import { html as VerticalHTML } from "../../public/generated/code-snippets/LayoutBasicsVertical.json";
@@ -7,7 +7,8 @@ import { Callout } from "../components/Callout";
 import { Code } from "../components/code/Code";
 import { ExternalLink } from "../components/ExternalLink";
 import { Header } from "../components/Header";
-import { Text } from "../components/Text";
+import { Panel } from "../components/styled/Panel";
+import { ResizeHandle } from "../components/styled/ResizeHandle";
 
 export default function LayoutBasicsRoute() {
   return (
@@ -18,12 +19,8 @@ export default function LayoutBasicsRoute() {
       </div>
       <Code html={HorizontalHTML} />
       <Group className="h-15 gap-1">
-        <Panel className="border border-2 border-slate-700 rounded">
-          <Text>left</Text>
-        </Panel>
-        <Panel className="border border-2 border-slate-700 rounded">
-          <Text>right</Text>
-        </Panel>
+        <Panel>left</Panel>
+        <Panel>right</Panel>
       </Group>
       <div>
         Resizable panels use a{" "}
@@ -35,25 +32,17 @@ export default function LayoutBasicsRoute() {
       </div>
       <Code html={VerticalHTML} />
       <Group className="h-30 gap-1" direction="vertical">
-        <Panel className="border border-2 border-slate-700 rounded">
-          <Text>top</Text>
-        </Panel>
-        <Panel className="border border-2 border-slate-700 rounded">
-          <Text>bottom</Text>
-        </Panel>
+        <Panel>top</Panel>
+        <Panel>bottom</Panel>
       </Group>
       <div>
         Panels can be resized by clicking on their borders, but explicit resize
         handles can often improve UX.
       </div>
       <Group className="h-15 gap-1">
-        <Panel className="border border-2 border-slate-700 rounded">
-          <Text>left</Text>
-        </Panel>
-        <ResizeHandle className="w-2 rounded bg-slate-700" />
-        <Panel className="border border-2 border-slate-700 rounded">
-          <Text>right</Text>
-        </Panel>
+        <Panel>left</Panel>
+        <ResizeHandle direction="horizontal" />
+        <Panel>right</Panel>
       </Group>
       <Code html={ResizeHandleHTML} />
       <Callout intent="primary">

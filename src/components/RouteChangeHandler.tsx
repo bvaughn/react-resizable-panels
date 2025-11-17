@@ -1,5 +1,5 @@
+import { useLayoutEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { useIsomorphicLayoutEffect } from "../../lib/hooks/useIsomorphicLayoutEffect";
 import { useNavStore } from "../hooks/useNavStore";
 
 export function RouteChangeHandler() {
@@ -7,7 +7,7 @@ export function RouteChangeHandler() {
 
   const { pathname } = useLocation();
 
-  useIsomorphicLayoutEffect(() => {
+  useLayoutEffect(() => {
     hide();
 
     const main = document.body.querySelector("[data-main-scrollable]");

@@ -20,6 +20,12 @@ export default tseslint.config([
       globals: globals.browser
     },
     rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: ["*/../lib/*"]
+        }
+      ],
       "no-restricted-properties": [
         "error",
         {
