@@ -38,7 +38,7 @@ export type GroupContextType = {
 
 export type GroupProps = {
   /**
-   * Remember `Panel` layouts between page reload.
+   * Remember Panel layouts between page reload.
    *
    * ℹ️ Layouts are saved using `localStorage` by default but can be customized using the `storage` prop.
    *
@@ -47,7 +47,7 @@ export type GroupProps = {
   autoSave?: boolean;
 
   /**
-   * `Panel` and `ResizeHandle` components that comprise this group.
+   * Panel and ResizeHandle components that comprise this group.
    */
   children?: ReactNode;
 
@@ -78,6 +78,11 @@ export type GroupProps = {
 
   /**
    * Storage API to use for persisted layouts; defaults to `localStorage`.
+   *
+   * ℹ️ The `storage` API is synchronous.
+   * Async values should be pre-fetched during the initial render using e.g. Suspense.
+   *
+   * ℹ️ Calls to `storage.setItem` are debounced by 100ms.
    */
   storage?: Storage;
 

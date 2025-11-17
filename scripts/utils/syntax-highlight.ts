@@ -16,7 +16,7 @@ type Token = {
   value: string;
 };
 
-type Language = "HTML" | "JS" | "JSX" | "TS" | "TSX";
+export type Language = "HTML" | "JS" | "JSX" | "TS" | "TSX";
 
 type State = {
   parsedTokens: Token[];

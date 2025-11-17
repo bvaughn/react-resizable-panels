@@ -12,8 +12,11 @@ export default function PersistentLayoutsRoute() {
       <Header section="Examples" title="Persistent layouts" />
       <div>
         Panel groups can be configured to automatically save and restore layouts
-        between page visits using the <code>autoSave</code> prop. Resize the
-        panels below and then reload the page to see an example.
+        between page visits using the <code>autoSave</code> and <code>id</code>{" "}
+        props.
+      </div>
+      <div>
+        Resize the panels below and then reload the page to see an example.
       </div>
       <Code html={ExampleHTML} />
       <Group autoSave className="h-15 gap-1" id="auto-save-example">
@@ -28,8 +31,8 @@ export default function PersistentLayoutsRoute() {
         </Panel>
       </Group>
       <Callout intent="warning">
-        In order to re-associate saved layouts with the appropriate group,
-        auto-save groups require a unique <code>id</code> prop.
+        A stable, unique <code>id</code> prop is needed to match saved layouts
+        with the correct group.
       </Callout>
     </Box>
   );

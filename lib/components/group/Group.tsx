@@ -14,10 +14,14 @@ import type { GroupProps, Layout, RegisteredGroup } from "./types";
 // TODO Validate unique Panel and ResizeHandle ids
 
 /**
- * A `Group` wraps a set of resizable `Panel` components.
- * `Group` content can be resized _horizontally_ or _vertically_.
+ * A Group wraps a set of resizable Panel components.
+ * Group content can be resized _horizontally_ or _vertically_.
  *
- * ℹ️ `Groups` are always rendered with the following data attributes: `data-group`, `data-group-id`, and `data-group-direction`
+ * For unit testing purposes, Group elements always include the following data attributes:
+ *
+ * ```html
+ * <div data-group data-group-id="your-group-id">
+ * ```
  */
 export function Group({
   autoSave: autoSaveProp,

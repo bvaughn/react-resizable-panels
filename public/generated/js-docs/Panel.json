@@ -1,15 +1,16 @@
 {
   "description": [
     {
-      "content": "A <code>Panel</code> wraps resizable content and can be configured with min/max size constraints and collapsible behavior."
+      "content": "A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior."
     },
     {
-      "content": "<code>Panel</code> size props can be specified using the following CSS units:<br/>• Pixels (default if value is of type <code>number</code>)<br/>• Percentages (default if value is of type <code>string</code>)<br/>• Font sizes (em, rem)<br/>• Viewport sizes (vh, vw)",
-      "intent": "none"
+      "content": "Panel size props can be specified using the following CSS units:<br/>• Pixels (default if value is of type <code>number</code>)<br/>• Percentages (default if value is of type <code>string</code>)<br/>• Font sizes (em, rem)<br/>• Viewport sizes (vh, vw)"
     },
     {
-      "content": "<code>Panels</code> are always rendered with the following data attributes: <code>data-panel</code> and <code>data-panel-id</code>",
-      "intent": "primary"
+      "content": "For unit testing purposes, Panel elements always include the following data attributes:"
+    },
+    {
+      "content": "<div style=\"min-height: 1rem;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-panel</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-panel-id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"your-panel-id\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
     }
   ],
   "filePath": "lib/components/panel/Panel.tsx",

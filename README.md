@@ -47,14 +47,14 @@ Documentation for this project is available at [react-resizable-panels.vercel.ap
   <tbody>
     <tr>
       <td>autoSave</td>
-      <td><p>Remember <code>Panel</code> layouts between page reload.</p>
+      <td><p>Remember Panel layouts between page reload.</p>
 <p>ℹ️ Layouts are saved using <code>localStorage</code> by default but can be customized using the <code>storage</code> prop.</p>
 <p>⚠️ The <code>id</code> prop must also be specified for auto-save groups.</p>
 </td>
     </tr>
     <tr>
       <td>children</td>
-      <td><p><code>Panel</code> and <code>ResizeHandle</code> components that comprise this group.</p>
+      <td><p>Panel and ResizeHandle components that comprise this group.</p>
 </td>
     </tr>
     <tr>
@@ -83,6 +83,9 @@ Falls back to <code>useId</code> when not provided.</p>
     <tr>
       <td>storage</td>
       <td><p>Storage API to use for persisted layouts; defaults to <code>localStorage</code>.</p>
+<p>ℹ️ The <code>storage</code> API is synchronous.
+Async values should be pre-fetched during the initial render using e.g. Suspense.</p>
+<p>ℹ️ Calls to <code>storage.setItem</code> are debounced by 100ms.</p>
 </td>
     </tr>
     <tr>

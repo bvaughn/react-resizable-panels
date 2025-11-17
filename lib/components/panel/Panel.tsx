@@ -12,15 +12,19 @@ import type { PanelProps, PanelSize } from "./types";
 // Warn and remove the following: width/height (including min/max), flex/flex-basis/flex-grow/flex-shrink, and padding
 
 /**
- * A `Panel` wraps resizable content and can be configured with min/max size constraints and collapsible behavior.
+ * A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.
  *
- * NOTE: `Panel` size props can be specified using the following CSS units:
+ * Panel size props can be specified using the following CSS units:
  * - Pixels (default if value is of type `number`)
  * - Percentages (default if value is of type `string`)
  * - Font sizes (em, rem)
  * - Viewport sizes (vh, vw)
  *
- * ℹ️ `Panels` are always rendered with the following data attributes: `data-panel` and `data-panel-id`
+ * For unit testing purposes, Panel elements always include the following data attributes:
+ *
+ * ```html
+ * <div data-panel data-panel-id="your-panel-id">
+ * ```
  */
 export function Panel({
   children,

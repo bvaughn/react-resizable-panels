@@ -1,11 +1,13 @@
 {
   "description": [
     {
-      "content": "A <code>Group</code> wraps a set of resizable <code>Panel</code> components.\n<code>Group</code> content can be resized <em>horizontally</em> or <em>vertically</em>."
+      "content": "A Group wraps a set of resizable Panel components.\nGroup content can be resized <em>horizontally</em> or <em>vertically</em>."
     },
     {
-      "content": "<code>Groups</code> are always rendered with the following data attributes: <code>data-group</code>, <code>data-group-id</code>, and <code>data-group-direction</code>",
-      "intent": "primary"
+      "content": "For unit testing purposes, Group elements always include the following data attributes:"
+    },
+    {
+      "content": "<div style=\"min-height: 1rem;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-group</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-group-id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"your-group-id\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
     }
   ],
   "filePath": "lib/components/group/Group.tsx",
@@ -14,7 +16,7 @@
     "autoSave": {
       "description": [
         {
-          "content": "Remember <code>Panel</code> layouts between page reload."
+          "content": "Remember Panel layouts between page reload."
         },
         {
           "content": "Layouts are saved using <code>localStorage</code> by default but can be customized using the <code>storage</code> prop.",
@@ -32,7 +34,7 @@
     "children": {
       "description": [
         {
-          "content": "<code>Panel</code> and <code>ResizeHandle</code> components that comprise this group."
+          "content": "Panel and ResizeHandle components that comprise this group."
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">children</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span></div>",
@@ -91,6 +93,14 @@
       "description": [
         {
           "content": "Storage API to use for persisted layouts; defaults to <code>localStorage</code>."
+        },
+        {
+          "content": "The <code>storage</code> API is synchronous.\nAsync values should be pre-fetched during the initial render using e.g. Suspense.",
+          "intent": "primary"
+        },
+        {
+          "content": "Calls to <code>storage.setItem</code> are debounced by 100ms.",
+          "intent": "primary"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">storage</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Storage</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",

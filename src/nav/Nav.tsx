@@ -16,6 +16,7 @@ export function Nav() {
           Server-side rendering
         </NavLink>
         <NavLink path="/examples/nested-groups">Nested groups</NavLink>
+        <NavLink path="/examples/css-styling">CSS styling</NavLink>
       </NavSection>
       <NavSection label="Props">
         <NavLink path="/props/group">Group component</NavLink>

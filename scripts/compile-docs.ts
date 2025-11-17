@@ -57,7 +57,7 @@ async function run() {
       // Generate syntax highlighted HTML for prop types
       {
         const componentMetadata: ComponentMetadata = {
-          description: parseDescription(component.description),
+          description: await parseDescription(component.description),
           filePath: component.filePath,
           name: component.displayName,
           props: {}
@@ -83,7 +83,7 @@ async function run() {
             );
 
             componentMetadata.props[name] = {
-              description: parseDescription(prop.description),
+              description: await parseDescription(prop.description),
               html,
               name,
               required: prop.required

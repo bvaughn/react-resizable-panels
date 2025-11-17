@@ -1,17 +1,30 @@
-import type { Intent, Section } from "../../src/types";
+import type { Intent, Section } from "../../src/types.ts";
 import { formatDescriptionText } from "./formatDescriptionText.ts";
+import { syntaxHighlight, type Language } from "./syntax-highlight.ts";
 
-export function parseDescription(rawText: string) {
+export async function parseDescription(rawText: string) {
   const sections: Section[] = [];
 
-  rawText.split("\n\n").forEach((chunk) => {
-    let content = formatDescriptionText(chunk.trim());
+  for (const chunk of rawText.split("\n\n")) {
+    let content = "";
     let intent: Intent | undefined = undefined;
 
-    for (const char in INTENT_FLAGS) {
-      if (content.startsWith(char)) {
-        intent = INTENT_FLAGS[char as keyof typeof INTENT_FLAGS] as Intent;
-        content = content.substring(char.length + 1);
+    if (chunk.startsWith("```")) {
+      const match = chunk.match(/^```([a-z]+)/)!;
+      const language = match[1].toUpperCase() as Language;
+
+      content = await syntaxHighlight(
+        chunk.substring(language.length + 3, chunk.length - 3).trim(),
+        language
+      );
+    } else {
+      content = formatDescriptionText(chunk.trim());
+
+      for (const char in INTENT_FLAGS) {
+        if (content.startsWith(char)) {
+          intent = INTENT_FLAGS[char as keyof typeof INTENT_FLAGS] as Intent;
+          content = content.substring(char.length + 1);
+        }
       }
     }
 
@@ -19,7 +32,7 @@ export function parseDescription(rawText: string) {
       content,
       intent
     });
-  });
+  }
 
   return sections;
 }
