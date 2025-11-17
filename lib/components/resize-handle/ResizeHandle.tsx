@@ -7,10 +7,9 @@ import { useGroupContext } from "../group/useGroupContext";
 import type { RegisteredResizeHandle, ResizeHandleProps } from "./types";
 
 /**
- * A ResizeHandle provides a visible click target for resizing panels as well as a focusable target for keyboard interactions.
- * ResizeHandles should be rendered as the direct child of a Group component.
+ * ResizeHandles are not _required_ but they are _recommended_ as they improve keyboard accessibility.
  *
- * ✅ Although they are not required, resize handles improve keyboard accessibility.
+ * ResizeHandles should be rendered as the direct child of a Group component.
  *
  * For unit testing purposes, ResizeHandle elements always include the following data attributes:
  *
@@ -73,8 +72,10 @@ export function ResizeHandle({
       data-resize-handle-state={dragState}
       ref={setElement}
       style={{
-        flex: "0 0 auto",
-        ...style
+        flexBasis: "auto",
+        ...style,
+        flexGrow: 0,
+        flexShrink: 0
       }}
     />
   );

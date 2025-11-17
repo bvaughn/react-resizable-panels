@@ -3,6 +3,7 @@ import {
   ResizeHandle as ResizeHandleExternal,
   type Direction
 } from "react-resizable-panels";
+import { cn } from "../../utils/cn";
 
 export function ResizeHandle({
   className = "",
@@ -13,7 +14,13 @@ export function ResizeHandle({
 }>) {
   return (
     <ResizeHandleExternal
-      className={`rounded rounded-xs bg-slate-500 text-slate-900 flex items-center justify-center ${direction === "horizontal" ? "w-3" : "h-3"} ${className}`}
+      className={cn(
+        "rounded rounded-xs flex items-center justify-center",
+        "bg-slate-600 [&[data-resize-handle-state='hover']]:bg-slate-500 [&[data-resize-handle-state='active']]:bg-slate-400",
+        "text-slate-900 [&[data-resize-handle-state='hover']]:text-slate-950 [&[data-resize-handle-state='active']]:text-slate-950",
+        direction === "horizontal" ? "w-3" : "h-3",
+        className
+      )}
     >
       <svg
         className="shrink-0"

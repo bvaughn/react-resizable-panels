@@ -31,7 +31,7 @@ export type PanelProps = PropsWithChildren<{
   /**
    * CSS class name.
    *
-   * ⚠️ Class is applied to nested HTMLDivElement to avoid styles that interfere with Flex layout.
+   * ⚠️ Class is applied to nested `HTMLDivElement` to avoid styles that interfere with Flex layout.
    */
   className?: string;
 
@@ -80,7 +80,7 @@ export type PanelProps = PropsWithChildren<{
   /**
    * CSS properties.
    *
-   * ⚠️ Class is applied to nested HTMLDivElement to avoid styles that interfere with Flex layout.
+   * ⚠️ Style is applied to nested `HTMLDivElement` to avoid styles that interfere with Flex layout.
    */
   style?: CSSProperties;
 }>;

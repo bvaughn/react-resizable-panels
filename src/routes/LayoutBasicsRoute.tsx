@@ -23,12 +23,13 @@ export default function LayoutBasicsRoute() {
         <Panel>right</Panel>
       </Group>
       <div>
-        Resizable panels use a{" "}
+        Panel groups use a{" "}
         <ExternalLink href="https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Flexible_box_layout/Basic_concepts">
           flexbox
         </ExternalLink>{" "}
-        layout. The default direction is horizontal but the{" "}
-        <code>direction</code> prop can be used for a vertical layout.
+        layout with a default direction of <em>horizontal</em> but the{" "}
+        <code>direction</code> prop can be used to specify a <em>vertical</em>{" "}
+        layout.
       </div>
       <Code html={VerticalHTML} />
       <Group className="h-30 gap-1" direction="vertical">
@@ -36,8 +37,8 @@ export default function LayoutBasicsRoute() {
         <Panel>bottom</Panel>
       </Group>
       <div>
-        Panels can be resized by clicking on their borders, but explicit resize
-        handles can often improve UX.
+        Panels can be resized by clicking on their borders but explicit resize
+        handles can be rendered to improve UX.
       </div>
       <Group className="h-15 gap-1">
         <Panel>left</Panel>

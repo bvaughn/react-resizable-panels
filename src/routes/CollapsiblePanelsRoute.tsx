@@ -25,9 +25,9 @@ export default function CollapsiblePanelsRoute() {
         </Panel>
       </Group>
       <Callout intent="primary">
-        It's usually a good idea to include a <code>ResizeHandle</code> for
-        panels that can be collapsed fully. This panel gives users something to
-        click to re-open a panel after it's been collapsed.
+        It's usually a good idea to include a ResizeHandle for panels that can
+        be collapsed fully. This panel gives users something to click to re-open
+        a panel after it's been collapsed.
       </Callout>
       <div>
         The <code>collapsedSize</code> property can also be provided to prevent

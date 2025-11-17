@@ -24,7 +24,9 @@ export const routes = {
     () => import("./routes/ServerSideRenderingRoute")
   ),
   "/examples/nested-groups": lazy(() => import("./routes/NestedGroupsRoute")),
-  "/examples/css-styling": lazy(() => import("./routes/CssStylingRoute")),
+  "/examples/custom-css-styles": lazy(
+    () => import("./routes/CustomStylesRoute")
+  ),
 
   // Component props
   "/props/group": lazy(() => import("./routes/GroupPropsRoute")),

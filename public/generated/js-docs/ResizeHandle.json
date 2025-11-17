@@ -1,11 +1,10 @@
 {
   "description": [
     {
-      "content": "A ResizeHandle provides a visible click target for resizing panels as well as a focusable target for keyboard interactions.\nResizeHandles should be rendered as the direct child of a Group component."
+      "content": "ResizeHandles are not <em>required</em> but they are <em>recommended</em> as they improve keyboard accessibility."
     },
     {
-      "content": "Although they are not required, resize handles improve keyboard accessibility.",
-      "intent": "success"
+      "content": "ResizeHandles should be rendered as the direct child of a Group component."
     },
     {
       "content": "For unit testing purposes, ResizeHandle elements always include the following data attributes:"
@@ -21,6 +20,14 @@
       "description": [
         {
           "content": "CSS class name."
+        },
+        {
+          "content": "Use the <code>data-resize-handle-state</code> attribute for custom <em>hover</em> and <em>active</em> styles",
+          "intent": "primary"
+        },
+        {
+          "content": "The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code>",
+          "intent": "warning"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
@@ -45,6 +52,14 @@
       "description": [
         {
           "content": "CSS properties."
+        },
+        {
+          "content": "Use the <code>data-resize-handle-state</code> attribute for custom <em>hover</em> and <em>active</em> styles",
+          "intent": "primary"
+        },
+        {
+          "content": "The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code>",
+          "intent": "warning"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",

@@ -22,7 +22,7 @@
           "content": "CSS class name."
         },
         {
-          "content": "Class is applied to nested HTMLDivElement to avoid styles that interfere with Flex layout.",
+          "content": "Class is applied to nested <code>HTMLDivElement</code> to avoid styles that interfere with Flex layout.",
           "intent": "warning"
         }
       ],
@@ -118,7 +118,7 @@
           "content": "CSS properties."
         },
         {
-          "content": "Class is applied to nested HTMLDivElement to avoid styles that interfere with Flex layout.",
+          "content": "Style is applied to nested <code>HTMLDivElement</code> to avoid styles that interfere with Flex layout.",
           "intent": "warning"
         }
       ],
