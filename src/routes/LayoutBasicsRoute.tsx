@@ -7,8 +7,8 @@ import { Callout } from "../components/Callout";
 import { Code } from "../components/code/Code";
 import { ExternalLink } from "../components/ExternalLink";
 import { Header } from "../components/Header";
-import { Panel } from "../components/styled/Panel";
-import { ResizeHandle } from "../components/styled/ResizeHandle";
+import { Panel } from "../components/styled-panels/Panel";
+import { ResizeHandle } from "../components/styled-panels/ResizeHandle";
 
 export default function LayoutBasicsRoute() {
   return (

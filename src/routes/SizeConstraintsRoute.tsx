@@ -1,6 +1,4 @@
-import { useState } from "react";
-import type { Layout } from "react-resizable-panels";
-import { Group, type PanelSize } from "react-resizable-panels";
+import { Group } from "react-resizable-panels";
 import { html as MinMaxExampleHTML } from "../../public/generated/code-snippets/SizeConstraintsMinMax.json";
 import { html as PercentageExampleHTML } from "../../public/generated/code-snippets/SizeConstraintsPercentage.json";
 import { Box } from "../components/Box";
@@ -8,15 +6,9 @@ import { Callout } from "../components/Callout";
 import { Code } from "../components/code/Code";
 import { ExternalLink } from "../components/ExternalLink";
 import { Header } from "../components/Header";
-import { Panel } from "../components/styled/Panel";
+import { Panel } from "../components/styled-panels/Panel";
 
 export default function SizeConstraintsRoute() {
-  const [size, setSize] = useState<PanelSize>({
-    asPercentage: 0,
-    inPixels: 0
-  });
-  const [layout, setLayout] = useState<Layout>({});
-
   return (
     <Box direction="column" gap={4}>
       <Header section="Examples" title="Min/max sizes" />
@@ -36,46 +28,44 @@ export default function SizeConstraintsRoute() {
       </ul>
       <div>
         For example, the left panel below only allows itself to be resized
-        between 100-200 pixels.
+        between 10v0-200 pixels.
       </div>
+      <Code html={MinMaxExampleHTML} />
       <Group className="h-15 gap-1">
-        <Panel minSize={100} maxSize={200} onResize={setSize}>
+        <Panel minSize={100} maxSize={200} showSizeInPixels>
           left
-          <small>({Math.round(size.inPixels)}px)</small>
         </Panel>
         <Panel>right</Panel>
       </Group>
-      <Code html={MinMaxExampleHTML} />
       <div>
         As another example, this panel group will not allow any individual panel
         to be smaller than 10% of the group's width.
       </div>
-      <Group className="h-15 gap-1" onLayoutChange={setLayout}>
-        <Panel id="left" minSize="10%">
+      <Code html={PercentageExampleHTML} />
+      <Group className="h-15 gap-1">
+        <Panel id="left" minSize="10%" showSizeAsPercentage>
           left
-          <small>({Math.round(layout.left)}%)</small>
         </Panel>
-        <Panel id="middle" minSize="10%">
+        <Panel id="middle" minSize="10%" showSizeAsPercentage>
           middle
-          <small>({Math.round(layout.middle)}%)</small>
         </Panel>
-        <Panel id="right" minSize="10%">
+        <Panel id="right" minSize="10%" showSizeAsPercentage>
           right
-          <small>({Math.round(layout.right)}%)</small>
         </Panel>
       </Group>
-      <Code html={PercentageExampleHTML} />
-      <div>When specifying sizes, remember:</div>
-      <ul className="pl-8">
-        <li className="list-disc">Numbers are evaluated as pixels.</li>
-        <li className="list-disc">
-          Strings are evaluated as percentages (0..100%) unless otherwise
-          specified.
-        </li>
-      </ul>
       <Callout intent="primary">
-        You can always include the unit, even for pixels (e.g. {CODE_A}) or
-        percentages (e.g. {CODE_B})
+        <div>When specifying sizes, remember:</div>
+        <ul className="pl-8 mt-1 mb-1">
+          <li className="list-disc">Numbers are evaluated as pixels.</li>
+          <li className="list-disc">
+            Strings are evaluated as percentages (0..100%) unless otherwise
+            specified.
+          </li>
+        </ul>
+        <div>
+          You can always include the unit, even for pixels (e.g. {CODE_A}) or
+          percentages (e.g. {CODE_B})
+        </div>
       </Callout>
     </Box>
   );

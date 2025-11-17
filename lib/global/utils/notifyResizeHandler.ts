@@ -1,5 +1,6 @@
 import type { RegisteredGroup } from "../../components/group/types";
 import { calculateAvailableGroupSize } from "../dom/calculateAvailableGroupSize";
+import { formatLayoutNumber } from "./formatLayout";
 
 export function notifyResizeHandler(
   group: RegisteredGroup,
@@ -19,7 +20,9 @@ export function notifyResizeHandler(
   const groupSize = calculateAvailableGroupSize({ group });
 
   panel.onResize({
-    asPercentage: resizeObserverSize.inlineSize / groupSize,
+    asPercentage: formatLayoutNumber(
+      (resizeObserverSize.inlineSize / groupSize) * 100
+    ),
     inPixels: resizeObserverSize.inlineSize
   });
 }

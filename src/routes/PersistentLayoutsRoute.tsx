@@ -4,7 +4,7 @@ import { Box } from "../components/Box";
 import { Callout } from "../components/Callout";
 import { Code } from "../components/code/Code";
 import { Header } from "../components/Header";
-import { Panel } from "../components/styled/Panel";
+import { Panel } from "../components/styled-panels/Panel";
 
 export default function PersistentLayoutsRoute() {
   return (

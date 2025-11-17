@@ -5,8 +5,8 @@ import { Box } from "../components/Box";
 import { Callout } from "../components/Callout";
 import { Code } from "../components/code/Code";
 import { Header } from "../components/Header";
-import { ResizeHandle } from "../components/styled/ResizeHandle";
-import { Panel } from "../components/styled/Panel";
+import { ResizeHandle } from "../components/styled-panels/ResizeHandle";
+import { Panel } from "../components/styled-panels/Panel";
 
 export default function CollapsiblePanelsRoute() {
   return (
@@ -18,7 +18,7 @@ export default function CollapsiblePanelsRoute() {
       </div>
       <Code html={ExampleHTML} />
       <Group className="h-15 gap-1">
-        <Panel collapsible maxSize="25%" minSize={100} />
+        <Panel collapsible maxSize="25%" minSize={100} showSizeInPixels />
         <ResizeHandle />
         <Panel>
           The panel on the left is will collapse if resized smaller than 100
@@ -36,6 +36,7 @@ export default function CollapsiblePanelsRoute() {
           collapsible
           maxSize="25%"
           minSize={100}
+          showSizeInPixels
         ></Panel>
         <Panel>The panel on the left collapses to a size of 25 pixels.</Panel>
       </Group>
