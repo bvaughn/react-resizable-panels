@@ -55,10 +55,10 @@ export function mountGroup(group: RegisteredGroup) {
 
   // If this is the first group to be mounted, initialize event handlers
   if (nextState.mountedGroups.size === 1) {
-    document.body.addEventListener("pointerdown", onPointerDown);
-    document.body.addEventListener("pointerleave", onPointerMove);
-    document.body.addEventListener("pointermove", onPointerMove);
-    document.body.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointerleave", onPointerMove);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
 
     // TODO Add keyboard event listeners
   }
@@ -75,10 +75,10 @@ export function mountGroup(group: RegisteredGroup) {
 
     // If this was the last group to be mounted, tear down event handlers
     if (nextState.mountedGroups.size === 0) {
-      document.body.removeEventListener("pointerdown", onPointerDown);
-      document.body.removeEventListener("pointerleave", onPointerMove);
-      document.body.removeEventListener("pointermove", onPointerMove);
-      document.body.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointerleave", onPointerMove);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
 
       // TODO Remove keyboard event listeners
     }
