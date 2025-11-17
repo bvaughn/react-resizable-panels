@@ -19,7 +19,6 @@ export default function VersionsRoute() {
               {Object.entries(minors)
                 .sort((a, b) => b[0].localeCompare(a[0]))
                 .map(([version, url]) => (
-                  // @ts-expect-error TODO
                   <VersionLink key={version} url={url} version={version} />
                 ))}
             </ul>
@@ -30,7 +29,10 @@ export default function VersionsRoute() {
 }
 
 const VERSIONS = {
-  "3": {},
+  "3": {
+    "3.0.6":
+      "https://react-resizable-panels-au2wmqbbr-brian-vaughns-projects.vercel.app/"
+  },
   "2": {},
   "1": {}
 };
@@ -38,7 +40,7 @@ const VERSIONS = {
 function VersionLink({ url, version }: { url: string; version: string }) {
   return (
     <li className="list-disc">
-      {version}
+      {version.split(".").slice(0, 2).join(".")}
       <span className="text-slate-400">.x</span>
       {url && (
         <ExternalLink
@@ -52,7 +54,7 @@ function VersionLink({ url, version }: { url: string; version: string }) {
       <ExternalLink
         aria-label={`GitHub tag for version ${version}`}
         className="ml-4"
-        href={`https://github.com/bvaughn/react-resizable-panels/releases/tag/${version}`}
+        href={`https://github.com/bvaughn/react-resizable-panels/tree/${version}`}
       >
         <TagsIcon className="inline w-4 h-4 text-teal-200" /> source code
       </ExternalLink>
