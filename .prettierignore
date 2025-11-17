@@ -1,6 +1,0 @@
-.parcel-cache
-node_modules
-packages/react-resizable-panels/dist
-packages/react-resizable-panels-website/.cache
-packages/react-resizable-panels-website/dist
-packages/react-resizable-panels/src/vendor/stacking-order.ts
