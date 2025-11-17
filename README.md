@@ -68,6 +68,11 @@ Documentation for this project is available at [react-resizable-panels.vercel.ap
 </td>
     </tr>
     <tr>
+      <td>disableCursor</td>
+      <td><p>Prevent library from setting CSS cursor style for elements within this group.</p>
+</td>
+    </tr>
+    <tr>
       <td>id</td>
       <td><p>Uniquely identifies this group within an application.
 Falls back to <code>useId</code> when not provided.</p>

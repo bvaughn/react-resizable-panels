@@ -6,10 +6,10 @@ export const EMPTY_POINT = { x: 0, y: 0 };
 export const NOOP_FUNCTION = () => {};
 
 // Cursor flags
-export const EXCEEDED_HORIZONTAL_MIN = 0b0001;
-export const EXCEEDED_HORIZONTAL_MAX = 0b0010;
-export const EXCEEDED_VERTICAL_MIN = 0b0100;
-export const EXCEEDED_VERTICAL_MAX = 0b1000;
+export const CURSOR_FLAG_HORIZONTAL_MIN = 0b0001;
+export const CURSOR_FLAG_HORIZONTAL_MAX = 0b0010;
+export const CURSOR_FLAG_VERTICAL_MIN = 0b0100;
+export const CURSOR_FLAG_VERTICAL_MAX = 0b1000;
 
 // Misc. shared values
 export const DEFAULT_POINTER_PRECISION = {

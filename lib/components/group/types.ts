@@ -24,6 +24,7 @@ export type DragState = {
 export type RegisteredGroup = {
   autoSave: boolean;
   direction: Direction;
+  disableCursor: boolean;
   element: HTMLElement;
   id: string;
   panels: RegisteredPanel[];
@@ -60,6 +61,11 @@ export type GroupProps = {
    * Specifies the resizable direction ("horizontal" or "vertical"); defaults to "horizontal"
    */
   direction?: Direction;
+
+  /**
+   * Prevent library from setting CSS cursor style for elements within this group.
+   */
+  disableCursor?: boolean;
 
   /**
    * Uniquely identifies this group within an application.

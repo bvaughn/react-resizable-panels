@@ -61,6 +61,16 @@
       "name": "direction",
       "required": false
     },
+    "disableCursor": {
+      "description": [
+        {
+          "content": "Prevent library from setting CSS cursor style for elements within this group."
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disableCursor</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "disableCursor",
+      "required": false
+    },
     "id": {
       "description": [
         {

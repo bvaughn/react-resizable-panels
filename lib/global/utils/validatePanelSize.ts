@@ -1,6 +1,6 @@
 import type { PanelConstraints } from "../../components/panel/types";
 import { compareLayoutNumbers } from "./compareLayoutNumbers";
-import { formatLayoutNumber } from "./formatLayout";
+import { formatLayoutNumber } from "./formatLayoutNumber";
 
 // Panel size must be in percentages; pixel values should be pre-converted
 export function validatePanelSize({

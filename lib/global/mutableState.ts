@@ -14,16 +14,19 @@ export type MountedGroupMap = Map<
 >;
 
 type Events = {
+  cursorFlagsChange: number;
   interactionStateChange: InteractionState;
   mountedGroupsChange: MountedGroupMap;
 };
 
 type State = {
+  cursorFlags: number;
   interactionState: InteractionState;
   mountedGroups: MountedGroupMap;
 };
 
 let state: State = {
+  cursorFlags: 0,
   interactionState: {
     state: "inactive"
   },
@@ -46,6 +49,10 @@ export function update(value: Partial<State> | UpdaterFunction) {
     ...state,
     ...partialState
   };
+
+  if (partialState.cursorFlags !== undefined) {
+    eventEmitter.emit("cursorFlagsChange", state.cursorFlags);
+  }
 
   if (partialState.interactionState !== undefined) {
     eventEmitter.emit("interactionStateChange", state.interactionState);

@@ -4,7 +4,6 @@ export type Route = LazyExoticComponent<ComponentType<unknown>>;
 
 export const routes = {
   "*": lazy(() => import("./routes/PageNotFound")),
-  TODO: lazy(() => import("./routes/PageNotFound")),
 
   // Home page
   "/": lazy(() => import("./routes/GettingStartedRoute")),

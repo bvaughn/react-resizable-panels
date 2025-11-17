@@ -44,7 +44,5 @@ export function onPointerDown(event: PointerEvent) {
 
   if (hitRegions.length) {
     event.preventDefault();
-
-    // TODO Update global cursor
   }
 }

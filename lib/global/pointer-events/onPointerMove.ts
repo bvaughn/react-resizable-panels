@@ -1,6 +1,14 @@
+import {
+  CURSOR_FLAG_HORIZONTAL_MAX,
+  CURSOR_FLAG_HORIZONTAL_MIN,
+  CURSOR_FLAG_VERTICAL_MAX,
+  CURSOR_FLAG_VERTICAL_MIN
+} from "../../constants";
+import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import { read, update } from "../mutableState";
 import { adjustLayoutByDelta } from "../utils/adjustLayoutByDelta";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
+import { layoutsEqual } from "../utils/layoutsEqual";
 
 export function onPointerMove(event: PointerEvent) {
   if (event.defaultPrevented) {
@@ -22,6 +30,7 @@ export function onPointerMove(event: PointerEvent) {
           prevState.interactionState.state === "inactive"
             ? prevState
             : {
+                cursorFlags: 0,
                 interactionState: {
                   state: "inactive"
                 }
@@ -31,10 +40,13 @@ export function onPointerMove(event: PointerEvent) {
         return;
       }
 
+      let cursorFlags = 0;
+      const nextMountedGroups = new Map(mountedGroups);
+
       // Note that HitRegions are frozen once a drag has started
       // Modify the Group layouts for all matching HitRegions though
       interactionState.hitRegions.forEach((current) => {
-        const { direction, element, panels } = current.group;
+        const { direction, disableCursor, element, panels } = current.group;
 
         let deltaAsPercentage = 0;
         if (interactionState.state === "active") {
@@ -62,22 +74,45 @@ export function onPointerMove(event: PointerEvent) {
             initialLayout,
             panelConstraints: derivedPanelConstraints,
             pivotIndices: current.panels.map((panel) => panels.indexOf(panel)),
-            prevLayout: prevLayout,
+            prevLayout,
             trigger: "mouse-or-touch"
           });
 
-          const nextMountedGroups = new Map(mountedGroups);
-          nextMountedGroups.set(current.group, {
-            derivedPanelConstraints: derivedPanelConstraints,
-            layout: nextLayout
-          });
-
-          // Update layout in mutable state
-          update({
-            mountedGroups: nextMountedGroups
-          });
+          if (layoutsEqual(nextLayout, prevLayout)) {
+            if (deltaAsPercentage !== 0 && !disableCursor) {
+              // An unchanged means the cursor has exceeded the allowed bounds
+              switch (direction) {
+                case "horizontal": {
+                  cursorFlags |=
+                    deltaAsPercentage < 0
+                      ? CURSOR_FLAG_HORIZONTAL_MIN
+                      : CURSOR_FLAG_HORIZONTAL_MAX;
+                  break;
+                }
+                case "vertical": {
+                  cursorFlags |=
+                    deltaAsPercentage < 0
+                      ? CURSOR_FLAG_VERTICAL_MIN
+                      : CURSOR_FLAG_VERTICAL_MAX;
+                  break;
+                }
+              }
+            }
+          } else {
+            nextMountedGroups.set(current.group, {
+              derivedPanelConstraints: derivedPanelConstraints,
+              layout: nextLayout
+            });
+          }
         }
       });
+
+      update({
+        cursorFlags,
+        mountedGroups: nextMountedGroups
+      });
+
+      updateCursorStyle();
       break;
     }
     default: {
@@ -98,9 +133,9 @@ export function onPointerMove(event: PointerEvent) {
           }
         });
       }
+
+      updateCursorStyle();
       break;
     }
   }
-
-  // TODO Update global cursor
 }

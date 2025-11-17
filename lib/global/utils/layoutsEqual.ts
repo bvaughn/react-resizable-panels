@@ -7,7 +7,7 @@ export function layoutsEqual(a: Layout, b: Layout): boolean {
   }
 
   for (const id in a) {
-    if (!compareLayoutNumbers(a[id], b[id])) {
+    if (compareLayoutNumbers(a[id], b[id]) !== 0) {
       return false;
     }
   }

@@ -1,6 +1,6 @@
 import type { RegisteredGroup } from "../../components/group/types";
 import { calculateAvailableGroupSize } from "../dom/calculateAvailableGroupSize";
-import { formatLayoutNumber } from "./formatLayout";
+import { formatLayoutNumber } from "./formatLayoutNumber";
 
 export function notifyResizeHandler(
   group: RegisteredGroup,

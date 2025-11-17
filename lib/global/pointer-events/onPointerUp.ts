@@ -1,4 +1,5 @@
-import { update } from "../mutableState";
+import { updateCursorStyle } from "../cursor/updateCursorStyle";
+import { read, update } from "../mutableState";
 
 export function onPointerUp(event: PointerEvent) {
   if (event.defaultPrevented) {
@@ -7,15 +8,18 @@ export function onPointerUp(event: PointerEvent) {
 
   event.preventDefault();
 
-  update((prevState) =>
-    prevState.interactionState.state === "inactive"
-      ? prevState
-      : {
-          interactionState: {
-            state: "inactive"
-          }
-        }
-  );
+  const { interactionState } = read();
 
-  // TODO Update global cursor
+  switch (interactionState.state) {
+    case "active": {
+      update({
+        cursorFlags: 0,
+        interactionState: {
+          state: "inactive"
+        }
+      });
+
+      updateCursorStyle();
+    }
+  }
 }

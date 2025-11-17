@@ -28,6 +28,7 @@ export function Group({
   children,
   className,
   direction = "horizontal",
+  disableCursor,
   id: idProp,
   onLayoutChange: onLayoutChangeUnstable,
   storage: _TODO_storage = localStorage,
@@ -81,6 +82,7 @@ export function Group({
       const group: RegisteredGroup = {
         autoSave,
         direction,
+        disableCursor: !!disableCursor,
         element,
         id,
         panels,
@@ -132,6 +134,7 @@ export function Group({
   }, [
     autoSave,
     direction,
+    disableCursor,
     element,
     id,
     onLayoutChangeStable,

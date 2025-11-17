@@ -44,6 +44,7 @@ export function mockGroup(
   return {
     autoSave: false,
     direction,
+    disableCursor: false,
     element: groupElement,
     id: groupId,
     get panels() {

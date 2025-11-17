@@ -1,7 +1,7 @@
 import type { RegisteredGroup } from "../../components/group/types";
 import type { PanelConstraints } from "../../components/panel/types";
 import { sizeStyleToPixels } from "../styles/sizeStyleToPixels";
-import { formatLayoutNumber } from "../utils/formatLayout";
+import { formatLayoutNumber } from "../utils/formatLayoutNumber";
 import { calculateAvailableGroupSize } from "./calculateAvailableGroupSize";
 
 export function calculatePanelConstraints(group: RegisteredGroup) {

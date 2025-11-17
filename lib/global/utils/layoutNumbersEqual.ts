@@ -1,4 +1,4 @@
-import { formatLayoutNumber } from "./formatLayout";
+import { formatLayoutNumber } from "./formatLayoutNumber";
 
 export function layoutNumbersEqual(
   actual: number,
