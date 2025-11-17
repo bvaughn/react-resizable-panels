@@ -1,0 +1,6 @@
+- [ ] Custom cursor
+- [ ] Tests that verify order-independent layout
+- [ ] Developer warnings for e.g. unsupported styles
+- [ ] Keyboard accessibility
+- [ ] SSR style injection
+- [ ] Pointer leaves window needs to be treated as no longer down

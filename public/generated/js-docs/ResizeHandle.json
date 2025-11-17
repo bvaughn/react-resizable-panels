@@ -1,0 +1,53 @@
+{
+  "description": [
+    {
+      "content": "A <code>ResizeHandle</code> provides a visible click target for resizing panels as well as a focusable target for keyboard interactions.\n<code>ResizeHandles</code> should be rendered as the direct child of a <code>Group</code> component."
+    },
+    {
+      "content": "<code>Panels</code> are always rendered with the following data attributes: <code>data-resize-handle</code>, <code>data-resize-handle-id</code>, and <code>data-resize-handle-state</code>.\nCustom <em>hover</em> and <em>active</em> styles should use the <code>data-resize-handle-state</code> attribute.",
+      "intent": "primary"
+    },
+    {
+      "content": "Although they are not required, resize handles improve keyboard accessibility.",
+      "intent": "success"
+    }
+  ],
+  "filePath": "lib/components/resize-handle/ResizeHandle.tsx",
+  "name": "ResizeHandle",
+  "props": {
+    "className": {
+      "description": [
+        {
+          "content": "CSS class name."
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "className",
+      "required": false
+    },
+    "id": {
+      "description": [
+        {
+          "content": "Uniquely identifies the resize handle within the parent group.\nFalls back to <code>useId</code> when not provided."
+        },
+        {
+          "content": "This value will also be assigned to the <code>data-resize-handle-id</code> attribute.",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "id",
+      "required": false
+    },
+    "style": {
+      "description": [
+        {
+          "content": "CSS properties."
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "style",
+      "required": false
+    }
+  }
+}

@@ -1,0 +1,92 @@
+import type { CSSProperties, ReactNode } from "react";
+import type { RegisteredPanel } from "../panel/types";
+import type { RegisteredResizeHandle } from "../resize-handle/types";
+
+/**
+ * Panel group direction corresponds to the `flex-direction` CSS property.
+ * It determines how panels are are placed in the group group and the direction they can be resized in.
+ * Horizontal corresponds to flex "row" and vertical to "column".
+ */
+export type Direction = "horizontal" | "vertical";
+
+/**
+ * Map of Panel id to flexGrow value;
+ */
+export type Layout = {
+  [id: string]: number;
+};
+
+export type DragState = {
+  state: "default" | "hover" | "dragging";
+  resizeHandleId: string | undefined;
+};
+
+export type RegisteredGroup = {
+  autoSave: boolean;
+  direction: Direction;
+  element: HTMLElement;
+  id: string;
+  panels: RegisteredPanel[];
+  resizeHandles: RegisteredResizeHandle[];
+};
+
+export type GroupContextType = {
+  direction: Direction;
+  registerPanel: (panel: RegisteredPanel) => () => void;
+  registerResizeHandle: (resizeHandle: RegisteredResizeHandle) => () => void;
+};
+
+export type GroupProps = {
+  /**
+   * Remember `Panel` layouts between page reload.
+   *
+   * ℹ️ Layouts are saved using `localStorage` by default but can be customized using the `storage` prop.
+   *
+   * ⚠️ The `id` prop must also be specified for auto-save groups.
+   */
+  autoSave?: boolean;
+
+  /**
+   * `Panel` and `ResizeHandle` components that comprise this group.
+   */
+  children?: ReactNode;
+
+  /**
+   * CSS class name.
+   */
+  className?: string;
+
+  /**
+   * Specifies the resizable direction ("horizontal" or "vertical"); defaults to "horizontal"
+   */
+  direction?: Direction;
+
+  /**
+   * Uniquely identifies this group within an application.
+   * Falls back to `useId` when not provided.
+   *
+   * ℹ️ This value will also be assigned to the `data-group-id` attribute.
+   *
+   * ⚠️ This prop must be provided if `autoSize` is true.
+   */
+  id?: string | number;
+
+  /**
+   * Called when panel sizes change; receives a map of Panel id to size.
+   */
+  onLayoutChange?: (layout: Layout) => void;
+
+  /**
+   * Storage API to use for persisted layouts; defaults to `localStorage`.
+   */
+  storage?: Storage;
+
+  /**
+   * CSS properties.
+   *
+   * ⚠️ The following styles cannot be overridden: `display`, `flex-direction`, `flex-wrap`, and `overflow`.
+   */
+  style?: CSSProperties;
+};
+
+export type OnGroupLayoutChange = GroupProps["onLayoutChange"];

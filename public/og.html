@@ -1,0 +1,41 @@
+<html>
+  <head>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style type="text/tailwindcss">
+      main {
+        width: 1200px;
+        height: 630px;
+
+        --color-violet-500: oklch(0.606 0.25 292.717);
+
+        background-color: var(--color-violet-500);
+      }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+      function savePageAsPng() {
+        const captureElement = document.getElementById("capture-area"); // Or document.body for the whole page
+
+        html2canvas(captureElement).then((canvas) => {
+          const imageData = canvas.toDataURL("image/png"); // Get data URL in PNG format
+          const link = document.createElement("a");
+          link.download = "webpage-screenshot.png"; // Set desired filename
+          link.href = imageData;
+          link.click(); // Programmatically click the link to trigger download
+        });
+      }
+    </script>
+  </head>
+  <body class="p-4">
+    <main
+      class="flex flex-col items-center justify-center gap-10"
+      id="capture-area"
+    >
+      <div class="text-8xl text-black font-bold">react-resizable-panels</div>
+      <div class="text-7xl text-white"><span class="underline">flex</span>ible layout components</div>
+    </main>
+  </body>
+</html>

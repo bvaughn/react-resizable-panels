@@ -1,0 +1,129 @@
+{
+  "description": [
+    {
+      "content": "A <code>Panel</code> wraps resizable content and can be configured with min/max size constraints and collapsible behavior."
+    },
+    {
+      "content": "<code>Panel</code> size props can be specified using the following CSS units:<br/>• Pixels (default if value is of type <code>number</code>)<br/>• Percentages (default if value is of type <code>string</code>)<br/>• Font sizes (em, rem)<br/>• Viewport sizes (vh, vw)",
+      "intent": "none"
+    },
+    {
+      "content": "<code>Panels</code> are always rendered with the following data attributes: <code>data-panel</code> and <code>data-panel-id</code>",
+      "intent": "primary"
+    }
+  ],
+  "filePath": "lib/components/panel/Panel.tsx",
+  "name": "Panel",
+  "props": {
+    "className": {
+      "description": [
+        {
+          "content": "CSS class name."
+        },
+        {
+          "content": "Class is applied to nested HTMLDivElement to avoid styles that interfere with Flex layout.",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "className",
+      "required": false
+    },
+    "collapsedSize": {
+      "description": [
+        {
+          "content": "Panel size when collapsed; defaults to 0."
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">collapsedSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-number\">0</span></div>",
+      "name": "collapsedSize",
+      "required": false
+    },
+    "collapsible": {
+      "description": [
+        {
+          "content": "This panel can be collapsed."
+        },
+        {
+          "content": "A collapsible panel will collapse when it's size is less than of the specified <code>minSize</code>",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">collapsible</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-bool\">false</span></div>",
+      "name": "collapsible",
+      "required": false
+    },
+    "defaultSize": {
+      "description": [
+        {
+          "content": "Default size of Panel within its parent group; default is auto-assigned based on the total number of Panels."
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">defaultSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "defaultSize",
+      "required": false
+    },
+    "id": {
+      "description": [
+        {
+          "content": "Uniquely identifies this panel within the parent group.\nFalls back to <code>useId</code> when not provided."
+        },
+        {
+          "content": "This prop is used to associate persisted group layouts with the original panel.",
+          "intent": "primary"
+        },
+        {
+          "content": "This value will also be assigned to the <code>data-panel-id</code> attribute.",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "id",
+      "required": false
+    },
+    "maxSize": {
+      "description": [
+        {
+          "content": "Maximum size of Panel within its parent group; defaults to 100%."
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">maxSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-number\">100</span></div>",
+      "name": "maxSize",
+      "required": false
+    },
+    "minSize": {
+      "description": [
+        {
+          "content": "Minimum size of Panel within its parent group; defaults to 0%."
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">minSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-number\">0</span></div>",
+      "name": "minSize",
+      "required": false
+    },
+    "onResize": {
+      "description": [
+        {
+          "content": "Called when panel sizes change; receives a map of Panel id to size."
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onResize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">panelSize</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">PanelSize</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">)</span><span class=\"\"> | </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "onResize",
+      "required": false
+    },
+    "style": {
+      "description": [
+        {
+          "content": "CSS properties."
+        },
+        {
+          "content": "Class is applied to nested HTMLDivElement to avoid styles that interfere with Flex layout.",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "style",
+      "required": false
+    }
+  }
+}

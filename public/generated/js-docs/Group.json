@@ -1,0 +1,115 @@
+{
+  "description": [
+    {
+      "content": "A <code>Group</code> wraps a set of resizable <code>Panel</code> components.\n<code>Group</code> content can be resized <em>horizontally</em> or <em>vertically</em>."
+    },
+    {
+      "content": "<code>Groups</code> are always rendered with the following data attributes: <code>data-group</code>, <code>data-group-id</code>, and <code>data-group-direction</code>",
+      "intent": "primary"
+    }
+  ],
+  "filePath": "lib/components/group/Group.tsx",
+  "name": "Group",
+  "props": {
+    "autoSave": {
+      "description": [
+        {
+          "content": "Remember <code>Panel</code> layouts between page reload."
+        },
+        {
+          "content": "Layouts are saved using <code>localStorage</code> by default but can be customized using the <code>storage</code> prop.",
+          "intent": "primary"
+        },
+        {
+          "content": "The <code>id</code> prop must also be specified for auto-save groups.",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">autoSave</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "autoSave",
+      "required": false
+    },
+    "children": {
+      "description": [
+        {
+          "content": "<code>Panel</code> and <code>ResizeHandle</code> components that comprise this group."
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">children</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span></div>",
+      "name": "children",
+      "required": false
+    },
+    "className": {
+      "description": [
+        {
+          "content": "CSS class name."
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "className",
+      "required": false
+    },
+    "direction": {
+      "description": [
+        {
+          "content": "Specifies the resizable direction (\"horizontal\" or \"vertical\"); defaults to \"horizontal\""
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">direction</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Direction</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-variableName\">horizontal</span></div>",
+      "name": "direction",
+      "required": false
+    },
+    "id": {
+      "description": [
+        {
+          "content": "Uniquely identifies this group within an application.\nFalls back to <code>useId</code> when not provided."
+        },
+        {
+          "content": "This value will also be assigned to the <code>data-group-id</code> attribute.",
+          "intent": "primary"
+        },
+        {
+          "content": "This prop must be provided if <code>autoSize</code> is true.",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "id",
+      "required": false
+    },
+    "onLayoutChange": {
+      "description": [
+        {
+          "content": "Called when panel sizes change; receives a map of Panel id to size."
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onLayoutChange</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">Layout</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">)</span><span class=\"\"> | </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "onLayoutChange",
+      "required": false
+    },
+    "storage": {
+      "description": [
+        {
+          "content": "Storage API to use for persisted layouts; defaults to <code>localStorage</code>."
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">storage</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Storage</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "storage",
+      "required": false
+    },
+    "style": {
+      "description": [
+        {
+          "content": "CSS properties."
+        },
+        {
+          "content": "The following styles cannot be overridden: <code>display</code>, <code>flex-direction</code>, <code>flex-wrap</code>, and <code>overflow</code>.",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "style",
+      "required": false
+    }
+  }
+}
