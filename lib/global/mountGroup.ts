@@ -56,6 +56,7 @@ export function mountGroup(group: RegisteredGroup) {
   // If this is the first group to be mounted, initialize event handlers
   if (nextState.mountedGroups.size === 1) {
     document.body.addEventListener("pointerdown", onPointerDown);
+    document.body.addEventListener("pointerleave", onPointerMove);
     document.body.addEventListener("pointermove", onPointerMove);
     document.body.addEventListener("pointerup", onPointerUp);
 
@@ -75,6 +76,7 @@ export function mountGroup(group: RegisteredGroup) {
     // If this was the last group to be mounted, tear down event handlers
     if (nextState.mountedGroups.size === 0) {
       document.body.removeEventListener("pointerdown", onPointerDown);
+      document.body.removeEventListener("pointerleave", onPointerMove);
       document.body.removeEventListener("pointermove", onPointerMove);
       document.body.removeEventListener("pointerup", onPointerUp);
 

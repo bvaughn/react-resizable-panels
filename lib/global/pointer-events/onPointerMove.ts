@@ -11,6 +11,26 @@ export function onPointerMove(event: PointerEvent) {
 
   switch (interactionState.state) {
     case "active": {
+      // Edge case (see #340)
+      // Detect when the pointer has been released outside an iframe on a different domain
+      if (
+        // Skip this check for "pointerleave" events, else Firefox triggers a false positive (see #514)
+        event.type !== "pointerleave" &&
+        event.buttons === 0
+      ) {
+        update((prevState) =>
+          prevState.interactionState.state === "inactive"
+            ? prevState
+            : {
+                interactionState: {
+                  state: "inactive"
+                }
+              }
+        );
+
+        return;
+      }
+
       // Note that HitRegions are frozen once a drag has started
       // Modify the Group layouts for all matching HitRegions though
       interactionState.hitRegions.forEach((current) => {
