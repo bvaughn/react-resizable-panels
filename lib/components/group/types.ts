@@ -29,6 +29,7 @@ export type RegisteredGroup = {
   id: string;
   panels: RegisteredPanel[];
   resizeHandles: RegisteredResizeHandle[];
+  storage: Storage | undefined;
 };
 
 export type GroupContextType = {

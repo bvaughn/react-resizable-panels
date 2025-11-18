@@ -23,6 +23,7 @@ export type SizeUnit = "px" | "%" | "em" | "rem" | "vh" | "vw";
 export type RegisteredPanel = {
   element: HTMLDivElement;
   id: string;
+  idIsStable: boolean;
   onResize: OnPanelResize | undefined;
   panelConstraints: PanelConstraintProps;
 };

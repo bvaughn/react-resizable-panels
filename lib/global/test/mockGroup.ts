@@ -53,6 +53,7 @@ export function mockGroup(
     get resizeHandles() {
       return Array.from(mockResizeHandles.values());
     },
+    storage: undefined,
 
     // Test specific code
     addChild: (
@@ -120,6 +121,7 @@ export function mockPanel(panelId: string, bounds: DOMRect = new DOMRect()) {
   const panel: RegisteredPanel = {
     element: childElement,
     id: panelId,
+    idIsStable: true,
     panelConstraints: {},
     onResize: vi.fn()
   };

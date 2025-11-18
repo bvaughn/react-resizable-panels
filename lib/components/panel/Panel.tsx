@@ -38,6 +38,8 @@ export function Panel({
   onResize: onResizeUnstable,
   style
 }: PanelProps) {
+  const idIsStable = !!idProp;
+
   const id = useId(idProp);
 
   const [element, setElement] = useState<HTMLDivElement | null>(null);
@@ -55,6 +57,7 @@ export function Panel({
       return registerPanel({
         element,
         id,
+        idIsStable,
         onResize: hasOnResize ? onResizeStable : undefined,
         panelConstraints: {
           collapsedSize,
@@ -72,6 +75,7 @@ export function Panel({
     element,
     hasOnResize,
     id,
+    idIsStable,
     maxSize,
     minSize,
     onResizeStable,

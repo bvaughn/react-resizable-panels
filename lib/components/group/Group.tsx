@@ -31,7 +31,7 @@ export function Group({
   disableCursor,
   id: idProp,
   onLayoutChange: onLayoutChangeUnstable,
-  storage: _TODO_storage,
+  storage,
   style
 }: GroupProps) {
   let autoSave = !!autoSaveProp;
@@ -86,7 +86,8 @@ export function Group({
         element,
         id,
         panels,
-        resizeHandles
+        resizeHandles,
+        storage
       };
 
       const unmountGroup = mountGroup(group);
@@ -139,7 +140,8 @@ export function Group({
     id,
     onLayoutChangeStable,
     panels,
-    resizeHandles
+    resizeHandles,
+    storage
   ]);
 
   // Panel layouts and Group dragging state are shared via CSS variables

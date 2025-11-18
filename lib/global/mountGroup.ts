@@ -1,10 +1,12 @@
-import type { RegisteredGroup } from "../components/group/types";
+import { loadGroupLayout } from "../components/group/auto-save/loadGroupLayout";
+import { getDefaultStorage } from "../components/group/getDefaultStorage";
+import type { Layout, RegisteredGroup } from "../components/group/types";
 import { calculatePanelConstraints } from "./dom/calculatePanelConstraints";
-import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
 import { update } from "./mutableState";
 import { onPointerDown } from "./pointer-events/onPointerDown";
 import { onPointerMove } from "./pointer-events/onPointerMove";
 import { onPointerUp } from "./pointer-events/onPointerUp";
+import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
 import { notifyResizeHandler } from "./utils/notifyResizeHandler";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 
@@ -39,7 +41,17 @@ export function mountGroup(group: RegisteredGroup) {
 
   // Calculate initial layout for the new Panel configuration
   const derivedPanelConstraints = calculatePanelConstraints(group);
-  let defaultLayout = calculateDefaultLayout(derivedPanelConstraints);
+  let defaultLayout: Layout;
+  if (group.autoSave) {
+    defaultLayout =
+      loadGroupLayout({
+        id: group.id,
+        panels: group.panels,
+        storage: group.storage ?? getDefaultStorage()
+      }) ?? calculateDefaultLayout(derivedPanelConstraints);
+  } else {
+    defaultLayout = calculateDefaultLayout(derivedPanelConstraints);
+  }
   defaultLayout = validatePanelGroupLayout({
     layout: defaultLayout,
     panelConstraints: derivedPanelConstraints

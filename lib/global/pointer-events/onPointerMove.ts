@@ -1,3 +1,5 @@
+import { saveGroupLayout } from "../../components/group/auto-save/saveGroupLayout";
+import { getDefaultStorage } from "../../components/group/getDefaultStorage";
 import {
   CURSOR_FLAG_HORIZONTAL_MAX,
   CURSOR_FLAG_HORIZONTAL_MIN,
@@ -46,7 +48,15 @@ export function onPointerMove(event: PointerEvent) {
       // Note that HitRegions are frozen once a drag has started
       // Modify the Group layouts for all matching HitRegions though
       interactionState.hitRegions.forEach((current) => {
-        const { direction, disableCursor, element, panels } = current.group;
+        const {
+          autoSave,
+          direction,
+          disableCursor,
+          element,
+          id,
+          panels,
+          storage = getDefaultStorage()
+        } = current.group;
 
         let deltaAsPercentage = 0;
         if (interactionState.state === "active") {
@@ -103,6 +113,15 @@ export function onPointerMove(event: PointerEvent) {
               derivedPanelConstraints: derivedPanelConstraints,
               layout: nextLayout
             });
+
+            if (autoSave) {
+              saveGroupLayout({
+                id,
+                layout: nextLayout,
+                panels,
+                storage
+              });
+            }
           }
         }
       });
