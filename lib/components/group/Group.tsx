@@ -10,6 +10,7 @@ import type { RegisteredResizeHandle } from "../resize-handle/types";
 import { getPanelSizeCssPropertyName } from "./getPanelSizeCssPropertyName";
 import { GroupContext } from "./GroupContext";
 import type { GroupProps, Layout, RegisteredGroup } from "./types";
+import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
 
 // TODO Validate unique Panel and ResizeHandle ids
 
@@ -29,6 +30,7 @@ export function Group({
   className,
   direction = "horizontal",
   disableCursor,
+  groupRef,
   id: idProp,
   onLayoutChange: onLayoutChangeUnstable,
   storage,
@@ -54,9 +56,12 @@ export function Group({
     []
   );
 
+  useGroupImperativeHandle(id, groupRef);
+
   const context = useMemo(
     () => ({
       direction,
+      id,
       registerPanel: (panel: RegisteredPanel) => {
         setPanels((prev) => [...prev, panel]);
         return () => {
@@ -72,7 +77,7 @@ export function Group({
         };
       }
     }),
-    [direction]
+    [direction, id]
   );
 
   // Register Group and child Panels/ResizeHandles with global state

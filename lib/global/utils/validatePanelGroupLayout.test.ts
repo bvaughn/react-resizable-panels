@@ -8,6 +8,11 @@ function c(partials: Partial<PanelConstraints>[]) {
 
   partials.forEach((current, index) => {
     constraints.push({
+      collapsedSize: 0,
+      collapsible: false,
+      defaultSize: undefined,
+      maxSize: 100,
+      minSize: 0,
       ...current,
       panelId: "" + index
     });

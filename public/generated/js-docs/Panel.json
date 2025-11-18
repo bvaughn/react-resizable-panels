@@ -112,6 +112,20 @@
       "name": "onResize",
       "required": false
     },
+    "panelRef": {
+      "description": [
+        {
+          "content": "Exposes the following imperative API:<br/>• <code>collapse(): void</code><br/>• <code>expand(): void</code><br/>• <code>getSize(): number</code><br/>• <code>isCollapsed(): boolean</code><br/>• <code>isExpanded(): boolean</code><br/>• <code>resize(size: number): void</code>"
+        },
+        {
+          "content": "The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience use in TypeScript projects.",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">panelRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">PanelImperativeHandle</span><span class=\"\">&#62; </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "panelRef",
+      "required": false
+    },
     "style": {
       "description": [
         {

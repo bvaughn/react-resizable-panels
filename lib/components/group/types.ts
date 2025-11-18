@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, ReactNode, Ref } from "react";
 import type { RegisteredPanel } from "../panel/types";
 import type { RegisteredResizeHandle } from "../resize-handle/types";
 
@@ -34,8 +34,23 @@ export type RegisteredGroup = {
 
 export type GroupContextType = {
   direction: Direction;
+  id: string;
   registerPanel: (panel: RegisteredPanel) => () => void;
   registerResizeHandle: (resizeHandle: RegisteredResizeHandle) => () => void;
+};
+
+export type GroupImperativeHandle = {
+  /**
+   * Get the Group's current layout as a map of Panel id to percentage (0..100)
+   */
+  getLayout: () => { [panelId: string]: number };
+
+  /**
+   * Set a new layout for the Group
+   *
+   * @param layout Map of Panel id to percentage (0..100)
+   */
+  setLayout: (layout: { [panelId: string]: number }) => void;
 };
 
 export type GroupProps = {
@@ -68,6 +83,15 @@ export type GroupProps = {
    * Use this prop to disable that behavior for Panels and ResizeHandles in this group.
    */
   disableCursor?: boolean;
+
+  /**
+   * Exposes the following imperative API:
+   * - `getLayout(): Layout`
+   * - `setLayout(layout: Layout): void`
+   *
+   * ℹ️ The `useGroupRef` and `useGroupCallbackRef` hooks are exported for convenience use in TypeScript projects.
+   */
+  groupRef?: Ref<GroupImperativeHandle>;
 
   /**
    * Uniquely identifies this group within an application.

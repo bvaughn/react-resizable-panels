@@ -71,6 +71,20 @@
       "name": "disableCursor",
       "required": false
     },
+    "groupRef": {
+      "description": [
+        {
+          "content": "Exposes the following imperative API:<br/>• <code>getLayout(): Layout</code><br/>• <code>setLayout(layout: Layout): void</code>"
+        },
+        {
+          "content": "The <code>useGroupRef</code> and <code>useGroupCallbackRef</code> hooks are exported for convenience use in TypeScript projects.",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">groupRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">GroupImperativeHandle</span><span class=\"\">&#62; </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "groupRef",
+      "required": false
+    },
     "id": {
       "description": [
         {

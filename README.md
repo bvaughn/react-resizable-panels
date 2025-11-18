@@ -74,6 +74,16 @@ Use this prop to disable that behavior for Panels and ResizeHandles in this grou
 </td>
     </tr>
     <tr>
+      <td>groupRef</td>
+      <td><p>Exposes the following imperative API:</p>
+<ul>
+<li><code>getLayout(): Layout</code></li>
+<li><code>setLayout(layout: Layout): void</code></li>
+</ul>
+<p>ℹ️ The <code>useGroupRef</code> and <code>useGroupCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>
+</td>
+    </tr>
+    <tr>
       <td>id</td>
       <td><p>Uniquely identifies this group within an application.
 Falls back to <code>useId</code> when not provided.</p>
@@ -170,6 +180,20 @@ Falls back to <code>useId</code> when not provided.</p>
     <tr>
       <td>onResize</td>
       <td><p>Called when panel sizes change; receives a map of Panel id to size.</p>
+</td>
+    </tr>
+    <tr>
+      <td>panelRef</td>
+      <td><p>Exposes the following imperative API:</p>
+<ul>
+<li><code>collapse(): void</code></li>
+<li><code>expand(): void</code></li>
+<li><code>getSize(): number</code></li>
+<li><code>isCollapsed(): boolean</code></li>
+<li><code>isExpanded(): boolean</code></li>
+<li><code>resize(size: number): void</code></li>
+</ul>
+<p>ℹ️ The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>
 </td>
     </tr>
     <tr>

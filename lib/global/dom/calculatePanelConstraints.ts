@@ -12,7 +12,7 @@ export function calculatePanelConstraints(group: RegisteredGroup) {
   return panels.map<PanelConstraints>((panel) => {
     const { element, panelConstraints } = panel;
 
-    let collapsedSize: number | undefined = undefined;
+    let collapsedSize = 0;
     if (panelConstraints.collapsedSize) {
       const pixels = sizeStyleToPixels({
         groupSize,
@@ -34,7 +34,7 @@ export function calculatePanelConstraints(group: RegisteredGroup) {
       defaultSize = formatLayoutNumber((pixels / groupSize) * 100);
     }
 
-    let minSize: number | undefined = undefined;
+    let minSize = 0;
     if (panelConstraints.minSize) {
       const pixels = sizeStyleToPixels({
         groupSize,
@@ -45,7 +45,7 @@ export function calculatePanelConstraints(group: RegisteredGroup) {
       minSize = formatLayoutNumber((pixels / groupSize) * 100);
     }
 
-    let maxSize: number | undefined = undefined;
+    let maxSize = 100;
     if (panelConstraints.maxSize) {
       const pixels = sizeStyleToPixels({
         groupSize,
@@ -58,7 +58,7 @@ export function calculatePanelConstraints(group: RegisteredGroup) {
 
     return {
       collapsedSize,
-      collapsible: panelConstraints.collapsible,
+      collapsible: panelConstraints.collapsible === true,
       defaultSize,
       minSize,
       maxSize,

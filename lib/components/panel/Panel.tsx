@@ -7,6 +7,7 @@ import { getPanelSizeCssPropertyName } from "../group/getPanelSizeCssPropertyNam
 import { useGroupContext } from "../group/useGroupContext";
 import { POINTER_EVENTS_CSS_PROPERTY_NAME } from "./constants";
 import type { PanelProps, PanelSize } from "./types";
+import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
 
 // TODO Validate CSS styles
 // Warn and remove the following: width/height (including min/max), flex/flex-basis/flex-grow/flex-shrink, and padding
@@ -36,6 +37,7 @@ export function Panel({
   maxSize = "100",
   minSize = "0",
   onResize: onResizeUnstable,
+  panelRef,
   style
 }: PanelProps) {
   const idIsStable = !!idProp;
@@ -81,6 +83,8 @@ export function Panel({
     onResizeStable,
     registerPanel
   ]);
+
+  usePanelImperativeHandle(id, panelRef);
 
   const flexGrowVar = getPanelSizeCssPropertyName(id);
 

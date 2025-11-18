@@ -1,4 +1,4 @@
-import type { CSSProperties, PropsWithChildren } from "react";
+import type { CSSProperties, PropsWithChildren, Ref } from "react";
 
 export type PanelSize = {
   asPercentage: number;
@@ -10,11 +10,11 @@ export type PanelSize = {
  * Values specified using other CSS units must be pre-converted.
  */
 export type PanelConstraints = {
-  collapsedSize?: number | undefined;
-  collapsible?: boolean;
-  defaultSize?: number | undefined;
-  maxSize?: number | undefined;
-  minSize?: number | undefined;
+  collapsedSize: number;
+  collapsible: boolean;
+  defaultSize: number | undefined;
+  maxSize: number;
+  minSize: number;
   panelId: string;
 };
 
@@ -26,6 +26,36 @@ export type RegisteredPanel = {
   idIsStable: boolean;
   onResize: OnPanelResize | undefined;
   panelConstraints: PanelConstraintProps;
+};
+
+export type PanelImperativeHandle = {
+  /**
+   * Collapse the Panel to it's `collapsedSize`.
+   * This method will do nothing if the Panel is not `collapsible` or if it is already collapsed.
+   */
+  collapse: () => void;
+
+  /**
+   * Expand a collapsed Panel to its most recent size.
+   * This method will do nothing if the Panel is not currently collapsed.
+   */
+  expand: () => void;
+
+  /**
+   * Get the current size of the Panel in pixels as well as a percentage of the parent group (0..100).
+   */
+  getSize: () => PanelSize;
+
+  /**
+   * The Panel is currently collapsed.
+   */
+  isCollapsed: () => boolean;
+
+  /**
+   * Update the Panel's size.
+   * Size may be specified in pixel format (number) or as a percentage (string).
+   */
+  resize: (size: number | string) => void;
 };
 
 export type PanelProps = PropsWithChildren<{
@@ -77,6 +107,19 @@ export type PanelProps = PropsWithChildren<{
    * Called when panel sizes change; receives a map of Panel id to size.
    */
   onResize?: (panelSize: PanelSize) => void;
+
+  /**
+   * Exposes the following imperative API:
+   * - `collapse(): void`
+   * - `expand(): void`
+   * - `getSize(): number`
+   * - `isCollapsed(): boolean`
+   * - `isExpanded(): boolean`
+   * - `resize(size: number): void`
+   *
+   * ℹ️ The `usePanelRef` and `usePanelCallbackRef` hooks are exported for convenience use in TypeScript projects.
+   */
+  panelRef?: Ref<PanelImperativeHandle>;
 
   /**
    * CSS properties.

@@ -1,13 +1,25 @@
 import { describe, expect, test } from "vitest";
+import type { PanelConstraints } from "../../components/panel/types";
 import { calculateDefaultLayout } from "./calculateDefaultLayout";
+
+const c = (
+  partial: Partial<PanelConstraints> & { panelId: string }
+): PanelConstraints => ({
+  collapsedSize: 0,
+  collapsible: false,
+  defaultSize: undefined,
+  maxSize: 100,
+  minSize: 0,
+  ...partial
+});
 
 describe("calculateDefaultLayout", () => {
   test("inferred", () => {
     expect(
       calculateDefaultLayout([
-        { panelId: "a" },
-        { panelId: "b" },
-        { panelId: "c" }
+        c({ panelId: "a" }),
+        c({ panelId: "b" }),
+        c({ panelId: "c" })
       ])
     ).toMatchInlineSnapshot(`
       {
@@ -21,9 +33,9 @@ describe("calculateDefaultLayout", () => {
   test("explicit", () => {
     expect(
       calculateDefaultLayout([
-        { panelId: "a", defaultSize: 25 },
-        { panelId: "b", defaultSize: 50 },
-        { panelId: "c", defaultSize: 25 }
+        c({ panelId: "a", defaultSize: 25 }),
+        c({ panelId: "b", defaultSize: 50 }),
+        c({ panelId: "c", defaultSize: 25 })
       ])
     ).toMatchInlineSnapshot(`
       {
@@ -37,9 +49,9 @@ describe("calculateDefaultLayout", () => {
   test("mix of explicit and inferred", () => {
     expect(
       calculateDefaultLayout([
-        { panelId: "a", defaultSize: 25 },
-        { panelId: "b" },
-        { panelId: "c" }
+        c({ panelId: "a", defaultSize: 25 }),
+        c({ panelId: "b" }),
+        c({ panelId: "c" })
       ])
     ).toMatchInlineSnapshot(`
       {
