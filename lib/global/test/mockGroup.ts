@@ -18,12 +18,13 @@ let groupIdCounter = 0;
 
 export function mockGroup(
   groupBounds: DOMRect,
-  direction: Direction = "horizontal"
+  direction: Direction = "horizontal",
+  groupIdStable?: string
 ): MockGroup {
   let panelIdCounter = 0;
   let resizeHandleIdCounter = 0;
 
-  const groupId = `group-${++groupIdCounter}`;
+  const groupId = groupIdStable ?? `group-${++groupIdCounter}`;
 
   const groupElement = document.createElement("div");
   groupElement.setAttribute("data-group-id", groupId);
@@ -41,7 +42,7 @@ export function mockGroup(
       relativeBounds.height
     );
 
-  return {
+  const group = {
     autoSave: false,
     direction,
     disableCursor: false,
@@ -110,6 +111,8 @@ export function mockGroup(
       }
     }
   };
+
+  return group;
 }
 
 export function mockPanel(panelId: string, bounds: DOMRect = new DOMRect()) {

@@ -2,7 +2,9 @@ import type {
   GroupImperativeHandle,
   Layout
 } from "../../components/group/types";
-import { read } from "../mutableState";
+import { read, update } from "../mutableState";
+import { layoutsEqual } from "./layoutsEqual";
+import { validatePanelGroupLayout } from "./validatePanelGroupLayout";
 
 export function getImperativeGroupMethods({
   groupId
@@ -26,9 +28,24 @@ export function getImperativeGroupMethods({
 
       return layout;
     },
-    setLayout(_layout: Layout) {
-      // TODO Validate next layout
-      // TODO Update group state
+    setLayout(unsafeLayout: Layout) {
+      const { derivedPanelConstraints, group, layout: prevLayout } = find();
+
+      const nextLayout = validatePanelGroupLayout({
+        layout: unsafeLayout,
+        panelConstraints: derivedPanelConstraints
+      });
+
+      if (!layoutsEqual(prevLayout, nextLayout)) {
+        update((prevState) => ({
+          mountedGroups: new Map(prevState.mountedGroups).set(group, {
+            derivedPanelConstraints,
+            layout: nextLayout
+          })
+        }));
+      }
+
+      return nextLayout;
     }
   };
 }

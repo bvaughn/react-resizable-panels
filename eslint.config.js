@@ -23,7 +23,7 @@ export default tseslint.config([
       "no-restricted-imports": [
         "error",
         {
-          patterns: ["*/../lib/*"]
+          patterns: ["*/../lib/*", "node:test"]
         }
       ],
       "no-restricted-properties": [

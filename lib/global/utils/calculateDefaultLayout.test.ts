@@ -60,5 +60,19 @@ describe("calculateDefaultLayout", () => {
         "c": 37.5,
       }
     `);
+
+    expect(
+      calculateDefaultLayout([
+        c({ panelId: "a", defaultSize: 20 }),
+        c({ panelId: "b", defaultSize: 50 }),
+        c({ panelId: "c" })
+      ])
+    ).toMatchInlineSnapshot(`
+      {
+        "a": 20,
+        "b": 50,
+        "c": 30,
+      }
+    `);
   });
 });

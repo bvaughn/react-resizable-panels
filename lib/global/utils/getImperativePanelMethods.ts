@@ -26,7 +26,7 @@ export function getImperativePanelMethods({
     const match = find().derivedPanelConstraints.find(
       (current) => current.panelId === panelId
     );
-    if (match) {
+    if (match !== undefined) {
       return match;
     }
 
@@ -35,7 +35,7 @@ export function getImperativePanelMethods({
 
   const getPanel = () => {
     const match = find().group.panels.find((current) => current.id === panelId);
-    if (match) {
+    if (match !== undefined) {
       return match;
     }
 
@@ -44,7 +44,7 @@ export function getImperativePanelMethods({
 
   const getPanelSize = () => {
     const match = find().layout[panelId];
-    if (match) {
+    if (match !== undefined) {
       return match;
     }
 

@@ -1,5 +1,5 @@
 import { useImperativeHandle, useRef, type Ref } from "react";
-import { NOOP_FUNCTION } from "../../constants";
+import { IDENTITY_FUNCTION } from "../../constants";
 import { getImperativeGroupMethods } from "../../global/utils/getImperativeGroupMethods";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import type { GroupImperativeHandle } from "./types";
@@ -10,7 +10,7 @@ export function useGroupImperativeHandle(
 ) {
   const imperativeGroupRef = useRef<GroupImperativeHandle>({
     getLayout: () => ({}),
-    setLayout: NOOP_FUNCTION
+    setLayout: IDENTITY_FUNCTION
   });
 
   useImperativeHandle(groupRef, () => imperativeGroupRef.current, []);

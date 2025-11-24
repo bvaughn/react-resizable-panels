@@ -49,8 +49,9 @@ export type GroupImperativeHandle = {
    * Set a new layout for the Group
    *
    * @param layout Map of Panel id to percentage (0..100)
+   * @return Applied layout (after validation)
    */
-  setLayout: (layout: { [panelId: string]: number }) => void;
+  setLayout: (layout: { [panelId: string]: number }) => Layout;
 };
 
 export type GroupProps = {

@@ -14,7 +14,7 @@ export function mountGroup(group: RegisteredGroup) {
   let isMounted = false;
 
   // Add Panels with onResize callbacks to ResizeObserver
-  // Add Group to o ResizeObserver also in order to sync % based constraints
+  // Add Group to ResizeObserver also in order to sync % based constraints
   const resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {
       const { borderBoxSize, target } = entry;

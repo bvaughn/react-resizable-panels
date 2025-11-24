@@ -13,6 +13,8 @@ export const EMPTY_DOM_RECT: DOMRectReadOnly = {
 };
 export const EMPTY_OBJECT = {};
 export const EMPTY_POINT = { x: 0, y: 0 };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const IDENTITY_FUNCTION = (value: any) => value;
 export const NOOP_FUNCTION = () => {};
 
 // Cursor flags

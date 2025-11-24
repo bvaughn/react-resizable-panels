@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { mockGroup } from "../test/mockGroup";
-import { getCursorStyle } from "./getCursorStyle";
 import {
   CURSOR_FLAG_HORIZONTAL_MAX,
   CURSOR_FLAG_HORIZONTAL_MIN,
   CURSOR_FLAG_VERTICAL_MAX,
   CURSOR_FLAG_VERTICAL_MIN
 } from "../../constants";
+import { mockGroup } from "../test/mockGroup";
+import { getCursorStyle } from "./getCursorStyle";
 
 describe("getCursorStyle", () => {
   const horizontalGroup = mockGroup(new DOMRect(0, 0, 100, 50));
