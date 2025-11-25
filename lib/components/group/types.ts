@@ -54,7 +54,7 @@ export type GroupImperativeHandle = {
   setLayout: (layout: { [panelId: string]: number }) => Layout;
 };
 
-export type GroupProps = {
+type BaseGroupProps = {
   /**
    * Remember Panel layouts between page reload.
    *
@@ -129,5 +129,9 @@ export type GroupProps = {
    */
   style?: CSSProperties;
 };
+
+export type GroupProps =
+  | (BaseGroupProps & { autoSave: true; id: string })
+  | (BaseGroupProps & { autoSave?: false; id?: string | number });
 
 export type OnGroupLayoutChange = GroupProps["onLayoutChange"];
