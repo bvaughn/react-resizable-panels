@@ -20,11 +20,14 @@ export function Panel({
     asPercentage: 0,
     inPixels: 0
   });
+
+  const listenForResize = showSizeAsPercentage || showSizeInPixels;
+
   return (
     <PanelExternal
       className={`bg-slate-800 rounded rounded-md ${className}`}
       {...rest}
-      onResize={setSize}
+      onResize={listenForResize ? setSize : undefined}
     >
       <PanelText>
         {children}
