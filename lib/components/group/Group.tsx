@@ -12,6 +12,7 @@ import { GroupContext } from "./GroupContext";
 import type { GroupProps, Layout, RegisteredGroup } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
 import { sortByOffset } from "./auto-save/sortByOffset";
+import { useMergedRefs } from "../../hooks/useMergedRefs";
 
 // TODO Validate unique Panel and ResizeHandle ids
 
@@ -32,6 +33,7 @@ export function Group({
   direction = "horizontal",
   disableCursor,
   disabled,
+  elementRef,
   groupRef,
   id: idProp,
   onLayoutChange: onLayoutChangeUnstable,
@@ -57,6 +59,8 @@ export function Group({
   const [resizeHandles, setResizeHandles] = useState<RegisteredResizeHandle[]>(
     []
   );
+
+  const mergedRef = useMergedRefs(setElement, elementRef);
 
   useGroupImperativeHandle(id, groupRef);
 
@@ -172,7 +176,7 @@ export function Group({
         data-group
         data-group-id={id}
         data-group-direction={direction}
-        ref={setElement}
+        ref={mergedRef}
         style={{
           ...style,
           ...cssVariables,

@@ -84,6 +84,11 @@ export type PanelProps = PropsWithChildren<{
   defaultSize?: number | string;
 
   /**
+   * Ref attached to the root `HTMLDivElement`.
+   */
+  elementRef?: Ref<HTMLDivElement>;
+
+  /**
    * Uniquely identifies this panel within the parent group.
    * Falls back to `useId` when not provided.
    *

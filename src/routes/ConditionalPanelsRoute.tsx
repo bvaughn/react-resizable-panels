@@ -32,7 +32,7 @@ export default function ConditionalPanelsRoute() {
           {hideLeftPanel ? "show right panel" : "hide right panel"}
         </button>
       </Box>
-      <Group autoSave className="h-50 gap-1" id="ConditionalPanelsRoute:Panels">
+      <Group autoSave className="h-15 gap-1" id="ConditionalPanelsRoute:Panels">
         {hideRight || (
           <Panel id="left" minSize={50}>
             left
@@ -55,7 +55,7 @@ export default function ConditionalPanelsRoute() {
       <Code html={ResizeHandlesExampleHTML} />
       <Group
         autoSave
-        className="h-50 gap-1"
+        className="h-15 gap-1"
         id="ConditionalPanelsRoute:ResizeHandles"
       >
         {hideRight || (

@@ -8,6 +8,7 @@ import { useGroupContext } from "../group/useGroupContext";
 import { POINTER_EVENTS_CSS_PROPERTY_NAME } from "./constants";
 import type { PanelProps, PanelSize } from "./types";
 import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
+import { useMergedRefs } from "../../hooks/useMergedRefs";
 
 // TODO Validate CSS styles
 // Warn and remove the following: width/height (including min/max), flex/flex-basis/flex-grow/flex-shrink, and padding
@@ -33,6 +34,7 @@ export function Panel({
   collapsedSize = 0,
   collapsible = false,
   defaultSize,
+  elementRef,
   id: idProp,
   maxSize = "100",
   minSize = "0",
@@ -45,6 +47,8 @@ export function Panel({
   const id = useId(idProp);
 
   const [element, setElement] = useState<HTMLDivElement | null>(null);
+
+  const mergedRef = useMergedRefs(setElement, elementRef);
 
   const { registerPanel } = useGroupContext();
 
@@ -92,7 +96,7 @@ export function Panel({
     <div
       data-panel
       data-panel-id={id}
-      ref={setElement}
+      ref={mergedRef}
       style={{
         flexBasis: 0,
         flexGrow: `var(${flexGrowVar}, 1)`,

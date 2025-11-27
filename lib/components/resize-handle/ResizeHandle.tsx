@@ -5,6 +5,7 @@ import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useGroupContext } from "../group/useGroupContext";
 import type { RegisteredResizeHandle, ResizeHandleProps } from "./types";
+import { useMergedRefs } from "../../hooks/useMergedRefs";
 
 /**
  * ResizeHandles are not _required_ but they are _recommended_ as they improve keyboard accessibility.
@@ -20,6 +21,7 @@ import type { RegisteredResizeHandle, ResizeHandleProps } from "./types";
 export function ResizeHandle({
   children,
   className,
+  elementRef,
   id: idProp,
   style
 }: ResizeHandleProps) {
@@ -28,6 +30,8 @@ export function ResizeHandle({
   const [element, setElement] = useState<HTMLDivElement | null>(null);
   const [dragState, setDragState] =
     useState<InteractionState["state"]>("inactive");
+
+  const mergedRef = useMergedRefs(setElement, elementRef);
 
   const { registerResizeHandle } = useGroupContext();
 
@@ -70,7 +74,7 @@ export function ResizeHandle({
       data-resize-handle
       data-resize-handle-id={id}
       data-resize-handle-state={dragState}
-      ref={setElement}
+      ref={mergedRef}
       style={{
         flexBasis: "auto",
         ...style,

@@ -1,4 +1,4 @@
-import type { CSSProperties, PropsWithChildren } from "react";
+import type { CSSProperties, PropsWithChildren, Ref } from "react";
 
 export type RegisteredResizeHandle = {
   element: HTMLDivElement;
@@ -14,6 +14,11 @@ export type ResizeHandleProps = PropsWithChildren<{
    * ⚠️ The following properties cannot be overridden: `flex-grow`, `flex-shrink`
    */
   className?: string;
+
+  /**
+   * Ref attached to the root `HTMLDivElement`.
+   */
+  elementRef?: Ref<HTMLDivElement>;
 
   /**
    * Uniquely identifies the resize handle within the parent group.

@@ -79,6 +79,11 @@ Use this prop to disable that behavior for Panels and ResizeHandles in this grou
 </td>
     </tr>
     <tr>
+      <td>elementRef</td>
+      <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
+</td>
+    </tr>
+    <tr>
       <td>groupRef</td>
       <td><p>Exposes the following imperative API:</p>
 <ul>
@@ -165,6 +170,11 @@ Async values should be pre-fetched during the initial render using e.g. Suspense
 </td>
     </tr>
     <tr>
+      <td>elementRef</td>
+      <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
+</td>
+    </tr>
+    <tr>
       <td>id</td>
       <td><p>Uniquely identifies this panel within the parent group.
 Falls back to <code>useId</code> when not provided.</p>
@@ -237,6 +247,11 @@ Falls back to <code>useId</code> when not provided.</p>
       <td><p>CSS class name.</p>
 <p>ℹ️ Use the <code>data-resize-handle-state</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>
 <p>⚠️ The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code></p>
+</td>
+    </tr>
+    <tr>
+      <td>elementRef</td>
+      <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
 </td>
     </tr>
     <tr>

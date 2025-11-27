@@ -92,6 +92,11 @@ type BaseGroupProps = {
   disabled?: boolean;
 
   /**
+   * Ref attached to the root `HTMLDivElement`.
+   */
+  elementRef?: Ref<HTMLDivElement>;
+
+  /**
    * Exposes the following imperative API:
    * - `getLayout(): Layout`
    * - `setLayout(layout: Layout): void`

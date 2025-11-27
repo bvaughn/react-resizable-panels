@@ -34,6 +34,16 @@
       "name": "className",
       "required": false
     },
+    "elementRef": {
+      "description": [
+        {
+          "content": "Ref attached to the root <code>HTMLDivElement</code>."
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\">&#62; </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "elementRef",
+      "required": false
+    },
     "id": {
       "description": [
         {
