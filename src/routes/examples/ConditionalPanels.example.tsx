@@ -8,16 +8,10 @@ const hideRightPanel = false;
 /* prettier-ignore */
 <Group>
   {hideLeftPanel || (
-    <Panel id="left">
-      left panel
-    </Panel>
+    <Panel id="left">left panel</Panel>
   )}
-  <Panel id="center">
-    center panel
-  </Panel>
+  <Panel id="center">center panel</Panel>
   {hideRightPanel || (
-    <Panel id="right">
-      right panel
-    </Panel>
+    <Panel id="right">right panel</Panel>
   )}
 </Group>
