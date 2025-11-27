@@ -2,9 +2,15 @@ import type { Section } from "../../types";
 import { Box } from "../Box";
 import { Callout } from "../Callout";
 
-export function ComponentDescription({ sections }: { sections: Section[] }) {
+export function ComponentDescription({
+  className,
+  sections
+}: {
+  className?: string;
+  sections: Section[];
+}) {
   return (
-    <Box direction="column" gap={2}>
+    <Box className={className} direction="column" gap={2}>
       {sections.map(({ content, intent }, index) => {
         if (intent) {
           return (

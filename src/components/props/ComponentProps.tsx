@@ -8,6 +8,7 @@ import { ExternalLink } from "../ExternalLink";
 import { Header } from "../Header";
 import { ComponentDescription } from "./ComponentDescription";
 import { ComponentPropsSection } from "./ComponentPropsSection";
+import { Callout } from "../Callout";
 
 export function ComponentProps({
   json,
@@ -32,7 +33,9 @@ export function ComponentProps({
           <ArrowTopRightOnSquareIcon className="inline-block size-4 fill-current" />
         </ExternalLink>
       </Box>
-      <ComponentDescription sections={json.description} />
+      <Callout intent="none">
+        <ComponentDescription sections={json.description} />
+      </Callout>
       <ComponentPropsSection header="Required props" props={requiredProps} />
       <ComponentPropsSection header="Optional props" props={optionalProps} />
     </Box>
