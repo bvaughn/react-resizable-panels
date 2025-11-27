@@ -16,6 +16,9 @@ export function Nav() {
           Server-side rendering
         </NavLink>
         <NavLink path="/examples/nested-groups">Nested groups</NavLink>
+        <NavLink path="/examples/conditional-panels">
+          Conditional panels
+        </NavLink>
         <NavLink path="/examples/custom-css-styles">Custom CSS styles</NavLink>
       </NavSection>
       <NavSection label="Props">

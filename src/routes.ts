@@ -23,6 +23,9 @@ export const routes = {
     () => import("./routes/ServerSideRenderingRoute")
   ),
   "/examples/nested-groups": lazy(() => import("./routes/NestedGroupsRoute")),
+  "/examples/conditional-panels": lazy(
+    () => import("./routes/ConditionalPanelsRoute")
+  ),
   "/examples/custom-css-styles": lazy(
     () => import("./routes/CustomStylesRoute")
   ),

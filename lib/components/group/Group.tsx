@@ -11,6 +11,7 @@ import { getPanelSizeCssPropertyName } from "./getPanelSizeCssPropertyName";
 import { GroupContext } from "./GroupContext";
 import type { GroupProps, Layout, RegisteredGroup } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
+import { sortByOffset } from "./auto-save/sortByOffset";
 
 // TODO Validate unique Panel and ResizeHandle ids
 
@@ -63,13 +64,15 @@ export function Group({
       direction,
       id,
       registerPanel: (panel: RegisteredPanel) => {
-        setPanels((prev) => [...prev, panel]);
+        setPanels((prev) => sortByOffset(direction, [...prev, panel]));
         return () => {
           setPanels((prev) => prev.filter((current) => current !== panel));
         };
       },
       registerResizeHandle: (resizeHandle: RegisteredResizeHandle) => {
-        setResizeHandles((prev) => [...prev, resizeHandle]);
+        setResizeHandles((prev) =>
+          sortByOffset(direction, [...prev, resizeHandle])
+        );
         return () => {
           setResizeHandles((prev) =>
             prev.filter((current) => current !== resizeHandle)

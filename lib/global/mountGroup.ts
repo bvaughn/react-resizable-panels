@@ -56,6 +56,7 @@ export function mountGroup(group: RegisteredGroup) {
     layout: defaultLayout,
     panelConstraints: derivedPanelConstraints
   });
+
   const nextState = update((prevState) => ({
     mountedGroups: new Map(prevState.mountedGroups).set(group, {
       derivedPanelConstraints,
