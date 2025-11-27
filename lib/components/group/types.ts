@@ -25,6 +25,7 @@ export type RegisteredGroup = {
   autoSave: boolean;
   direction: Direction;
   disableCursor: boolean;
+  disabled: boolean;
   element: HTMLElement;
   id: string;
   panels: RegisteredPanel[];
@@ -84,6 +85,11 @@ type BaseGroupProps = {
    * Use this prop to disable that behavior for Panels and ResizeHandles in this group.
    */
   disableCursor?: boolean;
+
+  /**
+   * Disable resize functionality.
+   */
+  disabled?: boolean;
 
   /**
    * Exposes the following imperative API:

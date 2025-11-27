@@ -74,6 +74,11 @@ Use this prop to disable that behavior for Panels and ResizeHandles in this grou
 </td>
     </tr>
     <tr>
+      <td>disabled</td>
+      <td><p>Disable resize functionality.</p>
+</td>
+    </tr>
+    <tr>
       <td>groupRef</td>
       <td><p>Exposes the following imperative API:</p>
 <ul>

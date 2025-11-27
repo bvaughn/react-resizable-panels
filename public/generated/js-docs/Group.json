@@ -71,6 +71,16 @@
       "name": "disableCursor",
       "required": false
     },
+    "disabled": {
+      "description": [
+        {
+          "content": "Disable resize functionality."
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disabled</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "disabled",
+      "required": false
+    },
     "groupRef": {
       "description": [
         {

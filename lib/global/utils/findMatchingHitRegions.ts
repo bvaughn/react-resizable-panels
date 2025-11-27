@@ -14,6 +14,10 @@ export function findMatchingHitRegions(
   const matchingHitRegions: HitRegion[] = [];
 
   mountedGroups.forEach((_, groupData) => {
+    if (groupData.disabled) {
+      return;
+    }
+
     const maxDistance = isCoarsePointer()
       ? DEFAULT_POINTER_PRECISION.coarse
       : DEFAULT_POINTER_PRECISION.precise;
