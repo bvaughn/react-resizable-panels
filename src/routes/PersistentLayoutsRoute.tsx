@@ -20,19 +20,19 @@ export default function PersistentLayoutsRoute() {
       </div>
       <Code html={ExampleHTML} />
       <Group autoSave className="h-15 gap-1" id="auto-save-example">
-        <Panel minSize={50} showSizeAsPercentage>
+        <Panel id="left" minSize={50} showSizeAsPercentage>
           left
         </Panel>
-        <Panel minSize={50} showSizeAsPercentage>
+        <Panel id="center" minSize={50} showSizeAsPercentage>
           center
         </Panel>
-        <Panel minSize={50} showSizeAsPercentage>
+        <Panel id="right" minSize={50} showSizeAsPercentage>
           right
         </Panel>
       </Group>
       <Callout intent="warning">
-        A stable, unique <code>id</code> prop is needed to match saved layouts
-        with the correct group.
+        Both Groups and Panels require unique <code>id</code> props to restore
+        saved layouts.
       </Callout>
     </Box>
   );

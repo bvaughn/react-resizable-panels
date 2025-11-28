@@ -15,6 +15,7 @@ import { sortByOffset } from "./auto-save/sortByOffset";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
 
 // TODO Validate unique Panel and ResizeHandle ids
+// TODO Warn if Group is autoSave and registered Panel(s) do not have ids
 
 /**
  * A Group wraps a set of resizable Panel components.
