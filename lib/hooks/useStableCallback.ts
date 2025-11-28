@@ -9,9 +9,7 @@ export function useStableCallback<Args, Return>(
 export function useStableCallback<Args, Return>(
   fn: (args: Args) => Return
 ): (args: Args) => Return {
-  const ref = useRef<typeof fn>(() => {
-    throw new Error("Cannot call during render.");
-  });
+  const ref = useRef<typeof fn>(fn);
 
   useIsomorphicLayoutEffect(() => {
     ref.current = fn;

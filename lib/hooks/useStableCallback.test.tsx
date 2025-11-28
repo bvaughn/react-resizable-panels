@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from "vitest";
 import { useStableCallback } from "./useStableCallback";
 
 describe("useStableCallback", () => {
-  test("should not call the callback during render", () => {
+  test("should not execute the callback", () => {
     const fn = vi.fn();
     const { result } = renderHook(() => useStableCallback(fn));
 
