@@ -1,5 +1,4 @@
 import { loadGroupLayout } from "../components/group/auto-save/loadGroupLayout";
-import { getDefaultStorage } from "../components/group/getDefaultStorage";
 import type { Layout, RegisteredGroup } from "../components/group/types";
 import { calculatePanelConstraints } from "./dom/calculatePanelConstraints";
 import { update } from "./mutableState";
@@ -47,7 +46,8 @@ export function mountGroup(group: RegisteredGroup) {
       loadGroupLayout({
         id: group.id,
         panels: group.panels,
-        storage: group.storage ?? getDefaultStorage()
+        storage:
+          group.storageType === "sessionStorage" ? sessionStorage : localStorage
       }) ?? calculateDefaultLayout(derivedPanelConstraints);
   } else {
     defaultLayout = calculateDefaultLayout(derivedPanelConstraints);

@@ -9,6 +9,8 @@ import type { RegisteredResizeHandle } from "../resize-handle/types";
  */
 export type Direction = "horizontal" | "vertical";
 
+export type StorageType = "localStorage" | "sessionStorage";
+
 /**
  * Map of Panel id to flexGrow value;
  */
@@ -30,9 +32,7 @@ export type RegisteredGroup = {
   id: string;
   panels: RegisteredPanel[];
   resizeHandles: RegisteredResizeHandle[];
-  // TODO Deprecate this or change it somehow; it breaks SSR handling
-  // We could make it a string e.g. "localStorage" or "sessionStorage"
-  storage: Storage | undefined;
+  storageType: StorageType | undefined;
 };
 
 export type GroupContextType = {
@@ -61,7 +61,7 @@ type BaseGroupProps = {
   /**
    * Remember Panel layouts between page reload.
    *
-   * ℹ️ Layouts are saved using `localStorage` by default but can be customized using the `storage` prop.
+   * ℹ️ Layouts are saved using `localStorage` by default but can be customized using the `storageType` prop.
    *
    * ⚠️ The `id` prop must also be specified for auto-save groups.
    */
@@ -80,7 +80,7 @@ type BaseGroupProps = {
   /**
    * Specifies the resizable direction ("horizontal" or "vertical"); defaults to "horizontal"
    */
-  direction?: Direction;
+  direction?: "horizontal" | "vertical";
 
   /**
    * This library sets custom mouse cursor styles to indicate drag state.
@@ -123,17 +123,11 @@ type BaseGroupProps = {
   onLayoutChange?: (layout: Layout) => void;
 
   /**
-   * Storage API to use for persisted layouts; defaults to `localStorage`.
+   * Storage API to use for persisted layouts; defaults to `"localStorage"`.
    *
-   * Use this prop support environments where `localStorage` is not available,
-   * such as server-side rendering or in a browser with cookies/storage disabled.
-   *
-   * ℹ️ The `storage` API is synchronous.
-   * Async values should be pre-fetched during the initial render using e.g. Suspense.
-   *
-   * ℹ️ Calls to `storage.setItem` are debounced by 100ms.
+   * Can be overridden to use `"sessionStorage"` instead.
    */
-  storage?: Storage;
+  storageType?: "localStorage" | "sessionStorage";
 
   /**
    * CSS properties.

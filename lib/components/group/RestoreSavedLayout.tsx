@@ -1,9 +1,14 @@
 import { getStorageKey } from "./auto-save/getStorageKey";
 import injectedScript from "../../compiled/restoreSavedLayout?raw";
+import type { StorageType } from "./types";
 
-// TODO How should this support storage:Storage?
-
-export function RestoreSavedLayout({ autoSaveId }: { autoSaveId: string }) {
+export function RestoreSavedLayout({
+  autoSaveId,
+  storageType
+}: {
+  autoSaveId: string;
+  storageType: StorageType;
+}) {
   const key = getStorageKey(autoSaveId);
 
   return (
@@ -11,7 +16,7 @@ export function RestoreSavedLayout({ autoSaveId }: { autoSaveId: string }) {
       {`{
         ${injectedScript}
 
-        restoreSavedLayout("${autoSaveId}", "${key}");
+        restoreSavedLayout("${storageType}", "${autoSaveId}", "${key}");
       }`}
     </script>
   );

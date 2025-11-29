@@ -1,5 +1,4 @@
 import { saveGroupLayout } from "../../components/group/auto-save/saveGroupLayout";
-import { getDefaultStorage } from "../../components/group/getDefaultStorage";
 import {
   CURSOR_FLAG_HORIZONTAL_MAX,
   CURSOR_FLAG_HORIZONTAL_MIN,
@@ -55,7 +54,7 @@ export function onPointerMove(event: PointerEvent) {
           element,
           id,
           panels,
-          storage = getDefaultStorage()
+          storageType
         } = current.group;
 
         let deltaAsPercentage = 0;
@@ -119,7 +118,10 @@ export function onPointerMove(event: PointerEvent) {
                 id,
                 layout: nextLayout,
                 panels,
-                storage
+                storage:
+                  storageType === "sessionStorage"
+                    ? sessionStorage
+                    : localStorage
               });
             }
           }

@@ -1,11 +1,18 @@
+import type { StorageType } from "../types";
 import type { SavedLayouts } from "./types";
 
 // This function will be compiled separately and rendered as an inline, blocking script.
 // @ts-expect-error Unused
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function restoreSavedLayout(groupId: string, storageKey: string) {
+function restoreSavedLayout(
+  storageType: StorageType,
+  groupId: string,
+  storageKey: string
+) {
   try {
-    const serialized = localStorage.getItem(storageKey);
+    const storage =
+      storageType === "sessionStorage" ? sessionStorage : localStorage;
+    const serialized = storage.getItem(storageKey);
     if (serialized) {
       const parsed = JSON.parse(serialized);
       if (typeof parsed === "object" && parsed != null) {

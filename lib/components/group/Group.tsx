@@ -12,12 +12,13 @@ import { getPanelSizeCssPropertyName } from "./getPanelSizeCssPropertyName";
 import { GroupContext } from "./GroupContext";
 import { RestoreSavedLayout } from "./RestoreSavedLayout";
 import { sortByElementOffset } from "./sortByElementOffset";
-import type { GroupProps, Layout, RegisteredGroup } from "./types";
+import type { GroupProps, Layout, RegisteredGroup, StorageType } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
 
 // TODO Validate unique Panel and ResizeHandle ids
 // TODO Warn if Group is autoSave and registered Panel(s) do not have ids
-// TODO Should auto-save work by default with storage:InMemory (for conditional panels use case?)
+
+// TODO Also save layouts in-memory for conditional panels scenario
 
 /**
  * A Group wraps a set of resizable Panel components.
@@ -40,13 +41,18 @@ export function Group({
   groupRef,
   id: idProp,
   onLayoutChange: onLayoutChangeUnstable,
-  storage,
+  storageType: storageTypeProp,
   style
 }: GroupProps) {
   let autoSave = !!autoSaveProp;
   if (autoSave && idProp === undefined) {
     autoSave = false;
     console.error('Auto-save Groups require an "id" prop');
+  }
+
+  let storageType = storageTypeProp;
+  if (autoSave && storageTypeProp === undefined) {
+    storageType = "localStorage";
   }
 
   const onLayoutChangeStable = useStableCallback((layout: Layout) => {
@@ -104,7 +110,7 @@ export function Group({
         id,
         panels,
         resizeHandles,
-        storage
+        storageType
       };
 
       const unmountGroup = mountGroup(group);
@@ -159,7 +165,7 @@ export function Group({
     onLayoutChangeStable,
     panels,
     resizeHandles,
-    storage
+    storageType
   ]);
 
   // Panel layouts and Group dragging state are shared via CSS variables
@@ -174,7 +180,12 @@ export function Group({
 
   return (
     <GroupContext.Provider value={context}>
-      {autoSave && <RestoreSavedLayout autoSaveId={id} />}
+      {autoSave && (
+        <RestoreSavedLayout
+          autoSaveId={id}
+          storageType={storageType as StorageType}
+        />
+      )}
 
       <div
         className={className}
