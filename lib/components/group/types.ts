@@ -30,6 +30,9 @@ export type RegisteredGroup = {
   disabled: boolean;
   element: HTMLElement;
   id: string;
+  inMemoryLayouts: {
+    [panelIds: string]: Layout;
+  };
   panels: RegisteredPanel[];
   resizeHandles: RegisteredResizeHandle[];
   storageType: StorageType | undefined;

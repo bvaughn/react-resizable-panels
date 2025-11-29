@@ -1,3 +1,4 @@
+import { getPanelKey } from "../../components/group/auto-save/getPanelKey";
 import { saveGroupLayout } from "../../components/group/auto-save/saveGroupLayout";
 import {
   CURSOR_FLAG_HORIZONTAL_MAX,
@@ -112,6 +113,11 @@ export function onPointerMove(event: PointerEvent) {
               derivedPanelConstraints: derivedPanelConstraints,
               layout: nextLayout
             });
+
+            // Save the most recent layout for this group of panels in-memory
+            // so that layouts will be remembered between different sets of conditionally rendered panels
+            const panelIdsKey = getPanelKey(current.group.panels);
+            current.group.inMemoryLayouts[panelIdsKey] = nextLayout;
 
             if (autoSave) {
               saveGroupLayout({

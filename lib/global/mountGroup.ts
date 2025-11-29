@@ -1,3 +1,4 @@
+import { getPanelKey } from "../components/group/auto-save/getPanelKey";
 import { loadGroupLayout } from "../components/group/auto-save/loadGroupLayout";
 import type { Layout, RegisteredGroup } from "../components/group/types";
 import { calculatePanelConstraints } from "./dom/calculatePanelConstraints";
@@ -40,17 +41,22 @@ export function mountGroup(group: RegisteredGroup) {
 
   // Calculate initial layout for the new Panel configuration
   const derivedPanelConstraints = calculatePanelConstraints(group);
-  let defaultLayout: Layout;
-  if (group.autoSave) {
-    defaultLayout =
-      loadGroupLayout({
-        id: group.id,
-        panels: group.panels,
-        storage:
-          group.storageType === "sessionStorage" ? sessionStorage : localStorage
-      }) ?? calculateDefaultLayout(derivedPanelConstraints);
-  } else {
-    defaultLayout = calculateDefaultLayout(derivedPanelConstraints);
+  const panelIdsKey = getPanelKey(group.panels);
+  let defaultLayout: Layout = group.inMemoryLayouts[panelIdsKey];
+  if (!defaultLayout) {
+    if (group.autoSave) {
+      defaultLayout =
+        loadGroupLayout({
+          id: group.id,
+          panels: group.panels,
+          storage:
+            group.storageType === "sessionStorage"
+              ? sessionStorage
+              : localStorage
+        }) ?? calculateDefaultLayout(derivedPanelConstraints);
+    } else {
+      defaultLayout = calculateDefaultLayout(derivedPanelConstraints);
+    }
   }
   defaultLayout = validatePanelGroupLayout({
     layout: defaultLayout,

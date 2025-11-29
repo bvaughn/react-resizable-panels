@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { mountGroup } from "../../global/mountGroup";
 import { eventEmitter, read } from "../../global/mutableState";
 import { useId } from "../../hooks/useId";
@@ -17,8 +17,6 @@ import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
 
 // TODO Validate unique Panel and ResizeHandle ids
 // TODO Warn if Group is autoSave and registered Panel(s) do not have ids
-
-// TODO Also save layouts in-memory for conditional panels scenario
 
 /**
  * A Group wraps a set of resizable Panel components.
@@ -63,6 +61,9 @@ export function Group({
 
   const [dragActive, setDragActive] = useState(false);
   const [element, setElement] = useState<HTMLDivElement | null>(null);
+  const inMemoryLayoutsRef = useRef<{
+    [panelIds: string]: Layout;
+  }>({});
   const [layout, setLayout] = useState<Layout>({});
   const [panels, setPanels] = useState<RegisteredPanel[]>([]);
   const [resizeHandles, setResizeHandles] = useState<RegisteredResizeHandle[]>(
@@ -108,6 +109,7 @@ export function Group({
         disabled: !!disabled,
         element,
         id,
+        inMemoryLayouts: inMemoryLayoutsRef.current,
         panels,
         resizeHandles,
         storageType

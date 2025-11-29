@@ -53,6 +53,7 @@ export function mockGroup(
     disabled: false,
     element: groupElement,
     id: groupId,
+    inMemoryLayouts: {},
     storageType: "localStorage" as StorageType,
 
     get panels() {

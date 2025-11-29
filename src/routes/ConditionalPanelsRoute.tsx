@@ -32,7 +32,7 @@ export default function ConditionalPanelsRoute() {
           {hideLeftPanel ? "show right panel" : "hide right panel"}
         </button>
       </Box>
-      <Group autoSave className="h-15 gap-1" id="ConditionalPanelsRoute:Panels">
+      <Group className="h-15 gap-1">
         {hideRight || (
           <Panel id="left" minSize={50}>
             left
@@ -48,16 +48,12 @@ export default function ConditionalPanelsRoute() {
         )}
       </Group>
       <Callout intent="warning">
-        Conditional panels rendered within an auto-save group should also
-        specify ids to help organized stored layouts.
+        Conditional panels should also specify ids to help match previous, saved
+        layouts.
       </Callout>
       <div>Resize handles can also be conditionally rendered.</div>
       <Code html={ResizeHandlesExampleHTML} />
-      <Group
-        autoSave
-        className="h-15 gap-1"
-        id="ConditionalPanelsRoute:ResizeHandles"
-      >
+      <Group className="h-15 gap-1">
         {hideRight || (
           <>
             <Panel id="left" minSize={50}>
