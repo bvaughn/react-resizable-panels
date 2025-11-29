@@ -12,8 +12,8 @@ export function loadGroupLayout({
   panels: RegisteredPanel[];
   storage: Storage;
 }): Layout | undefined {
-  const panelKey = getPanelKey(panels);
+  const panelIdsKey = getPanelKey(panels);
   const savedLayouts = getSavedLayouts({ id, storage });
 
-  return savedLayouts[panelKey];
+  return savedLayouts.layouts[panelIdsKey];
 }

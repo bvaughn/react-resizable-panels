@@ -152,6 +152,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.11
         version: 4.1.11
+      terser:
+        specifier: ^5.43.1
+        version: 5.43.1
       ts-blank-space:
         specifier: ^0.6.2
         version: 0.6.2

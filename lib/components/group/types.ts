@@ -30,6 +30,8 @@ export type RegisteredGroup = {
   id: string;
   panels: RegisteredPanel[];
   resizeHandles: RegisteredResizeHandle[];
+  // TODO Deprecate this or change it somehow; it breaks SSR handling
+  // We could make it a string e.g. "localStorage" or "sessionStorage"
   storage: Storage | undefined;
 };
 

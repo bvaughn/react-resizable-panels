@@ -1,6 +1,6 @@
-import type { Direction } from "../types";
+import type { Direction } from "./types";
 
-export function sortByOffset<Type extends { element: HTMLElement }>(
+export function sortByElementOffset<Type extends { element: HTMLElement }>(
   direction: Direction,
   panelsOrResizeHandles: Type[]
 ): Type[] {

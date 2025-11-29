@@ -2,13 +2,13 @@ import type { Property } from "csstype";
 import { useState } from "react";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
+import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
 import { getPanelSizeCssPropertyName } from "../group/getPanelSizeCssPropertyName";
 import { useGroupContext } from "../group/useGroupContext";
 import { POINTER_EVENTS_CSS_PROPERTY_NAME } from "./constants";
 import type { PanelProps, PanelSize } from "./types";
 import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
-import { useMergedRefs } from "../../hooks/useMergedRefs";
 
 // TODO Validate CSS styles
 // Warn and remove the following: width/height (including min/max), flex/flex-basis/flex-grow/flex-shrink, and padding
@@ -50,7 +50,7 @@ export function Panel({
 
   const mergedRef = useMergedRefs(setElement, elementRef);
 
-  const { registerPanel } = useGroupContext();
+  const { id: groupId, registerPanel } = useGroupContext();
 
   const hasOnResize = onResizeUnstable !== null;
   const onResizeStable = useStableCallback((panelSize: PanelSize) => {
@@ -90,7 +90,7 @@ export function Panel({
 
   usePanelImperativeHandle(id, panelRef);
 
-  const flexGrowVar = getPanelSizeCssPropertyName(id);
+  const flexGrowVar = getPanelSizeCssPropertyName(groupId, id);
 
   return (
     <div

@@ -3,19 +3,21 @@ import { mountGroup } from "../../global/mountGroup";
 import { eventEmitter, read } from "../../global/mutableState";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
+import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
 import { POINTER_EVENTS_CSS_PROPERTY_NAME } from "../panel/constants";
 import type { RegisteredPanel } from "../panel/types";
 import type { RegisteredResizeHandle } from "../resize-handle/types";
 import { getPanelSizeCssPropertyName } from "./getPanelSizeCssPropertyName";
 import { GroupContext } from "./GroupContext";
+import { RestoreSavedLayout } from "./RestoreSavedLayout";
+import { sortByElementOffset } from "./sortByElementOffset";
 import type { GroupProps, Layout, RegisteredGroup } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
-import { sortByOffset } from "./auto-save/sortByOffset";
-import { useMergedRefs } from "../../hooks/useMergedRefs";
 
 // TODO Validate unique Panel and ResizeHandle ids
 // TODO Warn if Group is autoSave and registered Panel(s) do not have ids
+// TODO Should auto-save work by default with storage:InMemory (for conditional panels use case?)
 
 /**
  * A Group wraps a set of resizable Panel components.
@@ -70,14 +72,14 @@ export function Group({
       direction,
       id,
       registerPanel: (panel: RegisteredPanel) => {
-        setPanels((prev) => sortByOffset(direction, [...prev, panel]));
+        setPanels((prev) => sortByElementOffset(direction, [...prev, panel]));
         return () => {
           setPanels((prev) => prev.filter((current) => current !== panel));
         };
       },
       registerResizeHandle: (resizeHandle: RegisteredResizeHandle) => {
         setResizeHandles((prev) =>
-          sortByOffset(direction, [...prev, resizeHandle])
+          sortByElementOffset(direction, [...prev, resizeHandle])
         );
         return () => {
           setResizeHandles((prev) =>
@@ -164,14 +166,16 @@ export function Group({
   const cssVariables: { [key: string]: number | string | undefined } = {
     [POINTER_EVENTS_CSS_PROPERTY_NAME]: dragActive ? "none" : undefined
   };
-  for (const id in layout) {
-    const propertyName = getPanelSizeCssPropertyName(id);
-    const flexGrow = layout[id];
+  for (const panelId in layout) {
+    const propertyName = getPanelSizeCssPropertyName(id, panelId);
+    const flexGrow = layout[panelId];
     cssVariables[propertyName] = flexGrow;
   }
 
   return (
     <GroupContext.Provider value={context}>
+      {autoSave && <RestoreSavedLayout autoSaveId={id} />}
+
       <div
         className={className}
         data-group

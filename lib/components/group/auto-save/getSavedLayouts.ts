@@ -21,5 +21,7 @@ export function getSavedLayouts({
     console.error(error);
   }
 
-  return {};
+  return {
+    layouts: {}
+  };
 }

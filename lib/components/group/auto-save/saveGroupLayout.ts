@@ -15,14 +15,21 @@ export function saveGroupLayout({
   panels: RegisteredPanel[];
   storage: Storage;
 }) {
-  const panelKey = getPanelKey(panels);
+  const panelIdsKey = getPanelKey(panels);
   const storageKey = getStorageKey(id);
-
   const savedLayouts = getSavedLayouts({ id, storage });
-  savedLayouts[panelKey] = layout;
 
   try {
-    storage.setItem(storageKey, JSON.stringify(savedLayouts));
+    storage.setItem(
+      storageKey,
+      JSON.stringify({
+        layouts: {
+          ...savedLayouts.layouts,
+          [panelIdsKey]: layout
+        },
+        mostRecentLayout: layout
+      })
+    );
   } catch (error) {
     console.error(error);
   }
