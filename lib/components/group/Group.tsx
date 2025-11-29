@@ -14,6 +14,7 @@ import { RestoreSavedLayout } from "./RestoreSavedLayout";
 import { sortByElementOffset } from "./sortByElementOffset";
 import type { GroupProps, Layout, RegisteredGroup, StorageType } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
+import { layoutsEqual } from "../../global/utils/layoutsEqual";
 
 // TODO Validate unique Panel and ResizeHandle ids
 // TODO Warn if Group is autoSave and registered Panel(s) do not have ids
@@ -53,7 +54,15 @@ export function Group({
     storageType = "localStorage";
   }
 
+  const prevLayoutRef = useRef<Layout>({});
+
   const onLayoutChangeStable = useStableCallback((layout: Layout) => {
+    if (layoutsEqual(prevLayoutRef.current, layout)) {
+      // Memoize callback
+      return;
+    }
+
+    prevLayoutRef.current = layout;
     onLayoutChangeUnstable?.(layout);
   });
 
@@ -101,7 +110,7 @@ export function Group({
   // Register Group and child Panels/ResizeHandles with global state
   // Listen to global state for drag state related to this Group
   useIsomorphicLayoutEffect(() => {
-    if (element !== null) {
+    if (element !== null && panels.length > 0) {
       const group: RegisteredGroup = {
         autoSave,
         direction,
@@ -121,6 +130,7 @@ export function Group({
       const match = globalState.mountedGroups.get(group);
       if (match) {
         setLayout(match.layout);
+        onLayoutChangeStable?.(match.layout);
       }
 
       const removeInteractionStateChangeListener = eventEmitter.addListener(
@@ -144,7 +154,7 @@ export function Group({
         "mountedGroupsChange",
         (mountedGroups) => {
           const match = mountedGroups.get(group);
-          if (match) {
+          if (match && match.derivedPanelConstraints.length > 0) {
             setLayout(match.layout);
             onLayoutChangeStable?.(match.layout);
           }

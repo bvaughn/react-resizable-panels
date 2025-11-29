@@ -19,6 +19,31 @@ export function setDefaultElementBounds(rect: DOMRect) {
 export function setElementBoundsFunction(value: GetDOMRect) {
   getDOMRect = value;
 
+  Object.defineProperty(HTMLElement.prototype, "clientHeight", {
+    configurable: true,
+    get: function () {
+      return (this as HTMLElement).getBoundingClientRect().height;
+    }
+  });
+  Object.defineProperty(HTMLElement.prototype, "clientWidth", {
+    configurable: true,
+    get: function () {
+      return (this as HTMLElement).getBoundingClientRect().width;
+    }
+  });
+  Object.defineProperty(HTMLElement.prototype, "offsetHeight", {
+    configurable: true,
+    get: function () {
+      return (this as HTMLElement).getBoundingClientRect().height;
+    }
+  });
+  Object.defineProperty(HTMLElement.prototype, "offsetWidth", {
+    configurable: true,
+    get: function () {
+      return (this as HTMLElement).getBoundingClientRect().width;
+    }
+  });
+
   emitter.emit("change");
 }
 
