@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { mountGroup } from "../../global/mountGroup";
 import { eventEmitter, read } from "../../global/mutableState";
+import { layoutsEqual } from "../../global/utils/layoutsEqual";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
@@ -10,11 +11,9 @@ import type { RegisteredPanel } from "../panel/types";
 import type { RegisteredResizeHandle } from "../resize-handle/types";
 import { getPanelSizeCssPropertyName } from "./getPanelSizeCssPropertyName";
 import { GroupContext } from "./GroupContext";
-import { RestoreSavedLayout } from "./RestoreSavedLayout";
 import { sortByElementOffset } from "./sortByElementOffset";
-import type { GroupProps, Layout, RegisteredGroup, StorageType } from "./types";
+import type { GroupProps, Layout, RegisteredGroup } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
-import { layoutsEqual } from "../../global/utils/layoutsEqual";
 
 // TODO Validate unique Panel and ResizeHandle ids
 // TODO Warn if Group is autoSave and registered Panel(s) do not have ids
@@ -30,9 +29,9 @@ import { layoutsEqual } from "../../global/utils/layoutsEqual";
  * ```
  */
 export function Group({
-  autoSave: autoSaveProp,
   children,
   className,
+  defaultLayout,
   direction = "horizontal",
   disableCursor,
   disabled,
@@ -40,20 +39,8 @@ export function Group({
   groupRef,
   id: idProp,
   onLayoutChange: onLayoutChangeUnstable,
-  storageType: storageTypeProp,
   style
 }: GroupProps) {
-  let autoSave = !!autoSaveProp;
-  if (autoSave && idProp === undefined) {
-    autoSave = false;
-    console.error('Auto-save Groups require an "id" prop');
-  }
-
-  let storageType = storageTypeProp;
-  if (autoSave && storageTypeProp === undefined) {
-    storageType = "localStorage";
-  }
-
   const prevLayoutRef = useRef<Layout>({});
 
   const onLayoutChangeStable = useStableCallback((layout: Layout) => {
@@ -73,7 +60,7 @@ export function Group({
   const inMemoryLayoutsRef = useRef<{
     [panelIds: string]: Layout;
   }>({});
-  const [layout, setLayout] = useState<Layout>({});
+  const [layout, setLayout] = useState<Layout>(defaultLayout ?? {});
   const [panels, setPanels] = useState<RegisteredPanel[]>([]);
   const [resizeHandles, setResizeHandles] = useState<RegisteredResizeHandle[]>(
     []
@@ -112,7 +99,7 @@ export function Group({
   useIsomorphicLayoutEffect(() => {
     if (element !== null && panels.length > 0) {
       const group: RegisteredGroup = {
-        autoSave,
+        defaultLayout,
         direction,
         disableCursor: !!disableCursor,
         disabled: !!disabled,
@@ -120,8 +107,7 @@ export function Group({
         id,
         inMemoryLayouts: inMemoryLayoutsRef.current,
         panels,
-        resizeHandles,
-        storageType
+        resizeHandles
       };
 
       const unmountGroup = mountGroup(group);
@@ -168,7 +154,7 @@ export function Group({
       };
     }
   }, [
-    autoSave,
+    defaultLayout,
     direction,
     disableCursor,
     disabled,
@@ -176,8 +162,7 @@ export function Group({
     id,
     onLayoutChangeStable,
     panels,
-    resizeHandles,
-    storageType
+    resizeHandles
   ]);
 
   // Panel layouts and Group dragging state are shared via CSS variables
@@ -192,13 +177,6 @@ export function Group({
 
   return (
     <GroupContext.Provider value={context}>
-      {autoSave && (
-        <RestoreSavedLayout
-          autoSaveId={id}
-          storageType={storageType as StorageType}
-        />
-      )}
-
       <div
         className={className}
         data-group

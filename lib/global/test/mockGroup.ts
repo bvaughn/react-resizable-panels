@@ -1,9 +1,5 @@
 import { vi } from "vitest";
-import type {
-  Direction,
-  RegisteredGroup,
-  StorageType
-} from "../../components/group/types";
+import type { Direction, RegisteredGroup } from "../../components/group/types";
 import type { RegisteredPanel } from "../../components/panel/types";
 import type { RegisteredResizeHandle } from "../../components/resize-handle/types";
 import { setElementBounds } from "../../utils/test/mockBoundingClientRect";
@@ -48,13 +44,13 @@ export function mockGroup(
 
   const group = {
     autoSave: false,
+    defaultLayout: undefined,
     direction,
     disableCursor: false,
     disabled: false,
     element: groupElement,
     id: groupId,
     inMemoryLayouts: {},
-    storageType: "localStorage" as StorageType,
 
     get panels() {
       return Array.from(mockPanels.values());

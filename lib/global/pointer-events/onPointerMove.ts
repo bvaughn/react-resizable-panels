@@ -1,5 +1,3 @@
-import { getPanelKey } from "../../components/group/auto-save/getPanelKey";
-import { saveGroupLayout } from "../../components/group/auto-save/saveGroupLayout";
 import {
   CURSOR_FLAG_HORIZONTAL_MAX,
   CURSOR_FLAG_HORIZONTAL_MIN,
@@ -48,15 +46,7 @@ export function onPointerMove(event: PointerEvent) {
       // Note that HitRegions are frozen once a drag has started
       // Modify the Group layouts for all matching HitRegions though
       interactionState.hitRegions.forEach((current) => {
-        const {
-          autoSave,
-          direction,
-          disableCursor,
-          element,
-          id,
-          panels,
-          storageType
-        } = current.group;
+        const { direction, disableCursor, element, panels } = current.group;
 
         let deltaAsPercentage = 0;
         if (interactionState.state === "active") {
@@ -116,20 +106,10 @@ export function onPointerMove(event: PointerEvent) {
 
             // Save the most recent layout for this group of panels in-memory
             // so that layouts will be remembered between different sets of conditionally rendered panels
-            const panelIdsKey = getPanelKey(current.group.panels);
+            const panelIdsKey = current.group.panels
+              .map(({ id }) => id)
+              .join(",");
             current.group.inMemoryLayouts[panelIdsKey] = nextLayout;
-
-            if (autoSave) {
-              saveGroupLayout({
-                id,
-                layout: nextLayout,
-                panels,
-                storage:
-                  storageType === "sessionStorage"
-                    ? sessionStorage
-                    : localStorage
-              });
-            }
           }
         }
       });

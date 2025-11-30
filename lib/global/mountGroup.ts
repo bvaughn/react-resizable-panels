@@ -1,5 +1,3 @@
-import { getPanelKey } from "../components/group/auto-save/getPanelKey";
-import { loadGroupLayout } from "../components/group/auto-save/loadGroupLayout";
 import type { Layout, RegisteredGroup } from "../components/group/types";
 import { calculatePanelConstraints } from "./dom/calculatePanelConstraints";
 import { update } from "./mutableState";
@@ -20,12 +18,18 @@ export function mountGroup(group: RegisteredGroup) {
       const { borderBoxSize, target } = entry;
       if (target === group.element) {
         if (isMounted) {
-          update((prevState) => ({
-            mountedGroups: new Map(prevState.mountedGroups).set(group, {
-              derivedPanelConstraints: calculatePanelConstraints(group),
-              layout: defaultLayout
-            })
-          }));
+          update((prevState) => {
+            const match = prevState.mountedGroups.get(group);
+            if (match) {
+              return {
+                mountedGroups: new Map(prevState.mountedGroups).set(group, {
+                  derivedPanelConstraints: calculatePanelConstraints(group),
+                  layout: match.layout
+                })
+              };
+            }
+            return prevState;
+          });
         }
       } else {
         notifyResizeHandler(group, target as HTMLElement, borderBoxSize);
@@ -41,32 +45,21 @@ export function mountGroup(group: RegisteredGroup) {
 
   // Calculate initial layout for the new Panel configuration
   const derivedPanelConstraints = calculatePanelConstraints(group);
-  const panelIdsKey = getPanelKey(group.panels);
-  let defaultLayout: Layout = group.inMemoryLayouts[panelIdsKey];
-  if (!defaultLayout) {
-    if (group.autoSave) {
-      defaultLayout =
-        loadGroupLayout({
-          id: group.id,
-          panels: group.panels,
-          storage:
-            group.storageType === "sessionStorage"
-              ? sessionStorage
-              : localStorage
-        }) ?? calculateDefaultLayout(derivedPanelConstraints);
-    } else {
-      defaultLayout = calculateDefaultLayout(derivedPanelConstraints);
-    }
-  }
-  defaultLayout = validatePanelGroupLayout({
-    layout: defaultLayout,
+  const panelIdsKey = group.panels.map(({ id }) => id).join(",");
+
+  const defaultLayoutUnsafe: Layout =
+    group.inMemoryLayouts[panelIdsKey] ??
+    group.defaultLayout ??
+    calculateDefaultLayout(derivedPanelConstraints);
+  const defaultLayoutSafe = validatePanelGroupLayout({
+    layout: defaultLayoutUnsafe,
     panelConstraints: derivedPanelConstraints
   });
 
   const nextState = update((prevState) => ({
     mountedGroups: new Map(prevState.mountedGroups).set(group, {
       derivedPanelConstraints,
-      layout: defaultLayout
+      layout: defaultLayoutSafe
     })
   }));
 

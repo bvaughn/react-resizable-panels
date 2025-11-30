@@ -1,35 +1,19 @@
-import type { RegisteredPanel } from "../../panel/types";
 import type { Layout } from "../types";
-import { getPanelKey } from "./getPanelKey";
-import { getSavedLayouts } from "./getSavedLayouts";
 import { getStorageKey } from "./getStorageKey";
 
 export function saveGroupLayout({
   id,
   layout,
-  panels,
   storage
 }: {
   id: string;
   layout: Layout;
-  panels: RegisteredPanel[];
-  storage: Storage;
+  storage: Pick<Storage, "getItem" | "setItem">;
 }) {
-  const panelIdsKey = getPanelKey(panels);
-  const storageKey = getStorageKey(id);
-  const savedLayouts = getSavedLayouts({ id, storage });
-
   try {
-    storage.setItem(
-      storageKey,
-      JSON.stringify({
-        layouts: {
-          ...savedLayouts.layouts,
-          [panelIdsKey]: layout
-        },
-        mostRecentLayout: layout
-      })
-    );
+    const storageKey = getStorageKey(id);
+
+    storage.setItem(storageKey, JSON.stringify(layout));
   } catch (error) {
     console.error(error);
   }

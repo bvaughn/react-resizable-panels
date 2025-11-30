@@ -12,9 +12,6 @@ export function Nav() {
           Collapsible panels
         </NavLink>
         <NavLink path="/examples/persistent-layout">Persistent layouts</NavLink>
-        <NavLink path="/examples/server-side-rendering">
-          Server-side rendering
-        </NavLink>
         <NavLink path="/examples/nested-groups">Nested groups</NavLink>
         <NavLink path="/examples/conditional-panels">
           Conditional panels

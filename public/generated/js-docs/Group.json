@@ -13,24 +13,6 @@
   "filePath": "lib/components/group/Group.tsx",
   "name": "Group",
   "props": {
-    "autoSave": {
-      "description": [
-        {
-          "content": "Remember Panel layouts between page reload."
-        },
-        {
-          "content": "Layouts are saved using <code>localStorage</code> by default but can be customized using the <code>storageType</code> prop.",
-          "intent": "primary"
-        },
-        {
-          "content": "The <code>id</code> prop must also be specified for auto-save groups.",
-          "intent": "warning"
-        }
-      ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">autoSave</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
-      "name": "autoSave",
-      "required": false
-    },
     "children": {
       "description": [
         {
@@ -49,6 +31,24 @@
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
       "name": "className",
+      "required": false
+    },
+    "defaultLayout": {
+      "description": [
+        {
+          "content": "Default layout for the Group."
+        },
+        {
+          "content": "This value allows layouts to be remembered between page reloads.",
+          "intent": "primary"
+        },
+        {
+          "content": "Refer to the documentation for how to avoid layout shift when using server components.",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">defaultLayout</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Layout</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "defaultLayout",
       "required": false
     },
     "direction": {
@@ -113,10 +113,6 @@
         {
           "content": "This value will also be assigned to the <code>data-group-id</code> attribute.",
           "intent": "primary"
-        },
-        {
-          "content": "This prop must be provided if <code>autoSize</code> is true.",
-          "intent": "warning"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
@@ -131,19 +127,6 @@
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onLayoutChange</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">Layout</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">)</span><span class=\"\"> | </span><span class=\"tok-variableName\">undefined</span></div>",
       "name": "onLayoutChange",
-      "required": false
-    },
-    "storageType": {
-      "description": [
-        {
-          "content": "Storage API to use for persisted layouts; defaults to <code>\"localStorage\"</code>."
-        },
-        {
-          "content": "Can be overridden to use <code>\"sessionStorage\"</code> instead."
-        }
-      ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">storageType</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"localStorage\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"sessionStorage\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
-      "name": "storageType",
       "required": false
     },
     "style": {

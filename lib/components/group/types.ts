@@ -9,8 +9,6 @@ import type { RegisteredResizeHandle } from "../resize-handle/types";
  */
 export type Direction = "horizontal" | "vertical";
 
-export type StorageType = "localStorage" | "sessionStorage";
-
 /**
  * Map of Panel id to flexGrow value;
  */
@@ -24,7 +22,7 @@ export type DragState = {
 };
 
 export type RegisteredGroup = {
-  autoSave: boolean;
+  defaultLayout: Layout | undefined;
   direction: Direction;
   disableCursor: boolean;
   disabled: boolean;
@@ -35,7 +33,6 @@ export type RegisteredGroup = {
   };
   panels: RegisteredPanel[];
   resizeHandles: RegisteredResizeHandle[];
-  storageType: StorageType | undefined;
 };
 
 export type GroupContextType = {
@@ -60,16 +57,7 @@ export type GroupImperativeHandle = {
   setLayout: (layout: { [panelId: string]: number }) => Layout;
 };
 
-type BaseGroupProps = {
-  /**
-   * Remember Panel layouts between page reload.
-   *
-   * ℹ️ Layouts are saved using `localStorage` by default but can be customized using the `storageType` prop.
-   *
-   * ⚠️ The `id` prop must also be specified for auto-save groups.
-   */
-  autoSave?: boolean;
-
+export type GroupProps = {
   /**
    * Panel and ResizeHandle components that comprise this group.
    */
@@ -79,6 +67,15 @@ type BaseGroupProps = {
    * CSS class name.
    */
   className?: string;
+
+  /**
+   * Default layout for the Group.
+   *
+   * ℹ️ This value allows layouts to be remembered between page reloads.
+   *
+   * ⚠️ Refer to the documentation for how to avoid layout shift when using server components.
+   */
+  defaultLayout?: Layout;
 
   /**
    * Specifies the resizable direction ("horizontal" or "vertical"); defaults to "horizontal"
@@ -115,8 +112,6 @@ type BaseGroupProps = {
    * Falls back to `useId` when not provided.
    *
    * ℹ️ This value will also be assigned to the `data-group-id` attribute.
-   *
-   * ⚠️ This prop must be provided if `autoSize` is true.
    */
   id?: string | number;
 
@@ -126,22 +121,11 @@ type BaseGroupProps = {
   onLayoutChange?: (layout: Layout) => void;
 
   /**
-   * Storage API to use for persisted layouts; defaults to `"localStorage"`.
-   *
-   * Can be overridden to use `"sessionStorage"` instead.
-   */
-  storageType?: "localStorage" | "sessionStorage";
-
-  /**
    * CSS properties.
    *
    * ⚠️ The following styles cannot be overridden: `display`, `flex-direction`, `flex-wrap`, and `overflow`.
    */
   style?: CSSProperties;
 };
-
-export type GroupProps =
-  | (BaseGroupProps & { autoSave: true; id: string })
-  | (BaseGroupProps & { autoSave?: false; id?: string | number });
 
 export type OnGroupLayoutChange = GroupProps["onLayoutChange"];

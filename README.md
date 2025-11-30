@@ -46,13 +46,6 @@ Documentation for this project is available at [react-resizable-panels.vercel.ap
   </thead>
   <tbody>
     <tr>
-      <td>autoSave</td>
-      <td><p>Remember Panel layouts between page reload.</p>
-<p>ℹ️ Layouts are saved using <code>localStorage</code> by default but can be customized using the <code>storageType</code> prop.</p>
-<p>⚠️ The <code>id</code> prop must also be specified for auto-save groups.</p>
-</td>
-    </tr>
-    <tr>
       <td>children</td>
       <td><p>Panel and ResizeHandle components that comprise this group.</p>
 </td>
@@ -60,6 +53,13 @@ Documentation for this project is available at [react-resizable-panels.vercel.ap
     <tr>
       <td>className</td>
       <td><p>CSS class name.</p>
+</td>
+    </tr>
+    <tr>
+      <td>defaultLayout</td>
+      <td><p>Default layout for the Group.</p>
+<p>ℹ️ This value allows layouts to be remembered between page reloads.</p>
+<p>⚠️ Refer to the documentation for how to avoid layout shift when using server components.</p>
 </td>
     </tr>
     <tr>
@@ -98,18 +98,11 @@ Use this prop to disable that behavior for Panels and ResizeHandles in this grou
       <td><p>Uniquely identifies this group within an application.
 Falls back to <code>useId</code> when not provided.</p>
 <p>ℹ️ This value will also be assigned to the <code>data-group-id</code> attribute.</p>
-<p>⚠️ This prop must be provided if <code>autoSize</code> is true.</p>
 </td>
     </tr>
     <tr>
       <td>onLayoutChange</td>
       <td><p>Called when panel sizes change; receives a map of Panel id to size.</p>
-</td>
-    </tr>
-    <tr>
-      <td>storageType</td>
-      <td><p>Storage API to use for persisted layouts; defaults to <code>&quot;localStorage&quot;</code>.</p>
-<p>Can be overridden to use <code>&quot;sessionStorage&quot;</code> instead.</p>
 </td>
     </tr>
     <tr>
