@@ -28,6 +28,9 @@ export type RegisteredPanel = {
   panelConstraints: PanelConstraintProps;
 };
 
+/**
+ * Imperative Panel API.
+ */
 export type PanelImperativeHandle = {
   /**
    * Collapse the Panel to it's `collapsedSize`.

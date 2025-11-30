@@ -140,7 +140,7 @@ async function parser(
     }
   );
 
-  const maxPosition = code.length - 1;
+  const maxPosition = code.length;
 
   if (characterIndex < maxPosition) {
     // No style applied on the trailing text.

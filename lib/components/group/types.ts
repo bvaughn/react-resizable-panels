@@ -42,6 +42,9 @@ export type GroupContextType = {
   registerSeparator: (separator: RegisteredSeparator) => () => void;
 };
 
+/**
+ * Imperative Group API.
+ */
 export type GroupImperativeHandle = {
   /**
    * Get the Group's current layout as a map of Panel id to percentage (0..100)

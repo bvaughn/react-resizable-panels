@@ -13,7 +13,8 @@ import { syntaxHighlight } from "./utils/syntax-highlight.ts";
 const parser = withCustomConfig("./tsconfig.json", {
   savePropValueAsString: true,
   shouldExtractLiteralValuesFromEnum: true,
-  shouldExtractValuesFromUnion: true
+  shouldExtractValuesFromUnion: true,
+  shouldRemoveUndefinedFromOptional: true
 });
 
 const TOKEN_TO_REPLACE = "TOKEN_TO_REPLACE";
@@ -22,9 +23,9 @@ async function run() {
   const { files, outputDir } = await initialize({
     fileExtensions: [".ts", ".tsx"],
     fileFilter: (file) =>
-      file.endsWith("/Group.tsx") ||
-      file.endsWith("/Panel.tsx") ||
-      file.endsWith("/Separator.tsx"),
+      file.endsWith("group/Group.tsx") ||
+      file.endsWith("panel/Panel.tsx") ||
+      file.endsWith("separator/Separator.tsx"),
     inputPath: ["lib", "components"],
     outputDirName: "js-docs"
   });
