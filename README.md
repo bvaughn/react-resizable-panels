@@ -47,7 +47,7 @@ Documentation for this project is available at [react-resizable-panels.vercel.ap
   <tbody>
     <tr>
       <td>children</td>
-      <td><p>Panel and ResizeHandle components that comprise this group.</p>
+      <td><p>Panel and Separator components that comprise this group.</p>
 </td>
     </tr>
     <tr>
@@ -70,7 +70,7 @@ Documentation for this project is available at [react-resizable-panels.vercel.ap
     <tr>
       <td>disableCursor</td>
       <td><p>This library sets custom mouse cursor styles to indicate drag state.
-Use this prop to disable that behavior for Panels and ResizeHandles in this group.</p>
+Use this prop to disable that behavior for Panels and Separators in this group.</p>
 </td>
     </tr>
     <tr>
@@ -211,17 +211,17 @@ Falls back to <code>useId</code> when not provided.</p>
 
 <!-- Panel:optional:end -->
 
-### ResizeHandle
+### Separator
 
 #### Required props
 
-<!-- ResizeHandle:required:begin -->
+<!-- Separator:required:begin -->
 
-<!-- ResizeHandle:required:end -->
+<!-- Separator:required:end -->
 
 #### Optional props
 
-<!-- ResizeHandle:optional:begin -->
+<!-- Separator:optional:begin -->
 
 <table>
   <thead>
@@ -234,7 +234,7 @@ Falls back to <code>useId</code> when not provided.</p>
     <tr>
       <td>className</td>
       <td><p>CSS class name.</p>
-<p>ℹ️ Use the <code>data-resize-handle-state</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>
+<p>ℹ️ Use the <code>data-separator-state</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>
 <p>⚠️ The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code></p>
 </td>
     </tr>
@@ -245,19 +245,19 @@ Falls back to <code>useId</code> when not provided.</p>
     </tr>
     <tr>
       <td>id</td>
-      <td><p>Uniquely identifies the resize handle within the parent group.
+      <td><p>Uniquely identifies the separator within the parent group.
 Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>data-resize-handle-id</code> attribute.</p>
+<p>ℹ️ This value will also be assigned to the <code>data-separator-id</code> attribute.</p>
 </td>
     </tr>
     <tr>
       <td>style</td>
       <td><p>CSS properties.</p>
-<p>ℹ️ Use the <code>data-resize-handle-state</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>
+<p>ℹ️ Use the <code>data-separator-state</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>
 <p>⚠️ The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code></p>
 </td>
     </tr>
   </tbody>
 </table>
 
-<!-- ResizeHandle:optional:end -->
+<!-- Separator:optional:end -->

@@ -72,12 +72,12 @@ describe("calculateHitRegions", () => {
     `);
   });
 
-  test("panels and explicit resize handles", () => {
+  test("panels and explicit separators", () => {
     const group = mockGroup(new DOMRect(0, 0, 50, 50));
     group.addChild("panel", new DOMRect(0, 0, 10, 50), "left");
-    group.addChild("resize-handle", new DOMRect(10, 0, 10, 50), "left");
+    group.addChild("separator", new DOMRect(10, 0, 10, 50), "left");
     group.addChild("panel", new DOMRect(20, 0, 10, 50), "center");
-    group.addChild("resize-handle", new DOMRect(30, 0, 10, 50), "right");
+    group.addChild("separator", new DOMRect(30, 0, 10, 50), "right");
     group.addChild("panel", new DOMRect(40, 0, 10, 50), "right");
 
     expect(serialize(group)).toMatchInlineSnapshot(`
@@ -100,13 +100,13 @@ describe("calculateHitRegions", () => {
     `);
   });
 
-  test("panels and some explicit resize handles", () => {
+  test("panels and some explicit separators", () => {
     const group = mockGroup(new DOMRect(0, 0, 50, 50));
     group.addChild("panel", new DOMRect(0, 0, 10, 50), "a");
-    group.addChild("resize-handle", new DOMRect(10, 0, 5, 50), "left");
+    group.addChild("separator", new DOMRect(10, 0, 5, 50), "left");
     group.addChild("panel", new DOMRect(15, 0, 10, 50), "b");
     group.addChild("panel", new DOMRect(25, 0, 10, 50), "c");
-    group.addChild("resize-handle", new DOMRect(35, 0, 5, 50), "right");
+    group.addChild("separator", new DOMRect(35, 0, 5, 50), "right");
     group.addChild("panel", new DOMRect(40, 0, 10, 50), "d");
 
     expect(serialize(group)).toMatchInlineSnapshot(`

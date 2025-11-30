@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode, Ref } from "react";
 import type { RegisteredPanel } from "../panel/types";
-import type { RegisteredResizeHandle } from "../resize-handle/types";
+import type { RegisteredSeparator } from "../separator/types";
 
 /**
  * Panel group direction corresponds to the `flex-direction` CSS property.
@@ -18,7 +18,7 @@ export type Layout = {
 
 export type DragState = {
   state: "default" | "hover" | "dragging";
-  resizeHandleId: string | undefined;
+  separatorId: string | undefined;
 };
 
 export type RegisteredGroup = {
@@ -32,14 +32,14 @@ export type RegisteredGroup = {
     [panelIds: string]: Layout;
   };
   panels: RegisteredPanel[];
-  resizeHandles: RegisteredResizeHandle[];
+  separators: RegisteredSeparator[];
 };
 
 export type GroupContextType = {
   direction: Direction;
   id: string;
   registerPanel: (panel: RegisteredPanel) => () => void;
-  registerResizeHandle: (resizeHandle: RegisteredResizeHandle) => () => void;
+  registerSeparator: (separator: RegisteredSeparator) => () => void;
 };
 
 export type GroupImperativeHandle = {
@@ -59,7 +59,7 @@ export type GroupImperativeHandle = {
 
 export type GroupProps = {
   /**
-   * Panel and ResizeHandle components that comprise this group.
+   * Panel and Separator components that comprise this group.
    */
   children?: ReactNode;
 
@@ -84,7 +84,7 @@ export type GroupProps = {
 
   /**
    * This library sets custom mouse cursor styles to indicate drag state.
-   * Use this prop to disable that behavior for Panels and ResizeHandles in this group.
+   * Use this prop to disable that behavior for Panels and Separators in this group.
    */
   disableCursor?: boolean;
 

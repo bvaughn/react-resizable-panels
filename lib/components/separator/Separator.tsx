@@ -4,27 +4,27 @@ import type { InteractionState } from "../../global/types";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useGroupContext } from "../group/useGroupContext";
-import type { RegisteredResizeHandle, ResizeHandleProps } from "./types";
+import type { RegisteredSeparator, SeparatorProps } from "./types";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
 
 /**
- * ResizeHandles are not _required_ but they are _recommended_ as they improve keyboard accessibility.
+ * Separators are not _required_ but they are _recommended_ as they improve keyboard accessibility.
  *
- * ResizeHandles should be rendered as the direct child of a Group component.
+ * Separators should be rendered as the direct child of a Group component.
  *
- * For unit testing purposes, ResizeHandle elements always include the following data attributes:
+ * For unit testing purposes, Separator elements always include the following data attributes:
  *
  * ```html
- * <div data-resize-handle data-resize-handle-id="your-resize-handle-id" />
+ * <div data-separator data-separator-id="your-separator-id" />
  * ```
  */
-export function ResizeHandle({
+export function Separator({
   children,
   className,
   elementRef,
   id: idProp,
   style
-}: ResizeHandleProps) {
+}: SeparatorProps) {
   const id = useId(idProp);
 
   const [element, setElement] = useState<HTMLDivElement | null>(null);
@@ -33,18 +33,18 @@ export function ResizeHandle({
 
   const mergedRef = useMergedRefs(setElement, elementRef);
 
-  const { registerResizeHandle } = useGroupContext();
+  const { registerSeparator } = useGroupContext();
 
-  // Register ResizeHandle with parent Group
-  // Listen to global state for drag state related to this ResizeHandle
+  // Register Separator with parent Group
+  // Listen to global state for drag state related to this Separator
   useIsomorphicLayoutEffect(() => {
     if (element !== null) {
-      const resizeHandle: RegisteredResizeHandle = {
+      const separator: RegisteredSeparator = {
         element,
         id
       };
 
-      const unregisterResizeHandle = registerResizeHandle(resizeHandle);
+      const unregisterSeparator = registerSeparator(separator);
 
       const removeEventListener = eventEmitter.addListener(
         "interactionStateChange",
@@ -52,7 +52,7 @@ export function ResizeHandle({
           setDragState(
             interactionState.state !== "inactive" &&
               interactionState.hitRegions.some(
-                (hitRegion) => hitRegion.resizeHandle === resizeHandle
+                (hitRegion) => hitRegion.separator === separator
               )
               ? interactionState.state
               : "inactive"
@@ -61,19 +61,19 @@ export function ResizeHandle({
       );
 
       return () => {
-        unregisterResizeHandle();
+        unregisterSeparator();
         removeEventListener();
       };
     }
-  }, [element, id, registerResizeHandle]);
+  }, [element, id, registerSeparator]);
 
   return (
     <div
       children={children}
       className={className}
-      data-resize-handle
-      data-resize-handle-id={id}
-      data-resize-handle-state={dragState}
+      data-separator
+      data-separator-id={id}
+      data-separator-state={dragState}
       ref={mergedRef}
       style={{
         flexBasis: "auto",

@@ -1,10 +1,10 @@
 import { vi } from "vitest";
 import type { Direction, RegisteredGroup } from "../../components/group/types";
 import type { RegisteredPanel } from "../../components/panel/types";
-import type { RegisteredResizeHandle } from "../../components/resize-handle/types";
+import type { RegisteredSeparator } from "../../components/separator/types";
 import { setElementBounds } from "../../utils/test/mockBoundingClientRect";
 
-type Type = "panel" | "resize-handle" | "other";
+type Type = "panel" | "separator" | "other";
 
 export type MockGroup = RegisteredGroup & {
   addChild: (
@@ -22,7 +22,7 @@ export function mockGroup(
   groupIdStable?: string
 ): MockGroup {
   let panelIdCounter = 0;
-  let resizeHandleIdCounter = 0;
+  let separatorIdCounter = 0;
 
   const groupId = groupIdStable ?? `group-${++groupIdCounter}`;
 
@@ -32,7 +32,7 @@ export function mockGroup(
   setElementBounds(groupElement, groupBounds);
 
   const mockPanels: Set<RegisteredPanel> = new Set();
-  const mockResizeHandles: Set<RegisteredResizeHandle> = new Set();
+  const mockSeparators: Set<RegisteredSeparator> = new Set();
 
   const relativeBoundsToBounds = (relativeBounds: DOMRect) =>
     new DOMRect(
@@ -55,8 +55,8 @@ export function mockGroup(
     get panels() {
       return Array.from(mockPanels.values());
     },
-    get resizeHandles() {
-      return Array.from(mockResizeHandles.values());
+    get separators() {
+      return Array.from(mockSeparators.values());
     },
 
     // Test specific code
@@ -95,20 +95,20 @@ export function mockGroup(
             groupElement.removeChild(panel.element);
           };
         }
-        case "resize-handle": {
-          const resizeHandle = mockResizeHandle(
-            `${groupId}-${childId ?? ++resizeHandleIdCounter}`,
+        case "separator": {
+          const separator = mockSeparator(
+            `${groupId}-${childId ?? ++separatorIdCounter}`,
             bounds
           );
 
-          mockResizeHandles.add(resizeHandle);
+          mockSeparators.add(separator);
 
-          groupElement.appendChild(resizeHandle.element);
+          groupElement.appendChild(separator.element);
 
           return () => {
-            mockResizeHandles.delete(resizeHandle);
+            mockSeparators.delete(separator);
 
-            groupElement.removeChild(resizeHandle.element);
+            groupElement.removeChild(separator.element);
           };
         }
       }
@@ -135,21 +135,21 @@ export function mockPanel(panelId: string, bounds: DOMRect = new DOMRect()) {
   return panel;
 }
 
-export function mockResizeHandle(
-  resizeHandleId: string,
+export function mockSeparator(
+  separatorId: string,
   bounds: DOMRect = new DOMRect()
 ) {
   const childElement = document.createElement("div");
-  childElement.setAttribute("data-resize-handle-id", resizeHandleId);
+  childElement.setAttribute("data-separator-id", separatorId);
 
   setElementBounds(childElement, bounds);
 
-  const resizeHandle: RegisteredResizeHandle = {
+  const separator: RegisteredSeparator = {
     element: childElement,
-    id: resizeHandleId
+    id: separatorId
   };
 
-  return resizeHandle;
+  return separator;
 }
 
 export function resetMockGroupIdCounter() {

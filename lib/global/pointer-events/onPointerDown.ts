@@ -1,6 +1,6 @@
 import type { Layout, RegisteredGroup } from "../../components/group/types";
 import type { RegisteredPanel } from "../../components/panel/types";
-import type { RegisteredResizeHandle } from "../../components/resize-handle/types";
+import type { RegisteredSeparator } from "../../components/separator/types";
 import { read, update } from "../mutableState";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
 
@@ -15,7 +15,7 @@ export function onPointerDown(event: PointerEvent) {
 
   const groups = new Set<RegisteredGroup>();
   const panels = new Set<RegisteredPanel>();
-  const resizeHandles = new Set<RegisteredResizeHandle>();
+  const separators = new Set<RegisteredSeparator>();
   const initialLayoutMap = new Map<RegisteredGroup, Layout>();
 
   hitRegions.forEach((current) => {
@@ -23,8 +23,8 @@ export function onPointerDown(event: PointerEvent) {
     current.panels.forEach((panel) => {
       panels.add(panel);
     });
-    if (current.resizeHandle) {
-      resizeHandles.add(current.resizeHandle);
+    if (current.separator) {
+      separators.add(current.separator);
     }
 
     const match = mountedGroups.get(current.group);

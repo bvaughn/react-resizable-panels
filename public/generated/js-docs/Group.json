@@ -16,7 +16,7 @@
     "children": {
       "description": [
         {
-          "content": "Panel and ResizeHandle components that comprise this group."
+          "content": "Panel and Separator components that comprise this group."
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">children</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span></div>",
@@ -64,7 +64,7 @@
     "disableCursor": {
       "description": [
         {
-          "content": "This library sets custom mouse cursor styles to indicate drag state.\nUse this prop to disable that behavior for Panels and ResizeHandles in this group."
+          "content": "This library sets custom mouse cursor styles to indicate drag state.\nUse this prop to disable that behavior for Panels and Separators in this group."
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disableCursor</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",

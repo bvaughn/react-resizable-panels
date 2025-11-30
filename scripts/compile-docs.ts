@@ -24,7 +24,7 @@ async function run() {
     fileFilter: (file) =>
       file.endsWith("/Group.tsx") ||
       file.endsWith("/Panel.tsx") ||
-      file.endsWith("/ResizeHandle.tsx"),
+      file.endsWith("/Separator.tsx"),
     inputPath: ["lib", "components"],
     outputDirName: "js-docs"
   });

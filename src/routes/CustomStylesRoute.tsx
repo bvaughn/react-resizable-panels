@@ -1,12 +1,12 @@
 import { Group } from "react-resizable-panels";
-import { html as CustomStylesExampleHTML } from "../../public/generated/code-snippets/ResizeHandleCustomStyles.json";
-import { html as DataAttributesExampleHTML } from "../../public/generated/code-snippets/ResizeHandleDataAttributes.json";
+import { html as CustomStylesExampleHTML } from "../../public/generated/code-snippets/SeparatorCustomStyles.json";
+import { html as DataAttributesExampleHTML } from "../../public/generated/code-snippets/SeparatorDataAttributes.json";
 import { Box } from "../components/Box";
 import { Callout } from "../components/Callout";
 import { Code } from "../components/code/Code";
 import { Header } from "../components/Header";
 import { Panel } from "../components/styled-panels/Panel";
-import { ResizeHandle } from "../components/styled-panels/ResizeHandle";
+import { Separator } from "../components/styled-panels/Separator";
 
 export default function CustomStylesRoute() {
   return (
@@ -27,21 +27,21 @@ export default function CustomStylesRoute() {
         </li>
       </ul>
       <div>
-        The ResizeHandle component renders a{" "}
-        <code>data-resize-handle-state</code> attribute to support custom styles
-        for <em>hover</em> or <em>drag</em> states.
+        The Separator component renders a <code>data-separator-state</code>{" "}
+        attribute to support custom styles for <em>hover</em> or <em>drag</em>{" "}
+        states.
       </div>
       <Code html={DataAttributesExampleHTML} />
       <div>An example using Tailwind CSS might look something like this.</div>
       <Code html={CustomStylesExampleHTML} />
       <Group className="h-15 gap-1">
         <Panel>left</Panel>
-        <ResizeHandle />
+        <Separator />
         <Panel>right</Panel>
       </Group>
       <Callout intent="success">
-        Using data-attributes for ResizeHandle styles enables visual updates
-        when a pointer is <em>near</em> (but not directly on top of) a draggable
+        Using data-attributes for Separator styles enables visual updates when a
+        pointer is <em>near</em> (but not directly on top of) a draggable
         region.
       </Callout>
     </Box>

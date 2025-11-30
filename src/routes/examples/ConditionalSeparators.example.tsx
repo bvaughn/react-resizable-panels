@@ -1,4 +1,4 @@
-import { Group, Panel, ResizeHandle } from "react-resizable-panels";
+import { Group, Panel, Separator } from "react-resizable-panels";
 
 const hideLeftPanel = false;
 const hideRightPanel = false;
@@ -10,13 +10,13 @@ const hideRightPanel = false;
   {hideLeftPanel || (
     <>
       <Panel id="left">left panel</Panel>
-      <ResizeHandle />
+      <Separator />
     </>
   )}
   <Panel id="center">center panel</Panel>
   {hideRightPanel || (
     <>
-      <ResizeHandle />
+      <Separator />
       <Panel id="right">right panel</Panel>
     </>
   )}

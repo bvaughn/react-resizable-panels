@@ -1,10 +1,10 @@
-import { Group, Panel, ResizeHandle } from "react-resizable-panels";
+import { Group, Panel, Separator } from "react-resizable-panels";
 
 // <begin>
 
 /* prettier-ignore */
 <Group>
   <Panel>left</Panel>
-  <ResizeHandle />
+  <Separator />
   <Panel>right</Panel>
 </Group>

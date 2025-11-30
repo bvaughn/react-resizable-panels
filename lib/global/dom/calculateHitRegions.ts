@@ -1,23 +1,23 @@
 import type { RegisteredGroup } from "../../components/group/types";
 import type { RegisteredPanel } from "../../components/panel/types";
-import type { RegisteredResizeHandle } from "../../components/resize-handle/types";
+import type { RegisteredSeparator } from "../../components/separator/types";
 
 export type HitRegion = {
   group: RegisteredGroup;
   panels: [panel: RegisteredPanel, panel: RegisteredPanel];
   rect: DOMRect;
-  resizeHandle: RegisteredResizeHandle | undefined;
+  separator: RegisteredSeparator | undefined;
 };
 
 /**
  * Determines hit regions for a Group; a hit region is either:
- * - 1: An explicit ResizeHandle element
+ * - 1: An explicit Separator element
  * - 2: The edge of a Panel element that has another Panel beside it
  *
  * This method determines bounding rects of all regions for the particular group.
  */
 export function calculateHitRegions(group: RegisteredGroup) {
-  const { direction, element: groupElement, panels, resizeHandles } = group;
+  const { direction, element: groupElement, panels, separators } = group;
 
   // Sort elements by offset before traversing
   const sortedChildElements: HTMLElement[] = Array.from(groupElement.children)
@@ -34,7 +34,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
   const hitRegions: HitRegion[] = [];
 
   let prevPanel: RegisteredPanel | undefined = undefined;
-  let prevResizeHandle: RegisteredResizeHandle | undefined = undefined;
+  let prevSeparator: RegisteredSeparator | undefined = undefined;
 
   for (const childElement of sortedChildElements) {
     const panelData = panels.find(
@@ -48,7 +48,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
         hitRegions.push({
           group,
           panels: [prevPanel, panelData],
-          resizeHandle: prevResizeHandle,
+          separator: prevSeparator,
           rect:
             direction === "horizontal"
               ? new DOMRect(
@@ -68,15 +68,15 @@ export function calculateHitRegions(group: RegisteredGroup) {
 
       prevPanel = panelData;
     } else {
-      const resizeHandleData = resizeHandles.find(
+      const separatorData = separators.find(
         (current) => current.element === childElement
       );
-      if (resizeHandleData) {
+      if (separatorData) {
         // No-op; this area will be included by default when closing the next panel
-        prevResizeHandle = resizeHandleData;
+        prevSeparator = separatorData;
       } else {
         prevPanel = undefined;
-        prevResizeHandle = undefined;
+        prevSeparator = undefined;
       }
     }
   }

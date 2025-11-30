@@ -8,14 +8,14 @@ import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
 import { POINTER_EVENTS_CSS_PROPERTY_NAME } from "../panel/constants";
 import type { RegisteredPanel } from "../panel/types";
-import type { RegisteredResizeHandle } from "../resize-handle/types";
+import type { RegisteredSeparator } from "../separator/types";
 import { getPanelSizeCssPropertyName } from "./getPanelSizeCssPropertyName";
 import { GroupContext } from "./GroupContext";
 import { sortByElementOffset } from "./sortByElementOffset";
 import type { GroupProps, Layout, RegisteredGroup } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
 
-// TODO Validate unique Panel and ResizeHandle ids
+// TODO Validate unique Panel and Separator ids
 // TODO Warn if Group is autoSave and registered Panel(s) do not have ids
 
 /**
@@ -62,9 +62,7 @@ export function Group({
   }>({});
   const [layout, setLayout] = useState<Layout>(defaultLayout ?? {});
   const [panels, setPanels] = useState<RegisteredPanel[]>([]);
-  const [resizeHandles, setResizeHandles] = useState<RegisteredResizeHandle[]>(
-    []
-  );
+  const [separators, setSeparators] = useState<RegisteredSeparator[]>([]);
 
   const mergedRef = useMergedRefs(setElement, elementRef);
 
@@ -80,13 +78,13 @@ export function Group({
           setPanels((prev) => prev.filter((current) => current !== panel));
         };
       },
-      registerResizeHandle: (resizeHandle: RegisteredResizeHandle) => {
-        setResizeHandles((prev) =>
-          sortByElementOffset(direction, [...prev, resizeHandle])
+      registerSeparator: (separator: RegisteredSeparator) => {
+        setSeparators((prev) =>
+          sortByElementOffset(direction, [...prev, separator])
         );
         return () => {
-          setResizeHandles((prev) =>
-            prev.filter((current) => current !== resizeHandle)
+          setSeparators((prev) =>
+            prev.filter((current) => current !== separator)
           );
         };
       }
@@ -94,7 +92,7 @@ export function Group({
     [direction, id]
   );
 
-  // Register Group and child Panels/ResizeHandles with global state
+  // Register Group and child Panels/Separators with global state
   // Listen to global state for drag state related to this Group
   useIsomorphicLayoutEffect(() => {
     if (element !== null && panels.length > 0) {
@@ -107,7 +105,7 @@ export function Group({
         id,
         inMemoryLayouts: inMemoryLayoutsRef.current,
         panels,
-        resizeHandles
+        separators
       };
 
       const unmountGroup = mountGroup(group);
@@ -162,7 +160,7 @@ export function Group({
     id,
     onLayoutChangeStable,
     panels,
-    resizeHandles
+    separators
   ]);
 
   // Panel layouts and Group dragging state are shared via CSS variables

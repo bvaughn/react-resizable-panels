@@ -1,9 +1,9 @@
 import { render } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { moveResizeHandle } from "../../global/test/moveResizeHandle";
+import { moveSeparator } from "../../global/test/moveSeparator";
 import { setElementBoundsFunction } from "../../utils/test/mockBoundingClientRect";
 import { Panel } from "../panel/Panel";
-import { ResizeHandle } from "../resize-handle/ResizeHandle";
+import { Separator } from "../separator/Separator";
 import { Group } from "./Group";
 
 describe("Group", () => {
@@ -110,7 +110,7 @@ describe("Group", () => {
       render(
         <Group onLayoutChange={onLayoutChange}>
           <Panel id="a" defaultSize={50} />
-          <ResizeHandle />
+          <Separator />
           <Panel id="b" defaultSize={50} />
         </Group>
       );
@@ -124,7 +124,7 @@ describe("Group", () => {
       onLayoutChange.mockReset();
 
       // Simulate a drag from the draggable element to the target area
-      await moveResizeHandle(25);
+      await moveSeparator(25);
 
       expect(onLayoutChange).toHaveBeenCalledTimes(1);
       expect(onLayoutChange).toHaveBeenCalledWith({
@@ -135,7 +135,7 @@ describe("Group", () => {
       onLayoutChange.mockReset();
 
       // Move the pointer a bit, but not enough to impact the layout
-      await moveResizeHandle(0.0001);
+      await moveSeparator(0.0001);
 
       expect(onLayoutChange).not.toHaveBeenCalled();
     });

@@ -21,7 +21,7 @@ export function Nav() {
       <NavSection label="Props">
         <NavLink path="/props/group">Group component</NavLink>
         <NavLink path="/props/panel">Panel component</NavLink>
-        <NavLink path="/props/resize-handle">ResizeHandle component</NavLink>
+        <NavLink path="/props/separator">Separator component</NavLink>
       </NavSection>
       <NavSection label="Imperative API">
         <NavLink path="/imperative-api/update-group-layout">

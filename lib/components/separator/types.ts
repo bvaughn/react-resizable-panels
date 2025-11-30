@@ -1,15 +1,15 @@
 import type { CSSProperties, PropsWithChildren, Ref } from "react";
 
-export type RegisteredResizeHandle = {
+export type RegisteredSeparator = {
   element: HTMLDivElement;
   id: string;
 };
 
-export type ResizeHandleProps = PropsWithChildren<{
+export type SeparatorProps = PropsWithChildren<{
   /**
    * CSS class name.
    *
-   * ℹ️ Use the `data-resize-handle-state` attribute for custom _hover_ and _active_ styles
+   * ℹ️ Use the `data-separator-state` attribute for custom _hover_ and _active_ styles
    *
    * ⚠️ The following properties cannot be overridden: `flex-grow`, `flex-shrink`
    */
@@ -21,17 +21,17 @@ export type ResizeHandleProps = PropsWithChildren<{
   elementRef?: Ref<HTMLDivElement>;
 
   /**
-   * Uniquely identifies the resize handle within the parent group.
+   * Uniquely identifies the separator within the parent group.
    * Falls back to `useId` when not provided.
    *
-   * ℹ️ This value will also be assigned to the `data-resize-handle-id` attribute.
+   * ℹ️ This value will also be assigned to the `data-separator-id` attribute.
    */
   id?: string | number;
 
   /**
    * CSS properties.
    *
-   * ℹ️ Use the `data-resize-handle-state` attribute for custom _hover_ and _active_ styles
+   * ℹ️ Use the `data-separator-state` attribute for custom _hover_ and _active_ styles
    *
    * ⚠️ The following properties cannot be overridden: `flex-grow`, `flex-shrink`
    */

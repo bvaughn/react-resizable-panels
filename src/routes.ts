@@ -30,7 +30,7 @@ export const routes = {
   // Component props
   "/props/group": lazy(() => import("./routes/GroupPropsRoute")),
   "/props/panel": lazy(() => import("./routes/PanelPropsRoute")),
-  "/props/resize-handle": lazy(() => import("./routes/ResizeHandlePropsRoute")),
+  "/props/separator": lazy(() => import("./routes/SeparatorPropsRoute")),
 
   // Imperative API
   "/imperative-api/update-group-layout": lazy(

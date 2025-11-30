@@ -1,20 +1,18 @@
 import userEvent from "@testing-library/user-event";
 import assert from "node:assert";
 
-export async function moveResizeHandle(
+export async function moveSeparator(
   deltaInPixels: number,
-  resizeHandleId?: string
+  separatorId?: string
 ) {
-  const resizeHandleElement = document.querySelector(
-    resizeHandleId
-      ? `[data-resize-handle-id="${resizeHandleId}"]`
-      : "[data-resize-handle]"
+  const separatorElement = document.querySelector(
+    separatorId ? `[data-separator-id="${separatorId}"]` : "[data-separator]"
   );
 
-  assert(resizeHandleElement instanceof HTMLElement);
+  assert(separatorElement instanceof HTMLElement);
 
   const direction =
-    resizeHandleElement.parentElement?.getAttribute("data-group-direction") ===
+    separatorElement.parentElement?.getAttribute("data-group-direction") ===
     "vertical"
       ? "vertical"
       : "horizontal";
@@ -24,13 +22,13 @@ export async function moveResizeHandle(
 
   switch (direction) {
     case "horizontal": {
-      clientX = resizeHandleElement.offsetLeft;
-      clientY = resizeHandleElement.offsetHeight / 2;
+      clientX = separatorElement.offsetLeft;
+      clientY = separatorElement.offsetHeight / 2;
       break;
     }
     case "vertical": {
-      clientX = resizeHandleElement.offsetWidth / 2;
-      clientY = resizeHandleElement.offsetTop;
+      clientX = separatorElement.offsetWidth / 2;
+      clientY = separatorElement.offsetTop;
       break;
     }
   }

@@ -1,13 +1,13 @@
 import { Box } from "../components/Box";
 import { Header } from "../components/Header";
 import { html as PanelsExampleHTML } from "../../public/generated/code-snippets/ConditionalPanels.json";
-import { html as ResizeHandlesExampleHTML } from "../../public/generated/code-snippets/ConditionalResizeHandles.json";
+import { html as SeparatorsExampleHTML } from "../../public/generated/code-snippets/ConditionalSeparators.json";
 import { Code } from "../components/code/Code";
 import { useState } from "react";
 import { Group } from "react-resizable-panels";
 import { Panel } from "../components/styled-panels/Panel";
 import { Callout } from "../components/Callout";
-import { ResizeHandle } from "../components/styled-panels/ResizeHandle";
+import { Separator } from "../components/styled-panels/Separator";
 
 export default function ConditionalPanelsRoute() {
   const [hideLeftPanel, setHideLeftPanel] = useState(false);
@@ -51,15 +51,15 @@ export default function ConditionalPanelsRoute() {
         Conditional panels should also specify ids to help match previous, saved
         layouts.
       </Callout>
-      <div>Resize handles can also be conditionally rendered.</div>
-      <Code html={ResizeHandlesExampleHTML} />
+      <div>Separators can also be conditionally rendered.</div>
+      <Code html={SeparatorsExampleHTML} />
       <Group className="h-15 gap-1">
         {hideRight || (
           <>
             <Panel id="left" minSize={50}>
               left
             </Panel>
-            <ResizeHandle />
+            <Separator />
           </>
         )}
         <Panel id="center" minSize={100}>
@@ -67,7 +67,7 @@ export default function ConditionalPanelsRoute() {
         </Panel>
         {hideLeftPanel || (
           <>
-            <ResizeHandle />
+            <Separator />
             <Panel id="right" minSize={50}>
               right
             </Panel>

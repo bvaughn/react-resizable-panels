@@ -5,7 +5,7 @@ import { Box } from "../components/Box";
 import { Callout } from "../components/Callout";
 import { Code } from "../components/code/Code";
 import { Header } from "../components/Header";
-import { ResizeHandle } from "../components/styled-panels/ResizeHandle";
+import { Separator } from "../components/styled-panels/Separator";
 import { Panel } from "../components/styled-panels/Panel";
 
 export default function CollapsiblePanelsRoute() {
@@ -19,15 +19,15 @@ export default function CollapsiblePanelsRoute() {
       <Code html={ExampleHTML} />
       <Group className="h-15 gap-1">
         <Panel collapsible maxSize="25%" minSize={100} showSizeInPixels />
-        <ResizeHandle />
+        <Separator />
         <Panel>
           The panel on the left is will collapse if resized below 50 pixels.
         </Panel>
       </Group>
       <Callout intent="primary">
-        It's usually a good idea to include a ResizeHandle for panels that can
-        be collapsed fully. This panel gives users something to click to re-open
-        a panel after it's been collapsed.
+        It's usually a good idea to include a Separator for panels that can be
+        collapsed fully. This panel gives users something to click to re-open a
+        panel after it's been collapsed.
       </Callout>
       <div>
         The <code>collapsedSize</code> property can also be provided to prevent

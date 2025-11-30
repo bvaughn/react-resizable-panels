@@ -47,11 +47,11 @@ export function adjustLayoutByDelta({
 
   // A resizing panel affects the panels before or after it.
   //
-  // A negative delta means the panel(s) immediately after the resize handle should grow/expand by decreasing its offset.
+  // A negative delta means the panel(s) immediately after the separator should grow/expand by decreasing its offset.
   // Other panels may also need to shrink/contract (and shift) to make room, depending on the min weights.
   //
-  // A positive delta means the panel(s) immediately before the resize handle should "expand".
-  // This is accomplished by shrinking/contracting (and shifting) one or more of the panels after the resize handle.
+  // A positive delta means the panel(s) immediately before the separator should "expand".
+  // This is accomplished by shrinking/contracting (and shifting) one or more of the panels after the separator.
 
   {
     // If this is a resize triggered by a keyboard event, our logic for expanding/collapsing is different.
