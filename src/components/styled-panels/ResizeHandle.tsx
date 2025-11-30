@@ -23,7 +23,7 @@ export function ResizeHandle({
         className
       )}
     >
-      <GrabDotsIcon className="w-4 h-4" />
+      <GrabDotsIcon className="w-4 h-4 shrink-0" />
     </ResizeHandleExternal>
   );
 }
