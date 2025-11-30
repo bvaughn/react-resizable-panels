@@ -17,9 +17,8 @@ export default function PersistentLayoutsRoute() {
     <Box direction="column" gap={4}>
       <Header section="Examples" title="Persistent layouts" />
       <div>
-        Panel groups can be configured to automatically save and restore layouts
-        between page visits using the <code>autoSave</code> and <code>id</code>{" "}
-        props.
+        Panel groups can be configured to save and restore layouts between page
+        visits with the <code>useDefaultLayout</code> hook.
       </div>
       <div>
         Resize the panels below and then reload the page to see an example.

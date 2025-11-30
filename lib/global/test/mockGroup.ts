@@ -43,7 +43,6 @@ export function mockGroup(
     );
 
   const group = {
-    autoSave: false,
     defaultLayout: undefined,
     direction,
     disableCursor: false,

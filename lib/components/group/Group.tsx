@@ -16,7 +16,7 @@ import type { GroupProps, Layout, RegisteredGroup } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
 
 // TODO Validate unique Panel and Separator ids
-// TODO Warn if Group is autoSave and registered Panel(s) do not have ids
+// TODO Warn if Group is defaultLayout is provided and Panel(s) do not have ids
 
 /**
  * A Group wraps a set of resizable Panel components.
