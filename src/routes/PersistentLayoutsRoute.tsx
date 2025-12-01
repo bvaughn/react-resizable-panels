@@ -1,6 +1,8 @@
 import { Group, useDefaultLayout } from "react-resizable-panels";
 import { html as ComponentExampleHTML } from "../../public/generated/code-snippets/PersistentLayouts.json";
 import { html as cookieStorageExampleHTML } from "../../public/generated/code-snippets/cookieStorage.json";
+import { html as ClientComponentExampleHTML } from "../../public/generated/code-snippets/ClientComponent.json";
+import { html as ServerComponentExampleHTML } from "../../public/generated/code-snippets/ServerComponent.json";
 import { Box } from "../components/Box";
 import { Callout } from "../components/Callout";
 import { Code } from "../components/code/Code";
@@ -44,13 +46,11 @@ export default function PersistentLayoutsRoute() {
         Both Groups and Panels require unique <code>id</code> props to restore
         saved layouts.
       </Callout>
+      <div className="text-xl mt-4">Server rendering</div>
       <div>
-        In order to avoid layout shift, apps using{" "}
-        <ExternalLink href="https://react.dev/reference/rsc/server-components">
-          server components
-        </ExternalLink>{" "}
-        should also provide a <code>storage</code> value to retrieve the layout
-        during server render.
+        Because <code>localStorage</code> is unavailable on the server, a custom{" "}
+        <code>storage</code> configuration is needed to avoid layout shift when
+        server rendering.
       </div>
       <div>A Cookie based storage might look like this:</div>
       <Code html={cookieStorageExampleHTML} />
@@ -62,6 +62,17 @@ export default function PersistentLayoutsRoute() {
         </ExternalLink>
         .
       </Callout>
+      <div className="text-xl mt-4">Server components</div>
+      <div>
+        When using{" "}
+        <ExternalLink href="https://react.dev/reference/rsc/server-components">
+          server components
+        </ExternalLink>{" "}
+        with a framework like Next.js, a slightly different approach is
+        required:
+      </div>
+      <Code html={ServerComponentExampleHTML} />
+      <Code html={ClientComponentExampleHTML} />
     </Box>
   );
 }

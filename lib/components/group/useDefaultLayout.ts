@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef } from "react";
 import { loadGroupLayout } from "./auto-save/loadGroupLayout";
 import { saveGroupLayout } from "./auto-save/saveGroupLayout";
 import type { Layout, OnGroupLayoutChange } from "./types";
@@ -10,12 +10,13 @@ export function useDefaultLayout({
   groupId: string;
   storage?: Pick<Storage, "getItem" | "setItem">;
 }) {
-  const [defaultLayout] = useState<Layout | undefined>(() =>
-    loadGroupLayout({
+  const defaultLayoutRef = useRef<Layout | undefined | null>(null);
+  if (defaultLayoutRef.current === null) {
+    defaultLayoutRef.current = loadGroupLayout({
       id: groupId,
       storage
-    })
-  );
+    });
+  }
 
   const onLayoutChange = useCallback<NonNullable<OnGroupLayoutChange>>(
     (layout) =>
@@ -28,7 +29,7 @@ export function useDefaultLayout({
   );
 
   return {
-    defaultLayout,
+    defaultLayout: defaultLayoutRef.current,
     onLayoutChange
   };
 }

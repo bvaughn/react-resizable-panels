@@ -1,3 +1,4 @@
+"use client";
 import { useMemo, useRef, useState } from "react";
 import { mountGroup } from "../../global/mountGroup";
 import { eventEmitter, read } from "../../global/mutableState";

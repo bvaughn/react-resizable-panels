@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { eventEmitter } from "../../global/mutableState";
 import type { InteractionState } from "../../global/types";

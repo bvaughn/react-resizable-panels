@@ -1,3 +1,5 @@
+"use client";
+
 import type { Property } from "csstype";
 import { useState } from "react";
 import { useId } from "../../hooks/useId";

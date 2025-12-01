@@ -29,7 +29,7 @@ export type RegisteredPanel = {
 };
 
 /**
- * Imperative Panel API.
+ * Imperative Panel API
  */
 export type PanelImperativeHandle = {
   /**

@@ -2,10 +2,11 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { visualizer } from "rollup-plugin-visualizer";
+import preserveDirectives from "rollup-preserve-directives";
 import { defineConfig, type UserConfig } from "vite";
 import dts from "vite-plugin-dts";
 import svgr from "vite-plugin-svgr";
-import { visualizer } from "rollup-plugin-visualizer";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -20,9 +21,14 @@ const libraryConfig: UserConfig = {
     rollupOptions: {
       external: ["react", "react-dom", "react/jsx-runtime"]
     },
-    sourcemap: true
+    sourcemap: true,
+    terserOptions: {
+      compress: {
+        directives: false
+      }
+    }
   },
-  plugins: [react(), dts({ rollupTypes: true })],
+  plugins: [react(), dts({ rollupTypes: true }), preserveDirectives()],
   publicDir: false
 };
 
