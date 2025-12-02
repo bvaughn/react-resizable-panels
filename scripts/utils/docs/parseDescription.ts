@@ -1,11 +1,20 @@
-import type { Intent, Section } from "../../src/types.ts";
+import type { Intent, Section } from "../../../src/types.ts";
 import { formatDescriptionText } from "./formatDescriptionText.ts";
-import { syntaxHighlight, type Language } from "./syntax-highlight.ts";
+import { syntaxHighlight, type Language } from "../syntax-highlight.ts";
 
 export async function parseDescription(rawText: string) {
   const sections: Section[] = [];
 
-  for (const chunk of rawText.split("\n\n")) {
+  // Paper over differences between "@ts-ast-parser/core" and "react-docgen-typescript"
+  let text = rawText;
+  Object.keys(INTENT_FLAGS).forEach((flag) => {
+    text = text
+      .split(`\n${flag}`)
+      .join(`\n\n${flag}`)
+      .replaceAll("\n\n\n", "\n\n");
+  });
+
+  for (const chunk of text.split("\n\n")) {
     let content = "";
     let intent: Intent | undefined = undefined;
 

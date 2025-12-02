@@ -30,22 +30,28 @@ export type RegisteredPanel = {
 
 /**
  * Imperative Panel API
+ *
+ * ℹ️ The `usePanelRef` and `usePanelCallbackRef` hooks are exported for convenience use in TypeScript projects.
  */
-export type PanelImperativeHandle = {
+export interface PanelImperativeHandle {
   /**
    * Collapse the Panel to it's `collapsedSize`.
-   * This method will do nothing if the Panel is not `collapsible` or if it is already collapsed.
+   *
+   * ⚠️ This method will do nothing if the Panel is not `collapsible` or if it is already collapsed.
    */
   collapse: () => void;
 
   /**
    * Expand a collapsed Panel to its most recent size.
-   * This method will do nothing if the Panel is not currently collapsed.
+   *
+   * ⚠️ This method will do nothing if the Panel is not currently collapsed.
    */
   expand: () => void;
 
   /**
    * Get the current size of the Panel in pixels as well as a percentage of the parent group (0..100).
+   *
+   * @return Panel size (in pixels and as a percentage of the parent group)
    */
   getSize: () => PanelSize;
 
@@ -56,10 +62,14 @@ export type PanelImperativeHandle = {
 
   /**
    * Update the Panel's size.
-   * Size may be specified in pixel format (number) or as a percentage (string).
+   *
+   * ℹ️ Size may be specified in pixel format (number) or as a percentage (string).
+   *
+   * @param size New panel size
+   * @return Applied size (after validation)
    */
   resize: (size: number | string) => void;
-};
+}
 
 export type PanelProps = PropsWithChildren<{
   /**

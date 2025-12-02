@@ -1,6 +1,6 @@
 import type { ComponentPropMetadata } from "../../types";
 import { Code } from "../code/Code";
-import { ComponentDescription } from "./ComponentDescription";
+import { DocsSection } from "../DocsSection";
 
 export function ComponentProp({ prop }: { prop: ComponentPropMetadata }) {
   return (
@@ -9,7 +9,7 @@ export function ComponentProp({ prop }: { prop: ComponentPropMetadata }) {
         <Code className="bg-transparent inline-block p-0" html={prop.html} />
       </dt>
       <dd className="mt-2 pl-4 [&_code]:text-sky-300">
-        <ComponentDescription sections={prop.description} />
+        <DocsSection sections={prop.description} />
       </dd>
     </>
   );

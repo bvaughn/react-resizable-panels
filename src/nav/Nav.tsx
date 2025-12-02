@@ -24,12 +24,8 @@ export function Nav() {
         <NavLink path="/props/separator">Separator component</NavLink>
       </NavSection>
       <NavSection label="Imperative API">
-        <NavLink path="/imperative-api/update-group-layout">
-          Update Group layout
-        </NavLink>
-        <NavLink path="/imperative-api/update-panel-size">
-          Update Panel size
-        </NavLink>
+        <NavLink path="/imperative-api/group">Group API</NavLink>
+        <NavLink path="/imperative-api/panel">Panel API</NavLink>
       </NavSection>
       <div>
         <NavLink path="/platform-requirements">Requirements</NavLink>

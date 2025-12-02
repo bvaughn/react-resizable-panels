@@ -33,11 +33,11 @@ export const routes = {
   "/props/separator": lazy(() => import("./routes/SeparatorPropsRoute")),
 
   // Imperative API
-  "/imperative-api/update-group-layout": lazy(
-    () => import("./routes/UpdateGroupLayoutRoute")
+  "/imperative-api/group": lazy(
+    () => import("./routes/GroupImperativeHandleRoute")
   ),
-  "/imperative-api/update-panel-size": lazy(
-    () => import("./routes/UpdatePanelSizeRoute")
+  "/imperative-api/panel": lazy(
+    () => import("./routes/PanelImperativeHandleRoute")
   ),
 
   // Other

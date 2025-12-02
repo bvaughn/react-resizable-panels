@@ -44,10 +44,14 @@ export type GroupContextType = {
 
 /**
  * Imperative Group API.
+ *
+ * ℹ️ The `useGroupRef` and `useGroupCallbackRef` hooks are exported for convenience use in TypeScript projects.
  */
-export type GroupImperativeHandle = {
+export interface GroupImperativeHandle {
   /**
    * Get the Group's current layout as a map of Panel id to percentage (0..100)
+   *
+   * @return Map of Panel id to percentage (0..100)
    */
   getLayout: () => { [panelId: string]: number };
 
@@ -58,7 +62,7 @@ export type GroupImperativeHandle = {
    * @return Applied layout (after validation)
    */
   setLayout: (layout: { [panelId: string]: number }) => Layout;
-};
+}
 
 export type GroupProps = {
   /**

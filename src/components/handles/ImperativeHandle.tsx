@@ -1,31 +1,23 @@
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
-import { useMemo } from "react";
 import { repository } from "../../../package.json";
-import type { ComponentMetadata } from "../../types";
-import { processPropsJSON } from "../../utils/processPropsJSON";
+import type { ImperativeHandleMetadata } from "../../types";
 import { Box } from "../Box";
-import { Callout } from "../Callout";
 import { DocsSection } from "../DocsSection";
 import { ExternalLink } from "../ExternalLink";
 import { Header } from "../Header";
-import { ComponentPropsSection } from "./ComponentPropsSection";
+import { ImperativeHandleMethod } from "./ImperativeHandleMethod";
 
-export function ComponentProps({
+export function ImperativeHandle({
   json,
   section
 }: {
-  json: ComponentMetadata;
+  json: ImperativeHandleMetadata;
   section: string;
 }) {
-  const { optionalProps, requiredProps } = useMemo(
-    () => processPropsJSON(json),
-    [json]
-  );
-
   return (
     <Box direction="column" gap={4}>
       <Box align="center" direction="row" gap={2} wrap>
-        <Header section={section} title={`${json.name} component`} />
+        <Header section={section} title={`${json.name}`} />
         <ExternalLink
           className="text-sm text-emerald-300 hover:text-white"
           href={`${repository.url.replace(".git", "")}/blob/main/${json.filePath}`}
@@ -33,11 +25,15 @@ export function ComponentProps({
           <ArrowTopRightOnSquareIcon className="inline-block size-4 fill-current" />
         </ExternalLink>
       </Box>
-      <Callout intent="none">
-        <DocsSection sections={json.description} />
-      </Callout>
-      <ComponentPropsSection header="Required props" props={requiredProps} />
-      <ComponentPropsSection header="Optional props" props={optionalProps} />
+      <DocsSection sections={json.description} />
+      <Box direction="column">
+        <div className="text-lg font-bold">Methods</div>
+        <dl>
+          {json.methods.map((method, index) => (
+            <ImperativeHandleMethod key={index} method={method} />
+          ))}
+        </dl>
+      </Box>
     </Box>
   );
 }

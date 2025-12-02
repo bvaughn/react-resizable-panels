@@ -20,3 +20,15 @@ export type ComponentMetadata = {
     [name: string]: ComponentPropMetadata;
   };
 };
+
+export type ImperativeHandleMethodMetadata = {
+  description: Section[];
+  html: string;
+};
+
+export type ImperativeHandleMetadata = {
+  description: Section[];
+  filePath: string;
+  name: string;
+  methods: ImperativeHandleMethodMetadata[];
+};

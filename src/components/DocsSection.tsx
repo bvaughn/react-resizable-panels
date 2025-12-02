@@ -1,8 +1,8 @@
-import type { Section } from "../../types";
-import { Box } from "../Box";
-import { Callout } from "../Callout";
+import type { Section } from "../types";
+import { Box } from "./Box";
+import { Callout } from "./Callout";
 
-export function ComponentDescription({
+export function DocsSection({
   className,
   sections
 }: {
