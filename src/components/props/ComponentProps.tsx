@@ -4,7 +4,6 @@ import { repository } from "../../../package.json";
 import type { ComponentMetadata } from "../../types";
 import { processPropsJSON } from "../../utils/processPropsJSON";
 import { Box } from "../Box";
-import { Callout } from "../Callout";
 import { DocsSection } from "../DocsSection";
 import { ExternalLink } from "../ExternalLink";
 import { Header } from "../Header";
@@ -33,9 +32,7 @@ export function ComponentProps({
           <ArrowTopRightOnSquareIcon className="inline-block size-4 fill-current" />
         </ExternalLink>
       </Box>
-      <Callout intent="none">
-        <DocsSection sections={json.description} />
-      </Callout>
+      <DocsSection sections={json.description} />
       <ComponentPropsSection header="Required props" props={requiredProps} />
       <ComponentPropsSection header="Optional props" props={optionalProps} />
     </Box>

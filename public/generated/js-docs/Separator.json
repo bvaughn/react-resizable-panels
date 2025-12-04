@@ -1,13 +1,13 @@
 {
   "description": [
     {
-      "content": "Separators are not <em>required</em> but they are <em>recommended</em> as they improve keyboard accessibility."
+      "content": "<p>Separators are not <em>required</em> but they are <em>recommended</em> as they improve keyboard accessibility.</p>\n"
     },
     {
-      "content": "Separators should be rendered as the direct child of a Group component."
+      "content": "<p>Separators should be rendered as the direct child of a Group component.</p>\n"
     },
     {
-      "content": "For unit testing purposes, Separator elements always include the following data attributes:"
+      "content": "<p>For unit testing purposes, Separator elements always include the following data attributes:</p>\n"
     },
     {
       "content": "<div style=\"min-height: 1rem;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-separator</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-separator-id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"your-separator-id\"</span><span class=\"\"> </span><span class=\"tok-punctuation\">/&#62;</span></div>"
@@ -19,14 +19,14 @@
     "className": {
       "description": [
         {
-          "content": "CSS class name."
+          "content": "<p>CSS class name.</p>\n"
         },
         {
-          "content": "Use the <code>data-separator-state</code> attribute for custom <em>hover</em> and <em>active</em> styles",
+          "content": "<p>Use the <code>data-separator-state</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>\n",
           "intent": "primary"
         },
         {
-          "content": "The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code>",
+          "content": "<p>The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code></p>\n",
           "intent": "warning"
         }
       ],
@@ -37,7 +37,7 @@
     "elementRef": {
       "description": [
         {
-          "content": "Ref attached to the root <code>HTMLDivElement</code>."
+          "content": "<p>Ref attached to the root <code>HTMLDivElement</code>.</p>\n"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\">&#62;</span></div>",
@@ -47,10 +47,10 @@
     "id": {
       "description": [
         {
-          "content": "Uniquely identifies the separator within the parent group.\nFalls back to <code>useId</code> when not provided."
+          "content": "<p>Uniquely identifies the separator within the parent group.\nFalls back to <code>useId</code> when not provided.</p>\n"
         },
         {
-          "content": "This value will also be assigned to the <code>data-separator-id</code> attribute.",
+          "content": "<p>This value will also be assigned to the <code>data-separator-id</code> attribute.</p>\n",
           "intent": "primary"
         }
       ],
@@ -61,14 +61,14 @@
     "style": {
       "description": [
         {
-          "content": "CSS properties."
+          "content": "<p>CSS properties.</p>\n"
         },
         {
-          "content": "Use the <code>data-separator-state</code> attribute for custom <em>hover</em> and <em>active</em> styles",
+          "content": "<p>Use the <code>data-separator-state</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>\n",
           "intent": "primary"
         },
         {
-          "content": "The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code>",
+          "content": "<p>The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code></p>\n",
           "intent": "warning"
         }
       ],

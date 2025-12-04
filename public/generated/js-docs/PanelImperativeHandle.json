@@ -1,66 +1,71 @@
 {
   "description": [
     {
-      "content": "Imperative Panel API"
+      "content": "<p>Imperative Panel API</p>\n"
     },
     {
-      "content": "The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience use in TypeScript projects.",
+      "content": "<p>The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>\n",
       "intent": "primary"
     }
   ],
   "filePath": "lib/components/panel/types.ts",
   "methods": [
     {
+      "description": [
+        {
+          "content": "<p>Collapse the Panel to it's <code>collapsedSize</code>.</p>\n"
+        },
+        {
+          "content": "<p>This method will do nothing if the Panel is not <code>collapsible</code> or if it is already collapsed.</p>\n",
+          "intent": "warning"
+        }
+      ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-labelName\">collapse</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
-      "description": [
-        {
-          "content": "Collapse the Panel to it's <code>collapsedSize</code>."
-        },
-        {
-          "content": "This method will do nothing if the Panel is not <code>collapsible</code> or if it is already collapsed.",
-          "intent": "warning"
-        }
-      ]
+      "name": "collapse"
     },
     {
+      "description": [
+        {
+          "content": "<p>Expand a collapsed Panel to its most recent size.</p>\n"
+        },
+        {
+          "content": "<p>This method will do nothing if the Panel is not currently collapsed.</p>\n",
+          "intent": "warning"
+        }
+      ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-labelName\">expand</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
-      "description": [
-        {
-          "content": "Expand a collapsed Panel to its most recent size."
-        },
-        {
-          "content": "This method will do nothing if the Panel is not currently collapsed.",
-          "intent": "warning"
-        }
-      ]
+      "name": "expand"
     },
     {
+      "description": [
+        {
+          "content": "<p>Get the current size of the Panel in pixels as well as a percentage of the parent group (0..100).</p>\n"
+        }
+      ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-labelName\">getSize</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">PanelSize</span><span class=\"tok-punctuation\">;</span></div>",
-      "description": [
-        {
-          "content": "Get the current size of the Panel in pixels as well as a percentage of the parent group (0..100)."
-        }
-      ]
+      "name": "getSize"
     },
     {
+      "description": [
+        {
+          "content": "<p>The Panel is currently collapsed.</p>\n"
+        }
+      ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-labelName\">isCollapsed</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"tok-punctuation\">;</span></div>",
-      "description": [
-        {
-          "content": "The Panel is currently collapsed."
-        }
-      ]
+      "name": "isCollapsed"
     },
     {
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-labelName\">resize</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">size</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
       "description": [
         {
-          "content": "Update the Panel's size."
+          "content": "<p>Update the Panel's size.</p>\n"
         },
         {
-          "content": "Size may be specified in pixel format (number) or as a percentage (string).",
+          "content": "<p>Size may be specified in pixel format (number) or as a percentage (string).</p>\n",
           "intent": "primary"
         }
-      ]
+      ],
+      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-labelName\">resize</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">size</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "resize"
     }
   ],
   "name": "PanelImperativeHandle"

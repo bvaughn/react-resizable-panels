@@ -1,10 +1,10 @@
 {
   "description": [
     {
-      "content": "A Group wraps a set of resizable Panel components.\nGroup content can be resized <em>horizontally</em> or <em>vertically</em>."
+      "content": "<p>A Group wraps a set of resizable Panel components.\nGroup content can be resized <em>horizontally</em> or <em>vertically</em>.</p>\n"
     },
     {
-      "content": "For unit testing purposes, Group elements always include the following data attributes:"
+      "content": "<p>For unit testing purposes, Group elements always include the following data attributes:</p>\n"
     },
     {
       "content": "<div style=\"min-height: 1rem;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-group</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-group-id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"your-group-id\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
@@ -16,7 +16,7 @@
     "children": {
       "description": [
         {
-          "content": "Panel and Separator components that comprise this group."
+          "content": "<p>Panel and Separator components that comprise this group.</p>\n"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">children</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span></div>",
@@ -26,7 +26,7 @@
     "className": {
       "description": [
         {
-          "content": "CSS class name."
+          "content": "<p>CSS class name.</p>\n"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
@@ -36,14 +36,14 @@
     "defaultLayout": {
       "description": [
         {
-          "content": "Default layout for the Group."
+          "content": "<p>Default layout for the Group.</p>\n"
         },
         {
-          "content": "This value allows layouts to be remembered between page reloads.",
+          "content": "<p>This value allows layouts to be remembered between page reloads.</p>\n",
           "intent": "primary"
         },
         {
-          "content": "Refer to the documentation for how to avoid layout shift when using server components.",
+          "content": "<p>Refer to the documentation for how to avoid layout shift when using server components.</p>\n",
           "intent": "warning"
         }
       ],
@@ -54,7 +54,7 @@
     "direction": {
       "description": [
         {
-          "content": "Specifies the resizable direction (\"horizontal\" or \"vertical\"); defaults to \"horizontal\""
+          "content": "<p>Specifies the resizable direction (&quot;horizontal&quot; or &quot;vertical&quot;); defaults to &quot;horizontal&quot;</p>\n"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">direction</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"horizontal\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"vertical\"</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-variableName\">horizontal</span></div>",
@@ -64,7 +64,7 @@
     "disableCursor": {
       "description": [
         {
-          "content": "This library sets custom mouse cursor styles to indicate drag state.\nUse this prop to disable that behavior for Panels and Separators in this group."
+          "content": "<p>This library sets custom mouse cursor styles to indicate drag state.\nUse this prop to disable that behavior for Panels and Separators in this group.</p>\n"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disableCursor</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
@@ -74,7 +74,7 @@
     "disabled": {
       "description": [
         {
-          "content": "Disable resize functionality."
+          "content": "<p>Disable resize functionality.</p>\n"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disabled</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
@@ -84,7 +84,7 @@
     "elementRef": {
       "description": [
         {
-          "content": "Ref attached to the root <code>HTMLDivElement</code>."
+          "content": "<p>Ref attached to the root <code>HTMLDivElement</code>.</p>\n"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\">&#62;</span></div>",
@@ -94,10 +94,10 @@
     "groupRef": {
       "description": [
         {
-          "content": "Exposes the following imperative API:<br/>• <code>getLayout(): Layout</code><br/>• <code>setLayout(layout: Layout): void</code>"
+          "content": "<p>Exposes the following imperative API:</p>\n<ul>\n<li><code>getLayout(): Layout</code></li>\n<li><code>setLayout(layout: Layout): void</code></li>\n</ul>\n"
         },
         {
-          "content": "The <code>useGroupRef</code> and <code>useGroupCallbackRef</code> hooks are exported for convenience use in TypeScript projects.",
+          "content": "<p>The <code>useGroupRef</code> and <code>useGroupCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>\n",
           "intent": "primary"
         }
       ],
@@ -108,10 +108,10 @@
     "id": {
       "description": [
         {
-          "content": "Uniquely identifies this group within an application.\nFalls back to <code>useId</code> when not provided."
+          "content": "<p>Uniquely identifies this group within an application.\nFalls back to <code>useId</code> when not provided.</p>\n"
         },
         {
-          "content": "This value will also be assigned to the <code>data-group-id</code> attribute.",
+          "content": "<p>This value will also be assigned to the <code>data-group-id</code> attribute.</p>\n",
           "intent": "primary"
         }
       ],
@@ -122,7 +122,7 @@
     "onLayoutChange": {
       "description": [
         {
-          "content": "Called when panel sizes change; receives a map of Panel id to size."
+          "content": "<p>Called when panel sizes change; receives a map of Panel id to size.</p>\n"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onLayoutChange</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">Layout</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">)</span></div>",
@@ -132,10 +132,10 @@
     "style": {
       "description": [
         {
-          "content": "CSS properties."
+          "content": "<p>CSS properties.</p>\n"
         },
         {
-          "content": "The following styles cannot be overridden: <code>display</code>, <code>flex-direction</code>, <code>flex-wrap</code>, and <code>overflow</code>.",
+          "content": "<p>The following styles cannot be overridden: <code>display</code>, <code>flex-direction</code>, <code>flex-wrap</code>, and <code>overflow</code>.</p>\n",
           "intent": "warning"
         }
       ],

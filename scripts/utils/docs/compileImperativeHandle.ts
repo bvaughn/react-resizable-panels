@@ -32,10 +32,11 @@ export async function compileImperativeHandle({
     assert(jsDoc);
 
     json.methods.push({
-      html: await syntaxHighlight(method.getTSNode().getText(), "TS"),
       description: await parseDescription(
         "" + jsDoc.getTag("description")?.text
-      )
+      ),
+      html: await syntaxHighlight(method.getTSNode().getText(), "TS"),
+      name: method.getName()
     });
   }
 

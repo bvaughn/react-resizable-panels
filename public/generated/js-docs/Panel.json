@@ -1,13 +1,13 @@
 {
   "description": [
     {
-      "content": "A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior."
+      "content": "<p>A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.</p>\n"
     },
     {
-      "content": "Panel size props can be specified using the following CSS units:<br/>• Pixels (default if value is of type <code>number</code>)<br/>• Percentages (default if value is of type <code>string</code>)<br/>• Font sizes (em, rem)<br/>• Viewport sizes (vh, vw)"
+      "content": "<p>Panel size props can be specified using the following CSS units:</p>\n<ul>\n<li>Pixels (default if value is of type <code>number</code>)</li>\n<li>Percentages (default if value is of type <code>string</code>)</li>\n<li>Font sizes (em, rem)</li>\n<li>Viewport sizes (vh, vw)</li>\n</ul>\n"
     },
     {
-      "content": "For unit testing purposes, Panel elements always include the following data attributes:"
+      "content": "<p>For unit testing purposes, Panel elements always include the following data attributes:</p>\n"
     },
     {
       "content": "<div style=\"min-height: 1rem;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-panel</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-panel-id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"your-panel-id\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
@@ -19,10 +19,10 @@
     "className": {
       "description": [
         {
-          "content": "CSS class name."
+          "content": "<p>CSS class name.</p>\n"
         },
         {
-          "content": "Class is applied to nested <code>HTMLDivElement</code> to avoid styles that interfere with Flex layout.",
+          "content": "<p>Class is applied to nested <code>HTMLDivElement</code> to avoid styles that interfere with Flex layout.</p>\n",
           "intent": "warning"
         }
       ],
@@ -33,7 +33,7 @@
     "collapsedSize": {
       "description": [
         {
-          "content": "Panel size when collapsed; defaults to 0."
+          "content": "<p>Panel size when collapsed; defaults to 0.</p>\n"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">collapsedSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-number\">0</span></div>",
@@ -43,10 +43,10 @@
     "collapsible": {
       "description": [
         {
-          "content": "This panel can be collapsed."
+          "content": "<p>This panel can be collapsed.</p>\n"
         },
         {
-          "content": "A collapsible panel will collapse when it's size is less than of the specified <code>minSize</code>",
+          "content": "<p>A collapsible panel will collapse when it's size is less than of the specified <code>minSize</code></p>\n",
           "intent": "primary"
         }
       ],
@@ -57,7 +57,7 @@
     "defaultSize": {
       "description": [
         {
-          "content": "Default size of Panel within its parent group; default is auto-assigned based on the total number of Panels."
+          "content": "<p>Default size of Panel within its parent group; default is auto-assigned based on the total number of Panels.</p>\n"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">defaultSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
@@ -67,7 +67,7 @@
     "elementRef": {
       "description": [
         {
-          "content": "Ref attached to the root <code>HTMLDivElement</code>."
+          "content": "<p>Ref attached to the root <code>HTMLDivElement</code>.</p>\n"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\">&#62;</span></div>",
@@ -77,14 +77,14 @@
     "id": {
       "description": [
         {
-          "content": "Uniquely identifies this panel within the parent group.\nFalls back to <code>useId</code> when not provided."
+          "content": "<p>Uniquely identifies this panel within the parent group.\nFalls back to <code>useId</code> when not provided.</p>\n"
         },
         {
-          "content": "This prop is used to associate persisted group layouts with the original panel.",
+          "content": "<p>This prop is used to associate persisted group layouts with the original panel.</p>\n",
           "intent": "primary"
         },
         {
-          "content": "This value will also be assigned to the <code>data-panel-id</code> attribute.",
+          "content": "<p>This value will also be assigned to the <code>data-panel-id</code> attribute.</p>\n",
           "intent": "primary"
         }
       ],
@@ -95,7 +95,7 @@
     "maxSize": {
       "description": [
         {
-          "content": "Maximum size of Panel within its parent group; defaults to 100%."
+          "content": "<p>Maximum size of Panel within its parent group; defaults to 100%.</p>\n"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">maxSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-number\">100</span></div>",
@@ -105,7 +105,7 @@
     "minSize": {
       "description": [
         {
-          "content": "Minimum size of Panel within its parent group; defaults to 0%."
+          "content": "<p>Minimum size of Panel within its parent group; defaults to 0%.</p>\n"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">minSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-number\">0</span></div>",
@@ -115,7 +115,7 @@
     "onResize": {
       "description": [
         {
-          "content": "Called when panel sizes change; receives a map of Panel id to size."
+          "content": "<p>Called when panel sizes change; receives a map of Panel id to size.</p>\n"
         }
       ],
       "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onResize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">panelSize</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">PanelSize</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">)</span></div>",
@@ -125,10 +125,10 @@
     "panelRef": {
       "description": [
         {
-          "content": "Exposes the following imperative API:<br/>• <code>collapse(): void</code><br/>• <code>expand(): void</code><br/>• <code>getSize(): number</code><br/>• <code>isCollapsed(): boolean</code><br/>• <code>isExpanded(): boolean</code><br/>• <code>resize(size: number): void</code>"
+          "content": "<p>Exposes the following imperative API:</p>\n<ul>\n<li><code>collapse(): void</code></li>\n<li><code>expand(): void</code></li>\n<li><code>getSize(): number</code></li>\n<li><code>isCollapsed(): boolean</code></li>\n<li><code>isExpanded(): boolean</code></li>\n<li><code>resize(size: number): void</code></li>\n</ul>\n"
         },
         {
-          "content": "The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience use in TypeScript projects.",
+          "content": "<p>The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>\n",
           "intent": "primary"
         }
       ],
@@ -139,10 +139,10 @@
     "style": {
       "description": [
         {
-          "content": "CSS properties."
+          "content": "<p>CSS properties.</p>\n"
         },
         {
-          "content": "Style is applied to nested <code>HTMLDivElement</code> to avoid styles that interfere with Flex layout.",
+          "content": "<p>Style is applied to nested <code>HTMLDivElement</code> to avoid styles that interfere with Flex layout.</p>\n",
           "intent": "warning"
         }
       ],

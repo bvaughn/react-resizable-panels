@@ -9,12 +9,11 @@ export function ImperativeHandleMethod({
 }) {
   return (
     <>
-      <dt className="mt-6 pl-8 indent-[-1rem]">
-        <Code className="bg-transparent inline-block p-0" html={method.html} />
-      </dt>
-      <dd className="mt-2 pl-4 [&_code]:text-sky-300">
+      <dd className="[&_code]:text-sky-300 text-lg font-bold">{method.name}</dd>
+      <dt className="mt-2">
         <DocsSection sections={method.description} />
-      </dd>
+        <Code className="mt-2 p-2 flex flex-col" html={method.html} />
+      </dt>
     </>
   );
 }

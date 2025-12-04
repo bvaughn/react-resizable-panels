@@ -24,6 +24,7 @@ export type ComponentMetadata = {
 export type ImperativeHandleMethodMetadata = {
   description: Section[];
   html: string;
+  name: string;
 };
 
 export type ImperativeHandleMetadata = {
