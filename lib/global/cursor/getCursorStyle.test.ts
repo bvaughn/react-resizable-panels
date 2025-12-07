@@ -10,12 +10,12 @@ import { getCursorStyle } from "./getCursorStyle";
 
 describe("getCursorStyle", () => {
   const horizontalGroup = mockGroup(new DOMRect(0, 0, 100, 50));
-  horizontalGroup.direction = "horizontal";
+  horizontalGroup.orientation = "horizontal";
   horizontalGroup.addChild("panel", new DOMRect(0, 0, 50, 50));
   horizontalGroup.addChild("panel", new DOMRect(50, 0, 50, 50));
 
   const verticalGroup = mockGroup(new DOMRect(0, 0, 100, 50));
-  verticalGroup.direction = "vertical";
+  verticalGroup.orientation = "vertical";
   verticalGroup.addChild("panel", new DOMRect(0, 0, 50, 50));
   verticalGroup.addChild("panel", new DOMRect(50, 0, 50, 50));
 

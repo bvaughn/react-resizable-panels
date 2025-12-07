@@ -28,7 +28,7 @@ export function getCursorStyle({
           return;
         }
 
-        switch (group.direction) {
+        switch (group.orientation) {
           case "horizontal": {
             horizontalCount++;
             break;

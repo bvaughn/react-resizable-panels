@@ -33,13 +33,13 @@ export function Group({
   children,
   className,
   defaultLayout,
-  direction = "horizontal",
   disableCursor,
   disabled,
   elementRef,
   groupRef,
   id: idProp,
   onLayoutChange: onLayoutChangeUnstable,
+  orientation = "horizontal",
   style
 }: GroupProps) {
   const prevLayoutRef = useRef<Layout>({});
@@ -71,17 +71,17 @@ export function Group({
 
   const context = useMemo(
     () => ({
-      direction,
       id,
+      orientation,
       registerPanel: (panel: RegisteredPanel) => {
-        setPanels((prev) => sortByElementOffset(direction, [...prev, panel]));
+        setPanels((prev) => sortByElementOffset(orientation, [...prev, panel]));
         return () => {
           setPanels((prev) => prev.filter((current) => current !== panel));
         };
       },
       registerSeparator: (separator: RegisteredSeparator) => {
         setSeparators((prev) =>
-          sortByElementOffset(direction, [...prev, separator])
+          sortByElementOffset(orientation, [...prev, separator])
         );
         return () => {
           setSeparators((prev) =>
@@ -90,7 +90,7 @@ export function Group({
         };
       }
     }),
-    [direction, id]
+    [id, orientation]
   );
 
   // Register Group and child Panels/Separators with global state
@@ -99,12 +99,12 @@ export function Group({
     if (element !== null && panels.length > 0) {
       const group: RegisteredGroup = {
         defaultLayout,
-        direction,
         disableCursor: !!disableCursor,
         disabled: !!disabled,
         element,
         id,
         inMemoryLayouts: inMemoryLayoutsRef.current,
+        orientation,
         panels,
         separators
       };
@@ -154,12 +154,12 @@ export function Group({
     }
   }, [
     defaultLayout,
-    direction,
     disableCursor,
     disabled,
     element,
     id,
     onLayoutChangeStable,
+    orientation,
     panels,
     separators
   ]);
@@ -180,13 +180,13 @@ export function Group({
         className={className}
         data-group
         data-group-id={id}
-        data-group-direction={direction}
+        data-group-orientation={orientation}
         ref={mergedRef}
         style={{
           ...style,
           ...cssVariables,
           display: "flex",
-          flexDirection: direction === "horizontal" ? "row" : "column",
+          flexDirection: orientation === "horizontal" ? "row" : "column",
           flexWrap: "nowrap",
           overflow: "hidden"
         }}

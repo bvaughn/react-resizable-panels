@@ -46,11 +46,11 @@ export function onPointerMove(event: PointerEvent) {
       // Note that HitRegions are frozen once a drag has started
       // Modify the Group layouts for all matching HitRegions though
       interactionState.hitRegions.forEach((current) => {
-        const { direction, disableCursor, element, panels } = current.group;
+        const { disableCursor, element, orientation, panels } = current.group;
 
         let deltaAsPercentage = 0;
         if (interactionState.state === "active") {
-          if (direction === "horizontal") {
+          if (orientation === "horizontal") {
             deltaAsPercentage =
               ((event.clientX - interactionState.pointerDownAtPoint.x) /
                 element.offsetWidth) *
@@ -81,7 +81,7 @@ export function onPointerMove(event: PointerEvent) {
           if (layoutsEqual(nextLayout, prevLayout)) {
             if (deltaAsPercentage !== 0 && !disableCursor) {
               // An unchanged means the cursor has exceeded the allowed bounds
-              switch (direction) {
+              switch (orientation) {
                 case "horizontal": {
                   cursorFlags |=
                     deltaAsPercentage < 0

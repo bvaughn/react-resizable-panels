@@ -80,7 +80,7 @@ export function getImperativePanelMethods({
       const { element } = getPanel();
 
       const inPixels =
-        group.direction === "horizontal"
+        group.orientation === "horizontal"
           ? element.offsetWidth
           : element.offsetHeight;
 

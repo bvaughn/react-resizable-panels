@@ -1,5 +1,8 @@
 import { vi } from "vitest";
-import type { Direction, RegisteredGroup } from "../../components/group/types";
+import type {
+  Orientation,
+  RegisteredGroup
+} from "../../components/group/types";
 import type { RegisteredPanel } from "../../components/panel/types";
 import type { RegisteredSeparator } from "../../components/separator/types";
 import { setElementBounds } from "../../utils/test/mockBoundingClientRect";
@@ -18,7 +21,7 @@ let groupIdCounter = 0;
 
 export function mockGroup(
   groupBounds: DOMRect,
-  direction: Direction = "horizontal",
+  orientation: Orientation = "horizontal",
   groupIdStable?: string
 ): MockGroup {
   let panelIdCounter = 0;
@@ -44,12 +47,12 @@ export function mockGroup(
 
   const group = {
     defaultLayout: undefined,
-    direction,
     disableCursor: false,
     disabled: false,
     element: groupElement,
     id: groupId,
     inMemoryLayouts: {},
+    orientation,
 
     get panels() {
       return Array.from(mockPanels.values());

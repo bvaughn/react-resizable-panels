@@ -20,7 +20,7 @@ export default function NestedGroupsRoute() {
           <PanelText>left</PanelText>
         </PreStyledPanel>
         <Panel minSize={200}>
-          <Group className="h-full gap-1" direction="vertical">
+          <Group className="h-full gap-1" orientation="vertical">
             <PreStyledPanel minSize={20}>
               <PanelText>top</PanelText>
             </PreStyledPanel>

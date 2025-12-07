@@ -3,11 +3,10 @@ import type { RegisteredPanel } from "../panel/types";
 import type { RegisteredSeparator } from "../separator/types";
 
 /**
- * Panel group direction corresponds to the `flex-direction` CSS property.
- * It determines how panels are are placed in the group group and the direction they can be resized in.
- * Horizontal corresponds to flex "row" and vertical to "column".
+ * Panel group orientation loosely relates to the `aria-orientation` attribute.
+ * It determines how panels are are laid out within the group group and the direction they can be resized in.
  */
-export type Direction = "horizontal" | "vertical";
+export type Orientation = "horizontal" | "vertical";
 
 /**
  * Map of Panel id to flexGrow value;
@@ -23,7 +22,6 @@ export type DragState = {
 
 export type RegisteredGroup = {
   defaultLayout: Layout | undefined;
-  direction: Direction;
   disableCursor: boolean;
   disabled: boolean;
   element: HTMLElement;
@@ -31,13 +29,14 @@ export type RegisteredGroup = {
   inMemoryLayouts: {
     [panelIds: string]: Layout;
   };
+  orientation: Orientation;
   panels: RegisteredPanel[];
   separators: RegisteredSeparator[];
 };
 
 export type GroupContextType = {
-  direction: Direction;
   id: string;
+  orientation: Orientation;
   registerPanel: (panel: RegisteredPanel) => () => void;
   registerSeparator: (separator: RegisteredSeparator) => () => void;
 };
@@ -85,11 +84,6 @@ export type GroupProps = {
   defaultLayout?: Layout;
 
   /**
-   * Specifies the resizable direction ("horizontal" or "vertical"); defaults to "horizontal"
-   */
-  direction?: "horizontal" | "vertical";
-
-  /**
    * This library sets custom mouse cursor styles to indicate drag state.
    * Use this prop to disable that behavior for Panels and Separators in this group.
    */
@@ -126,6 +120,11 @@ export type GroupProps = {
    * Called when panel sizes change; receives a map of Panel id to size.
    */
   onLayoutChange?: (layout: Layout) => void;
+
+  /**
+   * Specifies the resizable orientation ("horizontal" or "vertical"); defaults to "horizontal"
+   */
+  orientation?: "horizontal" | "vertical";
 
   /**
    * CSS properties.

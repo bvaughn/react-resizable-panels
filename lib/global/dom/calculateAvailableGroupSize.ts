@@ -5,11 +5,11 @@ export function calculateAvailableGroupSize({
 }: {
   group: RegisteredGroup;
 }) {
-  const { direction, panels } = group;
+  const { orientation, panels } = group;
 
   return panels.reduce((totalSize, panel) => {
     totalSize +=
-      direction === "horizontal"
+      orientation === "horizontal"
         ? panel.element.offsetWidth
         : panel.element.offsetHeight;
     return totalSize;

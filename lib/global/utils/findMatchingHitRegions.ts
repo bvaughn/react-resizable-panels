@@ -23,7 +23,7 @@ export function findMatchingHitRegions(
       : DEFAULT_POINTER_PRECISION.precise;
 
     const hitRegions = calculateHitRegions(groupData);
-    const match = findClosetHitRegion(groupData.direction, hitRegions, {
+    const match = findClosetHitRegion(groupData.orientation, hitRegions, {
       x: event.clientX,
       y: event.clientY
     });

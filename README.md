@@ -63,11 +63,6 @@ Documentation for this project is available at [react-resizable-panels.vercel.ap
 </td>
     </tr>
     <tr>
-      <td>direction</td>
-      <td><p>Specifies the resizable direction (&quot;horizontal&quot; or &quot;vertical&quot;); defaults to &quot;horizontal&quot;</p>
-</td>
-    </tr>
-    <tr>
       <td>disableCursor</td>
       <td><p>This library sets custom mouse cursor styles to indicate drag state.
 Use this prop to disable that behavior for Panels and Separators in this group.</p>
@@ -103,6 +98,11 @@ Falls back to <code>useId</code> when not provided.</p>
     <tr>
       <td>onLayoutChange</td>
       <td><p>Called when panel sizes change; receives a map of Panel id to size.</p>
+</td>
+    </tr>
+    <tr>
+      <td>orientation</td>
+      <td><p>Specifies the resizable orientation (&quot;horizontal&quot; or &quot;vertical&quot;); defaults to &quot;horizontal&quot;</p>
 </td>
     </tr>
     <tr>

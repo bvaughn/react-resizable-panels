@@ -1,10 +1,10 @@
-import type { Direction } from "../../components/group/types";
+import type { Orientation } from "../../components/group/types";
 import type { Point } from "../../types";
 import type { HitRegion } from "../dom/calculateHitRegions";
 import { getDistanceBetweenPointAndRect } from "./getDistanceBetweenPointAndRect";
 
 export function findClosetHitRegion(
-  direction: Direction,
+  orientation: Orientation,
   hitRegions: HitRegion[],
   point: Point
 ) {
@@ -16,7 +16,7 @@ export function findClosetHitRegion(
 
   for (const hitRegion of hitRegions) {
     const data = getDistanceBetweenPointAndRect(point, hitRegion.rect);
-    switch (direction) {
+    switch (orientation) {
       case "horizontal": {
         if (data.x <= minDistance.x) {
           closestHitRegion = hitRegion;

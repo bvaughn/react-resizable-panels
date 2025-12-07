@@ -8,10 +8,10 @@ export { usePanelRef } from "./components/panel/usePanelRef";
 export { Separator } from "./components/separator/Separator";
 
 export type {
-  Direction,
   GroupProps,
   Layout,
-  OnGroupLayoutChange
+  OnGroupLayoutChange,
+  Orientation
 } from "./components/group/types";
 export type {
   OnPanelResize,

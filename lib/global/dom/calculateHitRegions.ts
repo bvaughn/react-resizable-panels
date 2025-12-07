@@ -17,7 +17,7 @@ export type HitRegion = {
  * This method determines bounding rects of all regions for the particular group.
  */
 export function calculateHitRegions(group: RegisteredGroup) {
-  const { direction, element: groupElement, panels, separators } = group;
+  const { element: groupElement, orientation, panels, separators } = group;
 
   // Sort elements by offset before traversing
   const sortedChildElements: HTMLElement[] = Array.from(groupElement.children)
@@ -26,7 +26,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
       const rectA = a.getBoundingClientRect();
       const rectB = b.getBoundingClientRect();
 
-      return direction === "horizontal"
+      return orientation === "horizontal"
         ? rectA.left - rectB.left
         : rectA.top - rectB.top;
     });
@@ -50,7 +50,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
           panels: [prevPanel, panelData],
           separator: prevSeparator,
           rect:
-            direction === "horizontal"
+            orientation === "horizontal"
               ? new DOMRect(
                   prevRect.right,
                   rect.top,
