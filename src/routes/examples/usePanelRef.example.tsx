@@ -5,10 +5,9 @@ declare const props: ComponentProps<typeof Panel>;
 
 // <begin>
 
-import { usePanelCallbackRef } from "react-resizable-panels";
+import { usePanelRef } from "react-resizable-panels";
 
-// @ts-expect-error Unused variable
-// eslint-disable-next-line react-hooks/rules-of-hooks, @typescript-eslint/no-unused-vars
-const [panelRef, setPanelRef] = usePanelCallbackRef();
+// eslint-disable-next-line react-hooks/rules-of-hooks
+const ref = usePanelRef();
 
-<Panel panelRef={setPanelRef} {...props} />;
+<Panel panelRef={ref} {...props} />;
