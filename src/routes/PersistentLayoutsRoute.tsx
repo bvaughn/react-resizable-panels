@@ -12,7 +12,8 @@ import { ExternalLink } from "../components/ExternalLink";
 
 export default function PersistentLayoutsRoute() {
   const { defaultLayout, onLayoutChange } = useDefaultLayout({
-    groupId: "persisted-group"
+    groupId: "persisted-group",
+    storage: sessionStorage
   });
 
   return (

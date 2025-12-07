@@ -4,7 +4,8 @@ import { Group, Panel, useDefaultLayout } from "react-resizable-panels";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { defaultLayout, onLayoutChange } = useDefaultLayout({
-  groupId: "persisted-group"
+  groupId: "persisted-group",
+  storage: localStorage
 });
 
 /* prettier-ignore */

@@ -5,10 +5,10 @@ import type { Layout, OnGroupLayoutChange } from "./types";
 
 export function useDefaultLayout({
   groupId,
-  storage = localStorage
+  storage
 }: {
   groupId: string;
-  storage?: Pick<Storage, "getItem" | "setItem">;
+  storage: Pick<Storage, "getItem" | "setItem">;
 }) {
   const defaultLayoutRef = useRef<Layout | undefined | null>(null);
   if (defaultLayoutRef.current === null) {
