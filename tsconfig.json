@@ -20,6 +20,7 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    "exactOptionalPropertyTypes": true,
 
     "paths": {
       "react-resizable-panels": ["./lib"]

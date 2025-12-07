@@ -14,15 +14,22 @@ export function Box({
   wrap,
   ...rest
 }: HTMLAttributes<HTMLDivElement> & {
-  align?: "center" | "end" | "start" | "stretch";
-  className?: string;
+  align?: "center" | "end" | "start" | "stretch" | undefined;
+  className?: string | undefined;
   direction: "column" | "row";
-  gap?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-  grow?: 0 | 1;
-  justify?: "around" | "between" | "center" | "end" | "start" | "stretch";
-  shrink?: 0 | 1;
-  style?: CSSProperties;
-  wrap?: boolean;
+  gap?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | undefined;
+  grow?: 0 | 1 | undefined;
+  justify?:
+    | "around"
+    | "between"
+    | "center"
+    | "end"
+    | "start"
+    | "stretch"
+    | undefined;
+  shrink?: 0 | 1 | undefined;
+  style?: CSSProperties | undefined;
+  wrap?: boolean | undefined;
 }) {
   return (
     <div

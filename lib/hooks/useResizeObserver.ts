@@ -11,12 +11,12 @@ export function useResizeObserver({
   mode,
   style
 }: {
-  box?: ResizeObserverBoxOptions;
-  defaultHeight?: number;
-  defaultWidth?: number;
-  disabled?: boolean;
+  box?: ResizeObserverBoxOptions | undefined;
+  defaultHeight?: number | undefined;
+  defaultWidth?: number | undefined;
+  disabled?: boolean | undefined;
   element: HTMLElement | null;
-  mode?: "only-height" | "only-width";
+  mode?: "only-height" | "only-width" | undefined;
   style: CSSProperties | undefined;
 }) {
   const { styleHeight, styleWidth } = useMemo(
@@ -66,7 +66,7 @@ export function useResizeObserver({
         }
       }
     });
-    resizeObserver.observe(element, { box });
+    resizeObserver.observe(element, box ? { box } : undefined);
 
     return () => {
       resizeObserver?.unobserve(element);

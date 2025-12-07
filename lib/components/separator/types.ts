@@ -13,12 +13,12 @@ export type SeparatorProps = PropsWithChildren<{
    *
    * ⚠️ The following properties cannot be overridden: `flex-grow`, `flex-shrink`
    */
-  className?: string;
+  className?: string | undefined;
 
   /**
    * Ref attached to the root `HTMLDivElement`.
    */
-  elementRef?: Ref<HTMLDivElement>;
+  elementRef?: Ref<HTMLDivElement> | undefined;
 
   /**
    * Uniquely identifies the separator within the parent group.
@@ -26,7 +26,7 @@ export type SeparatorProps = PropsWithChildren<{
    *
    * ℹ️ This value will also be assigned to the `data-separator-id` attribute.
    */
-  id?: string | number;
+  id?: string | number | undefined;
 
   /**
    * CSS properties.
@@ -35,5 +35,5 @@ export type SeparatorProps = PropsWithChildren<{
    *
    * ⚠️ The following properties cannot be overridden: `flex-grow`, `flex-shrink`
    */
-  style?: CSSProperties;
+  style?: CSSProperties | undefined;
 }>;

@@ -2,7 +2,7 @@ export type Intent = "danger" | "none" | "primary" | "success" | "warning";
 
 export type Section = {
   content: string;
-  intent?: Intent;
+  intent?: Intent | undefined;
 };
 
 export type ComponentPropMetadata = {

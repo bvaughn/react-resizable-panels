@@ -67,12 +67,12 @@ export type GroupProps = {
   /**
    * Panel and Separator components that comprise this group.
    */
-  children?: ReactNode;
+  children?: ReactNode | undefined;
 
   /**
    * CSS class name.
    */
-  className?: string;
+  className?: string | undefined;
 
   /**
    * Default layout for the Group.
@@ -81,23 +81,23 @@ export type GroupProps = {
    *
    * ⚠️ Refer to the documentation for how to avoid layout shift when using server components.
    */
-  defaultLayout?: Layout;
+  defaultLayout?: Layout | undefined;
 
   /**
    * This library sets custom mouse cursor styles to indicate drag state.
    * Use this prop to disable that behavior for Panels and Separators in this group.
    */
-  disableCursor?: boolean;
+  disableCursor?: boolean | undefined;
 
   /**
    * Disable resize functionality.
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 
   /**
    * Ref attached to the root `HTMLDivElement`.
    */
-  elementRef?: Ref<HTMLDivElement>;
+  elementRef?: Ref<HTMLDivElement> | undefined;
 
   /**
    * Exposes the following imperative API:
@@ -106,7 +106,7 @@ export type GroupProps = {
    *
    * ℹ️ The `useGroupRef` and `useGroupCallbackRef` hooks are exported for convenience use in TypeScript projects.
    */
-  groupRef?: Ref<GroupImperativeHandle>;
+  groupRef?: Ref<GroupImperativeHandle> | undefined;
 
   /**
    * Uniquely identifies this group within an application.
@@ -114,24 +114,24 @@ export type GroupProps = {
    *
    * ℹ️ This value will also be assigned to the `data-group-id` attribute.
    */
-  id?: string | number;
+  id?: string | number | undefined;
 
   /**
    * Called when panel sizes change; receives a map of Panel id to size.
    */
-  onLayoutChange?: (layout: Layout) => void;
+  onLayoutChange?: (layout: Layout) => void | undefined;
 
   /**
    * Specifies the resizable orientation ("horizontal" or "vertical"); defaults to "horizontal"
    */
-  orientation?: "horizontal" | "vertical";
+  orientation?: "horizontal" | "vertical" | undefined;
 
   /**
    * CSS properties.
    *
    * ⚠️ The following styles cannot be overridden: `display`, `flex-direction`, `flex-wrap`, and `overflow`.
    */
-  style?: CSSProperties;
+  style?: CSSProperties | undefined;
 };
 
 export type OnGroupLayoutChange = GroupProps["onLayoutChange"];

@@ -77,29 +77,29 @@ export type PanelProps = PropsWithChildren<{
    *
    * ⚠️ Class is applied to nested `HTMLDivElement` to avoid styles that interfere with Flex layout.
    */
-  className?: string;
+  className?: string | undefined;
 
   /**
    * Panel size when collapsed; defaults to 0.
    */
-  collapsedSize?: number | string;
+  collapsedSize?: number | string | undefined;
 
   /**
    * This panel can be collapsed.
    *
    * ℹ️ A collapsible panel will collapse when it's size is less than of the specified `minSize`
    */
-  collapsible?: boolean;
+  collapsible?: boolean | undefined;
 
   /**
    * Default size of Panel within its parent group; default is auto-assigned based on the total number of Panels.
    */
-  defaultSize?: number | string;
+  defaultSize?: number | string | undefined;
 
   /**
    * Ref attached to the root `HTMLDivElement`.
    */
-  elementRef?: Ref<HTMLDivElement>;
+  elementRef?: Ref<HTMLDivElement> | undefined;
 
   /**
    * Uniquely identifies this panel within the parent group.
@@ -109,22 +109,22 @@ export type PanelProps = PropsWithChildren<{
    *
    * ℹ️ This value will also be assigned to the `data-panel-id` attribute.
    */
-  id?: string | number;
+  id?: string | number | undefined;
 
   /**
    * Maximum size of Panel within its parent group; defaults to 100%.
    */
-  maxSize?: number | string;
+  maxSize?: number | string | undefined;
 
   /**
    * Minimum size of Panel within its parent group; defaults to 0%.
    */
-  minSize?: number | string;
+  minSize?: number | string | undefined;
 
   /**
    * Called when panel sizes change; receives a map of Panel id to size.
    */
-  onResize?: (panelSize: PanelSize) => void;
+  onResize?: ((panelSize: PanelSize) => void) | undefined;
 
   /**
    * Exposes the following imperative API:
@@ -137,14 +137,14 @@ export type PanelProps = PropsWithChildren<{
    *
    * ℹ️ The `usePanelRef` and `usePanelCallbackRef` hooks are exported for convenience use in TypeScript projects.
    */
-  panelRef?: Ref<PanelImperativeHandle>;
+  panelRef?: Ref<PanelImperativeHandle> | undefined;
 
   /**
    * CSS properties.
    *
    * ⚠️ Style is applied to nested `HTMLDivElement` to avoid styles that interfere with Flex layout.
    */
-  style?: CSSProperties;
+  style?: CSSProperties | undefined;
 }>;
 
 export type OnPanelResize = PanelProps["onResize"];

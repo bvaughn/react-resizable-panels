@@ -1,21 +1,20 @@
-import type { HTMLAttributes, PropsWithChildren } from "react";
-import type { Intent } from "../types";
 import { Button as HeadlessButton } from "@headlessui/react";
+import type { MouseEvent, PropsWithChildren } from "react";
+import type { Intent } from "../types";
 import { cn } from "../utils/cn";
 
 export function Button({
   children,
   className,
-  disabled,
+  disabled = false,
   intent = "none",
   ...rest
-}: PropsWithChildren<
-  HTMLAttributes<HTMLButtonElement> & {
-    className?: string;
-    disabled?: boolean;
-    intent?: Intent;
-  }
->) {
+}: PropsWithChildren<{
+  className?: string | undefined;
+  disabled?: boolean | undefined;
+  intent?: Intent | undefined;
+  onClick?: ((event: MouseEvent) => void) | undefined;
+}>) {
   return (
     <HeadlessButton
       className={cn(
