@@ -11,15 +11,15 @@ export async function moveSeparator(
 
   assert(separatorElement instanceof HTMLElement);
 
-  const orientation =
-    separatorElement.getAttribute("aria-orientation") === "vertical"
+  const groupOrientation =
+    separatorElement.getAttribute("aria-orientation") === "horizontal"
       ? "vertical"
       : "horizontal";
 
   let clientX = 0;
   let clientY = 0;
 
-  switch (orientation) {
+  switch (groupOrientation) {
     case "horizontal": {
       clientX = separatorElement.offsetLeft;
       clientY = separatorElement.offsetHeight / 2;
@@ -44,16 +44,18 @@ export async function moveSeparator(
     {
       coords: {
         clientX:
-          orientation === "horizontal" ? clientX + deltaInPixels : clientX,
-        clientY: orientation === "vertical" ? clientY + deltaInPixels : clientY
+          groupOrientation === "horizontal" ? clientX + deltaInPixels : clientX,
+        clientY:
+          groupOrientation === "vertical" ? clientY + deltaInPixels : clientY
       }
     },
     {
       keys: "[/MouseLeft]",
       coords: {
         clientX:
-          orientation === "horizontal" ? clientX + deltaInPixels : clientX,
-        clientY: orientation === "vertical" ? clientY + deltaInPixels : clientY
+          groupOrientation === "horizontal" ? clientX + deltaInPixels : clientX,
+        clientY:
+          groupOrientation === "vertical" ? clientY + deltaInPixels : clientY
       }
     }
   ]);
