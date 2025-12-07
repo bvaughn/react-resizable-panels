@@ -30,7 +30,7 @@ export function Select<Value extends string>({
   value: Option<Value> | undefined;
 }) {
   return (
-    <Listbox value={value ?? defaultValue} onChange={onChange}>
+    <Listbox value={(value ?? defaultValue)!} onChange={onChange}>
       <div className={`relative ${className}`}>
         <ListboxButton
           className="w-full h-9 text-left rounded-md bg-black/30 border border-2 border-transparent py-1 px-2 outline-none focus:border-teal-300"

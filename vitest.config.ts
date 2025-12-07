@@ -7,7 +7,11 @@ export default mergeConfig(
     test: {
       environment: "jsdom",
       setupFiles: "./vitest.setup.js",
-      exclude: ["node_modules"]
+      exclude: [
+        "node_modules",
+        "integrations/next/node_modules",
+        "integrations/vike/node_modules"
+      ]
     }
   })
 );
