@@ -187,8 +187,7 @@ export function Group({
           ...cssVariables,
           display: "flex",
           flexDirection: orientation === "horizontal" ? "row" : "column",
-          flexWrap: "nowrap",
-          overflow: "hidden"
+          flexWrap: "nowrap"
         }}
       >
         {children}

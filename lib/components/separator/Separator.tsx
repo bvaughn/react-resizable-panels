@@ -35,7 +35,7 @@ export function Separator({
 
   const mergedRef = useMergedRefs(setElement, elementRef);
 
-  const { registerSeparator } = useGroupContext();
+  const { orientation, registerSeparator } = useGroupContext();
 
   // Register Separator with parent Group
   // Listen to global state for drag state related to this Separator
@@ -69,20 +69,25 @@ export function Separator({
     }
   }, [element, id, registerSeparator]);
 
+  // TODO ARIA attributes aria-valuenow, aria-valuemin, and aria-valuemax
+  // These values should correspond to the Panel before the Separator
   return (
     <div
+      aria-orientation={orientation}
       children={children}
       className={className}
       data-separator
       data-separator-id={id}
       data-separator-state={dragState}
       ref={mergedRef}
+      role="separator"
       style={{
         flexBasis: "auto",
         ...style,
         flexGrow: 0,
         flexShrink: 0
       }}
+      tabIndex={0}
     />
   );
 }
