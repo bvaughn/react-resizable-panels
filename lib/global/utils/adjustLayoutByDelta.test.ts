@@ -1,7 +1,30 @@
 import { describe, expect, test } from "vitest";
-import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
+import { adjustLayoutByDelta as adjustLayoutByDeltaExternal } from "./adjustLayoutByDelta";
 import type { Layout } from "../../components/group/types";
 import type { PanelConstraints } from "../../components/panel/types";
+
+type Args = Parameters<typeof adjustLayoutByDeltaExternal>[0];
+
+function adjustLayoutByDelta({
+  delta,
+  initialLayout,
+  panelConstraints,
+  pivotIndices = [0, 1],
+  prevLayout,
+  trigger = "imperative-api"
+}: Omit<Args, "pivotIndices" | "trigger"> & {
+  pivotIndices?: Args["pivotIndices"];
+  trigger?: Args["trigger"];
+}) {
+  return adjustLayoutByDeltaExternal({
+    delta,
+    initialLayout,
+    panelConstraints,
+    pivotIndices,
+    prevLayout,
+    trigger
+  });
+}
 
 function c(partials: Partial<PanelConstraints>[]) {
   const constraints: PanelConstraints[] = [];
@@ -38,9 +61,7 @@ describe("adjustLayoutByDelta", () => {
         delta: 1,
         initialLayout: l([50, 50]),
         panelConstraints: c([{}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([50, 50]),
-        trigger: "imperative-api"
+        prevLayout: l([50, 50])
       })
     ).toEqual(l([51, 49]));
   });
@@ -51,9 +72,7 @@ describe("adjustLayoutByDelta", () => {
         delta: 25,
         initialLayout: l([50, 50]),
         panelConstraints: c([{}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([50, 50]),
-        trigger: "imperative-api"
+        prevLayout: l([50, 50])
       })
     ).toEqual(l([75, 25]));
 
@@ -62,9 +81,7 @@ describe("adjustLayoutByDelta", () => {
         delta: 50,
         initialLayout: l([50, 50]),
         panelConstraints: c([{}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([50, 50]),
-        trigger: "imperative-api"
+        prevLayout: l([50, 50])
       })
     ).toEqual(l([100, 0]));
   });
@@ -84,9 +101,7 @@ describe("adjustLayoutByDelta", () => {
             maxSize: 90
           }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([50, 50]),
-        trigger: "imperative-api"
+        prevLayout: l([50, 50])
       })
     ).toEqual(l([60, 40]));
   });
@@ -104,9 +119,7 @@ describe("adjustLayoutByDelta", () => {
             minSize: 25
           }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([50, 50]),
-        trigger: "imperative-api"
+        prevLayout: l([50, 50])
       })
     ).toEqual(l([75, 25]));
   });
@@ -124,9 +137,7 @@ describe("adjustLayoutByDelta", () => {
             minSize: 25
           }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([50, 50]),
-        trigger: "imperative-api"
+        prevLayout: l([50, 50])
       })
     ).toEqual(l([95, 5]));
   });
@@ -146,9 +157,7 @@ describe("adjustLayoutByDelta", () => {
           },
           {}
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([10, 90]),
-        trigger: "imperative-api"
+        prevLayout: l([10, 90])
       })
     ).toEqual(l([10, 90]));
   });
@@ -168,7 +177,6 @@ describe("adjustLayoutByDelta", () => {
           },
           {}
         ]),
-        pivotIndices: [0, 1],
         prevLayout: l([10, 90]),
         trigger: "keyboard"
       })
@@ -189,7 +197,6 @@ describe("adjustLayoutByDelta", () => {
             minSize: 25
           }
         ]),
-        pivotIndices: [0, 1],
         prevLayout: l([75, 25]),
         trigger: "keyboard"
       })
@@ -215,9 +222,7 @@ describe("adjustLayoutByDelta", () => {
             minSize: 5
           }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([4, 96]),
-        trigger: "imperative-api"
+        prevLayout: l([4, 96])
       })
     ).toEqual(l([4, 96]));
   });
@@ -241,7 +246,6 @@ describe("adjustLayoutByDelta", () => {
             minSize: 5
           }
         ]),
-        pivotIndices: [0, 1],
         prevLayout: l([4, 96]),
         trigger: "keyboard"
       })
@@ -267,9 +271,7 @@ describe("adjustLayoutByDelta", () => {
             minSize: 5
           }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([4, 96]),
-        trigger: "imperative-api"
+        prevLayout: l([4, 96])
       })
     ).toEqual(l([15, 85]));
   });
@@ -292,9 +294,7 @@ describe("adjustLayoutByDelta", () => {
             minSize: 50
           }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([5, 95]),
-        trigger: "imperative-api"
+        prevLayout: l([5, 95])
       })
     ).toEqual(l([35, 65]));
   });
@@ -317,7 +317,6 @@ describe("adjustLayoutByDelta", () => {
             minSize: 50
           }
         ]),
-        pivotIndices: [0, 1],
         prevLayout: l([5, 95]),
         trigger: "keyboard"
       })
@@ -340,7 +339,6 @@ describe("adjustLayoutByDelta", () => {
           },
           {}
         ]),
-        pivotIndices: [0, 1],
         prevLayout: l([0, 100]),
         trigger: "keyboard"
       })
@@ -353,9 +351,7 @@ describe("adjustLayoutByDelta", () => {
         delta: -1,
         initialLayout: l([50, 50]),
         panelConstraints: c([{}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([50, 50]),
-        trigger: "imperative-api"
+        prevLayout: l([50, 50])
       })
     ).toEqual(l([49, 51]));
   });
@@ -366,9 +362,7 @@ describe("adjustLayoutByDelta", () => {
         delta: -25,
         initialLayout: l([50, 50]),
         panelConstraints: c([{}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([50, 50]),
-        trigger: "imperative-api"
+        prevLayout: l([50, 50])
       })
     ).toEqual(l([25, 75]));
   });
@@ -379,9 +373,7 @@ describe("adjustLayoutByDelta", () => {
         delta: -50,
         initialLayout: l([50, 50]),
         panelConstraints: c([{}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([50, 50]),
-        trigger: "imperative-api"
+        prevLayout: l([50, 50])
       })
     ).toEqual(l([0, 100]));
   });
@@ -401,9 +393,7 @@ describe("adjustLayoutByDelta", () => {
             maxSize: 90
           }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([50, 50]),
-        trigger: "imperative-api"
+        prevLayout: l([50, 50])
       })
     ).toEqual(l([20, 80]));
   });
@@ -421,9 +411,7 @@ describe("adjustLayoutByDelta", () => {
           },
           {}
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([50, 50]),
-        trigger: "imperative-api"
+        prevLayout: l([50, 50])
       })
     ).toEqual(l([25, 75]));
   });
@@ -441,9 +429,7 @@ describe("adjustLayoutByDelta", () => {
           },
           {}
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([50, 50]),
-        trigger: "imperative-api"
+        prevLayout: l([50, 50])
       })
     ).toEqual(l([25, 75]));
 
@@ -459,9 +445,7 @@ describe("adjustLayoutByDelta", () => {
           },
           {}
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([50, 50]),
-        trigger: "imperative-api"
+        prevLayout: l([50, 50])
       })
     ).toEqual(l([5, 95]));
   });
@@ -481,9 +465,7 @@ describe("adjustLayoutByDelta", () => {
           },
           { maxSize: 80 }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([50, 50]),
-        trigger: "imperative-api"
+        prevLayout: l([50, 50])
       })
     ).toEqual(l([25, 75]));
   });
@@ -503,7 +485,6 @@ describe("adjustLayoutByDelta", () => {
             minSize: 25
           }
         ]),
-        pivotIndices: [0, 1],
         prevLayout: l([90, 10]),
         trigger: "keyboard"
       })
@@ -525,7 +506,6 @@ describe("adjustLayoutByDelta", () => {
           },
           {}
         ]),
-        pivotIndices: [0, 1],
         prevLayout: l([25, 75]),
         trigger: "keyboard"
       })
@@ -538,9 +518,7 @@ describe("adjustLayoutByDelta", () => {
         delta: 1,
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([26, 49, 25]));
   });
@@ -551,9 +529,7 @@ describe("adjustLayoutByDelta", () => {
         delta: 25,
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([50, 25, 25]));
   });
@@ -564,9 +540,7 @@ describe("adjustLayoutByDelta", () => {
         delta: 50,
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([75, 0, 25]));
   });
@@ -577,9 +551,7 @@ describe("adjustLayoutByDelta", () => {
         delta: 75,
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([100, 0, 0]));
   });
@@ -590,9 +562,7 @@ describe("adjustLayoutByDelta", () => {
         delta: 25,
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{ maxSize: 35 }, { minSize: 25 }, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([35, 40, 25]));
   });
@@ -604,9 +574,7 @@ describe("adjustLayoutByDelta", () => {
         delta: 25,
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{ maxSize: 35 }, { minSize: 25 }, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([35, 40, 25]));
   });
@@ -625,9 +593,7 @@ describe("adjustLayoutByDelta", () => {
           },
           { minSize: 25 }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 40, 35]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 40, 35])
       })
     ).toEqual(l([30, 35, 35]));
   });
@@ -646,9 +612,7 @@ describe("adjustLayoutByDelta", () => {
           },
           { minSize: 25 }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 40, 35]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 40, 35])
       })
     ).toEqual(l([60, 5, 35]));
   });
@@ -667,9 +631,7 @@ describe("adjustLayoutByDelta", () => {
           },
           { minSize: 25 }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 40, 35]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 40, 35])
       })
     ).toEqual(l([70, 5, 25]));
   });
@@ -680,9 +642,7 @@ describe("adjustLayoutByDelta", () => {
         delta: -1,
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([24, 51, 25]));
   });
@@ -693,9 +653,7 @@ describe("adjustLayoutByDelta", () => {
         delta: -25,
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([0, 75, 25]));
   });
@@ -706,9 +664,7 @@ describe("adjustLayoutByDelta", () => {
         delta: -1,
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{ minSize: 20 }, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([24, 51, 25]));
   });
@@ -719,9 +675,7 @@ describe("adjustLayoutByDelta", () => {
         delta: -10,
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{ minSize: 20 }, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([20, 55, 25]));
   });
@@ -738,9 +692,7 @@ describe("adjustLayoutByDelta", () => {
           { maxSize: 70 },
           { maxSize: 20 }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([20, 55, 25]));
   });
@@ -757,9 +709,7 @@ describe("adjustLayoutByDelta", () => {
           { maxSize: 70 },
           { maxSize: 20 }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([10, 65, 25]));
   });
@@ -778,9 +728,7 @@ describe("adjustLayoutByDelta", () => {
           {},
           {}
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([15, 60, 25]));
   });
@@ -799,9 +747,7 @@ describe("adjustLayoutByDelta", () => {
           {},
           {}
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([5, 70, 25]));
   });
@@ -822,9 +768,7 @@ describe("adjustLayoutByDelta", () => {
             minSize: 15
           }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([45, 50, 5]),
-        trigger: "imperative-api"
+        prevLayout: l([45, 50, 5])
       })
     ).toEqual(l([25, 50, 25]));
   });
@@ -836,8 +780,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([25, 49, 26]));
   });
@@ -849,8 +792,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([25, 25, 50]));
   });
@@ -862,8 +804,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([25, 0, 75]));
   });
@@ -875,8 +816,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([0, 0, 100]));
   });
@@ -888,8 +828,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, { minSize: 15 }]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([25, 55, 20]));
   });
@@ -901,8 +840,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, { minSize: 15 }]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([25, 60, 15]));
   });
@@ -914,8 +852,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, { collapsible: true, minSize: 20 }]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([25, 55, 20]));
   });
@@ -927,8 +864,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, { collapsible: true, minSize: 20 }]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([25, 55, 20]));
 
@@ -938,8 +874,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, { collapsible: true, minSize: 20 }]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([25, 75, 0]));
   });
@@ -951,8 +886,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([25, 51, 24]));
   });
@@ -964,8 +898,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([25, 75, 0]));
   });
@@ -977,8 +910,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, { minSize: 40 }, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([15, 40, 45]));
   });
@@ -990,8 +922,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 50, 25]),
         panelConstraints: c([{}, {}, { maxSize: 30 }]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([25, 45, 30]));
   });
@@ -1011,8 +942,7 @@ describe("adjustLayoutByDelta", () => {
           {}
         ]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([20, 20, 60]));
 
@@ -1030,8 +960,7 @@ describe("adjustLayoutByDelta", () => {
           {}
         ]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 50, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([25, 5, 70]));
   });
@@ -1051,8 +980,7 @@ describe("adjustLayoutByDelta", () => {
           {}
         ]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 0, 75]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 0, 75])
       })
     ).toEqual(l([20, 0, 80]));
 
@@ -1070,8 +998,7 @@ describe("adjustLayoutByDelta", () => {
           {}
         ]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 0, 75]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 0, 75])
       })
     ).toEqual(l([5, 0, 95]));
   });
@@ -1096,9 +1023,7 @@ describe("adjustLayoutByDelta", () => {
         delta: 1,
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([26, 24, 25, 25]));
   });
@@ -1109,9 +1034,7 @@ describe("adjustLayoutByDelta", () => {
         delta: 25,
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([50, 0, 25, 25]));
   });
@@ -1122,9 +1045,7 @@ describe("adjustLayoutByDelta", () => {
         delta: 50,
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([75, 0, 0, 25]));
   });
@@ -1135,9 +1056,7 @@ describe("adjustLayoutByDelta", () => {
         delta: 75,
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([100, 0, 0, 0]));
   });
@@ -1148,9 +1067,7 @@ describe("adjustLayoutByDelta", () => {
         delta: 25,
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{ maxSize: 35 }, {}, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([35, 15, 25, 25]));
   });
@@ -1166,9 +1083,7 @@ describe("adjustLayoutByDelta", () => {
           { minSize: 10 },
           { minSize: 10 }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([70, 10, 10, 10]));
   });
@@ -1196,9 +1111,7 @@ describe("adjustLayoutByDelta", () => {
             minSize: 20
           }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([35, 20, 20, 25]));
 
@@ -1224,9 +1137,7 @@ describe("adjustLayoutByDelta", () => {
             minSize: 20
           }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([45, 5, 25, 25]));
   });
@@ -1254,9 +1165,7 @@ describe("adjustLayoutByDelta", () => {
             minSize: 20
           }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([65, 5, 5, 25]));
   });
@@ -1284,9 +1193,7 @@ describe("adjustLayoutByDelta", () => {
             minSize: 20
           }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([85, 5, 5, 5]));
   });
@@ -1297,9 +1204,7 @@ describe("adjustLayoutByDelta", () => {
         delta: -1,
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([24, 26, 25, 25]));
   });
@@ -1310,9 +1215,7 @@ describe("adjustLayoutByDelta", () => {
         delta: -25,
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([0, 50, 25, 25]));
   });
@@ -1323,9 +1226,7 @@ describe("adjustLayoutByDelta", () => {
         delta: -10,
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{ minSize: 20 }, {}, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([20, 30, 25, 25]));
   });
@@ -1336,9 +1237,7 @@ describe("adjustLayoutByDelta", () => {
         delta: -25,
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, { maxSize: 35 }, {}, {}]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([0, 35, 40, 25]));
   });
@@ -1358,9 +1257,7 @@ describe("adjustLayoutByDelta", () => {
           {},
           {}
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([20, 30, 25, 25]));
 
@@ -1378,9 +1275,7 @@ describe("adjustLayoutByDelta", () => {
           {},
           {}
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([5, 45, 25, 25]));
   });
@@ -1400,9 +1295,7 @@ describe("adjustLayoutByDelta", () => {
           {},
           {}
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([20, 30, 25, 25]));
 
@@ -1420,9 +1313,7 @@ describe("adjustLayoutByDelta", () => {
           {},
           {}
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([5, 35, 35, 25]));
   });
@@ -1448,9 +1339,7 @@ describe("adjustLayoutByDelta", () => {
           {},
           {}
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([20, 30, 25, 25]));
   });
@@ -1476,9 +1365,7 @@ describe("adjustLayoutByDelta", () => {
           { maxSize: 35 },
           {}
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([20, 30, 25, 25]));
   });
@@ -1500,9 +1387,7 @@ describe("adjustLayoutByDelta", () => {
           { maxSize: 35 },
           { maxSize: 35 }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([20, 30, 25, 25]));
 
@@ -1523,9 +1408,7 @@ describe("adjustLayoutByDelta", () => {
           { maxSize: 35 },
           { maxSize: 35 }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([5, 35, 35, 25]));
   });
@@ -1537,8 +1420,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 35, 15, 25]));
   });
@@ -1550,8 +1432,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 55, 0, 20]));
   });
@@ -1563,8 +1444,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 75, 0, 0]));
   });
@@ -1576,8 +1456,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, { maxSize: 35 }, {}, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([65, 35, 0, 0]));
   });
@@ -1589,8 +1468,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, { minSize: 20 }, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 55, 20, 0]));
   });
@@ -1611,8 +1489,7 @@ describe("adjustLayoutByDelta", () => {
           }
         ]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 35, 15, 25]));
   });
@@ -1633,8 +1510,7 @@ describe("adjustLayoutByDelta", () => {
           {}
         ]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 55, 5, 15]));
   });
@@ -1655,8 +1531,7 @@ describe("adjustLayoutByDelta", () => {
           { minSize: 10 }
         ]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 60, 5, 10]));
   });
@@ -1668,8 +1543,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 0, 50, 25]));
   });
@@ -1681,8 +1555,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([0, 0, 75, 25]));
   });
@@ -1694,8 +1567,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, { minSize: 20 }, {}, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([0, 20, 55, 25]));
   });
@@ -1707,8 +1579,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{ minSize: 20 }, {}, {}, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([20, 0, 55, 25]));
   });
@@ -1720,8 +1591,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{ minSize: 20 }, { minSize: 20 }, {}, {}]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([20, 20, 35, 25]));
   });
@@ -1742,8 +1612,7 @@ describe("adjustLayoutByDelta", () => {
           {}
         ]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 20, 30, 25]));
   });
@@ -1764,8 +1633,7 @@ describe("adjustLayoutByDelta", () => {
           {}
         ]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([5, 0, 70, 25]));
   });
@@ -1786,8 +1654,7 @@ describe("adjustLayoutByDelta", () => {
           {}
         ]),
         pivotIndices: [1, 2],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([0, 5, 70, 25]));
   });
@@ -1799,8 +1666,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [2, 3],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 25, 35, 15]));
   });
@@ -1812,8 +1678,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [2, 3],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 25, 50, 0]));
   });
@@ -1825,8 +1690,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, { maxSize: 40 }, {}]),
         pivotIndices: [2, 3],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 35, 40, 0]));
   });
@@ -1838,8 +1702,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, { minSize: 10 }]),
         pivotIndices: [2, 3],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 25, 40, 10]));
   });
@@ -1860,8 +1723,7 @@ describe("adjustLayoutByDelta", () => {
           }
         ]),
         pivotIndices: [2, 3],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 25, 30, 20]));
   });
@@ -1882,8 +1744,7 @@ describe("adjustLayoutByDelta", () => {
           }
         ]),
         pivotIndices: [2, 3],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 25, 45, 5]));
   });
@@ -1895,8 +1756,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [2, 3],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 25, 15, 35]));
   });
@@ -1908,8 +1768,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [2, 3],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 10, 0, 65]));
   });
@@ -1921,8 +1780,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [2, 3],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([0, 0, 0, 100]));
   });
@@ -1939,8 +1797,7 @@ describe("adjustLayoutByDelta", () => {
           {}
         ]),
         pivotIndices: [2, 3],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([10, 10, 10, 70]));
   });
@@ -1952,8 +1809,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, {}, {}, { maxSize: 40 }]),
         pivotIndices: [2, 3],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([25, 25, 10, 40]));
   });
@@ -1965,8 +1821,7 @@ describe("adjustLayoutByDelta", () => {
         initialLayout: l([25, 25, 25, 25]),
         panelConstraints: c([{}, { minSize: 5 }, {}, {}]),
         pivotIndices: [2, 3],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([20, 5, 0, 75]));
   });
@@ -1995,8 +1850,7 @@ describe("adjustLayoutByDelta", () => {
           {}
         ]),
         pivotIndices: [2, 3],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([5, 5, 5, 85]));
   });
@@ -2021,8 +1875,7 @@ describe("adjustLayoutByDelta", () => {
           {}
         ]),
         pivotIndices: [2, 3],
-        prevLayout: l([25, 25, 25, 25]),
-        trigger: "imperative-api"
+        prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([20, 5, 20, 55]));
   });
@@ -2034,9 +1887,7 @@ describe("adjustLayoutByDelta", () => {
           delta: 1,
           initialLayout: l([50, 50]),
           panelConstraints: c([{ maxSize: 50 }, {}]),
-          pivotIndices: [0, 1],
-          prevLayout: l([50, 50]),
-          trigger: "imperative-api"
+          prevLayout: l([50, 50])
         })
       ).toEqual(l([50, 50]));
 
@@ -2045,9 +1896,7 @@ describe("adjustLayoutByDelta", () => {
           delta: 1,
           initialLayout: l([50, 50]),
           panelConstraints: c([{}, { minSize: 50 }]),
-          pivotIndices: [0, 1],
-          prevLayout: l([50, 50]),
-          trigger: "imperative-api"
+          prevLayout: l([50, 50])
         })
       ).toEqual(l([50, 50]));
     });
@@ -2065,9 +1914,7 @@ describe("adjustLayoutByDelta", () => {
           { minSize: 30 },
           { minSize: 20, maxSize: 40 }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([5, 30, 30, 36]),
-        trigger: "imperative-api"
+        prevLayout: l([5, 30, 30, 36])
       })
     ).toEqual(l([5, 30, 30, 36]));
   });
@@ -2084,9 +1931,7 @@ describe("adjustLayoutByDelta", () => {
           { minSize: 30 },
           { minSize: 20, maxSize: 40 }
         ]),
-        pivotIndices: [0, 1],
-        prevLayout: l([15, 15, 30, 36]),
-        trigger: "imperative-api"
+        prevLayout: l([15, 15, 30, 36])
       })
     ).toEqual(l([5, 15, 40, 40]));
   });
