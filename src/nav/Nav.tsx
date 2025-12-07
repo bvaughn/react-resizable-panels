@@ -1,3 +1,4 @@
+import { ArrowTurnDownRightIcon } from "@heroicons/react/20/solid";
 import { NavLink } from "./NavLink";
 import { NavSection } from "./NavSection";
 
@@ -12,6 +13,14 @@ export function Nav() {
           Collapsible panels
         </NavLink>
         <NavLink path="/examples/persistent-layout">Persistent layouts</NavLink>
+        <NavLink path="/examples/persistent-layout/server-rendering">
+          <ArrowTurnDownRightIcon className="size-4 fill-white/60" /> Server
+          rendering
+        </NavLink>
+        <NavLink path="/examples/persistent-layout/server-components">
+          <ArrowTurnDownRightIcon className="size-4 fill-white/60" /> Server
+          components
+        </NavLink>
         <NavLink path="/examples/nested-groups">Nested groups</NavLink>
         <NavLink path="/examples/conditional-panels">
           Conditional panels

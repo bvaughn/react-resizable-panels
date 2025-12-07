@@ -26,7 +26,7 @@ export default function GettingStartedRoute() {
         <code>dist</code> folder.
       </Callout>
       <div className="text-xl mt-4">Support</div>
-      If you like this project there are several ways to support it:
+      <div>If you like this project there are several ways to support it:</div>
       <ul className="pl-8">
         <li className="list-disc">
           <ExternalLink href="https://github.com/sponsors/bvaughn/">
