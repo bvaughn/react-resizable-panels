@@ -17,7 +17,7 @@ import { useMergedRefs } from "../../hooks/useMergedRefs";
  * For unit testing purposes, Separator elements always include the following data attributes:
  *
  * ```html
- * <div data-separator data-separator-id="your-separator-id" />
+ * <div data-separator="your-separator-id" role="separator" />
  * ```
  */
 export function Separator({
@@ -76,8 +76,7 @@ export function Separator({
       aria-orientation={orientation}
       children={children}
       className={className}
-      data-separator
-      data-separator-id={id}
+      data-separator={id}
       data-separator-state={dragState}
       ref={mergedRef}
       role="separator"

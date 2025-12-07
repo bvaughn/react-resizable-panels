@@ -92,7 +92,7 @@ Use this prop to disable that behavior for Panels and Separators in this group.<
       <td>id</td>
       <td><p>Uniquely identifies this group within an application.
 Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>data-group-id</code> attribute.</p>
+<p>ℹ️ This value will also be assigned to the <code>data-group</code> attribute.</p>
 </td>
     </tr>
     <tr>
@@ -168,7 +168,7 @@ Falls back to <code>useId</code> when not provided.</p>
       <td><p>Uniquely identifies this panel within the parent group.
 Falls back to <code>useId</code> when not provided.</p>
 <p>ℹ️ This prop is used to associate persisted group layouts with the original panel.</p>
-<p>ℹ️ This value will also be assigned to the <code>data-panel-id</code> attribute.</p>
+<p>ℹ️ This value will also be assigned to the <code>data-panel</code> attribute.</p>
 </td>
     </tr>
     <tr>
@@ -247,7 +247,7 @@ Falls back to <code>useId</code> when not provided.</p>
       <td>id</td>
       <td><p>Uniquely identifies the separator within the parent group.
 Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>data-separator-id</code> attribute.</p>
+<p>ℹ️ This value will also be assigned to the <code>data-separator</code> attribute.</p>
 </td>
     </tr>
     <tr>

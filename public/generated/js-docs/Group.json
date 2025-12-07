@@ -7,7 +7,7 @@
       "content": "<p>For unit testing purposes, Group elements always include the following data attributes:</p>\n"
     },
     {
-      "content": "<div style=\"min-height: 1rem;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-group</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-group-id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"your-group-id\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
+      "content": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-group</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"your-group-id\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
     }
   ],
   "filePath": "lib/components/group/Group.tsx",
@@ -19,7 +19,7 @@
           "content": "<p>Panel and Separator components that comprise this group.</p>\n"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">children</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">children</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span></div>",
       "name": "children",
       "required": false
     },
@@ -29,7 +29,7 @@
           "content": "<p>CSS class name.</p>\n"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
       "name": "className",
       "required": false
     },
@@ -47,7 +47,7 @@
           "intent": "warning"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">defaultLayout</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Layout</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">defaultLayout</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Layout</span></div>",
       "name": "defaultLayout",
       "required": false
     },
@@ -57,7 +57,7 @@
           "content": "<p>This library sets custom mouse cursor styles to indicate drag state.\nUse this prop to disable that behavior for Panels and Separators in this group.</p>\n"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disableCursor</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disableCursor</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
       "name": "disableCursor",
       "required": false
     },
@@ -67,7 +67,7 @@
           "content": "<p>Disable resize functionality.</p>\n"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disabled</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disabled</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
       "name": "disabled",
       "required": false
     },
@@ -77,7 +77,7 @@
           "content": "<p>Ref attached to the root <code>HTMLDivElement</code>.</p>\n"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\">&#62;</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\">&#62;</span></div>",
       "name": "elementRef",
       "required": false
     },
@@ -91,7 +91,7 @@
           "intent": "primary"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">groupRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">GroupImperativeHandle</span><span class=\"\">&#62;</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">groupRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">GroupImperativeHandle</span><span class=\"\">&#62;</span></div>",
       "name": "groupRef",
       "required": false
     },
@@ -101,11 +101,11 @@
           "content": "<p>Uniquely identifies this group within an application.\nFalls back to <code>useId</code> when not provided.</p>\n"
         },
         {
-          "content": "<p>This value will also be assigned to the <code>data-group-id</code> attribute.</p>\n",
+          "content": "<p>This value will also be assigned to the <code>data-group</code> attribute.</p>\n",
           "intent": "primary"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
       "name": "id",
       "required": false
     },
@@ -115,7 +115,7 @@
           "content": "<p>Called when panel sizes change; receives a map of Panel id to size.</p>\n"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onLayoutChange</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">Layout</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onLayoutChange</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">Layout</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span></div>",
       "name": "onLayoutChange",
       "required": false
     },
@@ -125,7 +125,7 @@
           "content": "<p>Specifies the resizable orientation (&quot;horizontal&quot; or &quot;vertical&quot;); defaults to &quot;horizontal&quot;</p>\n"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">orientation</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"horizontal\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"vertical\"</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-variableName\">horizontal</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">orientation</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"horizontal\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"vertical\"</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-variableName\">horizontal</span></div>",
       "name": "orientation",
       "required": false
     },
@@ -139,7 +139,7 @@
           "intent": "warning"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span></div>",
       "name": "style",
       "required": false
     }

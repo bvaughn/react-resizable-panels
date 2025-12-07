@@ -24,7 +24,7 @@ export type SeparatorProps = PropsWithChildren<{
    * Uniquely identifies the separator within the parent group.
    * Falls back to `useId` when not provided.
    *
-   * ℹ️ This value will also be assigned to the `data-separator-id` attribute.
+   * ℹ️ This value will also be assigned to the `data-separator` attribute.
    */
   id?: string | number | undefined;
 

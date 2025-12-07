@@ -30,7 +30,7 @@ export function mockGroup(
   const groupId = groupIdStable ?? `group-${++groupIdCounter}`;
 
   const groupElement = document.createElement("div");
-  groupElement.setAttribute("data-group-id", groupId);
+  groupElement.setAttribute("data-group", groupId);
 
   setElementBounds(groupElement, groupBounds);
 
@@ -122,7 +122,7 @@ export function mockGroup(
 
 export function mockPanel(panelId: string, bounds: DOMRect = new DOMRect()) {
   const childElement = document.createElement("div");
-  childElement.setAttribute("data-panel-id", panelId);
+  childElement.setAttribute("data-panel", panelId);
 
   setElementBounds(childElement, bounds);
 
@@ -142,7 +142,7 @@ export function mockSeparator(
   bounds: DOMRect = new DOMRect()
 ) {
   const childElement = document.createElement("div");
-  childElement.setAttribute("data-separator-id", separatorId);
+  childElement.setAttribute("data-separator", separatorId);
 
   setElementBounds(childElement, bounds);
 

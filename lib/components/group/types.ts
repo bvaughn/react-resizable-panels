@@ -114,7 +114,7 @@ export type GroupProps = {
    * Uniquely identifies this group within an application.
    * Falls back to `useId` when not provided.
    *
-   * ℹ️ This value will also be assigned to the `data-group-id` attribute.
+   * ℹ️ This value will also be assigned to the `data-group` attribute.
    */
   id?: string | number | undefined;
 

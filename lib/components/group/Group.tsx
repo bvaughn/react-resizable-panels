@@ -26,7 +26,7 @@ import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
  * For unit testing purposes, Group elements always include the following data attributes:
  *
  * ```html
- * <div data-group data-group-id="your-group-id">
+ * <div data-group="your-group-id">
  * ```
  */
 export function Group({
@@ -177,10 +177,9 @@ export function Group({
   return (
     <GroupContext.Provider value={context}>
       <div
+        aria-orientation={orientation}
         className={className}
-        data-group
-        data-group-id={id}
-        data-group-orientation={orientation}
+        data-group={id}
         ref={mergedRef}
         style={{
           ...style,

@@ -107,7 +107,7 @@ export type PanelProps = PropsWithChildren<{
    *
    * ℹ️ This prop is used to associate persisted group layouts with the original panel.
    *
-   * ℹ️ This value will also be assigned to the `data-panel-id` attribute.
+   * ℹ️ This value will also be assigned to the `data-panel` attribute.
    */
   id?: string | number | undefined;
 

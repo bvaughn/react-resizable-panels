@@ -27,7 +27,7 @@ import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
  * For unit testing purposes, Panel elements always include the following data attributes:
  *
  * ```html
- * <div data-panel data-panel-id="your-panel-id">
+ * <div data-panel="your-panel-id">
  * ```
  */
 export function Panel({
@@ -96,8 +96,7 @@ export function Panel({
 
   return (
     <div
-      data-panel
-      data-panel-id={id}
+      data-panel={id}
       ref={mergedRef}
       style={{
         flexBasis: 0,

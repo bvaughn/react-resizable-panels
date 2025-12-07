@@ -6,14 +6,13 @@ export async function moveSeparator(
   separatorId?: string
 ) {
   const separatorElement = document.querySelector(
-    separatorId ? `[data-separator-id="${separatorId}"]` : "[data-separator]"
+    separatorId ? `[data-separator="${separatorId}"]` : "[data-separator]"
   );
 
   assert(separatorElement instanceof HTMLElement);
 
   const orientation =
-    separatorElement.parentElement?.getAttribute("data-group-orientation") ===
-    "vertical"
+    separatorElement.getAttribute("aria-orientation") === "vertical"
       ? "vertical"
       : "horizontal";
 

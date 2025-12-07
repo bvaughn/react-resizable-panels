@@ -20,7 +20,7 @@
           "intent": "warning"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-labelName\">collapse</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-labelName\">collapse</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
       "name": "collapse"
     },
     {
@@ -33,7 +33,7 @@
           "intent": "warning"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-labelName\">expand</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-labelName\">expand</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
       "name": "expand"
     },
     {
@@ -42,7 +42,7 @@
           "content": "<p>Get the current size of the Panel in pixels as well as a percentage of the parent group (0..100).</p>\n"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-labelName\">getSize</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">PanelSize</span><span class=\"tok-punctuation\">;</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-labelName\">getSize</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">PanelSize</span><span class=\"tok-punctuation\">;</span></div>",
       "name": "getSize"
     },
     {
@@ -51,7 +51,7 @@
           "content": "<p>The Panel is currently collapsed.</p>\n"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-labelName\">isCollapsed</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"tok-punctuation\">;</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-labelName\">isCollapsed</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"tok-punctuation\">;</span></div>",
       "name": "isCollapsed"
     },
     {
@@ -64,7 +64,7 @@
           "intent": "primary"
         }
       ],
-      "html": "<div style=\"min-height: 1rem;\"><span class=\"tok-labelName\">resize</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">size</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-labelName\">resize</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">size</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
       "name": "resize"
     }
   ],
