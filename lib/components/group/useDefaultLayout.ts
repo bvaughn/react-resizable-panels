@@ -1,22 +1,28 @@
-import { useCallback, useRef } from "react";
-import { loadGroupLayout } from "./auto-save/loadGroupLayout";
+import { useCallback, useMemo, useSyncExternalStore } from "react";
+import { getStorageKey } from "./auto-save/getStorageKey";
 import { saveGroupLayout } from "./auto-save/saveGroupLayout";
-import type { Layout, OnGroupLayoutChange } from "./types";
+import type { LayoutStorage, OnGroupLayoutChange } from "./types";
 
 export function useDefaultLayout({
   groupId,
   storage
 }: {
   groupId: string;
-  storage: Pick<Storage, "getItem" | "setItem">;
+  storage: LayoutStorage;
 }) {
-  const defaultLayoutRef = useRef<Layout | undefined | null>(null);
-  if (defaultLayoutRef.current === null) {
-    defaultLayoutRef.current = loadGroupLayout({
-      id: groupId,
-      storage
-    });
-  }
+  // In the event that a client-only storage API is provided,
+  // useSyncExternalStore prevents server/client hydration mismatch warning
+  // This is not ideal; if possible a server-friendly storage API should be used
+  const defaultLayoutString = useSyncExternalStore(
+    subscribe,
+    () => storage.getItem(getStorageKey(groupId)),
+    () => storage.getItem(getStorageKey(groupId))
+  );
+
+  const defaultLayout = useMemo(
+    () => (defaultLayoutString ? JSON.parse(defaultLayoutString) : null),
+    [defaultLayoutString]
+  );
 
   const onLayoutChange = useCallback<NonNullable<OnGroupLayoutChange>>(
     (layout) =>
@@ -29,7 +35,11 @@ export function useDefaultLayout({
   );
 
   return {
-    defaultLayout: defaultLayoutRef.current,
+    defaultLayout,
     onLayoutChange
   };
+}
+
+function subscribe() {
+  return function unsubscribe() {};
 }

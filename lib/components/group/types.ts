@@ -15,6 +15,8 @@ export type Layout = {
   [id: string]: number;
 };
 
+export type LayoutStorage = Pick<Storage, "getItem" | "setItem">;
+
 export type DragState = {
   state: "default" | "hover" | "dragging";
   separatorId: string | undefined;

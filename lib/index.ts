@@ -10,6 +10,7 @@ export { Separator } from "./components/separator/Separator";
 export type {
   GroupProps,
   Layout,
+  LayoutStorage,
   OnGroupLayoutChange,
   Orientation
 } from "./components/group/types";

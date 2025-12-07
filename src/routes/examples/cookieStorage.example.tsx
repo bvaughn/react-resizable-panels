@@ -2,7 +2,9 @@ import { useDefaultLayout } from "react-resizable-panels";
 
 // <begin>
 
-const cookieStorage: Pick<Storage, "getItem" | "setItem"> = {
+import { type LayoutStorage } from "react-resizable-panels";
+
+const cookieStorage: LayoutStorage = {
   getItem(key: string) {
     const cookies = document.cookie.split(";");
     for (const cookie of cookies) {

@@ -1,4 +1,4 @@
-import type { Layout } from "../types";
+import type { Layout, LayoutStorage } from "../types";
 import { getStorageKey } from "./getStorageKey";
 
 export function loadGroupLayout({
@@ -6,7 +6,7 @@ export function loadGroupLayout({
   storage
 }: {
   id: string;
-  storage: Pick<Storage, "getItem" | "setItem">;
+  storage: LayoutStorage;
 }): Layout | undefined {
   try {
     const storageKey = getStorageKey(id);

@@ -1,4 +1,4 @@
-import type { Layout } from "../types";
+import type { Layout, LayoutStorage } from "../types";
 import { getStorageKey } from "./getStorageKey";
 
 export function saveGroupLayout({
@@ -8,7 +8,7 @@ export function saveGroupLayout({
 }: {
   id: string;
   layout: Layout;
-  storage: Pick<Storage, "getItem" | "setItem">;
+  storage: LayoutStorage;
 }) {
   try {
     const storageKey = getStorageKey(id);
