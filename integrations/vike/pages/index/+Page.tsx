@@ -1,4 +1,9 @@
-import { Group, Panel, useDefaultLayout } from "react-resizable-panels";
+import {
+  Group,
+  Panel,
+  Separator,
+  useDefaultLayout
+} from "react-resizable-panels";
 import { useCookieStorage } from "./useCookieStorage";
 
 export default function Page() {
@@ -47,6 +52,7 @@ export default function Page() {
         >
           left
         </Panel>
+        <Separator className="w-2 rounded rounded-md bg-slate-300" />
         <Panel
           className="bg-slate-200 rounded rounded-md p-2"
           id="right"
