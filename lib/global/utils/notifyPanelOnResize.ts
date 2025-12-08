@@ -2,7 +2,7 @@ import type { RegisteredGroup } from "../../components/group/types";
 import { calculateAvailableGroupSize } from "../dom/calculateAvailableGroupSize";
 import { formatLayoutNumber } from "./formatLayoutNumber";
 
-export function notifySeparator(
+export function notifyPanelOnResize(
   group: RegisteredGroup,
   element: HTMLElement,
   borderBoxSize: readonly ResizeObserverSize[]

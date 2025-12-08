@@ -5,7 +5,7 @@ import { onPointerDown } from "./pointer-events/onPointerDown";
 import { onPointerMove } from "./pointer-events/onPointerMove";
 import { onPointerUp } from "./pointer-events/onPointerUp";
 import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
-import { notifySeparator } from "./utils/notifySeparator";
+import { notifyPanelOnResize } from "./utils/notifyPanelOnResize";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 
 export function mountGroup(group: RegisteredGroup) {
@@ -32,7 +32,7 @@ export function mountGroup(group: RegisteredGroup) {
           });
         }
       } else {
-        notifySeparator(group, target as HTMLElement, borderBoxSize);
+        notifyPanelOnResize(group, target as HTMLElement, borderBoxSize);
       }
     }
   });
