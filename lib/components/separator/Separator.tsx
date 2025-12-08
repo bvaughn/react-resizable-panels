@@ -73,7 +73,6 @@ export function Separator({
   }, [element, id, registerSeparator]);
 
   // TODO ARIA attributes aria-valuenow, aria-valuemin, and aria-valuemax
-  // TODO ARIA attribute aria-controls should point to "primary pane" id
   // These values should correspond to the Panel before the Separator
   return (
     <div

@@ -1,10 +1,13 @@
+import { sortByElementOffset } from "../../components/group/sortByElementOffset";
 import type { RegisteredGroup } from "../../components/group/types";
 import type { RegisteredPanel } from "../../components/panel/types";
 import type { RegisteredSeparator } from "../../components/separator/types";
 
+type PanelsTuple = [panel: RegisteredPanel, panel: RegisteredPanel];
+
 export type HitRegion = {
   group: RegisteredGroup;
-  panels: [panel: RegisteredPanel, panel: RegisteredPanel];
+  panels: PanelsTuple;
   rect: DOMRect;
   separator: RegisteredSeparator | undefined;
 };
@@ -20,16 +23,12 @@ export function calculateHitRegions(group: RegisteredGroup) {
   const { element: groupElement, orientation, panels, separators } = group;
 
   // Sort elements by offset before traversing
-  const sortedChildElements: HTMLElement[] = Array.from(groupElement.children)
-    .filter((child) => child instanceof HTMLElement)
-    .sort((a, b) => {
-      const rectA = a.getBoundingClientRect();
-      const rectB = b.getBoundingClientRect();
-
-      return orientation === "horizontal"
-        ? rectA.left - rectB.left
-        : rectA.top - rectB.top;
-    });
+  const sortedChildElements: HTMLElement[] = sortByElementOffset(
+    orientation,
+    Array.from(groupElement.children)
+      .filter((child) => child instanceof HTMLElement)
+      .map((element) => ({ element }))
+  ).map(({ element }) => element);
 
   const hitRegions: HitRegion[] = [];
 
@@ -67,6 +66,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
       }
 
       prevPanel = panelData;
+      prevSeparator = undefined;
     } else {
       const separatorData = separators.find(
         (current) => current.element === childElement

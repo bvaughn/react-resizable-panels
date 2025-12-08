@@ -110,15 +110,15 @@ describe("Group", () => {
       render(
         <Group onLayoutChange={onLayoutChange}>
           <Panel id="a" defaultSize={50} />
-          <Separator />
-          <Panel id="b" defaultSize={50} />
+          <Separator id="b" />
+          <Panel id="c" defaultSize={50} />
         </Group>
       );
 
       expect(onLayoutChange).toHaveBeenCalledTimes(1);
       expect(onLayoutChange).toHaveBeenCalledWith({
         a: 50,
-        b: 50
+        c: 50
       });
 
       onLayoutChange.mockReset();
@@ -129,7 +129,7 @@ describe("Group", () => {
       expect(onLayoutChange).toHaveBeenCalledTimes(1);
       expect(onLayoutChange).toHaveBeenCalledWith({
         a: 75,
-        b: 25
+        c: 25
       });
 
       onLayoutChange.mockReset();
