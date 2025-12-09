@@ -18,7 +18,7 @@ export default function CollapsiblePanelsRoute() {
       </div>
       <Code html={ExampleHTML} />
       <Group className="h-15 gap-1">
-        <Panel collapsible maxSize="25%" minSize={100} showSizeInPixels />
+        <Panel collapsible maxSize="50%" minSize={100} showSizeInPixels />
         <Separator />
         <Panel>
           The panel on the left is will collapse if resized below 50 pixels.
@@ -38,7 +38,7 @@ export default function CollapsiblePanelsRoute() {
         <Panel
           collapsedSize={25}
           collapsible
-          maxSize="25%"
+          maxSize="50%"
           minSize={100}
           showSizeInPixels
         ></Panel>

@@ -20,9 +20,10 @@
   ],
   "scripts": {
     "dev": "vite",
-    "dev:integrations": "pnpm run dev:integrations:next & pnpm run dev:integrations:vike",
+    "dev:integrations": "pnpm run dev:integrations:next & pnpm run dev:integrations:vike & pnpm run dev:integrations:vite",
     "dev:integrations:next": "pnpm -C integrations/next/ run dev",
     "dev:integrations:vike": "pnpm -C integrations/vike/ run dev",
+    "dev:integrations:vite": "pnpm -C integrations/vite/ run dev",
     "build": "pnpm run build:lib && pnpm run build:docs",
     "build:docs": "TARGET=docs vite build",
     "build:lib": "TARGET=lib vite build",
