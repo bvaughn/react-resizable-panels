@@ -20,11 +20,11 @@ export function Separator({
         "bg-slate-600 [&[data-separator-state='hover']]:bg-slate-500 [&[data-separator-state='active']]:bg-slate-400",
         "text-slate-900 [&[data-separator-state='hover']]:text-slate-950 [&[data-separator-state='active']]:text-slate-950",
         "focus:bg-slate-400",
-        orientation === "horizontal" ? "w-3" : "h-3",
+        orientation === "horizontal" ? "w-2" : "h-2",
         className
       )}
     >
-      <GrabDotsIcon className="w-4 h-4 shrink-0" />
+      <GrabDotsIcon className="w-3 h-3 shrink-0" />
     </SeparatorExternal>
   );
 }
