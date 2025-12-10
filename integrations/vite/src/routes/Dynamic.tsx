@@ -2,7 +2,7 @@ import { useParams } from "react-router";
 import { decode } from "../../tests/utils/serializer/decode";
 
 export function Dynamic() {
-  const { json = "" } = useParams();
+  const { encoded } = useParams();
 
-  return decode(json);
+  return encoded ? decode(encoded) : null;
 }

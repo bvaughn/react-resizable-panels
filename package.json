@@ -30,6 +30,8 @@
     "compile": "pnpm run compile:code-snippets && pnpm run compile:docs",
     "compile:code-snippets": "node --loader ts-node/esm ./scripts/compile-code-snippets.ts",
     "compile:docs": "node --loader ts-node/esm ./scripts/compile-docs.ts",
+    "e2e:install": "pnpm -C integrations/vite/ exec playwright install --with-deps",
+    "e2e:test": "pnpm -C integrations/vite/ run test",
     "lint": "eslint .",
     "prerelease": "rm -rf dist && pnpm run build:lib",
     "prettier": "prettier --write \"**/*.{css,html,js,json,jsx,ts,tsx}\"",
@@ -38,7 +40,6 @@
     "test": "vitest",
     "test:ci": "vitest run",
     "test:debug": "vitest --inspect-brk=127.0.0.1:3000 --no-file-parallelism",
-    "test:e2e": "pnpm -C integrations/vite/ run test",
     "tsc": "tsc -b"
   },
   "lint-staged": {

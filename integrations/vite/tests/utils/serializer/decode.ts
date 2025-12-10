@@ -4,11 +4,13 @@ import { Panel } from "../../../src/components/Panel";
 import { Separator } from "../../../src/components/Separator";
 import { Group } from "../../../src/components/Group";
 
-export function decode(encoded: string) {
-  return decodeGroup(JSON.parse(encoded) as GroupJson);
+export function decode(stringified: string) {
+  const json = JSON.parse(stringified) as GroupJson;
+
+  return convertGroup(json);
 }
 
-function decodeGroup(json: GroupJson) {
+function convertGroup(json: GroupJson) {
   const { children, props } = json;
   return createElement(
     Group,
@@ -16,20 +18,20 @@ function decodeGroup(json: GroupJson) {
     ...children.map((child) => {
       switch (child.type) {
         case "Panel": {
-          return decodePanel(child);
+          return convertPanel(child);
         }
         case "Separator": {
-          return decodeSeparator(child);
+          return convertSeparator(child);
         }
       }
     })
   );
 }
 
-function decodePanel(json: PanelJson) {
+function convertPanel(json: PanelJson) {
   return createElement(Panel, json.props);
 }
 
-function decodeSeparator(json: SeparatorJson) {
+function convertSeparator(json: SeparatorJson) {
   return createElement(Separator, json.props);
 }

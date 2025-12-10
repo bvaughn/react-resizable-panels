@@ -11,7 +11,7 @@ createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/e2e/dynamic/:json" element={<Dynamic />} />
+        <Route path="/e2e/dynamic/:encoded" element={<Dynamic />} />
         <Route
           path="/e2e/conditionally-rendered-panels"
           element={<ConditionallyRenderedPanels />}

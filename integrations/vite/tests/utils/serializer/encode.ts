@@ -9,10 +9,13 @@ import {
 import type { GroupJson, PanelJson, SeparatorJson } from "./types";
 
 export function encode(element: ReactElement<GroupProps>) {
-  return JSON.stringify(encodeGroup(element));
+  const json = convertGroup(element);
+  const stringified = JSON.stringify(json);
+
+  return encodeURIComponent(stringified);
 }
 
-function encodeGroup(element: ReactElement<GroupProps>): GroupJson {
+function convertGroup(element: ReactElement<GroupProps>): GroupJson {
   const { children, onLayoutChange: _, ...props } = element.props;
 
   return {
@@ -21,10 +24,10 @@ function encodeGroup(element: ReactElement<GroupProps>): GroupJson {
       .map((child) => {
         switch (child.type) {
           case Panel: {
-            return encodePanel(child as ReactElement<PanelProps>);
+            return convertPanel(child as ReactElement<PanelProps>);
           }
           case Separator: {
-            return encodeSeparator(child as ReactElement<SeparatorProps>);
+            return convertSeparator(child as ReactElement<SeparatorProps>);
           }
         }
       })
@@ -33,7 +36,7 @@ function encodeGroup(element: ReactElement<GroupProps>): GroupJson {
   };
 }
 
-function encodePanel(element: ReactElement<PanelProps>): PanelJson {
+function convertPanel(element: ReactElement<PanelProps>): PanelJson {
   const { children: _, onResize: __, ...props } = element.props;
 
   return {
@@ -42,7 +45,9 @@ function encodePanel(element: ReactElement<PanelProps>): PanelJson {
   };
 }
 
-function encodeSeparator(element: ReactElement<SeparatorProps>): SeparatorJson {
+function convertSeparator(
+  element: ReactElement<SeparatorProps>
+): SeparatorJson {
   const { children: _, ...props } = element.props;
 
   return {
