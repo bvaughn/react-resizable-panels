@@ -23,21 +23,21 @@ export default function Page() {
     <div className="p-2 flex flex-col gap-2">
       <Group className="h-25 gap-2" id="group-one" {...groupOneProps}>
         <Panel
-          className="bg-slate-200 rounded rounded-md p-2"
+          className="bg-slate-800 rounded rounded-md p-2"
           id="left"
           minSize={50}
         >
           left
         </Panel>
         <Panel
-          className="bg-slate-200 rounded rounded-md p-2"
+          className="bg-slate-800 rounded rounded-md p-2"
           id="center"
           minSize={50}
         >
           center
         </Panel>
         <Panel
-          className="bg-slate-200 rounded rounded-md p-2"
+          className="bg-slate-800 rounded rounded-md p-2"
           id="right"
           minSize={50}
         >
@@ -46,15 +46,15 @@ export default function Page() {
       </Group>
       <Group className="h-25 gap-2" id="group-two" {...groupTwoProps}>
         <Panel
-          className="bg-slate-200 rounded rounded-md p-2"
+          className="bg-slate-800 rounded rounded-md p-2"
           id="left"
           minSize={50}
         >
           left
         </Panel>
-        <Separator className="w-2 rounded rounded-md bg-slate-300" />
+        <Separator className="w-2 rounded rounded-md bg-slate-600" />
         <Panel
-          className="bg-slate-200 rounded rounded-md p-2"
+          className="bg-slate-800 rounded rounded-md p-2"
           id="right"
           minSize={50}
         >

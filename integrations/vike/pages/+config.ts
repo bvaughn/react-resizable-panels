@@ -6,8 +6,8 @@ import vikeReact from "vike-react/config";
 
 export default {
   // https://vike.dev/head-tags
-  title: "react-resizable-panels SSR demo",
+  title: "[Vike] react-resizable-panels integration",
   description: "Test harness",
-
+  htmlAttributes: { class: "dark bg-black text-white" },
   extends: [vikeReact]
 } satisfies Config;
