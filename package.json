@@ -38,6 +38,7 @@
     "test": "vitest",
     "test:ci": "vitest run",
     "test:debug": "vitest --inspect-brk=127.0.0.1:3000 --no-file-parallelism",
+    "test:e2e": "pnpm -C integrations/vite/ run test",
     "tsc": "tsc -b"
   },
   "lint-staged": {
