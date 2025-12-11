@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import {
   Panel as PanelExternal,
   type PanelSize,
@@ -9,6 +9,7 @@ import { PanelText } from "./PanelText";
 export function Panel({
   children,
   className = "",
+  id: idProp,
   showSizeAsPercentage = true,
   showSizeInPixels = true,
   ...rest
@@ -21,6 +22,9 @@ export function Panel({
     inPixels: 0
   });
 
+  const idReact = useId();
+  const id = `${idProp ?? idReact}`;
+
   const listenForResize = showSizeAsPercentage || showSizeInPixels;
 
   return (
@@ -30,8 +34,7 @@ export function Panel({
       onResize={listenForResize ? setSize : undefined}
     >
       <PanelText>
-        {children}
-
+        {children ?? id}
         {showSizeAsPercentage && (
           <div className="text-slate-300 text-xs">
             {Math.round(size.asPercentage)}%

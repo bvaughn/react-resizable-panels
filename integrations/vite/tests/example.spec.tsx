@@ -6,9 +6,9 @@ test("sanity check", async ({ page }) => {
   await goToUrl(
     page,
     <Group>
-      <Panel defaultSize="30%" minSize={50} />
+      <Panel defaultSize="30%" id="left" minSize={50} />
       <Separator />
-      <Panel minSize={50} />
+      <Panel id="right" minSize={50} />
     </Group>
   );
 
