@@ -31,10 +31,11 @@ export function Panel({
     <PanelExternal
       className={`bg-slate-800 rounded rounded-md ${className}`}
       {...rest}
+      id={id}
       onResize={listenForResize ? setSize : undefined}
     >
       <PanelText>
-        {children ?? id}
+        {children ?? `id: ${id}`}
         {showSizeAsPercentage && (
           <div className="text-slate-300 text-xs">
             {Math.round(size.asPercentage)}%

@@ -13,9 +13,9 @@ test.describe("default panel sizes", () => {
       </Group>
     );
 
-    await expect(page.getByText("left")).toContainText("30%");
+    await expect(page.getByText("id: left")).toContainText("30%");
     await expect(page.getByRole("separator")).toBeVisible();
-    await expect(page.getByText("right")).toContainText("70%");
+    await expect(page.getByText("id: right")).toContainText("70%");
   });
 
   test("pixels", async ({ page }) => {
@@ -28,9 +28,9 @@ test.describe("default panel sizes", () => {
       </Group>
     );
 
-    await expect(page.getByText("left")).toContainText("200px");
+    await expect(page.getByText("id: left")).toContainText("200px");
     await expect(page.getByRole("separator")).toBeVisible();
-    await expect(page.getByText("right")).toContainText("760px");
+    await expect(page.getByText("id: right")).toContainText("760px");
   });
 
   test("rems", async ({ page }) => {
@@ -43,9 +43,9 @@ test.describe("default panel sizes", () => {
       </Group>
     );
 
-    await expect(page.getByText("left")).toContainText("160px");
+    await expect(page.getByText("id: left")).toContainText("160px");
     await expect(page.getByRole("separator")).toBeVisible();
-    await expect(page.getByText("right")).toContainText("800px");
+    await expect(page.getByText("id: right")).toContainText("800px");
   });
 
   test("vw", async ({ page }) => {
@@ -58,8 +58,8 @@ test.describe("default panel sizes", () => {
       </Group>
     );
 
-    await expect(page.getByText("left")).toContainText("250px");
+    await expect(page.getByText("id: left")).toContainText("250px");
     await expect(page.getByRole("separator")).toBeVisible();
-    await expect(page.getByText("right")).toContainText("710px");
+    await expect(page.getByText("id: right")).toContainText("710px");
   });
 });

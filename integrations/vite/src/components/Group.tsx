@@ -13,5 +13,5 @@ export function Group({
     className?: string;
   }
 >) {
-  return <GroupExternal className={cn("p-2 gap-2", className)} {...rest} />;
+  return <GroupExternal className={cn("gap-2", className)} {...rest} />;
 }
