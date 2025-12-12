@@ -12,7 +12,7 @@ node_modules
 /docs
 *.local
 
-integrations/vite/test-results/.last-run.json
+integrations/vite/test-results
 
 # Editor directories and files
 .vscode/*

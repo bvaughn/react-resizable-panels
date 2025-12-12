@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 
-export default function useLocalStorage<Type>(
+export function useLocalStorage<Type>(
   key: string,
   defaultValue: Type
 ): [value: Type, setValue: (newValue: Type) => void] {

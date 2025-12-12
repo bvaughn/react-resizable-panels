@@ -4,9 +4,10 @@ export function Home() {
   return (
     <ul>
       <li>
-        <Link to="/e2e/conditionally-rendered-panels">
-          e2e: conditionally-rendered-panels
-        </Link>
+        <Link to="/e2e/encoder">e2e: encoder</Link>
+      </li>
+      <li>
+        <Link to="/e2e/dynamic">e2e: dynamic</Link>
       </li>
     </ul>
   );

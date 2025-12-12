@@ -52,14 +52,14 @@ test.describe("default panel sizes", () => {
     await goToUrl(
       page,
       <Group>
-        <Panel defaultSize="50vw" id="left" minSize={50} />
+        <Panel defaultSize="25vw" id="left" minSize={50} />
         <Separator />
         <Panel id="right" minSize={50} />
       </Group>
     );
 
-    await expect(page.getByText("left")).toContainText("52%");
+    await expect(page.getByText("left")).toContainText("250px");
     await expect(page.getByRole("separator")).toBeVisible();
-    await expect(page.getByText("right")).toContainText("48%");
+    await expect(page.getByText("right")).toContainText("710px");
   });
 });

@@ -9,7 +9,7 @@ export async function goToUrl(
 ) {
   const encodedString = element ? encode(element) : "";
 
-  const url = new URL(`http://localhost:3012/e2e/dynamic/${encodedString}`);
+  const url = new URL(`http://localhost:3012/e2e/decoder/${encodedString}`);
 
   // Uncomment when testing for easier repro
   console.log(url.toString());

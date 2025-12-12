@@ -10,7 +10,7 @@ export async function goToUrlWithIframe(
 ) {
   const encodedString = encode(element);
 
-  const url = new URL("http://localhost:3012/e2e/dynamic/iframe");
+  const url = new URL("http://localhost:3012/e2e/decoder/iframe");
   url.searchParams.set("urlPanelGroup", encodedString);
   if (sameOrigin) {
     url.searchParams.set("sameOrigin", "");
