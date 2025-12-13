@@ -124,7 +124,9 @@ export type PanelProps = PropsWithChildren<{
   /**
    * Called when panel sizes change; receives a map of Panel id to size.
    */
-  onResize?: ((panelSize: PanelSize) => void) | undefined;
+  onResize?:
+    | ((panelSize: PanelSize, id: string | number | undefined) => void)
+    | undefined;
 
   /**
    * Exposes the following imperative API:

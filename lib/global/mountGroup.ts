@@ -21,10 +21,21 @@ export function mountGroup(group: RegisteredGroup) {
           update((prevState) => {
             const match = prevState.mountedGroups.get(group);
             if (match) {
+              // Update non-percentage based constraints
+              const nextDerivedPanelConstraints =
+                calculatePanelConstraints(group);
+
+              // Revalidate layout in case constraints have changed
+              const prevLayout = match.layout;
+              const nextLayout = validatePanelGroupLayout({
+                layout: prevLayout,
+                panelConstraints: nextDerivedPanelConstraints
+              });
+
               return {
                 mountedGroups: new Map(prevState.mountedGroups).set(group, {
-                  derivedPanelConstraints: calculatePanelConstraints(group),
-                  layout: match.layout
+                  derivedPanelConstraints: nextDerivedPanelConstraints,
+                  layout: nextLayout
                 })
               };
             }

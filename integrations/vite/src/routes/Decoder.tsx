@@ -1,15 +1,27 @@
-import { cloneElement, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import type { Layout, PanelSize } from "react-resizable-panels";
 import { useParams } from "react-router";
 import { Box } from "../../../../src/components/Box";
 import { decode } from "../../tests/utils/serializer/decode";
-import { cn } from "../utils/cn";
+import { DebugData } from "../components/DebugData";
+import { assert } from "../utils/assert";
 
 export function Decoder() {
   const { encoded } = useParams();
 
-  const [state, setState] = useState({
-    count: 0,
-    layout: {}
+  const [state, setState] = useState<{
+    onLayoutCount: number;
+    layout: Layout;
+    panels: {
+      [id: number | string]: {
+        onResizeCount: number;
+        panelSize: PanelSize;
+      };
+    };
+  }>({
+    layout: {},
+    onLayoutCount: 0,
+    panels: {}
   });
 
   const children = useMemo(() => {
@@ -17,51 +29,63 @@ export function Decoder() {
       return null;
     }
 
-    let group = decode(encoded);
-    group = cloneElement(group, {
-      ...group.props,
-      onLayoutChange: (layout) => {
-        setState((prev) => ({
-          count: prev.count + 1,
-          layout
-        }));
+    const group = decode(encoded, {
+      groupProps: {
+        onLayoutChange: (layout) => {
+          console.log("[Decoder] onLayoutChange:", layout);
+          setState((prev) => ({
+            ...prev,
+            onLayoutCount: prev.onLayoutCount + 1,
+            layout
+          }));
+        }
+      },
+      panelProps: {
+        onResize: (panelSize, id) => {
+          assert(id, "Panel id required");
+          console.log("[Decoder] onResize:", id, panelSize);
+
+          setState((prev) => ({
+            ...prev,
+            panels: {
+              ...prev.panels,
+              [id]: {
+                onResizeCount: prev.panels[id]?.onResizeCount ?? 1,
+                panelSize
+              }
+            }
+          }));
+        }
       }
     });
 
     return group;
   }, [encoded]);
 
-  console.group("Decoder");
-  console.log(encoded);
-  console.log(children);
-  console.groupEnd();
+  // Debugging
+  // console.group("Decoder");
+  // console.log(encoded);
+  // console.log(children);
+  // console.groupEnd();
 
   return (
     <Box className="p-2" direction="column" gap={2}>
       <div>{children}</div>
-      <pre
-        className={cn(
-          "h-50 p-2 resize-none rounded-md font-mono text-xs",
-          "border border-2 border-slate-800 focus:outline-none focus:border-sky-700"
-        )}
-      >
-        <code className="text-xs">
-          {JSON.stringify(
-            {
-              ...state,
-              layout: Object.entries(state.layout).reduce(
-                (map, [key, value]) => ({
-                  ...map,
-                  [key]: Math.round(value as number)
-                }),
-                {}
-              )
-            },
-            null,
-            2
-          )}
-        </code>
-      </pre>
+      <DebugData
+        data={{
+          layout: state.layout,
+          onLayoutCount: state.onLayoutCount
+        }}
+      />
+      {Array.from(Object.keys(state.panels)).map((panelId) => (
+        <DebugData
+          data={{
+            panelId,
+            ...state.panels[panelId]
+          }}
+          key={panelId}
+        />
+      ))}
     </Box>
   );
 }

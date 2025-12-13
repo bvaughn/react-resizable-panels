@@ -19,10 +19,13 @@ export function notifyPanelOnResize(
 
   const groupSize = calculateAvailableGroupSize({ group });
 
-  panel.onResize({
-    asPercentage: formatLayoutNumber(
-      (resizeObserverSize.inlineSize / groupSize) * 100
-    ),
-    inPixels: resizeObserverSize.inlineSize
-  });
+  panel.onResize(
+    {
+      asPercentage: formatLayoutNumber(
+        (resizeObserverSize.inlineSize / groupSize) * 100
+      ),
+      inPixels: resizeObserverSize.inlineSize
+    },
+    panel.id
+  );
 }

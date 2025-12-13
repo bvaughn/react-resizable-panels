@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import Group from "./components/Group";
-import { Layout, Panel, Separator } from "react-resizable-panels";
+import { type Layout, Panel, Separator } from "react-resizable-panels";
 
 export default async function Home() {
   const defaultLayoutA = await getDefaultLayout("group-one");

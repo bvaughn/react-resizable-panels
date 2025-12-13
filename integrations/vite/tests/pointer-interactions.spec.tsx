@@ -16,22 +16,22 @@ test.describe("pointer interactions", () => {
       </Group>
     );
 
-    await expect(page.getByText('"count": 1')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 30')).toBeVisible();
 
     await resizeHelper(page, ["left", "right"], 100, 0);
 
-    await expect(page.getByText('"count": 2')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 2')).toBeVisible();
     await expect(page.getByText('"left": 40')).toBeVisible();
 
     await resizeHelper(page, ["left", "right"], 1000, 0);
 
-    await expect(page.getByText('"count": 3')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 3')).toBeVisible();
     await expect(page.getByText('"left": 95')).toBeVisible();
 
     await resizeHelper(page, ["left", "right"], -1000, 0);
 
-    await expect(page.getByText('"count": 4')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 4')).toBeVisible();
     await expect(page.getByText('"left": 5')).toBeVisible();
   });
 
@@ -44,22 +44,22 @@ test.describe("pointer interactions", () => {
       </Group>
     );
 
-    await expect(page.getByText('"count": 1')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 30')).toBeVisible();
 
     await resizeHelper(page, ["left", "right"], 100, 0);
 
-    await expect(page.getByText('"count": 2')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 2')).toBeVisible();
     await expect(page.getByText('"left": 40')).toBeVisible();
 
     await resizeHelper(page, ["left", "right"], 1000, 0);
 
-    await expect(page.getByText('"count": 3')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 3')).toBeVisible();
     await expect(page.getByText('"left": 95')).toBeVisible();
 
     await resizeHelper(page, ["left", "right"], -1000, 0);
 
-    await expect(page.getByText('"count": 4')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 4')).toBeVisible();
     await expect(page.getByText('"left": 5')).toBeVisible();
   });
 
@@ -73,12 +73,12 @@ test.describe("pointer interactions", () => {
       </Group>
     );
 
-    await expect(page.getByText('"count": 1')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 30')).toBeVisible();
 
     await resizeHelper(page, ["left", "right"], 100, 0);
 
-    await expect(page.getByText('"count": 1')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 30')).toBeVisible();
   });
 
@@ -94,28 +94,28 @@ test.describe("pointer interactions", () => {
       </Group>
     );
 
-    await expect(page.getByText('"count": 1')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 33')).toBeVisible();
     await expect(page.getByText('"center": 33')).toBeVisible();
     await expect(page.getByText('"right": 33')).toBeVisible();
 
     await resizeHelper(page, ["left", "center"], 1000, 0);
 
-    await expect(page.getByText('"count": 2')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 2')).toBeVisible();
     await expect(page.getByText('"left": 89')).toBeVisible();
     await expect(page.getByText('"center": 5')).toBeVisible();
     await expect(page.getByText('"right": 5')).toBeVisible();
 
     await resizeHelper(page, ["center", "right"], -1000, 0);
 
-    await expect(page.getByText('"count": 3')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 3')).toBeVisible();
     await expect(page.getByText('"left": 5')).toBeVisible();
     await expect(page.getByText('"center": 5')).toBeVisible();
     await expect(page.getByText('"right": 89')).toBeVisible();
 
     await resizeHelper(page, ["center", "right"], 1000, 0);
 
-    await expect(page.getByText('"count": 4')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 4')).toBeVisible();
     await expect(page.getByText('"left": 5')).toBeVisible();
     await expect(page.getByText('"center": 89')).toBeVisible();
     await expect(page.getByText('"right": 5')).toBeVisible();
@@ -135,7 +135,7 @@ test.describe("pointer interactions", () => {
       </Group>
     );
 
-    await expect(page.getByText('"count": 1')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 33')).toBeVisible();
     await expect(page.getByText('"center": 33')).toBeVisible();
     await expect(page.getByText('"right": 33')).toBeVisible();
@@ -149,14 +149,14 @@ test.describe("pointer interactions", () => {
       steps: 1
     });
 
-    await expect(page.getByText('"count": 2')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 2')).toBeVisible();
     await expect(page.getByText('"left": 84')).toBeVisible();
     await expect(page.getByText('"center": 5')).toBeVisible();
     await expect(page.getByText('"right": 11')).toBeVisible();
 
     await page.mouse.move(x - 500, y);
 
-    await expect(page.getByText('"count": 3')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 3')).toBeVisible();
     await expect(page.getByText('"left": 5')).toBeVisible();
     await expect(page.getByText('"center": 61')).toBeVisible();
     await expect(page.getByText('"right": 33')).toBeVisible();
@@ -164,7 +164,7 @@ test.describe("pointer interactions", () => {
     await page.mouse.move(x, y);
     await page.mouse.up();
 
-    await expect(page.getByText('"count": 4')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 4')).toBeVisible();
     await expect(page.getByText('"left": 33')).toBeVisible();
     await expect(page.getByText('"center": 33')).toBeVisible();
     await expect(page.getByText('"right": 33')).toBeVisible();

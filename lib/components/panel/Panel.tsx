@@ -56,7 +56,7 @@ export function Panel({
 
   const hasOnResize = onResizeUnstable !== null;
   const onResizeStable = useStableCallback((panelSize: PanelSize) => {
-    onResizeUnstable?.(panelSize);
+    onResizeUnstable?.(panelSize, idProp);
   });
 
   // Register Panel with parent Group

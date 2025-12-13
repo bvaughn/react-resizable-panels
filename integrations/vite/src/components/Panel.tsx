@@ -1,8 +1,8 @@
 import { useId, useState } from "react";
 import {
   Panel as PanelExternal,
-  type PanelSize,
-  type PanelProps
+  type PanelProps,
+  type PanelSize
 } from "react-resizable-panels";
 import { PanelText } from "./PanelText";
 
@@ -10,6 +10,7 @@ export function Panel({
   children,
   className = "",
   id: idProp,
+  onResize,
   showSizeAsPercentage = true,
   showSizeInPixels = true,
   ...rest
@@ -25,14 +26,15 @@ export function Panel({
   const idReact = useId();
   const id = `${idProp ?? idReact}`;
 
-  const listenForResize = showSizeAsPercentage || showSizeInPixels;
-
   return (
     <PanelExternal
       className={`bg-slate-800 rounded rounded-md ${className}`}
       {...rest}
       id={id}
-      onResize={listenForResize ? setSize : undefined}
+      onResize={(size, id) => {
+        setSize(size);
+        onResize?.(size, id);
+      }}
     >
       <PanelText>
         {children ?? `id: ${id}`}

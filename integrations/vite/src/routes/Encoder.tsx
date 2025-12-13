@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactElement } from "react";
+import type { GroupProps } from "react-resizable-panels";
 import { Group } from "react-resizable-panels";
 import { Link } from "react-router";
-import type { GroupProps } from "../../../../dist/react-resizable-panels";
 import { useLocalStorage } from "../../../../src/hooks/useLocalStorage";
 import { encode } from "../../tests/utils/serializer/encode";
 import { assert } from "../utils/assert";

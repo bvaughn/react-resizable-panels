@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { calculateHitArea } from "../calculateHitArea";
 import { getCenterCoordinates } from "../getCenterCoordinates";
 

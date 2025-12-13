@@ -1,4 +1,4 @@
-import { Box } from "./types";
+import type { Box } from "./types";
 
 export function calculateBoxBetween(boxA: Box, boxB: Box): Box {
   if (boxA.y === boxB.y) {
