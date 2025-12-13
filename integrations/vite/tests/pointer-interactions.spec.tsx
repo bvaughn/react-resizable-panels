@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
+import { calculateHitArea } from "./utils/calculateHitArea";
+import { getCenterCoordinates } from "./utils/getCenterCoordinates";
 import { goToUrl } from "./utils/goToUrl";
-import { resizeHelper } from "./utils/resizeHelper";
+import { resizeHelper } from "./utils/pointer-interactions/resizeHelper";
 
 test.describe("pointer interactions", () => {
   test("drag separator to resize group", async ({ page }) => {
@@ -78,5 +80,93 @@ test.describe("pointer interactions", () => {
 
     await expect(page.getByText('"count": 1')).toBeVisible();
     await expect(page.getByText('"left": 30')).toBeVisible();
+  });
+
+  test("dragging a handle should resize multiple panels", async ({ page }) => {
+    await goToUrl(
+      page,
+      <Group>
+        <Panel id="left" minSize={50} />
+        <Separator />
+        <Panel id="center" minSize={50} />
+        <Separator />
+        <Panel id="right" minSize={50} />
+      </Group>
+    );
+
+    await expect(page.getByText('"count": 1')).toBeVisible();
+    await expect(page.getByText('"left": 33')).toBeVisible();
+    await expect(page.getByText('"center": 33')).toBeVisible();
+    await expect(page.getByText('"right": 33')).toBeVisible();
+
+    await resizeHelper(page, ["left", "center"], 1000, 0);
+
+    await expect(page.getByText('"count": 2')).toBeVisible();
+    await expect(page.getByText('"left": 89')).toBeVisible();
+    await expect(page.getByText('"center": 5')).toBeVisible();
+    await expect(page.getByText('"right": 5')).toBeVisible();
+
+    await resizeHelper(page, ["center", "right"], -1000, 0);
+
+    await expect(page.getByText('"count": 3')).toBeVisible();
+    await expect(page.getByText('"left": 5')).toBeVisible();
+    await expect(page.getByText('"center": 5')).toBeVisible();
+    await expect(page.getByText('"right": 89')).toBeVisible();
+
+    await resizeHelper(page, ["center", "right"], 1000, 0);
+
+    await expect(page.getByText('"count": 4')).toBeVisible();
+    await expect(page.getByText('"left": 5')).toBeVisible();
+    await expect(page.getByText('"center": 89')).toBeVisible();
+    await expect(page.getByText('"right": 5')).toBeVisible();
+  });
+
+  test("initial position should be the anchor while a drag is in progress", async ({
+    page
+  }) => {
+    await goToUrl(
+      page,
+      <Group>
+        <Panel id="left" minSize={50} />
+        <Separator />
+        <Panel id="center" minSize={50} />
+        <Separator />
+        <Panel id="right" minSize={50} />
+      </Group>
+    );
+
+    await expect(page.getByText('"count": 1')).toBeVisible();
+    await expect(page.getByText('"left": 33')).toBeVisible();
+    await expect(page.getByText('"center": 33')).toBeVisible();
+    await expect(page.getByText('"right": 33')).toBeVisible();
+
+    const hitAreaBox = await calculateHitArea(page, ["left", "center"]);
+    const { x, y } = getCenterCoordinates(hitAreaBox);
+
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + 500, y, {
+      steps: 1
+    });
+
+    await expect(page.getByText('"count": 2')).toBeVisible();
+    await expect(page.getByText('"left": 84')).toBeVisible();
+    await expect(page.getByText('"center": 5')).toBeVisible();
+    await expect(page.getByText('"right": 11')).toBeVisible();
+
+    await page.mouse.move(x - 500, y);
+
+    await expect(page.getByText('"count": 3')).toBeVisible();
+    await expect(page.getByText('"left": 5')).toBeVisible();
+    await expect(page.getByText('"center": 61')).toBeVisible();
+    await expect(page.getByText('"right": 33')).toBeVisible();
+
+    await page.mouse.move(x, y);
+    await page.mouse.up();
+
+    await expect(page.getByText('"count": 4')).toBeVisible();
+    await expect(page.getByText('"left": 33')).toBeVisible();
+    await expect(page.getByText('"center": 33')).toBeVisible();
+    await expect(page.getByText('"right": 33')).toBeVisible();
   });
 });
