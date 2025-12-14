@@ -14,11 +14,13 @@ import { useMergedRefs } from "../../hooks/useMergedRefs";
  *
  * Separators should be rendered as the direct child of a Group component.
  *
- * For unit testing purposes, Separator elements always include the following data attributes:
+ * Separator elements always include the following data attributes and role:
  *
  * ```html
- * <div data-separator="your-separator-id" role="separator" />
+ * <div data-separator data-testid="your-separator-id" role="separator" />
  * ```
+ *
+ * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
  */
 export function Separator({
   children,
@@ -79,8 +81,8 @@ export function Separator({
       aria-orientation={orientation}
       children={children}
       className={className}
-      data-separator={id}
-      data-separator-state={dragState}
+      data-separator={dragState}
+      data-testid={idProp ?? undefined}
       ref={mergedRef}
       role="separator"
       style={{

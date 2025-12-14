@@ -26,11 +26,13 @@ export default function CustomStylesRoute() {
           prevent interfering with the Flex layout
         </li>
       </ul>
-      <div>
-        The Separator component renders a <code>data-separator-state</code>{" "}
-        attribute to support custom styles for <em>hover</em> or <em>drag</em>{" "}
-        states.
-      </div>
+      <Callout intent="success">
+        When styling a Separator, use the <code>data-separator</code> attribute
+        rather than <code>:hover</code> or <code>:active</code> pseudo-classes.
+        This attribute is updated when the pointer is near enough to a separator
+        element to be interactive, even if it is not directly on top of the
+        element.
+      </Callout>
       <Code html={DataAttributesExampleHTML} />
       <div>An example using Tailwind CSS might look something like this.</div>
       <Code html={CustomStylesExampleHTML} />
@@ -39,11 +41,6 @@ export default function CustomStylesRoute() {
         <Separator />
         <Panel>right</Panel>
       </Group>
-      <Callout intent="success">
-        Using data-attributes for Separator styles enables visual updates when a
-        pointer is <em>near</em> (but not directly on top of) a draggable
-        region.
-      </Callout>
     </Box>
   );
 }

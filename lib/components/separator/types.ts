@@ -9,7 +9,7 @@ export type SeparatorProps = PropsWithChildren<{
   /**
    * CSS class name.
    *
-   * ℹ️ Use the `data-separator-state` attribute for custom _hover_ and _active_ styles
+   * ℹ️ Use the `data-separator` attribute for custom _hover_ and _active_ styles
    *
    * ⚠️ The following properties cannot be overridden: `flex-grow`, `flex-shrink`
    */
@@ -31,7 +31,7 @@ export type SeparatorProps = PropsWithChildren<{
   /**
    * CSS properties.
    *
-   * ℹ️ Use the `data-separator-state` attribute for custom _hover_ and _active_ styles
+   * ℹ️ Use the `data-separator` attribute for custom _hover_ and _active_ styles
    *
    * ⚠️ The following properties cannot be overridden: `flex-grow`, `flex-shrink`
    */

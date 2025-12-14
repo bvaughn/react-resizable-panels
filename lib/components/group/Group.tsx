@@ -23,11 +23,13 @@ import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
  * A Group wraps a set of resizable Panel components.
  * Group content can be resized _horizontally_ or _vertically_.
  *
- * For unit testing purposes, Group elements always include the following data attributes:
+ * Group elements always include the following data attributes:
  *
  * ```html
- * <div data-group="your-group-id">
+ * <div data-group data-testid="your-group-id">
  * ```
+ *
+ * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
  */
 export function Group({
   children,
@@ -179,7 +181,8 @@ export function Group({
       <div
         aria-orientation={orientation}
         className={className}
-        data-group={id}
+        data-group
+        data-testid={idProp ?? undefined}
         ref={mergedRef}
         style={{
           ...style,

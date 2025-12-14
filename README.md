@@ -234,7 +234,7 @@ Falls back to <code>useId</code> when not provided.</p>
     <tr>
       <td>className</td>
       <td><p>CSS class name.</p>
-<p>ℹ️ Use the <code>data-separator-state</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>
+<p>ℹ️ Use the <code>data-separator</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>
 <p>⚠️ The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code></p>
 </td>
     </tr>
@@ -253,7 +253,7 @@ Falls back to <code>useId</code> when not provided.</p>
     <tr>
       <td>style</td>
       <td><p>CSS properties.</p>
-<p>ℹ️ Use the <code>data-separator-state</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>
+<p>ℹ️ Use the <code>data-separator</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>
 <p>⚠️ The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code></p>
 </td>
     </tr>

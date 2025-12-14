@@ -1,9 +1,10 @@
 import type { Layout, RegisteredGroup } from "../components/group/types";
 import { calculatePanelConstraints } from "./dom/calculatePanelConstraints";
+import { onKeyDown } from "./event-handlers/onKeyDown";
+import { onPointerDown } from "./event-handlers/onPointerDown";
+import { onPointerMove } from "./event-handlers/onPointerMove";
+import { onPointerUp } from "./event-handlers/onPointerUp";
 import { update } from "./mutableState";
-import { onPointerDown } from "./pointer-events/onPointerDown";
-import { onPointerMove } from "./pointer-events/onPointerMove";
-import { onPointerUp } from "./pointer-events/onPointerUp";
 import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
 import { notifyPanelOnResize } from "./utils/notifyPanelOnResize";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
@@ -76,14 +77,16 @@ export function mountGroup(group: RegisteredGroup) {
 
   isMounted = true;
 
+  group.separators.forEach((separator) => {
+    separator.element.addEventListener("keydown", onKeyDown);
+  });
+
   // If this is the first group to be mounted, initialize event handlers
   if (nextState.mountedGroups.size === 1) {
     window.addEventListener("pointerdown", onPointerDown);
     window.addEventListener("pointerleave", onPointerMove);
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", onPointerUp);
-
-    // TODO Add keyboard event listeners
   }
 
   return function unmountGroup() {
@@ -96,14 +99,16 @@ export function mountGroup(group: RegisteredGroup) {
 
     isMounted = false;
 
+    group.separators.forEach((separator) => {
+      separator.element.removeEventListener("keydown", onKeyDown);
+    });
+
     // If this was the last group to be mounted, tear down event handlers
     if (nextState.mountedGroups.size === 0) {
       window.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointerleave", onPointerMove);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
-
-      // TODO Remove keyboard event listeners
     }
 
     resizeObserver.disconnect();

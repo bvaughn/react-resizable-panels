@@ -6,7 +6,7 @@ import { Separator } from "react-resizable-panels";
 <Separator
   className="
     bg-slate-600
-    [&[data-separator-state='hover']]:bg-slate-500
-    [&[data-separator-state='active']]:bg-slate-400
+    [&[data-separator='hover']]:bg-slate-500
+    [&[data-separator='active']]:bg-slate-400
   "
 />

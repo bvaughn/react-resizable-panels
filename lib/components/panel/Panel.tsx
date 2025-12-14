@@ -24,11 +24,13 @@ import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
  * - Font sizes (em, rem)
  * - Viewport sizes (vh, vw)
  *
- * For unit testing purposes, Panel elements always include the following data attributes:
+ * Panel elements always include the following data attributes:
  *
  * ```html
- * <div data-panel="your-panel-id">
+ * <div data-panel data-testid="your-panel-id">
  * ```
+ *
+ * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
  */
 export function Panel({
   children,
@@ -96,7 +98,8 @@ export function Panel({
 
   return (
     <div
-      data-panel={id}
+      data-panel
+      data-testid={idProp ?? undefined}
       ref={mergedRef}
       style={{
         flexBasis: 0,

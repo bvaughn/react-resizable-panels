@@ -71,21 +71,23 @@ export function Decoder() {
   return (
     <Box className="p-2" direction="column" gap={2}>
       <div>{children}</div>
-      <DebugData
-        data={{
-          layout: state.layout,
-          onLayoutCount: state.onLayoutCount
-        }}
-      />
-      {Array.from(Object.keys(state.panels)).map((panelId) => (
+      <Box className="p-2" direction="row" gap={2} wrap>
         <DebugData
           data={{
-            panelId,
-            ...state.panels[panelId]
+            layout: state.layout,
+            onLayoutCount: state.onLayoutCount
           }}
-          key={panelId}
         />
-      ))}
+        {Array.from(Object.keys(state.panels)).map((panelId) => (
+          <DebugData
+            data={{
+              panelId,
+              ...state.panels[panelId]
+            }}
+            key={panelId}
+          />
+        ))}
+      </Box>
     </Box>
   );
 }

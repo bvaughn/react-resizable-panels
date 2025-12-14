@@ -4,10 +4,14 @@
       "content": "<p>A Group wraps a set of resizable Panel components.\nGroup content can be resized <em>horizontally</em> or <em>vertically</em>.</p>\n"
     },
     {
-      "content": "<p>For unit testing purposes, Group elements always include the following data attributes:</p>\n"
+      "content": "<p>Group elements always include the following data attributes:</p>\n"
     },
     {
-      "content": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-group</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"your-group-id\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
+      "content": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-group</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-testid</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"your-group-id\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
+    },
+    {
+      "content": "<p><a href=\"https://testing-library.com/docs/queries/bytestid/\">Test id</a> can be used to narrow selection when unit testing.</p>\n",
+      "intent": "primary"
     }
   ],
   "filePath": "lib/components/group/Group.tsx",
