@@ -7,8 +7,8 @@
   },
   "dependencies": {
     "vike": "^0.4.247",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "react-resizable-panels": "workspace:*",
     "vike-react": "^0.6.13"
   },
