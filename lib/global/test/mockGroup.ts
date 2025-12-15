@@ -51,6 +51,7 @@ export function mockGroup(
     disabled: false,
     element: groupElement,
     id: groupId,
+    inMemoryLastExpandedPanelSizes: {},
     inMemoryLayouts: {},
     orientation,
 

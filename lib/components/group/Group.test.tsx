@@ -6,6 +6,8 @@ import { Panel } from "../panel/Panel";
 import { Separator } from "../separator/Separator";
 import { Group } from "./Group";
 
+// TODO Dev warnings, including e.g. too many separators, non-unique panel ids
+
 describe("Group", () => {
   describe("onLayoutChange", () => {
     beforeEach(() => {

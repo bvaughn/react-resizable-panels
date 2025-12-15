@@ -60,12 +60,16 @@ export function Group({
 
   const [dragActive, setDragActive] = useState(false);
   const [element, setElement] = useState<HTMLDivElement | null>(null);
-  const inMemoryLayoutsRef = useRef<{
-    [panelIds: string]: Layout;
-  }>({});
   const [layout, setLayout] = useState<Layout>(defaultLayout ?? {});
   const [panels, setPanels] = useState<RegisteredPanel[]>([]);
   const [separators, setSeparators] = useState<RegisteredSeparator[]>([]);
+
+  const inMemoryLastExpandedPanelSizesRef = useRef<{
+    [panelIds: string]: number;
+  }>({});
+  const inMemoryLayoutsRef = useRef<{
+    [panelIds: string]: Layout;
+  }>({});
 
   const mergedRef = useMergedRefs(setElement, elementRef);
 
@@ -105,6 +109,8 @@ export function Group({
         disabled: !!disabled,
         element,
         id,
+        inMemoryLastExpandedPanelSizes:
+          inMemoryLastExpandedPanelSizesRef.current,
         inMemoryLayouts: inMemoryLayoutsRef.current,
         orientation,
         panels,

@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { eventEmitter } from "../../global/mutableState";
 import type { InteractionState } from "../../global/types";
+import { calculateSeparatorAriaValues } from "../../global/utils/calculateSeparatorAriaValues";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
+import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useGroupContext } from "../group/useGroupContext";
 import type { RegisteredSeparator, SeparatorProps } from "./types";
-import { useMergedRefs } from "../../hooks/useMergedRefs";
 
 /**
  * Separators are not _required_ but they are _recommended_ as they improve keyboard accessibility.
@@ -31,14 +32,24 @@ export function Separator({
 }: SeparatorProps) {
   const id = useId(idProp);
 
-  const [element, setElement] = useState<HTMLDivElement | null>(null);
+  const [aria, setAria] = useState<{
+    valueMin?: number | undefined;
+    valueMax?: number | undefined;
+    valueNow?: number | undefined;
+  }>({});
+
   const [dragState, setDragState] =
     useState<InteractionState["state"]>("inactive");
+  const [element, setElement] = useState<HTMLDivElement | null>(null);
 
   const mergedRef = useMergedRefs(setElement, elementRef);
 
-  const { orientation: groupOrientation, registerSeparator } =
-    useGroupContext();
+  const {
+    id: groupId,
+    orientation: groupOrientation,
+    registerSeparator
+  } = useGroupContext();
+
   const orientation =
     groupOrientation === "horizontal" ? "vertical" : "horizontal";
 
@@ -53,7 +64,7 @@ export function Separator({
 
       const unregisterSeparator = registerSeparator(separator);
 
-      const removeEventListener = eventEmitter.addListener(
+      const removeInteractionStateChangeListener = eventEmitter.addListener(
         "interactionStateChange",
         (interactionState) => {
           setDragState(
@@ -67,18 +78,49 @@ export function Separator({
         }
       );
 
+      const removeMountedGroupsChangeListener = eventEmitter.addListener(
+        "mountedGroupsChange",
+        (mountedGroups) => {
+          mountedGroups.forEach(
+            (
+              { derivedPanelConstraints, layout, separatorToPanels },
+              mountedGroup
+            ) => {
+              if (mountedGroup.id === groupId) {
+                const panels = separatorToPanels.get(separator);
+                if (panels) {
+                  const primaryPanel = panels[0];
+                  const panelIndex = mountedGroup.panels.indexOf(primaryPanel);
+
+                  setAria(
+                    calculateSeparatorAriaValues({
+                      layout,
+                      panelConstraints: derivedPanelConstraints,
+                      panelId: primaryPanel.id,
+                      panelIndex
+                    })
+                  );
+                }
+              }
+            }
+          );
+        }
+      );
+
       return () => {
+        removeInteractionStateChangeListener();
+        removeMountedGroupsChangeListener();
         unregisterSeparator();
-        removeEventListener();
       };
     }
-  }, [element, id, registerSeparator]);
+  }, [element, groupId, id, registerSeparator]);
 
-  // TODO ARIA attributes aria-valuenow, aria-valuemin, and aria-valuemax
-  // These values should correspond to the Panel before the Separator
   return (
     <div
       aria-orientation={orientation}
+      aria-valuemax={aria.valueMax}
+      aria-valuemin={aria.valueMin}
+      aria-valuenow={aria.valueNow}
       children={children}
       className={className}
       data-separator={dragState}

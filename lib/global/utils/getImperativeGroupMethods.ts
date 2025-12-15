@@ -13,9 +13,9 @@ export function getImperativeGroupMethods({
 }): GroupImperativeHandle {
   const find = () => {
     const { mountedGroups } = read();
-    for (const [group, { derivedPanelConstraints, layout }] of mountedGroups) {
+    for (const [group, value] of mountedGroups) {
       if (group.id === groupId) {
-        return { derivedPanelConstraints, group, layout };
+        return { group, ...value };
       }
     }
 
@@ -29,7 +29,12 @@ export function getImperativeGroupMethods({
       return layout;
     },
     setLayout(unsafeLayout: Layout) {
-      const { derivedPanelConstraints, group, layout: prevLayout } = find();
+      const {
+        derivedPanelConstraints,
+        group,
+        layout: prevLayout,
+        separatorToPanels
+      } = find();
 
       const nextLayout = validatePanelGroupLayout({
         layout: unsafeLayout,
@@ -40,7 +45,8 @@ export function getImperativeGroupMethods({
         update((prevState) => ({
           mountedGroups: new Map(prevState.mountedGroups).set(group, {
             derivedPanelConstraints,
-            layout: nextLayout
+            layout: nextLayout,
+            separatorToPanels
           })
         }));
       }

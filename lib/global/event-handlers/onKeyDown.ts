@@ -1,32 +1,109 @@
 import { assert } from "../../utils/assert";
+import { adjustLayoutForSeparator } from "../utils/adjustLayoutForSeparator";
+import { findSeparatorGroup } from "../utils/findSeparatorGroup";
+import { getMountedGroup } from "../utils/getMountedGroup";
 
 export function onKeyDown(event: KeyboardEvent) {
   if (event.defaultPrevented) {
     return;
   }
 
-  console.log("onKeyDown:", event.key);
+  const separatorElement = event.currentTarget as HTMLElement;
+
+  const group = findSeparatorGroup(separatorElement);
+  if (group.disabled) {
+    return;
+  }
 
   switch (event.key) {
-    case "ArrowDown":
-    case "ArrowLeft":
-    case "ArrowRight":
-    case "ArrowUp":
-    case "End":
-    case "Home": {
+    case "ArrowDown": {
       event.preventDefault();
 
-      // TODO
+      if (group.orientation === "vertical") {
+        adjustLayoutForSeparator(separatorElement, 5);
+      }
+      break;
+    }
+    case "ArrowLeft": {
+      event.preventDefault();
+
+      if (group.orientation === "horizontal") {
+        adjustLayoutForSeparator(separatorElement, -5);
+      }
+      break;
+    }
+    case "ArrowRight": {
+      event.preventDefault();
+
+      if (group.orientation === "horizontal") {
+        adjustLayoutForSeparator(separatorElement, 5);
+      }
+      break;
+    }
+    case "ArrowUp": {
+      event.preventDefault();
+
+      if (group.orientation === "vertical") {
+        adjustLayoutForSeparator(separatorElement, -5);
+      }
+      break;
+    }
+    case "End": {
+      event.preventDefault();
+
+      // Moves splitter to the position that gives the primary pane its largest allowed size.
+      // This may completely collapse the secondary pane.
+
+      adjustLayoutForSeparator(separatorElement, 100);
+      break;
+    }
+    case "Enter": {
+      event.preventDefault();
+
+      // If the primary pane is not collapsed, collapses the pane.
+      // If the pane is collapsed, restores the splitter to its previous position.
+
+      const group = findSeparatorGroup(separatorElement);
+      const { derivedPanelConstraints, layout, separatorToPanels } =
+        getMountedGroup(group);
+
+      const separator = group.separators.find(
+        (current) => current.element === separatorElement
+      );
+      assert(separator, "Matching separator not found");
+
+      const panels = separatorToPanels.get(separator);
+      assert(panels, "Matching panels not found");
+
+      const primaryPanel = panels[0];
+      const constraints = derivedPanelConstraints.find(
+        (current) => current.panelId === primaryPanel.id
+      );
+      assert(constraints, "Panel metadata not found");
+
+      if (constraints.collapsible) {
+        const prevSize = layout[primaryPanel.id];
+
+        const nextSize =
+          constraints.collapsedSize === prevSize
+            ? (group.inMemoryLastExpandedPanelSizes[primaryPanel.id] ??
+              constraints.minSize)
+            : constraints.collapsedSize;
+
+        adjustLayoutForSeparator(separatorElement, nextSize - prevSize);
+      }
       break;
     }
     case "F6": {
       event.preventDefault();
 
-      const groupElement = (event.currentTarget as HTMLElement).parentElement;
-      assert(groupElement, "Group element parent not found");
+      // Cycle through window panes.
 
-      const separatorElements =
-        groupElement.querySelectorAll('[role="separator"]');
+      const group = findSeparatorGroup(separatorElement);
+
+      const separatorElements = group.separators.map(
+        (separator) => separator.element
+      );
 
       const index = Array.from(separatorElements).findIndex(
         (current) => current === event.currentTarget
@@ -41,8 +118,17 @@ export function onKeyDown(event: KeyboardEvent) {
           ? index + 1
           : 0;
 
-      const separatorElement = separatorElements[nextIndex] as HTMLElement;
-      separatorElement.focus();
+      const nextSeparatorElement = separatorElements[nextIndex] as HTMLElement;
+      nextSeparatorElement.focus();
+      break;
+    }
+    case "Home": {
+      event.preventDefault();
+
+      // Moves splitter to the position that gives the primary pane its smallest allowed size.
+      // This may completely collapse the primary pane.
+
+      adjustLayoutForSeparator(separatorElement, -100);
       break;
     }
   }

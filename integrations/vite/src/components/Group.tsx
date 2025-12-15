@@ -13,5 +13,10 @@ export function Group({
     className?: string;
   }
 >) {
-  return <GroupExternal className={cn("gap-2", className)} {...rest} />;
+  return (
+    <GroupExternal
+      className={cn("gap-2 min-h-[250px] min-w-full", className)}
+      {...rest}
+    />
+  );
 }

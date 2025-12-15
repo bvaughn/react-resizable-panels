@@ -1,4 +1,5 @@
 import type { Layout, RegisteredGroup } from "../components/group/types";
+import { calculateHitRegions } from "./dom/calculateHitRegions";
 import { calculatePanelConstraints } from "./dom/calculatePanelConstraints";
 import { onKeyDown } from "./event-handlers/onKeyDown";
 import { onPointerDown } from "./event-handlers/onPointerDown";
@@ -10,7 +11,7 @@ import { notifyPanelOnResize } from "./utils/notifyPanelOnResize";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 
 export function mountGroup(group: RegisteredGroup) {
-  let isMounted = false;
+  let isMounted = true;
 
   // Add Panels with onResize callbacks to ResizeObserver
   // Add Group to ResizeObserver also in order to sync % based constraints
@@ -36,7 +37,8 @@ export function mountGroup(group: RegisteredGroup) {
               return {
                 mountedGroups: new Map(prevState.mountedGroups).set(group, {
                   derivedPanelConstraints: nextDerivedPanelConstraints,
-                  layout: nextLayout
+                  layout: nextLayout,
+                  separatorToPanels: match.separatorToPanels
                 })
               };
             }
@@ -58,7 +60,6 @@ export function mountGroup(group: RegisteredGroup) {
   // Calculate initial layout for the new Panel configuration
   const derivedPanelConstraints = calculatePanelConstraints(group);
   const panelIdsKey = group.panels.map(({ id }) => id).join(",");
-
   const defaultLayoutUnsafe: Layout =
     group.inMemoryLayouts[panelIdsKey] ??
     group.defaultLayout ??
@@ -68,14 +69,19 @@ export function mountGroup(group: RegisteredGroup) {
     panelConstraints: derivedPanelConstraints
   });
 
+  const hitRegions = calculateHitRegions(group);
+
   const nextState = update((prevState) => ({
     mountedGroups: new Map(prevState.mountedGroups).set(group, {
       derivedPanelConstraints,
-      layout: defaultLayoutSafe
+      layout: defaultLayoutSafe,
+      separatorToPanels: new Map(
+        hitRegions
+          .filter((hitRegion) => hitRegion.separator)
+          .map((hitRegion) => [hitRegion.separator!, hitRegion.panels])
+      )
     })
   }));
-
-  isMounted = true;
 
   group.separators.forEach((separator) => {
     separator.element.addEventListener("keydown", onKeyDown);
@@ -90,14 +96,14 @@ export function mountGroup(group: RegisteredGroup) {
   }
 
   return function unmountGroup() {
+    isMounted = false;
+
     const nextState = update((prevState) => {
       const mountedGroups = new Map(prevState.mountedGroups);
       mountedGroups.delete(group);
 
       return { mountedGroups };
     });
-
-    isMounted = false;
 
     group.separators.forEach((separator) => {
       separator.element.removeEventListener("keydown", onKeyDown);

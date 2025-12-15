@@ -1,15 +1,26 @@
 import type { Layout, RegisteredGroup } from "../components/group/types";
-import type { PanelConstraints } from "../components/panel/types";
+import type {
+  PanelConstraints,
+  RegisteredPanel
+} from "../components/panel/types";
+import type { RegisteredSeparator } from "../components/separator/types";
 import { EventEmitter } from "../utils/EventEmitter";
 import type { InteractionState } from "./types";
+import { layoutNumbersEqual } from "./utils/layoutNumbersEqual";
 
 type UpdaterFunction = (prevState: State) => Partial<State>;
+
+export type SeparatorToPanelsMap = Map<
+  RegisteredSeparator,
+  [primaryPanel: RegisteredPanel, secondaryPanel: RegisteredPanel]
+>;
 
 export type MountedGroupMap = Map<
   RegisteredGroup,
   {
     derivedPanelConstraints: PanelConstraints[];
     layout: Layout;
+    separatorToPanels: SeparatorToPanelsMap;
   }
 >;
 
@@ -45,6 +56,8 @@ export function update(value: Partial<State> | UpdaterFunction) {
     return state;
   }
 
+  const prevState = state;
+
   state = {
     ...state,
     ...partialState
@@ -59,6 +72,30 @@ export function update(value: Partial<State> | UpdaterFunction) {
   }
 
   if (partialState.mountedGroups !== undefined) {
+    // If any collapsible Panels have been collapsed by this size change, record their previous sizes
+    state.mountedGroups.forEach((value, group) => {
+      value.derivedPanelConstraints.forEach((constraints) => {
+        if (constraints.collapsible) {
+          const { layout: prevLayout } =
+            prevState.mountedGroups.get(group) ?? {};
+          if (prevLayout) {
+            const isCollapsed = layoutNumbersEqual(
+              constraints.collapsedSize,
+              value.layout[constraints.panelId]
+            );
+            const wasCollapsed = layoutNumbersEqual(
+              constraints.collapsedSize,
+              prevLayout[constraints.panelId]
+            );
+            if (isCollapsed && !wasCollapsed) {
+              group.inMemoryLastExpandedPanelSizes[constraints.panelId] =
+                prevLayout[constraints.panelId];
+            }
+          }
+        }
+      });
+    });
+
     eventEmitter.emit("mountedGroupsChange", state.mountedGroups);
   }
 

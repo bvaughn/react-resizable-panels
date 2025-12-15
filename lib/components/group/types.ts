@@ -2,6 +2,8 @@ import type { CSSProperties, ReactNode, Ref } from "react";
 import type { RegisteredPanel } from "../panel/types";
 import type { RegisteredSeparator } from "../separator/types";
 
+// TODO Replace Maps with objects?
+
 /**
  * Panel group orientation loosely relates to the `aria-orientation` attribute.
  * It determines how panels are are laid out within the group group and the direction they can be resized in.
@@ -28,6 +30,9 @@ export type RegisteredGroup = {
   disabled: boolean;
   element: HTMLElement;
   id: string;
+  inMemoryLastExpandedPanelSizes: {
+    [panelId: string]: number;
+  };
   inMemoryLayouts: {
     [panelIds: string]: Layout;
   };

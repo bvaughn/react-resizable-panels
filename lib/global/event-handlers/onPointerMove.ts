@@ -66,9 +66,17 @@ export function onPointerMove(event: PointerEvent) {
         const initialLayout = interactionState.initialLayoutMap.get(
           current.group
         );
-        const { derivedPanelConstraints, layout: prevLayout } =
-          mountedGroups.get(current.group) ?? {};
-        if (derivedPanelConstraints && initialLayout && prevLayout) {
+        const {
+          derivedPanelConstraints,
+          layout: prevLayout,
+          separatorToPanels
+        } = mountedGroups.get(current.group) ?? {};
+        if (
+          derivedPanelConstraints &&
+          initialLayout &&
+          prevLayout &&
+          separatorToPanels
+        ) {
           const nextLayout = adjustLayoutByDelta({
             delta: deltaAsPercentage,
             initialLayout,
@@ -101,7 +109,8 @@ export function onPointerMove(event: PointerEvent) {
           } else {
             nextMountedGroups.set(current.group, {
               derivedPanelConstraints: derivedPanelConstraints,
-              layout: nextLayout
+              layout: nextLayout,
+              separatorToPanels
             });
 
             // Save the most recent layout for this group of panels in-memory
