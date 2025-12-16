@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode, Ref } from "react";
+import type { CSSProperties, HTMLAttributes, ReactNode, Ref } from "react";
 import type { RegisteredPanel } from "../panel/types";
 import type { RegisteredSeparator } from "../separator/types";
 
@@ -68,7 +68,7 @@ export interface GroupImperativeHandle {
   setLayout: (layout: { [panelId: string]: number }) => Layout;
 }
 
-export type GroupProps = {
+export type GroupProps = HTMLAttributes<HTMLDivElement> & {
   /**
    * Panel and Separator components that comprise this group.
    */

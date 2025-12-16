@@ -1,11 +1,11 @@
-import type { CSSProperties, PropsWithChildren, Ref } from "react";
+import type { CSSProperties, HTMLAttributes, Ref } from "react";
 
 export type RegisteredSeparator = {
   element: HTMLDivElement;
   id: string;
 };
 
-export type SeparatorProps = PropsWithChildren<{
+export type SeparatorProps = HTMLAttributes<HTMLDivElement> & {
   /**
    * CSS class name.
    *
@@ -36,4 +36,4 @@ export type SeparatorProps = PropsWithChildren<{
    * ⚠️ The following properties cannot be overridden: `flex-grow`, `flex-shrink`
    */
   style?: CSSProperties | undefined;
-}>;
+};

@@ -41,7 +41,8 @@ export function Panel({
   minSize = "0",
   onResize: onResizeUnstable,
   panelRef,
-  style
+  style,
+  ...rest
 }: PanelProps) {
   const idIsStable = !!idProp;
 
@@ -95,6 +96,7 @@ export function Panel({
 
   return (
     <div
+      {...rest}
       data-panel
       data-testid={id}
       id={id}

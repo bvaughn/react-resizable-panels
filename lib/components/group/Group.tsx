@@ -39,7 +39,8 @@ export function Group({
   id: idProp,
   onLayoutChange: onLayoutChangeUnstable,
   orientation = "horizontal",
-  style
+  style,
+  ...rest
 }: GroupProps) {
   const prevLayoutRef = useRef<Layout>({});
 
@@ -182,6 +183,7 @@ export function Group({
   return (
     <GroupContext.Provider value={context}>
       <div
+        {...rest}
         aria-orientation={orientation}
         className={className}
         data-group

@@ -34,6 +34,38 @@
       "name": "className",
       "required": false
     },
+    "id": {
+      "description": [
+        {
+          "content": "<p>Uniquely identifies this panel within the parent group.\nFalls back to <code>useId</code> when not provided.</p>\n"
+        },
+        {
+          "content": "<p>This prop is used to associate persisted group layouts with the original panel.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>This value will also be assigned to the <code>data-panel</code> attribute.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "id",
+      "required": false
+    },
+    "style": {
+      "description": [
+        {
+          "content": "<p>CSS properties.</p>\n"
+        },
+        {
+          "content": "<p>Style is applied to nested <code>HTMLDivElement</code> to avoid styles that interfere with Flex layout.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span></div>",
+      "name": "style",
+      "required": false
+    },
     "collapsedSize": {
       "description": [
         {
@@ -78,24 +110,6 @@
       "name": "elementRef",
       "required": false
     },
-    "id": {
-      "description": [
-        {
-          "content": "<p>Uniquely identifies this panel within the parent group.\nFalls back to <code>useId</code> when not provided.</p>\n"
-        },
-        {
-          "content": "<p>This prop is used to associate persisted group layouts with the original panel.</p>\n",
-          "intent": "primary"
-        },
-        {
-          "content": "<p>This value will also be assigned to the <code>data-panel</code> attribute.</p>\n",
-          "intent": "primary"
-        }
-      ],
-      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
-      "name": "id",
-      "required": false
-    },
     "maxSize": {
       "description": [
         {
@@ -138,20 +152,6 @@
       ],
       "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">panelRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">PanelImperativeHandle</span><span class=\"\">&#62;</span></div>",
       "name": "panelRef",
-      "required": false
-    },
-    "style": {
-      "description": [
-        {
-          "content": "<p>CSS properties.</p>\n"
-        },
-        {
-          "content": "<p>Style is applied to nested <code>HTMLDivElement</code> to avoid styles that interfere with Flex layout.</p>\n",
-          "intent": "warning"
-        }
-      ],
-      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span></div>",
-      "name": "style",
       "required": false
     }
   }

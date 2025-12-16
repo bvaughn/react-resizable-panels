@@ -5,6 +5,7 @@ import { setElementBoundsFunction } from "../../utils/test/mockBoundingClientRec
 import { Panel } from "../panel/Panel";
 import { Separator } from "../separator/Separator";
 import { Group } from "./Group";
+import { assert } from "../../utils/assert";
 
 describe("Group", () => {
   describe("onLayoutChange", () => {
@@ -191,14 +192,27 @@ describe("Group", () => {
     });
   });
 
-  describe("id/data-testid", () => {
+  describe("HTML attributes", () => {
     test("should expose explicit id and testid", () => {
       const { container } = render(<Group id="group" />);
 
       const group = container.querySelector("[data-group]");
+      assert(group);
 
-      expect(group?.getAttribute("data-testid")).toBe("group");
-      expect(group?.getAttribute("id")).toBe("group");
+      expect(group.getAttribute("data-testid")).toBe("group");
+      expect(group.getAttribute("id")).toBe("group");
+    });
+
+    test("should pass through ...rest attributes", () => {
+      const { container } = render(
+        <Group data-foo="abc" data-bar="123" id="separator" />
+      );
+
+      const group = container.querySelector("[data-group]");
+      assert(group);
+
+      expect(group.getAttribute("data-foo")).toBe("abc");
+      expect(group.getAttribute("data-bar")).toBe("123");
     });
   });
 });

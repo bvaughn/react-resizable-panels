@@ -17,16 +17,6 @@
   "filePath": "lib/components/group/Group.tsx",
   "name": "Group",
   "props": {
-    "children": {
-      "description": [
-        {
-          "content": "<p>Panel and Separator components that comprise this group.</p>\n"
-        }
-      ],
-      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">children</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span></div>",
-      "name": "children",
-      "required": false
-    },
     "className": {
       "description": [
         {
@@ -35,6 +25,44 @@
       ],
       "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
       "name": "className",
+      "required": false
+    },
+    "id": {
+      "description": [
+        {
+          "content": "<p>Uniquely identifies this group within an application.\nFalls back to <code>useId</code> when not provided.</p>\n"
+        },
+        {
+          "content": "<p>This value will also be assigned to the <code>data-group</code> attribute.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "id",
+      "required": false
+    },
+    "style": {
+      "description": [
+        {
+          "content": "<p>CSS properties.</p>\n"
+        },
+        {
+          "content": "<p>The following styles cannot be overridden: <code>display</code>, <code>flex-direction</code>, <code>flex-wrap</code>, and <code>overflow</code>.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span></div>",
+      "name": "style",
+      "required": false
+    },
+    "children": {
+      "description": [
+        {
+          "content": "<p>Panel and Separator components that comprise this group.</p>\n"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">children</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span></div>",
+      "name": "children",
       "required": false
     },
     "defaultLayout": {
@@ -99,20 +127,6 @@
       "name": "groupRef",
       "required": false
     },
-    "id": {
-      "description": [
-        {
-          "content": "<p>Uniquely identifies this group within an application.\nFalls back to <code>useId</code> when not provided.</p>\n"
-        },
-        {
-          "content": "<p>This value will also be assigned to the <code>data-group</code> attribute.</p>\n",
-          "intent": "primary"
-        }
-      ],
-      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
-      "name": "id",
-      "required": false
-    },
     "onLayoutChange": {
       "description": [
         {
@@ -131,20 +145,6 @@
       ],
       "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">orientation</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"horizontal\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"vertical\"</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-variableName\">horizontal</span></div>",
       "name": "orientation",
-      "required": false
-    },
-    "style": {
-      "description": [
-        {
-          "content": "<p>CSS properties.</p>\n"
-        },
-        {
-          "content": "<p>The following styles cannot be overridden: <code>display</code>, <code>flex-direction</code>, <code>flex-wrap</code>, and <code>overflow</code>.</p>\n",
-          "intent": "warning"
-        }
-      ],
-      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span></div>",
-      "name": "style",
       "required": false
     }
   }

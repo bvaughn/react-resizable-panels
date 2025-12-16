@@ -23,14 +23,15 @@ import type { RegisteredSeparator, SeparatorProps } from "./types";
  *
  * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
  *
- * ℹ️ In addition to the attributes shown above, separator elements will also include all required [WAI-ARIA properties](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/separator_role#associated_wai-aria_roles_states_and_properties).
+ * ℹ️ In addition to the attributes shown above, separator also renders all required [WAI-ARIA properties](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/separator_role#associated_wai-aria_roles_states_and_properties).
  */
 export function Separator({
   children,
   className,
   elementRef,
   id: idProp,
-  style
+  style,
+  ...rest
 }: SeparatorProps) {
   const id = useId(idProp);
 
@@ -120,6 +121,7 @@ export function Separator({
 
   return (
     <div
+      {...rest}
       aria-controls={aria.valueControls}
       aria-orientation={orientation}
       aria-valuemax={aria.valueMax}

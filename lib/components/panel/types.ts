@@ -1,4 +1,4 @@
-import type { CSSProperties, PropsWithChildren, Ref } from "react";
+import type { CSSProperties, HTMLAttributes, Ref } from "react";
 
 export type PanelSize = {
   asPercentage: number;
@@ -71,7 +71,7 @@ export interface PanelImperativeHandle {
   resize: (size: number | string) => void;
 }
 
-export type PanelProps = PropsWithChildren<{
+export type PanelProps = HTMLAttributes<HTMLDivElement> & {
   /**
    * CSS class name.
    *
@@ -147,7 +147,7 @@ export type PanelProps = PropsWithChildren<{
    * ⚠️ Style is applied to nested `HTMLDivElement` to avoid styles that interfere with Flex layout.
    */
   style?: CSSProperties | undefined;
-}>;
+};
 
 export type OnPanelResize = PanelProps["onResize"];
 

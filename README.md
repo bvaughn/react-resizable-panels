@@ -46,13 +46,26 @@ Documentation for this project is available at [react-resizable-panels.vercel.ap
   </thead>
   <tbody>
     <tr>
-      <td>children</td>
-      <td><p>Panel and Separator components that comprise this group.</p>
+      <td>className</td>
+      <td><p>CSS class name.</p>
 </td>
     </tr>
     <tr>
-      <td>className</td>
-      <td><p>CSS class name.</p>
+      <td>id</td>
+      <td><p>Uniquely identifies this group within an application.
+Falls back to <code>useId</code> when not provided.</p>
+<p>ℹ️ This value will also be assigned to the <code>data-group</code> attribute.</p>
+</td>
+    </tr>
+    <tr>
+      <td>style</td>
+      <td><p>CSS properties.</p>
+<p>⚠️ The following styles cannot be overridden: <code>display</code>, <code>flex-direction</code>, <code>flex-wrap</code>, and <code>overflow</code>.</p>
+</td>
+    </tr>
+    <tr>
+      <td>children</td>
+      <td><p>Panel and Separator components that comprise this group.</p>
 </td>
     </tr>
     <tr>
@@ -89,13 +102,6 @@ Use this prop to disable that behavior for Panels and Separators in this group.<
 </td>
     </tr>
     <tr>
-      <td>id</td>
-      <td><p>Uniquely identifies this group within an application.
-Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>data-group</code> attribute.</p>
-</td>
-    </tr>
-    <tr>
       <td>onLayoutChange</td>
       <td><p>Called when panel sizes change; receives a map of Panel id to size.</p>
 </td>
@@ -103,12 +109,6 @@ Falls back to <code>useId</code> when not provided.</p>
     <tr>
       <td>orientation</td>
       <td><p>Specifies the resizable orientation (&quot;horizontal&quot; or &quot;vertical&quot;); defaults to &quot;horizontal&quot;</p>
-</td>
-    </tr>
-    <tr>
-      <td>style</td>
-      <td><p>CSS properties.</p>
-<p>⚠️ The following styles cannot be overridden: <code>display</code>, <code>flex-direction</code>, <code>flex-wrap</code>, and <code>overflow</code>.</p>
 </td>
     </tr>
   </tbody>
@@ -143,6 +143,20 @@ Falls back to <code>useId</code> when not provided.</p>
 </td>
     </tr>
     <tr>
+      <td>id</td>
+      <td><p>Uniquely identifies this panel within the parent group.
+Falls back to <code>useId</code> when not provided.</p>
+<p>ℹ️ This prop is used to associate persisted group layouts with the original panel.</p>
+<p>ℹ️ This value will also be assigned to the <code>data-panel</code> attribute.</p>
+</td>
+    </tr>
+    <tr>
+      <td>style</td>
+      <td><p>CSS properties.</p>
+<p>⚠️ Style is applied to nested <code>HTMLDivElement</code> to avoid styles that interfere with Flex layout.</p>
+</td>
+    </tr>
+    <tr>
       <td>collapsedSize</td>
       <td><p>Panel size when collapsed; defaults to 0.</p>
 </td>
@@ -161,14 +175,6 @@ Falls back to <code>useId</code> when not provided.</p>
     <tr>
       <td>elementRef</td>
       <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
-</td>
-    </tr>
-    <tr>
-      <td>id</td>
-      <td><p>Uniquely identifies this panel within the parent group.
-Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This prop is used to associate persisted group layouts with the original panel.</p>
-<p>ℹ️ This value will also be assigned to the <code>data-panel</code> attribute.</p>
 </td>
     </tr>
     <tr>
@@ -198,12 +204,6 @@ Falls back to <code>useId</code> when not provided.</p>
 <li><code>resize(size: number): void</code></li>
 </ul>
 <p>ℹ️ The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>
-</td>
-    </tr>
-    <tr>
-      <td>style</td>
-      <td><p>CSS properties.</p>
-<p>⚠️ Style is applied to nested <code>HTMLDivElement</code> to avoid styles that interfere with Flex layout.</p>
 </td>
     </tr>
   </tbody>
@@ -239,11 +239,6 @@ Falls back to <code>useId</code> when not provided.</p>
 </td>
     </tr>
     <tr>
-      <td>elementRef</td>
-      <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
-</td>
-    </tr>
-    <tr>
       <td>id</td>
       <td><p>Uniquely identifies the separator within the parent group.
 Falls back to <code>useId</code> when not provided.</p>
@@ -255,6 +250,11 @@ Falls back to <code>useId</code> when not provided.</p>
       <td><p>CSS properties.</p>
 <p>ℹ️ Use the <code>data-separator</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>
 <p>⚠️ The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code></p>
+</td>
+    </tr>
+    <tr>
+      <td>elementRef</td>
+      <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
 </td>
     </tr>
   </tbody>
