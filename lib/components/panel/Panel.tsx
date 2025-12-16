@@ -1,7 +1,7 @@
 "use client";
 
 import type { Property } from "csstype";
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
@@ -102,6 +102,8 @@ export function Panel({
       id={id}
       ref={mergedRef}
       style={{
+        ...PROHIBITED_CSS_PROPERTIES,
+
         flexBasis: 0,
         flexGrow: `var(${flexGrowVar}, 1)`,
         flexShrink: 1,
@@ -128,3 +130,23 @@ export function Panel({
     </div>
   );
 }
+
+const PROHIBITED_CSS_PROPERTIES: CSSProperties = {
+  minHeight: "unset",
+  maxHeight: "unset",
+  height: "unset",
+
+  minWidth: "unset",
+  maxWidth: "unset",
+  width: "unset",
+
+  flex: "unset",
+  flexBasis: "unset",
+  flexShrink: "unset",
+  flexGrow: "unset",
+
+  border: "unset",
+  borderWidth: "unset",
+  padding: "unset",
+  margin: "unset"
+};

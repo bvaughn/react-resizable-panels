@@ -15,33 +15,24 @@ describe("Separator", () => {
         </Group>
       );
 
-      expect(screen.getByTestId("separator")).toHaveAttribute(
+      expect(screen.getByRole("separator")).toHaveAttribute(
         "data-testid",
         "separator"
       );
-      expect(screen.getByTestId("separator")).toHaveAttribute(
-        "id",
-        "separator"
-      );
+      expect(screen.getByRole("separator")).toHaveAttribute("id", "separator");
     });
 
     test("should pass through ...rest attributes", () => {
       render(
         <Group>
           <Panel />
-          <Separator data-foo="abc" data-bar="123" id="separator" />
+          <Separator data-foo="abc" data-bar="123" />
           <Panel />
         </Group>
       );
 
-      expect(screen.getByTestId("separator")).toHaveAttribute(
-        "data-foo",
-        "abc"
-      );
-      expect(screen.getByTestId("separator")).toHaveAttribute(
-        "data-bar",
-        "123"
-      );
+      expect(screen.getByRole("separator")).toHaveAttribute("data-foo", "abc");
+      expect(screen.getByRole("separator")).toHaveAttribute("data-bar", "123");
     });
 
     describe("ARIA attributes", () => {

@@ -204,15 +204,31 @@ describe("Group", () => {
     });
 
     test("should pass through ...rest attributes", () => {
-      const { container } = render(
-        <Group data-foo="abc" data-bar="123" id="separator" />
-      );
+      const { container } = render(<Group data-foo="abc" data-bar="123" />);
 
       const group = container.querySelector("[data-group]");
       assert(group);
 
       expect(group.getAttribute("data-foo")).toBe("abc");
       expect(group.getAttribute("data-bar")).toBe("123");
+    });
+
+    test("problematic styles should be suppressed", () => {
+      const { container } = render(
+        <Group
+          style={{
+            display: "block",
+            flexDirection: "column",
+            flexWrap: "wrap"
+          }}
+        />
+      );
+
+      const group = container.querySelector("[data-group]") as HTMLElement;
+
+      expect(group.style.display).toBe("flex");
+      expect(group.style.flexDirection).toBe("row");
+      expect(group.style.flexWrap).toBe("nowrap");
     });
   });
 });
