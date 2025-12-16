@@ -5,7 +5,25 @@ Version 4 of react-resizable-panels offers more flexible size constraints– sup
 
 ## Migrating from version 3 to 4
 
-Refer to [the docs](https://react-resizable-panels.now.sh/) for a complete list of props and API methods. Below are a few examples of migrating from version 3 to 4.
+Refer to [the docs](https://react-resizable-panels.now.sh/) for a complete list of props and API methods. Below are some examples of migrating from version 3 to 4, but first a couple of potential questions:
+
+<dl>
+<dt>Q: Why'd you rename &lt;component&gt; or &lt;prop&gt;?</dt>
+<dd>A: The most likely reason is that I think the new name more closely aligns with web standards like WAI-ARIA and CSS. For example, the <code>PanelResizeHandle</code> component was renamed to <code>Separator</code> to better align with the <a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/separator_role">ARIA "separator" role</a> and the <code>direction</code> prop was renamed to <code>orientation</code> to better align with the <a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-orientation">ARIA <code>orientation</code> attribute </a>.</dd>
+<dt>Q: Were the <code>onCollapse</code> and <code>onExpand</code> event handlers removed?</dt>
+<dd>A: Yes. Use the <code>onResize</code> event handler instead:
+
+```ts
+onResize={(size) => {
+  // Either this
+  const isCollapsed = size === collapsedSize;
+
+  // Or this:
+  panelRef.isCollapsed();
+}}
+```
+</dd>
+</dl>
 
 ### Basic usage example
 
