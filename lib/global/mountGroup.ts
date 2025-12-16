@@ -102,6 +102,10 @@ export function mountGroup(group: RegisteredGroup) {
     })
   }));
 
+  // The "pointerleave" event is not reliably triggered when the pointer exits a window or iframe
+  // To account for this, we listen for "pointerleave" events on the Group element itself
+  group.element.addEventListener("pointerleave", onGroupPointerLeave);
+
   group.separators.forEach((separator) => {
     assert(
       !separatorIds.has(separator.id),
@@ -130,13 +134,11 @@ export function mountGroup(group: RegisteredGroup) {
       return { mountedGroups };
     });
 
+    group.element.removeEventListener("pointerleave", onGroupPointerLeave);
+
     group.separators.forEach((separator) => {
       separator.element.removeEventListener("keydown", onWindowKeyDown);
     });
-
-    // Edge case:
-    // In case this group is removed while a drag is in progress, clean up any temporary event listeners
-    group.element.removeEventListener("pointerleave", onGroupPointerLeave);
 
     // If this was the last group to be mounted, tear down event handlers
     if (nextState.mountedGroups.size === 0) {

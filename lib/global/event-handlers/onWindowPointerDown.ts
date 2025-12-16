@@ -3,7 +3,6 @@ import type { RegisteredPanel } from "../../components/panel/types";
 import type { RegisteredSeparator } from "../../components/separator/types";
 import { read, update } from "../mutableState";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
-import { onGroupPointerLeave } from "./onGroupPointerLeave";
 
 export function onWindowPointerDown(event: PointerEvent) {
   if (event.defaultPrevented) {
@@ -27,10 +26,6 @@ export function onWindowPointerDown(event: PointerEvent) {
     if (current.separator) {
       separators.add(current.separator);
     }
-
-    // The "pointerleave" event is not reliably triggered when the pointer exits a window or iframe
-    // To account for this, we listen for "pointerleave" events on the Group element itself
-    current.group.element.addEventListener("pointerleave", onGroupPointerLeave);
 
     const match = mountedGroups.get(current.group);
     if (match) {
