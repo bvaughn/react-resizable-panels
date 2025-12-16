@@ -1,0 +1,152 @@
+"use client";
+
+import type { Property } from "csstype";
+import { useState, type CSSProperties } from "react";
+import { useId } from "../../hooks/useId";
+import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
+import { useMergedRefs } from "../../hooks/useMergedRefs";
+import { useStableCallback } from "../../hooks/useStableCallback";
+import { getPanelSizeCssPropertyName } from "../group/getPanelSizeCssPropertyName";
+import { useGroupContext } from "../group/useGroupContext";
+import { POINTER_EVENTS_CSS_PROPERTY_NAME } from "./constants";
+import type { PanelProps, PanelSize } from "./types";
+import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
+
+/**
+ * A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.
+ *
+ * Panel size props can be specified using the following CSS units:
+ * - Pixels (default if value is of type `number`)
+ * - Percentages (default if value is of type `string`)
+ * - Font sizes (em, rem)
+ * - Viewport sizes (vh, vw)
+ *
+ * Panel elements always include the following attributes:
+ *
+ * ```html
+ * <div data-panel data-testid="panel-id-prop" id="panel-id-prop">
+ * ```
+ *
+ * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+ */
+export function Panel({
+  children,
+  className,
+  collapsedSize = 0,
+  collapsible = false,
+  defaultSize,
+  elementRef,
+  id: idProp,
+  maxSize = "100",
+  minSize = "0",
+  onResize: onResizeUnstable,
+  panelRef,
+  style,
+  ...rest
+}: PanelProps) {
+  const idIsStable = !!idProp;
+
+  const id = useId(idProp);
+
+  const [element, setElement] = useState<HTMLDivElement | null>(null);
+
+  const mergedRef = useMergedRefs(setElement, elementRef);
+
+  const { id: groupId, registerPanel } = useGroupContext();
+
+  const hasOnResize = onResizeUnstable !== null;
+  const onResizeStable = useStableCallback((panelSize: PanelSize) => {
+    onResizeUnstable?.(panelSize, idProp);
+  });
+
+  // Register Panel with parent Group
+  useIsomorphicLayoutEffect(() => {
+    if (element !== null) {
+      return registerPanel({
+        element,
+        id,
+        idIsStable,
+        onResize: hasOnResize ? onResizeStable : undefined,
+        panelConstraints: {
+          collapsedSize,
+          collapsible,
+          defaultSize,
+          maxSize,
+          minSize
+        }
+      });
+    }
+  }, [
+    collapsedSize,
+    collapsible,
+    defaultSize,
+    element,
+    hasOnResize,
+    id,
+    idIsStable,
+    maxSize,
+    minSize,
+    onResizeStable,
+    registerPanel
+  ]);
+
+  usePanelImperativeHandle(id, panelRef);
+
+  const flexGrowVar = getPanelSizeCssPropertyName(groupId, id);
+
+  return (
+    <div
+      {...rest}
+      data-panel
+      data-testid={id}
+      id={id}
+      ref={mergedRef}
+      style={{
+        ...PROHIBITED_CSS_PROPERTIES,
+
+        flexBasis: 0,
+        flexGrow: `var(${flexGrowVar}, 1)`,
+        flexShrink: 1,
+
+        // Prevent Panel content from interfering with panel size
+        overflow: "hidden",
+
+        // Disable pointer events inside of a panel during resize
+        // This avoid edge cases like nested iframes
+        pointerEvents:
+          `var(${POINTER_EVENTS_CSS_PROPERTY_NAME})` as Property.PointerEvents
+      }}
+    >
+      <div
+        className={className}
+        style={{
+          width: "100%",
+          height: "100%",
+          ...style
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+const PROHIBITED_CSS_PROPERTIES: CSSProperties = {
+  minHeight: "unset",
+  maxHeight: "unset",
+  height: "unset",
+
+  minWidth: "unset",
+  maxWidth: "unset",
+  width: "unset",
+
+  flex: "unset",
+  flexBasis: "unset",
+  flexShrink: "unset",
+  flexGrow: "unset",
+
+  border: "unset",
+  borderWidth: "unset",
+  padding: "unset",
+  margin: "unset"
+};

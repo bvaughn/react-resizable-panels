@@ -1,0 +1,88 @@
+{
+  "description": [
+    {
+      "content": "<p>Separators are not <em>required</em> but they are <em>recommended</em> as they improve keyboard accessibility.</p>\n"
+    },
+    {
+      "content": "<p>Separators should be rendered as the direct child of a Group component.</p>\n"
+    },
+    {
+      "content": "<p>Separator elements always include the following attributes:</p>\n"
+    },
+    {
+      "content": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-separator</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-testid</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">role</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
+    },
+    {
+      "content": "<p><a href=\"https://testing-library.com/docs/queries/bytestid/\">Test id</a> can be used to narrow selection when unit testing.</p>\n",
+      "intent": "primary"
+    },
+    {
+      "content": "<p>In addition to the attributes shown above, separator also renders all required <a href=\"https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/separator_role#associated_wai-aria_roles_states_and_properties\">WAI-ARIA properties</a>.</p>\n",
+      "intent": "primary"
+    }
+  ],
+  "filePath": "lib/components/separator/Separator.tsx",
+  "name": "Separator",
+  "props": {
+    "className": {
+      "description": [
+        {
+          "content": "<p>CSS class name.</p>\n"
+        },
+        {
+          "content": "<p>Use the <code>data-separator</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code></p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
+      "name": "className",
+      "required": false
+    },
+    "id": {
+      "description": [
+        {
+          "content": "<p>Uniquely identifies the separator within the parent group.\nFalls back to <code>useId</code> when not provided.</p>\n"
+        },
+        {
+          "content": "<p>This value will also be assigned to the <code>data-separator</code> attribute.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "id",
+      "required": false
+    },
+    "style": {
+      "description": [
+        {
+          "content": "<p>CSS properties.</p>\n"
+        },
+        {
+          "content": "<p>Use the <code>data-separator</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code></p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span></div>",
+      "name": "style",
+      "required": false
+    },
+    "elementRef": {
+      "description": [
+        {
+          "content": "<p>Ref attached to the root <code>HTMLDivElement</code>.</p>\n"
+        }
+      ],
+      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\">&#62;</span></div>",
+      "name": "elementRef",
+      "required": false
+    }
+  }
+}
