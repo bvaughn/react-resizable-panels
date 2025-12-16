@@ -1,9 +1,10 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
-import { afterAll, afterEach, beforeAll, beforeEach, expect } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, expect, vi } from "vitest";
 import { resetMockGroupIdCounter } from "./lib/global/test/mockGroup";
 import { mockBoundingClientRect } from "./lib/utils/test/mockBoundingClientRect";
 import { mockResizeObserver } from "./lib/utils/test/mockResizeObserver";
+import failOnConsole from "vitest-fail-on-console";
 
 let unmockBoundingClientRect: (() => void) | null = null;
 let unmockResizeObserver: (() => void) | null = null;
@@ -14,6 +15,10 @@ const PROTOTYPE_PROPS = [
   "offsetHeight",
   "offsetWidth"
 ];
+
+failOnConsole({
+  shouldFailOnError: true
+});
 
 expect.addSnapshotSerializer({
   serialize(value) {
@@ -32,12 +37,33 @@ expect.addSnapshotSerializer({
   }
 });
 
+expect.extend({
+  toLogError: (callback: () => unknown, expectedError: string) => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    callback();
+
+    expect(console.error).toHaveBeenCalledWith(expectedError);
+
+    spy.mockReset();
+
+    return {
+      pass: true,
+      message: () => ""
+    };
+  }
+});
+
 beforeAll(() => {
   PROTOTYPE_PROPS.forEach((propertyKey) => {
     Object.defineProperty(HTMLElement.prototype, propertyKey, {
       configurable: true,
       value: 0
     });
+  });
+
+  vi.spyOn(console, "warn").mockImplementation(() => {
+    throw Error("Unexpectec console warning");
   });
 });
 

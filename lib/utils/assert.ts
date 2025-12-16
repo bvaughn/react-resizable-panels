@@ -3,8 +3,6 @@ export function assert(
   message: string = "Assertion error"
 ): asserts expectedCondition {
   if (!expectedCondition) {
-    console.error(message);
-
     throw Error(message);
   }
 }

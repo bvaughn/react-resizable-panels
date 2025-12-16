@@ -31,6 +31,6 @@
       "@testing-library/jest-dom/vitest"
     ]
   },
-  "include": ["lib", "integrations", "scripts", "src", "index.tsx"],
+  "include": ["vitest.d.ts", "lib", "integrations", "scripts", "src", "index.tsx"],
   "exclude": []
 }

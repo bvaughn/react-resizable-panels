@@ -4,7 +4,10 @@ import { GroupContext } from "./GroupContext";
 
 export function useGroupContext() {
   const context = useContext(GroupContext);
-  assert(context, "Unexpected");
+  assert(
+    context,
+    "Group Context not found; did you render a Panel or Separator outside of a Group?"
+  );
 
   return context;
 }
