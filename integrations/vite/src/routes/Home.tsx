@@ -9,6 +9,9 @@ export function Home() {
       <li>
         <Link to="/e2e/dynamic">e2e: dynamic</Link>
       </li>
+      <li>
+        <Link to="/e2e/edges">e2e: edges</Link>
+      </li>
     </ul>
   );
 }

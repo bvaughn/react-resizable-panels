@@ -1,7 +1,7 @@
 import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import { read, update } from "../mutableState";
 
-export function onPointerUp(event: PointerEvent) {
+export function onWindowPointerUp(event: PointerEvent) {
   if (event.defaultPrevented) {
     return;
   }

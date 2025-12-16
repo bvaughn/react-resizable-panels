@@ -3,7 +3,7 @@ import { adjustLayoutForSeparator } from "../utils/adjustLayoutForSeparator";
 import { findSeparatorGroup } from "../utils/findSeparatorGroup";
 import { getMountedGroup } from "../utils/getMountedGroup";
 
-export function onKeyDown(event: KeyboardEvent) {
+export function onWindowKeyDown(event: KeyboardEvent) {
   if (event.defaultPrevented) {
     return;
   }

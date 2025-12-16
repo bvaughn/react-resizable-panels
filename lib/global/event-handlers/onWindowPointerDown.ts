@@ -4,7 +4,7 @@ import type { RegisteredSeparator } from "../../components/separator/types";
 import { read, update } from "../mutableState";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
 
-export function onPointerDown(event: PointerEvent) {
+export function onWindowPointerDown(event: PointerEvent) {
   if (event.defaultPrevented) {
     return;
   }

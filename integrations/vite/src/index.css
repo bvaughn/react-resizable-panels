@@ -17,3 +17,7 @@
     @apply text-blue-600 hover:text-pink-400 visited:text-blue-900;
   }
 }
+
+#root {
+  height: 100vh;
+}

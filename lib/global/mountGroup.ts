@@ -2,10 +2,11 @@ import type { Layout, RegisteredGroup } from "../components/group/types";
 import { assert } from "../utils/assert";
 import { calculateHitRegions } from "./dom/calculateHitRegions";
 import { calculatePanelConstraints } from "./dom/calculatePanelConstraints";
-import { onKeyDown } from "./event-handlers/onKeyDown";
-import { onPointerDown } from "./event-handlers/onPointerDown";
-import { onPointerMove } from "./event-handlers/onPointerMove";
-import { onPointerUp } from "./event-handlers/onPointerUp";
+import { onGroupPointerLeave } from "./event-handlers/onGroupPointerLeave";
+import { onWindowKeyDown } from "./event-handlers/onWindowKeyDown";
+import { onWindowPointerDown } from "./event-handlers/onWindowPointerDown";
+import { onWindowPointerMove } from "./event-handlers/onWindowPointerMove";
+import { onWindowPointerUp } from "./event-handlers/onWindowPointerUp";
 import { update } from "./mutableState";
 import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
 import { notifyPanelOnResize } from "./utils/notifyPanelOnResize";
@@ -101,6 +102,10 @@ export function mountGroup(group: RegisteredGroup) {
     })
   }));
 
+  // The "pointerleave" event is not reliably triggered when the pointer exits a window or iframe
+  // To account for this, we listen for "pointerleave" events on the Group element itself
+  group.element.addEventListener("pointerleave", onGroupPointerLeave);
+
   group.separators.forEach((separator) => {
     assert(
       !separatorIds.has(separator.id),
@@ -109,15 +114,14 @@ export function mountGroup(group: RegisteredGroup) {
 
     separatorIds.add(separator.id);
 
-    separator.element.addEventListener("keydown", onKeyDown);
+    separator.element.addEventListener("keydown", onWindowKeyDown);
   });
 
   // If this is the first group to be mounted, initialize event handlers
   if (nextState.mountedGroups.size === 1) {
-    window.addEventListener("pointerdown", onPointerDown);
-    window.addEventListener("pointerleave", onPointerMove);
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointerdown", onWindowPointerDown);
+    window.addEventListener("pointermove", onWindowPointerMove);
+    window.addEventListener("pointerup", onWindowPointerUp);
   }
 
   return function unmountGroup() {
@@ -130,16 +134,17 @@ export function mountGroup(group: RegisteredGroup) {
       return { mountedGroups };
     });
 
+    group.element.removeEventListener("pointerleave", onGroupPointerLeave);
+
     group.separators.forEach((separator) => {
-      separator.element.removeEventListener("keydown", onKeyDown);
+      separator.element.removeEventListener("keydown", onWindowKeyDown);
     });
 
     // If this was the last group to be mounted, tear down event handlers
     if (nextState.mountedGroups.size === 0) {
-      window.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("pointerleave", onPointerMove);
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointerdown", onWindowPointerDown);
+      window.removeEventListener("pointermove", onWindowPointerMove);
+      window.removeEventListener("pointerup", onWindowPointerUp);
     }
 
     resizeObserver.disconnect();
