@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.1
+
+- [#530](https://github.com/bvaughn/react-resizable-panels/pull/530): Edge case bug fix: Account for pointer resize events near edge of window/iframe
+
 # 4.0.0
 Version 4 of react-resizable-panels offers more flexible size constraints– supporting units as pixels, percentages, REMs/EMs, and more. Support for server-rendering (including Server Components) has also been expanded.
 
