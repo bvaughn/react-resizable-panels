@@ -1,5 +1,143 @@
 # Changelog
 
+# 4.0.0
+Version 4 of react-resizable-panels offers more flexible size constraints– supporting units as pixels, percentages, REMs/EMs, and more. Support for server-rendering (including Server Components) has also been expanded.
+
+## Migrating from version 3 to 4
+
+Refer to [the docs](https://react-resizable-panels.now.sh/) for a complete list of props and API methods. Below are a few examples of migrating from version 3 to 4.
+
+### Basic usage example
+
+```tsx
+// Version 3
+
+import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
+
+<PanelGroup direction="horizontal">
+  <Panel defaultSize={30} minSize={20}>left</Panel>
+  <PanelResizeHandle />
+  <Panel defaultSize={30} minSize={20}>right</Panel>
+</PanelGroup>
+
+// Version 4
+
+import { Group, Panel, Separator } from "react-resizable-panels";
+
+<Group orientation="horizontal">
+  <Panel defaultSize={30} minSize={20}>left</Panel>
+  <Separator />
+  <Panel defaultSize={30} minSize={20}>right</Panel>
+</Group>
+```
+
+### Persistent layouts using localStorage
+
+```tsx
+// Version 3
+
+import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
+
+<PanelGroup autoSaveId="unique-group-id" direction="horizontal">
+  <Panel>left</Panel>
+  <PanelResizeHandle />
+  <Panel>right</Panel>
+</PanelGroup>
+
+// Version 4
+
+import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panels";
+
+const { defaultLayout, onLayoutChange } = useDefaultLayout({
+  groupId: "unique-group-id",
+  storage: localStorage
+});
+
+<Group defaultLayout={defaultLayout} onLayoutChange={onLayoutChange}>
+  <Panel>left</Panel>
+  <Separator />
+  <Panel>right</Panel>
+</Group>
+```
+
+> [!NOTE]
+> Refer to [the docs](https://react-resizable-panels.vercel.app/examples/persistent-layout) for examples of persistent layouts with server rendering and server components.
+
+### Conditional panels
+
+```tsx
+// Version 3
+
+import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
+
+<PanelGroup autoSaveId="unique-group-id" direction="horizontal">
+   {showLeftPanel && (
+     <>
+       <Panel id="left" order={1}>left</Panel>
+       <PanelResizeHandle />
+     </>
+   )}
+   <Panel id="center" order={2}>center</Panel>
+   {showRightPanel && (
+     <>
+       <PanelResizeHandle />
+       <Panel id="right" order={3}>right</Panel>
+     </>
+   )}
+</PanelGroup>
+
+// Version 4
+
+import { Group, Panel, Separator } from "react-resizable-panels";
+
+<Group>
+  {showLeftPanel && (
+    <>
+      <Panel id="left">left</Panel>
+      <Separator />
+    </>
+  )}
+  <Panel id="center">center</Panel>
+  {showRightPanel && (
+    <>
+      <Separator />
+      <Panel id="right">right</Panel>
+    </>
+  )}
+</Group>
+```
+
+### Imperative APIs
+
+```tsx
+// Version 3
+
+import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
+import type { ImperativePanelGroupHandle, ImperativePanelHandle }from "react-resizable-panels";
+
+ const panelRef = useRef<ImperativePanelHandle>(null);
+ const panelGroupRef = useRef<ImperativePanelGroupHandle>(null);
+
+<PanelGroup direction="horizontal" ref={panelGroupRef}>
+  <Panel ref={panelRef}>left</Panel>
+  <PanelResizeHandle />
+  <Panel>right</Panel>
+</PanelGroup>
+
+// Version 4
+
+import { Group, Panel, Separator, useGroupRef, usePanelRef } from "react-resizable-panels";
+
+const groupRef = useGroupRef();
+const panelRef = usePanelRef();
+
+<Group groupRef={groupRef} orientation="horizontal">
+  <Panel panelRef={panelRef}>left</Panel>
+  <Separator />
+  <Panel>right</Panel>
+</Group>
+```
+
 # 3.0.6
 - [#517](https://github.com/bvaughn/react-resizable-panels/pull/517): Fixed Firefox bug that caused resizing to be interrupted unexpected
 

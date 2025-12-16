@@ -27,7 +27,6 @@ export default function PersistentLayoutsRoute() {
       <Group
         className="h-15 gap-1"
         defaultLayout={defaultLayout}
-        id="persisted-group"
         onLayoutChange={onLayoutChange}
       >
         <Panel id="left" minSize={50} showSizeAsPercentage>
