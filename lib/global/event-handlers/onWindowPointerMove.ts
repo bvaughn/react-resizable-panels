@@ -1,14 +1,7 @@
-import {
-  CURSOR_FLAG_HORIZONTAL_MAX,
-  CURSOR_FLAG_HORIZONTAL_MIN,
-  CURSOR_FLAG_VERTICAL_MAX,
-  CURSOR_FLAG_VERTICAL_MIN
-} from "../../constants";
 import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import { read, update } from "../mutableState";
-import { adjustLayoutByDelta } from "../utils/adjustLayoutByDelta";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
-import { layoutsEqual } from "../utils/layoutsEqual";
+import { updateActiveHitRegions } from "../utils/updateActiveHitRegion";
 
 export function onWindowPointerMove(event: PointerEvent) {
   if (event.defaultPrevented) {
@@ -40,95 +33,13 @@ export function onWindowPointerMove(event: PointerEvent) {
         return;
       }
 
-      let cursorFlags = 0;
-      const nextMountedGroups = new Map(mountedGroups);
-
-      // Note that HitRegions are frozen once a drag has started
-      // Modify the Group layouts for all matching HitRegions though
-      interactionState.hitRegions.forEach((current) => {
-        const { disableCursor, element, orientation, panels } = current.group;
-
-        let deltaAsPercentage = 0;
-        if (interactionState.state === "active") {
-          if (orientation === "horizontal") {
-            deltaAsPercentage =
-              ((event.clientX - interactionState.pointerDownAtPoint.x) /
-                element.offsetWidth) *
-              100;
-          } else {
-            deltaAsPercentage =
-              ((event.clientY - interactionState.pointerDownAtPoint.y) /
-                element.offsetHeight) *
-              100;
-          }
-        }
-
-        const initialLayout = interactionState.initialLayoutMap.get(
-          current.group
-        );
-        const {
-          derivedPanelConstraints,
-          layout: prevLayout,
-          separatorToPanels
-        } = mountedGroups.get(current.group) ?? {};
-        if (
-          derivedPanelConstraints &&
-          initialLayout &&
-          prevLayout &&
-          separatorToPanels
-        ) {
-          const nextLayout = adjustLayoutByDelta({
-            delta: deltaAsPercentage,
-            initialLayout,
-            panelConstraints: derivedPanelConstraints,
-            pivotIndices: current.panels.map((panel) => panels.indexOf(panel)),
-            prevLayout,
-            trigger: "mouse-or-touch"
-          });
-
-          if (layoutsEqual(nextLayout, prevLayout)) {
-            if (deltaAsPercentage !== 0 && !disableCursor) {
-              // An unchanged means the cursor has exceeded the allowed bounds
-              switch (orientation) {
-                case "horizontal": {
-                  cursorFlags |=
-                    deltaAsPercentage < 0
-                      ? CURSOR_FLAG_HORIZONTAL_MIN
-                      : CURSOR_FLAG_HORIZONTAL_MAX;
-                  break;
-                }
-                case "vertical": {
-                  cursorFlags |=
-                    deltaAsPercentage < 0
-                      ? CURSOR_FLAG_VERTICAL_MIN
-                      : CURSOR_FLAG_VERTICAL_MAX;
-                  break;
-                }
-              }
-            }
-          } else {
-            nextMountedGroups.set(current.group, {
-              derivedPanelConstraints: derivedPanelConstraints,
-              layout: nextLayout,
-              separatorToPanels
-            });
-
-            // Save the most recent layout for this group of panels in-memory
-            // so that layouts will be remembered between different sets of conditionally rendered panels
-            const panelIdsKey = current.group.panels
-              .map(({ id }) => id)
-              .join(",");
-            current.group.inMemoryLayouts[panelIdsKey] = nextLayout;
-          }
-        }
+      updateActiveHitRegions({
+        event,
+        hitRegions: interactionState.hitRegions,
+        initialLayoutMap: interactionState.initialLayoutMap,
+        mountedGroups,
+        pointerDownAtPoint: interactionState.pointerDownAtPoint
       });
-
-      update({
-        cursorFlags,
-        mountedGroups: nextMountedGroups
-      });
-
-      updateCursorStyle();
       break;
     }
     default: {
