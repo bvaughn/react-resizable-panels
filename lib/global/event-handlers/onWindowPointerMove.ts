@@ -9,8 +9,9 @@ import { read, update } from "../mutableState";
 import { adjustLayoutByDelta } from "../utils/adjustLayoutByDelta";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
 import { layoutsEqual } from "../utils/layoutsEqual";
+import { onGroupPointerLeave } from "./onGroupPointerLeave";
 
-export function onPointerMove(event: PointerEvent) {
+export function onWindowPointerMove(event: PointerEvent) {
   if (event.defaultPrevented) {
     return;
   }
@@ -26,6 +27,13 @@ export function onPointerMove(event: PointerEvent) {
         event.type !== "pointerleave" &&
         event.buttons === 0
       ) {
+        interactionState.hitRegions.forEach((hitRegion) => {
+          hitRegion.group.element.removeEventListener(
+            "pointerleave",
+            onGroupPointerLeave
+          );
+        });
+
         update((prevState) =>
           prevState.interactionState.state === "inactive"
             ? prevState

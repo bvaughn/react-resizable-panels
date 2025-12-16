@@ -1,7 +1,8 @@
 import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import { read, update } from "../mutableState";
+import { onGroupPointerLeave } from "./onGroupPointerLeave";
 
-export function onPointerUp(event: PointerEvent) {
+export function onWindowPointerUp(event: PointerEvent) {
   if (event.defaultPrevented) {
     return;
   }
@@ -12,6 +13,13 @@ export function onPointerUp(event: PointerEvent) {
 
   switch (interactionState.state) {
     case "active": {
+      interactionState.hitRegions.forEach((hitRegion) => {
+        hitRegion.group.element.removeEventListener(
+          "pointerleave",
+          onGroupPointerLeave
+        );
+      });
+
       update({
         cursorFlags: 0,
         interactionState: {
