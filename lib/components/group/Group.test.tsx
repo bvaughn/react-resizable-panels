@@ -6,8 +6,6 @@ import { Panel } from "../panel/Panel";
 import { Separator } from "../separator/Separator";
 import { Group } from "./Group";
 
-// TODO Dev warnings, including e.g. too many separators, non-unique panel ids
-
 describe("Group", () => {
   describe("onLayoutChange", () => {
     beforeEach(() => {
@@ -140,6 +138,56 @@ describe("Group", () => {
       await moveSeparator(0.0001);
 
       expect(onLayoutChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("invariants", () => {
+    test("too many separators", () => {
+      expect(() =>
+        render(
+          <Group>
+            <Panel />
+            <Separator />
+          </Group>
+        )
+      ).toThrow("Invalid Group configuration; too many Separator components");
+    });
+
+    test("duplicate panel ids", () => {
+      // This is allowed
+      render(
+        <Group>
+          <Panel id="foo" />
+          <Separator id="foo" />
+          <Panel id="bar" />
+        </Group>
+      );
+
+      // This is not allowed
+      expect(() =>
+        render(
+          <Group>
+            <Panel id="foo" />
+            <Panel id="foo" />
+          </Group>
+        )
+      ).toThrow('Panel ids must be unique; id "foo" was used more than once');
+    });
+
+    test("duplicate separator ids", () => {
+      expect(() =>
+        render(
+          <Group>
+            <Panel id="left" />
+            <Separator id="foo" />
+            <Panel id="center" />
+            <Separator id="foo" />
+            <Panel id="right" />
+          </Group>
+        )
+      ).toThrow(
+        'Separator ids must be unique; id "foo" was used more than once'
+      );
     });
   });
 });

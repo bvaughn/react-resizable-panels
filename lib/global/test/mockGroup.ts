@@ -3,18 +3,21 @@ import type {
   Orientation,
   RegisteredGroup
 } from "../../components/group/types";
-import type { RegisteredPanel } from "../../components/panel/types";
+import type {
+  PanelConstraintProps,
+  RegisteredPanel
+} from "../../components/panel/types";
 import type { RegisteredSeparator } from "../../components/separator/types";
 import { setElementBounds } from "../../utils/test/mockBoundingClientRect";
 
-type Type = "panel" | "separator" | "other";
-
 export type MockGroup = RegisteredGroup & {
-  addChild: (
-    type: Type,
+  addHTMLElement: (relativeBounds: DOMRect) => () => void;
+  addPanel: (
     relativeBounds: DOMRect,
-    childId?: string | number
+    id?: string,
+    constraints?: Partial<PanelConstraintProps>
   ) => () => void;
+  addSeparator: (relativeBounds: DOMRect, id?: string) => () => void;
 };
 
 let groupIdCounter = 0;
@@ -24,10 +27,10 @@ export function mockGroup(
   orientation: Orientation = "horizontal",
   groupIdStable?: string
 ): MockGroup {
+  const groupId = groupIdStable ?? `group-${++groupIdCounter}`;
+
   let panelIdCounter = 0;
   let separatorIdCounter = 0;
-
-  const groupId = groupIdStable ?? `group-${++groupIdCounter}`;
 
   const groupElement = document.createElement("div");
   groupElement.setAttribute("data-group", groupId);
@@ -63,96 +66,78 @@ export function mockGroup(
     },
 
     // Test specific code
-    addChild: (
-      type: Type,
+    addHTMLElement: (relativeBounds: DOMRect) => {
+      const element = document.createElement("div");
+
+      setElementBounds(element, relativeBoundsToBounds(relativeBounds));
+
+      groupElement.appendChild(element);
+
+      return function removeHTMLElement() {
+        groupElement.removeChild(element);
+      };
+    },
+
+    addPanel: (
       relativeBounds: DOMRect,
-      childId?: string | number
+      id: string = `${++panelIdCounter}`,
+      constraints: Partial<PanelConstraintProps> = {}
     ) => {
-      const bounds = relativeBoundsToBounds(relativeBounds);
+      const panelId = `${groupId}-${id}`;
 
-      switch (type) {
-        case "other": {
-          const childElement = document.createElement("div");
+      const element = document.createElement("div");
+      element.setAttribute("data-panel", panelId);
 
-          setElementBounds(childElement, bounds);
+      setElementBounds(element, relativeBoundsToBounds(relativeBounds));
 
-          groupElement.appendChild(childElement);
+      const panel: RegisteredPanel = {
+        element,
+        id: panelId,
+        idIsStable: true,
+        panelConstraints: constraints,
+        onResize: vi.fn()
+      };
 
-          return () => {
-            groupElement.removeChild(childElement);
-          };
-        }
-        case "panel": {
-          const panel = mockPanel(
-            `${groupId}-${childId ?? ++panelIdCounter}`,
-            bounds
-          );
+      mockPanels.add(panel);
 
-          mockPanels.add(panel);
+      groupElement.appendChild(element);
 
-          groupElement.appendChild(panel.element);
+      return function removePanel() {
+        mockPanels.delete(panel);
 
-          return () => {
-            mockPanels.delete(panel);
+        groupElement.removeChild(element);
+      };
+    },
 
-            groupElement.removeChild(panel.element);
-          };
-        }
-        case "separator": {
-          const separator = mockSeparator(
-            `${groupId}-${childId ?? ++separatorIdCounter}`,
-            bounds
-          );
+    addSeparator: (
+      relativeBounds: DOMRect,
+      id: string = `${groupId}-${++separatorIdCounter}`
+    ) => {
+      const separatorId = `${groupId}-${id}`;
 
-          mockSeparators.add(separator);
+      const element = document.createElement("div");
+      element.setAttribute("data-separator", separatorId);
 
-          groupElement.appendChild(separator.element);
+      setElementBounds(element, relativeBoundsToBounds(relativeBounds));
 
-          return () => {
-            mockSeparators.delete(separator);
+      const separator: RegisteredSeparator = {
+        element,
+        id: separatorId
+      };
 
-            groupElement.removeChild(separator.element);
-          };
-        }
-      }
+      mockSeparators.add(separator);
+
+      groupElement.appendChild(element);
+
+      return function removeSeparator() {
+        mockSeparators.delete(separator);
+
+        groupElement.removeChild(element);
+      };
     }
   };
 
   return group;
-}
-
-export function mockPanel(panelId: string, bounds: DOMRect = new DOMRect()) {
-  const childElement = document.createElement("div");
-  childElement.setAttribute("data-panel", panelId);
-
-  setElementBounds(childElement, bounds);
-
-  const panel: RegisteredPanel = {
-    element: childElement,
-    id: panelId,
-    idIsStable: true,
-    panelConstraints: {},
-    onResize: vi.fn()
-  };
-
-  return panel;
-}
-
-export function mockSeparator(
-  separatorId: string,
-  bounds: DOMRect = new DOMRect()
-) {
-  const childElement = document.createElement("div");
-  childElement.setAttribute("data-separator", separatorId);
-
-  setElementBounds(childElement, bounds);
-
-  const separator: RegisteredSeparator = {
-    element: childElement,
-    id: separatorId
-  };
-
-  return separator;
 }
 
 export function resetMockGroupIdCounter() {

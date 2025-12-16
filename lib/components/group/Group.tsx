@@ -16,9 +16,6 @@ import { sortByElementOffset } from "./sortByElementOffset";
 import type { GroupProps, Layout, RegisteredGroup } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
 
-// TODO Validate unique Panel and Separator ids
-// TODO Warn if Group is defaultLayout is provided and Panel(s) do not have ids
-
 /**
  * A Group wraps a set of resizable Panel components.
  * Group content can be resized _horizontally_ or _vertically_.

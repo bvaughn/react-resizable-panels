@@ -11,18 +11,18 @@ import { getCursorStyle } from "./getCursorStyle";
 describe("getCursorStyle", () => {
   const horizontalGroup = mockGroup(new DOMRect(0, 0, 100, 50));
   horizontalGroup.orientation = "horizontal";
-  horizontalGroup.addChild("panel", new DOMRect(0, 0, 50, 50));
-  horizontalGroup.addChild("panel", new DOMRect(50, 0, 50, 50));
+  horizontalGroup.addPanel(new DOMRect(0, 0, 50, 50));
+  horizontalGroup.addPanel(new DOMRect(50, 0, 50, 50));
 
   const verticalGroup = mockGroup(new DOMRect(0, 0, 100, 50));
   verticalGroup.orientation = "vertical";
-  verticalGroup.addChild("panel", new DOMRect(0, 0, 50, 50));
-  verticalGroup.addChild("panel", new DOMRect(50, 0, 50, 50));
+  verticalGroup.addPanel(new DOMRect(0, 0, 50, 50));
+  verticalGroup.addPanel(new DOMRect(50, 0, 50, 50));
 
   const disabledGroup = mockGroup(new DOMRect(0, 0, 100, 50));
   disabledGroup.disableCursor = true;
-  disabledGroup.addChild("panel", new DOMRect(0, 0, 50, 50));
-  disabledGroup.addChild("panel", new DOMRect(50, 0, 50, 50));
+  disabledGroup.addPanel(new DOMRect(0, 0, 50, 50));
+  disabledGroup.addPanel(new DOMRect(50, 0, 50, 50));
 
   describe("state: inactive", () => {
     test("should return null", () => {

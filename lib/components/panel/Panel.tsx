@@ -12,9 +12,6 @@ import { POINTER_EVENTS_CSS_PROPERTY_NAME } from "./constants";
 import type { PanelProps, PanelSize } from "./types";
 import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
 
-// TODO Validate CSS styles
-// Warn and remove the following: width/height (including min/max), flex/flex-basis/flex-grow/flex-shrink, and padding
-
 /**
  * A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.
  *

@@ -7,26 +7,25 @@ import {
   vi,
   type Mock
 } from "vitest";
-import { getImperativeGroupMethods } from "./getImperativeGroupMethods";
-import type { PanelConstraintProps } from "../../components/panel/types";
-import { mockGroup } from "../test/mockGroup";
+import type { PanelConstraints } from "../../components/panel/types";
 import { mountGroup } from "../mountGroup";
 import { eventEmitter } from "../mutableState";
+import { mockGroup } from "../test/mockGroup";
+import { getImperativeGroupMethods } from "./getImperativeGroupMethods";
 
 describe("getImperativeGroupMethods", () => {
   let unmountGroup: (() => void) | undefined = undefined;
   let onMountedGroupsChange: Mock;
 
   function init(
-    panelConstraints: (Partial<PanelConstraintProps> & {
+    panelConstraints: (Partial<PanelConstraints> & {
       defaultSize: number;
     })[]
   ) {
     const group = mockGroup(new DOMRect(0, 0, 1000, 50), "horizontal", "A");
 
     panelConstraints.forEach((current) => {
-      group.addChild(
-        "panel",
+      group.addPanel(
         new DOMRect(
           0,
           0,
@@ -34,14 +33,10 @@ describe("getImperativeGroupMethods", () => {
             ? current.defaultSize
             : 1000 / panelConstraints.length,
           50
-        )
+        ),
+        current.panelId,
+        current
       );
-
-      const panel = group.panels[group.panels.length - 1];
-      panel.panelConstraints = {
-        ...panel.panelConstraints,
-        ...current
-      };
     });
 
     unmountGroup = mountGroup(group);

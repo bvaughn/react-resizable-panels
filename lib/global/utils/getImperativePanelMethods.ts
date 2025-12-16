@@ -1,8 +1,11 @@
 import type { PanelImperativeHandle } from "../../components/panel/types";
 import { calculateAvailableGroupSize } from "../dom/calculateAvailableGroupSize";
-import { read } from "../mutableState";
+import { read, update } from "../mutableState";
+import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { formatLayoutNumber } from "./formatLayoutNumber";
 import { layoutNumbersEqual } from "./layoutNumbersEqual";
+import { layoutsEqual } from "./layoutsEqual";
+import { validatePanelGroupLayout } from "./validatePanelGroupLayout";
 
 export function getImperativePanelMethods({
   groupId,
@@ -13,9 +16,12 @@ export function getImperativePanelMethods({
 }): PanelImperativeHandle {
   const find = () => {
     const { mountedGroups } = read();
-    for (const [group, { derivedPanelConstraints, layout }] of mountedGroups) {
+    for (const [
+      group,
+      { derivedPanelConstraints, layout, separatorToPanels }
+    ] of mountedGroups) {
       if (group.id === groupId) {
-        return { derivedPanelConstraints, group, layout };
+        return { derivedPanelConstraints, group, layout, separatorToPanels };
       }
     }
 
@@ -51,10 +57,44 @@ export function getImperativePanelMethods({
     throw Error(`Layout not found for Panel ${panelId}`);
   };
 
-  const setPanelSize = (_size: number) => {
-    // TODO Calculate next layout
-    // TODO Validate next layout
-    // TODO Update group state
+  const setPanelSize = (nextSize: number) => {
+    const prevSize = getPanelSize();
+    if (nextSize === prevSize) {
+      return;
+    }
+
+    const {
+      derivedPanelConstraints,
+      group,
+      layout: prevLayout,
+      separatorToPanels
+    } = find();
+
+    const index = group.panels.findIndex((current) => current.id === panelId);
+    const isLastPanel = index === group.panels.length - 1;
+
+    const unsafeLayout = adjustLayoutByDelta({
+      delta: isLastPanel ? prevSize - nextSize : nextSize - prevSize,
+      initialLayout: prevLayout,
+      panelConstraints: derivedPanelConstraints,
+      pivotIndices: isLastPanel ? [index - 1, index] : [index, index + 1],
+      prevLayout,
+      trigger: "imperative-api"
+    });
+
+    const nextLayout = validatePanelGroupLayout({
+      layout: unsafeLayout,
+      panelConstraints: derivedPanelConstraints
+    });
+    if (!layoutsEqual(prevLayout, nextLayout)) {
+      update((prevState) => ({
+        mountedGroups: new Map(prevState.mountedGroups).set(group, {
+          derivedPanelConstraints,
+          layout: nextLayout,
+          separatorToPanels
+        })
+      }));
+    }
   };
 
   return {

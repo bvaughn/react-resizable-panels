@@ -1,4 +1,5 @@
 import type { Layout, RegisteredGroup } from "../components/group/types";
+import { assert } from "../utils/assert";
 import { calculateHitRegions } from "./dom/calculateHitRegions";
 import { calculatePanelConstraints } from "./dom/calculatePanelConstraints";
 import { onKeyDown } from "./event-handlers/onKeyDown";
@@ -12,6 +13,16 @@ import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 
 export function mountGroup(group: RegisteredGroup) {
   let isMounted = true;
+
+  // Invariants
+  assert(
+    group.separators.length === 0 ||
+      group.separators.length < group.panels.length,
+    "Invalid Group configuration; too many Separator components"
+  );
+
+  const panelIds = new Set<string>();
+  const separatorIds = new Set<string>();
 
   // Add Panels with onResize callbacks to ResizeObserver
   // Add Group to ResizeObserver also in order to sync % based constraints
@@ -52,6 +63,13 @@ export function mountGroup(group: RegisteredGroup) {
   });
   resizeObserver.observe(group.element);
   group.panels.forEach((panel) => {
+    assert(
+      !panelIds.has(panel.id),
+      `Panel ids must be unique; id "${panel.id}" was used more than once`
+    );
+
+    panelIds.add(panel.id);
+
     if (panel.onResize) {
       resizeObserver.observe(panel.element);
     }
@@ -84,6 +102,13 @@ export function mountGroup(group: RegisteredGroup) {
   }));
 
   group.separators.forEach((separator) => {
+    assert(
+      !separatorIds.has(separator.id),
+      `Separator ids must be unique; id "${separator.id}" was used more than once`
+    );
+
+    separatorIds.add(separator.id);
+
     separator.element.addEventListener("keydown", onKeyDown);
   });
 

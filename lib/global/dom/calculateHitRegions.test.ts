@@ -24,15 +24,15 @@ describe("calculateHitRegions", () => {
 
   test("one panel", () => {
     const group = mockGroup(new DOMRect(0, 0, 10, 50));
-    group.addChild("panel", new DOMRect(0, 0, 10, 50));
+    group.addPanel(new DOMRect(0, 0, 10, 50));
 
     expect(serialize(group)).toMatchInlineSnapshot(`"[]"`);
   });
 
   test("two panels", () => {
     const group = mockGroup(new DOMRect(0, 0, 20, 50));
-    group.addChild("panel", new DOMRect(0, 0, 10, 50), "left");
-    group.addChild("panel", new DOMRect(10, 0, 10, 50), "right");
+    group.addPanel(new DOMRect(0, 0, 10, 50), "left");
+    group.addPanel(new DOMRect(10, 0, 10, 50), "right");
 
     expect(serialize(group)).toMatchInlineSnapshot(`
       "[
@@ -49,9 +49,9 @@ describe("calculateHitRegions", () => {
 
   test("three panels", () => {
     const group = mockGroup(new DOMRect(0, 0, 30, 50));
-    group.addChild("panel", new DOMRect(0, 0, 10, 50), "left");
-    group.addChild("panel", new DOMRect(10, 0, 10, 50), "center");
-    group.addChild("panel", new DOMRect(20, 0, 10, 50), "right");
+    group.addPanel(new DOMRect(0, 0, 10, 50), "left");
+    group.addPanel(new DOMRect(10, 0, 10, 50), "center");
+    group.addPanel(new DOMRect(20, 0, 10, 50), "right");
 
     expect(serialize(group)).toMatchInlineSnapshot(`
       "[
@@ -75,11 +75,11 @@ describe("calculateHitRegions", () => {
 
   test("panels and explicit separators", () => {
     const group = mockGroup(new DOMRect(0, 0, 50, 50));
-    group.addChild("panel", new DOMRect(0, 0, 10, 50), "left");
-    group.addChild("separator", new DOMRect(10, 0, 10, 50), "left");
-    group.addChild("panel", new DOMRect(20, 0, 10, 50), "center");
-    group.addChild("separator", new DOMRect(30, 0, 10, 50), "right");
-    group.addChild("panel", new DOMRect(40, 0, 10, 50), "right");
+    group.addPanel(new DOMRect(0, 0, 10, 50), "left");
+    group.addSeparator(new DOMRect(10, 0, 10, 50), "left");
+    group.addPanel(new DOMRect(20, 0, 10, 50), "center");
+    group.addSeparator(new DOMRect(30, 0, 10, 50), "right");
+    group.addPanel(new DOMRect(40, 0, 10, 50), "right");
 
     expect(serialize(group)).toMatchInlineSnapshot(`
       "[
@@ -105,10 +105,10 @@ describe("calculateHitRegions", () => {
 
   test("panels and some explicit separators", () => {
     const group = mockGroup(new DOMRect(0, 0, 60, 50));
-    group.addChild("panel", new DOMRect(0, 0, 20, 50), "a");
-    group.addChild("panel", new DOMRect(20, 0, 20, 50), "b");
-    group.addChild("separator", new DOMRect(40, 0, 5, 50), "separator");
-    group.addChild("panel", new DOMRect(40, 0, 40, 50), "c");
+    group.addPanel(new DOMRect(0, 0, 20, 50), "a");
+    group.addPanel(new DOMRect(20, 0, 20, 50), "b");
+    group.addSeparator(new DOMRect(40, 0, 5, 50), "separator");
+    group.addPanel(new DOMRect(40, 0, 40, 50), "c");
 
     expect(serialize(group)).toMatchInlineSnapshot(`
       "[
@@ -133,13 +133,13 @@ describe("calculateHitRegions", () => {
 
   test("mixed panels and non-panel children", () => {
     const group = mockGroup(new DOMRect(0, 0, 70, 50));
-    group.addChild("other", new DOMRect(0, 0, 10, 50));
-    group.addChild("panel", new DOMRect(10, 0, 10, 50), "a");
-    group.addChild("panel", new DOMRect(20, 0, 10, 50), "b");
-    group.addChild("other", new DOMRect(30, 0, 10, 50));
-    group.addChild("panel", new DOMRect(40, 0, 10, 50), "c");
-    group.addChild("panel", new DOMRect(50, 0, 10, 50), "d");
-    group.addChild("other", new DOMRect(60, 0, 10, 50));
+    group.addHTMLElement(new DOMRect(0, 0, 10, 50));
+    group.addPanel(new DOMRect(10, 0, 10, 50), "a");
+    group.addPanel(new DOMRect(20, 0, 10, 50), "b");
+    group.addHTMLElement(new DOMRect(30, 0, 10, 50));
+    group.addPanel(new DOMRect(40, 0, 10, 50), "c");
+    group.addPanel(new DOMRect(50, 0, 10, 50), "d");
+    group.addHTMLElement(new DOMRect(60, 0, 10, 50));
 
     expect(serialize(group)).toMatchInlineSnapshot(`
       "[
@@ -163,9 +163,9 @@ describe("calculateHitRegions", () => {
 
   test("CSS styles (e.g. padding and flex gap)", () => {
     const group = mockGroup(new DOMRect(0, 0, 50, 50));
-    group.addChild("panel", new DOMRect(5, 5, 10, 40), "left");
-    group.addChild("panel", new DOMRect(20, 5, 10, 40), "center");
-    group.addChild("panel", new DOMRect(35, 5, 10, 40), "right");
+    group.addPanel(new DOMRect(5, 5, 10, 40), "left");
+    group.addPanel(new DOMRect(20, 5, 10, 40), "center");
+    group.addPanel(new DOMRect(35, 5, 10, 40), "right");
 
     expect(serialize(group)).toMatchInlineSnapshot(`
       "[
@@ -189,11 +189,11 @@ describe("calculateHitRegions", () => {
 
   test("out of order children (e.g. dynamic rendering)", () => {
     const group = mockGroup(new DOMRect(0, 0, 30, 50));
-    group.addChild("panel", new DOMRect(0, 0, 10, 50), "left");
-    group.addChild("panel", new DOMRect(20, 0, 10, 50), "right");
+    group.addPanel(new DOMRect(0, 0, 10, 50), "left");
+    group.addPanel(new DOMRect(20, 0, 10, 50), "right");
 
     // Simulate conditionally rendering a new middle panel
-    group.addChild("panel", new DOMRect(10, 0, 10, 50), "center");
+    group.addPanel(new DOMRect(10, 0, 10, 50), "center");
 
     expect(serialize(group)).toMatchInlineSnapshot(`
       "[
@@ -218,12 +218,12 @@ describe("calculateHitRegions", () => {
   // Test covers conditionally rendered panels and separators
   test("should sort elements and separators by offset", () => {
     const group = mockGroup(new DOMRect(0, 0, 50, 50));
-    group.addChild("panel", new DOMRect(40, 0, 10, 50), "d");
-    group.addChild("panel", new DOMRect(15, 0, 10, 50), "b");
-    group.addChild("panel", new DOMRect(0, 0, 10, 50), "a");
-    group.addChild("panel", new DOMRect(25, 0, 10, 50), "c");
-    group.addChild("separator", new DOMRect(35, 0, 5, 50), "right");
-    group.addChild("separator", new DOMRect(10, 0, 5, 50), "left");
+    group.addPanel(new DOMRect(40, 0, 10, 50), "d");
+    group.addPanel(new DOMRect(15, 0, 10, 50), "b");
+    group.addPanel(new DOMRect(0, 0, 10, 50), "a");
+    group.addPanel(new DOMRect(25, 0, 10, 50), "c");
+    group.addSeparator(new DOMRect(35, 0, 5, 50), "right");
+    group.addSeparator(new DOMRect(10, 0, 5, 50), "left");
 
     expect(serialize(group)).toMatchInlineSnapshot(`
       "[

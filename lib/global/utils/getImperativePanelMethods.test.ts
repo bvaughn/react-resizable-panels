@@ -8,7 +8,7 @@ import {
   type Mock
 } from "vitest";
 import type {
-  PanelConstraintProps,
+  PanelConstraints,
   PanelImperativeHandle
 } from "../../components/panel/types";
 import { mountGroup } from "../mountGroup";
@@ -47,35 +47,49 @@ describe("getImperativePanelMethods", () => {
   });
 
   describe("mounted", () => {
+    let onLayoutChange: Mock;
+    let removeChangeListener: (() => void) | undefined = undefined;
     let unmountGroup: (() => void) | undefined = undefined;
-    let onMountedGroupsChange: Mock;
 
-    function init(panelConstraints: Partial<PanelConstraintProps>[]) {
-      const group = mockGroup(new DOMRect(0, 0, 1000, 50), "horizontal", "A");
+    function init(panelConstraints: Partial<PanelConstraints>[]) {
+      const bounds = new DOMRect(0, 0, 1000, 50);
+      const group = mockGroup(bounds, "horizontal", "A");
 
-      panelConstraints.forEach((current) => {
-        group.addChild(
-          "panel",
-          new DOMRect(
-            0,
-            0,
-            typeof current.defaultSize === "number"
-              ? current.defaultSize * 10
-              : 1000 / panelConstraints.length,
-            50
-          )
-        );
-
-        const panel = group.panels[group.panels.length - 1];
-        panel.panelConstraints = {
-          ...panel.panelConstraints,
-          ...current
-        };
-      });
+      panelConstraints.forEach(
+        ({ collapsedSize, collapsible, defaultSize, maxSize, minSize }) => {
+          group.addPanel(
+            new DOMRect(
+              0,
+              0,
+              defaultSize !== undefined
+                ? defaultSize * 10
+                : 1000 / panelConstraints.length,
+              50
+            ),
+            undefined,
+            {
+              collapsedSize:
+                collapsedSize !== undefined ? `${collapsedSize}%` : 0,
+              collapsible,
+              defaultSize:
+                defaultSize !== undefined ? `${defaultSize}%` : undefined,
+              maxSize: maxSize !== undefined ? `${maxSize}%` : undefined,
+              minSize: minSize !== undefined ? `${minSize}%` : 0
+            }
+          );
+        }
+      );
 
       unmountGroup = mountGroup(group);
 
-      eventEmitter.addListener("mountedGroupsChange", onMountedGroupsChange);
+      removeChangeListener = eventEmitter.addListener(
+        "mountedGroupsChange",
+        (mountedGroups) => {
+          mountedGroups.forEach((group) => {
+            onLayoutChange(Object.values(group.layout));
+          });
+        }
+      );
 
       return {
         group,
@@ -89,7 +103,7 @@ describe("getImperativePanelMethods", () => {
     }
 
     beforeEach(() => {
-      onMountedGroupsChange = vi.fn();
+      onLayoutChange = vi.fn();
     });
 
     afterEach(() => {
@@ -97,7 +111,11 @@ describe("getImperativePanelMethods", () => {
         unmountGroup();
       }
 
-      eventEmitter.removeListener("mountedGroupsChange", onMountedGroupsChange);
+      if (removeChangeListener) {
+        removeChangeListener();
+      }
+
+      eventEmitter.removeListener("mountedGroupsChange", onLayoutChange);
     });
 
     describe("collapse", () => {
@@ -105,7 +123,7 @@ describe("getImperativePanelMethods", () => {
         const { panelApis } = init([{}, {}]);
         panelApis[0].collapse();
 
-        expect(onMountedGroupsChange).not.toHaveBeenCalled();
+        expect(onLayoutChange).not.toHaveBeenCalled();
       });
 
       test("does nothing if panel is already collapsed", () => {
@@ -118,11 +136,10 @@ describe("getImperativePanelMethods", () => {
         ]);
         panelApis[0].collapse();
 
-        expect(onMountedGroupsChange).not.toHaveBeenCalled();
+        expect(onLayoutChange).not.toHaveBeenCalled();
       });
 
-      // TODO
-      test.skip("resizes panel to collapsed size", () => {
+      test("resizes panel to collapsed size", () => {
         const { panelApis } = init([
           {
             defaultSize: 50,
@@ -132,8 +149,8 @@ describe("getImperativePanelMethods", () => {
         ]);
         panelApis[0].collapse();
 
-        expect(onMountedGroupsChange).toHaveBeenCalledTimes(1);
-        expect(onMountedGroupsChange).toHaveBeenCalledWith([0, 100]);
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenCalledWith([0, 100]);
       });
     });
 
@@ -142,7 +159,7 @@ describe("getImperativePanelMethods", () => {
         const { panelApis } = init([{ defaultSize: 0 }, {}]);
         panelApis[0].expand();
 
-        expect(onMountedGroupsChange).not.toHaveBeenCalled();
+        expect(onLayoutChange).not.toHaveBeenCalled();
       });
 
       test("does nothing if panel is not collapsed", () => {
@@ -152,19 +169,18 @@ describe("getImperativePanelMethods", () => {
         ]);
         panelApis[0].expand();
 
-        expect(onMountedGroupsChange).not.toHaveBeenCalled();
+        expect(onLayoutChange).not.toHaveBeenCalled();
       });
 
-      // TODO
-      test.skip("resizes panel to min size", () => {
+      test("expands panel to the minimum size", () => {
         const { panelApis } = init([
           { collapsible: true, defaultSize: 0, minSize: 25 },
           {}
         ]);
         panelApis[0].expand();
 
-        expect(onMountedGroupsChange).toHaveBeenCalledTimes(1);
-        expect(onMountedGroupsChange).toHaveBeenCalledWith([25, 100]);
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenCalledWith([25, 75]);
       });
     });
 
@@ -218,23 +234,22 @@ describe("getImperativePanelMethods", () => {
         const { panelApis } = init([{ defaultSize: 10 }, {}]);
         panelApis[0].resize(10);
 
-        expect(onMountedGroupsChange).not.toHaveBeenCalled();
+        expect(onLayoutChange).not.toHaveBeenCalled();
       });
 
       test("ignores an invalid size update", () => {
         const { panelApis } = init([{ defaultSize: 10, minSize: 10 }, {}]);
         panelApis[0].resize(0);
 
-        expect(onMountedGroupsChange).not.toHaveBeenCalled();
+        expect(onLayoutChange).not.toHaveBeenCalled();
       });
 
-      // TODO
-      test.skip("validates and updates the panel size", () => {
+      test("validates and updates the panel size", () => {
         const { panelApis } = init([{ defaultSize: 25, minSize: 10 }, {}]);
         panelApis[0].resize(0);
 
-        expect(onMountedGroupsChange).toHaveBeenCalledTimes(1);
-        expect(onMountedGroupsChange).toHaveBeenCalledWith([10, 90]);
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenCalledWith([10, 90]);
       });
     });
   });
