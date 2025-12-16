@@ -18,10 +18,12 @@ import type { RegisteredSeparator, SeparatorProps } from "./types";
  * Separator elements always include the following data attributes and role:
  *
  * ```html
- * <div data-separator data-testid="your-separator-id" role="separator" />
+ * <div data-separator data-testid="separator-id-prop" id="separator-id-prop" role="separator">
  * ```
  *
  * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+ *
+ * ℹ️ In addition to the attributes shown above, separator elements will also include all required [WAI-ARIA properties](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/separator_role#associated_wai-aria_roles_states_and_properties).
  */
 export function Separator({
   children,
@@ -33,6 +35,7 @@ export function Separator({
   const id = useId(idProp);
 
   const [aria, setAria] = useState<{
+    valueControls?: string | undefined;
     valueMin?: number | undefined;
     valueMax?: number | undefined;
     valueNow?: number | undefined;
@@ -117,6 +120,7 @@ export function Separator({
 
   return (
     <div
+      aria-controls={aria.valueControls}
       aria-orientation={orientation}
       aria-valuemax={aria.valueMax}
       aria-valuemin={aria.valueMin}
@@ -124,7 +128,8 @@ export function Separator({
       children={children}
       className={className}
       data-separator={dragState}
-      data-testid={idProp ?? undefined}
+      data-testid={id}
+      id={id}
       ref={mergedRef}
       role="separator"
       style={{

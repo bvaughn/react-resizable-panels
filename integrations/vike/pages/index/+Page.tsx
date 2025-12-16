@@ -61,6 +61,14 @@ export default function Page() {
           right
         </Panel>
       </Group>
+      <Group className="h-25 gap-2">
+        <Panel className="bg-slate-800 rounded rounded-md p-2" minSize={50}>
+          left
+        </Panel>
+        <Panel className="bg-slate-800 rounded rounded-md p-2" minSize={50}>
+          right
+        </Panel>
+      </Group>
     </div>
   );
 }

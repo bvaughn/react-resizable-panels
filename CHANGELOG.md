@@ -10,6 +10,8 @@ Refer to [the docs](https://react-resizable-panels.now.sh/) for a complete list 
 <dl>
 <dt>Q: Why'd you rename &lt;component&gt; or &lt;prop&gt;?</dt>
 <dd>A: The most likely reason is that I think the new name more closely aligns with web standards like WAI-ARIA and CSS. For example, the <code>PanelResizeHandle</code> component was renamed to <code>Separator</code> to better align with the <a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/separator_role">ARIA "separator" role</a> and the <code>direction</code> prop was renamed to <code>orientation</code> to better align with the <a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-orientation">ARIA <code>orientation</code> attribute </a>.</dd>
+<dt>Q: Why'd you remove support for &lt;feature&gt;?</dt>
+<dd>A: Probably because it wasn't used widely enough to justify the complexity required to maintain it. If it turns out that I'm mistaken, features can always be (re)added but it's more difficult to remove them.</dd>
 <dt>Q: Were the <code>onCollapse</code> and <code>onExpand</code> event handlers removed?</dt>
 <dd>A: Yes. Use the <code>onResize</code> event handler instead:
 

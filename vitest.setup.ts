@@ -1,10 +1,10 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll, beforeEach, expect, vi } from "vitest";
+import failOnConsole from "vitest-fail-on-console";
 import { resetMockGroupIdCounter } from "./lib/global/test/mockGroup";
 import { mockBoundingClientRect } from "./lib/utils/test/mockBoundingClientRect";
 import { mockResizeObserver } from "./lib/utils/test/mockResizeObserver";
-import failOnConsole from "vitest-fail-on-console";
 
 let unmockBoundingClientRect: (() => void) | null = null;
 let unmockResizeObserver: (() => void) | null = null;

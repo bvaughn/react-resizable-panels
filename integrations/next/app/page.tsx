@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
-import Group from "./components/Group";
 import { type Layout, Panel, Separator } from "react-resizable-panels";
+import Group from "./components/Group";
 
 export default async function Home() {
   const defaultLayoutA = await getDefaultLayout("group-one");
@@ -53,6 +53,14 @@ export default async function Home() {
           id="right"
           minSize={50}
         >
+          right
+        </Panel>
+      </Group>
+      <Group className="h-25 gap-2" defaultLayout={defaultLayoutB}>
+        <Panel className="bg-slate-800 rounded rounded-md p-2" minSize={50}>
+          left
+        </Panel>
+        <Panel className="bg-slate-800 rounded rounded-md p-2" minSize={50}>
           right
         </Panel>
       </Group>

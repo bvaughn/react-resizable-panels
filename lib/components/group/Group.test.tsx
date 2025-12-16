@@ -190,4 +190,15 @@ describe("Group", () => {
       );
     });
   });
+
+  describe("id/data-testid", () => {
+    test("should expose explicit id and testid", () => {
+      const { container } = render(<Group id="group" />);
+
+      const group = container.querySelector("[data-group]");
+
+      expect(group?.getAttribute("data-testid")).toBe("group");
+      expect(group?.getAttribute("id")).toBe("group");
+    });
+  });
 });

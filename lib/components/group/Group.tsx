@@ -23,7 +23,7 @@ import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
  * Group elements always include the following data attributes:
  *
  * ```html
- * <div data-group data-testid="your-group-id">
+ * <div data-group data-testid="group-id-prop" id="group-id-prop">
  * ```
  *
  * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
@@ -185,7 +185,8 @@ export function Group({
         aria-orientation={orientation}
         className={className}
         data-group
-        data-testid={idProp ?? undefined}
+        data-testid={id}
+        id={id}
         ref={mergedRef}
         style={{
           ...style,

@@ -37,6 +37,7 @@ describe("calculateSeparatorAriaValues", () => {
       })
     ).toMatchInlineSnapshot(`
       {
+        "valueControls": "left",
         "valueMax": 70,
         "valueMin": 5,
         "valueNow": 35,
@@ -72,6 +73,7 @@ describe("calculateSeparatorAriaValues", () => {
       })
     ).toMatchInlineSnapshot(`
       {
+        "valueControls": "center",
         "valueMax": 35,
         "valueMin": 20,
         "valueNow": 25,
@@ -87,8 +89,43 @@ describe("calculateSeparatorAriaValues", () => {
       })
     ).toMatchInlineSnapshot(`
       {
+        "valueControls": "center",
         "valueMax": 60,
         "valueMin": 20,
+        "valueNow": 35,
+      }
+    `);
+  });
+
+  test("should assign aria-controls if an explicit id was passed as a prop", () => {
+    const panelConstraints: PanelConstraints[] = [
+      {
+        ...DEFAULT_PANEL_CONSTRAINTS,
+        collapsedSize: 5,
+        collapsible: true,
+        maxSize: 70,
+        minSize: 20,
+        panelId: "left"
+      },
+      {
+        ...DEFAULT_PANEL_CONSTRAINTS,
+        minSize: 20,
+        panelId: "right"
+      }
+    ];
+
+    expect(
+      calculateSeparatorAriaValues({
+        layout: { left: 35, right: 65 },
+        panelId: "left",
+        panelConstraints,
+        panelIndex: 0
+      })
+    ).toMatchInlineSnapshot(`
+      {
+        "valueControls": "left",
+        "valueMax": 70,
+        "valueMin": 5,
         "valueNow": 35,
       }
     `);

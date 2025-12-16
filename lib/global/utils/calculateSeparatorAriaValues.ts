@@ -14,6 +14,7 @@ export function calculateSeparatorAriaValues({
   panelId: string;
   panelIndex: number;
 }): {
+  valueControls: string | undefined;
   valueMax: number | undefined;
   valueMin: number | undefined;
   valueNow: number | undefined;
@@ -64,6 +65,7 @@ export function calculateSeparatorAriaValues({
   }
 
   return {
+    valueControls: panelId,
     valueMax,
     valueMin,
     valueNow: panelSize

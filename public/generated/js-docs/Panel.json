@@ -10,7 +10,7 @@
       "content": "<p>Panel elements always include the following data attributes:</p>\n"
     },
     {
-      "content": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-panel</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-testid</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"your-panel-id\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
+      "content": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-panel</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-testid</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"panel-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"panel-id-prop\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
     },
     {
       "content": "<p><a href=\"https://testing-library.com/docs/queries/bytestid/\">Test id</a> can be used to narrow selection when unit testing.</p>\n",

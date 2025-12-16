@@ -8,6 +8,7 @@ export async function getSeparatorAriaAttributes(page: Page, id?: string) {
       );
 
       return {
+        "aria-controls": element?.getAttribute("aria-controls"),
         "aria-valuemax": element?.getAttribute("aria-valuemax"),
         "aria-valuemin": element?.getAttribute("aria-valuemin"),
         "aria-valuenow": element?.getAttribute("aria-valuenow")

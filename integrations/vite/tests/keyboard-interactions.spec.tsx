@@ -22,6 +22,7 @@ test.describe("keyboard interactions: window splitter api", () => {
     await expect(page.getByText('"left": 30')).toBeVisible();
 
     await expect(await getSeparatorAriaAttributes(page)).toEqual({
+      "aria-controls": "left",
       "aria-valuemax": "95",
       "aria-valuemin": "5",
       "aria-valuenow": "30"
@@ -36,6 +37,7 @@ test.describe("keyboard interactions: window splitter api", () => {
     await expect(page.getByText('"left": 25')).toBeVisible();
 
     await expect(await getSeparatorAriaAttributes(page)).toEqual({
+      "aria-controls": "left",
       "aria-valuemax": "95",
       "aria-valuemin": "5",
       "aria-valuenow": "25"
@@ -47,6 +49,7 @@ test.describe("keyboard interactions: window splitter api", () => {
     await expect(page.getByText('"left": 30')).toBeVisible();
 
     await expect(await getSeparatorAriaAttributes(page)).toEqual({
+      "aria-controls": "left",
       "aria-valuemax": "95",
       "aria-valuemin": "5",
       "aria-valuenow": "30"
@@ -72,6 +75,7 @@ test.describe("keyboard interactions: window splitter api", () => {
     await expect(page.getByText('"top": 30')).toBeVisible();
 
     await expect(await getSeparatorAriaAttributes(page)).toEqual({
+      "aria-controls": "top",
       "aria-valuemax": "95",
       "aria-valuemin": "5",
       "aria-valuenow": "30"
@@ -86,6 +90,7 @@ test.describe("keyboard interactions: window splitter api", () => {
     await expect(page.getByText('"top": 35')).toBeVisible();
 
     await expect(await getSeparatorAriaAttributes(page)).toEqual({
+      "aria-controls": "top",
       "aria-valuemax": "95",
       "aria-valuemin": "5",
       "aria-valuenow": "35"
@@ -97,6 +102,7 @@ test.describe("keyboard interactions: window splitter api", () => {
     await expect(page.getByText('"top": 30')).toBeVisible();
 
     await expect(await getSeparatorAriaAttributes(page)).toEqual({
+      "aria-controls": "top",
       "aria-valuemax": "95",
       "aria-valuemin": "5",
       "aria-valuenow": "30"
@@ -123,6 +129,7 @@ test.describe("keyboard interactions: window splitter api", () => {
     await expect(page.getByText('"right": 50')).toBeVisible();
 
     await expect(await getSeparatorAriaAttributes(page)).toEqual({
+      "aria-controls": "left",
       "aria-valuemax": "80",
       "aria-valuemin": "5",
       "aria-valuenow": "50"
@@ -137,6 +144,7 @@ test.describe("keyboard interactions: window splitter api", () => {
     await expect(page.getByText('"right": 95')).toBeVisible();
 
     await expect(await getSeparatorAriaAttributes(page)).toEqual({
+      "aria-controls": "left",
       "aria-valuemax": "80",
       "aria-valuemin": "5",
       "aria-valuenow": "5"
@@ -149,6 +157,7 @@ test.describe("keyboard interactions: window splitter api", () => {
     await expect(page.getByText('"right": 50')).toBeVisible();
 
     await expect(await getSeparatorAriaAttributes(page)).toEqual({
+      "aria-controls": "left",
       "aria-valuemax": "80",
       "aria-valuemin": "5",
       "aria-valuenow": "50"
@@ -161,6 +170,7 @@ test.describe("keyboard interactions: window splitter api", () => {
     await expect(page.getByText('"right": 55')).toBeVisible();
 
     await expect(await getSeparatorAriaAttributes(page)).toEqual({
+      "aria-controls": "left",
       "aria-valuemax": "80",
       "aria-valuemin": "5",
       "aria-valuenow": "45"
@@ -173,6 +183,7 @@ test.describe("keyboard interactions: window splitter api", () => {
     await expect(page.getByText('"right": 95')).toBeVisible();
 
     await expect(await getSeparatorAriaAttributes(page)).toEqual({
+      "aria-controls": "left",
       "aria-valuemax": "80",
       "aria-valuemin": "5",
       "aria-valuenow": "5"
@@ -185,6 +196,7 @@ test.describe("keyboard interactions: window splitter api", () => {
     await expect(page.getByText('"right": 55')).toBeVisible();
 
     await expect(await getSeparatorAriaAttributes(page)).toEqual({
+      "aria-controls": "left",
       "aria-valuemax": "80",
       "aria-valuemin": "5",
       "aria-valuenow": "45"

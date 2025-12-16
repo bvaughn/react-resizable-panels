@@ -10,10 +10,14 @@
       "content": "<p>Separator elements always include the following data attributes and role:</p>\n"
     },
     {
-      "content": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-separator</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-testid</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"your-separator-id\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">role</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator\"</span><span class=\"\"> </span><span class=\"tok-punctuation\">/&#62;</span></div>"
+      "content": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-separator</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-testid</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">role</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
     },
     {
       "content": "<p><a href=\"https://testing-library.com/docs/queries/bytestid/\">Test id</a> can be used to narrow selection when unit testing.</p>\n",
+      "intent": "primary"
+    },
+    {
+      "content": "<p>In addition to the attributes shown above, separator elements will also include all required <a href=\"https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/separator_role#associated_wai-aria_roles_states_and_properties\">WAI-ARIA properties</a>.</p>\n",
       "intent": "primary"
     }
   ],

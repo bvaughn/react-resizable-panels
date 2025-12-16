@@ -24,7 +24,7 @@ import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
  * Panel elements always include the following data attributes:
  *
  * ```html
- * <div data-panel data-testid="your-panel-id">
+ * <div data-panel data-testid="panel-id-prop" id="panel-id-prop">
  * ```
  *
  * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
@@ -96,7 +96,8 @@ export function Panel({
   return (
     <div
       data-panel
-      data-testid={idProp ?? undefined}
+      data-testid={id}
+      id={id}
       ref={mergedRef}
       style={{
         flexBasis: 0,
