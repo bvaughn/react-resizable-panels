@@ -21,7 +21,7 @@ import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
  * - Font sizes (em, rem)
  * - Viewport sizes (vh, vw)
  *
- * Panel elements always include the following data attributes:
+ * Panel elements always include the following attributes:
  *
  * ```html
  * <div data-panel data-testid="panel-id-prop" id="panel-id-prop">

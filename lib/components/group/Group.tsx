@@ -20,7 +20,7 @@ import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
  * A Group wraps a set of resizable Panel components.
  * Group content can be resized _horizontally_ or _vertically_.
  *
- * Group elements always include the following data attributes:
+ * Group elements always include the following attributes:
  *
  * ```html
  * <div data-group data-testid="group-id-prop" id="group-id-prop">

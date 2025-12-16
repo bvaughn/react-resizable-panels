@@ -7,7 +7,7 @@
       "content": "<p>Panel size props can be specified using the following CSS units:</p>\n<ul>\n<li>Pixels (default if value is of type <code>number</code>)</li>\n<li>Percentages (default if value is of type <code>string</code>)</li>\n<li>Font sizes (em, rem)</li>\n<li>Viewport sizes (vh, vw)</li>\n</ul>\n"
     },
     {
-      "content": "<p>Panel elements always include the following data attributes:</p>\n"
+      "content": "<p>Panel elements always include the following attributes:</p>\n"
     },
     {
       "content": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-panel</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-testid</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"panel-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"panel-id-prop\"</span><span class=\"tok-punctuation\">&#62;</span></div>"

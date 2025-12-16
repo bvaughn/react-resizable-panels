@@ -15,7 +15,7 @@ import type { RegisteredSeparator, SeparatorProps } from "./types";
  *
  * Separators should be rendered as the direct child of a Group component.
  *
- * Separator elements always include the following data attributes and role:
+ * Separator elements always include the following attributes:
  *
  * ```html
  * <div data-separator data-testid="separator-id-prop" id="separator-id-prop" role="separator">
