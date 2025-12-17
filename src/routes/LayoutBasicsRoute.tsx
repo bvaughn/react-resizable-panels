@@ -37,8 +37,8 @@ export default function LayoutBasicsRoute() {
         <Panel>bottom</Panel>
       </Group>
       <div>
-        Panels can be resized by clicking on their borders but explicit resize
-        handles can be rendered to improve UX.
+        Panels can be resized by clicking on their borders but explicit
+        separators can be rendered to improve UX.
       </div>
       <Group className="h-15 gap-1">
         <Panel>left</Panel>
