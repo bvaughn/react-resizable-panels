@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.5
+
+- [#535](https://github.com/bvaughn/react-resizable-panels/pull/535): Updated docs to make size and layout formats clearer
+
 ## 4.0.4
 
 - [#534](https://github.com/bvaughn/react-resizable-panels/pull/534): Set focus on `Separator` on "pointerdown"
