@@ -34,16 +34,17 @@ export function updateActiveHitRegions({
   // Note that HitRegions are frozen once a drag has started
   // Modify the Group layouts for all matching HitRegions though
   hitRegions.forEach((current) => {
-    const { disableCursor, element, orientation, panels } = current.group;
+    const { group, groupSize } = current;
+    const { disableCursor, orientation, panels } = group;
 
     let deltaAsPercentage = 0;
     if (pointerDownAtPoint) {
       if (orientation === "horizontal") {
         deltaAsPercentage =
-          ((event.clientX - pointerDownAtPoint.x) / element.offsetWidth) * 100;
+          ((event.clientX - pointerDownAtPoint.x) / groupSize) * 100;
       } else {
         deltaAsPercentage =
-          ((event.clientY - pointerDownAtPoint.y) / element.offsetHeight) * 100;
+          ((event.clientY - pointerDownAtPoint.y) / groupSize) * 100;
       }
     } else {
       if (orientation === "horizontal") {
@@ -53,13 +54,13 @@ export function updateActiveHitRegions({
       }
     }
 
-    const initialLayout = initialLayoutMap.get(current.group);
+    const initialLayout = initialLayoutMap.get(group);
 
     const {
       derivedPanelConstraints,
       layout: prevLayout,
       separatorToPanels
-    } = mountedGroups.get(current.group) ?? {};
+    } = mountedGroups.get(group) ?? {};
     if (
       derivedPanelConstraints &&
       initialLayout &&

@@ -150,9 +150,9 @@ test.describe("pointer interactions", () => {
     });
 
     await expect(page.getByText('"onLayoutCount": 2')).toBeVisible();
-    await expect(page.getByText('"left": 84')).toBeVisible();
+    await expect(page.getByText('"left": 87')).toBeVisible();
     await expect(page.getByText('"center": 5')).toBeVisible();
-    await expect(page.getByText('"right": 11')).toBeVisible();
+    await expect(page.getByText('"right": 8')).toBeVisible();
 
     await page.mouse.move(x - 500, y);
 
@@ -168,5 +168,27 @@ test.describe("pointer interactions", () => {
     await expect(page.getByText('"left": 33')).toBeVisible();
     await expect(page.getByText('"center": 33')).toBeVisible();
     await expect(page.getByText('"right": 33')).toBeVisible();
+  });
+
+  test("drag should measure delta using the available group size (minus flex gap)", async ({
+    page
+  }) => {
+    await goToUrl(
+      page,
+      <Group className="gap-20">
+        <Panel defaultSize="10%" id="left" minSize="5%" />
+        <Separator />
+        <Panel id="right" minSize="5%" />
+      </Group>
+    );
+
+    await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
+    await expect(page.getByText('"left": 10')).toBeVisible();
+
+    await resizeHelper(page, ["left", "right"], 800, 0);
+
+    // The new layout would be ~91% and 9% if not for flex-gap
+    await expect(page.getByText('"onLayoutCount": 2')).toBeVisible();
+    await expect(page.getByText('"left": 95')).toBeVisible();
   });
 });

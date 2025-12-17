@@ -2,11 +2,13 @@ import { sortByElementOffset } from "../../components/group/sortByElementOffset"
 import type { RegisteredGroup } from "../../components/group/types";
 import type { RegisteredPanel } from "../../components/panel/types";
 import type { RegisteredSeparator } from "../../components/separator/types";
+import { calculateAvailableGroupSize } from "./calculateAvailableGroupSize";
 
 type PanelsTuple = [panel: RegisteredPanel, panel: RegisteredPanel];
 
 export type HitRegion = {
   group: RegisteredGroup;
+  groupSize: number;
   panels: PanelsTuple;
   rect: DOMRect;
   separator: RegisteredSeparator | undefined;
@@ -46,6 +48,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
 
         hitRegions.push({
           group,
+          groupSize: calculateAvailableGroupSize({ group }),
           panels: [prevPanel, panelData],
           separator: prevSeparator,
           rect:

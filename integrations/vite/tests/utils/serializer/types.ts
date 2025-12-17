@@ -6,18 +6,21 @@ export type Config = {
 };
 
 export type GroupJson = {
-  type: "Group";
   children: (PanelJson | SeparatorJson)[];
+  className?: string;
   props: object;
+  type: "Group";
 };
 
 export type PanelJson = {
   children?: GroupJson | undefined;
-  type: "Panel";
+  className?: string;
   props: object;
+  type: "Panel";
 };
 
 export type SeparatorJson = {
-  type: "Separator";
+  className?: string;
   props: object;
+  type: "Separator";
 };
