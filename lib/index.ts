@@ -8,6 +8,7 @@ export { usePanelRef } from "./components/panel/usePanelRef";
 export { Separator } from "./components/separator/Separator";
 
 export type {
+  GroupImperativeHandle,
   GroupProps,
   Layout,
   LayoutStorage,
@@ -16,6 +17,7 @@ export type {
 } from "./components/group/types";
 export type {
   OnPanelResize,
+  PanelImperativeHandle,
   PanelProps,
   PanelSize,
   SizeUnit

@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.2
+
+- Export `GroupImperativeHandle` and `PanelImperativeHandle` types.
+
 ## 4.0.1
 
 - [#530](https://github.com/bvaughn/react-resizable-panels/pull/530): Edge case bug fix: Account for pointer resize events near edge of window/iframe
