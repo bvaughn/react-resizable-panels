@@ -66,9 +66,9 @@ import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 import { Group, Panel, Separator } from "react-resizable-panels";
 
 <Group orientation="horizontal">
-  <Panel defaultSize={30} minSize={20}>left</Panel>
+  <Panel defaultSize="30%" minSize="20%">left</Panel>
   <Separator />
-  <Panel defaultSize={30} minSize={20}>right</Panel>
+  <Panel defaultSize="30%" minSize="20%">right</Panel>
 </Group>
 ```
 
