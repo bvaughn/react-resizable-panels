@@ -128,13 +128,16 @@ export function Group({
         "interactionStateChange",
         (interactionState) => {
           switch (interactionState.state) {
-            case "active":
-            case "hover": {
+            case "active": {
               setDragActive(
                 interactionState.hitRegions.some(
                   (current) => current.group === group
                 )
               );
+              break;
+            }
+            default: {
+              setDragActive(false);
               break;
             }
           }

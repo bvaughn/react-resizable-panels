@@ -191,4 +191,31 @@ test.describe("pointer interactions", () => {
     await expect(page.getByText('"onLayoutCount": 2')).toBeVisible();
     await expect(page.getByText('"left": 95')).toBeVisible();
   });
+
+  test("should disable pointer-events while resize is active", async ({
+    page
+  }) => {
+    await goToUrl(
+      page,
+      <Group>
+        <Panel id="left" />
+        <Separator />
+        <Panel id="right" />
+      </Group>
+    );
+
+    const hitAreaBox = await calculateHitArea(page, ["left", "right"]);
+    const { x, y } = getCenterCoordinates(hitAreaBox);
+
+    const panel = page.getByText("id: left");
+
+    await page.mouse.move(x, y);
+    await expect(panel).toHaveCSS("pointer-events", "auto");
+
+    await page.mouse.down();
+    await expect(panel).toHaveCSS("pointer-events", "none");
+
+    await page.mouse.up();
+    await expect(panel).toHaveCSS("pointer-events", "auto");
+  });
 });

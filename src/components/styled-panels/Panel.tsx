@@ -25,7 +25,7 @@ export function Panel({
 
   return (
     <PanelExternal
-      className={`bg-slate-800 rounded rounded-md ${className}`}
+      className={`bg-slate-800 rounded rounded-md overflow-auto ${className}`}
       {...rest}
       onResize={listenForResize ? setSize : undefined}
     >
