@@ -17,24 +17,26 @@ export default function CollapsiblePanelsRoute() {
         <code>collapsible</code> and <code>minSize</code> properties.
       </div>
       <Code html={ExampleHTML} />
-      <Group className="h-25">
+      <Group className="h-45 sm:h-15">
         <Panel collapsible maxSize="75%" minSize={100} showSizeInPixels />
         <Separator />
         <Panel>
-          The panel on the left is will collapse if resized below 50 pixels.
+          The panel on the left has a minimum size of 100 pixels. It will
+          collapse entirely if resized smaller than 50 pixels.
         </Panel>
       </Group>
       <Callout intent="primary">
-        It's usually a good idea to include a Separator for panels that can be
-        collapsed fully. This panel gives users something to click to re-open a
-        panel after it's been collapsed.
+        Although it isn't required, it's recommended that you also render a{" "}
+        <code>Separator</code> for panels that can be collapsed fully. This
+        separator gives users something to click to re-open a panel after it's
+        been collapsed.
       </Callout>
       <div>
         The <code>collapsedSize</code> property can also be provided to prevent
         a panel from disappearing fully when collapsed.
       </div>
       <Code html={ExampleWithCollapsedSizeHTML} />
-      <Group className="h-25">
+      <Group className="h-30 sm:h-15">
         <Panel
           collapsedSize={35}
           collapsible
