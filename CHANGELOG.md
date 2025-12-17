@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.4
+
+- [#534](https://github.com/bvaughn/react-resizable-panels/pull/534): Set focus on `Separator` on "pointerdown"
+- [e08fe42](https://github.com/bvaughn/react-resizable-panels/commit/e08fe42195d8ace7e4e62205453be4a5245fefb9): Improve iOS/Safari resize UX
+
 ## 4.0.3
 
 - Fixed TS type for `defaultLayout` value returned from `useDefaultLayout`
