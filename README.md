@@ -27,15 +27,28 @@ Documentation for this project is available at [react-resizable-panels.vercel.ap
 
 ### Group
 
+<!-- Group:description:begin -->
+A Group wraps a set of resizable Panel components.
+Group content can be resized _horizontally_ or _vertically_.
+
+Group elements always include the following attributes:
+
+```html
+<div data-group data-testid="group-id-prop" id="group-id-prop">
+```
+
+ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+<!-- Group:description:end -->
+
 #### Required props
 
-<!-- Group:required:begin -->
-
-<!-- Group:required:end -->
+<!-- Group:required-props:begin -->
+None
+<!-- Group:required-props:end -->
 
 #### Optional props
 
-<!-- Group:optional:begin -->
+<!-- Group:optional-props:begin -->
 
 <table>
   <thead>
@@ -114,19 +127,37 @@ Use this prop to disable that behavior for Panels and Separators in this group.<
   </tbody>
 </table>
 
-<!-- Group:optional:end -->
+<!-- Group:optional-props:end -->
 
 ### Panel
 
+<!-- Panel:description:begin -->
+A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.
+
+Panel size props can be specified using the following CSS units:
+- Pixels (default if value is of type `number`)
+- Percentages (default if value is of type `string`)
+- Font sizes (em, rem)
+- Viewport sizes (vh, vw)
+
+Panel elements always include the following attributes:
+
+```html
+<div data-panel data-testid="panel-id-prop" id="panel-id-prop">
+```
+
+ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+<!-- Panel:description:end -->
+
 #### Required props
 
-<!-- Panel:required:begin -->
-
-<!-- Panel:required:end -->
+<!-- Panel:required-props:begin -->
+None
+<!-- Panel:required-props:end -->
 
 #### Optional props
 
-<!-- Panel:optional:begin -->
+<!-- Panel:optional-props:begin -->
 
 <table>
   <thead>
@@ -209,19 +240,35 @@ Falls back to <code>useId</code> when not provided.</p>
   </tbody>
 </table>
 
-<!-- Panel:optional:end -->
+<!-- Panel:optional-props:end -->
 
 ### Separator
 
+<!-- Separator:description:begin -->
+Separators are not _required_ but they are _recommended_ as they improve keyboard accessibility.
+
+Separators should be rendered as the direct child of a Group component.
+
+Separator elements always include the following attributes:
+
+```html
+<div data-separator data-testid="separator-id-prop" id="separator-id-prop" role="separator">
+```
+
+ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+
+ℹ️ In addition to the attributes shown above, separator also renders all required [WAI-ARIA properties](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/separator_role#associated_wai-aria_roles_states_and_properties).
+<!-- Separator:description:end -->
+
 #### Required props
 
-<!-- Separator:required:begin -->
-
-<!-- Separator:required:end -->
+<!-- Separator:required-props:begin -->
+None
+<!-- Separator:required-props:end -->
 
 #### Optional props
 
-<!-- Separator:optional:begin -->
+<!-- Separator:optional-props:begin -->
 
 <table>
   <thead>
@@ -260,4 +307,4 @@ Falls back to <code>useId</code> when not provided.</p>
   </tbody>
 </table>
 
-<!-- Separator:optional:end -->
+<!-- Separator:optional-props:end -->
