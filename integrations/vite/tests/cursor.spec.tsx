@@ -177,4 +177,28 @@ test.describe("cursor", () => {
       await page.evaluate(() => getComputedStyle(document.body).cursor)
     ).toBe("move");
   });
+
+  test("disabled", async ({ page }) => {
+    await goToUrl(
+      page,
+      <Group disableCursor orientation="vertical">
+        <Panel id="top" minSize="25%" />
+        <Separator />
+        <Panel id="bottom" minSize="25%" />
+      </Group>
+    );
+
+    const hitAreaBox = await calculateHitArea(page, ["top", "bottom"]);
+    const { x, y } = getCenterCoordinates(hitAreaBox);
+
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("auto");
+
+    await page.mouse.move(x, y);
+
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("auto");
+  });
 });
