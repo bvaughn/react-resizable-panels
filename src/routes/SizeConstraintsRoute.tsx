@@ -7,6 +7,7 @@ import { Code } from "../components/code/Code";
 import { ExternalLink } from "../components/ExternalLink";
 import { Header } from "../components/Header";
 import { Panel } from "../components/styled-panels/Panel";
+import { Separator } from "../components/styled-panels/Separator";
 
 export default function SizeConstraintsRoute() {
   return (
@@ -35,6 +36,7 @@ export default function SizeConstraintsRoute() {
         <Panel minSize={100} maxSize={200} showSizeInPixels>
           left
         </Panel>
+        <Separator />
         <Panel>right</Panel>
       </Group>
       <div>
@@ -46,9 +48,11 @@ export default function SizeConstraintsRoute() {
         <Panel id="left" minSize="10%" showSizeAsPercentage>
           left
         </Panel>
+        <Separator />
         <Panel id="middle" minSize="10%" showSizeAsPercentage>
           middle
         </Panel>
+        <Separator />
         <Panel id="right" minSize="10%" showSizeAsPercentage>
           right
         </Panel>

@@ -11,14 +11,14 @@ import { Panel } from "../components/styled-panels/Panel";
 export default function CollapsiblePanelsRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Examples" title="The basics" />
+      <Header section="Examples" title="Collapsible panels" />
       <div>
         Panels can be configured to be collapsible using the{" "}
         <code>collapsible</code> and <code>minSize</code> properties.
       </div>
       <Code html={ExampleHTML} />
-      <Group className="h-15 gap-1">
-        <Panel collapsible maxSize="50%" minSize={100} showSizeInPixels />
+      <Group className="h-25 gap-1">
+        <Panel collapsible maxSize="75%" minSize={100} showSizeInPixels />
         <Separator />
         <Panel>
           The panel on the left is will collapse if resized below 50 pixels.
@@ -34,15 +34,16 @@ export default function CollapsiblePanelsRoute() {
         a panel from disappearing fully when collapsed.
       </div>
       <Code html={ExampleWithCollapsedSizeHTML} />
-      <Group className="h-15 gap-1">
+      <Group className="h-25 gap-1">
         <Panel
-          collapsedSize={25}
+          collapsedSize={35}
           collapsible
-          maxSize="50%"
+          maxSize="75%"
           minSize={100}
           showSizeInPixels
-        ></Panel>
-        <Panel>The panel on the left collapses to a width of 25 pixels.</Panel>
+        />
+        <Separator />
+        <Panel>The panel on the left collapses to a width of 35 pixels.</Panel>
       </Group>
       <div>This enables building UIs like VS Code's "Folders" side panel.</div>
       <Callout intent="primary">

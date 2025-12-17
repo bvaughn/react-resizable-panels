@@ -6,6 +6,7 @@ import { Code } from "../components/code/Code";
 import { Header } from "../components/Header";
 import { Panel } from "../components/styled-panels/Panel";
 import { Link } from "../components/Link";
+import { Separator } from "../components/styled-panels/Separator";
 
 export default function PersistentLayoutsRoute() {
   const { defaultLayout, onLayoutChange } = useDefaultLayout({
@@ -32,9 +33,11 @@ export default function PersistentLayoutsRoute() {
         <Panel id="left" minSize={50} showSizeAsPercentage>
           left
         </Panel>
+        <Separator />
         <Panel id="center" minSize={50} showSizeAsPercentage>
           center
         </Panel>
+        <Separator />
         <Panel id="right" minSize={50} showSizeAsPercentage>
           right
         </Panel>

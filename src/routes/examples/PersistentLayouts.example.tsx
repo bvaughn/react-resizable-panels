@@ -1,4 +1,9 @@
-import { Group, Panel, useDefaultLayout } from "react-resizable-panels";
+import {
+  Group,
+  Panel,
+  Separator,
+  useDefaultLayout
+} from "react-resizable-panels";
 
 // <begin>
 
@@ -11,6 +16,8 @@ const { defaultLayout, onLayoutChange } = useDefaultLayout({
 /* prettier-ignore */
 <Group defaultLayout={defaultLayout} onLayoutChange={onLayoutChange}>
   <Panel id="left" minSize={50}>left</Panel>
+  <Separator />
   <Panel id="center" minSize={50}>center</Panel>
+  <Separator />
   <Panel id="right" minSize={50}>right</Panel>
 </Group>
