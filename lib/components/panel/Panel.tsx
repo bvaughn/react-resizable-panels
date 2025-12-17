@@ -15,11 +15,17 @@ import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
 /**
  * A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.
  *
- * Panel size props can be specified using the following CSS units:
- * - Pixels (default if value is of type `number`)
- * - Percentages (default if value is of type `string`)
- * - Font sizes (em, rem)
- * - Viewport sizes (vh, vw)
+ * Panel size props can be in the following formats:
+ * - Percentage of the parent Group (0..100)
+ * - Pixels
+ * - Relative font units (em, rem)
+ * - Viewport relative units (vh, vw)
+ *
+ * ℹ️ Numeric values are assumed to be pixels.
+ * Strings without explicit units are assumed to be percentages (0%..100%).
+ * Percentages may also be specified as strings ending with "%" (e.g. "33%")
+ * Pixels may also be specified as strings ending with the unit "px".
+ * Other units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)
  *
  * Panel elements always include the following attributes:
  *
@@ -32,13 +38,13 @@ import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
 export function Panel({
   children,
   className,
-  collapsedSize = 0,
+  collapsedSize = "0%",
   collapsible = false,
   defaultSize,
   elementRef,
   id: idProp,
-  maxSize = "100",
-  minSize = "0",
+  maxSize = "100%",
+  minSize = "0%",
   onResize: onResizeUnstable,
   panelRef,
   style,

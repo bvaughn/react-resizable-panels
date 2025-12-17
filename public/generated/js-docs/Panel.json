@@ -4,7 +4,11 @@
       "content": "<p>A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.</p>\n"
     },
     {
-      "content": "<p>Panel size props can be specified using the following CSS units:</p>\n<ul>\n<li>Pixels (default if value is of type <code>number</code>)</li>\n<li>Percentages (default if value is of type <code>string</code>)</li>\n<li>Font sizes (em, rem)</li>\n<li>Viewport sizes (vh, vw)</li>\n</ul>\n"
+      "content": "<p>Panel size props can be in the following formats:</p>\n<ul>\n<li>Percentage of the parent Group (0..100)</li>\n<li>Pixels</li>\n<li>Relative font units (em, rem)</li>\n<li>Viewport relative units (vh, vw)</li>\n</ul>\n"
+    },
+    {
+      "content": "<p>Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with &quot;%&quot; (e.g. &quot;33%&quot;)\nPixels may also be specified as strings ending with the unit &quot;px&quot;.\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)</p>\n",
+      "intent": "primary"
     },
     {
       "content": "<p>Panel elements always include the following attributes:</p>\n"
@@ -69,10 +73,10 @@
     "collapsedSize": {
       "description": [
         {
-          "content": "<p>Panel size when collapsed; defaults to 0.</p>\n"
+          "content": "<p>Panel size when collapsed; defaults to 0%.</p>\n"
         }
       ],
-      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">collapsedSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-number\">0</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">collapsedSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"0%\"</span></div>",
       "name": "collapsedSize",
       "required": false
     },
@@ -86,7 +90,7 @@
           "intent": "primary"
         }
       ],
-      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">collapsible</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-bool\">false</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">collapsible</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"false\"</span></div>",
       "name": "collapsible",
       "required": false
     },
@@ -116,7 +120,7 @@
           "content": "<p>Maximum size of Panel within its parent group; defaults to 100%.</p>\n"
         }
       ],
-      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">maxSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-number\">100</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">maxSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"100%\"</span></div>",
       "name": "maxSize",
       "required": false
     },
@@ -126,7 +130,7 @@
           "content": "<p>Minimum size of Panel within its parent group; defaults to 0%.</p>\n"
         }
       ],
-      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">minSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-number\">0</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">minSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"0%\"</span></div>",
       "name": "minSize",
       "required": false
     },

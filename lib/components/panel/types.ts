@@ -53,7 +53,10 @@ export interface PanelImperativeHandle {
    *
    * @return Panel size (in pixels and as a percentage of the parent group)
    */
-  getSize: () => PanelSize;
+  getSize: () => {
+    asPercentage: number;
+    inPixels: number;
+  };
 
   /**
    * The Panel is currently collapsed.
@@ -63,7 +66,17 @@ export interface PanelImperativeHandle {
   /**
    * Update the Panel's size.
    *
-   * ℹ️ Size may be specified in pixel format (number) or as a percentage (string).
+   * Size can be in the following formats:
+   * - Percentage of the parent Group (0..100)
+   * - Pixels
+   * - Relative font units (em, rem)
+   * - Viewport relative units (vh, vw)
+   *
+   * ℹ️ Numeric values are assumed to be pixels.
+   * Strings without explicit units are assumed to be percentages (0%..100%).
+   * Percentages may also be specified as strings ending with "%" (e.g. "33%")
+   * Pixels may also be specified as strings ending with the unit "px".
+   * Other units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)
    *
    * @param size New panel size
    * @return Applied size (after validation)
@@ -80,7 +93,7 @@ export type PanelProps = HTMLAttributes<HTMLDivElement> & {
   className?: string | undefined;
 
   /**
-   * Panel size when collapsed; defaults to 0.
+   * Panel size when collapsed; defaults to 0%.
    */
   collapsedSize?: number | string | undefined;
 

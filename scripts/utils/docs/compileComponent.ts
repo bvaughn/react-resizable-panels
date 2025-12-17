@@ -58,7 +58,12 @@ export async function compileComponent({
       let textToFormat = getPropTypeText(prop);
 
       if (prop.defaultValue?.value) {
-        textToFormat = `${textToFormat} = ${prop.defaultValue.value}`;
+        const formattedValue =
+          typeof prop.defaultValue.value === "string"
+            ? `"${prop.defaultValue.value}"`
+            : prop.defaultValue.value;
+
+        textToFormat = `${textToFormat} = ${formattedValue}`;
       }
 
       // Format with a placeholder token so we can replace it with a formatted string
