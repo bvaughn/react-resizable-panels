@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { getStorageKey } from "./auto-save/getStorageKey";
 import { saveGroupLayout } from "./auto-save/saveGroupLayout";
-import type { LayoutStorage, OnGroupLayoutChange } from "./types";
+import type { Layout, LayoutStorage, OnGroupLayoutChange } from "./types";
 
 export function useDefaultLayout({
   groupId,
@@ -20,7 +20,10 @@ export function useDefaultLayout({
   );
 
   const defaultLayout = useMemo(
-    () => (defaultLayoutString ? JSON.parse(defaultLayoutString) : null),
+    () =>
+      defaultLayoutString
+        ? (JSON.parse(defaultLayoutString) as Layout)
+        : undefined,
     [defaultLayoutString]
   );
 
