@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.6
+
+- [0796644](https://github.com/bvaughn/react-resizable-panels/commit/0796644): Account for Flex gap when calculating pointer-move delta %
+
 ## 4.0.5
 
 - [#535](https://github.com/bvaughn/react-resizable-panels/pull/535): Updated docs to make size and layout formats clearer
