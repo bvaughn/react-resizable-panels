@@ -6,6 +6,9 @@ export function onGroupPointerLeave(event: PointerEvent) {
     return;
   } else if (event.relatedTarget !== null) {
     return;
+  } else if (event.clientX === 0 && event.clientY === 0) {
+    // Edge case iOS Safari bug; coordinates are seemingly nonsensical which would break the drag event
+    return;
   }
 
   const { interactionState, mountedGroups } = read();

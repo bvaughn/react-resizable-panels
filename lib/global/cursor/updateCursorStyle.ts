@@ -1,8 +1,7 @@
-import type { Properties } from "csstype";
 import { read } from "../mutableState";
 import { getCursorStyle } from "./getCursorStyle";
 
-let prevCursor: Properties["cursor"] | null = null;
+let prevStyle: string | undefined = undefined;
 let styleSheet: CSSStyleSheet | undefined = undefined;
 
 export function updateCursorStyle() {
@@ -17,23 +16,24 @@ export function updateCursorStyle() {
   switch (interactionState.state) {
     case "active":
     case "hover": {
-      const style = getCursorStyle({
+      const cursorStyle = getCursorStyle({
         cursorFlags,
         groups: interactionState.hitRegions.map((current) => current.group),
         state: interactionState.state
       });
 
-      if (prevCursor === style) {
+      const nextStyle = `*{cursor: ${cursorStyle} !important; ${interactionState.state === "active" ? "touch-action: none;" : ""} }`;
+      if (prevStyle === nextStyle) {
         return;
       }
 
-      prevCursor = style;
+      prevStyle = nextStyle;
 
-      if (style) {
+      if (cursorStyle) {
         if (styleSheet.cssRules.length === 0) {
-          styleSheet.insertRule(`*{cursor: ${style} !important;}`);
+          styleSheet.insertRule(nextStyle);
         } else {
-          styleSheet.replaceSync(`*{cursor: ${style} !important;}`);
+          styleSheet.replaceSync(nextStyle);
         }
       } else if (styleSheet.cssRules.length === 1) {
         styleSheet.deleteRule(0);
@@ -41,7 +41,7 @@ export function updateCursorStyle() {
       break;
     }
     case "inactive": {
-      prevCursor = null;
+      prevStyle = undefined;
 
       if (styleSheet.cssRules.length === 1) {
         styleSheet.deleteRule(0);
