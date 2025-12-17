@@ -32,7 +32,6 @@ export function Decoder() {
     const group = decode(encoded, {
       groupProps: {
         onLayoutChange: (layout) => {
-          console.log("[Decoder] onLayoutChange:", layout);
           setState((prev) => ({
             ...prev,
             onLayoutCount: prev.onLayoutCount + 1,
@@ -43,7 +42,6 @@ export function Decoder() {
       panelProps: {
         onResize: (panelSize, id) => {
           assert(id, "Panel id required");
-          console.log("[Decoder] onResize:", id, panelSize);
 
           setState((prev) => ({
             ...prev,

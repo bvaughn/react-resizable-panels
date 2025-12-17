@@ -37,16 +37,20 @@ export function Panel({
       }}
     >
       <PanelText>
-        {children ?? `id: ${id}`}
-        {showSizeAsPercentage && (
-          <div className="text-slate-300 text-xs">
-            {Math.round(size.asPercentage)}%
-          </div>
-        )}
-        {showSizeInPixels && (
-          <div className="text-slate-300 text-xs">
-            {Math.round(size.inPixels)}px
-          </div>
+        {children ?? (
+          <>
+            {`id: ${id}`}
+            {showSizeAsPercentage && (
+              <div className="text-slate-300 text-xs">
+                {Math.round(size.asPercentage)}%
+              </div>
+            )}
+            {showSizeInPixels && (
+              <div className="text-slate-300 text-xs">
+                {Math.round(size.inPixels)}px
+              </div>
+            )}
+          </>
         )}
       </PanelText>
     </PanelExternal>

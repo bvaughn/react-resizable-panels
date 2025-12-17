@@ -12,6 +12,7 @@ export type GroupJson = {
 };
 
 export type PanelJson = {
+  children?: GroupJson | undefined;
   type: "Panel";
   props: object;
 };

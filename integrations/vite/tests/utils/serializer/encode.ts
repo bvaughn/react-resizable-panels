@@ -37,11 +37,17 @@ function convertGroup(element: ReactElement<GroupProps>): GroupJson {
 }
 
 function convertPanel(element: ReactElement<PanelProps>): PanelJson {
-  const { children: _, onResize: __, ...props } = element.props;
+  const { children, onResize: __, ...props } = element.props;
+
+  let group: GroupJson | undefined = undefined;
+  if (children) {
+    group = convertGroup(children as ReactElement<GroupProps>);
+  }
 
   return {
     type: "Panel",
-    props
+    props,
+    children: group
   };
 }
 
