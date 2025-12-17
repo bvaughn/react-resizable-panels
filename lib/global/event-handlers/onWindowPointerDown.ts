@@ -18,6 +18,8 @@ export function onWindowPointerDown(event: PointerEvent) {
   const separators = new Set<RegisteredSeparator>();
   const initialLayoutMap = new Map<RegisteredGroup, Layout>();
 
+  let didChangeFocus = false;
+
   hitRegions.forEach((current) => {
     groups.add(current.group);
     current.panels.forEach((panel) => {
@@ -25,6 +27,12 @@ export function onWindowPointerDown(event: PointerEvent) {
     });
     if (current.separator) {
       separators.add(current.separator);
+
+      if (!didChangeFocus) {
+        didChangeFocus = true;
+
+        current.separator.element.focus();
+      }
     }
 
     const match = mountedGroups.get(current.group);
