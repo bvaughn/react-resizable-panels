@@ -25,6 +25,7 @@ export function Nav() {
         <NavLink path="/examples/conditional-panels">
           Conditional panels
         </NavLink>
+        <NavLink path="/examples/fixed-size-panels">Fixed size panels</NavLink>
         <NavLink path="/examples/custom-css-styles">Custom CSS styles</NavLink>
       </NavSection>
       <NavSection label="Props">
