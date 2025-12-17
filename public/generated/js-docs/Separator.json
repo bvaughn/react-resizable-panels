@@ -10,7 +10,7 @@
       "content": "<p>Separator elements always include the following attributes:</p>\n"
     },
     {
-      "content": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-separator</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-testid</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">role</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
+      "content": "<div><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-separator</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-testid</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">role</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
     },
     {
       "content": "<p><a href=\"https://testing-library.com/docs/queries/bytestid/\">Test id</a> can be used to narrow selection when unit testing.</p>\n",
@@ -38,7 +38,7 @@
           "intent": "warning"
         }
       ],
-      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
       "name": "className",
       "required": false
     },
@@ -52,7 +52,7 @@
           "intent": "primary"
         }
       ],
-      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
       "name": "id",
       "required": false
     },
@@ -70,7 +70,7 @@
           "intent": "warning"
         }
       ],
-      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span></div>",
       "name": "style",
       "required": false
     },
@@ -80,7 +80,7 @@
           "content": "<p>Ref attached to the root <code>HTMLDivElement</code>.</p>\n"
         }
       ],
-      "html": "<div style=\"min-height: 1rem; white-space: pre;\"><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\">&#62;</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\">&#62;</span></div>",
       "name": "elementRef",
       "required": false
     }

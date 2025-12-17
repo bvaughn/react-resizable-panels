@@ -28,10 +28,15 @@ export default function App() {
           justify="between"
           gap={4}
         >
-          <Box align="center" direction="row" gap={4}>
+          <Box
+            className="overflow-hidden"
+            align="center"
+            direction="row"
+            gap={4}
+          >
             <Link
               children="react-resizable-panels"
-              className="text-xl text-white! text-shadow-black/20 text-shadow-sm font-bold cursor-pointer"
+              className="text-xl text-white! text-shadow-black/20 text-shadow-sm font-bold cursor-pointer truncate"
               to="/"
             />
             <div className="hidden md:block text-black text-shadow-white/50 text-shadow-xs">
