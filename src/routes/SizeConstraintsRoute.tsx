@@ -1,4 +1,3 @@
-import { Group } from "react-resizable-panels";
 import { html as MinMaxExampleHTML } from "../../public/generated/code-snippets/SizeConstraintsMinMax.json";
 import { html as PercentageExampleHTML } from "../../public/generated/code-snippets/SizeConstraintsPercentage.json";
 import { Box } from "../components/Box";
@@ -6,6 +5,7 @@ import { Callout } from "../components/Callout";
 import { Code } from "../components/code/Code";
 import { ExternalLink } from "../components/ExternalLink";
 import { Header } from "../components/Header";
+import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
 
@@ -32,7 +32,7 @@ export default function SizeConstraintsRoute() {
         between 10v0-200 pixels.
       </div>
       <Code html={MinMaxExampleHTML} />
-      <Group className="h-15 gap-1">
+      <Group className="h-15">
         <Panel minSize={100} maxSize={200} showSizeInPixels>
           left
         </Panel>
@@ -44,7 +44,7 @@ export default function SizeConstraintsRoute() {
         to be smaller than 10% of the group's width.
       </div>
       <Code html={PercentageExampleHTML} />
-      <Group className="h-15 gap-1">
+      <Group className="h-15">
         <Panel id="left" minSize="10%" showSizeAsPercentage>
           left
         </Panel>

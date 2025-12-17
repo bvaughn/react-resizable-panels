@@ -1,12 +1,12 @@
-import { Group } from "react-resizable-panels";
 import { html as ExampleHTML } from "../../public/generated/code-snippets/CollapsiblePanels.json";
 import { html as ExampleWithCollapsedSizeHTML } from "../../public/generated/code-snippets/CollapsiblePanelsCollapsedSize.json";
 import { Box } from "../components/Box";
 import { Callout } from "../components/Callout";
 import { Code } from "../components/code/Code";
 import { Header } from "../components/Header";
-import { Separator } from "../components/styled-panels/Separator";
+import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
+import { Separator } from "../components/styled-panels/Separator";
 
 export default function CollapsiblePanelsRoute() {
   return (
@@ -17,7 +17,7 @@ export default function CollapsiblePanelsRoute() {
         <code>collapsible</code> and <code>minSize</code> properties.
       </div>
       <Code html={ExampleHTML} />
-      <Group className="h-25 gap-1">
+      <Group className="h-25">
         <Panel collapsible maxSize="75%" minSize={100} showSizeInPixels />
         <Separator />
         <Panel>
@@ -34,7 +34,7 @@ export default function CollapsiblePanelsRoute() {
         a panel from disappearing fully when collapsed.
       </div>
       <Code html={ExampleWithCollapsedSizeHTML} />
-      <Group className="h-25 gap-1">
+      <Group className="h-25">
         <Panel
           collapsedSize={35}
           collapsible

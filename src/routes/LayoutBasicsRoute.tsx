@@ -1,4 +1,3 @@
-import { Group } from "react-resizable-panels";
 import { html as HorizontalHTML } from "../../public/generated/code-snippets/LayoutBasicsHorizontal.json";
 import { html as SeparatorHTML } from "../../public/generated/code-snippets/LayoutBasicsSeparator.json";
 import { html as VerticalHTML } from "../../public/generated/code-snippets/LayoutBasicsVertical.json";
@@ -7,6 +6,7 @@ import { Callout } from "../components/Callout";
 import { Code } from "../components/code/Code";
 import { ExternalLink } from "../components/ExternalLink";
 import { Header } from "../components/Header";
+import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
 
@@ -18,7 +18,7 @@ export default function LayoutBasicsRoute() {
         The simplest resizable panel configuration is two panels within a group.
       </div>
       <Code html={HorizontalHTML} />
-      <Group className="h-15 gap-1">
+      <Group className="h-15">
         <Panel>left</Panel>
         <Panel>right</Panel>
       </Group>
@@ -32,7 +32,7 @@ export default function LayoutBasicsRoute() {
         layout.
       </div>
       <Code html={VerticalHTML} />
-      <Group className="h-30 gap-1" orientation="vertical">
+      <Group className="h-30" orientation="vertical">
         <Panel>top</Panel>
         <Panel>bottom</Panel>
       </Group>
@@ -40,7 +40,7 @@ export default function LayoutBasicsRoute() {
         Panels can be resized by clicking on their borders but explicit
         separators can be rendered to improve UX.
       </div>
-      <Group className="h-15 gap-1">
+      <Group className="h-15">
         <Panel>left</Panel>
         <Separator orientation="horizontal" />
         <Panel>right</Panel>

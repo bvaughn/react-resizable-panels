@@ -1,11 +1,11 @@
-import { Box } from "../components/Box";
-import { Header } from "../components/Header";
-import { html as SeparatorsExampleHTML } from "../../public/generated/code-snippets/ConditionalSeparators.json";
-import { Code } from "../components/code/Code";
 import { useState } from "react";
-import { Group } from "react-resizable-panels";
-import { Panel } from "../components/styled-panels/Panel";
+import { html as SeparatorsExampleHTML } from "../../public/generated/code-snippets/ConditionalSeparators.json";
+import { Box } from "../components/Box";
 import { Callout } from "../components/Callout";
+import { Code } from "../components/code/Code";
+import { Header } from "../components/Header";
+import { Group } from "../components/styled-panels/Group";
+import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
 
 export default function ConditionalPanelsRoute() {
@@ -30,7 +30,7 @@ export default function ConditionalPanelsRoute() {
           {hideLeftPanel ? "show right panel" : "hide right panel"}
         </button>
       </Box>
-      <Group className="h-15 gap-1">
+      <Group className="h-15">
         {hideRight || (
           <>
             <Panel id="left" minSize={50}>

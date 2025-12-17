@@ -1,11 +1,12 @@
-import { Group, useDefaultLayout } from "react-resizable-panels";
+import { useDefaultLayout } from "react-resizable-panels";
 import { html as ComponentExampleHTML } from "../../public/generated/code-snippets/PersistentLayouts.json";
 import { Box } from "../components/Box";
 import { Callout } from "../components/Callout";
 import { Code } from "../components/code/Code";
 import { Header } from "../components/Header";
-import { Panel } from "../components/styled-panels/Panel";
 import { Link } from "../components/Link";
+import { Group } from "../components/styled-panels/Group";
+import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
 
 export default function PersistentLayoutsRoute() {
@@ -26,7 +27,7 @@ export default function PersistentLayoutsRoute() {
       </div>
       <Code html={ComponentExampleHTML} />
       <Group
-        className="h-15 gap-1"
+        className="h-15"
         defaultLayout={defaultLayout}
         onLayoutChange={onLayoutChange}
       >

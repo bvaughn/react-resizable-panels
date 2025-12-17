@@ -1,10 +1,10 @@
-import { Group } from "react-resizable-panels";
 import { html as CustomStylesExampleHTML } from "../../public/generated/code-snippets/SeparatorCustomStyles.json";
 import { html as DataAttributesExampleHTML } from "../../public/generated/code-snippets/SeparatorDataAttributes.json";
 import { Box } from "../components/Box";
 import { Callout } from "../components/Callout";
 import { Code } from "../components/code/Code";
 import { Header } from "../components/Header";
+import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
 
@@ -36,7 +36,7 @@ export default function CustomStylesRoute() {
       <Code html={DataAttributesExampleHTML} />
       <div>An example using Tailwind CSS might look something like this.</div>
       <Code html={CustomStylesExampleHTML} />
-      <Group className="h-15 gap-1">
+      <Group className="h-15">
         <Panel>left</Panel>
         <Separator />
         <Panel>right</Panel>
