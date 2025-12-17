@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.7
+
+- [f07bf00](https://github.com/bvaughn/react-resizable-panels/commit/f07bf00): Reset `pointer-event` styles after "pointerup" event
+
 ## 4.0.6
 
 - [0796644](https://github.com/bvaughn/react-resizable-panels/commit/0796644): Account for Flex gap when calculating pointer-move delta %
