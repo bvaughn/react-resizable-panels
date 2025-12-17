@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.3
+
+- Fixed TS type for `defaultLayout` value returned from `useDefaultLayout`
+
 ## 4.0.2
 
 - Export `GroupImperativeHandle` and `PanelImperativeHandle` types.
