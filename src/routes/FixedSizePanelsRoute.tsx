@@ -15,7 +15,7 @@ export default function FixedSizePanelsRoute() {
         need fixed-size content.
       </div>
       <Code html={HorizontalHTML} />
-      <Group className="h-45">
+      <Group className="h-15">
         <Panel minSize={50}>left</Panel>
         <Separator />
         <Panel minSize={50}>right</Panel>
