@@ -187,6 +187,22 @@ const panelRef = usePanelRef();
 </Group>
 ```
 
+### Disabling custom cursors
+
+```tsx
+// Version 3
+
+import { disableGlobalCursorStyles } from "react-resizable-panels";
+
+disableGlobalCursorStyles();
+
+// Version 4
+
+import { Group, Panel, Separator } from "react-resizable-panels";
+
+<Group disableCursor />
+```
+
 # 3.0.6
 - [#517](https://github.com/bvaughn/react-resizable-panels/pull/517): Fixed Firefox bug that caused resizing to be interrupted unexpected
 
