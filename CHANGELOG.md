@@ -3,6 +3,7 @@
 ## 4.0.8
 
 - [#541](https://github.com/bvaughn/react-resizable-panels/pull/541): Don't set invalid layouts when Group is hidden or has a width/height of 0
+- [40d4356](https://github.com/bvaughn/react-resizable-panels/commit/40d4356): Gracefully handle invalid `defaultLayout` value
 
 ## 4.0.7
 
