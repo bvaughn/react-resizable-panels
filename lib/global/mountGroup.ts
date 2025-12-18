@@ -99,9 +99,20 @@ export function mountGroup(group: RegisteredGroup) {
   // Calculate initial layout for the new Panel configuration
   const derivedPanelConstraints = calculatePanelConstraints(group);
   const panelIdsKey = group.panels.map(({ id }) => id).join(",");
+
+  // Gracefully handle an invalid default layout
+  // This could happen when e.g. useDefaultLayout is combined with dynamic Panels
+  // In this case the best we can do is ignore the incoming layout
+  let defaultLayout: Layout | undefined = group.defaultLayout;
+  if (defaultLayout) {
+    if (group.panels.length !== Object.keys(defaultLayout).length) {
+      defaultLayout = undefined;
+    }
+  }
+
   const defaultLayoutUnsafe: Layout =
     group.inMemoryLayouts[panelIdsKey] ??
-    group.defaultLayout ??
+    defaultLayout ??
     calculateDefaultLayout(derivedPanelConstraints);
   const defaultLayoutSafe = validatePanelGroupLayout({
     layout: defaultLayoutUnsafe,
