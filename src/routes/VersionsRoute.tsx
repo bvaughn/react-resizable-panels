@@ -29,6 +29,9 @@ export default function VersionsRoute() {
 }
 
 const VERSIONS = {
+  "4": {
+    "4.0.8": "https://react-resizable-panels.now.sh/"
+  },
   "3": {
     "3.0.6":
       "https://react-resizable-panels-au2wmqbbr-brian-vaughns-projects.vercel.app/"
