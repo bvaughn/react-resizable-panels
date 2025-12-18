@@ -12,3 +12,5 @@ export type PointerPrecision = {
   coarse: number;
   precise: number;
 };
+
+export type Rect = Dimensions & Point;

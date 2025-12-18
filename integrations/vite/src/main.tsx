@@ -3,10 +3,11 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router";
 import "./index.css";
 import { Decoder } from "./routes/Decoder";
-import { Visibility } from "./routes/Visibility";
 import { Edges } from "./routes/Edges";
 import { Encoder } from "./routes/Encoder";
 import { Home } from "./routes/Home";
+import { StackingOrder } from "./routes/StackingOrder";
+import { Visibility } from "./routes/Visibility";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -20,6 +21,7 @@ createRoot(document.getElementById("root")!).render(
           path="/e2e/visibility/:mode/:default/:encoded"
           element={<Visibility />}
         />
+        <Route path="/e2e/stacking-order" element={<StackingOrder />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>
