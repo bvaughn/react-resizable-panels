@@ -5,13 +5,12 @@ import { formatLayoutNumber } from "../utils/formatLayoutNumber";
 import { calculateAvailableGroupSize } from "./calculateAvailableGroupSize";
 
 export function calculatePanelConstraints(group: RegisteredGroup) {
-  const { element, panels } = group;
+  const { panels } = group;
 
-  if (
-    typeof element.checkVisibility === "function" &&
-    !element.checkVisibility()
-  ) {
-    // Can't calculate anything meaningful if we're within an offscreen tree
+  const groupSize = calculateAvailableGroupSize({ group });
+  if (groupSize === 0) {
+    // Can't calculate anything meaningful if the group has a width/height of 0
+    // (This could indicate that it's within a hidden subtree)
     return panels.map((current) => ({
       collapsedSize: 0,
       collapsible: current.panelConstraints.collapsible === true,
@@ -21,8 +20,6 @@ export function calculatePanelConstraints(group: RegisteredGroup) {
       panelId: current.id
     }));
   }
-
-  const groupSize = calculateAvailableGroupSize({ group });
 
   return panels.map<PanelConstraints>((panel) => {
     const { element, panelConstraints } = panel;

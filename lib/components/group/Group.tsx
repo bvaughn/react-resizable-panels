@@ -15,7 +15,6 @@ import { GroupContext } from "./GroupContext";
 import { sortByElementOffset } from "./sortByElementOffset";
 import type { GroupProps, Layout, RegisteredGroup } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
-import { useIsVisible } from "./useIsVisible";
 
 /**
  * A Group wraps a set of resizable Panel components.
@@ -63,8 +62,6 @@ export function Group({
   const [panels, setPanels] = useState<RegisteredPanel[]>([]);
   const [separators, setSeparators] = useState<RegisteredSeparator[]>([]);
 
-  const isVisible = useIsVisible(element);
-
   const inMemoryLastExpandedPanelSizesRef = useRef<{
     [panelIds: string]: number;
   }>({});
@@ -105,13 +102,6 @@ export function Group({
   useIsomorphicLayoutEffect(() => {
     if (element === null || panels.length === 0) {
       return;
-    }
-
-    if (typeof element.checkVisibility === "function") {
-      if (!element.checkVisibility()) {
-        // Wait
-        return;
-      }
     }
 
     const group: RegisteredGroup = {
@@ -178,7 +168,6 @@ export function Group({
     disabled,
     element,
     id,
-    isVisible,
     onLayoutChangeStable,
     orientation,
     panels,
@@ -208,7 +197,6 @@ export function Group({
         style={{
           ...style,
           ...cssVariables,
-          contentVisibility: "auto",
           display: "flex",
           flexDirection: orientation === "horizontal" ? "row" : "column",
           flexWrap: "nowrap"

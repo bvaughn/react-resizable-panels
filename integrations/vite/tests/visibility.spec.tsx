@@ -54,18 +54,20 @@ test.describe("visibility", () => {
       "/e2e/visibility/display/hidden/"
     );
 
-    await expect(page.getByText('"onLayoutCount": 0')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
+    // Actual layout values are not meaningful since the Group is not visible
 
     await page.getByText("toggle display hidden → visible").click();
 
-    await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 2')).toBeVisible();
     await expect(page.getByText("id: left")).toContainText("25%");
     await expect(page.getByRole("separator")).toBeVisible();
     await expect(page.getByText("id: right")).toContainText("75%");
 
     await page.getByText("toggle display visible → hidden").click();
 
-    await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 2')).toBeVisible();
+    // Actual layout values are not meaningful since the Group is not visible
 
     await page.setViewportSize({
       width: 500,
@@ -73,7 +75,7 @@ test.describe("visibility", () => {
     });
     await page.getByText("toggle display hidden → visible").click();
 
-    await expect(page.getByText('"onLayoutCount": 2')).toBeVisible();
+    await expect(page.getByText('"onLayoutCount": 3')).toBeVisible();
     await expect(page.getByText("id: left")).toContainText("33%");
     await expect(page.getByRole("separator")).toBeVisible();
     await expect(page.getByText("id: right")).toContainText("67%");

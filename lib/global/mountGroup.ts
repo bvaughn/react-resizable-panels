@@ -1,5 +1,6 @@
 import type { Layout, RegisteredGroup } from "../components/group/types";
 import { assert } from "../utils/assert";
+import { calculateAvailableGroupSize } from "./dom/calculateAvailableGroupSize";
 import { calculateHitRegions } from "./dom/calculateHitRegions";
 import { calculatePanelConstraints } from "./dom/calculatePanelConstraints";
 import { onGroupPointerLeave } from "./event-handlers/onGroupPointerLeave";
@@ -9,6 +10,7 @@ import { onWindowPointerMove } from "./event-handlers/onWindowPointerMove";
 import { onWindowPointerUp } from "./event-handlers/onWindowPointerUp";
 import { update } from "./mutableState";
 import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
+import { layoutsEqual } from "./utils/layoutsEqual";
 import { notifyPanelOnResize } from "./utils/notifyPanelOnResize";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 
@@ -31,15 +33,14 @@ export function mountGroup(group: RegisteredGroup) {
     for (const entry of entries) {
       const { borderBoxSize, target } = entry;
       if (target === group.element) {
-        if (
-          typeof target.checkVisibility === "function" &&
-          !target.checkVisibility()
-        ) {
-          // Constraints can't be calculated for groups within a hidden subtree
-          return;
-        }
-
         if (isMounted) {
+          const groupSize = calculateAvailableGroupSize({ group });
+          if (groupSize === 0) {
+            // Can't calculate anything meaningful if the group has a width/height of 0
+            // (This could indicate that it's within a hidden subtree)
+            return;
+          }
+
           update((prevState) => {
             const match = prevState.mountedGroups.get(group);
             if (match) {
@@ -48,11 +49,20 @@ export function mountGroup(group: RegisteredGroup) {
                 calculatePanelConstraints(group);
 
               // Revalidate layout in case constraints have changed
-              const prevLayout = match.layout;
+              const prevLayout = match.defaultLayoutDeferred
+                ? calculateDefaultLayout(nextDerivedPanelConstraints)
+                : match.layout;
               const nextLayout = validatePanelGroupLayout({
                 layout: prevLayout,
                 panelConstraints: nextDerivedPanelConstraints
               });
+
+              if (
+                !match.defaultLayoutDeferred &&
+                layoutsEqual(prevLayout, nextLayout)
+              ) {
+                return prevState;
+              }
 
               return {
                 mountedGroups: new Map(prevState.mountedGroups).set(group, {
@@ -84,6 +94,8 @@ export function mountGroup(group: RegisteredGroup) {
     }
   });
 
+  const groupSize = calculateAvailableGroupSize({ group });
+
   // Calculate initial layout for the new Panel configuration
   const derivedPanelConstraints = calculatePanelConstraints(group);
   const panelIdsKey = group.panels.map(({ id }) => id).join(",");
@@ -100,6 +112,7 @@ export function mountGroup(group: RegisteredGroup) {
 
   const nextState = update((prevState) => ({
     mountedGroups: new Map(prevState.mountedGroups).set(group, {
+      defaultLayoutDeferred: groupSize === 0,
       derivedPanelConstraints,
       layout: defaultLayoutSafe,
       separatorToPanels: new Map(
