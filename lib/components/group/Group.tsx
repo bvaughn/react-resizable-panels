@@ -15,6 +15,7 @@ import { GroupContext } from "./GroupContext";
 import { sortByElementOffset } from "./sortByElementOffset";
 import type { GroupProps, Layout, RegisteredGroup } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
+import { useIsVisible } from "./useIsVisible";
 
 /**
  * A Group wraps a set of resizable Panel components.
@@ -62,6 +63,8 @@ export function Group({
   const [panels, setPanels] = useState<RegisteredPanel[]>([]);
   const [separators, setSeparators] = useState<RegisteredSeparator[]>([]);
 
+  const isVisible = useIsVisible(element);
+
   const inMemoryLastExpandedPanelSizesRef = useRef<{
     [panelIds: string]: number;
   }>({});
@@ -100,73 +103,82 @@ export function Group({
   // Register Group and child Panels/Separators with global state
   // Listen to global state for drag state related to this Group
   useIsomorphicLayoutEffect(() => {
-    if (element !== null && panels.length > 0) {
-      const group: RegisteredGroup = {
-        defaultLayout,
-        disableCursor: !!disableCursor,
-        disabled: !!disabled,
-        element,
-        id,
-        inMemoryLastExpandedPanelSizes:
-          inMemoryLastExpandedPanelSizesRef.current,
-        inMemoryLayouts: inMemoryLayoutsRef.current,
-        orientation,
-        panels,
-        separators
-      };
-
-      const unmountGroup = mountGroup(group);
-
-      const globalState = read();
-      const match = globalState.mountedGroups.get(group);
-      if (match) {
-        setLayout(match.layout);
-        onLayoutChangeStable?.(match.layout);
-      }
-
-      const removeInteractionStateChangeListener = eventEmitter.addListener(
-        "interactionStateChange",
-        (interactionState) => {
-          switch (interactionState.state) {
-            case "active": {
-              setDragActive(
-                interactionState.hitRegions.some(
-                  (current) => current.group === group
-                )
-              );
-              break;
-            }
-            default: {
-              setDragActive(false);
-              break;
-            }
-          }
-        }
-      );
-
-      const removeMountedGroupsChangeEventListener = eventEmitter.addListener(
-        "mountedGroupsChange",
-        (mountedGroups) => {
-          const match = mountedGroups.get(group);
-          if (match && match.derivedPanelConstraints.length > 0) {
-            setLayout(match.layout);
-            onLayoutChangeStable?.(match.layout);
-          }
-        }
-      );
-
-      return () => {
-        unmountGroup();
-        removeInteractionStateChangeListener();
-        removeMountedGroupsChangeEventListener();
-      };
+    if (element === null || panels.length === 0) {
+      return;
     }
+
+    if (typeof element.checkVisibility === "function") {
+      if (!element.checkVisibility()) {
+        // Wait
+        return;
+      }
+    }
+
+    const group: RegisteredGroup = {
+      defaultLayout,
+      disableCursor: !!disableCursor,
+      disabled: !!disabled,
+      element,
+      id,
+      inMemoryLastExpandedPanelSizes: inMemoryLastExpandedPanelSizesRef.current,
+      inMemoryLayouts: inMemoryLayoutsRef.current,
+      orientation,
+      panels,
+      separators
+    };
+
+    const unmountGroup = mountGroup(group);
+
+    const globalState = read();
+    const match = globalState.mountedGroups.get(group);
+    if (match) {
+      setLayout(match.layout);
+      onLayoutChangeStable?.(match.layout);
+    }
+
+    const removeInteractionStateChangeListener = eventEmitter.addListener(
+      "interactionStateChange",
+      (interactionState) => {
+        switch (interactionState.state) {
+          case "active": {
+            setDragActive(
+              interactionState.hitRegions.some(
+                (current) => current.group === group
+              )
+            );
+            break;
+          }
+          default: {
+            setDragActive(false);
+            break;
+          }
+        }
+      }
+    );
+
+    const removeMountedGroupsChangeEventListener = eventEmitter.addListener(
+      "mountedGroupsChange",
+      (mountedGroups) => {
+        const match = mountedGroups.get(group);
+        if (match && match.derivedPanelConstraints.length > 0) {
+          setLayout(match.layout);
+          onLayoutChangeStable?.(match.layout);
+        }
+      }
+    );
+
+    return () => {
+      unmountGroup();
+      removeInteractionStateChangeListener();
+      removeMountedGroupsChangeEventListener();
+    };
   }, [
     defaultLayout,
     disableCursor,
     disabled,
     element,
     id,
+    isVisible,
     onLayoutChangeStable,
     orientation,
     panels,
@@ -196,6 +208,7 @@ export function Group({
         style={{
           ...style,
           ...cssVariables,
+          contentVisibility: "auto",
           display: "flex",
           flexDirection: orientation === "horizontal" ? "row" : "column",
           flexWrap: "nowrap"

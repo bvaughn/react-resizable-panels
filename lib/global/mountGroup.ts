@@ -31,6 +31,14 @@ export function mountGroup(group: RegisteredGroup) {
     for (const entry of entries) {
       const { borderBoxSize, target } = entry;
       if (target === group.element) {
+        if (
+          typeof target.checkVisibility === "function" &&
+          !target.checkVisibility()
+        ) {
+          // Constraints can't be calculated for groups within a hidden subtree
+          return;
+        }
+
         if (isMounted) {
           update((prevState) => {
             const match = prevState.mountedGroups.get(group);
@@ -104,6 +112,7 @@ export function mountGroup(group: RegisteredGroup) {
 
   // The "pointerleave" event is not reliably triggered when the pointer exits a window or iframe
   // To account for this, we listen for "pointerleave" events on the Group element itself
+  // TODO Could I listen to document.body instead of this?
   group.element.addEventListener("pointerleave", onGroupPointerLeave);
 
   group.separators.forEach((separator) => {

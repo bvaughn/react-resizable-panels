@@ -5,7 +5,22 @@ import { formatLayoutNumber } from "../utils/formatLayoutNumber";
 import { calculateAvailableGroupSize } from "./calculateAvailableGroupSize";
 
 export function calculatePanelConstraints(group: RegisteredGroup) {
-  const { panels } = group;
+  const { element, panels } = group;
+
+  if (
+    typeof element.checkVisibility === "function" &&
+    !element.checkVisibility()
+  ) {
+    // Can't calculate anything meaningful if we're within an offscreen tree
+    return panels.map((current) => ({
+      collapsedSize: 0,
+      collapsible: current.panelConstraints.collapsible === true,
+      defaultSize: undefined,
+      minSize: 0,
+      maxSize: 100,
+      panelId: current.id
+    }));
+  }
 
   const groupSize = calculateAvailableGroupSize({ group });
 
