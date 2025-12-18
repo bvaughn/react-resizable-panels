@@ -4,15 +4,24 @@ import {
   Separator,
   useDefaultLayout
 } from "react-resizable-panels";
+import { useMemo } from "react";
 
 const hideMiddlePanel = false;
 
 // <begin>
 
+// Compute current panel IDs based on conditional rendering
+// eslint-disable-next-line react-hooks/rules-of-hooks
+const panelIds = useMemo(
+  () => (hideMiddlePanel ? ["left", "right"] : ["left", "middle", "right"]),
+  [hideMiddlePanel]
+);
+
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { defaultLayout, onLayoutChange } = useDefaultLayout({
   groupId: "conditional-persistent-group",
-  storage: localStorage
+  storage: localStorage,
+  panelIds // Pass current panel configuration
 });
 
 /* prettier-ignore */

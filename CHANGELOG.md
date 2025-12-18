@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- `useDefaultLayout` now accepts optional `panelIds` parameter for validating saved layouts against current panel configuration
+
+### Fixed
+- Fixed "Invalid panel layout" error when using conditional panels with persistent layouts by validating panel IDs before applying saved layouts
+
 ## 4.0.7
 
 - [f07bf00](https://github.com/bvaughn/react-resizable-panels/commit/f07bf00): Reset `pointer-event` styles after "pointerup" event

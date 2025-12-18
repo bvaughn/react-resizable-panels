@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useDefaultLayout } from "react-resizable-panels";
 import { html as ExampleHTML } from "../../public/generated/code-snippets/ConditionalPanelsWithPersistence.json";
 import { Box } from "../components/Box";
@@ -12,9 +12,17 @@ import { Separator } from "../components/styled-panels/Separator";
 export default function ConditionalPanelsWithPersistenceRoute() {
   const [hideMiddlePanel, setHideMiddlePanel] = useState(false);
 
+  // Compute current panel IDs based on conditional rendering
+  const panelIds = useMemo(
+    () =>
+      hideMiddlePanel ? ["left", "right"] : ["left", "middle", "right"],
+    [hideMiddlePanel]
+  );
+
   const { defaultLayout, onLayoutChange } = useDefaultLayout({
     groupId: "conditional-persistent-demo",
-    storage: localStorage
+    storage: localStorage,
+    panelIds // This validates layouts and prevents errors!
   });
 
   return (
@@ -24,35 +32,36 @@ export default function ConditionalPanelsWithPersistenceRoute() {
         title="Conditional Panels with Persistent Layout"
       />
       <div>
-        This example demonstrates a known issue when combining conditional
-        panels with persistent layouts using localStorage.
+        This example demonstrates how to properly use conditional panels with
+        persistent layouts using localStorage.
       </div>
-      <Callout intent="warning">
-        <strong>Issue:</strong> When a panel is conditionally hidden and then
-        shown again, the layout restored from localStorage may contain size
-        values for panels that no longer exist, causing an "Invalid panel
-        layout" error.
+      <Callout intent="primary">
+        <strong>The Solution:</strong> Pass a <code>panelIds</code> array to{" "}
+        <code>useDefaultLayout</code> that reflects the current panel
+        configuration. The hook will validate that saved layouts match the
+        current panels and ignore layouts that don't match.
       </Callout>
       <div>
-        <strong>Steps to reproduce:</strong>
+        <strong>How it works:</strong>
       </div>
       <ol className="pl-8 space-y-2">
         <li className="list-decimal">
-          Resize the panels below to create a custom layout with all 3 panels
-          visible
+          Compute <code>panelIds</code> array based on your conditional
+          rendering logic
         </li>
         <li className="list-decimal">
-          Click "Hide middle panel" to conditionally remove the middle panel
+          Pass <code>panelIds</code> to <code>useDefaultLayout</code>
         </li>
         <li className="list-decimal">
-          Resize the remaining 2 panels (this saves a 2-panel layout)
+          When panels are shown/hidden, <code>panelIds</code> changes
         </li>
         <li className="list-decimal">
-          Click "Show middle panel" to restore the middle panel
+          The hook validates that saved layouts match current{" "}
+          <code>panelIds</code>
         </li>
         <li className="list-decimal">
-          The error occurs because the stored layout has 2 values but 3 panels
-          are now rendered
+          If validation fails, the saved layout is ignored and a default layout
+          is calculated
         </li>
       </ol>
       <Box direction="row" gap={4} justify="center" className="my-4">
@@ -94,25 +103,17 @@ export default function ConditionalPanelsWithPersistenceRoute() {
         </Panel>
       </Group>
       <Code html={ExampleHTML} />
-      <Callout intent="warning">
-        <strong>Current behavior:</strong> The library may throw an error or
-        produce unexpected layouts when the number of panels changes between
-        saves.
+      <Callout intent="primary">
+        <strong>Try it out:</strong> Toggle the middle panel on and off, resize
+        the panels between toggles, then reload the page. Each panel
+        configuration maintains its own layout state without errors.
       </Callout>
-      <Callout intent="warning">
-        <strong>Expected behavior:</strong> The library should gracefully handle
-        layout mismatches by either:
-        <ul className="pl-6 mt-2 space-y-1">
-          <li className="list-disc">
-            Ignoring the saved layout when panel count doesn't match
-          </li>
-          <li className="list-disc">
-            Falling back to default layout for missing/extra panels
-          </li>
-          <li className="list-disc">
-            Validating the saved layout against current panel IDs
-          </li>
-        </ul>
+      <Callout intent="primary">
+        <strong>Code example:</strong> The code above shows how to compute{" "}
+        <code>panelIds</code> using <code>useMemo</code> based on your
+        conditional rendering logic, then pass it to{" "}
+        <code>useDefaultLayout</code>. The hook handles validation
+        automatically.
       </Callout>
     </Box>
   );
