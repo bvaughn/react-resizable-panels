@@ -8,6 +8,18 @@ export function calculatePanelConstraints(group: RegisteredGroup) {
   const { panels } = group;
 
   const groupSize = calculateAvailableGroupSize({ group });
+  if (groupSize === 0) {
+    // Can't calculate anything meaningful if the group has a width/height of 0
+    // (This could indicate that it's within a hidden subtree)
+    return panels.map((current) => ({
+      collapsedSize: 0,
+      collapsible: current.panelConstraints.collapsible === true,
+      defaultSize: undefined,
+      minSize: 0,
+      maxSize: 100,
+      panelId: current.id
+    }));
+  }
 
   return panels.map<PanelConstraints>((panel) => {
     const { element, panelConstraints } = panel;

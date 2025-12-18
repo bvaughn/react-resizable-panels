@@ -28,9 +28,11 @@ export type RegisteredGroup = {
   disabled: boolean;
   element: HTMLElement;
   id: string;
+  // TODO Move to mutable state
   inMemoryLastExpandedPanelSizes: {
     [panelId: string]: number;
   };
+  // TODO Move to mutable state
   inMemoryLayouts: {
     [panelIds: string]: Layout;
   };
