@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.8
+
+- [#541](https://github.com/bvaughn/react-resizable-panels/pull/541): Don't set invalid layouts when Group is hidden or has a width/height of 0
+
 ## 4.0.7
 
 - [f07bf00](https://github.com/bvaughn/react-resizable-panels/commit/f07bf00): Reset `pointer-event` styles after "pointerup" event
