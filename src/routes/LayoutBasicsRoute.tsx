@@ -32,6 +32,10 @@ export default function LayoutBasicsRoute() {
         layout.
       </div>
       <Code html={VerticalHTML} />
+      <Callout intent="warning">
+        Vertical groups require an explicit height to be set using either{" "}
+        <code>className</code> or <code>style</code> props.
+      </Callout>
       <Group className="h-30" orientation="vertical">
         <Panel>top</Panel>
         <Panel>bottom</Panel>

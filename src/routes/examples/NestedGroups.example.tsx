@@ -3,13 +3,13 @@ import { Group, Panel } from "react-resizable-panels";
 // <begin>
 
 /* prettier-ignore */
-<Group orientation="horizontal">
+<Group className="h-50" orientation="horizontal">
   <Panel>left</Panel>
   <Panel>
-    <Group orientation="vertical">
+    <Group className="h-full" orientation="vertical">
       <Panel>top</Panel>
       <Panel>
-        <Group orientation="horizontal">
+        <Group className="h-full" orientation="horizontal">
         <Panel>left</Panel>
         <Panel>right</Panel>
         </Group>
