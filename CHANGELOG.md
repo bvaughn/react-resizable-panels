@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.9
+
+- [#542](https://github.com/bvaughn/react-resizable-panels/pull/542): Clicks on higher `z-index` elements (e.g. modals) should not trigger separators behind them
+
 ## 4.0.8
 
 - [#541](https://github.com/bvaughn/react-resizable-panels/pull/541): Don't set invalid layouts when Group is hidden or has a width/height of 0
