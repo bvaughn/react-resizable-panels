@@ -2,6 +2,7 @@ import { sortByElementOffset } from "../../components/group/sortByElementOffset"
 import type { RegisteredGroup } from "../../components/group/types";
 import type { RegisteredPanel } from "../../components/panel/types";
 import type { RegisteredSeparator } from "../../components/separator/types";
+import { findClosestRect } from "../utils/findClosestRect";
 import { calculateAvailableGroupSize } from "./calculateAvailableGroupSize";
 
 type PanelsTuple = [panel: RegisteredPanel, panel: RegisteredPanel];
@@ -10,8 +11,8 @@ export type HitRegion = {
   group: RegisteredGroup;
   groupSize: number;
   panels: PanelsTuple;
-  rects: DOMRect[];
-  separators: RegisteredSeparator[];
+  rect: DOMRect;
+  separator?: RegisteredSeparator | undefined;
 };
 
 /**
@@ -48,48 +49,91 @@ export function calculateHitRegions(group: RegisteredGroup) {
           const prevRect = prevPanel.element.getBoundingClientRect();
           const rect = childElement.getBoundingClientRect();
 
-          const rects: DOMRect[] = [];
+          let pendingRectsOrSeparators: (DOMRect | RegisteredSeparator)[];
+
+          // If an explicit Separator has been rendered, always watch it
+          // Otherwise watch the entire space between the panels
+          // The one caveat is when there are non-interactive element(s) between panels,
+          // in which case we may need to watch individual panel edges
           if (hasInterleavedStaticContent) {
-            rects.push(
+            const firstPanelEdgeRect =
               orientation === "horizontal"
                 ? new DOMRect(prevRect.right, prevRect.top, 0, prevRect.height)
-                : new DOMRect(prevRect.left, prevRect.bottom, prevRect.width, 0)
-            );
-
-            pendingSeparators.forEach((separator) => {
-              rects.push(separator.element.getBoundingClientRect());
-            });
-
-            rects.push(
+                : new DOMRect(
+                    prevRect.left,
+                    prevRect.bottom,
+                    prevRect.width,
+                    0
+                  );
+            const secondPanelEdgeRect =
               orientation === "horizontal"
                 ? new DOMRect(rect.left, rect.top, 0, rect.height)
-                : new DOMRect(rect.left, rect.top, rect.width, 0)
-            );
+                : new DOMRect(rect.left, rect.top, rect.width, 0);
+
+            switch (pendingSeparators.length) {
+              case 0: {
+                pendingRectsOrSeparators = [
+                  firstPanelEdgeRect,
+                  secondPanelEdgeRect
+                ];
+                break;
+              }
+              case 1: {
+                const separator = pendingSeparators[0];
+                const closestRect = findClosestRect({
+                  orientation,
+                  rects: [prevRect, rect],
+                  targetRect: separator.element.getBoundingClientRect()
+                });
+
+                pendingRectsOrSeparators = [
+                  separator,
+                  closestRect === prevRect
+                    ? secondPanelEdgeRect
+                    : firstPanelEdgeRect
+                ];
+                break;
+              }
+              default: {
+                pendingRectsOrSeparators = pendingSeparators;
+                break;
+              }
+            }
           } else {
-            rects.push(
-              orientation === "horizontal"
-                ? new DOMRect(
-                    prevRect.right,
-                    rect.top,
-                    rect.left - prevRect.right,
-                    rect.height
-                  )
-                : new DOMRect(
-                    rect.left,
-                    prevRect.bottom,
-                    rect.width,
-                    rect.top - prevRect.bottom
-                  )
-            );
+            if (pendingSeparators.length) {
+              pendingRectsOrSeparators = pendingSeparators;
+            } else {
+              pendingRectsOrSeparators = [
+                orientation === "horizontal"
+                  ? new DOMRect(
+                      prevRect.right,
+                      rect.top,
+                      rect.left - prevRect.right,
+                      rect.height
+                    )
+                  : new DOMRect(
+                      rect.left,
+                      prevRect.bottom,
+                      rect.width,
+                      rect.top - prevRect.bottom
+                    )
+              ];
+            }
           }
 
-          hitRegions.push({
-            group,
-            groupSize: calculateAvailableGroupSize({ group }),
-            panels: [prevPanel, panelData],
-            separators: pendingSeparators,
-            rects
-          });
+          for (const rectOrSeparator of pendingRectsOrSeparators) {
+            hitRegions.push({
+              group,
+              groupSize: calculateAvailableGroupSize({ group }),
+              panels: [prevPanel, panelData],
+              separator:
+                "width" in rectOrSeparator ? undefined : rectOrSeparator,
+              rect:
+                "width" in rectOrSeparator
+                  ? rectOrSeparator
+                  : rectOrSeparator.element.getBoundingClientRect()
+            });
+          }
         }
 
         hasInterleavedStaticContent = false;

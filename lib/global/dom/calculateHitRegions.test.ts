@@ -9,10 +9,8 @@ describe("calculateHitRegions", () => {
     return JSON.stringify(
       hitRegions.map((region) => ({
         panels: region.panels.map((panel) => panel.id),
-        rect: region.rects.map(
-          (rect) => `${rect.x},${rect.y} ${rect.width} x ${rect.height}`
-        ),
-        separators: region.separators.map((separator) => separator.id)
+        rect: `${region.rect.x},${region.rect.y} ${region.rect.width} x ${region.rect.height}`,
+        separator: region.separator?.id
       })),
       null,
       2
@@ -43,10 +41,7 @@ describe("calculateHitRegions", () => {
             "group-1-left",
             "group-1-right"
           ],
-          "rect": [
-            "10,0 0 x 50"
-          ],
-          "separators": []
+          "rect": "10,0 0 x 50"
         }
       ]"
     `);
@@ -65,20 +60,14 @@ describe("calculateHitRegions", () => {
             "group-1-left",
             "group-1-center"
           ],
-          "rect": [
-            "10,0 0 x 50"
-          ],
-          "separators": []
+          "rect": "10,0 0 x 50"
         },
         {
           "panels": [
             "group-1-center",
             "group-1-right"
           ],
-          "rect": [
-            "20,0 0 x 50"
-          ],
-          "separators": []
+          "rect": "20,0 0 x 50"
         }
       ]"
     `);
@@ -99,24 +88,16 @@ describe("calculateHitRegions", () => {
             "group-1-left",
             "group-1-center"
           ],
-          "rect": [
-            "10,0 10 x 50"
-          ],
-          "separators": [
-            "group-1-left"
-          ]
+          "rect": "10,0 10 x 50",
+          "separator": "group-1-left"
         },
         {
           "panels": [
             "group-1-center",
             "group-1-right"
           ],
-          "rect": [
-            "30,0 10 x 50"
-          ],
-          "separators": [
-            "group-1-right"
-          ]
+          "rect": "30,0 10 x 50",
+          "separator": "group-1-right"
         }
       ]"
     `);
@@ -136,22 +117,15 @@ describe("calculateHitRegions", () => {
             "group-1-a",
             "group-1-b"
           ],
-          "rect": [
-            "20,0 0 x 50"
-          ],
-          "separators": []
+          "rect": "20,0 0 x 50"
         },
         {
           "panels": [
             "group-1-b",
             "group-1-c"
           ],
-          "rect": [
-            "40,0 0 x 50"
-          ],
-          "separators": [
-            "group-1-separator"
-          ]
+          "rect": "40,0 5 x 50",
+          "separator": "group-1-separator"
         }
       ]"
     `);
@@ -174,31 +148,28 @@ describe("calculateHitRegions", () => {
             "group-1-a",
             "group-1-b"
           ],
-          "rect": [
-            "20,0 0 x 50"
-          ],
-          "separators": []
+          "rect": "20,0 0 x 50"
         },
         {
           "panels": [
             "group-1-b",
             "group-1-c"
           ],
-          "rect": [
-            "30,0 0 x 50",
-            "40,0 0 x 50"
+          "rect": "30,0 0 x 50"
+        },
+        {
+          "panels": [
+            "group-1-b",
+            "group-1-c"
           ],
-          "separators": []
+          "rect": "40,0 0 x 50"
         },
         {
           "panels": [
             "group-1-c",
             "group-1-d"
           ],
-          "rect": [
-            "50,0 0 x 50"
-          ],
-          "separators": []
+          "rect": "50,0 0 x 50"
         }
       ]"
     `);
@@ -217,20 +188,14 @@ describe("calculateHitRegions", () => {
             "group-1-left",
             "group-1-center"
           ],
-          "rect": [
-            "15,5 5 x 40"
-          ],
-          "separators": []
+          "rect": "15,5 5 x 40"
         },
         {
           "panels": [
             "group-1-center",
             "group-1-right"
           ],
-          "rect": [
-            "30,5 5 x 40"
-          ],
-          "separators": []
+          "rect": "30,5 5 x 40"
         }
       ]"
     `);
@@ -251,20 +216,14 @@ describe("calculateHitRegions", () => {
             "group-1-left",
             "group-1-center"
           ],
-          "rect": [
-            "10,0 0 x 50"
-          ],
-          "separators": []
+          "rect": "10,0 0 x 50"
         },
         {
           "panels": [
             "group-1-center",
             "group-1-right"
           ],
-          "rect": [
-            "20,0 0 x 50"
-          ],
-          "separators": []
+          "rect": "20,0 0 x 50"
         }
       ]"
     `);
@@ -287,34 +246,23 @@ describe("calculateHitRegions", () => {
             "group-1-a",
             "group-1-b"
           ],
-          "rect": [
-            "10,0 5 x 50"
-          ],
-          "separators": [
-            "group-1-left"
-          ]
+          "rect": "10,0 5 x 50",
+          "separator": "group-1-left"
         },
         {
           "panels": [
             "group-1-b",
             "group-1-c"
           ],
-          "rect": [
-            "25,0 0 x 50"
-          ],
-          "separators": []
+          "rect": "25,0 0 x 50"
         },
         {
           "panels": [
             "group-1-c",
             "group-1-d"
           ],
-          "rect": [
-            "35,0 5 x 50"
-          ],
-          "separators": [
-            "group-1-right"
-          ]
+          "rect": "35,0 5 x 50",
+          "separator": "group-1-right"
         }
       ]"
     `);

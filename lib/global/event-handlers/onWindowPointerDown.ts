@@ -26,15 +26,15 @@ export function onWindowPointerDown(event: PointerEvent) {
       panels.add(panel);
     });
 
-    current.separators.forEach((separator) => {
-      separators.add(separator);
+    if (current.separator) {
+      separators.add(current.separator);
 
       if (!didChangeFocus) {
         didChangeFocus = true;
 
-        separator.element.focus();
+        current.separator.element.focus();
       }
-    });
+    }
 
     const match = mountedGroups.get(current.group);
     if (match) {

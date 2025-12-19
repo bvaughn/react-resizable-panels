@@ -120,9 +120,9 @@ export function mountGroup(group: RegisteredGroup) {
     const separatorToPanels: SeparatorToPanelsMap = new Map();
 
     hitRegions.forEach((hitRegion) => {
-      hitRegion.separators.forEach((separator) => {
-        separatorToPanels.set(separator, hitRegion.panels);
-      });
+      if (hitRegion.separator) {
+        separatorToPanels.set(hitRegion.separator, hitRegion.panels);
+      }
     });
 
     return {

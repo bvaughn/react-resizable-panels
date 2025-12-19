@@ -54,9 +54,9 @@ test.describe("fixed size elements", () => {
 
     await expect(page.getByText('"onLayoutCount": 2')).toBeVisible();
 
-    const boxBar = (await page.getByText("id: baz").boundingBox())!;
+    const boxBaz = (await page.getByText("id: baz").boundingBox())!;
 
-    await page.mouse.move(boxBar.x, boxBar.y);
+    await page.mouse.move(boxBaz.x, boxBaz.y);
     await page.mouse.down();
     await page.mouse.move(1000, 0);
     await page.mouse.up();
