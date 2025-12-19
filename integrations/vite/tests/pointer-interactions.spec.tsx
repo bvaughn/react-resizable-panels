@@ -218,4 +218,29 @@ test.describe("pointer interactions", () => {
     await page.mouse.up();
     await expect(panel).toHaveCSS("pointer-events", "auto");
   });
+
+  test("should update focus to the nearest separator", async ({ page }) => {
+    await goToUrl(
+      page,
+      <Group>
+        <Panel id="left" />
+        <Separator id="separator-left" />
+        <Panel id="center" />
+        <Separator id="separator-right" />
+        <Panel id="right" />
+      </Group>
+    );
+
+    const hitAreaBox = await calculateHitArea(page, ["center", "right"]);
+    const { x, y } = getCenterCoordinates(hitAreaBox);
+
+    const separator = page.getByTestId("separator-right");
+    await expect(separator).not.toBeFocused();
+
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.up();
+
+    await expect(separator).toBeFocused();
+  });
 });

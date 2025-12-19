@@ -10,8 +10,8 @@ export type HitRegion = {
   group: RegisteredGroup;
   groupSize: number;
   panels: PanelsTuple;
-  rect: DOMRect;
-  separator: RegisteredSeparator | undefined;
+  rects: DOMRect[];
+  separators: RegisteredSeparator[];
 };
 
 /**
@@ -34,53 +34,82 @@ export function calculateHitRegions(group: RegisteredGroup) {
 
   const hitRegions: HitRegion[] = [];
 
+  let hasInterleavedStaticContent = false;
   let prevPanel: RegisteredPanel | undefined = undefined;
-  let prevSeparator: RegisteredSeparator | undefined = undefined;
+  let pendingSeparators: RegisteredSeparator[] = [];
 
   for (const childElement of sortedChildElements) {
-    const panelData = panels.find(
-      (current) => current.element === childElement
-    );
-    if (panelData) {
-      if (prevPanel) {
-        const prevRect = prevPanel.element.getBoundingClientRect();
-        const rect = childElement.getBoundingClientRect();
+    if (childElement.hasAttribute("data-panel")) {
+      const panelData = panels.find(
+        (current) => current.element === childElement
+      );
+      if (panelData) {
+        if (prevPanel) {
+          const prevRect = prevPanel.element.getBoundingClientRect();
+          const rect = childElement.getBoundingClientRect();
 
-        hitRegions.push({
-          group,
-          groupSize: calculateAvailableGroupSize({ group }),
-          panels: [prevPanel, panelData],
-          separator: prevSeparator,
-          rect:
-            orientation === "horizontal"
-              ? new DOMRect(
-                  prevRect.right,
-                  rect.top,
-                  rect.left - prevRect.right,
-                  rect.height
-                )
-              : new DOMRect(
-                  rect.left,
-                  prevRect.bottom,
-                  rect.width,
-                  rect.top - prevRect.bottom
-                )
-        });
+          const rects: DOMRect[] = [];
+          if (hasInterleavedStaticContent) {
+            rects.push(
+              orientation === "horizontal"
+                ? new DOMRect(prevRect.right, prevRect.top, 0, prevRect.height)
+                : new DOMRect(prevRect.left, prevRect.bottom, prevRect.width, 0)
+            );
+
+            pendingSeparators.forEach((separator) => {
+              rects.push(separator.element.getBoundingClientRect());
+            });
+
+            rects.push(
+              orientation === "horizontal"
+                ? new DOMRect(rect.left, rect.top, 0, rect.height)
+                : new DOMRect(rect.left, rect.top, rect.width, 0)
+            );
+          } else {
+            rects.push(
+              orientation === "horizontal"
+                ? new DOMRect(
+                    prevRect.right,
+                    rect.top,
+                    rect.left - prevRect.right,
+                    rect.height
+                  )
+                : new DOMRect(
+                    rect.left,
+                    prevRect.bottom,
+                    rect.width,
+                    rect.top - prevRect.bottom
+                  )
+            );
+          }
+
+          hitRegions.push({
+            group,
+            groupSize: calculateAvailableGroupSize({ group }),
+            panels: [prevPanel, panelData],
+            separators: pendingSeparators,
+            rects
+          });
+        }
+
+        hasInterleavedStaticContent = false;
+        prevPanel = panelData;
+        pendingSeparators = [];
       }
-
-      prevPanel = panelData;
-      prevSeparator = undefined;
-    } else {
+    } else if (childElement.hasAttribute("data-separator")) {
       const separatorData = separators.find(
         (current) => current.element === childElement
       );
       if (separatorData) {
-        // No-op; this area will be included by default when closing the next panel
-        prevSeparator = separatorData;
+        // Separators will be included implicitly in the area between the previous and next panel
+        // It's important to track them though, to handle the scenario of non-interactive group content
+        pendingSeparators.push(separatorData);
       } else {
         prevPanel = undefined;
-        prevSeparator = undefined;
+        pendingSeparators = [];
       }
+    } else {
+      hasInterleavedStaticContent = true;
     }
   }
 

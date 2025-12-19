@@ -15,21 +15,23 @@ export function findClosetHitRegion(
   };
 
   for (const hitRegion of hitRegions) {
-    const data = getDistanceBetweenPointAndRect(point, hitRegion.rect);
-    switch (orientation) {
-      case "horizontal": {
-        if (data.x <= minDistance.x) {
-          closestHitRegion = hitRegion;
-          minDistance = data;
+    for (const rect of hitRegion.rects) {
+      const data = getDistanceBetweenPointAndRect(point, rect);
+      switch (orientation) {
+        case "horizontal": {
+          if (data.x <= minDistance.x) {
+            closestHitRegion = hitRegion;
+            minDistance = data;
+          }
+          break;
         }
-        break;
-      }
-      case "vertical": {
-        if (data.y <= minDistance.y) {
-          closestHitRegion = hitRegion;
-          minDistance = data;
+        case "vertical": {
+          if (data.y <= minDistance.y) {
+            closestHitRegion = hitRegion;
+            minDistance = data;
+          }
+          break;
         }
-        break;
       }
     }
   }

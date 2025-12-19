@@ -12,7 +12,9 @@ describe("findMatchingHitRegions", () => {
     return JSON.stringify(
       hitRegions.map((region) => ({
         panels: region.panels.map((panel) => panel.id),
-        rect: `${region.rect.x},${region.rect.y} ${region.rect.width} x ${region.rect.height}`
+        rect: region.rects.map(
+          (rect) => `${rect.x},${rect.y} ${rect.width} x ${rect.height}`
+        )
       })),
       null,
       2
@@ -35,16 +37,18 @@ describe("findMatchingHitRegions", () => {
 
     expect(serialize(mockPointerEvent({ clientX: 10 }), read().mountedGroups))
       .toMatchInlineSnapshot(`
-      "[
-        {
-          "panels": [
-            "group-1-left",
-            "group-1-right"
-          ],
-          "rect": "10,0 0 x 50"
-        }
-      ]"
-    `);
+        "[
+          {
+            "panels": [
+              "group-1-left",
+              "group-1-right"
+            ],
+            "rect": [
+              "10,0 0 x 50"
+            ]
+          }
+        ]"
+      `);
   });
 
   test("nested groups", () => {
@@ -70,14 +74,18 @@ describe("findMatchingHitRegions", () => {
             "group-1-left",
             "group-1-right"
           ],
-          "rect": "10,0 0 x 50"
+          "rect": [
+            "10,0 0 x 50"
+          ]
         },
         {
           "panels": [
             "group-2-top",
             "group-2-bottom"
           ],
-          "rect": "0,25 10 x 0"
+          "rect": [
+            "0,25 10 x 0"
+          ]
         }
       ]"
     `);

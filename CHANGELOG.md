@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.10
+
+- [#551](https://github.com/bvaughn/react-resizable-panels/pull/551): Expand fixed-size element support
+
 ## 4.0.9
 
 - [#542](https://github.com/bvaughn/react-resizable-panels/pull/542): Clicks on higher `z-index` elements (e.g. modals) should not trigger separators behind them

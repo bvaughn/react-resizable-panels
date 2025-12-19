@@ -73,8 +73,8 @@ export function Separator({
         (interactionState) => {
           setDragState(
             interactionState.state !== "inactive" &&
-              interactionState.hitRegions.some(
-                (hitRegion) => hitRegion.separator === separator
+              interactionState.hitRegions.some((hitRegion) =>
+                hitRegion.separators.includes(separator)
               )
               ? interactionState.state
               : "inactive"

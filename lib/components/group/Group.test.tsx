@@ -291,17 +291,6 @@ describe("Group", () => {
   });
 
   describe("invariants", () => {
-    test("too many separators", () => {
-      expect(() =>
-        render(
-          <Group>
-            <Panel />
-            <Separator />
-          </Group>
-        )
-      ).toThrow("Invalid Group configuration; too many Separator components");
-    });
-
     test("duplicate panel ids", () => {
       // This is allowed
       render(

@@ -33,11 +33,13 @@ export function findMatchingHitRegions(
       match &&
       match.distance.x <= maxDistance &&
       match.distance.y <= maxDistance &&
-      isViableHitTarget({
-        groupElement: groupData.element,
-        hitRegion: match.hitRegion.rect,
-        pointerEventTarget: event.target
-      })
+      match.hitRegion.rects.some((rect) =>
+        isViableHitTarget({
+          groupElement: groupData.element,
+          hitRegion: rect,
+          pointerEventTarget: event.target
+        })
+      )
     ) {
       matchingHitRegions.push(match.hitRegion);
     }
