@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { mountGroup } from "../../global/mountGroup";
 import { eventEmitter, read } from "../../global/mutableState";
 import { layoutsEqual } from "../../global/utils/layoutsEqual";
@@ -15,6 +15,7 @@ import { GroupContext } from "./GroupContext";
 import { sortByElementOffset } from "./sortByElementOffset";
 import type { GroupProps, Layout, RegisteredGroup } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
+import { useStableObject } from "../../hooks/useStableObject";
 
 /**
  * A Group wraps a set of resizable Panel components.
@@ -97,6 +98,13 @@ export function Group({
     [id, orientation]
   );
 
+  const stableProps = useStableObject({
+    defaultLayout,
+    disableCursor
+  });
+
+  const registeredGroupRef = useRef<RegisteredGroup | null>(null);
+
   // Register Group and child Panels/Separators with global state
   // Listen to global state for drag state related to this Group
   useIsomorphicLayoutEffect(() => {
@@ -105,8 +113,8 @@ export function Group({
     }
 
     const group: RegisteredGroup = {
-      defaultLayout,
-      disableCursor: !!disableCursor,
+      defaultLayout: stableProps.defaultLayout,
+      disableCursor: !!stableProps.disableCursor,
       disabled: !!disabled,
       element,
       id,
@@ -116,6 +124,8 @@ export function Group({
       panels,
       separators
     };
+
+    registeredGroupRef.current = group;
 
     const unmountGroup = mountGroup(group);
 
@@ -158,21 +168,32 @@ export function Group({
     );
 
     return () => {
+      registeredGroupRef.current = null;
+
       unmountGroup();
       removeInteractionStateChangeListener();
       removeMountedGroupsChangeEventListener();
     };
   }, [
-    defaultLayout,
-    disableCursor,
     disabled,
     element,
     id,
     onLayoutChangeStable,
     orientation,
     panels,
-    separators
+    separators,
+    stableProps
   ]);
+
+  // Not all props require re-registering the group;
+  // Some can be updated after the group has been registered
+  useEffect(() => {
+    const registeredGroup = registeredGroupRef.current;
+    if (registeredGroup) {
+      registeredGroup.defaultLayout = defaultLayout;
+      registeredGroup.disableCursor = !!disableCursor;
+    }
+  });
 
   // Panel layouts and Group dragging state are shared via CSS variables
   const cssVariables: { [key: string]: number | string | undefined } = {
