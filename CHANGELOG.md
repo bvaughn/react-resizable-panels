@@ -3,6 +3,7 @@
 ## 4.0.9
 
 - [#542](https://github.com/bvaughn/react-resizable-panels/pull/542): Clicks on higher `z-index` elements (e.g. modals) should not trigger separators behind them
+- [#547](https://github.com/bvaughn/react-resizable-panels/pull/547): Don't re-mount Group when `defaultLayout` or `disableCursor` props change
 
 ## 4.0.8
 
