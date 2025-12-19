@@ -18,7 +18,7 @@ export type SeparatorToPanelsMap = Map<
 export type MountedGroupMap = Map<
   RegisteredGroup,
   {
-    defaultLayoutDeferred?: boolean | undefined;
+    defaultLayoutDeferred: boolean;
     derivedPanelConstraints: PanelConstraints[];
     layout: Layout;
     separatorToPanels: SeparatorToPanelsMap;

@@ -18,10 +18,21 @@ export function getImperativePanelMethods({
     const { mountedGroups } = read();
     for (const [
       group,
-      { derivedPanelConstraints, layout, separatorToPanels }
+      {
+        defaultLayoutDeferred,
+        derivedPanelConstraints,
+        layout,
+        separatorToPanels
+      }
     ] of mountedGroups) {
       if (group.id === groupId) {
-        return { derivedPanelConstraints, group, layout, separatorToPanels };
+        return {
+          defaultLayoutDeferred,
+          derivedPanelConstraints,
+          group,
+          layout,
+          separatorToPanels
+        };
       }
     }
 
@@ -64,6 +75,7 @@ export function getImperativePanelMethods({
     }
 
     const {
+      defaultLayoutDeferred,
       derivedPanelConstraints,
       group,
       layout: prevLayout,
@@ -89,6 +101,7 @@ export function getImperativePanelMethods({
     if (!layoutsEqual(prevLayout, nextLayout)) {
       update((prevState) => ({
         mountedGroups: new Map(prevState.mountedGroups).set(group, {
+          defaultLayoutDeferred,
           derivedPanelConstraints,
           layout: nextLayout,
           separatorToPanels

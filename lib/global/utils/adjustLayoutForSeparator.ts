@@ -43,6 +43,7 @@ export function adjustLayoutForSeparator(
   if (!layoutsEqual(prevLayout, nextLayout)) {
     update((prevState) => ({
       mountedGroups: new Map(prevState.mountedGroups).set(group, {
+        defaultLayoutDeferred: mountedGroup.defaultLayoutDeferred,
         derivedPanelConstraints: mountedGroup.derivedPanelConstraints,
         layout: nextLayout,
         separatorToPanels: mountedGroup.separatorToPanels

@@ -5,6 +5,7 @@ import { Panel } from "../panel/Panel";
 import { Group } from "./Group";
 import type { GroupImperativeHandle, LayoutStorage } from "./types";
 import { useDefaultLayout } from "./useDefaultLayout";
+import { setDefaultElementBounds } from "../../utils/test/mockBoundingClientRect";
 
 describe("useDefaultLayout", () => {
   test("should read/write from the provided Storage API", () => {
@@ -44,6 +45,8 @@ describe("useDefaultLayout", () => {
   // See github.com/bvaughn/react-resizable-panels/pull/540
   test("should not break when coupled with dynamic layouts", () => {
     const groupRef = createRef<GroupImperativeHandle>();
+
+    setDefaultElementBounds(new DOMRect(0, 0, 100, 50));
 
     function Test({ hideMiddlePanel }: { hideMiddlePanel?: boolean }) {
       const { defaultLayout, onLayoutChange } = useDefaultLayout({

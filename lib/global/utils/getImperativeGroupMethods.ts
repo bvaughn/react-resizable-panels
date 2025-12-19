@@ -19,17 +19,25 @@ export function getImperativeGroupMethods({
       }
     }
 
-    throw Error(`Group ${groupId} not found`);
+    throw Error(`Could not find Group with id "${groupId}"`);
   };
 
   return {
     getLayout() {
-      const { layout } = find();
+      const { defaultLayoutDeferred, layout } = find();
+
+      if (defaultLayoutDeferred) {
+        // This indicates that the Group has not finished mounting yet
+        // Likely because it has been rendered inside of a hidden DOM subtree
+        // Any layout value will not have been validated and so it should not be returned
+        return {};
+      }
 
       return layout;
     },
     setLayout(unsafeLayout: Layout) {
       const {
+        defaultLayoutDeferred,
         derivedPanelConstraints,
         group,
         layout: prevLayout,
@@ -41,9 +49,19 @@ export function getImperativeGroupMethods({
         panelConstraints: derivedPanelConstraints
       });
 
+      if (defaultLayoutDeferred) {
+        // This indicates that the Group has not finished mounting yet
+        // Likely because it has been rendered inside of a hidden DOM subtree
+        // In this case we cannot fully validate the layout, so we shouldn't apply it
+        // It's okay to run the validate function above though,
+        // it will still warn about certain types of errors (e.g. wrong number of panels)
+        return prevLayout;
+      }
+
       if (!layoutsEqual(prevLayout, nextLayout)) {
         update((prevState) => ({
           mountedGroups: new Map(prevState.mountedGroups).set(group, {
+            defaultLayoutDeferred,
             derivedPanelConstraints,
             layout: nextLayout,
             separatorToPanels

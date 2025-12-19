@@ -5,6 +5,7 @@
 - [#542](https://github.com/bvaughn/react-resizable-panels/pull/542): Clicks on higher `z-index` elements (e.g. modals) should not trigger separators behind them
 - [#547](https://github.com/bvaughn/react-resizable-panels/pull/547): Don't re-mount Group when `defaultLayout` or `disableCursor` props change
 - [#548](https://github.com/bvaughn/react-resizable-panels/pull/548): Bugfix: Gracefully handle `Panel` id changes
+- [#549](https://github.com/bvaughn/react-resizable-panels/pull/549): Improve DevX when Group within hidden DOM subtree; defer layout-change events
 
 ## 4.0.8
 

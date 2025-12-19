@@ -57,10 +57,11 @@ export function updateActiveHitRegions({
     const initialLayout = initialLayoutMap.get(group);
 
     const {
+      defaultLayoutDeferred,
       derivedPanelConstraints,
       layout: prevLayout,
       separatorToPanels
-    } = mountedGroups.get(group) ?? {};
+    } = mountedGroups.get(group) ?? { defaultLayoutDeferred: false };
     if (
       derivedPanelConstraints &&
       initialLayout &&
@@ -98,6 +99,7 @@ export function updateActiveHitRegions({
         }
       } else {
         nextMountedGroups.set(current.group, {
+          defaultLayoutDeferred,
           derivedPanelConstraints: derivedPanelConstraints,
           layout: nextLayout,
           separatorToPanels

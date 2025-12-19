@@ -7,6 +7,7 @@ import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
+import { useStableObject } from "../../hooks/useStableObject";
 import { POINTER_EVENTS_CSS_PROPERTY_NAME } from "../panel/constants";
 import type { RegisteredPanel } from "../panel/types";
 import type { RegisteredSeparator } from "../separator/types";
@@ -15,7 +16,6 @@ import { GroupContext } from "./GroupContext";
 import { sortByElementOffset } from "./sortByElementOffset";
 import type { GroupProps, Layout, RegisteredGroup } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
-import { useStableObject } from "../../hooks/useStableObject";
 
 /**
  * A Group wraps a set of resizable Panel components.
@@ -63,12 +63,13 @@ export function Group({
   const [panels, setPanels] = useState<RegisteredPanel[]>([]);
   const [separators, setSeparators] = useState<RegisteredSeparator[]>([]);
 
-  const inMemoryLastExpandedPanelSizesRef = useRef<{
-    [panelIds: string]: number;
-  }>({});
-  const inMemoryLayoutsRef = useRef<{
-    [panelIds: string]: Layout;
-  }>({});
+  const inMemoryValuesRef = useRef<{
+    lastExpandedPanelSizes: { [panelIds: string]: number };
+    layouts: { [panelIds: string]: Layout };
+  }>({
+    lastExpandedPanelSizes: {},
+    layouts: {}
+  });
 
   const mergedRef = useMergedRefs(setElement, elementRef);
 
@@ -108,7 +109,7 @@ export function Group({
   // Register Group and child Panels/Separators with global state
   // Listen to global state for drag state related to this Group
   useIsomorphicLayoutEffect(() => {
-    if (element === null || panels.length === 0) {
+    if (element === null) {
       return;
     }
 
@@ -118,8 +119,9 @@ export function Group({
       disabled: !!disabled,
       element,
       id,
-      inMemoryLastExpandedPanelSizes: inMemoryLastExpandedPanelSizesRef.current,
-      inMemoryLayouts: inMemoryLayoutsRef.current,
+      inMemoryLastExpandedPanelSizes:
+        inMemoryValuesRef.current.lastExpandedPanelSizes,
+      inMemoryLayouts: inMemoryValuesRef.current.layouts,
       orientation,
       panels,
       separators
@@ -132,8 +134,15 @@ export function Group({
     const globalState = read();
     const match = globalState.mountedGroups.get(group);
     if (match) {
-      setLayout(match.layout);
-      onLayoutChangeStable?.(match.layout);
+      const { defaultLayoutDeferred, derivedPanelConstraints, layout } = match;
+
+      if (!defaultLayoutDeferred && derivedPanelConstraints.length > 0) {
+        // This indicates that the Group has not finished mounting yet
+        // Likely because it has been rendered inside of a hidden DOM subtree
+        // Ignore layouts in this case because they will not have been validated
+        setLayout(layout);
+        onLayoutChangeStable?.(layout);
+      }
     }
 
     const removeInteractionStateChangeListener = eventEmitter.addListener(
@@ -160,9 +169,19 @@ export function Group({
       "mountedGroupsChange",
       (mountedGroups) => {
         const match = mountedGroups.get(group);
-        if (match && match.derivedPanelConstraints.length > 0) {
-          setLayout(match.layout);
-          onLayoutChangeStable?.(match.layout);
+        if (match) {
+          const { defaultLayoutDeferred, derivedPanelConstraints, layout } =
+            match;
+
+          if (defaultLayoutDeferred || derivedPanelConstraints.length === 0) {
+            // This indicates that the Group has not finished mounting yet
+            // Likely because it has been rendered inside of a hidden DOM subtree
+            // Ignore layouts in this case because they will not have been validated
+            return;
+          }
+
+          setLayout(layout);
+          onLayoutChangeStable?.(layout);
         }
       }
     );

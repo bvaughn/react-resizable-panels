@@ -7,6 +7,8 @@ import { setElementBoundsFunction } from "../../utils/test/mockBoundingClientRec
 import { Panel } from "../panel/Panel";
 import { Separator } from "../separator/Separator";
 import { Group } from "./Group";
+import { createRef } from "react";
+import type { GroupImperativeHandle } from "./types";
 
 describe("Group", () => {
   test("changes to defaultProps or disableCursor should not cause Group to remount", () => {
@@ -28,7 +30,9 @@ describe("Group", () => {
         <Panel id="b" />
       </Group>
     );
-    expect(onMountedGroupsChange).toHaveBeenCalledTimes(1);
+    expect(onMountedGroupsChange).toHaveBeenCalled();
+
+    onMountedGroupsChange.mockReset();
 
     rerender(
       <Group
@@ -42,7 +46,7 @@ describe("Group", () => {
         <Panel id="b" />
       </Group>
     );
-    expect(onMountedGroupsChange).toHaveBeenCalledTimes(1);
+    expect(onMountedGroupsChange).not.toHaveBeenCalled();
 
     removeListener();
   });
@@ -75,6 +79,81 @@ describe("Group", () => {
         <Panel id="c-b" />
       </Group>
     );
+  });
+
+  describe("groupRef", () => {
+    test("should work with an empty Group", () => {
+      const onLayoutChange = vi.fn();
+      const groupRef = createRef<GroupImperativeHandle>();
+
+      render(<Group groupRef={groupRef} onLayoutChange={onLayoutChange} />);
+
+      const group = groupRef.current;
+
+      assert(group !== null);
+      expect(group.getLayout()).toEqual({});
+      expect(onLayoutChange).not.toHaveBeenCalled();
+
+      // This is meaningless but technically valid
+      group.setLayout({});
+
+      // This is still invalid
+      expect(() =>
+        group.setLayout({
+          foo: 50,
+          bar: 50
+        })
+      ).toThrow("Invalid 0 panel layout: 50%, 50%");
+    });
+
+    test("should work within a hidden subtree", () => {
+      // Note this test mimics the hidden subtree scenario by using a groupSize of 0
+      setElementBoundsFunction(() => new DOMRect(0, 0, 0, 0));
+
+      const onLayoutChange = vi.fn();
+      const groupRef = createRef<GroupImperativeHandle>();
+
+      render(
+        <Group groupRef={groupRef} onLayoutChange={onLayoutChange}>
+          <Panel defaultSize="35%" id="left" maxSize="45%">
+            left
+          </Panel>
+          <Panel id="right">right</Panel>
+        </Group>
+      );
+
+      const group = groupRef.current;
+
+      assert(group !== null);
+      expect(onLayoutChange).not.toHaveBeenCalled();
+
+      // Size constraints can't really be validated while the Group is hidden
+      expect(group.getLayout()).toEqual({});
+
+      // This is essentially a no-op as well
+      // Any values set at this point can't be validated and so they'll be overridden when the Group becomes visible
+      group.setLayout({
+        left: 45,
+        right: 55
+      });
+
+      // Simulate the Group becoming visible; this should trigger default layout calculation
+      setElementBoundsFunction((element) => {
+        if (element.hasAttribute("data-panel")) {
+          return new DOMRect(0, 0, 50, 50);
+        } else {
+          return new DOMRect(0, 0, 100, 50);
+        }
+      });
+      expect(group.getLayout()).toEqual({
+        left: 35,
+        right: 65
+      });
+      expect(onLayoutChange).toHaveBeenCalledWith({
+        left: 35,
+        right: 65
+      });
+    });
   });
 
   describe("onLayoutChange", () => {
