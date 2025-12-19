@@ -1,12 +1,12 @@
 import { render } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import { eventEmitter } from "../../global/mutableState";
 import { moveSeparator } from "../../global/test/moveSeparator";
+import { assert } from "../../utils/assert";
 import { setElementBoundsFunction } from "../../utils/test/mockBoundingClientRect";
 import { Panel } from "../panel/Panel";
 import { Separator } from "../separator/Separator";
 import { Group } from "./Group";
-import { assert } from "../../utils/assert";
-import { eventEmitter } from "../../global/mutableState";
 
 describe("Group", () => {
   test("changes to defaultProps or disableCursor should not cause Group to remount", () => {
@@ -45,6 +45,36 @@ describe("Group", () => {
     expect(onMountedGroupsChange).toHaveBeenCalledTimes(1);
 
     removeListener();
+  });
+
+  test("should support updates to either Group or Panel ids", () => {
+    const { rerender } = render(
+      <Group id="a">
+        <Panel id="a-a" />
+        <Panel id="a-b" />
+      </Group>
+    );
+
+    rerender(
+      <Group id="a">
+        <Panel id="b-a" />
+        <Panel id="b-b" />
+      </Group>
+    );
+
+    rerender(
+      <Group id="b">
+        <Panel id="b-a" />
+        <Panel id="b-b" />
+      </Group>
+    );
+
+    rerender(
+      <Group id="c">
+        <Panel id="c-a" />
+        <Panel id="c-b" />
+      </Group>
+    );
   });
 
   describe("onLayoutChange", () => {

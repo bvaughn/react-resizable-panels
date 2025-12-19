@@ -7,7 +7,8 @@ export function layoutsEqual(a: Layout, b: Layout): boolean {
   }
 
   for (const id in a) {
-    if (compareLayoutNumbers(a[id], b[id]) !== 0) {
+    // Edge case: Panel id has been changed
+    if (b[id] === undefined || compareLayoutNumbers(a[id], b[id]) !== 0) {
       return false;
     }
   }
