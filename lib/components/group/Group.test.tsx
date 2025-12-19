@@ -6,8 +6,47 @@ import { Panel } from "../panel/Panel";
 import { Separator } from "../separator/Separator";
 import { Group } from "./Group";
 import { assert } from "../../utils/assert";
+import { eventEmitter } from "../../global/mutableState";
 
 describe("Group", () => {
+  test("changes to defaultProps or disableCursor should not cause Group to remount", () => {
+    const onMountedGroupsChange = vi.fn();
+    const removeListener = eventEmitter.addListener(
+      "mountedGroupsChange",
+      onMountedGroupsChange
+    );
+
+    const { rerender } = render(
+      <Group
+        defaultLayout={{
+          a: 50,
+          b: 50
+        }}
+        disableCursor={false}
+      >
+        <Panel id="a" />
+        <Panel id="b" />
+      </Group>
+    );
+    expect(onMountedGroupsChange).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <Group
+        defaultLayout={{
+          a: 35,
+          b: 65
+        }}
+        disableCursor={true}
+      >
+        <Panel id="a" />
+        <Panel id="b" />
+      </Group>
+    );
+    expect(onMountedGroupsChange).toHaveBeenCalledTimes(1);
+
+    removeListener();
+  });
+
   describe("onLayoutChange", () => {
     beforeEach(() => {
       setElementBoundsFunction((element) => {
