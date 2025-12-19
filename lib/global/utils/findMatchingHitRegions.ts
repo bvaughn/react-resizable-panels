@@ -6,6 +6,7 @@ import {
 } from "../dom/calculateHitRegions";
 import { findClosetHitRegion } from "./findClosetHitRegion";
 import { isCoarsePointer } from "./isCoarsePointer";
+import { isViableHitTarget } from "./isViableHitTarget";
 
 export function findMatchingHitRegions(
   event: PointerEvent,
@@ -31,7 +32,12 @@ export function findMatchingHitRegions(
     if (
       match &&
       match.distance.x <= maxDistance &&
-      match.distance.y <= maxDistance
+      match.distance.y <= maxDistance &&
+      isViableHitTarget({
+        groupElement: groupData.element,
+        hitRegion: match.hitRegion.rect,
+        pointerEventTarget: event.target
+      })
     ) {
       matchingHitRegions.push(match.hitRegion);
     }
