@@ -124,7 +124,7 @@ describe("calculateHitRegions", () => {
             "group-1-b",
             "group-1-c"
           ],
-          "rect": "40,0 0 x 50",
+          "rect": "40,0 5 x 50",
           "separator": "group-1-separator"
         }
       ]"
@@ -149,6 +149,20 @@ describe("calculateHitRegions", () => {
             "group-1-b"
           ],
           "rect": "20,0 0 x 50"
+        },
+        {
+          "panels": [
+            "group-1-b",
+            "group-1-c"
+          ],
+          "rect": "30,0 0 x 50"
+        },
+        {
+          "panels": [
+            "group-1-b",
+            "group-1-c"
+          ],
+          "rect": "40,0 0 x 50"
         },
         {
           "panels": [

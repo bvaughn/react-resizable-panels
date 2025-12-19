@@ -8,9 +8,11 @@ import GrabDotsIcon from "../../../public/svgs/grab-dots.svg?react";
 
 export function Separator({
   className = "",
+  id,
   orientation = "horizontal"
 }: PropsWithChildren<{
   className?: string;
+  id?: string;
   orientation?: Orientation;
 }>) {
   return (
@@ -23,6 +25,7 @@ export function Separator({
         orientation === "horizontal" ? "w-4 sm:w-2" : "h-4 sm:h-2",
         className
       )}
+      id={id}
     >
       <GrabDotsIcon className="w-6 h-6 sm:w-3 sm:h-3 shrink-0" />
     </SeparatorExternal>

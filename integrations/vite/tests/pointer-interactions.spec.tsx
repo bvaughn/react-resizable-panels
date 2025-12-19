@@ -218,4 +218,102 @@ test.describe("pointer interactions", () => {
     await page.mouse.up();
     await expect(panel).toHaveCSS("pointer-events", "auto");
   });
+
+  test.describe("focus", () => {
+    test("should update focus to the nearest separator", async ({ page }) => {
+      await goToUrl(
+        page,
+        <Group>
+          <Panel id="left" />
+          <Separator id="separator-left" />
+          <Panel id="center" />
+          <Separator id="separator-right" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      const hitAreaBox = await calculateHitArea(page, ["center", "right"]);
+      const { x, y } = getCenterCoordinates(hitAreaBox);
+
+      const separator = page.getByTestId("separator-right");
+      await expect(separator).not.toBeFocused();
+
+      await page.mouse.move(x, y);
+      await page.mouse.down();
+      await page.mouse.up();
+
+      await expect(separator).toBeFocused();
+    });
+
+    test("should activate the closest separator in the event that there is two", async ({
+      page
+    }) => {
+      await goToUrl(
+        page,
+        <Group>
+          <Panel id="left" />
+          <Separator id="separator-left" />
+          <div>fixed size</div>
+          <Separator id="separator-right" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      const separatorLeft = page.getByTestId("separator-left");
+      const separatorRight = page.getByTestId("separator-right");
+
+      {
+        const { x, y } = getCenterCoordinates(
+          (await separatorRight.boundingBox())!
+        );
+
+        await expect(separatorRight).not.toBeFocused();
+
+        await page.mouse.move(x, y);
+        await expect(separatorLeft).not.toHaveAttribute(
+          "data-separator",
+          "hover"
+        );
+        await expect(separatorRight).toHaveAttribute("data-separator", "hover");
+
+        await page.mouse.down();
+        await expect(separatorLeft).not.toHaveAttribute(
+          "data-separator",
+          "active"
+        );
+        await expect(separatorRight).toHaveAttribute(
+          "data-separator",
+          "active"
+        );
+
+        await page.mouse.up();
+        await expect(separatorRight).toBeFocused();
+      }
+
+      {
+        const { x, y } = getCenterCoordinates(
+          (await separatorLeft.boundingBox())!
+        );
+
+        await expect(separatorLeft).not.toBeFocused();
+
+        await page.mouse.move(x, y);
+        await expect(separatorLeft).toHaveAttribute("data-separator", "hover");
+        await expect(separatorRight).not.toHaveAttribute(
+          "data-separator",
+          "hover"
+        );
+
+        await page.mouse.down();
+        await expect(separatorLeft).toHaveAttribute("data-separator", "active");
+        await expect(separatorRight).not.toHaveAttribute(
+          "data-separator",
+          "active"
+        );
+
+        await page.mouse.up();
+        await expect(separatorLeft).toBeFocused();
+      }
+    });
+  });
 });

@@ -8,7 +8,7 @@ import { onWindowKeyDown } from "./event-handlers/onWindowKeyDown";
 import { onWindowPointerDown } from "./event-handlers/onWindowPointerDown";
 import { onWindowPointerMove } from "./event-handlers/onWindowPointerMove";
 import { onWindowPointerUp } from "./event-handlers/onWindowPointerUp";
-import { update } from "./mutableState";
+import { update, type SeparatorToPanelsMap } from "./mutableState";
 import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
 import { layoutsEqual } from "./utils/layoutsEqual";
 import { notifyPanelOnResize } from "./utils/notifyPanelOnResize";
@@ -16,13 +16,6 @@ import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 
 export function mountGroup(group: RegisteredGroup) {
   let isMounted = true;
-
-  // Invariants
-  assert(
-    group.separators.length === 0 ||
-      group.separators.length < group.panels.length,
-    "Invalid Group configuration; too many Separator components"
-  );
 
   const panelIds = new Set<string>();
   const separatorIds = new Set<string>();
@@ -123,18 +116,24 @@ export function mountGroup(group: RegisteredGroup) {
 
   const hitRegions = calculateHitRegions(group);
 
-  const nextState = update((prevState) => ({
-    mountedGroups: new Map(prevState.mountedGroups).set(group, {
-      defaultLayoutDeferred: groupSize === 0,
-      derivedPanelConstraints,
-      layout: defaultLayoutSafe,
-      separatorToPanels: new Map(
-        hitRegions
-          .filter((hitRegion) => hitRegion.separator)
-          .map((hitRegion) => [hitRegion.separator!, hitRegion.panels])
-      )
-    })
-  }));
+  const nextState = update((prevState) => {
+    const separatorToPanels: SeparatorToPanelsMap = new Map();
+
+    hitRegions.forEach((hitRegion) => {
+      if (hitRegion.separator) {
+        separatorToPanels.set(hitRegion.separator, hitRegion.panels);
+      }
+    });
+
+    return {
+      mountedGroups: new Map(prevState.mountedGroups).set(group, {
+        defaultLayoutDeferred: groupSize === 0,
+        derivedPanelConstraints,
+        layout: defaultLayoutSafe,
+        separatorToPanels
+      })
+    };
+  });
 
   // The "pointerleave" event is not reliably triggered when the pointer exits a window or iframe
   // To account for this, we listen for "pointerleave" events on the Group element itself

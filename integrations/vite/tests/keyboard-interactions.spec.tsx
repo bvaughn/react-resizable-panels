@@ -262,7 +262,7 @@ test.describe("keyboard interactions: window splitter api", () => {
         <Separator id="separator-left" />
         <Panel />
         <Separator id="separator-center" />
-        <Panel />
+        <div />
         <Separator id="separator-right" />
         <Panel />
       </Group>

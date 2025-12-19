@@ -6,7 +6,7 @@ import {
   type PanelProps,
   type SeparatorProps
 } from "react-resizable-panels";
-import type { GroupJson, PanelJson, SeparatorJson } from "./types";
+import type { GroupJson, PanelJson, SeparatorJson, TextJson } from "./types";
 
 export function encode(element: ReactElement<GroupProps>) {
   const json = convertGroup(element);
@@ -28,6 +28,14 @@ function convertGroup(element: ReactElement<GroupProps>): GroupJson {
           }
           case Separator: {
             return convertSeparator(child as ReactElement<SeparatorProps>);
+          }
+          default: {
+            if (typeof child.props.children === "string") {
+              return convertTextChild({
+                children: child.props.children,
+                className: child.props.className
+              });
+            }
           }
         }
       })
@@ -58,6 +66,16 @@ function convertSeparator(
 
   return {
     type: "Separator",
+    props
+  };
+}
+
+function convertTextChild(props: {
+  children: string;
+  className?: string;
+}): TextJson {
+  return {
+    type: "Text",
     props
   };
 }

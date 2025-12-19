@@ -35,16 +35,16 @@ describe("findMatchingHitRegions", () => {
 
     expect(serialize(mockPointerEvent({ clientX: 10 }), read().mountedGroups))
       .toMatchInlineSnapshot(`
-      "[
-        {
-          "panels": [
-            "group-1-left",
-            "group-1-right"
-          ],
-          "rect": "10,0 0 x 50"
-        }
-      ]"
-    `);
+        "[
+          {
+            "panels": [
+              "group-1-left",
+              "group-1-right"
+            ],
+            "rect": "10,0 0 x 50"
+          }
+        ]"
+      `);
   });
 
   test("nested groups", () => {

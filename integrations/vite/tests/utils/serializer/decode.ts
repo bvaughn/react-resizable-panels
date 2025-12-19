@@ -7,7 +7,13 @@ import type {
 import { Group } from "../../../src/components/Group";
 import { Panel } from "../../../src/components/Panel";
 import { Separator } from "../../../src/components/Separator";
-import type { Config, GroupJson, PanelJson, SeparatorJson } from "./types";
+import type {
+  Config,
+  GroupJson,
+  PanelJson,
+  SeparatorJson,
+  TextJson
+} from "./types";
 
 export function decode(stringified: string, config: Config = {}) {
   const json = JSON.parse(stringified) as GroupJson;
@@ -39,6 +45,9 @@ function convertGroup(
         case "Separator": {
           return convertSeparator(child);
         }
+        case "Text": {
+          return convertText(child);
+        }
       }
     })
   );
@@ -62,4 +71,11 @@ function convertPanel(
 
 function convertSeparator(json: SeparatorJson): ReactElement<SeparatorProps> {
   return createElement(Separator, json.props);
+}
+
+function convertText(json: TextJson): ReactElement<{
+  children: string;
+  className?: string;
+}> {
+  return createElement("div", json.props);
 }

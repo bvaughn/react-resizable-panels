@@ -25,6 +25,7 @@ export function onWindowPointerDown(event: PointerEvent) {
     current.panels.forEach((panel) => {
       panels.add(panel);
     });
+
     if (current.separator) {
       separators.add(current.separator);
 
