@@ -66,12 +66,14 @@ export function mountGroup(group: RegisteredGroup) {
 
               return {
                 mountedGroups: new Map(prevState.mountedGroups).set(group, {
+                  defaultLayoutDeferred: false,
                   derivedPanelConstraints: nextDerivedPanelConstraints,
                   layout: nextLayout,
                   separatorToPanels: match.separatorToPanels
                 })
               };
             }
+
             return prevState;
           });
         }

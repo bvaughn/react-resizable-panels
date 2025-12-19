@@ -67,7 +67,7 @@ describe("getImperativeGroupMethods", () => {
         getImperativeGroupMethods({
           groupId: "A"
         }).getLayout()
-      ).toThrow("Group A not found");
+      ).toThrowError('Could not find Group with id "A"');
     });
 
     test("returns the current group layout", () => {
@@ -93,7 +93,7 @@ describe("getImperativeGroupMethods", () => {
         getImperativeGroupMethods({
           groupId: "A"
         }).setLayout({})
-      ).toThrow("Group A not found");
+      ).toThrowError('Could not find Group with id "A"');
     });
 
     test("ignores a no-op layout update", () => {
