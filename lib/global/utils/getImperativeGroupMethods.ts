@@ -27,7 +27,9 @@ export function getImperativeGroupMethods({
       const { defaultLayoutDeferred, layout } = find();
 
       if (defaultLayoutDeferred) {
-        // Don't return layouts that have not been validated
+        // This indicates that the Group has not finished mounting yet
+        // Likely because it has been rendered inside of a hidden DOM subtree
+        // Any layout value will not have been validated and so it should not be returned
         return {};
       }
 
@@ -48,9 +50,11 @@ export function getImperativeGroupMethods({
       });
 
       if (defaultLayoutDeferred) {
-        // Don't apply layouts that can't be validated
-        // It's okay to let the validation run above;
-        // that will still warn about certain types of error (e.g. wrong number of panels)
+        // This indicates that the Group has not finished mounting yet
+        // Likely because it has been rendered inside of a hidden DOM subtree
+        // In this case we cannot fully validate the layout, so we shouldn't apply it
+        // It's okay to run the validate function above though,
+        // it will still warn about certain types of errors (e.g. wrong number of panels)
         return prevLayout;
       }
 

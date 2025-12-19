@@ -137,6 +137,9 @@ export function Group({
       const { defaultLayoutDeferred, derivedPanelConstraints, layout } = match;
 
       if (!defaultLayoutDeferred && derivedPanelConstraints.length > 0) {
+        // This indicates that the Group has not finished mounting yet
+        // Likely because it has been rendered inside of a hidden DOM subtree
+        // Ignore layouts in this case because they will not have been validated
         setLayout(layout);
         onLayoutChangeStable?.(layout);
       }
@@ -171,6 +174,9 @@ export function Group({
             match;
 
           if (defaultLayoutDeferred || derivedPanelConstraints.length === 0) {
+            // This indicates that the Group has not finished mounting yet
+            // Likely because it has been rendered inside of a hidden DOM subtree
+            // Ignore layouts in this case because they will not have been validated
             return;
           }
 
