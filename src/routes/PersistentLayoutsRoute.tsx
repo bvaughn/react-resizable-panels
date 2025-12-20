@@ -43,6 +43,12 @@ export default function PersistentLayoutsRoute() {
           right
         </Panel>
       </Group>
+      <Callout intent="primary">
+        The <code>useDefaultLayout</code> hook debounces calls to{" "}
+        <code>storage.setItem</code> by 150ms for performance reasons. This can
+        be customized (or disabled entirely) using the{" "}
+        <code>debounceSaveMs</code> param.
+      </Callout>
       <Callout intent="warning">
         Both Groups and Panels require unique <code>id</code> props to restore
         saved layouts.

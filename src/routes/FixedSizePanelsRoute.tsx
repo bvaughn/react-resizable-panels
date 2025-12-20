@@ -1,4 +1,6 @@
 import { html as HorizontalHTML } from "../../public/generated/code-snippets/FixedSizePanels.json";
+import { html as FixedSizePanelsMiddleHTML } from "../../public/generated/code-snippets/FixedSizePanelsMiddle.json";
+import { html as FixedSizePanelsMiddleNoSeparatorsHTML } from "../../public/generated/code-snippets/FixedSizePanelsMiddleNoSeparators.json";
 import { Box } from "../components/Box";
 import { Code } from "../components/code/Code";
 import { Header } from "../components/Header";
@@ -22,6 +24,7 @@ export default function FixedSizePanelsRoute() {
         <FixedSizeContent />
       </Group>
       <div>Non-interactive elements can also be rendered between panels.</div>
+      <Code html={FixedSizePanelsMiddleHTML} />
       <Group className="h-15">
         <Panel minSize={50}>left</Panel>
         <Separator />
@@ -33,18 +36,7 @@ export default function FixedSizePanelsRoute() {
         As with other types of groups, separators are optional (but
         recommended).
       </div>
-      <Group className="h-15">
-        <Panel minSize={50}>left</Panel>
-        <Separator />
-        <FixedSizeContent />
-        <Panel minSize={50}>right</Panel>
-      </Group>
-      <Group className="h-15">
-        <Panel minSize={50}>left</Panel>
-        <FixedSizeContent />
-        <Separator />
-        <Panel minSize={50}>right</Panel>
-      </Group>
+      <Code html={FixedSizePanelsMiddleNoSeparatorsHTML} />
       <Group className="h-15">
         <Panel minSize={50}>left</Panel>
         <FixedSizeContent />
