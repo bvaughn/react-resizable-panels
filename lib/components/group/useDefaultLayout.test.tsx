@@ -16,6 +16,7 @@ describe("useDefaultLayout", () => {
 
     const { result } = renderHook(() =>
       useDefaultLayout({
+        debounceSaveMs: 0,
         groupId: "test-group-id",
         storage
       })
@@ -42,6 +43,45 @@ describe("useDefaultLayout", () => {
     );
   });
 
+  test("should support debounced write", () => {
+    vi.useFakeTimers();
+
+    const storage: LayoutStorage = {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn()
+    };
+
+    const { result } = renderHook(() =>
+      useDefaultLayout({
+        debounceSaveMs: 150,
+        groupId: "test-group-id",
+        storage
+      })
+    );
+
+    expect(result.current.defaultLayout).toMatchInlineSnapshot(`undefined`);
+    expect(storage.setItem).not.toHaveBeenCalled();
+
+    result.current.onLayoutChange({
+      bar: 35,
+      baz: 65
+    });
+    expect(storage.setItem).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(149);
+    expect(storage.setItem).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(1);
+    expect(storage.setItem).toHaveBeenCalledTimes(1);
+    expect(storage.setItem).toHaveBeenCalledWith(
+      "react-resizable-panels:test-group-id",
+      JSON.stringify({
+        bar: 35,
+        baz: 65
+      })
+    );
+  });
+
   // See github.com/bvaughn/react-resizable-panels/pull/540
   test("should not break when coupled with dynamic layouts", () => {
     const groupRef = createRef<GroupImperativeHandle>();
@@ -50,6 +90,7 @@ describe("useDefaultLayout", () => {
 
     function Test({ hideMiddlePanel }: { hideMiddlePanel?: boolean }) {
       const { defaultLayout, onLayoutChange } = useDefaultLayout({
+        debounceSaveMs: 0,
         groupId: "test-group-id",
         storage: localStorage
       });
