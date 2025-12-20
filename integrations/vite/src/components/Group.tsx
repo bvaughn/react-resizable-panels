@@ -10,7 +10,7 @@ export function Group({
   ...rest
 }: PropsWithChildren<
   GroupProps & {
-    className?: string;
+    className?: string | undefined;
   }
 >) {
   return (

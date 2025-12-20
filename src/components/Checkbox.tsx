@@ -18,7 +18,7 @@ export function Checkbox({
 }: PropsWithChildren<
   Omit<HTMLAttributes<HTMLElement>, "defaultChecked" | "onChange"> & {
     checked: boolean;
-    className?: string;
+    className?: string | undefined;
     indeterminate?: boolean;
     onChange: (value: boolean) => void;
   }

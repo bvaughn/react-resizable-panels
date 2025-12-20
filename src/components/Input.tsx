@@ -8,7 +8,7 @@ export function Input<Type extends string>({
   ...rest
 }: PropsWithChildren<
   Omit<InputHTMLAttributes<HTMLInputElement>, "onChange"> & {
-    className?: string;
+    className?: string | undefined;
     onChange: (value: Type) => void;
     value: Type;
   }

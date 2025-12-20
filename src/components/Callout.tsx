@@ -16,7 +16,7 @@ export function Callout({
   ...rest
 }: PropsWithChildren<
   HTMLAttributes<HTMLDivElement> & {
-    className?: string;
+    className?: string | undefined;
     html?: boolean;
     inline?: boolean;
     intent?: Intent;

@@ -10,7 +10,7 @@ export function Separator({
   ...rest
 }: PropsWithChildren<
   SeparatorProps & {
-    className?: string;
+    className?: string | undefined;
   }
 >) {
   return (

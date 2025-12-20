@@ -9,10 +9,10 @@ export function Edges() {
 
   if (params.has("iframe")) {
     return (
-      <Group className="h-full bg-slate-900">
-        <Panel />
+      <Group className="h-full bg-slate-900" id="group">
+        <Panel id="left" />
         <Separator />
-        <Panel />
+        <Panel id="right" />
       </Group>
     );
   }

@@ -1,31 +1,41 @@
-import type { GroupProps, PanelProps } from "react-resizable-panels";
+import type {
+  GroupProps,
+  PanelProps,
+  SeparatorProps
+} from "react-resizable-panels";
 
-export type Config = {
-  groupProps?: Partial<GroupProps>;
-  panelProps?: Partial<PanelProps>;
-};
+type EncodedElementWithChildren<Props extends object = object> = Omit<
+  Props,
+  "children"
+> & { children?: EncodedElement[] | undefined };
 
-export type GroupJson = {
-  children: (PanelJson | SeparatorJson | TextJson)[];
-  props: object;
+export interface EncodedGroupElement {
+  props: EncodedElementWithChildren<GroupProps>;
   type: "Group";
-};
+}
 
-export type PanelJson = {
-  children?: GroupJson | undefined;
-  props: object;
+export interface EncodedPanelElement {
+  props: EncodedElementWithChildren<PanelProps>;
   type: "Panel";
-};
+}
 
-export type SeparatorJson = {
-  props: object;
+export interface EncodedSeparatorElement {
+  props: SeparatorProps;
   type: "Separator";
+}
+
+export type TextProps = {
+  children: string;
+  className?: string | undefined;
 };
 
-export type TextJson = {
-  props: {
-    className?: string;
-    children: string;
-  };
+export interface EncodedTextElement {
+  props: TextProps;
   type: "Text";
-};
+}
+
+export type EncodedElement =
+  | EncodedGroupElement
+  | EncodedPanelElement
+  | EncodedSeparatorElement
+  | EncodedTextElement;
