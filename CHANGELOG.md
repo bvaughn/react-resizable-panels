@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.13
+
+- `useDefaultLayout`: Deprecated `groupId` param in favor of `id` to avoid confusion; (there is no actual requirement for the Group to have a matching id)
+
 ## 4.0.12
 
 - [552](https://github.com/bvaughn/react-resizable-panels/pull/552): `useDefaultLayout` now debounces calls to `storage.setItem` by 150ms
