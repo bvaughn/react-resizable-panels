@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.11
+
+- [8604491](https://github.com/bvaughn/react-resizable-panels/commit/8604491): Fix edge case bug with panel constraints not being properly invalidated after resize
+
 ## 4.0.10
 
 - [#551](https://github.com/bvaughn/react-resizable-panels/pull/551): Expand fixed-size element support
