@@ -13,12 +13,14 @@ import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { layoutsEqual } from "./layoutsEqual";
 
 export function updateActiveHitRegions({
+  document,
   event,
   hitRegions,
   initialLayoutMap,
   mountedGroups,
   pointerDownAtPoint
 }: {
+  document: Document;
   event: {
     clientX: number;
     clientY: number;
@@ -118,5 +120,5 @@ export function updateActiveHitRegions({
     mountedGroups: nextMountedGroups
   });
 
-  updateCursorStyle();
+  updateCursorStyle(document);
 }

@@ -6,11 +6,13 @@ import type {
 } from "react-resizable-panels";
 import { Group } from "../../../src/components/Group";
 import { Panel } from "../../../src/components/Panel";
+import { PopupWindow } from "../../../src/components/PopupWindow";
 import { Separator } from "../../../src/components/Separator";
 import type {
   EncodedElement,
   EncodedGroupElement,
   EncodedPanelElement,
+  EncodedPopupWindowElement,
   EncodedSeparatorElement,
   EncodedTextElement,
   TextProps
@@ -47,6 +49,10 @@ function decodeChildren(
       }
       case "Panel": {
         elements.push(decodePanel(current, config));
+        break;
+      }
+      case "PopupWindow": {
+        elements.push(decodePopupWindow(current, config));
         break;
       }
       case "Separator": {
@@ -87,6 +93,20 @@ function decodePanel(
   const { children, ...props } = json.props;
 
   return createElement(Panel, {
+    key: ++key,
+    ...props,
+    ...config.panelProps,
+    children: children ? decodeChildren(children, config) : undefined
+  });
+}
+
+function decodePopupWindow(
+  json: EncodedPopupWindowElement,
+  config: Config
+): ReactElement<unknown> {
+  const { children, ...props } = json.props;
+
+  return createElement(PopupWindow, {
     key: ++key,
     ...props,
     ...config.panelProps,

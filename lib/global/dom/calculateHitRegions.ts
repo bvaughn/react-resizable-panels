@@ -29,8 +29,8 @@ export function calculateHitRegions(group: RegisteredGroup) {
   const sortedChildElements: HTMLElement[] = sortByElementOffset(
     orientation,
     Array.from(groupElement.children)
-      .filter((child) => child instanceof HTMLElement)
-      .map((element) => ({ element }))
+      .filter((child) => child.nodeType === Node.ELEMENT_NODE)
+      .map((element) => ({ element: element as HTMLElement }))
   ).map(({ element }) => element);
 
   const hitRegions: HitRegion[] = [];

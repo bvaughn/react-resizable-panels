@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
-import { goToUrl } from "./utils/goToUrl";
+import { PopupWindow } from "../src/components/PopupWindow";
 import { calculateHitArea } from "./utils/calculateHitArea";
 import { getCenterCoordinates } from "./utils/getCenterCoordinates";
+import { goToUrl } from "./utils/goToUrl";
 
 test.describe("cursor", () => {
   test("horizontal", async ({ page }) => {
@@ -200,5 +201,52 @@ test.describe("cursor", () => {
     expect(
       await page.evaluate(() => getComputedStyle(document.body).cursor)
     ).toBe("auto");
+  });
+
+  test("should target ownerDocument to support popup windows", async ({
+    page: mainPage
+  }) => {
+    await goToUrl(
+      mainPage,
+      <PopupWindow className="dark" height={250} width={500}>
+        <Group className="h-full w-full" orientation="horizontal">
+          <Panel id="left" minSize="25%" />
+          <Separator />
+          <Panel id="right" minSize="25%" />
+        </Group>
+      </PopupWindow>
+    );
+
+    const popupPromise = mainPage.waitForEvent("popup");
+    await mainPage.getByRole("button").click();
+    const popupPage = await popupPromise;
+
+    const hitAreaBox = await calculateHitArea(popupPage, ["left", "right"]);
+    const { x, y } = getCenterCoordinates(hitAreaBox);
+
+    expect(
+      await popupPage.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("auto");
+
+    await popupPage.mouse.move(x, y);
+
+    expect(
+      await popupPage.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("ew-resize");
+
+    await popupPage.mouse.down();
+    await popupPage.mouse.move(50, y);
+    await popupPage.mouse.move(25, y);
+
+    expect(
+      await popupPage.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("e-resize");
+
+    await popupPage.mouse.move(950, y);
+    await popupPage.mouse.move(975, y);
+
+    expect(
+      await popupPage.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("w-resize");
   });
 });

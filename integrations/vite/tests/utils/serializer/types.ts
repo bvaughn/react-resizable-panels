@@ -1,3 +1,4 @@
+import type { PropsWithChildren } from "react";
 import type {
   GroupProps,
   PanelProps,
@@ -19,6 +20,17 @@ export interface EncodedPanelElement {
   type: "Panel";
 }
 
+export type PopupWindowProps = PropsWithChildren<{
+  className?: string | undefined;
+  height?: number | undefined;
+  width?: number | undefined;
+}>;
+
+export interface EncodedPopupWindowElement {
+  props: EncodedElementWithChildren<PopupWindowProps>;
+  type: "PopupWindow";
+}
+
 export interface EncodedSeparatorElement {
   props: SeparatorProps;
   type: "Separator";
@@ -37,5 +49,6 @@ export interface EncodedTextElement {
 export type EncodedElement =
   | EncodedGroupElement
   | EncodedPanelElement
+  | EncodedPopupWindowElement
   | EncodedSeparatorElement
   | EncodedTextElement;

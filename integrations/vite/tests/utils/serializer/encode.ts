@@ -1,4 +1,4 @@
-import { type ReactElement } from "react";
+import { type PropsWithChildren, type ReactElement } from "react";
 import {
   Group,
   Panel,
@@ -7,12 +7,15 @@ import {
   type PanelProps,
   type SeparatorProps
 } from "react-resizable-panels";
+import { PopupWindow } from "../../../src/components/PopupWindow";
 import type {
   EncodedElement,
   EncodedGroupElement,
   EncodedPanelElement,
+  EncodedPopupWindowElement,
   EncodedSeparatorElement,
   EncodedTextElement,
+  PopupWindowProps,
   TextProps
 } from "./types";
 
@@ -38,6 +41,12 @@ function encodeChildren(children: ReactElement<unknown>[]): EncodedElement[] {
       }
       case Panel: {
         elements.push(encodePanel(current as ReactElement<PanelProps>));
+        break;
+      }
+      case PopupWindow: {
+        elements.push(
+          encodePopupWindow(current as ReactElement<PropsWithChildren>)
+        );
         break;
       }
       case Separator: {
@@ -87,6 +96,24 @@ function encodePanel(element: ReactElement<PanelProps>): EncodedPanelElement {
       children: encodedChildren.length > 0 ? encodedChildren : undefined
     },
     type: "Panel"
+  };
+}
+
+function encodePopupWindow(
+  element: ReactElement<PopupWindowProps>
+): EncodedPopupWindowElement {
+  const { children, ...props } = element.props;
+
+  const encodedChildren = encodeChildren(
+    Array.isArray(children) ? children : [children]
+  );
+
+  return {
+    props: {
+      ...props,
+      children: encodedChildren.length > 0 ? encodedChildren : undefined
+    },
+    type: "PopupWindow"
   };
 }
 

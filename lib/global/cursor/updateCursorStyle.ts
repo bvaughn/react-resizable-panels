@@ -1,14 +1,25 @@
 import { read } from "../mutableState";
 import { getCursorStyle } from "./getCursorStyle";
 
-let prevStyle: string | undefined = undefined;
-let styleSheet: CSSStyleSheet | undefined = undefined;
+const documentToStyleMap = new WeakMap<
+  Document,
+  {
+    prevStyle: string | undefined;
+    styleSheet: CSSStyleSheet;
+  }
+>();
 
-export function updateCursorStyle() {
+export function updateCursorStyle(ownerDocument: Document) {
+  if (ownerDocument.defaultView === null) {
+    return;
+  }
+
+  let { prevStyle, styleSheet } = documentToStyleMap.get(ownerDocument) ?? {};
+
   if (styleSheet === undefined) {
-    styleSheet = new CSSStyleSheet();
+    styleSheet = new ownerDocument.defaultView.CSSStyleSheet();
 
-    document.adoptedStyleSheets = [styleSheet];
+    ownerDocument.adoptedStyleSheets = [styleSheet];
   }
 
   const { cursorFlags, interactionState } = read();
@@ -49,4 +60,9 @@ export function updateCursorStyle() {
       break;
     }
   }
+
+  documentToStyleMap.set(ownerDocument, {
+    prevStyle,
+    styleSheet
+  });
 }
