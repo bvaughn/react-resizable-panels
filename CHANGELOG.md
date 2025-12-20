@@ -1,5 +1,23 @@
 # Changelog
 
+## 4.0.12
+
+- [552](https://github.com/bvaughn/react-resizable-panels/pull/552): `useDefaultLayout` now debounces calls to `storage.setItem` by 150ms
+
+```ts
+// To opt out of this change
+useDefaultLayout({
+  debounceSaveMs: 0,
+  groupId: "test-group-id",
+  storage: localStorage,
+})
+```
+
+> [!NOTE]
+> Some may consider this a breaking change, considering the default value is 150ms rather than 0ms. I think in practice this should only impact unit tests which can be easily fixed by overriding the default (as shown above) or by using fake timers.
+>
+> Changes like this are often judgement calls, but I think on balance it's better to correct my initial oversight of not debouncing this by default.
+
 ## 4.0.11
 
 - [8604491](https://github.com/bvaughn/react-resizable-panels/commit/8604491): Fix edge case bug with panel constraints not being properly invalidated after resize
