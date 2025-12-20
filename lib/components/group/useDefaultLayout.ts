@@ -5,8 +5,8 @@ import type { Layout, LayoutStorage, OnGroupLayoutChange } from "./types";
 
 export function useDefaultLayout({
   debounceSaveMs = 100,
-  groupId,
-  storage
+  storage,
+  ...rest
 }: {
   /**
    * Debounce save operation by the specified number of milliseconds; defaults to 100ms
@@ -14,17 +14,28 @@ export function useDefaultLayout({
   debounceSaveMs?: number;
 
   /**
-   * Group id; must be unique in order for layouts to be saved separately.
-   */
-  groupId: string;
-
-  /**
    * Storage implementation; supports localStorage, sessionStorage, and custom implementations
    * Refer to documentation site for example integrations.
    */
   storage: LayoutStorage;
-}) {
-  const storageKey = getStorageKey(groupId);
+} & (
+  | {
+      /**
+       * Group id; must be unique in order for layouts to be saved separately.
+       * @deprecated Use the {@link id} param instead
+       */
+      groupId: string;
+    }
+  | {
+      /**
+       * Unique layout identifier.
+       */
+      id: string;
+    }
+)) {
+  const id = "id" in rest ? rest.id : rest.groupId;
+
+  const storageKey = getStorageKey(id);
 
   // In the event that a client-only storage API is provided,
   // useSyncExternalStore prevents server/client hydration mismatch warning

@@ -11,7 +11,7 @@ import { Separator } from "../components/styled-panels/Separator";
 
 export default function PersistentLayoutsRoute() {
   const { defaultLayout, onLayoutChange } = useDefaultLayout({
-    groupId: "persisted-group",
+    id: "unique-layout-id",
     storage: sessionStorage
   });
 
@@ -50,8 +50,7 @@ export default function PersistentLayoutsRoute() {
         <code>debounceSaveMs</code> param.
       </Callout>
       <Callout intent="warning">
-        Both Groups and Panels require unique <code>id</code> props to restore
-        saved layouts.
+        Panels require unique <code>id</code> props to restore saved layouts.
       </Callout>
       <div>
         The example above works well with client rendered application. Click

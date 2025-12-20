@@ -10,12 +10,12 @@ export default function Page() {
   const storage = useCookieStorage();
 
   const groupOneProps = useDefaultLayout({
-    groupId: "group-one",
+    id: "group-one",
     storage
   });
 
   const groupTwoProps = useDefaultLayout({
-    groupId: "group-two",
+    id: "group-two",
     storage
   });
 

@@ -17,7 +17,7 @@ describe("useDefaultLayout", () => {
     const { result } = renderHook(() =>
       useDefaultLayout({
         debounceSaveMs: 0,
-        groupId: "test-group-id",
+        id: "test-group-id",
         storage
       })
     );
@@ -54,7 +54,7 @@ describe("useDefaultLayout", () => {
     const { result } = renderHook(() =>
       useDefaultLayout({
         debounceSaveMs: 150,
-        groupId: "test-group-id",
+        id: "test-group-id",
         storage
       })
     );
@@ -91,7 +91,7 @@ describe("useDefaultLayout", () => {
     function Test({ hideMiddlePanel }: { hideMiddlePanel?: boolean }) {
       const { defaultLayout, onLayoutChange } = useDefaultLayout({
         debounceSaveMs: 0,
-        groupId: "test-group-id",
+        id: "test-group-id",
         storage: localStorage
       });
 
