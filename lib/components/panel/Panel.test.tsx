@@ -1,6 +1,10 @@
-import { render } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { act, render } from "@testing-library/react";
+import { createRef, Profiler } from "react";
+import { describe, expect, test, vi } from "vitest";
+import { assert } from "../../utils/assert";
+import { setDefaultElementBounds } from "../../utils/test/mockBoundingClientRect";
 import { Group } from "../group/Group";
+import type { GroupImperativeHandle } from "../group/types";
 import { Panel } from "./Panel";
 
 describe("Panel", () => {
@@ -8,6 +12,59 @@ describe("Panel", () => {
     expect(() => render(<Panel />)).toThrow(
       "Group Context not found; did you render a Panel or Separator outside of a Group?"
     );
+  });
+
+  describe("memoization", () => {
+    test("Panels and their contents should not re-render on Group layout change", () => {
+      const onGroupRender = vi.fn();
+      const onPanelRender = vi.fn();
+      const onPanelChildrenRender = vi.fn();
+
+      const groupRef = createRef<GroupImperativeHandle>();
+
+      function Child() {
+        return <div />;
+      }
+
+      setDefaultElementBounds(new DOMRect(0, 0, 100, 50));
+
+      render(
+        <Profiler id="group" onRender={onGroupRender}>
+          <Group groupRef={groupRef}>
+            <Profiler id="panel" onRender={onPanelRender}>
+              <Panel id="left" />
+            </Profiler>
+            <Panel id="right">
+              <Profiler id="panel-children" onRender={onPanelChildrenRender}>
+                <Child />
+              </Profiler>
+            </Panel>
+          </Group>
+        </Profiler>
+      );
+
+      expect(onGroupRender).toBeCalled();
+      expect(onPanelRender).toBeCalled();
+      expect(onPanelChildrenRender).toBeCalled();
+
+      onGroupRender.mockReset();
+      onPanelRender.mockReset();
+      onPanelChildrenRender.mockReset();
+
+      const api = groupRef.current;
+      assert(api);
+
+      act(() => {
+        api.setLayout({
+          left: 25,
+          right: 75
+        });
+      });
+
+      expect(onGroupRender).toBeCalledTimes(1);
+      expect(onPanelRender).not.toBeCalled();
+      expect(onPanelChildrenRender).not.toBeCalled();
+    });
   });
 
   describe("HTML attributes", () => {
