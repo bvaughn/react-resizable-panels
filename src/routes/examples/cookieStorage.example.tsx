@@ -22,7 +22,7 @@ const cookieStorage: LayoutStorage = {
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 useDefaultLayout({
-  groupId: "group",
+  id: "unique-layout-id",
   storage: cookieStorage
 });
 
