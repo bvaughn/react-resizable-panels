@@ -12,6 +12,7 @@ import { update, type SeparatorToPanelsMap } from "./mutableState";
 import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
 import { layoutsEqual } from "./utils/layoutsEqual";
 import { notifyPanelOnResize } from "./utils/notifyPanelOnResize";
+import { objectsEqual } from "./utils/objectsEqual";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 
 export function mountGroup(group: RegisteredGroup) {
@@ -52,7 +53,11 @@ export function mountGroup(group: RegisteredGroup) {
 
               if (
                 !match.defaultLayoutDeferred &&
-                layoutsEqual(prevLayout, nextLayout)
+                layoutsEqual(prevLayout, nextLayout) &&
+                objectsEqual(
+                  match.derivedPanelConstraints,
+                  nextDerivedPanelConstraints
+                )
               ) {
                 return prevState;
               }

@@ -69,7 +69,7 @@ export function Decoder() {
   return (
     <Box className="p-2" direction="column" gap={2}>
       <div>{children}</div>
-      <Box className="p-2" direction="row" gap={2} wrap>
+      <Box className="p-2 overflow-auto" direction="row" gap={2} wrap>
         <DebugData
           data={{
             layout: state.layout,
