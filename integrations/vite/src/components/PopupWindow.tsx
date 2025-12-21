@@ -42,14 +42,28 @@ export function PopupWindow({
       popup.document.head.appendChild(styleSheet);
       popup.document.body.appendChild(container);
 
-      const onBeforeUnload = () => {
+      const cleanup = () => {
+        window.removeEventListener("beforeunload", onWindowBeforeUnload);
+        popup.removeEventListener("beforeunload", onPopupBeforeUnload);
+      };
+
+      const onPopupBeforeUnload = () => {
+        cleanup();
+
+        setOpen(false);
+      };
+
+      const onWindowBeforeUnload = () => {
+        cleanup();
+
         popup.close();
       };
 
-      window.addEventListener("beforeunload", onBeforeUnload);
+      window.addEventListener("beforeunload", onWindowBeforeUnload);
+      popup.addEventListener("beforeunload", onPopupBeforeUnload);
 
       return () => {
-        window.removeEventListener("beforeunload", onBeforeUnload);
+        cleanup();
 
         popup.close();
       };
