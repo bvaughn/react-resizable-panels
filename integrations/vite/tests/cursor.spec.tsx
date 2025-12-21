@@ -5,244 +5,208 @@ import { getCenterCoordinates } from "./utils/getCenterCoordinates";
 import { goToUrl } from "./utils/goToUrl";
 
 test.describe("cursor", () => {
-  test("horizontal", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group orientation="horizontal">
-        <Panel id="left" minSize="25%" />
-        <Separator />
-        <Panel id="right" minSize="25%" />
-      </Group>
-    );
-
-    const hitAreaBox = await calculateHitArea(page, ["left", "right"]);
-    const { x, y } = getCenterCoordinates(hitAreaBox);
-
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("auto");
-
-    await page.mouse.move(x, y);
-
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("ew-resize");
-
-    await page.mouse.down();
-    await page.mouse.move(50, y);
-    await page.mouse.move(25, y);
-
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("e-resize");
-
-    await page.mouse.move(950, y);
-    await page.mouse.move(975, y);
-
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("w-resize");
-  });
-
-  test("vertical", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group orientation="vertical">
-        <Panel id="top" minSize="25%" />
-        <Separator />
-        <Panel id="bottom" minSize="25%" />
-      </Group>
-    );
-
-    const hitAreaBox = await calculateHitArea(page, ["top", "bottom"]);
-    const { x, y } = getCenterCoordinates(hitAreaBox);
-
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("auto");
-
-    await page.mouse.move(x, y);
-
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("ns-resize");
-
-    await page.mouse.down();
-    await page.mouse.move(x, 1);
-    await page.mouse.move(x, 0);
-
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("s-resize");
-
-    await page.mouse.move(x, 599);
-    await page.mouse.move(x, 600);
-
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("n-resize");
-  });
-
-  test("intersecting", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group orientation="vertical">
-        <Panel id="top" minSize="25%" />
-        <Separator id="vertical-separator" />
-        <Panel id="bottom" minSize="25%">
+  for (const usePopUpWindow of [true, false]) {
+    test.describe(usePopUpWindow ? "in a popup" : "in the main window", () => {
+      test("horizontal", async ({ page: mainPage }) => {
+        const page = await goToUrl(
+          mainPage,
           <Group orientation="horizontal">
             <Panel id="left" minSize="25%" />
             <Separator />
             <Panel id="right" minSize="25%" />
-          </Group>
-        </Panel>
-      </Group>
-    );
+          </Group>,
+          { usePopUpWindow }
+        );
 
-    const separator = page.getByTestId("vertical-separator");
-    const boundingBox = (await separator.boundingBox())!;
-    const x = boundingBox.x + boundingBox.width / 2;
-    const y = boundingBox.y;
+        const hitAreaBox = await calculateHitArea(page, ["left", "right"]);
+        const { x, y } = getCenterCoordinates(hitAreaBox);
 
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("auto");
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("auto");
 
-    // Centered
-    await page.mouse.move(x, y);
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("move");
+        await page.mouse.move(x, y);
 
-    // Top left
-    await page.mouse.down();
-    await page.mouse.move(2, 1);
-    await page.mouse.move(1, 1);
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("se-resize");
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("ew-resize");
 
-    // Top
-    await page.mouse.move(x, 1);
-    await page.mouse.move(x, 0);
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("s-resize");
+        await page.mouse.down();
+        await page.mouse.move(50, y);
+        await page.mouse.move(25, y);
 
-    // Top right
-    await page.mouse.move(999, 1);
-    await page.mouse.move(1000, 1);
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("sw-resize");
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("e-resize");
 
-    // Right
-    await page.mouse.move(950, y);
-    await page.mouse.move(975, y);
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("w-resize");
+        await page.mouse.move(950, y);
+        await page.mouse.move(975, y);
 
-    // Bottom right
-    await page.mouse.move(1000, 599);
-    await page.mouse.move(1000, 600);
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("nw-resize");
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("w-resize");
+      });
 
-    // Bottom
-    await page.mouse.move(x, 599);
-    await page.mouse.move(x, 600);
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("n-resize");
+      test("vertical", async ({ page: mainPage }) => {
+        const page = await goToUrl(
+          mainPage,
+          <Group orientation="vertical">
+            <Panel id="top" minSize="25%" />
+            <Separator />
+            <Panel id="bottom" minSize="25%" />
+          </Group>,
+          { usePopUpWindow }
+        );
 
-    // Bottom left
-    await page.mouse.move(1, 599);
-    await page.mouse.move(1, 600);
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("ne-resize");
+        const hitAreaBox = await calculateHitArea(page, ["top", "bottom"]);
+        const { x, y } = getCenterCoordinates(hitAreaBox);
 
-    // Left
-    await page.mouse.move(50, y);
-    await page.mouse.move(25, y);
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("e-resize");
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("auto");
 
-    // Centered
-    await page.mouse.move(x, y);
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("move");
-  });
+        await page.mouse.move(x, y);
 
-  test("disabled", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group disableCursor orientation="vertical">
-        <Panel id="top" minSize="25%" />
-        <Separator />
-        <Panel id="bottom" minSize="25%" />
-      </Group>
-    );
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("ns-resize");
 
-    const hitAreaBox = await calculateHitArea(page, ["top", "bottom"]);
-    const { x, y } = getCenterCoordinates(hitAreaBox);
+        await page.mouse.down();
+        await page.mouse.move(x, 1);
+        await page.mouse.move(x, 0);
 
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("auto");
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("s-resize");
 
-    await page.mouse.move(x, y);
+        await page.mouse.move(x, 599);
+        await page.mouse.move(x, 600);
 
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("auto");
-  });
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("n-resize");
+      });
 
-  test("should target ownerDocument to support popup windows", async ({
-    page: mainPage
-  }) => {
-    const popupPage = await goToUrl(
-      mainPage,
-      <Group className="h-full w-full" orientation="horizontal">
-        <Panel id="left" minSize="25%" />
-        <Separator />
-        <Panel id="right" minSize="25%" />
-      </Group>,
-      {
-        usePopUpWindow: true
-      }
-    );
+      test("intersecting", async ({ page: mainPage }) => {
+        const page = await goToUrl(
+          mainPage,
+          <Group orientation="vertical">
+            <Panel id="top" minSize="25%" />
+            <Separator id="vertical-separator" />
+            <Panel id="bottom" minSize="25%">
+              <Group orientation="horizontal">
+                <Panel id="left" minSize="25%" />
+                <Separator />
+                <Panel id="right" minSize="25%" />
+              </Group>
+            </Panel>
+          </Group>,
+          { usePopUpWindow }
+        );
 
-    const hitAreaBox = await calculateHitArea(popupPage, ["left", "right"]);
-    const { x, y } = getCenterCoordinates(hitAreaBox);
+        const separator = page.getByTestId("vertical-separator");
+        const boundingBox = (await separator.boundingBox())!;
+        const x = boundingBox.x + boundingBox.width / 2;
+        const y = boundingBox.y;
 
-    expect(
-      await popupPage.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("auto");
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("auto");
 
-    await popupPage.mouse.move(x, y);
+        // Centered
+        await page.mouse.move(x, y);
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("move");
 
-    expect(
-      await popupPage.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("ew-resize");
+        // Top left
+        await page.mouse.down();
+        await page.mouse.move(2, 1);
+        await page.mouse.move(1, 1);
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("se-resize");
 
-    await popupPage.mouse.down();
-    await popupPage.mouse.move(50, y);
-    await popupPage.mouse.move(25, y);
+        // Top
+        await page.mouse.move(x, 1);
+        await page.mouse.move(x, 0);
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("s-resize");
 
-    expect(
-      await popupPage.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("e-resize");
+        // Top right
+        await page.mouse.move(999, 1);
+        await page.mouse.move(1000, 1);
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("sw-resize");
 
-    await popupPage.mouse.move(950, y);
-    await popupPage.mouse.move(975, y);
+        // Right
+        await page.mouse.move(950, y);
+        await page.mouse.move(975, y);
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("w-resize");
 
-    expect(
-      await popupPage.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("w-resize");
-  });
+        // Bottom right
+        await page.mouse.move(1000, 599);
+        await page.mouse.move(1000, 600);
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("nw-resize");
+
+        // Bottom
+        await page.mouse.move(x, 599);
+        await page.mouse.move(x, 600);
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("n-resize");
+
+        // Bottom left
+        await page.mouse.move(1, 599);
+        await page.mouse.move(1, 600);
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("ne-resize");
+
+        // Left
+        await page.mouse.move(50, y);
+        await page.mouse.move(25, y);
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("e-resize");
+
+        // Centered
+        await page.mouse.move(x, y);
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("move");
+      });
+
+      test("disabled", async ({ page: mainPage }) => {
+        const page = await goToUrl(
+          mainPage,
+          <Group disableCursor orientation="vertical">
+            <Panel id="top" minSize="25%" />
+            <Separator />
+            <Panel id="bottom" minSize="25%" />
+          </Group>,
+          { usePopUpWindow }
+        );
+
+        const hitAreaBox = await calculateHitArea(page, ["top", "bottom"]);
+        const { x, y } = getCenterCoordinates(hitAreaBox);
+
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("auto");
+
+        await page.mouse.move(x, y);
+
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("auto");
+      });
+    });
+  }
 });

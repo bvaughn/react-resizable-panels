@@ -38,9 +38,9 @@ test.describe("visibility", () => {
     await page.getByText("hidden → visible").click();
 
     await expect(page.getByText('"onLayoutCount": 2')).toBeVisible();
-    await expect(page.getByText("id: left")).toContainText("33%");
+    await expect(page.getByText("id: left")).toContainText("32%");
     await expect(page.getByRole("separator")).toBeVisible();
-    await expect(page.getByText("id: right")).toContainText("67%");
+    await expect(page.getByText("id: right")).toContainText("68%");
   });
 
   test("display:hidden should defer default layout calculation until visible", async ({
@@ -78,8 +78,8 @@ test.describe("visibility", () => {
     await page.getByText("hidden → visible").click();
 
     await expect(page.getByText('"onLayoutCount": 2')).toBeVisible();
-    await expect(page.getByText("id: left")).toContainText("33%");
+    await expect(page.getByText("id: left")).toContainText("32%");
     await expect(page.getByRole("separator")).toBeVisible();
-    await expect(page.getByText("id: right")).toContainText("67%");
+    await expect(page.getByText("id: right")).toContainText("68%");
   });
 });

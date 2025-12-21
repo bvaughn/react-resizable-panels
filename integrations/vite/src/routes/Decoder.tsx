@@ -67,7 +67,7 @@ export function Decoder() {
   // console.groupEnd();
 
   return (
-    <Box className="p-2" direction="column" gap={2}>
+    <Box direction="column" gap={2}>
       <div>{children}</div>
       <Box className="p-2 overflow-auto" direction="row" gap={2} wrap>
         <DebugData

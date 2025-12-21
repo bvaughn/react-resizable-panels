@@ -20,6 +20,13 @@ const ownerDocumentReferenceCounts = new Map<Document, number>();
 export function mountGroup(group: RegisteredGroup) {
   let isMounted = true;
 
+  assert(
+    group.element.ownerDocument.defaultView,
+    "Cannot register an unmounted Group"
+  );
+
+  const ResizeObserver = group.element.ownerDocument.defaultView.ResizeObserver;
+
   const panelIds = new Set<string>();
   const separatorIds = new Set<string>();
 
