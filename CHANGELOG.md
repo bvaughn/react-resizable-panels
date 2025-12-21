@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.14
+
+- Allow resizable panels to be rendered into a different Window (e.g. popup or frame) by accessing globals through `element.ownerDocument.defaultView`
+
 ## 4.0.13
 
 - `useDefaultLayout`: Deprecated `groupId` param in favor of `id` to avoid confusion; (there is no actual requirement for the Group to have a matching id)
