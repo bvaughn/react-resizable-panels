@@ -1,11 +1,13 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import { Container } from "../src/components/Container";
 import { calculateHitArea } from "./utils/calculateHitArea";
 import { goToUrl } from "./utils/goToUrl";
 
 test.describe("stacking order", () => {
-  async function init(page: Page) {
+  test("should ignore pointer events that target overlapping higher z-index targets", async ({
+    page
+  }) => {
     await goToUrl(
       page,
       <Container className="relative">
@@ -19,12 +21,6 @@ test.describe("stacking order", () => {
         <div className="bg-red-600 absolute left-[65%] top-0 p-2">blocker</div>
       </Container>
     );
-  }
-
-  test("should ignore pointer events that target overlapping higher z-index targets", async ({
-    page
-  }) => {
-    await init(page);
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
 
@@ -50,7 +46,19 @@ test.describe("stacking order", () => {
   test("should allow pointer events that target nearby but not overlapping higher z-index targets", async ({
     page
   }) => {
-    await init(page);
+    await goToUrl(
+      page,
+      <Container className="relative">
+        <Group className="w-25 h-25 min-h-25">
+          <Panel id="left" />
+          <Separator id="separator" />
+          <Panel id="center" />
+          <Panel id="right" />
+        </Group>
+        <div className="bg-red-600 absolute left-[30%] top-0 p-2">blocker</div>
+        <div className="bg-red-600 absolute left-[65%] top-0 p-2">blocker</div>
+      </Container>
+    );
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
 
@@ -70,6 +78,56 @@ test.describe("stacking order", () => {
     await page.mouse.move(1000, 0);
     await page.mouse.up();
 
+    await expect(page.getByText('"onLayoutCount": 3')).toBeVisible();
+  });
+
+  test("should allow resizes that originate outside of an overlapping element and then move beneath it", async ({
+    page
+  }) => {
+    await goToUrl(
+      page,
+      <Container className="relative">
+        <Group className="w-25 h-25 min-h-25">
+          <Panel id="left" />
+          <Separator id="separator" />
+          <Panel id="right" />
+        </Group>
+        <div className="bg-red-600 absolute left-0 top-0 p-2">blocker</div>
+      </Container>
+    );
+
+    const separator = page.getByRole("separator");
+    const panelBox = (await page.getByText("id: left").boundingBox())!;
+    const separatorBox = (await separator.boundingBox())!;
+
+    await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
+
+    await page.mouse.move(separatorBox.x, separatorBox.y);
+    await expect(separator).toHaveAttribute("data-separator", "hover");
+
+    await page.mouse.down();
+    await expect(separator).toHaveAttribute("data-separator", "active");
+    await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
+
+    await page.mouse.move(panelBox.x, separatorBox.y);
+    await expect(separator).toHaveAttribute("data-separator", "active");
+    await expect(page.getByText('"onLayoutCount": 2')).toBeVisible();
+
+    await page.mouse.move(panelBox.x + 25, separatorBox.y);
+    await expect(separator).toHaveAttribute("data-separator", "active");
+    await expect(page.getByText('"onLayoutCount": 3')).toBeVisible();
+
+    // Releasing the cursor under the overlaid element should do two things:
+    // It should deactivate the separator
+    // It should transition to an "inactive" state because it's now blocked
+    await page.mouse.up();
+    await expect(separator).toHaveAttribute("data-separator", "inactive");
+    await expect(page.getByText('"onLayoutCount": 3')).toBeVisible();
+
+    // No-op
+    await page.mouse.down();
+    await page.mouse.move(separatorBox.x, separatorBox.y);
+    await page.mouse.up();
     await expect(page.getByText('"onLayoutCount": 3')).toBeVisible();
   });
 });
