@@ -1,14 +1,26 @@
-import type { PropsWithChildren } from "react";
 import type {
   GroupProps,
   PanelProps,
   SeparatorProps
 } from "react-resizable-panels";
+import type { ContainerProps } from "../../../src/components/Container";
+import type { DisplayModeToggleProps } from "../../../src/components/DisplayModeToggle";
+import type { PopupWindowProps } from "../../../src/components/PopupWindow";
 
 type EncodedElementWithChildren<Props extends object = object> = Omit<
   Props,
   "children"
 > & { children?: EncodedElement[] | undefined };
+
+export interface EncodedContainerElement {
+  props: EncodedElementWithChildren<ContainerProps>;
+  type: "Container";
+}
+
+export interface EncodedDisplayModeToggleElement {
+  props: EncodedElementWithChildren<DisplayModeToggleProps>;
+  type: "DisplayModeToggle";
+}
 
 export interface EncodedGroupElement {
   props: EncodedElementWithChildren<GroupProps>;
@@ -19,12 +31,6 @@ export interface EncodedPanelElement {
   props: EncodedElementWithChildren<PanelProps>;
   type: "Panel";
 }
-
-export type PopupWindowProps = PropsWithChildren<{
-  className?: string | undefined;
-  height?: number | undefined;
-  width?: number | undefined;
-}>;
 
 export interface EncodedPopupWindowElement {
   props: EncodedElementWithChildren<PopupWindowProps>;
@@ -47,6 +53,8 @@ export interface EncodedTextElement {
 }
 
 export type EncodedElement =
+  | EncodedContainerElement
+  | EncodedDisplayModeToggleElement
   | EncodedGroupElement
   | EncodedPanelElement
   | EncodedPopupWindowElement

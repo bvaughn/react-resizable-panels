@@ -1,16 +1,18 @@
 import { useLayoutEffect, useState, type PropsWithChildren } from "react";
 import { createPortal } from "react-dom";
 
-export function PopupWindow({
-  children,
-  className,
-  height = 500,
-  width = 500
-}: PropsWithChildren<{
+export type PopupWindowProps = PropsWithChildren<{
   className?: string | undefined;
   height?: number | undefined;
   width?: number | undefined;
-}>) {
+}>;
+
+export function PopupWindow({
+  children,
+  className,
+  height = 600,
+  width = 1_000
+}: PopupWindowProps) {
   const [open, setOpen] = useState(false);
 
   const [container] = useState(() => {

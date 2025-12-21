@@ -7,14 +7,16 @@ import { resizeHelper } from "./utils/pointer-interactions/resizeHelper";
 
 test.describe("pointer interactions", () => {
   test("drag separator to resize group", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group>
-        <Panel defaultSize="30%" id="left" minSize={50} />
-        <Separator />
-        <Panel id="right" minSize={50} />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group>
+          <Panel defaultSize="30%" id="left" minSize={50} />
+          <Separator />
+          <Panel id="right" minSize={50} />
+        </Group>
+      ),
+      page
+    });
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 30')).toBeVisible();
@@ -36,13 +38,15 @@ test.describe("pointer interactions", () => {
   });
 
   test("drag panel boundary to resize group", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group>
-        <Panel defaultSize="30%" id="left" minSize={50} />
-        <Panel id="right" minSize={50} />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group>
+          <Panel defaultSize="30%" id="left" minSize={50} />
+          <Panel id="right" minSize={50} />
+        </Group>
+      ),
+      page
+    });
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 30')).toBeVisible();
@@ -64,14 +68,16 @@ test.describe("pointer interactions", () => {
   });
 
   test("should not resize when disabled", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group disabled>
-        <Panel defaultSize="30%" id="left" minSize={50} />
-        <Separator />
-        <Panel id="right" minSize={50} />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group disabled>
+          <Panel defaultSize="30%" id="left" minSize={50} />
+          <Separator />
+          <Panel id="right" minSize={50} />
+        </Group>
+      ),
+      page
+    });
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 30')).toBeVisible();
@@ -83,16 +89,18 @@ test.describe("pointer interactions", () => {
   });
 
   test("dragging a handle should resize multiple panels", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group>
-        <Panel id="left" minSize={50} />
-        <Separator />
-        <Panel id="center" minSize={50} />
-        <Separator />
-        <Panel id="right" minSize={50} />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group>
+          <Panel id="left" minSize={50} />
+          <Separator />
+          <Panel id="center" minSize={50} />
+          <Separator />
+          <Panel id="right" minSize={50} />
+        </Group>
+      ),
+      page
+    });
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 33')).toBeVisible();
@@ -124,16 +132,18 @@ test.describe("pointer interactions", () => {
   test("initial position should be the anchor while a drag is in progress", async ({
     page
   }) => {
-    await goToUrl(
-      page,
-      <Group>
-        <Panel id="left" minSize={50} />
-        <Separator />
-        <Panel id="center" minSize={50} />
-        <Separator />
-        <Panel id="right" minSize={50} />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group>
+          <Panel id="left" minSize={50} />
+          <Separator />
+          <Panel id="center" minSize={50} />
+          <Separator />
+          <Panel id="right" minSize={50} />
+        </Group>
+      ),
+      page
+    });
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 33')).toBeVisible();
@@ -173,14 +183,16 @@ test.describe("pointer interactions", () => {
   test("drag should measure delta using the available group size (minus flex gap)", async ({
     page
   }) => {
-    await goToUrl(
-      page,
-      <Group className="gap-20">
-        <Panel defaultSize="10%" id="left" minSize="5%" />
-        <Separator />
-        <Panel id="right" minSize="5%" />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group className="gap-20">
+          <Panel defaultSize="10%" id="left" minSize="5%" />
+          <Separator />
+          <Panel id="right" minSize="5%" />
+        </Group>
+      ),
+      page
+    });
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 10')).toBeVisible();
@@ -195,14 +207,16 @@ test.describe("pointer interactions", () => {
   test("should disable pointer-events while resize is active", async ({
     page
   }) => {
-    await goToUrl(
-      page,
-      <Group>
-        <Panel id="left" />
-        <Separator />
-        <Panel id="right" />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group>
+          <Panel id="left" />
+          <Separator />
+          <Panel id="right" />
+        </Group>
+      ),
+      page
+    });
 
     const hitAreaBox = await calculateHitArea(page, ["left", "right"]);
     const { x, y } = getCenterCoordinates(hitAreaBox);
@@ -221,16 +235,18 @@ test.describe("pointer interactions", () => {
 
   test.describe("focus", () => {
     test("should update focus to the nearest separator", async ({ page }) => {
-      await goToUrl(
-        page,
-        <Group>
-          <Panel id="left" />
-          <Separator id="separator-left" />
-          <Panel id="center" />
-          <Separator id="separator-right" />
-          <Panel id="right" />
-        </Group>
-      );
+      await goToUrl({
+        element: (
+          <Group>
+            <Panel id="left" />
+            <Separator id="separator-left" />
+            <Panel id="center" />
+            <Separator id="separator-right" />
+            <Panel id="right" />
+          </Group>
+        ),
+        page
+      });
 
       const hitAreaBox = await calculateHitArea(page, ["center", "right"]);
       const { x, y } = getCenterCoordinates(hitAreaBox);
@@ -248,16 +264,18 @@ test.describe("pointer interactions", () => {
     test("should activate the closest separator in the event that there is two", async ({
       page
     }) => {
-      await goToUrl(
-        page,
-        <Group>
-          <Panel id="left" />
-          <Separator id="separator-left" />
-          <div>fixed size</div>
-          <Separator id="separator-right" />
-          <Panel id="right" />
-        </Group>
-      );
+      await goToUrl({
+        element: (
+          <Group>
+            <Panel id="left" />
+            <Separator id="separator-left" />
+            <div>fixed size</div>
+            <Separator id="separator-right" />
+            <Panel id="right" />
+          </Group>
+        ),
+        page
+      });
 
       const separatorLeft = page.getByTestId("separator-left");
       const separatorRight = page.getByTestId("separator-right");

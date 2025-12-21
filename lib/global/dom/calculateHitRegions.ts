@@ -2,6 +2,7 @@ import { sortByElementOffset } from "../../components/group/sortByElementOffset"
 import type { RegisteredGroup } from "../../components/group/types";
 import type { RegisteredPanel } from "../../components/panel/types";
 import type { RegisteredSeparator } from "../../components/separator/types";
+import { isHTMLElement } from "../../utils/isHTMLElement";
 import { findClosestRect } from "../utils/findClosestRect";
 import { calculateAvailableGroupSize } from "./calculateAvailableGroupSize";
 
@@ -29,7 +30,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
   const sortedChildElements: HTMLElement[] = sortByElementOffset(
     orientation,
     Array.from(groupElement.children)
-      .filter((child) => child.nodeType === Node.ELEMENT_NODE)
+      .filter(isHTMLElement)
       .map((element) => ({ element: element as HTMLElement }))
   ).map(({ element }) => element);
 

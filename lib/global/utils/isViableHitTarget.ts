@@ -1,3 +1,4 @@
+import { isHTMLElement } from "../../utils/isHTMLElement";
 import { compare } from "../../vendor/stacking-order";
 import { doRectsIntersect } from "./doRectsIntersect";
 
@@ -20,7 +21,7 @@ export function isViableHitTarget({
   pointerEventTarget: EventTarget | null;
 }) {
   if (
-    !(pointerEventTarget instanceof HTMLElement) ||
+    !isHTMLElement(pointerEventTarget) ||
     pointerEventTarget.contains(groupElement) ||
     groupElement.contains(pointerEventTarget)
   ) {

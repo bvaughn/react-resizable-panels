@@ -1,11 +1,36 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import { Group, Panel, Separator } from "react-resizable-panels";
+import { Container } from "../src/components/Container";
 import { calculateHitArea } from "./utils/calculateHitArea";
+import { goToUrl } from "./utils/goToUrl";
 
 test.describe("stacking order", () => {
+  async function init(page: Page) {
+    await goToUrl({
+      element: (
+        <Container className="relative">
+          <Group className="w-25 h-25 min-h-25">
+            <Panel id="left" />
+            <Separator id="separator" />
+            <Panel id="center" />
+            <Panel id="right" />
+          </Group>
+          <div className="bg-red-600 absolute left-[30%] top-0 p-2">
+            blocker
+          </div>
+          <div className="bg-red-600 absolute left-[65%] top-0 p-2">
+            blocker
+          </div>
+        </Container>
+      ),
+      page
+    });
+  }
+
   test("should ignore pointer events that target overlapping higher z-index targets", async ({
     page
   }) => {
-    await page.goto("http://localhost:3012/e2e/stacking-order");
+    await init(page);
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
 
@@ -31,7 +56,7 @@ test.describe("stacking order", () => {
   test("should allow pointer events that target nearby but not overlapping higher z-index targets", async ({
     page
   }) => {
-    await page.goto("http://localhost:3012/e2e/stacking-order");
+    await init(page);
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
 

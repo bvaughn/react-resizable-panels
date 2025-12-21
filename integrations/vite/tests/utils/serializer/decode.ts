@@ -4,11 +4,15 @@ import type {
   PanelProps,
   SeparatorProps
 } from "react-resizable-panels";
+import { Container } from "../../../src/components/Container";
+import { DisplayModeToggle } from "../../../src/components/DisplayModeToggle";
 import { Group } from "../../../src/components/Group";
 import { Panel } from "../../../src/components/Panel";
 import { PopupWindow } from "../../../src/components/PopupWindow";
 import { Separator } from "../../../src/components/Separator";
 import type {
+  EncodedContainerElement,
+  EncodedDisplayModeToggleElement,
   EncodedElement,
   EncodedGroupElement,
   EncodedPanelElement,
@@ -43,6 +47,14 @@ function decodeChildren(
     }
 
     switch (current.type) {
+      case "Container": {
+        elements.push(decodeContainer(current, config));
+        break;
+      }
+      case "DisplayModeToggle": {
+        elements.push(decodeDisplayModeToggle(current, config));
+        break;
+      }
       case "Group": {
         elements.push(decodeGroup(current, config));
         break;
@@ -70,6 +82,34 @@ function decodeChildren(
   });
 
   return elements;
+}
+
+function decodeContainer(
+  json: EncodedContainerElement,
+  config: Config
+): ReactElement<unknown> {
+  const { children, ...props } = json.props;
+
+  return createElement(Container, {
+    key: ++key,
+    ...props,
+    ...config.panelProps,
+    children: children ? decodeChildren(children, config) : undefined
+  });
+}
+
+function decodeDisplayModeToggle(
+  json: EncodedDisplayModeToggleElement,
+  config: Config
+): ReactElement<unknown> {
+  const { children, ...props } = json.props;
+
+  return createElement(DisplayModeToggle, {
+    key: ++key,
+    ...props,
+    ...config.panelProps,
+    children: children ? decodeChildren(children, config) : undefined
+  });
 }
 
 function decodeGroup(

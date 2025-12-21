@@ -6,14 +6,16 @@ test.describe("resize events", () => {
   test("resizing the window should revalidate group layout constraints", async ({
     page
   }) => {
-    await goToUrl(
-      page,
-      <Group>
-        <Panel defaultSize="30%" id="left" minSize={250} />
-        <Separator />
-        <Panel id="right" minSize={50} />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group>
+          <Panel defaultSize="30%" id="left" minSize={250} />
+          <Separator />
+          <Panel id="right" minSize={50} />
+        </Group>
+      ),
+      page
+    });
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 30')).toBeVisible();
@@ -41,14 +43,16 @@ test.describe("resize events", () => {
   test("resizing the window should revalidate group layout constraints alt", async ({
     page
   }) => {
-    await goToUrl(
-      page,
-      <Group>
-        <Panel id="left" minSize={50} />
-        <Separator />
-        <Panel id="right" minSize={50} />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group>
+          <Panel id="left" minSize={50} />
+          <Separator />
+          <Panel id="right" minSize={50} />
+        </Group>
+      ),
+      page
+    });
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 50')).toBeVisible();
@@ -77,14 +81,16 @@ test.describe("resize events", () => {
   test("resizing the window should notify Panel resize handlers", async ({
     page
   }) => {
-    await goToUrl(
-      page,
-      <Group>
-        <Panel defaultSize="30%" id="left" minSize={250} />
-        <Separator />
-        <Panel id="right" minSize={50} />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group>
+          <Panel defaultSize="30%" id="left" minSize={250} />
+          <Separator />
+          <Panel id="right" minSize={50} />
+        </Group>
+      ),
+      page
+    });
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 30')).toBeVisible();

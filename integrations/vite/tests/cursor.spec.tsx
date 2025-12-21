@@ -1,20 +1,21 @@
 import { expect, test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
-import { PopupWindow } from "../src/components/PopupWindow";
 import { calculateHitArea } from "./utils/calculateHitArea";
 import { getCenterCoordinates } from "./utils/getCenterCoordinates";
 import { goToUrl } from "./utils/goToUrl";
 
 test.describe("cursor", () => {
   test("horizontal", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group orientation="horizontal">
-        <Panel id="left" minSize="25%" />
-        <Separator />
-        <Panel id="right" minSize="25%" />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group orientation="horizontal">
+          <Panel id="left" minSize="25%" />
+          <Separator />
+          <Panel id="right" minSize="25%" />
+        </Group>
+      ),
+      page
+    });
 
     const hitAreaBox = await calculateHitArea(page, ["left", "right"]);
     const { x, y } = getCenterCoordinates(hitAreaBox);
@@ -46,14 +47,16 @@ test.describe("cursor", () => {
   });
 
   test("vertical", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group orientation="vertical">
-        <Panel id="top" minSize="25%" />
-        <Separator />
-        <Panel id="bottom" minSize="25%" />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group orientation="vertical">
+          <Panel id="top" minSize="25%" />
+          <Separator />
+          <Panel id="bottom" minSize="25%" />
+        </Group>
+      ),
+      page
+    });
 
     const hitAreaBox = await calculateHitArea(page, ["top", "bottom"]);
     const { x, y } = getCenterCoordinates(hitAreaBox);
@@ -85,20 +88,22 @@ test.describe("cursor", () => {
   });
 
   test("intersecting", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group orientation="vertical">
-        <Panel id="top" minSize="25%" />
-        <Separator id="vertical-separator" />
-        <Panel id="bottom" minSize="25%">
-          <Group orientation="horizontal">
-            <Panel id="left" minSize="25%" />
-            <Separator />
-            <Panel id="right" minSize="25%" />
-          </Group>
-        </Panel>
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group orientation="vertical">
+          <Panel id="top" minSize="25%" />
+          <Separator id="vertical-separator" />
+          <Panel id="bottom" minSize="25%">
+            <Group orientation="horizontal">
+              <Panel id="left" minSize="25%" />
+              <Separator />
+              <Panel id="right" minSize="25%" />
+            </Group>
+          </Panel>
+        </Group>
+      ),
+      page
+    });
 
     const separator = page.getByTestId("vertical-separator");
     const boundingBox = (await separator.boundingBox())!;
@@ -180,14 +185,16 @@ test.describe("cursor", () => {
   });
 
   test("disabled", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group disableCursor orientation="vertical">
-        <Panel id="top" minSize="25%" />
-        <Separator />
-        <Panel id="bottom" minSize="25%" />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group disableCursor orientation="vertical">
+          <Panel id="top" minSize="25%" />
+          <Separator />
+          <Panel id="bottom" minSize="25%" />
+        </Group>
+      ),
+      page
+    });
 
     const hitAreaBox = await calculateHitArea(page, ["top", "bottom"]);
     const { x, y } = getCenterCoordinates(hitAreaBox);
@@ -206,20 +213,17 @@ test.describe("cursor", () => {
   test("should target ownerDocument to support popup windows", async ({
     page: mainPage
   }) => {
-    await goToUrl(
-      mainPage,
-      <PopupWindow className="dark" height={250} width={500}>
+    const popupPage = await goToUrl({
+      element: (
         <Group className="h-full w-full" orientation="horizontal">
           <Panel id="left" minSize="25%" />
           <Separator />
           <Panel id="right" minSize="25%" />
         </Group>
-      </PopupWindow>
-    );
-
-    const popupPromise = mainPage.waitForEvent("popup");
-    await mainPage.getByRole("button").click();
-    const popupPage = await popupPromise;
+      ),
+      page: mainPage,
+      usePopUpWindow: true
+    });
 
     const hitAreaBox = await calculateHitArea(popupPage, ["left", "right"]);
     const { x, y } = getCenterCoordinates(hitAreaBox);

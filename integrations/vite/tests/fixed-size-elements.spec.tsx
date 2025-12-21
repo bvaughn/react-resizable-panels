@@ -4,21 +4,23 @@ import { goToUrl } from "./utils/goToUrl";
 
 test.describe("fixed size elements", () => {
   test("should not be interactive directly", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group>
-        <Panel id="foo" />
-        <div>foo+bar</div>
-        <Panel id="bar" />
-        <Separator id="bar+baz" />
-        <div>bar+baz</div>
-        <Panel id="baz" />
-        <Separator id="baz+qux+left" />
-        <div>baz+qux</div>
-        <Separator id="baz+qux+right" />
-        <Panel id="qux" />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group>
+          <Panel id="foo" />
+          <div>foo+bar</div>
+          <Panel id="bar" />
+          <Separator id="bar+baz" />
+          <div>bar+baz</div>
+          <Panel id="baz" />
+          <Separator id="baz+qux+left" />
+          <div>baz+qux</div>
+          <Separator id="baz+qux+right" />
+          <Panel id="qux" />
+        </Group>
+      ),
+      page
+    });
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
 
@@ -35,21 +37,23 @@ test.describe("fixed size elements", () => {
   });
 
   test("should work without an explicit separator", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group>
-        <Panel id="foo" />
-        <div>foo+bar</div>
-        <Panel id="bar" />
-        <Separator id="bar+baz" />
-        <div>bar+baz</div>
-        <Panel id="baz" />
-        <Separator id="baz+qux+left" />
-        <div>baz+qux</div>
-        <Separator id="baz+qux+right" />
-        <Panel id="qux" />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group>
+          <Panel id="foo" />
+          <div>foo+bar</div>
+          <Panel id="bar" />
+          <Separator id="bar+baz" />
+          <div>bar+baz</div>
+          <Panel id="baz" />
+          <Separator id="baz+qux+left" />
+          <div>baz+qux</div>
+          <Separator id="baz+qux+right" />
+          <Panel id="qux" />
+        </Group>
+      ),
+      page
+    });
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
 
@@ -73,21 +77,23 @@ test.describe("fixed size elements", () => {
   });
 
   test("should work with an explicit separator", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group>
-        <Panel id="foo" />
-        <div>foo+bar</div>
-        <Panel id="bar" />
-        <Separator id="bar+baz" />
-        <div>bar+baz</div>
-        <Panel id="baz" />
-        <Separator id="baz+qux+left" />
-        <div>baz+qux</div>
-        <Separator id="baz+qux+right" />
-        <Panel id="qux" />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group>
+          <Panel id="foo" />
+          <div>foo+bar</div>
+          <Panel id="bar" />
+          <Separator id="bar+baz" />
+          <div>bar+baz</div>
+          <Panel id="baz" />
+          <Separator id="baz+qux+left" />
+          <div>baz+qux</div>
+          <Separator id="baz+qux+right" />
+          <Panel id="qux" />
+        </Group>
+      ),
+      page
+    });
 
     const separatorBox = (await page.getByTestId("bar+baz").boundingBox())!;
 
@@ -109,21 +115,23 @@ test.describe("fixed size elements", () => {
   });
 
   test("should work with two explicit separators", async ({ page }) => {
-    await goToUrl(
-      page,
-      <Group>
-        <Panel id="foo" />
-        <div>foo+bar</div>
-        <Panel id="bar" />
-        <Separator id="bar+baz" />
-        <div>bar+baz</div>
-        <Panel id="baz" />
-        <Separator id="baz+qux+left" />
-        <div>baz+qux</div>
-        <Separator id="baz+qux+right" />
-        <Panel id="qux" />
-      </Group>
-    );
+    await goToUrl({
+      element: (
+        <Group>
+          <Panel id="foo" />
+          <div>foo+bar</div>
+          <Panel id="bar" />
+          <Separator id="bar+baz" />
+          <div>bar+baz</div>
+          <Panel id="baz" />
+          <Separator id="baz+qux+left" />
+          <div>baz+qux</div>
+          <Separator id="baz+qux+right" />
+          <Panel id="qux" />
+        </Group>
+      ),
+      page
+    });
 
     let separatorBox = (await page.getByTestId("baz+qux+left").boundingBox())!;
 

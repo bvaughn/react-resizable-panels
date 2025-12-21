@@ -3,6 +3,7 @@
 // - github.com/Rich-Harris/stacking-order/issues/6
 
 import { assert } from "../utils/assert";
+import { isShadowRoot } from "../utils/isShadowRoot";
 
 /**
  * Determine which of two nodes appears in front of the other —
@@ -135,7 +136,7 @@ function get_ancestors(node: HTMLElement | SVGElement | null) {
 /** @param {HTMLElement} node */
 function get_parent(node: HTMLElement) {
   const { parentNode } = node;
-  if (parentNode && parentNode instanceof ShadowRoot) {
+  if (isShadowRoot(parentNode)) {
     return parentNode.host;
   }
   return parentNode;
