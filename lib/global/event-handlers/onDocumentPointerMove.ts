@@ -3,7 +3,7 @@ import { read, update } from "../mutableState";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
 import { updateActiveHitRegions } from "../utils/updateActiveHitRegion";
 
-export function onWindowPointerMove(event: PointerEvent) {
+export function onDocumentPointerMove(event: PointerEvent) {
   if (event.defaultPrevented) {
     return;
   }
@@ -16,7 +16,6 @@ export function onWindowPointerMove(event: PointerEvent) {
       // Detect when the pointer has been released outside an iframe on a different domain
       if (
         // Skip this check for "pointerleave" events, else Firefox triggers a false positive (see #514)
-        event.type !== "pointerleave" &&
         event.buttons === 0
       ) {
         update((prevState) =>
@@ -34,6 +33,7 @@ export function onWindowPointerMove(event: PointerEvent) {
       }
 
       updateActiveHitRegions({
+        document: event.currentTarget as Document,
         event,
         hitRegions: interactionState.hitRegions,
         initialLayoutMap: interactionState.initialLayoutMap,
@@ -61,7 +61,7 @@ export function onWindowPointerMove(event: PointerEvent) {
         });
       }
 
-      updateCursorStyle();
+      updateCursorStyle(event.currentTarget as Document);
       break;
     }
   }

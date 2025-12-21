@@ -1,7 +1,7 @@
 import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import { read, update } from "../mutableState";
 
-export function onWindowPointerUp(event: PointerEvent) {
+export function onDocumentPointerUp(event: PointerEvent) {
   if (event.defaultPrevented) {
     return;
   }
@@ -19,7 +19,7 @@ export function onWindowPointerUp(event: PointerEvent) {
         }
       });
 
-      updateCursorStyle();
+      updateCursorStyle(event.currentTarget as Document);
     }
   }
 }

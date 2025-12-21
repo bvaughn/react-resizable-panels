@@ -3,11 +3,11 @@ import { assert } from "../utils/assert";
 import { calculateAvailableGroupSize } from "./dom/calculateAvailableGroupSize";
 import { calculateHitRegions } from "./dom/calculateHitRegions";
 import { calculatePanelConstraints } from "./dom/calculatePanelConstraints";
-import { onGroupPointerLeave } from "./event-handlers/onGroupPointerLeave";
-import { onWindowKeyDown } from "./event-handlers/onWindowKeyDown";
-import { onWindowPointerDown } from "./event-handlers/onWindowPointerDown";
-import { onWindowPointerMove } from "./event-handlers/onWindowPointerMove";
-import { onWindowPointerUp } from "./event-handlers/onWindowPointerUp";
+import { onDocumentKeyDown } from "./event-handlers/onDocumentKeyDown";
+import { onDocumentPointerDown } from "./event-handlers/onDocumentPointerDown";
+import { onDocumentPointerLeave } from "./event-handlers/onDocumentPointerLeave";
+import { onDocumentPointerMove } from "./event-handlers/onDocumentPointerMove";
+import { onDocumentPointerUp } from "./event-handlers/onDocumentPointerUp";
 import { update, type SeparatorToPanelsMap } from "./mutableState";
 import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
 import { layoutsEqual } from "./utils/layoutsEqual";
@@ -15,8 +15,17 @@ import { notifyPanelOnResize } from "./utils/notifyPanelOnResize";
 import { objectsEqual } from "./utils/objectsEqual";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 
+const ownerDocumentReferenceCounts = new Map<Document, number>();
+
 export function mountGroup(group: RegisteredGroup) {
   let isMounted = true;
+
+  assert(
+    group.element.ownerDocument.defaultView,
+    "Cannot register an unmounted Group"
+  );
+
+  const ResizeObserver = group.element.ownerDocument.defaultView.ResizeObserver;
 
   const panelIds = new Set<string>();
   const separatorIds = new Set<string>();
@@ -121,8 +130,15 @@ export function mountGroup(group: RegisteredGroup) {
 
   const hitRegions = calculateHitRegions(group);
 
-  const nextState = update((prevState) => {
+  const ownerDocument = group.element.ownerDocument;
+
+  update((prevState) => {
     const separatorToPanels: SeparatorToPanelsMap = new Map();
+
+    ownerDocumentReferenceCounts.set(
+      ownerDocument,
+      (ownerDocumentReferenceCounts.get(ownerDocument) ?? 0) + 1
+    );
 
     hitRegions.forEach((hitRegion) => {
       if (hitRegion.separator) {
@@ -140,11 +156,6 @@ export function mountGroup(group: RegisteredGroup) {
     };
   });
 
-  // The "pointerleave" event is not reliably triggered when the pointer exits a window or iframe
-  // To account for this, we listen for "pointerleave" events on the Group element itself
-  // TODO Could I listen to document.body instead of this?
-  group.element.addEventListener("pointerleave", onGroupPointerLeave);
-
   group.separators.forEach((separator) => {
     assert(
       !separatorIds.has(separator.id),
@@ -153,37 +164,42 @@ export function mountGroup(group: RegisteredGroup) {
 
     separatorIds.add(separator.id);
 
-    separator.element.addEventListener("keydown", onWindowKeyDown);
+    separator.element.addEventListener("keydown", onDocumentKeyDown);
   });
 
   // If this is the first group to be mounted, initialize event handlers
-  if (nextState.mountedGroups.size === 1) {
-    window.addEventListener("pointerdown", onWindowPointerDown);
-    window.addEventListener("pointermove", onWindowPointerMove);
-    window.addEventListener("pointerup", onWindowPointerUp);
+  if (ownerDocumentReferenceCounts.get(ownerDocument) === 1) {
+    ownerDocument.addEventListener("pointerdown", onDocumentPointerDown);
+    ownerDocument.addEventListener("pointerleave", onDocumentPointerLeave);
+    ownerDocument.addEventListener("pointermove", onDocumentPointerMove);
+    ownerDocument.addEventListener("pointerup", onDocumentPointerUp);
   }
 
   return function unmountGroup() {
     isMounted = false;
 
-    const nextState = update((prevState) => {
+    ownerDocumentReferenceCounts.set(
+      ownerDocument,
+      Math.max(0, (ownerDocumentReferenceCounts.get(ownerDocument) ?? 0) - 1)
+    );
+
+    update((prevState) => {
       const mountedGroups = new Map(prevState.mountedGroups);
       mountedGroups.delete(group);
 
       return { mountedGroups };
     });
 
-    group.element.removeEventListener("pointerleave", onGroupPointerLeave);
-
     group.separators.forEach((separator) => {
-      separator.element.removeEventListener("keydown", onWindowKeyDown);
+      separator.element.removeEventListener("keydown", onDocumentKeyDown);
     });
 
     // If this was the last group to be mounted, tear down event handlers
-    if (nextState.mountedGroups.size === 0) {
-      window.removeEventListener("pointerdown", onWindowPointerDown);
-      window.removeEventListener("pointermove", onWindowPointerMove);
-      window.removeEventListener("pointerup", onWindowPointerUp);
+    if (!ownerDocumentReferenceCounts.get(ownerDocument)) {
+      ownerDocument.removeEventListener("pointerdown", onDocumentPointerDown);
+      ownerDocument.removeEventListener("pointerleave", onDocumentPointerLeave);
+      ownerDocument.removeEventListener("pointermove", onDocumentPointerMove);
+      ownerDocument.removeEventListener("pointerup", onDocumentPointerUp);
     }
 
     resizeObserver.disconnect();
