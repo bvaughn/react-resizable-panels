@@ -7,18 +7,16 @@ test.describe("visibility", () => {
   test("Activity API should defer default layout calculation until visible", async ({
     page
   }) => {
-    await goToUrl({
-      element: (
-        <DisplayModeToggle mode="activity">
-          <Group>
-            <Panel defaultSize="25%" id="left" minSize={150} />
-            <Separator />
-            <Panel id="right" />
-          </Group>
-        </DisplayModeToggle>
-      ),
-      page
-    });
+    await goToUrl(
+      page,
+      <DisplayModeToggle mode="activity">
+        <Group>
+          <Panel defaultSize="25%" id="left" minSize={150} />
+          <Separator />
+          <Panel id="right" />
+        </Group>
+      </DisplayModeToggle>
+    );
 
     await expect(page.getByText('"onLayoutCount": 0')).toBeVisible();
 
@@ -48,18 +46,16 @@ test.describe("visibility", () => {
   test("display:hidden should defer default layout calculation until visible", async ({
     page
   }) => {
-    await goToUrl({
-      element: (
-        <DisplayModeToggle mode="css">
-          <Group>
-            <Panel defaultSize="25%" id="left" minSize={150} />
-            <Separator />
-            <Panel id="right" />
-          </Group>
-        </DisplayModeToggle>
-      ),
-      page
-    });
+    await goToUrl(
+      page,
+      <DisplayModeToggle mode="css">
+        <Group>
+          <Panel defaultSize="25%" id="left" minSize={150} />
+          <Separator />
+          <Panel id="right" />
+        </Group>
+      </DisplayModeToggle>
+    );
 
     await expect(page.getByText('"onLayoutCount": 0')).toBeVisible();
 

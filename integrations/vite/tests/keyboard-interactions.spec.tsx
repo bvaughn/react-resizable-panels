@@ -9,16 +9,14 @@ import { getSeparatorAriaAttributes } from "./utils/getSeparatorAriaAttributes";
 
 test.describe("keyboard interactions: window splitter api", () => {
   test("horizontal: arrow keys", async ({ page }) => {
-    await goToUrl({
-      element: (
-        <Group>
-          <Panel defaultSize="30%" id="left" minSize="5%" />
-          <Separator />
-          <Panel id="right" minSize="5%" />
-        </Group>
-      ),
-      page
-    });
+    await goToUrl(
+      page,
+      <Group>
+        <Panel defaultSize="30%" id="left" minSize="5%" />
+        <Separator />
+        <Panel id="right" minSize="5%" />
+      </Group>
+    );
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 30')).toBeVisible();
@@ -64,16 +62,14 @@ test.describe("keyboard interactions: window splitter api", () => {
   });
 
   test("vertical: arrow keys", async ({ page }) => {
-    await goToUrl({
-      element: (
-        <Group orientation="vertical">
-          <Panel defaultSize="30%" id="top" minSize="5%" />
-          <Separator />
-          <Panel id="bottom" minSize="5%" />
-        </Group>
-      ),
-      page
-    });
+    await goToUrl(
+      page,
+      <Group orientation="vertical">
+        <Panel defaultSize="30%" id="top" minSize="5%" />
+        <Separator />
+        <Panel id="bottom" minSize="5%" />
+      </Group>
+    );
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"top": 30')).toBeVisible();
@@ -119,16 +115,14 @@ test.describe("keyboard interactions: window splitter api", () => {
   });
 
   test("enter key and collapsible panel", async ({ page }) => {
-    await goToUrl({
-      element: (
-        <Group>
-          <Panel collapsible collapsedSize="5%" id="left" minSize="20%" />
-          <Separator />
-          <Panel id="right" minSize="20%" />
-        </Group>
-      ),
-      page
-    });
+    await goToUrl(
+      page,
+      <Group>
+        <Panel collapsible collapsedSize="5%" id="left" minSize="20%" />
+        <Separator />
+        <Panel id="right" minSize="20%" />
+      </Group>
+    );
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 50')).toBeVisible();
@@ -210,16 +204,14 @@ test.describe("keyboard interactions: window splitter api", () => {
   });
 
   test("enter key and non-collapsible panel", async ({ page }) => {
-    await goToUrl({
-      element: (
-        <Group>
-          <Panel id="left" minSize="20%" />
-          <Separator />
-          <Panel id="right" minSize="20%" />
-        </Group>
-      ),
-      page
-    });
+    await goToUrl(
+      page,
+      <Group>
+        <Panel id="left" minSize="20%" />
+        <Separator />
+        <Panel id="right" minSize="20%" />
+      </Group>
+    );
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 50')).toBeVisible();
@@ -233,16 +225,14 @@ test.describe("keyboard interactions: window splitter api", () => {
   });
 
   test("home and end keys", async ({ page }) => {
-    await goToUrl({
-      element: (
-        <Group>
-          <Panel id="left" minSize="20%" />
-          <Separator />
-          <Panel collapsible collapsedSize="5%" id="right" minSize="20%" />
-        </Group>
-      ),
-      page
-    });
+    await goToUrl(
+      page,
+      <Group>
+        <Panel id="left" minSize="20%" />
+        <Separator />
+        <Panel collapsible collapsedSize="5%" id="right" minSize="20%" />
+      </Group>
+    );
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 50')).toBeVisible();
@@ -265,20 +255,18 @@ test.describe("keyboard interactions: window splitter api", () => {
   });
 
   test("f6 key cycles through separators", async ({ page }) => {
-    await goToUrl({
-      element: (
-        <Group>
-          <Panel />
-          <Separator id="separator-left" />
-          <Panel />
-          <Separator id="separator-center" />
-          <div />
-          <Separator id="separator-right" />
-          <Panel />
-        </Group>
-      ),
-      page
-    });
+    await goToUrl(
+      page,
+      <Group>
+        <Panel />
+        <Separator id="separator-left" />
+        <Panel />
+        <Separator id="separator-center" />
+        <div />
+        <Separator id="separator-right" />
+        <Panel />
+      </Group>
+    );
 
     await page.getByTestId("separator-left").focus();
     await expect(page.getByTestId("separator-left")).toBeFocused();
@@ -299,16 +287,14 @@ test.describe("keyboard interactions: window splitter api", () => {
   test("should respect when parent Group has been disabled", async ({
     page
   }) => {
-    await goToUrl({
-      element: (
-        <Group disabled>
-          <Panel defaultSize="30%" id="left" minSize="5%" />
-          <Separator />
-          <Panel id="right" minSize="5%" />
-        </Group>
-      ),
-      page
-    });
+    await goToUrl(
+      page,
+      <Group disabled>
+        <Panel defaultSize="30%" id="left" minSize="5%" />
+        <Separator />
+        <Panel id="right" minSize="5%" />
+      </Group>
+    );
 
     await expect(page.getByText('"onLayoutCount": 1')).toBeVisible();
     await expect(page.getByText('"left": 30')).toBeVisible();

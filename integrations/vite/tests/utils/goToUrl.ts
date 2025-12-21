@@ -3,24 +3,14 @@ import { createElement, type ReactElement } from "react";
 import { PopupWindow } from "../../src/components/PopupWindow";
 import { encode } from "./serializer/encode";
 
-export async function goToUrl({
-  element: elementProp = null,
-  page,
-  route: routeProp = "/e2e/decoder/",
-  usePopUpWindow = false
-}: {
-  element?: ReactElement<unknown> | null | undefined;
-  page: Page;
-  route?: string | undefined;
-  usePopUpWindow?: boolean | undefined;
-}): Promise<Page> {
-  let route = routeProp;
-  if (route.startsWith("/")) {
-    route = route.substring(1);
-  }
-  if (route.endsWith("/")) {
-    route = route.substring(0, route.length - 1);
-  }
+export async function goToUrl(
+  page: Page,
+  elementProp: ReactElement<unknown>,
+  config: {
+    usePopUpWindow?: boolean | undefined;
+  } = {}
+): Promise<Page> {
+  const { usePopUpWindow = false } = config;
 
   let element = elementProp;
   let encodedString = "";
@@ -35,7 +25,7 @@ export async function goToUrl({
     encodedString = encode(element);
   }
 
-  const url = new URL(`http://localhost:3012/${route}/${encodedString}`);
+  const url = new URL(`http://localhost:3012/e2e/decoder/${encodedString}`);
 
   // Uncomment when testing for easier repro
   console.log("\n\n" + url.toString());

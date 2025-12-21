@@ -6,25 +6,19 @@ import { goToUrl } from "./utils/goToUrl";
 
 test.describe("stacking order", () => {
   async function init(page: Page) {
-    await goToUrl({
-      element: (
-        <Container className="relative">
-          <Group className="w-25 h-25 min-h-25">
-            <Panel id="left" />
-            <Separator id="separator" />
-            <Panel id="center" />
-            <Panel id="right" />
-          </Group>
-          <div className="bg-red-600 absolute left-[30%] top-0 p-2">
-            blocker
-          </div>
-          <div className="bg-red-600 absolute left-[65%] top-0 p-2">
-            blocker
-          </div>
-        </Container>
-      ),
-      page
-    });
+    await goToUrl(
+      page,
+      <Container className="relative">
+        <Group className="w-25 h-25 min-h-25">
+          <Panel id="left" />
+          <Separator id="separator" />
+          <Panel id="center" />
+          <Panel id="right" />
+        </Group>
+        <div className="bg-red-600 absolute left-[30%] top-0 p-2">blocker</div>
+        <div className="bg-red-600 absolute left-[65%] top-0 p-2">blocker</div>
+      </Container>
+    );
   }
 
   test("should ignore pointer events that target overlapping higher z-index targets", async ({
