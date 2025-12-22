@@ -13,6 +13,7 @@ import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
 import { layoutsEqual } from "./utils/layoutsEqual";
 import { notifyPanelOnResize } from "./utils/notifyPanelOnResize";
 import { objectsEqual } from "./utils/objectsEqual";
+import { validateLayoutKeys } from "./utils/validateLayoutKeys";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 
 const ownerDocumentReferenceCounts = new Map<Document, number>();
@@ -114,7 +115,7 @@ export function mountGroup(group: RegisteredGroup) {
   // In this case the best we can do is ignore the incoming layout
   let defaultLayout: Layout | undefined = group.defaultLayout;
   if (defaultLayout) {
-    if (group.panels.length !== Object.keys(defaultLayout).length) {
+    if (!validateLayoutKeys(group.panels, defaultLayout)) {
       defaultLayout = undefined;
     }
   }

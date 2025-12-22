@@ -3,7 +3,10 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { eventEmitter } from "../../global/mutableState";
 import { moveSeparator } from "../../global/test/moveSeparator";
 import { assert } from "../../utils/assert";
-import { setElementBoundsFunction } from "../../utils/test/mockBoundingClientRect";
+import {
+  setDefaultElementBounds,
+  setElementBoundsFunction
+} from "../../utils/test/mockBoundingClientRect";
 import { Panel } from "../panel/Panel";
 import { Separator } from "../separator/Separator";
 import { Group } from "./Group";
@@ -79,6 +82,60 @@ describe("Group", () => {
         <Panel id="c-b" />
       </Group>
     );
+  });
+
+  describe("defaultLayout", () => {
+    test("should be ignored if it does not match Panel ids", () => {
+      const onLayoutChange = vi.fn();
+
+      setDefaultElementBounds(new DOMRect(0, 0, 100, 50));
+
+      render(
+        <Group
+          defaultLayout={{
+            foo: 40,
+            bar: 60
+          }}
+          onLayoutChange={onLayoutChange}
+        >
+          <Panel id="bar" />
+          <Panel id="baz" />
+        </Group>
+      );
+
+      expect(onLayoutChange).toHaveBeenCalledTimes(1);
+      expect(onLayoutChange).toHaveBeenCalledWith({
+        bar: 50,
+        baz: 50
+      });
+    });
+
+    test("should be ignored if it does not match Panel ids (mounted within hidden subtree)", () => {
+      const onLayoutChange = vi.fn();
+
+      render(
+        <Group
+          defaultLayout={{
+            foo: 40,
+            bar: 60
+          }}
+          onLayoutChange={onLayoutChange}
+        >
+          <Panel id="bar" />
+          <Panel id="baz" />
+        </Group>
+      );
+
+      expect(onLayoutChange).not.toHaveBeenCalled();
+
+      setDefaultElementBounds(new DOMRect(0, 0, 100, 50));
+
+      expect(onLayoutChange).toHaveBeenCalledTimes(1);
+      expect(onLayoutChange).toHaveBeenCalledWith({
+        bar: 50,
+        baz: 50
+      });
+    });
   });
 
   describe("groupRef", () => {
