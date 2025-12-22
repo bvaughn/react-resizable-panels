@@ -26,18 +26,20 @@ export default function GettingStartedRoute() {
         <code>dist</code> folder.
       </Callout>
       <div className="text-xl mt-4">Support</div>
-      <div>If you like this project there are several ways to support it:</div>
+      <div>Here are some ways to support this project:</div>
       <ul className="pl-8">
         <li className="list-disc">
           <ExternalLink href="https://github.com/sponsors/bvaughn/">
             Become a GitHub sponsor
           </ExternalLink>
         </li>
+        {/* TODO Re-enable once the Open Collective account has been approved
         <li className="list-disc">
           <ExternalLink href="https://opencollective.com/react-resizable-panels#sponsor">
             Become an Open Collective sponsor
           </ExternalLink>
         </li>
+        */}
         <li className="list-disc">
           or{" "}
           <ExternalLink href="http://givebrian.coffee/">
