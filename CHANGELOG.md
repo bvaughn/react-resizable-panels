@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.15
+
+- [556](https://github.com/bvaughn/react-resizable-panels/pull/556): Ignore `defaultLayout` when keys don't match Panel ids
+
 ## 4.0.14
 
 - [555](https://github.com/bvaughn/react-resizable-panels/pull/555): Allow resizable panels to be rendered into a different Window (e.g. popup or frame) by accessing globals through `element.ownerDocument.defaultView`
