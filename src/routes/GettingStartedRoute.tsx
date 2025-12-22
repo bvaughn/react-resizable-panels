@@ -41,9 +41,8 @@ export default function GettingStartedRoute() {
         </li>
         */}
         <li className="list-disc">
-          or{" "}
           <ExternalLink href="http://givebrian.coffee/">
-            buy me a coffee
+            Buy me a coffee
           </ExternalLink>
         </li>
       </ul>
