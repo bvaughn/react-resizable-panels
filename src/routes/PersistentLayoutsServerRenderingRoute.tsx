@@ -1,9 +1,5 @@
+import { Box, Callout, Code, ExternalLink, Header } from "react-lib-tools";
 import { html as cookieStorageExampleHTML } from "../../public/generated/code-snippets/cookieStorage.json";
-import { Box } from "../components/Box";
-import { Callout } from "../components/Callout";
-import { Code } from "../components/code/Code";
-import { ExternalLink } from "../components/ExternalLink";
-import { Header } from "../components/Header";
 
 export default function PersistentLayoutsServerRenderingRoute() {
   return (

@@ -1,10 +1,6 @@
 import { html as MinMaxExampleHTML } from "../../public/generated/code-snippets/SizeConstraintsMinMax.json";
 import { html as PercentageExampleHTML } from "../../public/generated/code-snippets/SizeConstraintsPercentage.json";
-import { Box } from "../components/Box";
-import { Callout } from "../components/Callout";
-import { Code } from "../components/code/Code";
-import { ExternalLink } from "../components/ExternalLink";
-import { Header } from "../components/Header";
+import { Box, Callout, Code, ExternalLink, Header } from "react-lib-tools";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";

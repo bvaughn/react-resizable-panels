@@ -109,10 +109,13 @@
     "typescript-eslint": "^8.35.1",
     "typescript-json-schema": "^0.65.1",
     "vite": "^7.0.4",
-    "vitest-fail-on-console": "^0.10.1",
     "vite-plugin-dts": "^4.5.4",
     "vite-plugin-svgr": "^4.3.0",
     "vitest": "^3.2.4",
+    "vitest-fail-on-console": "^0.10.1",
     "zustand": "^5.0.7"
+  },
+  "dependencies": {
+    "react-lib-tools": "link:../react-lib-tools"
   }
 }

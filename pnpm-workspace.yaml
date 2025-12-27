@@ -1,7 +1,7 @@
 packages:
-  # e2e testing
   - integrations/*
-  # react-resizable-panels library
   - lib/*
-  # documentation website
   - src/*
+
+overrides:
+  react-lib-tools: link:../react-lib-tools
