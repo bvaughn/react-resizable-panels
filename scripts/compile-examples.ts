@@ -1,3 +1,3 @@
-import { compileExamples } from "react-lib-tools/scripts/compile-examples.ts";
+import { compileExamples } from "react-lib-tools/scripts/compile-examples";
 
 await compileExamples();
