@@ -144,8 +144,8 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0(react@19.2.3)
       react-lib-tools:
-        specifier: ^0.0.3
-        version: 0.0.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        specifier: ^0.0.4
+        version: 0.0.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react-router-dom:
         specifier: ^7.6.3
         version: 7.10.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -3792,8 +3792,8 @@ packages:
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
 
-  react-lib-tools@0.0.3:
-    resolution: {integrity: sha512-KeeqyUTUogIHAORw+s+5nz9RBofJXzIb+mm9+MPU5nH2Ovq5ZN+v/AJCs9LH4k3OHNTNwicBST6bZYASkJC1Sw==}
+  react-lib-tools@0.0.4:
+    resolution: {integrity: sha512-rUN1FjunNEFIquC96FqPb38dE46cYPpdSN8wbbyMu77uN0lY1jE1mPKYQt+XVpd26Z1xwZzRs6l2MFfq3Ma6FA==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
@@ -8256,7 +8256,7 @@ snapshots:
 
   react-is@17.0.2: {}
 
-  react-lib-tools@0.0.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+  react-lib-tools@0.0.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
