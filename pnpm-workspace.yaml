@@ -2,6 +2,3 @@ packages:
   - integrations/*
   - lib/*
   - src/*
-
-overrides:
-  react-lib-tools: link:../react-lib-tools
