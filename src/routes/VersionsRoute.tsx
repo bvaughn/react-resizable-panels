@@ -1,7 +1,5 @@
 import { Fragment } from "react/jsx-runtime";
-import { Box } from "../components/Box";
-import { ExternalLink } from "../components/ExternalLink";
-import { Header } from "../components/Header";
+import { Box, ExternalLink, Header } from "react-lib-tools";
 import GlobeIcon from "../../public/svgs/globe.svg?react";
 import TagsIcon from "../../public/svgs/tags.svg?react";
 

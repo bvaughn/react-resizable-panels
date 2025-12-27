@@ -1,8 +1,8 @@
+import { cn } from "react-lib-tools";
 import {
   Group as GroupExternal,
   type GroupProps
 } from "react-resizable-panels";
-import { cn } from "../../utils/cn";
 
 export function Group({
   className = "",

@@ -1,9 +1,6 @@
-import { html as ClientComponentExampleHTML } from "../../public/generated/code-snippets/ClientComponent.json";
-import { html as ServerComponentExampleHTML } from "../../public/generated/code-snippets/ServerComponent.json";
-import { Box } from "../components/Box";
-import { Code } from "../components/code/Code";
-import { ExternalLink } from "../components/ExternalLink";
-import { Header } from "../components/Header";
+import { Box, Code, ExternalLink, Header } from "react-lib-tools";
+import { html as ClientComponentExampleHTML } from "../../public/generated/examples/ClientComponent.json";
+import { html as ServerComponentExampleHTML } from "../../public/generated/examples/ServerComponent.json";
 
 export default function PersistentLayoutsServerComponentsRoute() {
   return (

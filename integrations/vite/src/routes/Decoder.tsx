@@ -1,10 +1,9 @@
 import { useMemo, useState } from "react";
+import { assert, Box } from "react-lib-tools";
 import type { Layout, PanelSize } from "react-resizable-panels";
 import { useParams } from "react-router";
-import { Box } from "../../../../src/components/Box";
 import { decode } from "../../tests/utils/serializer/decode";
 import { DebugData } from "../components/DebugData";
-import { assert } from "../utils/assert";
 
 export function Decoder() {
   const { encoded } = useParams();

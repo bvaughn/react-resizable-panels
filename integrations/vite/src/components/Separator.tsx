@@ -1,9 +1,9 @@
 import type { PropsWithChildren } from "react";
+import { cn } from "react-lib-tools";
 import {
   Separator as SeparatorExternal,
   type SeparatorProps
 } from "react-resizable-panels";
-import { cn } from "../utils/cn";
 
 export function Separator({
   className = "",

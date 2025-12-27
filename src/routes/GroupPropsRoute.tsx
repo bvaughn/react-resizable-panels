@@ -1,6 +1,5 @@
-import json from "../../public/generated/js-docs/Group.json";
-import { Box } from "../components/Box";
-import { ComponentProps } from "../components/props/ComponentProps";
+import { Box, ComponentProps } from "react-lib-tools";
+import json from "../../public/generated/docs/Group.json";
 import type { ComponentMetadata } from "../types";
 
 export default function GroupPropsRoute() {
