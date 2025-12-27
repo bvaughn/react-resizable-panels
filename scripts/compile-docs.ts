@@ -1,4 +1,4 @@
-import { compileDocs } from "react-lib-tools/scripts/compile-docs";
+import { compileDocs } from "react-lib-tools/scripts/compile-docs.ts";
 
 await compileDocs({
   componentNames: ["Group.tsx", "Panel.tsx", "Separator.tsx"],
