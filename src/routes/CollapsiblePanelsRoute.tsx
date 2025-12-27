@@ -1,6 +1,6 @@
 import { Box, Callout, Code, Header } from "react-lib-tools";
-import { html as ExampleHTML } from "../../public/generated/code-snippets/CollapsiblePanels.json";
-import { html as ExampleWithCollapsedSizeHTML } from "../../public/generated/code-snippets/CollapsiblePanelsCollapsedSize.json";
+import { html as ExampleHTML } from "../../public/generated/examples/CollapsiblePanels.json";
+import { html as ExampleWithCollapsedSizeHTML } from "../../public/generated/examples/CollapsiblePanelsCollapsedSize.json";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";

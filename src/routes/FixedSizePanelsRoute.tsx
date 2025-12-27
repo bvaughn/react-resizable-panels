@@ -1,7 +1,7 @@
 import { Box, Code, Header } from "react-lib-tools";
-import { html as HorizontalHTML } from "../../public/generated/code-snippets/FixedSizePanels.json";
-import { html as FixedSizePanelsMiddleHTML } from "../../public/generated/code-snippets/FixedSizePanelsMiddle.json";
-import { html as FixedSizePanelsMiddleNoSeparatorsHTML } from "../../public/generated/code-snippets/FixedSizePanelsMiddleNoSeparators.json";
+import { html as HorizontalHTML } from "../../public/generated/examples/FixedSizePanels.json";
+import { html as FixedSizePanelsMiddleHTML } from "../../public/generated/examples/FixedSizePanelsMiddle.json";
+import { html as FixedSizePanelsMiddleNoSeparatorsHTML } from "../../public/generated/examples/FixedSizePanelsMiddleNoSeparators.json";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";

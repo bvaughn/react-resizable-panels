@@ -1,5 +1,5 @@
-import { html as MinMaxExampleHTML } from "../../public/generated/code-snippets/SizeConstraintsMinMax.json";
-import { html as PercentageExampleHTML } from "../../public/generated/code-snippets/SizeConstraintsPercentage.json";
+import { html as MinMaxExampleHTML } from "../../public/generated/examples/SizeConstraintsMinMax.json";
+import { html as PercentageExampleHTML } from "../../public/generated/examples/SizeConstraintsPercentage.json";
 import { Box, Callout, Code, ExternalLink, Header } from "react-lib-tools";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";

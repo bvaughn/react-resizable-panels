@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Box, Callout, Code, Header } from "react-lib-tools";
-import { html as SeparatorsExampleHTML } from "../../public/generated/code-snippets/ConditionalSeparators.json";
+import { html as SeparatorsExampleHTML } from "../../public/generated/examples/ConditionalSeparators.json";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";

@@ -1,6 +1,6 @@
 import { Box, Code, Header } from "react-lib-tools";
 import { Panel } from "react-resizable-panels";
-import { html as ExampleHTML } from "../../public/generated/code-snippets/NestedGroups.json";
+import { html as ExampleHTML } from "../../public/generated/examples/NestedGroups.json";
 import { Group } from "../components/styled-panels/Group";
 import { Panel as PreStyledPanel } from "../components/styled-panels/Panel";
 import { PanelText } from "../components/styled-panels/PanelText";

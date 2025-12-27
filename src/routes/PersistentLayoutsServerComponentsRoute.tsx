@@ -1,6 +1,6 @@
 import { Box, Code, ExternalLink, Header } from "react-lib-tools";
-import { html as ClientComponentExampleHTML } from "../../public/generated/code-snippets/ClientComponent.json";
-import { html as ServerComponentExampleHTML } from "../../public/generated/code-snippets/ServerComponent.json";
+import { html as ClientComponentExampleHTML } from "../../public/generated/examples/ClientComponent.json";
+import { html as ServerComponentExampleHTML } from "../../public/generated/examples/ServerComponent.json";
 
 export default function PersistentLayoutsServerComponentsRoute() {
   return (

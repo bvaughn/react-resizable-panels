@@ -1,7 +1,7 @@
 import { Box, Code, ExternalLink, ImperativeHandle } from "react-lib-tools";
-import { html as useGroupCallbackRefHTML } from "../../public/generated/code-snippets/useGroupCallbackRef.json";
-import { html as useGroupRefHTML } from "../../public/generated/code-snippets/useGroupRef.json";
-import json from "../../public/generated/js-docs/GroupImperativeHandle.json";
+import { html as useGroupCallbackRefHTML } from "../../public/generated/examples/useGroupCallbackRef.json";
+import { html as useGroupRefHTML } from "../../public/generated/examples/useGroupRef.json";
+import json from "../../public/generated/docs/GroupImperativeHandle.json";
 import type { ImperativeHandleMetadata } from "../types";
 
 export default function PanelImperativeHandleRoute() {
