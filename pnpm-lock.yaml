@@ -10,10 +10,6 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      react-lib-tools:
-        specifier: link:../react-lib-tools
-        version: link:../react-lib-tools
     devDependencies:
       '@codemirror/lang-css':
         specifier: latest
@@ -150,6 +146,9 @@ importers:
       react-error-boundary:
         specifier: ^6.0.0
         version: 6.0.0(react@19.2.3)
+      react-lib-tools:
+        specifier: link:../react-lib-tools
+        version: link:../react-lib-tools
       react-router-dom:
         specifier: ^7.6.3
         version: 7.10.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)

@@ -95,6 +95,7 @@
     "react-docgen-typescript": "^2.4.0",
     "react-dom": "^19.2.3",
     "react-error-boundary": "^6.0.0",
+    "react-lib-tools": "link:../react-lib-tools",
     "react-router-dom": "^7.6.3",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-visualizer": "^6.0.3",
@@ -114,8 +115,5 @@
     "vitest": "^3.2.4",
     "vitest-fail-on-console": "^0.10.1",
     "zustand": "^5.0.7"
-  },
-  "dependencies": {
-    "react-lib-tools": "link:../react-lib-tools"
   }
 }
