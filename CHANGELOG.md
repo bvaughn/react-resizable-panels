@@ -3,6 +3,7 @@
 ## 4.0.16
 
 - [563](https://github.com/bvaughn/react-resizable-panels/pull/563): Panel `expand()` API should restore pre-collapse size
+- [564](https://github.com/bvaughn/react-resizable-panels/pull/564): Add guard for unexpected `defaultView` value seemingly returned by some dev environments
 
 ## 4.0.15
 
