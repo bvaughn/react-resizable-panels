@@ -1,6 +1,5 @@
-import { Box, ComponentProps } from "react-lib-tools";
+import { Box, ComponentProps, type ComponentMetadata } from "react-lib-tools";
 import json from "../../public/generated/docs/Panel.json";
-import type { ComponentMetadata } from "../types";
 
 export default function PanelPropsRoute() {
   return (

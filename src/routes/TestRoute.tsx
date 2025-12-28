@@ -1,6 +1,5 @@
 import { Fragment } from "react";
-import { Box, Callout, ExternalLink } from "react-lib-tools";
-import type { Intent } from "../types";
+import { Box, Callout, ExternalLink, type Intent } from "react-lib-tools";
 
 export default function TestRoute() {
   return (

@@ -1,8 +1,13 @@
-import { Box, Code, ExternalLink, ImperativeHandle } from "react-lib-tools";
+import {
+  Box,
+  Code,
+  ExternalLink,
+  ImperativeHandle,
+  type ImperativeHandleMetadata
+} from "react-lib-tools";
+import json from "../../public/generated/docs/PanelImperativeHandle.json";
 import { html as usePanelCallbackRefHTML } from "../../public/generated/examples/usePanelCallbackRef.json";
 import { html as usePanelRefHTML } from "../../public/generated/examples/usePanelRef.json";
-import json from "../../public/generated/docs/PanelImperativeHandle.json";
-import type { ImperativeHandleMetadata } from "../types";
 
 export default function PanelImperativeHandleRoute() {
   return (
