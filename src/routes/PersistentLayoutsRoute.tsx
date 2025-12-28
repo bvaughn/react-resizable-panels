@@ -1,9 +1,6 @@
+import { Box, Callout, Code, Header } from "react-lib-tools";
 import { useDefaultLayout } from "react-resizable-panels";
-import { html as ComponentExampleHTML } from "../../public/generated/code-snippets/PersistentLayouts.json";
-import { Box } from "../components/Box";
-import { Callout } from "../components/Callout";
-import { Code } from "../components/code/Code";
-import { Header } from "../components/Header";
+import { html as ComponentExampleHTML } from "../../public/generated/examples/PersistentLayouts.json";
 import { Link } from "../components/Link";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";

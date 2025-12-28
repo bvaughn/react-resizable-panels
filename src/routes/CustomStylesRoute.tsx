@@ -1,9 +1,6 @@
-import { html as CustomStylesExampleHTML } from "../../public/generated/code-snippets/SeparatorCustomStyles.json";
-import { html as DataAttributesExampleHTML } from "../../public/generated/code-snippets/SeparatorDataAttributes.json";
-import { Box } from "../components/Box";
-import { Callout } from "../components/Callout";
-import { Code } from "../components/code/Code";
-import { Header } from "../components/Header";
+import { Box, Callout, Code, Header } from "react-lib-tools";
+import { html as CustomStylesExampleHTML } from "../../public/generated/examples/SeparatorCustomStyles.json";
+import { html as DataAttributesExampleHTML } from "../../public/generated/examples/SeparatorDataAttributes.json";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";

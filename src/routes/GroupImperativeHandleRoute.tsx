@@ -1,11 +1,8 @@
-import json from "../../public/generated/js-docs/GroupImperativeHandle.json";
-import { Box } from "../components/Box";
-import { Code } from "../components/code/Code";
-import { ImperativeHandle } from "../components/handles/ImperativeHandle";
+import { Box, Code, ExternalLink, ImperativeHandle } from "react-lib-tools";
+import { html as useGroupCallbackRefHTML } from "../../public/generated/examples/useGroupCallbackRef.json";
+import { html as useGroupRefHTML } from "../../public/generated/examples/useGroupRef.json";
+import json from "../../public/generated/docs/GroupImperativeHandle.json";
 import type { ImperativeHandleMetadata } from "../types";
-import { html as useGroupRefHTML } from "../../public/generated/code-snippets/useGroupRef.json";
-import { html as useGroupCallbackRefHTML } from "../../public/generated/code-snippets/useGroupCallbackRef.json";
-import { ExternalLink } from "../components/ExternalLink";
 
 export default function PanelImperativeHandleRoute() {
   return (

@@ -1,20 +1,6 @@
-import { compileComponents } from "./utils/docs/compileComponents.ts";
-import { compileImperativeHandles } from "./utils/docs/compileImperativeHandles.ts";
+import { compileDocs } from "react-lib-tools/scripts/compile-docs.ts";
 
-async function run() {
-  await compileComponents({
-    componentNames: [
-      "group/Group.tsx",
-      "panel/Panel.tsx",
-      "separator/Separator.tsx"
-    ],
-    outputDirName: "js-docs"
-  });
-
-  await compileImperativeHandles({
-    names: ["GroupImperativeHandle", "PanelImperativeHandle"],
-    outputDirName: "js-docs"
-  });
-}
-
-run();
+await compileDocs({
+  componentNames: ["Group.tsx", "Panel.tsx", "Separator.tsx"],
+  imperativeHandleNames: ["GroupImperativeHandle", "PanelImperativeHandle"]
+});

@@ -1,9 +1,9 @@
 import type { PropsWithChildren } from "react";
+import { cn } from "react-lib-tools";
 import {
   Separator as SeparatorExternal,
   type Orientation
 } from "react-resizable-panels";
-import { cn } from "../../utils/cn";
 import GrabDotsIcon from "../../../public/svgs/grab-dots.svg?react";
 
 export function Separator({

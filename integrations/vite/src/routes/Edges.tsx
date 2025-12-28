@@ -1,8 +1,8 @@
+import { Box } from "react-lib-tools";
 import { useSearchParams } from "react-router";
 import { Group } from "../components/Group";
 import { Panel } from "../components/Panel";
 import { Separator } from "../components/Separator";
-import { Box } from "../../../../src/components/Box";
 
 export function Edges() {
   const [params] = useSearchParams();
