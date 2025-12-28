@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.16
+
+- [563](https://github.com/bvaughn/react-resizable-panels/pull/563): Panel `expand()` API should restore pre-collapse size
+
 ## 4.0.15
 
 - [556](https://github.com/bvaughn/react-resizable-panels/pull/556): Ignore `defaultLayout` when keys don't match Panel ids

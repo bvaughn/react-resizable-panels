@@ -92,6 +92,7 @@ export function mockGroup(
 
       const panel: RegisteredPanel = {
         element,
+        expandToSizeRef: { current: undefined },
         id: panelId,
         idIsStable: true,
         panelConstraints: constraints,

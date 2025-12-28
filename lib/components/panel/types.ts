@@ -1,4 +1,4 @@
-import type { CSSProperties, HTMLAttributes, Ref } from "react";
+import type { CSSProperties, HTMLAttributes, Ref, RefObject } from "react";
 
 export type PanelSize = {
   asPercentage: number;
@@ -22,6 +22,7 @@ export type SizeUnit = "px" | "%" | "em" | "rem" | "vh" | "vw";
 
 export type RegisteredPanel = {
   element: HTMLDivElement;
+  expandToSizeRef: RefObject<number | undefined>;
   id: string;
   idIsStable: boolean;
   onResize: OnPanelResize | undefined;
