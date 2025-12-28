@@ -237,7 +237,6 @@ Falls back to <code>useId</code> when not provided.</p>
 <li><code>expand(): void</code></li>
 <li><code>getSize(): number</code></li>
 <li><code>isCollapsed(): boolean</code></li>
-<li><code>isExpanded(): boolean</code></li>
 <li><code>resize(size: number): void</code></li>
 </ul>
 <p>ℹ️ The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>

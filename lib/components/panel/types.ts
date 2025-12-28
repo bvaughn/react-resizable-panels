@@ -147,7 +147,6 @@ export type PanelProps = HTMLAttributes<HTMLDivElement> & {
    * - `expand(): void`
    * - `getSize(): number`
    * - `isCollapsed(): boolean`
-   * - `isExpanded(): boolean`
    * - `resize(size: number): void`
    *
    * ℹ️ The `usePanelRef` and `usePanelCallbackRef` hooks are exported for convenience use in TypeScript projects.

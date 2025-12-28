@@ -147,7 +147,7 @@
     "panelRef": {
       "description": [
         {
-          "content": "<p>Exposes the following imperative API:</p>\n<ul>\n<li><code>collapse(): void</code></li>\n<li><code>expand(): void</code></li>\n<li><code>getSize(): number</code></li>\n<li><code>isCollapsed(): boolean</code></li>\n<li><code>isExpanded(): boolean</code></li>\n<li><code>resize(size: number): void</code></li>\n</ul>\n"
+          "content": "<p>Exposes the following imperative API:</p>\n<ul>\n<li><code>collapse(): void</code></li>\n<li><code>expand(): void</code></li>\n<li><code>getSize(): number</code></li>\n<li><code>isCollapsed(): boolean</code></li>\n<li><code>resize(size: number): void</code></li>\n</ul>\n"
         },
         {
           "content": "<p>The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>\n",
