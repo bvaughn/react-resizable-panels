@@ -172,7 +172,26 @@ describe("getImperativePanelMethods", () => {
         expect(onLayoutChange).not.toHaveBeenCalled();
       });
 
-      test("expands panel to the minimum size", () => {
+      test("expands the panel to the previous pre-collapse size", () => {
+        const { panelApis } = init([
+          { collapsible: true, defaultSize: 50, minSize: 25 },
+          {}
+        ]);
+
+        panelApis[0].resize("35");
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenLastCalledWith([35, 65]);
+
+        panelApis[0].collapse();
+        expect(onLayoutChange).toHaveBeenCalledTimes(2);
+        expect(onLayoutChange).toHaveBeenLastCalledWith([0, 100]);
+
+        panelApis[0].expand();
+        expect(onLayoutChange).toHaveBeenCalledTimes(3);
+        expect(onLayoutChange).toHaveBeenLastCalledWith([35, 65]);
+      });
+
+      test("expands panel to the minimum size as a fallback", () => {
         const { panelApis } = init([
           { collapsible: true, defaultSize: 0, minSize: 25 },
           {}
@@ -181,6 +200,18 @@ describe("getImperativePanelMethods", () => {
 
         expect(onLayoutChange).toHaveBeenCalledTimes(1);
         expect(onLayoutChange).toHaveBeenCalledWith([25, 75]);
+      });
+
+      // See github.com/bvaughn/react-resizable-panels/issues/561
+      test("edge case: expands panel to a non-zero size if minSize is 0", () => {
+        const { panelApis } = init([
+          { collapsible: true, defaultSize: 0, minSize: 0 },
+          {}
+        ]);
+        panelApis[0].expand();
+
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenCalledWith([1, 99]);
       });
     });
 

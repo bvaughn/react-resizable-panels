@@ -70,6 +70,7 @@ export function Panel({
     if (element !== null) {
       return registerPanel({
         element,
+        expandToSizeRef: { current: undefined },
         id,
         idIsStable,
         onResize: hasOnResize ? onResizeStable : undefined,

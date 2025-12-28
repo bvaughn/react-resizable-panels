@@ -113,18 +113,31 @@ export function getImperativePanelMethods({
   return {
     collapse: () => {
       const { collapsible, collapsedSize } = getPanelConstraints();
+      const { expandToSizeRef } = getPanel();
       const size = getPanelSize();
 
       if (collapsible && size !== collapsedSize) {
+        // Store previous size in to restore if expand() is called
+        expandToSizeRef.current = size;
+
         setPanelSize(collapsedSize);
       }
     },
     expand: () => {
       const { collapsible, collapsedSize, minSize } = getPanelConstraints();
+      const { expandToSizeRef } = getPanel();
       const size = getPanelSize();
 
       if (collapsible && size === collapsedSize) {
-        setPanelSize(minSize);
+        // Restore pre-collapse size, fallback to minSize
+        let nextSize = expandToSizeRef.current ?? minSize;
+
+        // Edge case: if minSize is 0, pick something meaningful to expand the panel to
+        if (nextSize === 0) {
+          nextSize = 1;
+        }
+
+        setPanelSize(nextSize);
       }
     },
     getSize: () => {
