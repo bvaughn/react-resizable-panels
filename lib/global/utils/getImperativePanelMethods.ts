@@ -134,7 +134,7 @@ export function getImperativePanelMethods({
 
         // Edge case: if minSize is 0, pick something meaningful to expand the panel to
         if (nextSize === 0) {
-          nextSize = 5;
+          nextSize = 1;
         }
 
         setPanelSize(nextSize);

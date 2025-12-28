@@ -211,7 +211,7 @@ describe("getImperativePanelMethods", () => {
         panelApis[0].expand();
 
         expect(onLayoutChange).toHaveBeenCalledTimes(1);
-        expect(onLayoutChange).toHaveBeenCalledWith([5, 95]);
+        expect(onLayoutChange).toHaveBeenCalledWith([1, 99]);
       });
     });
 
