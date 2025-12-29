@@ -3,6 +3,7 @@
 ## 4.1.0
 
 - [567](https://github.com/bvaughn/react-resizable-panels/pull/567): `useDefaultLayout` hook supports saving and restoring multiple Panel layouts
+- [568](https://github.com/bvaughn/react-resizable-panels/pull/568): Fix race in `useGroupRef` and `usePanelRef` hooks
 
 ## 4.0.16
 
