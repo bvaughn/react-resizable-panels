@@ -5,6 +5,7 @@ import type { Layout, LayoutStorage, OnGroupLayoutChange } from "./types";
 
 export function useDefaultLayout({
   debounceSaveMs = 100,
+  panelIds,
   storage,
   ...rest
 }: {
@@ -12,6 +13,13 @@ export function useDefaultLayout({
    * Debounce save operation by the specified number of milliseconds; defaults to 100ms
    */
   debounceSaveMs?: number;
+
+  /**
+   * For Groups that contain conditionally-rendered Panels, this prop can be used to save and restore multiple layouts.
+   *
+   * ⚠️ Panel ids must match the Panels rendered within the Group during mount or the initial layout will be incorrect.
+   */
+  panelIds?: string[] | undefined;
 
   /**
    * Storage implementation; supports localStorage, sessionStorage, and custom implementations
@@ -33,17 +41,18 @@ export function useDefaultLayout({
       id: string;
     }
 )) {
+  const hasPanelIds = panelIds !== undefined;
   const id = "id" in rest ? rest.id : rest.groupId;
 
-  const storageKey = getStorageKey(id);
+  const readStorageKey = getStorageKey(id, panelIds ?? []);
 
   // In the event that a client-only storage API is provided,
   // useSyncExternalStore prevents server/client hydration mismatch warning
   // This is not ideal; if possible a server-friendly storage API should be used
   const defaultLayoutString = useSyncExternalStore(
     subscribe,
-    () => storage.getItem(storageKey),
-    () => storage.getItem(storageKey)
+    () => storage.getItem(readStorageKey),
+    () => storage.getItem(readStorageKey)
   );
 
   const defaultLayout = useMemo(
@@ -56,8 +65,15 @@ export function useDefaultLayout({
 
   const onLayoutChange = useMemo<NonNullable<OnGroupLayoutChange>>(() => {
     const saveLayout = (layout: Layout) => {
+      let writeStorageKey: string;
+      if (hasPanelIds) {
+        writeStorageKey = getStorageKey(id, Object.keys(layout));
+      } else {
+        writeStorageKey = getStorageKey(id, []);
+      }
+
       try {
-        storage.setItem(storageKey, JSON.stringify(layout));
+        storage.setItem(writeStorageKey, JSON.stringify(layout));
       } catch (error) {
         console.error(error);
       }
@@ -66,7 +82,7 @@ export function useDefaultLayout({
     return debounceSaveMs > 0
       ? debounce(saveLayout, debounceSaveMs)
       : saveLayout;
-  }, [debounceSaveMs, storage, storageKey]);
+  }, [debounceSaveMs, hasPanelIds, id, storage]);
 
   return {
     defaultLayout,

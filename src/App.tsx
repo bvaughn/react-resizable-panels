@@ -1,5 +1,6 @@
 import { ArrowTurnDownRightIcon } from "@heroicons/react/20/solid";
-import { AppRoot, NavLink, NavSection } from "react-lib-tools";
+import { AppRoot, NavSection } from "react-lib-tools";
+import { NavLink } from "./components/NavLink";
 import { routes } from "./routes";
 
 export default function App() {
@@ -16,6 +17,10 @@ export default function App() {
             </NavLink>
             <NavLink path="/examples/persistent-layout">
               Persistent layouts
+            </NavLink>
+            <NavLink path="/examples/persistent-layout/conditional-panels">
+              <ArrowTurnDownRightIcon className="size-4 fill-white/60" />
+              Conditional panels
             </NavLink>
             <NavLink path="/examples/persistent-layout/server-rendering">
               <ArrowTurnDownRightIcon className="size-4 fill-white/60" /> Server

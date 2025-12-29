@@ -19,6 +19,9 @@ export const routes = {
   "/examples/persistent-layout": lazy(
     () => import("./routes/PersistentLayoutsRoute")
   ),
+  "/examples/persistent-layout/conditional-panels": lazy(
+    () => import("./routes/PersistentLayoutsConditionalPanelsRoute")
+  ),
   "/examples/persistent-layout/server-components": lazy(
     () => import("./routes/PersistentLayoutsServerComponentsRoute")
   ),
