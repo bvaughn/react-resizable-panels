@@ -1,16 +1,66 @@
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { assert, Box } from "react-lib-tools";
-import type { Layout, PanelSize } from "react-resizable-panels";
-import { useParams } from "react-router";
+import {
+  useGroupCallbackRef,
+  useGroupRef,
+  usePanelCallbackRef,
+  usePanelRef,
+  type Layout,
+  type PanelSize
+} from "react-resizable-panels";
+import { useParams, useSearchParams } from "react-router";
 import { decode } from "../../tests/utils/serializer/decode";
 import { DebugData } from "../components/DebugData";
 
 export function Decoder() {
   const { encoded } = useParams();
+  const [searchParams] = useSearchParams();
+
+  const [group, setGroup] = useGroupCallbackRef();
+  const groupRef = useGroupRef();
+  const groupRefProp = searchParams.has("useGroupCallbackRef")
+    ? setGroup
+    : searchParams.has("useGroupRef")
+      ? groupRef
+      : undefined;
+
+  const [panel, setPanel] = usePanelCallbackRef();
+  const panelRef = usePanelRef();
+  const panelRefProp = searchParams.has("usePanelCallbackRef")
+    ? setPanel
+    : searchParams.has("usePanelRef")
+      ? panelRef
+      : undefined;
+
+  const stableCallbacksRef = useRef<{
+    readGroupLayout: () => void;
+    readPanelSize: () => void;
+  }>({
+    readGroupLayout: () => {},
+    readPanelSize: () => {}
+  });
+  useLayoutEffect(() => {
+    stableCallbacksRef.current.readGroupLayout = () => {
+      const imperativeGroupApiLayout =
+        group?.getLayout() ?? groupRef.current?.getLayout();
+      if (imperativeGroupApiLayout) {
+        setState((prevState) => ({ ...prevState, imperativeGroupApiLayout }));
+      }
+    };
+    stableCallbacksRef.current.readPanelSize = () => {
+      const imperativePanelApiSize =
+        panel?.getSize() ?? panelRef.current?.getSize();
+      if (imperativePanelApiSize) {
+        setState((prevState) => ({ ...prevState, imperativePanelApiSize }));
+      }
+    };
+  });
 
   const [state, setState] = useState<{
-    onLayoutCount: number;
+    imperativeGroupApiLayout: Layout | undefined;
+    imperativePanelApiSize: PanelSize | undefined;
     layout: Layout;
+    onLayoutCount: number;
     panels: {
       [id: number | string]: {
         onResizeCount: number;
@@ -18,6 +68,8 @@ export function Decoder() {
       };
     };
   }>({
+    imperativeGroupApiLayout: undefined,
+    imperativePanelApiSize: undefined,
     layout: {},
     onLayoutCount: 0,
     panels: {}
@@ -30,7 +82,12 @@ export function Decoder() {
 
     const group = decode(encoded, {
       groupProps: {
+        groupRef: groupRefProp,
         onLayoutChange: (layout) => {
+          setTimeout(() => {
+            stableCallbacksRef.current.readGroupLayout();
+          }, 0);
+
           setState((prev) => ({
             ...prev,
             onLayoutCount: prev.onLayoutCount + 1,
@@ -39,8 +96,13 @@ export function Decoder() {
         }
       },
       panelProps: {
+        panelRef: panelRefProp,
         onResize: (panelSize, id) => {
           assert(id, "Panel id required");
+
+          setTimeout(() => {
+            stableCallbacksRef.current.readPanelSize();
+          }, 0);
 
           setState((prev) => ({
             ...prev,
@@ -57,7 +119,7 @@ export function Decoder() {
     });
 
     return group;
-  }, [encoded]);
+  }, [encoded, groupRefProp, panelRefProp]);
 
   // Debugging
   // console.group("Decoder");
@@ -69,6 +131,20 @@ export function Decoder() {
     <Box direction="column" gap={2}>
       <div>{children}</div>
       <Box className="p-2 overflow-auto" direction="row" gap={2} wrap>
+        {groupRefProp && (
+          <DebugData
+            data={{
+              imperativeGroupApiLayout: state.imperativeGroupApiLayout
+            }}
+          />
+        )}{" "}
+        {panelRefProp && (
+          <DebugData
+            data={{
+              imperativePanelApiSize: state.imperativePanelApiSize
+            }}
+          />
+        )}
         <DebugData
           data={{
             layout: state.layout,

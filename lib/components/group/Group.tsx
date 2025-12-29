@@ -35,7 +35,7 @@ export function Group({
   defaultLayout,
   disableCursor,
   disabled,
-  elementRef,
+  elementRef: elementRefProp,
   groupRef,
   id: idProp,
   onLayoutChange: onLayoutChangeUnstable,
@@ -58,7 +58,7 @@ export function Group({
   const id = useId(idProp);
 
   const [dragActive, setDragActive] = useState(false);
-  const [element, setElement] = useState<HTMLDivElement | null>(null);
+  const elementRef = useRef<HTMLDivElement | null>(null);
   const [layout, setLayout] = useState<Layout>(defaultLayout ?? {});
   const [panels, setPanels] = useState<RegisteredPanel[]>([]);
   const [separators, setSeparators] = useState<RegisteredSeparator[]>([]);
@@ -71,7 +71,7 @@ export function Group({
     layouts: {}
   });
 
-  const mergedRef = useMergedRefs(setElement, elementRef);
+  const mergedRef = useMergedRefs(elementRef, elementRefProp);
 
   useGroupImperativeHandle(id, groupRef);
 
@@ -109,6 +109,7 @@ export function Group({
   // Register Group and child Panels/Separators with global state
   // Listen to global state for drag state related to this Group
   useIsomorphicLayoutEffect(() => {
+    const element = elementRef.current;
     if (element === null) {
       return;
     }
@@ -195,7 +196,6 @@ export function Group({
     };
   }, [
     disabled,
-    element,
     id,
     onLayoutChangeStable,
     orientation,

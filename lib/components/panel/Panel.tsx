@@ -1,7 +1,7 @@
 "use client";
 
 import type { Property } from "csstype";
-import { useState, type CSSProperties } from "react";
+import { useRef, type CSSProperties } from "react";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
@@ -41,7 +41,7 @@ export function Panel({
   collapsedSize = "0%",
   collapsible = false,
   defaultSize,
-  elementRef,
+  elementRef: elementRefProp,
   id: idProp,
   maxSize = "100%",
   minSize = "0%",
@@ -54,9 +54,9 @@ export function Panel({
 
   const id = useId(idProp);
 
-  const [element, setElement] = useState<HTMLDivElement | null>(null);
+  const elementRef = useRef<HTMLDivElement | null>(null);
 
-  const mergedRef = useMergedRefs(setElement, elementRef);
+  const mergedRef = useMergedRefs(elementRef, elementRefProp);
 
   const { id: groupId, registerPanel } = useGroupContext();
 
@@ -67,6 +67,7 @@ export function Panel({
 
   // Register Panel with parent Group
   useIsomorphicLayoutEffect(() => {
+    const element = elementRef.current;
     if (element !== null) {
       return registerPanel({
         element,
@@ -87,7 +88,6 @@ export function Panel({
     collapsedSize,
     collapsible,
     defaultSize,
-    element,
     hasOnResize,
     id,
     idIsStable,

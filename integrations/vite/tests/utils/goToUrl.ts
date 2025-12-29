@@ -7,10 +7,20 @@ export async function goToUrl(
   page: Page,
   elementProp: ReactElement<unknown>,
   config: {
+    useGroupCallbackRef?: boolean | undefined;
+    useGroupRef?: boolean | undefined;
+    usePanelCallbackRef?: boolean | undefined;
+    usePanelRef?: boolean | undefined;
     usePopUpWindow?: boolean | undefined;
   } = {}
 ): Promise<Page> {
-  const { usePopUpWindow = false } = config;
+  const {
+    useGroupCallbackRef = false,
+    useGroupRef = false,
+    usePanelCallbackRef = false,
+    usePanelRef = false,
+    usePopUpWindow = false
+  } = config;
 
   let element = elementProp;
   let encodedString = "";
@@ -25,7 +35,18 @@ export async function goToUrl(
     encodedString = encode(element);
   }
 
-  const url = new URL(`http://localhost:3012/e2e/decoder/${encodedString}`);
+  const queryParams = [
+    useGroupCallbackRef ? "useGroupCallbackRef" : undefined,
+    useGroupRef ? "useGroupRef" : undefined,
+    usePanelCallbackRef ? "usePanelCallbackRef" : undefined,
+    usePanelRef ? "usePanelRef" : undefined
+  ]
+    .filter(Boolean)
+    .join("&");
+
+  const url = new URL(
+    `http://localhost:3012/e2e/decoder/${encodedString}?${queryParams}`
+  );
 
   // Uncomment when testing for easier repro
   console.log("\n\n" + url.toString());
