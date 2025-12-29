@@ -135,6 +135,60 @@ describe("useDefaultLayout", () => {
     `);
   });
 
+  test("should save separate layouts per panel group when panelIds param is present", () => {
+    const storage: LayoutStorage = {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn()
+    };
+
+    const { result } = renderHook(() =>
+      useDefaultLayout({
+        debounceSaveMs: 0,
+        id: "test-group-id",
+        panelIds: ["foo", "bar"],
+        storage
+      })
+    );
+
+    expect(result.current.defaultLayout).toMatchInlineSnapshot(`undefined`);
+    expect(storage.getItem).toHaveBeenCalled();
+    expect(storage.getItem).toHaveBeenCalledWith(
+      "react-resizable-panels:test-group-id:foo:bar"
+    );
+    expect(storage.setItem).not.toHaveBeenCalled();
+
+    result.current.onLayoutChange({
+      foo: 35,
+      bar: 65
+    });
+    expect(storage.setItem).toHaveBeenCalledTimes(1);
+    expect(storage.setItem).toHaveBeenCalledWith(
+      "react-resizable-panels:test-group-id:foo:bar",
+      JSON.stringify({
+        foo: 35,
+        bar: 65
+      })
+    );
+
+    // This test verifies two things:
+    // 1. Panel layout is saved separately
+    // 2. Panel ids in the Layout are prioritized over those in the prop
+    result.current.onLayoutChange({
+      foo: 25,
+      bar: 55,
+      baz: 20
+    });
+    expect(storage.setItem).toHaveBeenCalledTimes(2);
+    expect(storage.setItem).toHaveBeenCalledWith(
+      "react-resizable-panels:test-group-id:foo:bar:baz",
+      JSON.stringify({
+        foo: 25,
+        bar: 55,
+        baz: 20
+      })
+    );
+  });
+
   test("should ignore invalid layouts (panel ids mismatch)", () => {
     setDefaultElementBounds(new DOMRect(0, 0, 100, 50));
 

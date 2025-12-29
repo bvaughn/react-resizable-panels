@@ -55,6 +55,11 @@ export default function PersistentLayoutsRoute() {
       </div>
       <ul className="pl-8">
         <li className="list-disc">
+          <Link to="/examples/persistent-layout/conditional-panels">
+            Persistent layouts with conditional panels
+          </Link>
+        </li>
+        <li className="list-disc">
           <Link to="/examples/persistent-layout/server-rendering">
             Persistent layouts with server rendering
           </Link>
