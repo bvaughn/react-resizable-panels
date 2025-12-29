@@ -1,5 +1,5 @@
 import type { Layout } from "react-resizable-panels";
-import ClientComponent from "./ClientComponent.example";
+import ClientComponent from "./ClientComponent";
 
 const groupId = "";
 
