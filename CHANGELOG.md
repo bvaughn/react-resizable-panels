@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.1.0
+
+- [567](https://github.com/bvaughn/react-resizable-panels/pull/567): `useDefaultLayout` hook supports saving and restoring multiple Panel layouts
+
 ## 4.0.16
 
 - [563](https://github.com/bvaughn/react-resizable-panels/pull/563): Panel `expand()` API should restore pre-collapse size
