@@ -3,12 +3,6 @@ import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 export type Route = LazyExoticComponent<ComponentType<unknown>>;
 
 export const routes = {
-  "*": lazy(() => import("./routes/PageNotFound")),
-
-  // Home page
-  "/": lazy(() => import("./routes/GettingStartedRoute")),
-
-  // Examples
   "/examples/the-basics": lazy(() => import("./routes/LayoutBasicsRoute")),
   "/examples/min-max-sizes": lazy(
     () => import("./routes/SizeConstraintsRoute")
@@ -38,26 +32,18 @@ export const routes = {
   "/examples/custom-css-styles": lazy(
     () => import("./routes/CustomStylesRoute")
   ),
-
-  // Component props
   "/props/group": lazy(() => import("./routes/GroupPropsRoute")),
   "/props/panel": lazy(() => import("./routes/PanelPropsRoute")),
   "/props/separator": lazy(() => import("./routes/SeparatorPropsRoute")),
-
-  // Imperative API
   "/imperative-api/group": lazy(
     () => import("./routes/GroupImperativeHandleRoute")
   ),
   "/imperative-api/panel": lazy(
     () => import("./routes/PanelImperativeHandleRoute")
   ),
-
-  // Other
   "/platform-requirements": lazy(
     () => import("./routes/PlatformRequirementsRoute")
   ),
-  "/support": lazy(() => import("./routes/SupportRoute")),
-  "/versions": lazy(() => import("./routes/VersionsRoute")),
   "/test": lazy(() => import("./routes/TestRoute"))
 } satisfies Record<string, Route>;
 

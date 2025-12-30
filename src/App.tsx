@@ -63,6 +63,25 @@ export default function App() {
       }
       packageName="react-resizable-panels"
       routes={routes}
+      versions={VERSIONS}
     />
   );
 }
+
+const VERSIONS = {
+  "4": {
+    "4.0.8": "https://react-resizable-panels.now.sh/"
+  },
+  "3": {
+    "3.0.6":
+      "https://react-resizable-panels-au2wmqbbr-brian-vaughns-projects.vercel.app/"
+  },
+  "2": {
+    "2.1.7":
+      "https://react-resizable-panels-ca7gk2gh5-brian-vaughns-projects.vercel.app/",
+    "2.0.23": ""
+  },
+  "1": {
+    "1.0.10": ""
+  }
+};

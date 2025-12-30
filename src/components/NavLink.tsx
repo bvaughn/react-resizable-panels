@@ -1,5 +1,5 @@
 import { type PropsWithChildren } from "react";
-import { NavLink as NavLinkExternal } from "react-lib-tools";
+import { NavLink as NavLinkExternal, type DefaultPath } from "react-lib-tools";
 import { type Path } from "../routes";
 
 export function NavLink({
@@ -8,7 +8,7 @@ export function NavLink({
   path
 }: PropsWithChildren<{
   className?: string | undefined;
-  path: Path;
+  path: Path | DefaultPath;
 }>) {
   return (
     <NavLinkExternal children={children} className={className} path={path} />
