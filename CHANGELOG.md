@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.1.1
+
+- [571](https://github.com/bvaughn/react-resizable-panels/pull/571): `Separator` allows `tabIndex` to be overridden, but only to other enabled values (`>= 0`)
+
 ## 4.1.0
 
 - [567](https://github.com/bvaughn/react-resizable-panels/pull/567): `useDefaultLayout` hook supports saving and restoring multiple Panel layouts

@@ -74,6 +74,20 @@
       "name": "style",
       "required": false
     },
+    "tabIndex": {
+      "description": [
+        {
+          "content": "<p>Override default <code>tabIndex</code> value of 0.</p>\n"
+        },
+        {
+          "content": "<p>Invalid values (e.g. <code>-1</code> or <code>undefined</code>) will be ignored</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">tabIndex</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-number\">0</span></div>",
+      "name": "tabIndex",
+      "required": false
+    },
     "elementRef": {
       "description": [
         {

@@ -31,6 +31,7 @@ export function Separator({
   elementRef,
   id: idProp,
   style,
+  tabIndex: tabIndexProp = 0,
   ...rest
 }: SeparatorProps) {
   const id = useId(idProp);
@@ -47,6 +48,11 @@ export function Separator({
   const [element, setElement] = useState<HTMLDivElement | null>(null);
 
   const mergedRef = useMergedRefs(setElement, elementRef);
+
+  let tabIndex = 0;
+  if (tabIndexProp !== undefined && tabIndexProp > 0) {
+    tabIndex = tabIndexProp;
+  }
 
   const {
     id: groupId,
@@ -140,7 +146,7 @@ export function Separator({
         flexGrow: 0,
         flexShrink: 0
       }}
-      tabIndex={0}
+      tabIndex={tabIndex}
     />
   );
 }
