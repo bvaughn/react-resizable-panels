@@ -1,7 +1,11 @@
 import { ArrowTurnDownRightIcon } from "@heroicons/react/20/solid";
 import { AppRoot, NavSection } from "react-lib-tools";
 import { NavLink } from "./components/NavLink";
+import { Group } from "./components/styled-panels/Group";
+import { Panel } from "./components/styled-panels/Panel";
+import { Separator } from "./components/styled-panels/Separator";
 import { routes } from "./routes";
+import { Link } from "./components/Link";
 
 export default function App() {
   return (
@@ -63,6 +67,29 @@ export default function App() {
       }
       packageName="react-resizable-panels"
       routes={routes}
+      overview={
+        <>
+          <div>
+            This library is a set of React components that can be used to build
+            resizable layouts like the one below:
+          </div>
+          <Group className="h-20 sm:h-15">
+            <Panel className="p-1" minSize={100}>
+              This is a resizable panel
+            </Panel>
+            <Separator />
+            <Panel className="p-1" minSize={100}>
+              This is also a resizable panel
+            </Panel>
+          </Group>
+          <div>
+            There are many types of layouts, covered in the{" "}
+            <Link to="/examples/the-basics">examples</Link> section of the docs.
+            Check out the <Link to="/support">support</Link> page if you have
+            questions.
+          </div>
+        </>
+      }
       versions={VERSIONS}
     />
   );
