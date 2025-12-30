@@ -90,7 +90,7 @@
           "intent": "primary"
         }
       ],
-      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">collapsible</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"false\"</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">collapsible</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-bool\">false</span></div>",
       "name": "collapsible",
       "required": false
     },
