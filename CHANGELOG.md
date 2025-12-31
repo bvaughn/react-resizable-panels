@@ -2,7 +2,7 @@
 
 ## 4.1.1
 
-- [571](https://github.com/bvaughn/react-resizable-panels/pull/571): `Separator` allows `tabIndex` to be overridden, but only to other enabled values (`>= 0`)
+- [571](https://github.com/bvaughn/react-resizable-panels/pull/571): Update TS types to better reflect that `Separator` attributes `role` and `tabIndex` cannot be overridden using props.
 
 ## 4.1.0
 

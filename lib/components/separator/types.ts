@@ -5,7 +5,9 @@ export type RegisteredSeparator = {
   id: string;
 };
 
-export type SeparatorProps = HTMLAttributes<HTMLDivElement> & {
+type BaseAttributes = Omit<HTMLAttributes<HTMLDivElement>, "role" | "tabIndex">;
+
+export type SeparatorProps = BaseAttributes & {
   /**
    * CSS class name.
    *
@@ -36,11 +38,4 @@ export type SeparatorProps = HTMLAttributes<HTMLDivElement> & {
    * ⚠️ The following properties cannot be overridden: `flex-grow`, `flex-shrink`
    */
   style?: CSSProperties | undefined;
-
-  /**
-   * Override default `tabIndex` value of 0.
-   *
-   * ⚠️ Invalid values (e.g. `-1` or `undefined`) will be ignored
-   */
-  tabIndex?: number | undefined;
 };

@@ -305,12 +305,6 @@ Falls back to <code>useId</code> when not provided.</p>
 </td>
     </tr>
     <tr>
-      <td>tabIndex</td>
-      <td><p>Override default <code>tabIndex</code> value of 0.</p>
-<p>⚠️ Invalid values (e.g. <code>-1</code> or <code>undefined</code>) will be ignored</p>
-</td>
-    </tr>
-    <tr>
       <td>elementRef</td>
       <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
 </td>

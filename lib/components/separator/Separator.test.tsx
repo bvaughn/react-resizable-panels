@@ -35,27 +35,6 @@ describe("Separator", () => {
       expect(screen.getByRole("separator")).toHaveAttribute("data-bar", "123");
     });
 
-    test.each([
-      [-1, 0],
-      [undefined, 0],
-      [0, 0],
-      [1, 1],
-      [100, 100]
-    ])("should apply tabIndex %o as %o", (tabIndex, expectedTabIndex) => {
-      render(
-        <Group>
-          <Panel />
-          <Separator id="separator" tabIndex={tabIndex} />
-          <Panel />
-        </Group>
-      );
-
-      expect(screen.getByRole("separator")).toHaveAttribute(
-        "tabIndex",
-        "" + expectedTabIndex
-      );
-    });
-
     describe("ARIA attributes", () => {
       test("should identify its primary panel if and only if it has an explicit id", () => {
         render(
