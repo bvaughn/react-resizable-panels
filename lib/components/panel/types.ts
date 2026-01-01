@@ -1,4 +1,4 @@
-import type { CSSProperties, HTMLAttributes, Ref, RefObject } from "react";
+import type { CSSProperties, HTMLAttributes, Ref } from "react";
 
 export type PanelSize = {
   asPercentage: number;
@@ -21,10 +21,13 @@ export type PanelConstraints = {
 export type SizeUnit = "px" | "%" | "em" | "rem" | "vh" | "vw";
 
 export type RegisteredPanel = {
-  element: HTMLDivElement;
-  expandToSizeRef: RefObject<number | undefined>;
   id: string;
   idIsStable: boolean;
+  element: HTMLDivElement;
+  mutableValues: {
+    expandToSize: number | undefined;
+    prevSize: PanelSize | undefined;
+  };
   onResize: OnPanelResize | undefined;
   panelConstraints: PanelConstraintProps;
 };
@@ -136,10 +139,18 @@ export type PanelProps = HTMLAttributes<HTMLDivElement> & {
   minSize?: number | string | undefined;
 
   /**
-   * Called when panel sizes change; receives a map of Panel id to size.
+   * Called when panel sizes change.
+   *
+   * @param panelSize Panel size (both as a percentage of the parent Group and in pixels)
+   * @param id Panel id (if one was provided as a prop)
+   * @param prevPanelSize Previous panel size (will be undefined on mount)
    */
   onResize?:
-    | ((panelSize: PanelSize, id: string | number | undefined) => void)
+    | ((
+        panelSize: PanelSize,
+        id: string | number | undefined,
+        prevPanelSize: PanelSize | undefined
+      ) => void)
     | undefined;
 
   /**

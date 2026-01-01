@@ -92,9 +92,12 @@ export function mockGroup(
 
       const panel: RegisteredPanel = {
         element,
-        expandToSizeRef: { current: undefined },
         id: panelId,
         idIsStable: true,
+        mutableValues: {
+          expandToSize: undefined,
+          prevSize: undefined
+        },
         panelConstraints: constraints,
         onResize: vi.fn()
       };

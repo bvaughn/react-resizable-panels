@@ -1,5 +1,7 @@
-import { expect, test } from "@playwright/test";
+import { test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
+import { expectLayout } from "./utils/expectLayout";
+import { expectPanelSize } from "./utils/expectPanelSize";
 import { goToUrl } from "./utils/goToUrl";
 
 test.describe("resize events", () => {
@@ -18,27 +20,86 @@ test.describe("resize events", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
-        await expect(mainPage.getByText('"left": 30')).toBeVisible();
-        await expect(mainPage.getByText('"right": 70')).toBeVisible();
+        await expectLayout({
+          layout: {
+            left: 30,
+            right: 70
+          },
+          mainPage,
+          onLayoutCount: 1
+        });
+        await expectPanelSize({
+          mainPage,
+          onResizeCount: 1,
+          panelId: "left",
+          panelSize: {
+            asPercentage: 30,
+            inPixels: 293
+          }
+        });
+        await expectPanelSize({
+          mainPage,
+          onResizeCount: 1,
+          panelId: "right",
+          panelSize: {
+            asPercentage: 70,
+            inPixels: 683
+          }
+        });
 
         await page.setViewportSize({
           width: 500,
           height: 500
         });
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
-        await expect(mainPage.getByText('"left": 53')).toBeVisible();
-        await expect(mainPage.getByText('"right": 47')).toBeVisible();
+        await expectLayout({
+          layout: {
+            left: 53,
+            right: 47
+          },
+          mainPage,
+          onLayoutCount: 2
+        });
+        await expectPanelSize({
+          mainPage,
+          onResizeCount: 3,
+          panelId: "left",
+          panelSize: {
+            asPercentage: 53,
+            inPixels: 250
+          },
+          prevPanelSize: {
+            asPercentage: 30,
+            inPixels: 143
+          }
+        });
+        await expectPanelSize({
+          mainPage,
+          onResizeCount: 3,
+          panelId: "right",
+          panelSize: {
+            asPercentage: 47,
+            inPixels: 226
+          },
+          prevPanelSize: {
+            asPercentage: 70,
+            inPixels: 333
+          }
+        });
 
         await page.setViewportSize({
           width: 1000,
           height: 500
         });
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
-        await expect(mainPage.getByText('"left": 53')).toBeVisible();
-        await expect(mainPage.getByText('"right": 47')).toBeVisible();
+        await expectLayout({
+          layout: {
+            left: 53,
+            right: 47
+          },
+          mainPage,
+          onLayoutCount: 2
+        });
       });
 
       test("resizing the window should revalidate group layout constraints alt", async ({
@@ -54,18 +115,28 @@ test.describe("resize events", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
-        await expect(mainPage.getByText('"left": 50')).toBeVisible();
-        await expect(mainPage.getByText('"right": 50')).toBeVisible();
+        await expectLayout({
+          layout: {
+            left: 50,
+            right: 50
+          },
+          mainPage,
+          onLayoutCount: 1
+        });
 
         await page.setViewportSize({
           width: 500,
           height: 500
         });
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
-        await expect(mainPage.getByText('"left": 50')).toBeVisible();
-        await expect(mainPage.getByText('"right": 50')).toBeVisible();
+        await expectLayout({
+          layout: {
+            left: 50,
+            right: 50
+          },
+          mainPage,
+          onLayoutCount: 1
+        });
 
         const bounds = (await page.getByRole("separator").boundingBox())!;
         await page.mouse.move(bounds.x, bounds.y);
@@ -73,9 +144,14 @@ test.describe("resize events", () => {
         await page.mouse.move(0, bounds.y);
 
         // Left would be 5% if the constraints were stale
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
-        await expect(mainPage.getByText('"left": 11')).toBeVisible();
-        await expect(mainPage.getByText('"right": 89')).toBeVisible();
+        await expectLayout({
+          layout: {
+            left: 11,
+            right: 89
+          },
+          mainPage,
+          onLayoutCount: 2
+        });
       });
 
       test("resizing the window should notify Panel resize handlers", async ({
@@ -91,27 +167,42 @@ test.describe("resize events", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
-        await expect(mainPage.getByText('"left": 30')).toBeVisible();
-        await expect(mainPage.getByText('"right": 70')).toBeVisible();
+        await expectLayout({
+          layout: {
+            left: 30,
+            right: 70
+          },
+          mainPage,
+          onLayoutCount: 1
+        });
 
         await page.setViewportSize({
           width: 500,
           height: 500
         });
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
-        await expect(mainPage.getByText('"left": 53')).toBeVisible();
-        await expect(mainPage.getByText('"right": 47')).toBeVisible();
+        await expectLayout({
+          layout: {
+            left: 53,
+            right: 47
+          },
+          mainPage,
+          onLayoutCount: 2
+        });
 
         await page.setViewportSize({
           width: 1000,
           height: 500
         });
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
-        await expect(mainPage.getByText('"left": 53')).toBeVisible();
-        await expect(mainPage.getByText('"right": 47')).toBeVisible();
+        await expectLayout({
+          layout: {
+            left: 53,
+            right: 47
+          },
+          mainPage,
+          onLayoutCount: 2
+        });
       });
     });
   }

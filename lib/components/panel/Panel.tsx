@@ -61,9 +61,15 @@ export function Panel({
   const { id: groupId, registerPanel } = useGroupContext();
 
   const hasOnResize = onResizeUnstable !== null;
-  const onResizeStable = useStableCallback((panelSize: PanelSize) => {
-    onResizeUnstable?.(panelSize, idProp);
-  });
+  const onResizeStable = useStableCallback(
+    (
+      panelSize: PanelSize,
+      _: string | number | undefined,
+      prevPanelSize: PanelSize | undefined
+    ) => {
+      onResizeUnstable?.(panelSize, idProp, prevPanelSize);
+    }
+  );
 
   // Register Panel with parent Group
   useIsomorphicLayoutEffect(() => {
@@ -71,9 +77,12 @@ export function Panel({
     if (element !== null) {
       return registerPanel({
         element,
-        expandToSizeRef: { current: undefined },
         id,
         idIsStable,
+        mutableValues: {
+          expandToSize: undefined,
+          prevSize: undefined
+        },
         onResize: hasOnResize ? onResizeStable : undefined,
         panelConstraints: {
           collapsedSize,

@@ -97,7 +97,7 @@ export function Decoder() {
       },
       panelProps: {
         panelRef: panelRefProp,
-        onResize: (panelSize, id) => {
+        onResize: (panelSize, id, prevPanelSize) => {
           assert(id, "Panel id required");
 
           setTimeout(() => {
@@ -109,8 +109,9 @@ export function Decoder() {
             panels: {
               ...prev.panels,
               [id]: {
-                onResizeCount: prev.panels[id]?.onResizeCount ?? 1,
-                panelSize
+                onResizeCount: (prev.panels[id]?.onResizeCount ?? 0) + 1,
+                panelSize,
+                prevPanelSize
               }
             }
           }));
