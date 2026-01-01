@@ -226,7 +226,10 @@ Falls back to <code>useId</code> when not provided.</p>
     </tr>
     <tr>
       <td>onResize</td>
-      <td><p>Called when panel sizes change; receives a map of Panel id to size.</p>
+      <td><p>Called when panel sizes change.
+@param panelSize Panel size (both as a percentage of the parent Group and in pixels)
+@param id Panel id (if one was provided as a prop)
+@param prevPanelSize Previous panel size (will be undefined on mount)</p>
 </td>
     </tr>
     <tr>

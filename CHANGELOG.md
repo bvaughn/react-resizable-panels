@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.2.0
+
+- [573](https://github.com/bvaughn/react-resizable-panels/pull/573): Add `prevPanelSize` param to `onResize` callback to help simplify collapse/expand detection.
+
 ## 4.1.1
 
 - [571](https://github.com/bvaughn/react-resizable-panels/pull/571): Update TS types to better reflect that `Separator` attributes `role` and `tabIndex` cannot be overridden using props.
@@ -109,12 +113,14 @@ Refer to [the docs](https://react-resizable-panels.now.sh/) for a complete list 
 <dd>A: Yes. Use the <code>onResize</code> event handler instead:
 
 ```ts
-onResize={(size) => {
-  // Either this
-  const isCollapsed = size === collapsedSize;
-
-  // Or this:
-  panelRef.isCollapsed();
+onResize={(nextSize, id, prevSize) => {
+  if (prevSize !== undefined) {
+    const wasCollapsed = prevSize.asPercentage !== 0;
+    const isCollapsed = nextSize.asPercentage === 0;
+    if (isCollapsed !== wasCollapsed) {
+      // Panel was collapsed or expanded
+    }
+  }
 }}
 ```
 </dd>

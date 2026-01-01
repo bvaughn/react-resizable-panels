@@ -31,9 +31,9 @@ export function Panel({
       className={`bg-slate-800 rounded rounded-md ${className}`}
       {...rest}
       id={id}
-      onResize={(size, id) => {
+      onResize={(size, id, prevSize) => {
         setSize(size);
-        onResize?.(size, id);
+        onResize?.(size, id, prevSize);
       }}
     >
       <PanelText>
