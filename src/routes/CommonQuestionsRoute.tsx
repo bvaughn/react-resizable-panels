@@ -8,7 +8,7 @@ export default function CommonQuestionsRoute() {
       <Header title="Common questions" />
       <dl>
         <dt className="text-lg text-fuchsia-300 font-bold">
-          Why is a vertical list not visible?
+          Why is a vertical group not visible?
         </dt>
         <dd className="mt-2 mb-4 flex flex-col gap-2">
           <p>

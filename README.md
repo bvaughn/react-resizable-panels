@@ -21,6 +21,10 @@ npm install react-resizable-panels
 
 TypeScript definitions are included within the published `dist` folder
 
+
+## FAQs
+Frequently asked questions can be found [here](https://react-resizable-panels.vercel.app/common-questions).
+
 ## Documentation
 
 Documentation for this project is available at [react-resizable-panels.vercel.app](https://react-resizable-panels.vercel.app/).
