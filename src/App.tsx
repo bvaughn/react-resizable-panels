@@ -56,6 +56,7 @@ export default function App() {
           </NavSection>
           <div>
             <NavLink path="/platform-requirements">Requirements</NavLink>
+            <NavLink path="/common-questions">Common questions</NavLink>
             <NavLink path="/support">Support</NavLink>
           </div>
         </>
