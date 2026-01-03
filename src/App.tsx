@@ -61,11 +61,7 @@ export default function App() {
           </div>
         </>
       }
-      packageDescription={
-        <>
-          <u>flex</u>ible layout components
-        </>
-      }
+      packageDescription="flexible layout components"
       packageName="react-resizable-panels"
       routes={routes}
       overview={
@@ -98,7 +94,7 @@ export default function App() {
 
 const VERSIONS = {
   "4": {
-    "4.0.8": "https://react-resizable-panels.now.sh/"
+    "4.0.8": "https://react-resizable-panels.vercel.app/"
   },
   "3": {
     "3.0.6":

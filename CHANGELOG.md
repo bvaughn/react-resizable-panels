@@ -106,7 +106,7 @@ Version 4 of react-resizable-panels offers more flexible size constraints– sup
 
 ## Migrating from version 3 to 4
 
-Refer to [the docs](https://react-resizable-panels.now.sh/) for a complete list of props and API methods. Below are some examples of migrating from version 3 to 4, but first a couple of potential questions:
+Refer to [the docs](https://react-resizable-panels.vercel.app/) for a complete list of props and API methods. Below are some examples of migrating from version 3 to 4, but first a couple of potential questions:
 
 <dl>
 <dt>Q: Why'd you rename &lt;component&gt; or &lt;prop&gt;?</dt>
