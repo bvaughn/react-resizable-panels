@@ -247,3 +247,6 @@ export function Group({
     </GroupContext.Provider>
   );
 }
+
+// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/displayName
+Group.displayName = "Group";

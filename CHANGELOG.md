@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add `displayName` property to `Group`, `Panel`, and `Separator` components for better debugging experience.
+
 ## 4.2.0
 
 - [573](https://github.com/bvaughn/react-resizable-panels/pull/573): Add `prevPanelSize` param to `onResize` callback to help simplify collapse/expand detection.

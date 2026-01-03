@@ -144,3 +144,6 @@ export function Separator({
     />
   );
 }
+
+// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/displayName
+Separator.displayName = "Separator";

@@ -147,6 +147,9 @@ export function Panel({
   );
 }
 
+// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/displayName
+Panel.displayName = "Panel";
+
 const PROHIBITED_CSS_PROPERTIES: CSSProperties = {
   minHeight: "unset",
   maxHeight: "unset",
