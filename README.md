@@ -1,6 +1,6 @@
-# react-resizable-panels
+<img src="https://react-resizable-panels.vercel.app/og.svg" alt="react-resizable-panels logo" width="400" height="210" />
 
-React components for resizable panel groups/layouts.
+`react-resizable-panels`: React components for resizable panel groups/layouts.
 
 ## Support
 
