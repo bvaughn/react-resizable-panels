@@ -27,7 +27,7 @@ export function Separator({
       )}
       id={id}
     >
-      <GrabDotsIcon className="w-6 h-6 sm:w-3 sm:h-3 shrink-0" />
+      <GrabDotsIcon className="w-6 h-6 sm:w-4 sm:h-4 shrink-0" />
     </SeparatorExternal>
   );
 }
