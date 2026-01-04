@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { eventEmitter } from "../../global/mutableState";
 import type { InteractionState } from "../../global/types";
 import { calculateSeparatorAriaValues } from "../../global/utils/calculateSeparatorAriaValues";
@@ -28,7 +28,7 @@ import type { RegisteredSeparator, SeparatorProps } from "./types";
 export function Separator({
   children,
   className,
-  elementRef,
+  elementRef: elementRefProp,
   id: idProp,
   style,
   ...rest
@@ -44,9 +44,10 @@ export function Separator({
 
   const [dragState, setDragState] =
     useState<InteractionState["state"]>("inactive");
-  const [element, setElement] = useState<HTMLDivElement | null>(null);
 
-  const mergedRef = useMergedRefs(setElement, elementRef);
+  const elementRef = useRef<HTMLDivElement | null>(null);
+
+  const mergedRef = useMergedRefs(elementRef, elementRefProp);
 
   const {
     id: groupId,
@@ -60,6 +61,7 @@ export function Separator({
   // Register Separator with parent Group
   // Listen to global state for drag state related to this Separator
   useIsomorphicLayoutEffect(() => {
+    const element = elementRef.current;
     if (element !== null) {
       const separator: RegisteredSeparator = {
         element,
@@ -117,7 +119,7 @@ export function Separator({
         unregisterSeparator();
       };
     }
-  }, [element, groupId, id, registerSeparator]);
+  }, [groupId, id, registerSeparator]);
 
   return (
     <div

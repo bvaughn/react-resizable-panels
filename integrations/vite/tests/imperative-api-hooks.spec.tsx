@@ -10,22 +10,24 @@ test.describe("imperative API hooks", () => {
         { useGroupRef: true },
         { useGroupCallbackRef: true }
       ]) {
-        test(
+        test.describe(
           useGroupCallbackRef ? "useGroupCallbackRef" : "useGroupRef",
-          async ({ page: mainPage }) => {
-            await goToUrl(
-              mainPage,
-              <Group>
-                <Panel id="left" defaultSize="30" />
-                <Separator />
-                <Panel id="right" />
-              </Group>,
-              { usePopUpWindow, useGroupCallbackRef, useGroupRef }
-            );
+          () => {
+            test("should work", async ({ page: mainPage }) => {
+              await goToUrl(
+                mainPage,
+                <Group>
+                  <Panel id="left" defaultSize="30" />
+                  <Separator />
+                  <Panel id="right" />
+                </Group>,
+                { usePopUpWindow, useGroupCallbackRef, useGroupRef }
+              );
 
-            await expect(
-              mainPage.getByText("imperativeGroupApiLayout")
-            ).toContainText('"left": 30');
+              await expect(
+                mainPage.getByText("imperativeGroupApiLayout")
+              ).toContainText('"left": 30');
+            });
           }
         );
       }
@@ -34,22 +36,24 @@ test.describe("imperative API hooks", () => {
         { usePanelRef: true },
         { usePanelCallbackRef: true }
       ]) {
-        test(
+        test.describe(
           usePanelCallbackRef ? "usePanelCallbackRef" : "usePanelRef",
-          async ({ page: mainPage }) => {
-            await goToUrl(
-              mainPage,
-              <Group>
-                <Panel id="left" defaultSize="30" />
-                <Separator />
-                <Panel id="right" />
-              </Group>,
-              { usePopUpWindow, usePanelCallbackRef, usePanelRef }
-            );
+          () => {
+            test("should work", async ({ page: mainPage }) => {
+              await goToUrl(
+                mainPage,
+                <Group>
+                  <Panel id="left" defaultSize="30" />
+                  <Separator />
+                  <Panel id="right" />
+                </Group>,
+                { usePopUpWindow, usePanelCallbackRef, usePanelRef }
+              );
 
-            await expect(
-              mainPage.getByText("imperativePanelApiSize")
-            ).toContainText('"asPercentage": 70');
+              await expect(
+                mainPage.getByText("imperativePanelApiSize")
+              ).toContainText('"asPercentage": 70');
+            });
           }
         );
       }
