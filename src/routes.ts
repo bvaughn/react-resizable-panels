@@ -44,7 +44,6 @@ export const routes = {
   "/platform-requirements": lazy(
     () => import("./routes/PlatformRequirementsRoute")
   ),
-  "/common-questions": lazy(() => import("./routes/CommonQuestionsRoute")),
   "/test": lazy(() => import("./routes/TestRoute"))
 } satisfies Record<string, Route>;
 

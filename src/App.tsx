@@ -1,15 +1,24 @@
 import { ArrowTurnDownRightIcon } from "@heroicons/react/20/solid";
-import { AppRoot, NavSection } from "react-lib-tools";
+import {
+  AppRoot,
+  Callout,
+  Code,
+  NavSection,
+  type CommonQuestion
+} from "react-lib-tools";
+import { html as VerticalHTML } from "../public/generated/examples/LayoutBasicsVertical.json";
+import { html as VerticalGroupOverflowHTML } from "../public/generated/examples/VerticalGroupOverflow.json";
+import { Link } from "./components/Link";
 import { NavLink } from "./components/NavLink";
 import { Group } from "./components/styled-panels/Group";
 import { Panel } from "./components/styled-panels/Panel";
 import { Separator } from "./components/styled-panels/Separator";
 import { routes } from "./routes";
-import { Link } from "./components/Link";
 
 export default function App() {
   return (
     <AppRoot
+      commonQuestions={commonQuestions}
       navLinks={
         <>
           <NavLink path="/">Getting started</NavLink>
@@ -91,6 +100,65 @@ export default function App() {
     />
   );
 }
+
+const commonQuestions: CommonQuestion[] = [
+  {
+    id: "invalid-panel-layout",
+    question: 'Why do I see an "invalid panel layout" error?',
+    answer: (
+      <>
+        <p>
+          This error means that a <code>Group</code> layout (or the sum total of{" "}
+          <code>Panel</code> default sizes) does not add up to 100%.
+        </p>
+        <p>
+          If the layout you've specified does add up to 100, the most likely
+          remaining cause is that you've specified sizes as <em>pixels</em>{" "}
+          rather than <em>percentages</em> as per this note from the{" "}
+          <Link to="/props/panel">
+            <code>Panel</code> docs
+          </Link>
+          :
+        </p>
+        <Callout intent="primary" minimal>
+          Numeric values are assumed to be pixels. Strings without explicit
+          units are assumed to be percentages (0%..100%).
+        </Callout>
+      </>
+    )
+  },
+  {
+    id: "vertical-group-height",
+    question: "Why is a vertical group not visible?",
+    answer: (
+      <>
+        <p>
+          <code>Group</code> is a block-level element and so it will fill the
+          width of the container it is rendered within. Horizontal groups will
+          also expand to fit the height of <code>Panel</code> content. Vertical
+          groups however require an explicit height (typically set using either
+          the <code>className</code> or <code>style</code> props).
+        </p>
+        <Code html={VerticalHTML} />
+      </>
+    )
+  },
+  {
+    id: "horizontal-group-height",
+    question: "Why is a horizontal group's content too tall?",
+    answer: (
+      <>
+        <p>
+          Horizontal <code>Groups</code> will fill expand to fit the height of
+          their <code>Panel</code> contents. In this behavior is unwanted (e.g.
+          when rendering a virtual list) the recommended fix is to add an
+          explicit height to the <code>Groups</code> element.
+        </p>
+        <Code html={VerticalGroupOverflowHTML} />
+      </>
+    )
+  }
+];
 
 const VERSIONS = {
   "4": {
