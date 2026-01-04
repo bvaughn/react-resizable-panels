@@ -1,4 +1,5 @@
 import { render } from "@testing-library/react";
+import { createRef, useEffect } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { eventEmitter } from "../../global/mutableState";
 import { moveSeparator } from "../../global/test/moveSeparator";
@@ -10,8 +11,8 @@ import {
 import { Panel } from "../panel/Panel";
 import { Separator } from "../separator/Separator";
 import { Group } from "./Group";
-import { createRef } from "react";
 import type { GroupImperativeHandle } from "./types";
+import { useGroupRef } from "./useGroupRef";
 
 describe("Group", () => {
   test("changes to defaultProps or disableCursor should not cause Group to remount", () => {
@@ -210,6 +211,45 @@ describe("Group", () => {
         left: 35,
         right: 65
       });
+    });
+
+    // See github.com/bvaughn/react-resizable-panels/issues/576
+    test("should allow layout to be read or written on mount", () => {
+      setElementBoundsFunction((element) => {
+        if (element.hasAttribute("data-panel")) {
+          return new DOMRect(0, 0, 50, 50);
+        } else {
+          return new DOMRect(0, 0, 100, 50);
+        }
+      });
+
+      function Repro() {
+        const groupRef = useGroupRef();
+
+        useEffect(() => {
+          const group = groupRef.current;
+          assert(group);
+
+          expect(group.getLayout()).toEqual({
+            left: 25,
+            right: 75
+          });
+
+          // Should not throw
+          group.setLayout({ left: 50, right: 50 });
+        }, [groupRef]);
+
+        return (
+          <Group groupRef={groupRef}>
+            <Panel defaultSize="25" id="left">
+              Left
+            </Panel>
+            <Panel id="right">Right</Panel>
+          </Group>
+        );
+      }
+
+      render(<Repro />);
     });
   });
 

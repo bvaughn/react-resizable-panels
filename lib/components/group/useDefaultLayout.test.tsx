@@ -83,41 +83,81 @@ describe("useDefaultLayout", () => {
   });
 
   // See github.com/bvaughn/react-resizable-panels/pull/540
-  test("should ignore invalid layouts (num panels mismatch)", () => {
-    const groupRef = createRef<GroupImperativeHandle>();
+  describe("should ignore temporarily invalid layouts", () => {
+    test("on mount (ids mismatch)", () => {
+      const groupRef = createRef<GroupImperativeHandle>();
 
-    setDefaultElementBounds(new DOMRect(0, 0, 100, 50));
+      setDefaultElementBounds(new DOMRect(0, 0, 100, 50));
 
-    function Test({ hideMiddlePanel }: { hideMiddlePanel?: boolean }) {
-      const { defaultLayout, onLayoutChange } = useDefaultLayout({
-        debounceSaveMs: 0,
-        id: "test-group-id",
-        storage: localStorage
-      });
-
-      // Prime the local storage
-      onLayoutChange({
-        left: 20,
-        middle: 30,
-        right: 50
-      });
-
-      return (
+      render(
         <Group
-          defaultLayout={defaultLayout}
+          defaultLayout={{
+            left: 20,
+            right: 50
+          }}
           groupRef={groupRef}
-          onLayoutChange={onLayoutChange}
         >
-          <Panel id="left">left</Panel>
-          {!hideMiddlePanel && <Panel id="middle">middle</Panel>}
-          <Panel id="right">right</Panel>
+          <Panel id="before" />
+          <Panel id="after" />
         </Group>
       );
-    }
 
-    const { rerender } = render(<Test />);
+      expect(groupRef.current?.getLayout()).toMatchInlineSnapshot(`
+      {
+        "after": 50,
+        "before": 50,
+      }
+    `);
+    });
 
-    expect(groupRef.current?.getLayout()).toMatchInlineSnapshot(`
+    test("on mount (num panels mismatch)", () => {
+      const groupRef = createRef<GroupImperativeHandle>();
+
+      setDefaultElementBounds(new DOMRect(0, 0, 100, 50));
+
+      render(
+        <Group
+          defaultLayout={{
+            left: 20,
+            middle: 30,
+            right: 50
+          }}
+          groupRef={groupRef}
+        >
+          <Panel id="left" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      expect(groupRef.current?.getLayout()).toMatchInlineSnapshot(`
+      {
+        "left": 50,
+        "right": 50,
+      }
+    `);
+    });
+
+    test("after update (num panels mismatch)", () => {
+      const groupRef = createRef<GroupImperativeHandle>();
+
+      setDefaultElementBounds(new DOMRect(0, 0, 100, 50));
+
+      const { rerender } = render(
+        <Group
+          defaultLayout={{
+            left: 20,
+            middle: 30,
+            right: 50
+          }}
+          groupRef={groupRef}
+        >
+          <Panel id="left" />
+          <Panel id="middle" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      expect(groupRef.current?.getLayout()).toMatchInlineSnapshot(`
       {
         "left": 20,
         "middle": 30,
@@ -125,14 +165,27 @@ describe("useDefaultLayout", () => {
       }
     `);
 
-    rerender(<Test hideMiddlePanel />);
+      rerender(
+        <Group
+          defaultLayout={{
+            left: 20,
+            middle: 30,
+            right: 50
+          }}
+          groupRef={groupRef}
+        >
+          <Panel id="left">left</Panel>
+          <Panel id="right">right</Panel>
+        </Group>
+      );
 
-    expect(groupRef.current?.getLayout()).toMatchInlineSnapshot(`
+      expect(groupRef.current?.getLayout()).toMatchInlineSnapshot(`
       {
         "left": 50,
         "right": 50,
       }
     `);
+    });
   });
 
   test("should save separate layouts per panel group when panelIds param is present", () => {

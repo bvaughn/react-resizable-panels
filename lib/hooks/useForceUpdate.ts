@@ -1,7 +1,9 @@
 import { useCallback, useState } from "react";
 
 export function useForceUpdate() {
-  const [, setCount] = useState(0);
+  const [sigil, setSigil] = useState({});
 
-  return useCallback(() => setCount((prevCount) => prevCount + 1), []);
+  const forceUpdate = useCallback(() => setSigil({}), []);
+
+  return [sigil as unknown, forceUpdate] as const;
 }

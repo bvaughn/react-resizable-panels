@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { mountGroup } from "../../global/mountGroup";
 import { eventEmitter, read } from "../../global/mutableState";
 import { layoutsEqual } from "../../global/utils/layoutsEqual";
+import { useForceUpdate } from "../../hooks/useForceUpdate";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
@@ -57,18 +58,22 @@ export function Group({
 
   const id = useId(idProp);
 
-  const [dragActive, setDragActive] = useState(false);
   const elementRef = useRef<HTMLDivElement | null>(null);
-  const [layout, setLayout] = useState<Layout>(defaultLayout ?? {});
-  const [panels, setPanels] = useState<RegisteredPanel[]>([]);
-  const [separators, setSeparators] = useState<RegisteredSeparator[]>([]);
+
+  const [dragActive, setDragActive] = useState(false);
+  const [layout, setLayout] = useState(defaultLayout ?? {});
+  const [panelOrSeparatorChangeSigil, forceUpdate] = useForceUpdate();
 
   const inMemoryValuesRef = useRef<{
     lastExpandedPanelSizes: { [panelIds: string]: number };
     layouts: { [panelIds: string]: Layout };
+    panels: RegisteredPanel[];
+    separators: RegisteredSeparator[];
   }>({
     lastExpandedPanelSizes: {},
-    layouts: {}
+    layouts: {},
+    panels: [],
+    separators: []
   });
 
   const mergedRef = useMergedRefs(elementRef, elementRefProp);
@@ -80,23 +85,41 @@ export function Group({
       id,
       orientation,
       registerPanel: (panel: RegisteredPanel) => {
-        setPanels((prev) => sortByElementOffset(orientation, [...prev, panel]));
+        const inMemoryValues = inMemoryValuesRef.current;
+        inMemoryValues.panels = sortByElementOffset(orientation, [
+          ...inMemoryValues.panels,
+          panel
+        ]);
+
+        forceUpdate();
+
         return () => {
-          setPanels((prev) => prev.filter((current) => current !== panel));
+          inMemoryValues.panels = inMemoryValues.panels.filter(
+            (current) => current !== panel
+          );
+
+          forceUpdate();
         };
       },
       registerSeparator: (separator: RegisteredSeparator) => {
-        setSeparators((prev) =>
-          sortByElementOffset(orientation, [...prev, separator])
-        );
+        const inMemoryValues = inMemoryValuesRef.current;
+        inMemoryValues.separators = sortByElementOffset(orientation, [
+          ...inMemoryValues.separators,
+          separator
+        ]);
+
+        forceUpdate();
+
         return () => {
-          setSeparators((prev) =>
-            prev.filter((current) => current !== separator)
+          inMemoryValues.separators = inMemoryValues.separators.filter(
+            (current) => current !== separator
           );
+
+          forceUpdate();
         };
       }
     }),
-    [id, orientation]
+    [id, forceUpdate, orientation]
   );
 
   const stableProps = useStableObject({
@@ -114,6 +137,8 @@ export function Group({
       return;
     }
 
+    const inMemoryValues = inMemoryValuesRef.current;
+
     const group: RegisteredGroup = {
       defaultLayout: stableProps.defaultLayout,
       disableCursor: !!stableProps.disableCursor,
@@ -124,8 +149,8 @@ export function Group({
         inMemoryValuesRef.current.lastExpandedPanelSizes,
       inMemoryLayouts: inMemoryValuesRef.current.layouts,
       orientation,
-      panels,
-      separators
+      panels: inMemoryValues.panels,
+      separators: inMemoryValues.separators
     };
 
     registeredGroupRef.current = group;
@@ -138,10 +163,8 @@ export function Group({
       const { defaultLayoutDeferred, derivedPanelConstraints, layout } = match;
 
       if (!defaultLayoutDeferred && derivedPanelConstraints.length > 0) {
-        // This indicates that the Group has not finished mounting yet
-        // Likely because it has been rendered inside of a hidden DOM subtree
-        // Ignore layouts in this case because they will not have been validated
         setLayout(layout);
+
         onLayoutChangeStable?.(layout);
       }
     }
@@ -182,6 +205,7 @@ export function Group({
           }
 
           setLayout(layout);
+
           onLayoutChangeStable?.(layout);
         }
       }
@@ -199,8 +223,7 @@ export function Group({
     id,
     onLayoutChangeStable,
     orientation,
-    panels,
-    separators,
+    panelOrSeparatorChangeSigil,
     stableProps
   ]);
 
