@@ -44,6 +44,17 @@ export const routes = {
   "/platform-requirements": lazy(
     () => import("./routes/PlatformRequirementsRoute")
   ),
+  "/hooks/use-default-layout": lazy(
+    () => import("./routes/UseDefaultLayoutRoute")
+  ),
+  "/hooks/use-group-ref": lazy(() => import("./routes/UseGroupRefRoute")),
+  "/hooks/use-group-callback-ref": lazy(
+    () => import("./routes/UseGroupCallbackRefRoute")
+  ),
+  "/hooks/use-panel-ref": lazy(() => import("./routes/UsePanelRefRoute")),
+  "/hooks/use-panel-callback-ref": lazy(
+    () => import("./routes/UsePanelCallbackRefRoute")
+  ),
   "/test": lazy(() => import("./routes/TestRoute"))
 } satisfies Record<string, Route>;
 

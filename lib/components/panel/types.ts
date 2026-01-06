@@ -88,7 +88,9 @@ export interface PanelImperativeHandle {
   resize: (size: number | string) => void;
 }
 
-export type PanelProps = HTMLAttributes<HTMLDivElement> & {
+type BasePanelAttributes = Omit<HTMLAttributes<HTMLDivElement>, "onResize">;
+
+export type PanelProps = BasePanelAttributes & {
   /**
    * CSS class name.
    *

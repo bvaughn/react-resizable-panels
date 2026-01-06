@@ -1,14 +1,21 @@
 import type { ComponentProps } from "react";
-import { Group } from "react-resizable-panels";
 
-declare const props: ComponentProps<typeof Group>;
+declare const rest: ComponentProps<typeof Group>;
 
 // <begin>
 
-import { useGroupCallbackRef } from "react-resizable-panels";
+import { Group, useGroupCallbackRef } from "react-resizable-panels";
 
-// @ts-expect-error Unused variable
-// eslint-disable-next-line react-hooks/rules-of-hooks, @typescript-eslint/no-unused-vars
-const [groupRef, setGroupRef] = useGroupCallbackRef();
+function ExampleComponent() {
+  // groupRef can safely be shared with other components, context, and hooks
+  // It can also be used as a dependency to effects
+  // @ts-expect-error Unused variable
+  // eslint-disable-next-line react-hooks/rules-of-hooks, @typescript-eslint/no-unused-vars
+  const [groupRef, setGroupRef] = useGroupCallbackRef();
 
-<Group groupRef={setGroupRef} {...props} />;
+  return <Group groupRef={setGroupRef} {...rest} />;
+}
+
+// <end>
+
+export { ExampleComponent };
