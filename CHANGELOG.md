@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.2.2
 
 - `useDefaultLayout` hook initializes `storage` param to `localStorage` if undefined.
 - Fix ambiguous type for `Panel` prop `onResize` that impacted certain TypeScript versions.
