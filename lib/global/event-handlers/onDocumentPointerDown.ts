@@ -7,6 +7,8 @@ import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
 export function onDocumentPointerDown(event: PointerEvent) {
   if (event.defaultPrevented) {
     return;
+  } else if (event.pointerType === "mouse" && event.button > 0) {
+    return;
   }
 
   const { mountedGroups } = read();
