@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Drag interactions only call `event.preventDefault` for the primary button
+
 ## 4.2.2
 
 - `useDefaultLayout` hook initializes `storage` param to `localStorage` if undefined.

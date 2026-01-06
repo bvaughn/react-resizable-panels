@@ -38,6 +38,42 @@ test.describe("pointer interactions", () => {
         await expect(mainPage.getByText('"left": 5')).toBeVisible();
       });
 
+      // See github.com/bvaughn/react-resizable-panels/issues/581
+      test("should not handle or call preventDefault for right-click events", async ({
+        page: mainPage
+      }) => {
+        const page = await goToUrl(
+          mainPage,
+          <Group>
+            <Panel defaultSize="30%" id="left" minSize={50} />
+            <Separator />
+            <Panel id="right" minSize={50} />
+          </Group>,
+          { usePopUpWindow }
+        );
+
+        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await expect(mainPage.getByText('"left": 30')).toBeVisible();
+
+        const separator = page.getByRole("separator");
+        const box = (await separator.boundingBox())!;
+
+        await page.mouse.move(box.x, box.y);
+        await page.mouse.down({ button: "right" });
+
+        // Right-click should have been registered but not handled by this library
+        await expect(separator).not.toHaveAttribute("data-separator", "active");
+
+        // Subsequent clicks should not impact the layout
+        await page.mouse.move(box.x - 100, box.y);
+        await page.mouse.click(0, 0);
+
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await expect(mainPage.getByText('"left": 30')).toBeVisible();
+      });
+
       test("drag panel boundary to resize group", async ({
         page: mainPage
       }) => {
