@@ -6,6 +6,7 @@ import {
   NavSection,
   type CommonQuestion
 } from "react-lib-tools";
+import { repository } from "../package.json";
 import { html as VerticalHTML } from "../public/generated/examples/LayoutBasicsVertical.json";
 import { html as VerticalGroupOverflowHTML } from "../public/generated/examples/VerticalGroupOverflow.json";
 import { Link } from "./components/Link";
@@ -63,6 +64,17 @@ export default function App() {
             <NavLink path="/imperative-api/group">Group API</NavLink>
             <NavLink path="/imperative-api/panel">Panel API</NavLink>
           </NavSection>
+          <NavSection label="Hooks">
+            <NavLink path="/hooks/use-default-layout">useDefaultLayout</NavLink>
+            <NavLink path="/hooks/use-group-ref">useGroupRef</NavLink>
+            <NavLink path="/hooks/use-group-callback-ref">
+              useGroupCallbackRef
+            </NavLink>
+            <NavLink path="/hooks/use-panel-ref">usePanelRef</NavLink>
+            <NavLink path="/hooks/use-panel-callback-ref">
+              usePanelCallbackRef
+            </NavLink>
+          </NavSection>
           <div>
             <NavLink path="/platform-requirements">Requirements</NavLink>
             <NavLink path="/common-questions">Common questions</NavLink>
@@ -72,6 +84,7 @@ export default function App() {
       }
       packageDescription="flexible layout components"
       packageName="react-resizable-panels"
+      repositoryUrl={repository.url}
       routes={routes}
       overview={
         <>
@@ -157,23 +170,39 @@ const commonQuestions: CommonQuestion[] = [
         <Code html={VerticalGroupOverflowHTML} />
       </>
     )
+  },
+  {
+    id: "local-storage-undefined",
+    question: "ReferenceError: localStorage is not defined",
+    answer: (
+      <>
+        <p>
+          The <code>useDefaultLayout</code> hook saves layouts to{" "}
+          <code>localStorage</code> by default. This does not work for
+          server-rendered applications though, since <code>localStorage</code>{" "}
+          is only defined on the client.
+        </p>
+        <p>
+          Refer to the{" "}
+          <Link to="/examples/persistent-layout/server-rendering">
+            server rendering
+          </Link>{" "}
+          or{" "}
+          <Link to="/examples/persistent-layout/server-components">
+            server components
+          </Link>{" "}
+          docs for examples of how to save layouts on the server.
+        </p>
+      </>
+    )
   }
 ];
 
 const VERSIONS = {
-  "4": {
-    "4.0.8": "https://react-resizable-panels.vercel.app/"
-  },
-  "3": {
-    "3.0.6":
-      "https://react-resizable-panels-au2wmqbbr-brian-vaughns-projects.vercel.app/"
-  },
-  "2": {
-    "2.1.7":
-      "https://react-resizable-panels-ca7gk2gh5-brian-vaughns-projects.vercel.app/",
-    "2.0.23": ""
-  },
-  "1": {
-    "1.0.10": ""
-  }
+  "4.0.8": "https://react-resizable-panels.vercel.app/",
+  "3.0.6":
+    "https://react-resizable-panels-au2wmqbbr-brian-vaughns-projects.vercel.app/",
+  "2.1.7":
+    "https://react-resizable-panels-ca7gk2gh5-brian-vaughns-projects.vercel.app/",
+  "1.0.10": ""
 };

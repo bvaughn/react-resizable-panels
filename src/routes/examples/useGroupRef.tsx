@@ -1,13 +1,17 @@
 import type { ComponentProps } from "react";
-import { Group } from "react-resizable-panels";
 
-declare const props: ComponentProps<typeof Group>;
+declare const rest: ComponentProps<typeof Group>;
 
 // <begin>
 
-import { useGroupRef } from "react-resizable-panels";
+import { Group, useGroupRef } from "react-resizable-panels";
 
-// eslint-disable-next-line react-hooks/rules-of-hooks
-const ref = useGroupRef();
+function ExampleComponent() {
+  const ref = useGroupRef();
 
-<Group groupRef={ref} {...props} />;
+  return <Group groupRef={ref} {...rest} />;
+}
+
+// <end>
+
+export { ExampleComponent };

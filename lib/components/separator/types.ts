@@ -5,9 +5,12 @@ export type RegisteredSeparator = {
   id: string;
 };
 
-type BaseAttributes = Omit<HTMLAttributes<HTMLDivElement>, "role" | "tabIndex">;
+type BaseSeparatorAttributes = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "role" | "tabIndex"
+>;
 
-export type SeparatorProps = BaseAttributes & {
+export type SeparatorProps = BaseSeparatorAttributes & {
   /**
    * CSS class name.
    *

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- `useDefaultLayout` hook initializes `storage` param to `localStorage` if undefined.
+- Fix ambiguous type for `Panel` prop `onResize` that impacted certain TypeScript versions.
+
+## 4.2.1
+
 - [2a6b03f](https://github.com/bvaughn/react-resizable-panels/commit/2a6b03f67d7d8fea8483a6a69bcdaebbe1b18a7a): Add `displayName` property to `Group`, `Panel`, and `Separator` components for better debugging experience.
 - [577](https://github.com/bvaughn/react-resizable-panels/pull/577): `Group` handles newly registered `Panels` + `Separators` during mount so that user code can safely call imperative APIs earlier
 

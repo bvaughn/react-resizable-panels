@@ -3,10 +3,14 @@ import { debounce } from "../../utils/debounce";
 import { getStorageKey } from "./auto-save/getStorageKey";
 import type { Layout, LayoutStorage, OnGroupLayoutChange } from "./types";
 
+/**
+ * Saves and restores group layouts between page loads.
+ * It can be configured to store values using `localStorage`, `sessionStorage`, cookies, or any other persistence layer that makes sense for your application.
+ */
 export function useDefaultLayout({
   debounceSaveMs = 100,
   panelIds,
-  storage,
+  storage = localStorage,
   ...rest
 }: {
   /**
@@ -17,6 +21,8 @@ export function useDefaultLayout({
   /**
    * For Groups that contain conditionally-rendered Panels, this prop can be used to save and restore multiple layouts.
    *
+   * ℹ️ This prevents layout shift for server-rendered apps.
+   *
    * ⚠️ Panel ids must match the Panels rendered within the Group during mount or the initial layout will be incorrect.
    */
   panelIds?: string[] | undefined;
@@ -24,8 +30,9 @@ export function useDefaultLayout({
   /**
    * Storage implementation; supports localStorage, sessionStorage, and custom implementations
    * Refer to documentation site for example integrations.
+   *
    */
-  storage: LayoutStorage;
+  storage?: LayoutStorage;
 } & (
   | {
       /**
@@ -36,7 +43,7 @@ export function useDefaultLayout({
     }
   | {
       /**
-       * Unique layout identifier.
+       * Uniquely identifies a specific group/layout.
        */
       id: string;
     }

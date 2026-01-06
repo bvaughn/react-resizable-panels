@@ -1,14 +1,26 @@
 import type { ComponentProps } from "react";
-import { Panel } from "react-resizable-panels";
 
-declare const props: ComponentProps<typeof Panel>;
+declare const rest: ComponentProps<typeof Panel>;
 
 // <begin>
 
-import { usePanelCallbackRef } from "react-resizable-panels";
+import { Group, Panel, usePanelCallbackRef } from "react-resizable-panels";
 
-// @ts-expect-error Unused variable
-// eslint-disable-next-line react-hooks/rules-of-hooks, @typescript-eslint/no-unused-vars
-const [panelRef, setPanelRef] = usePanelCallbackRef();
+function ExampleComponent() {
+  // panelRef can safely be shared with other components, context, and hooks
+  // It can also be used as a dependency to effects
+  // @ts-expect-error Unused variable
+  // eslint-disable-next-line react-hooks/rules-of-hooks, @typescript-eslint/no-unused-vars
+  const [panelRef, setPanelRef] = usePanelCallbackRef();
 
-<Panel panelRef={setPanelRef} {...props} />;
+  return (
+    <Group>
+      <Panel panelRef={setPanelRef} {...rest} />
+      {/* Other panels... */}
+    </Group>
+  );
+}
+
+// <end>
+
+export { ExampleComponent };
