@@ -15,15 +15,15 @@ export type SeparatorToPanelsMap = Map<
   [primaryPanel: RegisteredPanel, secondaryPanel: RegisteredPanel]
 >;
 
-export type MountedGroupMap = Map<
-  RegisteredGroup,
-  {
-    defaultLayoutDeferred: boolean;
-    derivedPanelConstraints: PanelConstraints[];
-    layout: Layout;
-    separatorToPanels: SeparatorToPanelsMap;
-  }
->;
+export type MountedGroup = {
+  defaultLayoutDeferred: boolean;
+  derivedPanelConstraints: PanelConstraints[];
+  layout: Layout;
+  layoutTarget: Layout;
+  separatorToPanels: SeparatorToPanelsMap;
+};
+
+export type MountedGroupMap = Map<RegisteredGroup, MountedGroup>;
 
 type Events = {
   cursorFlagsChange: number;
@@ -77,20 +77,24 @@ export function update(value: Partial<State> | UpdaterFunction) {
     state.mountedGroups.forEach((value, group) => {
       value.derivedPanelConstraints.forEach((constraints) => {
         if (constraints.collapsible) {
-          const { layout: prevLayout } =
-            prevState.mountedGroups.get(group) ?? {};
-          if (prevLayout) {
+          const prevGroup = prevState.mountedGroups.get(group);
+          const prevLayoutTarget = prevGroup?.layoutTarget ?? prevGroup?.layout;
+          const nextLayoutTarget = value.layoutTarget ?? value.layout;
+          const prevTargetValue = prevLayoutTarget?.[constraints.panelId];
+          const nextTargetValue = nextLayoutTarget?.[constraints.panelId];
+
+          if (prevTargetValue !== undefined && nextTargetValue !== undefined) {
             const isCollapsed = layoutNumbersEqual(
               constraints.collapsedSize,
-              value.layout[constraints.panelId]
+              nextTargetValue
             );
             const wasCollapsed = layoutNumbersEqual(
               constraints.collapsedSize,
-              prevLayout[constraints.panelId]
+              prevTargetValue
             );
             if (isCollapsed && !wasCollapsed) {
               group.inMemoryLastExpandedPanelSizes[constraints.panelId] =
-                prevLayout[constraints.panelId];
+                prevTargetValue;
             }
           }
         }

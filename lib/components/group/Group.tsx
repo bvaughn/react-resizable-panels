@@ -17,6 +17,8 @@ import { GroupContext } from "./GroupContext";
 import { sortByElementOffset } from "./sortByElementOffset";
 import type { GroupProps, Layout, RegisteredGroup } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
+import { normalizeResizeSmoothing } from "../../utils/normalizeResizeSmoothing";
+import { shouldNotifyLayoutChange } from "../../utils/shouldNotifyLayoutChange";
 
 /**
  * A Group wraps a set of resizable Panel components.
@@ -41,6 +43,7 @@ export function Group({
   id: idProp,
   onLayoutChange: onLayoutChangeUnstable,
   orientation = "horizontal",
+  resizeSmoothing: resizeSmoothingProp,
   style,
   ...rest
 }: GroupProps) {
@@ -122,9 +125,15 @@ export function Group({
     [id, forceUpdate, orientation]
   );
 
+  const resizeSmoothing = useMemo(
+    () => normalizeResizeSmoothing(resizeSmoothingProp),
+    [resizeSmoothingProp]
+  );
+
   const stableProps = useStableObject({
     defaultLayout,
-    disableCursor
+    disableCursor,
+    resizeSmoothing
   });
 
   const registeredGroupRef = useRef<RegisteredGroup | null>(null);
@@ -145,6 +154,7 @@ export function Group({
       disabled: !!disabled,
       element,
       id,
+      resizeSmoothing: stableProps.resizeSmoothing,
       inMemoryLastExpandedPanelSizes:
         inMemoryValuesRef.current.lastExpandedPanelSizes,
       inMemoryLayouts: inMemoryValuesRef.current.layouts,
@@ -161,11 +171,14 @@ export function Group({
     const match = globalState.mountedGroups.get(group);
     if (match) {
       const { defaultLayoutDeferred, derivedPanelConstraints, layout } = match;
+      const layoutTarget = match.layoutTarget ?? layout;
 
       if (!defaultLayoutDeferred && derivedPanelConstraints.length > 0) {
         setLayout(layout);
 
-        onLayoutChangeStable?.(layout);
+        if (shouldNotifyLayoutChange(layout, layoutTarget)) {
+          onLayoutChangeStable?.(layout);
+        }
       }
     }
 
@@ -196,6 +209,7 @@ export function Group({
         if (match) {
           const { defaultLayoutDeferred, derivedPanelConstraints, layout } =
             match;
+          const layoutTarget = match.layoutTarget ?? layout;
 
           if (defaultLayoutDeferred || derivedPanelConstraints.length === 0) {
             // This indicates that the Group has not finished mounting yet
@@ -206,7 +220,9 @@ export function Group({
 
           setLayout(layout);
 
-          onLayoutChangeStable?.(layout);
+          if (shouldNotifyLayoutChange(layout, layoutTarget)) {
+            onLayoutChangeStable?.(layout);
+          }
         }
       }
     );
@@ -234,6 +250,7 @@ export function Group({
     if (registeredGroup) {
       registeredGroup.defaultLayout = defaultLayout;
       registeredGroup.disableCursor = !!disableCursor;
+      registeredGroup.resizeSmoothing = resizeSmoothing;
     }
   });
 

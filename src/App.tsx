@@ -19,6 +19,9 @@ export default function App() {
             <NavLink path="/examples/collapsible-panels">
               Collapsible panels
             </NavLink>
+            <NavLink path="/examples/resize-smoothing">
+              Resize smoothing
+            </NavLink>
             <NavLink path="/examples/persistent-layout">
               Persistent layouts
             </NavLink>

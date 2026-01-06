@@ -28,6 +28,7 @@ export type RegisteredGroup = {
   disabled: boolean;
   element: HTMLElement;
   id: string;
+  resizeSmoothing: number;
   // TODO Move to mutable state
   inMemoryLastExpandedPanelSizes: {
     [panelId: string]: number;
@@ -132,6 +133,17 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    * Specifies the resizable orientation ("horizontal" or "vertical"); defaults to "horizontal"
    */
   orientation?: "horizontal" | "vertical" | undefined;
+
+  /**
+   * Smooth layout changes using an exponential moving average (EMA).
+   *
+   * ?? `true` uses the default value (0.2)
+   *
+   * ?? `false`, `undefined`, or `0` disables smoothing
+   *
+   * ?? Numeric values are clamped to the 0..1 range
+   */
+  resizeSmoothing?: boolean | number | undefined;
 
   /**
    * CSS properties.

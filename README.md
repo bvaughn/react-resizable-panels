@@ -128,6 +128,14 @@ Use this prop to disable that behavior for Panels and Separators in this group.<
       <td><p>Specifies the resizable orientation (&quot;horizontal&quot; or &quot;vertical&quot;); defaults to &quot;horizontal&quot;</p>
 </td>
     </tr>
+    <tr>
+      <td>resizeSmoothing</td>
+      <td><p>Smooth layout changes using an exponential moving average (EMA).</p>
+<p>?? <code>true</code> uses the default value (0.2)</p>
+<p>?? <code>false</code>, <code>undefined</code>, or <code>0</code> disables smoothing</p>
+<p>?? Numeric values are clamped to the 0..1 range</p>
+</td>
+    </tr>
   </tbody>
 </table>
 

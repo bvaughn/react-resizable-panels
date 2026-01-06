@@ -32,6 +32,9 @@ export const routes = {
   "/examples/custom-css-styles": lazy(
     () => import("./routes/CustomStylesRoute")
   ),
+  "/examples/resize-smoothing": lazy(
+    () => import("./routes/ResizeSmoothingRoute")
+  ),
   "/props/group": lazy(() => import("./routes/GroupPropsRoute")),
   "/props/panel": lazy(() => import("./routes/PanelPropsRoute")),
   "/props/separator": lazy(() => import("./routes/SeparatorPropsRoute")),

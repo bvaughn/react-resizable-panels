@@ -3,7 +3,10 @@ import type {
   Layout
 } from "../../components/group/types";
 import { read, update } from "../mutableState";
-import { layoutsEqual } from "./layoutsEqual";
+import {
+  getNextGroupLayoutState,
+  scheduleLayoutSmoothing
+} from "./layoutSmoothing";
 import { validatePanelGroupLayout } from "./validatePanelGroupLayout";
 
 export function getImperativeGroupMethods({
@@ -36,13 +39,12 @@ export function getImperativeGroupMethods({
       return layout;
     },
     setLayout(unsafeLayout: Layout) {
+      const { group, ...current } = find();
       const {
         defaultLayoutDeferred,
         derivedPanelConstraints,
-        group,
-        layout: prevLayout,
-        separatorToPanels
-      } = find();
+        layout: prevLayout
+      } = current;
 
       const nextLayout = validatePanelGroupLayout({
         layout: unsafeLayout,
@@ -58,15 +60,20 @@ export function getImperativeGroupMethods({
         return prevLayout;
       }
 
-      if (!layoutsEqual(prevLayout, nextLayout)) {
+      const { next, didChange, shouldSchedule } = getNextGroupLayoutState({
+        group,
+        current,
+        layoutTarget: nextLayout
+      });
+
+      if (didChange) {
         update((prevState) => ({
-          mountedGroups: new Map(prevState.mountedGroups).set(group, {
-            defaultLayoutDeferred,
-            derivedPanelConstraints,
-            layout: nextLayout,
-            separatorToPanels
-          })
+          mountedGroups: new Map(prevState.mountedGroups).set(group, next)
         }));
+      }
+
+      if (shouldSchedule) {
+        scheduleLayoutSmoothing();
       }
 
       return nextLayout;

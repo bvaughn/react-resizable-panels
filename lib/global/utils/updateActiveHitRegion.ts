@@ -10,6 +10,10 @@ import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import type { HitRegion } from "../dom/calculateHitRegions";
 import { update, type MountedGroupMap } from "../mutableState";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
+import {
+  getNextGroupLayoutState,
+  scheduleLayoutSmoothing
+} from "./layoutSmoothing";
 import { layoutsEqual } from "./layoutsEqual";
 
 export function updateActiveHitRegions({
@@ -31,6 +35,7 @@ export function updateActiveHitRegions({
   pointerDownAtPoint?: Point;
 }) {
   let cursorFlags = 0;
+  let shouldScheduleSmoothing = false;
   const nextMountedGroups = new Map(mountedGroups);
 
   // Note that HitRegions are frozen once a drag has started
@@ -58,12 +63,13 @@ export function updateActiveHitRegions({
 
     const initialLayout = initialLayoutMap.get(group);
 
+    const match = mountedGroups.get(group);
     const {
-      defaultLayoutDeferred,
       derivedPanelConstraints,
       layout: prevLayout,
+      layoutTarget: prevLayoutTarget,
       separatorToPanels
-    } = mountedGroups.get(group) ?? { defaultLayoutDeferred: false };
+    } = match ?? {};
     if (
       derivedPanelConstraints &&
       initialLayout &&
@@ -79,7 +85,9 @@ export function updateActiveHitRegions({
         trigger: "mouse-or-touch"
       });
 
-      if (layoutsEqual(nextLayout, prevLayout)) {
+      const layoutTarget = prevLayoutTarget ?? prevLayout;
+
+      if (layoutsEqual(nextLayout, layoutTarget)) {
         if (deltaAsPercentage !== 0 && !disableCursor) {
           // An unchanged means the cursor has exceeded the allowed bounds
           switch (orientation) {
@@ -99,13 +107,26 @@ export function updateActiveHitRegions({
             }
           }
         }
+
+        if (
+          group.resizeSmoothing > 0 &&
+          !layoutsEqual(prevLayout, layoutTarget)
+        ) {
+          shouldScheduleSmoothing = true;
+        }
       } else {
-        nextMountedGroups.set(current.group, {
-          defaultLayoutDeferred,
-          derivedPanelConstraints: derivedPanelConstraints,
-          layout: nextLayout,
-          separatorToPanels
-        });
+        if (match) {
+          const { next, didChange, shouldSchedule } = getNextGroupLayoutState({
+            group,
+            current: match,
+            layoutTarget: nextLayout
+          });
+
+          if (didChange) {
+            nextMountedGroups.set(current.group, next);
+          }
+          shouldScheduleSmoothing ||= shouldSchedule;
+        }
 
         // Save the most recent layout for this group of panels in-memory
         // so that layouts will be remembered between different sets of conditionally rendered panels
@@ -121,4 +142,8 @@ export function updateActiveHitRegions({
   });
 
   updateCursorStyle(document);
+
+  if (shouldScheduleSmoothing) {
+    scheduleLayoutSmoothing();
+  }
 }

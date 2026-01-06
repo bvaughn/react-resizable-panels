@@ -77,6 +77,7 @@ export function mountGroup(group: RegisteredGroup) {
                   defaultLayoutDeferred: false,
                   derivedPanelConstraints: nextDerivedPanelConstraints,
                   layout: nextLayout,
+                  layoutTarget: nextLayout,
                   separatorToPanels: match.separatorToPanels
                 })
               };
@@ -152,6 +153,7 @@ export function mountGroup(group: RegisteredGroup) {
         defaultLayoutDeferred: groupSize === 0,
         derivedPanelConstraints,
         layout: defaultLayoutSafe,
+        layoutTarget: defaultLayoutSafe,
         separatorToPanels
       })
     };

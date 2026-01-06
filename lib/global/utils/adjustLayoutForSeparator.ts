@@ -4,7 +4,10 @@ import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { findSeparatorGroup } from "./findSeparatorGroup";
 import { getImperativeGroupMethods } from "./getImperativeGroupMethods";
 import { getMountedGroup } from "./getMountedGroup";
-import { layoutsEqual } from "./layoutsEqual";
+import {
+  getNextGroupLayoutState,
+  scheduleLayoutSmoothing
+} from "./layoutSmoothing";
 import { validatePanelGroupLayout } from "./validatePanelGroupLayout";
 
 export function adjustLayoutForSeparator(
@@ -40,14 +43,19 @@ export function adjustLayoutForSeparator(
     panelConstraints: mountedGroup.derivedPanelConstraints
   });
 
-  if (!layoutsEqual(prevLayout, nextLayout)) {
+  const { next, didChange, shouldSchedule } = getNextGroupLayoutState({
+    group,
+    current: mountedGroup,
+    layoutTarget: nextLayout
+  });
+
+  if (didChange) {
     update((prevState) => ({
-      mountedGroups: new Map(prevState.mountedGroups).set(group, {
-        defaultLayoutDeferred: mountedGroup.defaultLayoutDeferred,
-        derivedPanelConstraints: mountedGroup.derivedPanelConstraints,
-        layout: nextLayout,
-        separatorToPanels: mountedGroup.separatorToPanels
-      })
+      mountedGroups: new Map(prevState.mountedGroups).set(group, next)
     }));
+  }
+
+  if (shouldSchedule) {
+    scheduleLayoutSmoothing();
   }
 }

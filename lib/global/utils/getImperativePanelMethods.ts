@@ -3,8 +3,11 @@ import { calculateAvailableGroupSize } from "../dom/calculateAvailableGroupSize"
 import { read, update } from "../mutableState";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { formatLayoutNumber } from "./formatLayoutNumber";
+import {
+  getNextGroupLayoutState,
+  scheduleLayoutSmoothing
+} from "./layoutSmoothing";
 import { layoutNumbersEqual } from "./layoutNumbersEqual";
-import { layoutsEqual } from "./layoutsEqual";
 import { validatePanelGroupLayout } from "./validatePanelGroupLayout";
 
 export function getImperativePanelMethods({
@@ -16,22 +19,11 @@ export function getImperativePanelMethods({
 }): PanelImperativeHandle {
   const find = () => {
     const { mountedGroups } = read();
-    for (const [
-      group,
-      {
-        defaultLayoutDeferred,
-        derivedPanelConstraints,
-        layout,
-        separatorToPanels
-      }
-    ] of mountedGroups) {
+    for (const [group, value] of mountedGroups) {
       if (group.id === groupId) {
         return {
-          defaultLayoutDeferred,
-          derivedPanelConstraints,
           group,
-          layout,
-          separatorToPanels
+          ...value
         };
       }
     }
@@ -74,13 +66,8 @@ export function getImperativePanelMethods({
       return;
     }
 
-    const {
-      defaultLayoutDeferred,
-      derivedPanelConstraints,
-      group,
-      layout: prevLayout,
-      separatorToPanels
-    } = find();
+    const { group, ...current } = find();
+    const { derivedPanelConstraints, layout: prevLayout } = current;
 
     const index = group.panels.findIndex((current) => current.id === panelId);
     const isLastPanel = index === group.panels.length - 1;
@@ -98,15 +85,20 @@ export function getImperativePanelMethods({
       layout: unsafeLayout,
       panelConstraints: derivedPanelConstraints
     });
-    if (!layoutsEqual(prevLayout, nextLayout)) {
+    const { next, didChange, shouldSchedule } = getNextGroupLayoutState({
+      group,
+      current,
+      layoutTarget: nextLayout
+    });
+
+    if (didChange) {
       update((prevState) => ({
-        mountedGroups: new Map(prevState.mountedGroups).set(group, {
-          defaultLayoutDeferred,
-          derivedPanelConstraints,
-          layout: nextLayout,
-          separatorToPanels
-        })
+        mountedGroups: new Map(prevState.mountedGroups).set(group, next)
       }));
+    }
+
+    if (shouldSchedule) {
+      scheduleLayoutSmoothing();
     }
   };
 
