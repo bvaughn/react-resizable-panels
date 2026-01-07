@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Replace `"unset"` styles with safer override values
+- Use capture phase for `"pointerdown"` and `"pointerup"` events; this is necessary for compatibility with certain UI libraries like Blueprint JS
 
 ## 4.3.0
 

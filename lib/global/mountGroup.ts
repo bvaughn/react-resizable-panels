@@ -170,10 +170,10 @@ export function mountGroup(group: RegisteredGroup) {
 
   // If this is the first group to be mounted, initialize event handlers
   if (ownerDocumentReferenceCounts.get(ownerDocument) === 1) {
-    ownerDocument.addEventListener("pointerdown", onDocumentPointerDown);
+    ownerDocument.addEventListener("pointerdown", onDocumentPointerDown, true);
     ownerDocument.addEventListener("pointerleave", onDocumentPointerLeave);
     ownerDocument.addEventListener("pointermove", onDocumentPointerMove);
-    ownerDocument.addEventListener("pointerup", onDocumentPointerUp);
+    ownerDocument.addEventListener("pointerup", onDocumentPointerUp, true);
   }
 
   return function unmountGroup() {
@@ -197,10 +197,14 @@ export function mountGroup(group: RegisteredGroup) {
 
     // If this was the last group to be mounted, tear down event handlers
     if (!ownerDocumentReferenceCounts.get(ownerDocument)) {
-      ownerDocument.removeEventListener("pointerdown", onDocumentPointerDown);
+      ownerDocument.removeEventListener(
+        "pointerdown",
+        onDocumentPointerDown,
+        true
+      );
       ownerDocument.removeEventListener("pointerleave", onDocumentPointerLeave);
       ownerDocument.removeEventListener("pointermove", onDocumentPointerMove);
-      ownerDocument.removeEventListener("pointerup", onDocumentPointerUp);
+      ownerDocument.removeEventListener("pointerup", onDocumentPointerUp, true);
     }
 
     resizeObserver.disconnect();
