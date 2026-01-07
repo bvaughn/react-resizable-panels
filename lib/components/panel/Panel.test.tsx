@@ -117,18 +117,18 @@ describe("Panel", () => {
 
       const panel = container.querySelector("[data-panel]") as HTMLElement;
 
-      expect(panel.style.minHeight).toBe("unset");
-      expect(panel.style.maxHeight).toBe("unset");
-      expect(panel.style.height).toBe("unset");
+      expect(panel.style.minHeight).toBe("0");
+      expect(panel.style.maxHeight).toBe("100%");
+      expect(panel.style.height).toBe("auto");
 
-      expect(panel.style.minWidth).toBe("unset");
-      expect(panel.style.maxWidth).toBe("unset");
-      expect(panel.style.width).toBe("unset");
+      expect(panel.style.minWidth).toBe("0");
+      expect(panel.style.maxWidth).toBe("100%");
+      expect(panel.style.width).toBe("auto");
 
-      expect(panel.style.border).toBe("unset");
-      expect(panel.style.borderWidth).toBe("unset");
-      expect(panel.style.padding).toBe("unset");
-      expect(panel.style.margin).toBe("unset");
+      expect(panel.style.border).toBe("0px");
+      expect(panel.style.borderWidth).toBe("0px");
+      expect(panel.style.padding).toBe("0px");
+      expect(panel.style.margin).toBe("0px");
     });
 
     describe("ARIA attributes", () => {
