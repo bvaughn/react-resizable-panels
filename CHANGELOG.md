@@ -4,6 +4,7 @@
 
 - Replace `"unset"` styles with safer override values
 - Use capture phase for `"pointerdown"` and `"pointerup"` events; this is necessary for compatibility with certain UI libraries like Blueprint JS
+- Read `Panel` pixel size using `offsetWidth`/`offsetHeight` rather than `inlineSize` to avoid an edgecase bug with `ResizeObserver`
 
 ## 4.3.0
 
