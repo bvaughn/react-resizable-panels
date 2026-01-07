@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Replace `"unset"` styles with safer override values
+
 ## 4.3.0
 
 - [583](https://github.com/bvaughn/react-resizable-panels/pull/583): `Group` component now sets default `width`, `height`, and `overflow` styles; (both can be overridden using the `style` property)

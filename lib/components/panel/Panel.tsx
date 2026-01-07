@@ -153,21 +153,16 @@ export function Panel({
 Panel.displayName = "Panel";
 
 const PROHIBITED_CSS_PROPERTIES: CSSProperties = {
-  minHeight: "unset",
-  maxHeight: "unset",
-  height: "unset",
+  minHeight: 0,
+  maxHeight: "100%",
+  height: "auto",
 
-  minWidth: "unset",
-  maxWidth: "unset",
-  width: "unset",
+  minWidth: 0,
+  maxWidth: "100%",
+  width: "auto",
 
-  flex: "unset",
-  flexBasis: "unset",
-  flexShrink: "unset",
-  flexGrow: "unset",
-
-  border: "unset",
-  borderWidth: "unset",
-  padding: "unset",
-  margin: "unset"
+  border: "none",
+  borderWidth: 0,
+  padding: 0,
+  margin: 0
 };
