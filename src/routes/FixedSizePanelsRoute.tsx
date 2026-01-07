@@ -15,7 +15,7 @@ export default function FixedSizePanelsRoute() {
         need fixed-size content.
       </div>
       <Code html={HorizontalHTML} />
-      <Group className="h-15">
+      <Group>
         <Panel minSize={50}>left</Panel>
         <Separator />
         <Panel minSize={50}>right</Panel>
@@ -23,7 +23,7 @@ export default function FixedSizePanelsRoute() {
       </Group>
       <div>Non-interactive elements can also be rendered between panels.</div>
       <Code html={FixedSizePanelsMiddleHTML} />
-      <Group className="h-15">
+      <Group>
         <Panel minSize={50}>left</Panel>
         <Separator />
         <FixedSizeContent />
@@ -35,7 +35,7 @@ export default function FixedSizePanelsRoute() {
         recommended).
       </div>
       <Code html={FixedSizePanelsMiddleNoSeparatorsHTML} />
-      <Group className="h-15">
+      <Group>
         <Panel minSize={50}>left</Panel>
         <FixedSizeContent />
         <Panel minSize={50}>right</Panel>

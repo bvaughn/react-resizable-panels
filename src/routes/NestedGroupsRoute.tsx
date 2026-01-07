@@ -14,17 +14,17 @@ export default function NestedGroupsRoute() {
         be resized at the same time by clicking near panel intersections.
       </div>
       <Code html={ExampleHTML} />
-      <Group className="h-50">
+      <Group className="h-50!">
         <PreStyledPanel minSize={50}>
           <PanelText>left</PanelText>
         </PreStyledPanel>
         <Panel minSize={200}>
-          <Group className="h-full" orientation="vertical">
+          <Group orientation="vertical">
             <PreStyledPanel minSize={20}>
               <PanelText>top</PanelText>
             </PreStyledPanel>
             <Panel minSize={20}>
-              <Group className="h-full">
+              <Group>
                 <PreStyledPanel minSize={50}>
                   <PanelText>left</PanelText>
                 </PreStyledPanel>

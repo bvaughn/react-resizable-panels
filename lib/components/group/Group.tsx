@@ -258,6 +258,9 @@ export function Group({
         id={id}
         ref={mergedRef}
         style={{
+          height: "100%",
+          width: "100%",
+          overflow: "hidden",
           ...style,
           ...cssVariables,
           display: "flex",

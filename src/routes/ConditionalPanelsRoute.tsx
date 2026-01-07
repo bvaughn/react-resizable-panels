@@ -27,7 +27,7 @@ export default function ConditionalPanelsRoute() {
           {hideLeftPanel ? "show right panel" : "hide right panel"}
         </button>
       </Box>
-      <Group className="h-15">
+      <Group>
         {hideRight || (
           <>
             <Panel id="left" minSize={50}>

@@ -90,7 +90,7 @@ test.describe("cursor", () => {
       test("intersecting", async ({ page: mainPage }) => {
         const page = await goToUrl(
           mainPage,
-          <Group orientation="vertical">
+          <Group className="h-[250px]!" orientation="vertical">
             <Panel id="top" minSize="25%" />
             <Separator id="vertical-separator" />
             <Panel id="bottom" minSize="25%">

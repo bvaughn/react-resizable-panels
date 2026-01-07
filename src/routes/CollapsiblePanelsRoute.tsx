@@ -14,7 +14,7 @@ export default function CollapsiblePanelsRoute() {
         <code>collapsible</code> and <code>minSize</code> properties.
       </div>
       <Code html={ExampleHTML} />
-      <Group className="h-45 sm:h-15">
+      <Group>
         <Panel collapsible maxSize="75%" minSize={100} showSizeInPixels />
         <Separator />
         <Panel>
@@ -33,7 +33,7 @@ export default function CollapsiblePanelsRoute() {
         a panel from disappearing fully when collapsed.
       </div>
       <Code html={ExampleWithCollapsedSizeHTML} />
-      <Group className="h-30 sm:h-15">
+      <Group>
         <Panel
           collapsedSize={35}
           collapsible

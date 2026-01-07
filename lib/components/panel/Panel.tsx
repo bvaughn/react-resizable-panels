@@ -34,6 +34,8 @@ import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
  * ```
  *
  * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+ *
+ * ⚠️ Panel elements must be direct DOM children of their parent Group elements.
  */
 export function Panel({
   children,

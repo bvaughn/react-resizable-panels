@@ -5,6 +5,7 @@ import { html as VerticalHTML } from "../../public/generated/examples/LayoutBasi
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
+import { Link } from "../components/Link";
 
 export default function LayoutBasicsRoute() {
   return (
@@ -14,7 +15,7 @@ export default function LayoutBasicsRoute() {
         The simplest resizable panel configuration is two panels within a group.
       </div>
       <Code html={HorizontalHTML} />
-      <Group className="h-15">
+      <Group>
         <Panel>left</Panel>
         <Panel>right</Panel>
       </Group>
@@ -29,10 +30,13 @@ export default function LayoutBasicsRoute() {
       </div>
       <Code html={VerticalHTML} />
       <Callout intent="warning">
-        Vertical groups require an explicit height to be set using either{" "}
-        <code>className</code> or <code>style</code> props.
+        Vertical groups may benefit from an explicit height or min-height (
+        <Link anchor="vertical-group-height" to="/common-questions">
+          read more
+        </Link>
+        ) .
       </Callout>
-      <Group className="h-30" orientation="vertical">
+      <Group className="min-h-30" orientation="vertical">
         <Panel>top</Panel>
         <Panel>bottom</Panel>
       </Group>
@@ -40,7 +44,7 @@ export default function LayoutBasicsRoute() {
         Panels can be resized by clicking on their borders but explicit
         separators can be rendered to improve UX.
       </div>
-      <Group className="h-15">
+      <Group>
         <Panel>left</Panel>
         <Separator orientation="horizontal" />
         <Panel>right</Panel>

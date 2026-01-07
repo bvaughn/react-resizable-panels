@@ -4,7 +4,8 @@
       "content": "<p>Separators are not <em>required</em> but they are <em>recommended</em> as they improve keyboard accessibility.</p>\n"
     },
     {
-      "content": "<p>Separators should be rendered as the direct child of a Group component.</p>\n"
+      "content": "<p>Separator elements must be direct DOM children of their parent Group elements.</p>\n",
+      "intent": "warning"
     },
     {
       "content": "<p>Separator elements always include the following attributes:</p>\n"
