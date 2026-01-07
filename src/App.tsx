@@ -3,12 +3,12 @@ import {
   AppRoot,
   Callout,
   Code,
+  ExternalLink,
   NavSection,
   type CommonQuestion
 } from "react-lib-tools";
 import { repository } from "../package.json";
-import { html as VerticalHTML } from "../public/generated/examples/LayoutBasicsVertical.json";
-import { html as VerticalGroupOverflowHTML } from "../public/generated/examples/VerticalGroupOverflow.json";
+import { html as GroupExplicitHeightHTML } from "../public/generated/examples/GroupExplicitHeight.json";
 import { Link } from "./components/Link";
 import { NavLink } from "./components/NavLink";
 import { Group } from "./components/styled-panels/Group";
@@ -92,13 +92,13 @@ export default function App() {
             This library is a set of React components that can be used to build
             resizable layouts like the one below:
           </div>
-          <Group className="h-20 sm:h-15">
+          <Group>
             <Panel className="p-1" minSize={100}>
-              This is a resizable panel
+              This panel is resizable
             </Panel>
             <Separator />
             <Panel className="p-1" minSize={100}>
-              This is also a resizable panel
+              This one is too
             </Panel>
           </Group>
           <div>
@@ -146,28 +146,34 @@ const commonQuestions: CommonQuestion[] = [
     answer: (
       <>
         <p>
-          <code>Group</code> is a block-level element and so it will fill the
-          width of the container it is rendered within. Horizontal groups will
-          also expand to fit the height of <code>Panel</code> content. Vertical
-          groups however require an explicit height (typically set using either
-          the <code>className</code> or <code>style</code> props).
+          By default, <code>Group</code> elements specify a default style{" "}
+          <code>height:100%</code>. However according to the{" "}
+          <ExternalLink href="https://www.w3.org/TR/CSS2/visudet.html#the-height-property">
+            w3 spec
+          </ExternalLink>
+          :
         </p>
-        <Code html={VerticalHTML} />
-      </>
-    )
-  },
-  {
-    id: "horizontal-group-height",
-    question: "Why is a horizontal group's content too tall?",
-    answer: (
-      <>
+        <Callout minimal>
+          The percentage is calculated with respect to the height of the
+          generated box's containing block. If the height of the containing
+          block is not specified explicitly (i.e., it depends on content
+          height), and this element is not absolutely positioned, the value
+          computes to "auto".
+        </Callout>
         <p>
-          Horizontal <code>Groups</code> will fill expand to fit the height of
-          their <code>Panel</code> contents. In this behavior is unwanted (e.g.
-          when rendering a virtual list) the recommended fix is to add an
-          explicit height to the <code>Groups</code> element.
+          Put another way, fixing this requires setting an explicit height
+          either on the <code>Group</code> itself or on its parent{" "}
+          <code>HTMLElement</code>.
         </p>
-        <Code html={VerticalGroupOverflowHTML} />
+        <Code html={GroupExplicitHeightHTML} />
+        <Callout intent="warning">
+          Note that because the default height is an inline style, it can only
+          be overridden by another inline style or an{" "}
+          <ExternalLink href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/important">
+            !important
+          </ExternalLink>{" "}
+          CSS rule.
+        </Callout>
       </>
     )
   },

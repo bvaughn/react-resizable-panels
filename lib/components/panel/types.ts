@@ -118,7 +118,7 @@ export type PanelProps = BasePanelAttributes & {
   /**
    * Ref attached to the root `HTMLDivElement`.
    */
-  elementRef?: Ref<HTMLDivElement> | undefined;
+  elementRef?: Ref<HTMLDivElement | null> | undefined;
 
   /**
    * Uniquely identifies this panel within the parent group.
@@ -165,7 +165,7 @@ export type PanelProps = BasePanelAttributes & {
    *
    * ℹ️ The `usePanelRef` and `usePanelCallbackRef` hooks are exported for convenience use in TypeScript projects.
    */
-  panelRef?: Ref<PanelImperativeHandle> | undefined;
+  panelRef?: Ref<PanelImperativeHandle | null> | undefined;
 
   /**
    * CSS properties.

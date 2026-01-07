@@ -13,7 +13,7 @@ import type { RegisteredSeparator, SeparatorProps } from "./types";
 /**
  * Separators are not _required_ but they are _recommended_ as they improve keyboard accessibility.
  *
- * Separators should be rendered as the direct child of a Group component.
+ * ⚠️ Separator elements must be direct DOM children of their parent Group elements.
  *
  * Separator elements always include the following attributes:
  *

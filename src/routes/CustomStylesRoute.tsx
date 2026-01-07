@@ -33,7 +33,7 @@ export default function CustomStylesRoute() {
       <Code html={DataAttributesExampleHTML} />
       <div>An example using Tailwind CSS might look something like this.</div>
       <Code html={CustomStylesExampleHTML} />
-      <Group className="h-15">
+      <Group>
         <Panel>left</Panel>
         <Separator />
         <Panel>right</Panel>

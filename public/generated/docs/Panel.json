@@ -19,6 +19,10 @@
     {
       "content": "<p><a href=\"https://testing-library.com/docs/queries/bytestid/\">Test id</a> can be used to narrow selection when unit testing.</p>\n",
       "intent": "primary"
+    },
+    {
+      "content": "<p>Panel elements must be direct DOM children of their parent Group elements.</p>\n",
+      "intent": "warning"
     }
   ],
   "filePath": "lib/components/panel/Panel.tsx",
@@ -110,7 +114,7 @@
           "content": "<p>Ref attached to the root <code>HTMLDivElement</code>.</p>\n"
         }
       ],
-      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\">&#62;</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-keyword\">null</span><span class=\"\">&#62;</span></div>",
       "name": "elementRef",
       "required": false
     },
@@ -154,7 +158,7 @@
           "intent": "primary"
         }
       ],
-      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">panelRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">PanelImperativeHandle</span><span class=\"\">&#62;</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">panelRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">PanelImperativeHandle</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-keyword\">null</span><span class=\"\">&#62;</span></div>",
       "name": "panelRef",
       "required": false
     }

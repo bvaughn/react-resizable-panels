@@ -157,6 +157,8 @@ Panel elements always include the following attributes:
 ```
 
 ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+
+⚠️ Panel elements must be direct DOM children of their parent Group elements.
 <!-- Panel:description:end -->
 
 #### Required props
@@ -259,7 +261,7 @@ Falls back to <code>useId</code> when not provided.</p>
 <!-- Separator:description:begin -->
 Separators are not _required_ but they are _recommended_ as they improve keyboard accessibility.
 
-Separators should be rendered as the direct child of a Group component.
+⚠️ Separator elements must be direct DOM children of their parent Group elements.
 
 Separator elements always include the following attributes:
 

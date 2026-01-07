@@ -104,7 +104,7 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
   /**
    * Ref attached to the root `HTMLDivElement`.
    */
-  elementRef?: Ref<HTMLDivElement> | undefined;
+  elementRef?: Ref<HTMLDivElement | null> | undefined;
 
   /**
    * Exposes the following imperative API:
@@ -113,7 +113,7 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    *
    * ℹ️ The `useGroupRef` and `useGroupCallbackRef` hooks are exported for convenience use in TypeScript projects.
    */
-  groupRef?: Ref<GroupImperativeHandle> | undefined;
+  groupRef?: Ref<GroupImperativeHandle | null> | undefined;
 
   /**
    * Uniquely identifies this group within an application.

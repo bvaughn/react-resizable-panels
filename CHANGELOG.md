@@ -1,8 +1,11 @@
 # Changelog
 
-## Unreleased
+## 4.3.0 (unreleased)
 
-- Drag interactions only call `event.preventDefault` for the primary button
+- [583](https://github.com/bvaughn/react-resizable-panels/pull/583): `Group` component now sets default `width`, `height`, and `overflow` styles; (both can be overridden using the `style` property)
+- [582](https://github.com/bvaughn/react-resizable-panels/pull/582): Drag interactions only call `event.preventDefault` for the primary button
+- Refine TS types for `useGroupRef` and `usePanelRef` to include `| null` to increase compatibility with older React versions
+- Update TSDoc comments for `Panel` and `Separator` components
 
 ## 4.2.2
 

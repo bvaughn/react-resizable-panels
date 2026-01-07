@@ -28,7 +28,7 @@ export default function SizeConstraintsRoute() {
         between 10v0-200 pixels.
       </div>
       <Code html={MinMaxExampleHTML} />
-      <Group className="h-15">
+      <Group>
         <Panel minSize={100} maxSize={200} showSizeInPixels>
           left
         </Panel>
@@ -40,7 +40,7 @@ export default function SizeConstraintsRoute() {
         to be smaller than 10% of the group's width.
       </div>
       <Code html={PercentageExampleHTML} />
-      <Group className="h-15">
+      <Group>
         <Panel id="left" minSize="10%" showSizeAsPercentage>
           left
         </Panel>
