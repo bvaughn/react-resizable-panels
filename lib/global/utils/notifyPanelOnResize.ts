@@ -19,12 +19,15 @@ export function notifyPanelOnResize(
 
   const groupSize = calculateAvailableGroupSize({ group });
 
+  const panelSize =
+    group.orientation === "horizontal"
+      ? panel.element.offsetWidth
+      : panel.element.offsetHeight;
+
   const prevSize = panel.mutableValues.prevSize;
   const nextSize = {
-    asPercentage: formatLayoutNumber(
-      (resizeObserverSize.inlineSize / groupSize) * 100
-    ),
-    inPixels: resizeObserverSize.inlineSize
+    asPercentage: formatLayoutNumber((panelSize / groupSize) * 100),
+    inPixels: panelSize
   };
   panel.mutableValues.prevSize = nextSize;
 
