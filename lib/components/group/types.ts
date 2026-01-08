@@ -42,6 +42,7 @@ export type RegisteredGroup = {
 };
 
 export type GroupContextType = {
+  getPanelStyles: (groupId: string, panelId: string) => CSSProperties;
   id: string;
   orientation: Orientation;
   registerPanel: (panel: RegisteredPanel) => () => void;

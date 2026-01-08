@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, type CSSProperties } from "react";
 import { mountGroup } from "../../global/mountGroup";
 import { eventEmitter, read } from "../../global/mutableState";
 import { layoutsEqual } from "../../global/utils/layoutsEqual";
@@ -9,10 +9,8 @@ import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect
 import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
 import { useStableObject } from "../../hooks/useStableObject";
-import { POINTER_EVENTS_CSS_PROPERTY_NAME } from "../panel/constants";
 import type { RegisteredPanel } from "../panel/types";
 import type { RegisteredSeparator } from "../separator/types";
-import { getPanelSizeCssPropertyName } from "./getPanelSizeCssPropertyName";
 import { GroupContext } from "./GroupContext";
 import { sortByElementOffset } from "./sortByElementOffset";
 import type { GroupProps, Layout, RegisteredGroup } from "./types";
@@ -60,8 +58,6 @@ export function Group({
 
   const elementRef = useRef<HTMLDivElement | null>(null);
 
-  const [dragActive, setDragActive] = useState(false);
-  const [layout, setLayout] = useState(defaultLayout ?? {});
   const [panelOrSeparatorChangeSigil, forceUpdate] = useForceUpdate();
 
   const inMemoryValuesRef = useRef<{
@@ -80,8 +76,43 @@ export function Group({
 
   useGroupImperativeHandle(id, groupRef);
 
+  // TRICKY Don't read for state; it will always lag behind by one tick
+  const getPanelStyles = useStableCallback(
+    (groupId: string, panelId: string) => {
+      const { interactionState, mountedGroups } = read();
+
+      for (const group of mountedGroups.keys()) {
+        if (group.id === groupId) {
+          const match = mountedGroups.get(group);
+          if (match) {
+            let dragActive = false;
+            switch (interactionState.state) {
+              case "active": {
+                dragActive = interactionState.hitRegions.some(
+                  (current) => current.group === group
+                );
+                break;
+              }
+            }
+
+            return {
+              flexGrow: match.layout[panelId] ?? 1,
+              pointerEvents: dragActive ? "none" : undefined
+            } satisfies CSSProperties;
+          }
+        }
+      }
+
+      // This is unexpected
+      return {
+        flexGrow: 1
+      } satisfies CSSProperties;
+    }
+  );
+
   const context = useMemo(
     () => ({
+      getPanelStyles,
       id,
       orientation,
       registerPanel: (panel: RegisteredPanel) => {
@@ -119,7 +150,7 @@ export function Group({
         };
       }
     }),
-    [id, forceUpdate, orientation]
+    [getPanelStyles, id, forceUpdate, orientation]
   );
 
   const stableProps = useStableObject({
@@ -163,29 +194,20 @@ export function Group({
       const { defaultLayoutDeferred, derivedPanelConstraints, layout } = match;
 
       if (!defaultLayoutDeferred && derivedPanelConstraints.length > 0) {
-        setLayout(layout);
-
         onLayoutChangeStable?.(layout);
+
+        inMemoryValues.panels.forEach((panel) => {
+          panel.scheduleUpdate();
+        });
       }
     }
 
     const removeInteractionStateChangeListener = eventEmitter.addListener(
       "interactionStateChange",
-      (interactionState) => {
-        switch (interactionState.state) {
-          case "active": {
-            setDragActive(
-              interactionState.hitRegions.some(
-                (current) => current.group === group
-              )
-            );
-            break;
-          }
-          default: {
-            setDragActive(false);
-            break;
-          }
-        }
+      () => {
+        inMemoryValues.panels.forEach((panel) => {
+          panel.scheduleUpdate();
+        });
       }
     );
 
@@ -204,9 +226,11 @@ export function Group({
             return;
           }
 
-          setLayout(layout);
-
           onLayoutChangeStable?.(layout);
+
+          inMemoryValues.panels.forEach((panel) => {
+            panel.scheduleUpdate();
+          });
         }
       }
     );
@@ -237,16 +261,6 @@ export function Group({
     }
   });
 
-  // Panel layouts and Group dragging state are shared via CSS variables
-  const cssVariables: { [key: string]: number | string | undefined } = {
-    [POINTER_EVENTS_CSS_PROPERTY_NAME]: dragActive ? "none" : undefined
-  };
-  for (const panelId in layout) {
-    const propertyName = getPanelSizeCssPropertyName(id, panelId);
-    const flexGrow = layout[panelId];
-    cssVariables[propertyName] = flexGrow;
-  }
-
   return (
     <GroupContext.Provider value={context}>
       <div
@@ -262,7 +276,6 @@ export function Group({
           width: "100%",
           overflow: "hidden",
           ...style,
-          ...cssVariables,
           display: "flex",
           flexDirection: orientation === "horizontal" ? "row" : "column",
           flexWrap: "nowrap"

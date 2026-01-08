@@ -1,14 +1,12 @@
 "use client";
 
-import type { Property } from "csstype";
 import { useRef, type CSSProperties } from "react";
+import { useForceUpdate } from "../../hooks/useForceUpdate";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
-import { getPanelSizeCssPropertyName } from "../group/getPanelSizeCssPropertyName";
 import { useGroupContext } from "../group/useGroupContext";
-import { POINTER_EVENTS_CSS_PROPERTY_NAME } from "./constants";
 import type { PanelProps, PanelSize } from "./types";
 import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
 
@@ -60,7 +58,9 @@ export function Panel({
 
   const mergedRef = useMergedRefs(elementRef, elementRefProp);
 
-  const { id: groupId, registerPanel } = useGroupContext();
+  const [, forceUpdate] = useForceUpdate();
+
+  const { getPanelStyles, id: groupId, registerPanel } = useGroupContext();
 
   const hasOnResize = onResizeUnstable !== null;
   const onResizeStable = useStableCallback(
@@ -92,13 +92,15 @@ export function Panel({
           defaultSize,
           maxSize,
           minSize
-        }
+        },
+        scheduleUpdate: forceUpdate
       });
     }
   }, [
     collapsedSize,
     collapsible,
     defaultSize,
+    forceUpdate,
     hasOnResize,
     id,
     idIsStable,
@@ -110,7 +112,7 @@ export function Panel({
 
   usePanelImperativeHandle(id, panelRef);
 
-  const flexGrowVar = getPanelSizeCssPropertyName(groupId, id);
+  const panelStyles = getPanelStyles(groupId, id);
 
   return (
     <div
@@ -123,16 +125,12 @@ export function Panel({
         ...PROHIBITED_CSS_PROPERTIES,
 
         flexBasis: 0,
-        flexGrow: `var(${flexGrowVar}, 1)`,
         flexShrink: 1,
 
         // Prevent Panel content from interfering with panel size
         overflow: "hidden",
 
-        // Disable pointer events inside of a panel during resize
-        // This avoid edge cases like nested iframes
-        pointerEvents:
-          `var(${POINTER_EVENTS_CSS_PROPERTY_NAME})` as Property.PointerEvents
+        ...panelStyles
       }}
     >
       <div
