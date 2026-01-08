@@ -2,9 +2,9 @@
 
 ## 4.3.1
 
-- Replace `"unset"` styles with safer override values
-- Use capture phase for `"pointerdown"` and `"pointerup"` events; this is necessary for compatibility with certain UI libraries like Blueprint JS
-- Read `Panel` pixel size using `offsetWidth`/`offsetHeight` rather than `inlineSize` to avoid an edgecase bug with `ResizeObserver`
+- [588](https://github.com/bvaughn/react-resizable-panels/pull/588): Replace `"unset"` styles with safer override values
+- [589](https://github.com/bvaughn/react-resizable-panels/pull/589): Use capture phase for `"pointerdown"` and `"pointerup"` events; this is necessary for compatibility with certain UI libraries like Blueprint JS
+- [590](https://github.com/bvaughn/react-resizable-panels/pull/590): Read `Panel` pixel size using `offsetWidth`/`offsetHeight` rather than `inlineSize` to avoid an edgecase bug with `ResizeObserver`
 
 ## 4.3.0
 
