@@ -103,9 +103,9 @@ export function Group({
         }
       }
 
-      // This is unexpected
+      // This is unexpected except for the initial mount (before the group has registered with the global store)
       return {
-        flexGrow: 1
+        flexGrow: defaultLayout?.[panelId] ?? 1
       } satisfies CSSProperties;
     }
   );

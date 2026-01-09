@@ -1,5 +1,11 @@
 import { render } from "@testing-library/react";
-import { createRef, useEffect } from "react";
+import {
+  createRef,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  type PropsWithChildren
+} from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { eventEmitter } from "../../global/mutableState";
 import { moveSeparator } from "../../global/test/moveSeparator";
@@ -9,6 +15,7 @@ import {
   setElementBoundsFunction
 } from "../../utils/test/mockBoundingClientRect";
 import { Panel } from "../panel/Panel";
+import type { PanelImperativeHandle } from "../panel/types";
 import { Separator } from "../separator/Separator";
 import { Group } from "./Group";
 import type { GroupImperativeHandle } from "./types";
@@ -136,6 +143,58 @@ describe("Group", () => {
         bar: 50,
         baz: 50
       });
+    });
+
+    test("should note require multiple render passes", () => {
+      setElementBoundsFunction((element) => {
+        if (element.hasAttribute("data-panel")) {
+          return new DOMRect(0, 0, 50, 50);
+        } else {
+          return new DOMRect(0, 0, 100, 50);
+        }
+      });
+
+      const onLayoutChange = vi.fn();
+
+      function DomChecker({ children }: PropsWithChildren) {
+        const ref = useRef<HTMLDivElement>(null);
+
+        // Easiest way to confirm the Group didn't render temporarily invalid values during mount
+        useLayoutEffect(() => {
+          const element = ref.current;
+          assert(element);
+
+          const fooPanel = element.querySelector('[data-testid="foo"]');
+          expect((fooPanel as HTMLDivElement).style.flexGrow).toEqual("40");
+
+          const barPanel = element.querySelector('[data-testid="bar"]');
+          expect((barPanel as HTMLDivElement).style.flexGrow).toEqual("60");
+        });
+
+        return <div ref={ref}>{children}</div>;
+      }
+
+      const groupRef = createRef<GroupImperativeHandle>();
+      const panelRef = createRef<PanelImperativeHandle>();
+
+      render(
+        <DomChecker>
+          <Group
+            defaultLayout={{
+              foo: 40,
+              bar: 60
+            }}
+            groupRef={groupRef}
+            onLayoutChange={onLayoutChange}
+          >
+            <Panel defaultSize="50%" id="foo" panelRef={panelRef} />
+            <Panel id="bar" />
+          </Group>
+        </DomChecker>
+      );
+
+      expect(onLayoutChange).toHaveBeenCalledTimes(1);
+      expect(onLayoutChange).toHaveBeenCalledWith({ foo: 40, bar: 60 });
     });
   });
 
