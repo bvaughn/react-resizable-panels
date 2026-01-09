@@ -4,6 +4,8 @@ import { calculateHitArea } from "./utils/calculateHitArea";
 import { getCenterCoordinates } from "./utils/getCenterCoordinates";
 import { goToUrl } from "./utils/goToUrl";
 import { resizeHelper } from "./utils/pointer-interactions/resizeHelper";
+import { Container } from "../src/components/Container";
+import { Clickable } from "../src/components/Clickable";
 
 test.describe("pointer interactions", () => {
   for (const usePopUpWindow of [true, false]) {
@@ -72,6 +74,51 @@ test.describe("pointer interactions", () => {
 
         await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
         await expect(mainPage.getByText('"left": 30')).toBeVisible();
+      });
+
+      // See github.com/bvaughn/react-resizable-panels/issues/594
+      test("should only call preventDefault for pointerup events that were handled by this library", async ({
+        page: mainPage
+      }) => {
+        const page = await goToUrl(
+          mainPage,
+          <Container className="relative">
+            <Group>
+              <Panel defaultSize="30%" id="left" minSize={50} />
+              <Separator />
+              <Panel id="right" minSize={50} />
+            </Group>
+            <Clickable className="bg-red-600 absolute left-0 top-0 p-2" />
+          </Container>,
+          { usePopUpWindow }
+        );
+
+        const clickable = page.getByText("Clickable");
+        const clickableBox = (await clickable.boundingBox())!;
+
+        // A handled "pointerdown" event should also prevent the corresponding "pointerup" event
+
+        const separator = page.getByRole("separator");
+        const separatorBox = (await separator.boundingBox())!;
+
+        await page.mouse.move(
+          separatorBox.x,
+          separatorBox.y + separatorBox.height
+        );
+        await page.mouse.down();
+        await page.mouse.move(clickableBox.x, clickableBox.y);
+        await page.mouse.up();
+
+        await expect(page.getByText("Clickable down:0 up:0")).toBeVisible();
+
+        // An unhandled "pointerdown" event should not prevent the corresponding "pointerup" event
+
+        await page.mouse.move(1000, 0);
+        await page.mouse.down();
+        await page.mouse.move(clickableBox.x, clickableBox.y);
+        await page.mouse.up();
+
+        await expect(page.getByText("Clickable down:0 up:1")).toBeVisible();
       });
 
       test("drag panel boundary to resize group", async ({

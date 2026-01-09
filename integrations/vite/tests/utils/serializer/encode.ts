@@ -8,6 +8,10 @@ import {
   type SeparatorProps
 } from "react-resizable-panels";
 import {
+  Clickable,
+  type ClickableProps
+} from "../../../src/components/Clickable";
+import {
   Container,
   type ContainerProps
 } from "../../../src/components/Container";
@@ -20,6 +24,7 @@ import {
   type PopupWindowProps
 } from "../../../src/components/PopupWindow";
 import type {
+  EncodedClickableElement,
   EncodedContainerElement,
   EncodedDisplayModeToggleElement,
   EncodedElement,
@@ -47,6 +52,10 @@ function encodeChildren(children: ReactElement<unknown>[]): EncodedElement[] {
     }
 
     switch (current.type) {
+      case Clickable: {
+        elements.push(encodeClickable(current as ReactElement<ClickableProps>));
+        break;
+      }
       case Container: {
         elements.push(encodeContainer(current as ReactElement<ContainerProps>));
         break;
@@ -91,6 +100,15 @@ function encodeChildren(children: ReactElement<unknown>[]): EncodedElement[] {
   });
 
   return elements;
+}
+
+function encodeClickable(
+  element: ReactElement<ClickableProps>
+): EncodedClickableElement {
+  return {
+    props: element.props,
+    type: "Clickable"
+  };
 }
 
 function encodeContainer(

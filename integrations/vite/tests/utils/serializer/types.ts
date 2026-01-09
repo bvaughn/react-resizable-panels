@@ -6,11 +6,17 @@ import type {
 import type { ContainerProps } from "../../../src/components/Container";
 import type { DisplayModeToggleProps } from "../../../src/components/DisplayModeToggle";
 import type { PopupWindowProps } from "../../../src/components/PopupWindow";
+import type { ClickableProps } from "../../../src/components/Clickable";
 
 type EncodedElementWithChildren<Props extends object = object> = Omit<
   Props,
   "children"
 > & { children?: EncodedElement[] | undefined };
+
+export interface EncodedClickableElement {
+  props: EncodedElementWithChildren<ClickableProps>;
+  type: "Clickable";
+}
 
 export interface EncodedContainerElement {
   props: EncodedElementWithChildren<ContainerProps>;
@@ -53,6 +59,7 @@ export interface EncodedTextElement {
 }
 
 export type EncodedElement =
+  | EncodedClickableElement
   | EncodedContainerElement
   | EncodedDisplayModeToggleElement
   | EncodedGroupElement

@@ -4,6 +4,7 @@ import type {
   PanelProps,
   SeparatorProps
 } from "react-resizable-panels";
+import { Clickable } from "../../../src/components/Clickable";
 import { Container } from "../../../src/components/Container";
 import { DisplayModeToggle } from "../../../src/components/DisplayModeToggle";
 import { Group } from "../../../src/components/Group";
@@ -11,6 +12,7 @@ import { Panel } from "../../../src/components/Panel";
 import { PopupWindow } from "../../../src/components/PopupWindow";
 import { Separator } from "../../../src/components/Separator";
 import type {
+  EncodedClickableElement,
   EncodedContainerElement,
   EncodedDisplayModeToggleElement,
   EncodedElement,
@@ -47,6 +49,10 @@ function decodeChildren(
     }
 
     switch (current.type) {
+      case "Clickable": {
+        elements.push(decodeClickable(current));
+        break;
+      }
       case "Container": {
         elements.push(decodeContainer(current, config));
         break;
@@ -84,6 +90,13 @@ function decodeChildren(
   return elements;
 }
 
+function decodeClickable(json: EncodedClickableElement): ReactElement<unknown> {
+  return createElement(Clickable, {
+    key: ++key,
+    ...json.props
+  });
+}
+
 function decodeContainer(
   json: EncodedContainerElement,
   config: Config
@@ -93,7 +106,6 @@ function decodeContainer(
   return createElement(Container, {
     key: ++key,
     ...props,
-    ...config.panelProps,
     children: children ? decodeChildren(children, config) : undefined
   });
 }
@@ -107,7 +119,6 @@ function decodeDisplayModeToggle(
   return createElement(DisplayModeToggle, {
     key: ++key,
     ...props,
-    ...config.panelProps,
     children: children ? decodeChildren(children, config) : undefined
   });
 }
@@ -149,7 +160,6 @@ function decodePopupWindow(
   return createElement(PopupWindow, {
     key: ++key,
     ...props,
-    ...config.panelProps,
     children: children ? decodeChildren(children, config) : undefined
   });
 }
