@@ -8,8 +8,6 @@ export function onDocumentPointerUp(event: PointerEvent) {
     return;
   }
 
-  event.preventDefault();
-
   const { interactionState } = read();
 
   switch (interactionState.state) {
@@ -21,7 +19,11 @@ export function onDocumentPointerUp(event: PointerEvent) {
         }
       });
 
-      updateCursorStyle(event.currentTarget as Document);
+      if (interactionState.hitRegions.length > 0) {
+        updateCursorStyle(event.currentTarget as Document);
+
+        event.preventDefault();
+      }
     }
   }
 }
