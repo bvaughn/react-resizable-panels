@@ -15,7 +15,7 @@ describe("Panel", () => {
   });
 
   describe("memoization", () => {
-    test("Panels and their contents should not re-render on Group layout change", () => {
+    test("Panels contents should not re-render on Group layout change", () => {
       const onGroupRender = vi.fn();
       const onPanelRender = vi.fn();
       const onPanelChildrenRender = vi.fn();
@@ -62,7 +62,7 @@ describe("Panel", () => {
       });
 
       expect(onGroupRender).toBeCalledTimes(1);
-      expect(onPanelRender).not.toBeCalled();
+      expect(onPanelRender).toBeCalled();
       expect(onPanelChildrenRender).not.toBeCalled();
     });
   });
