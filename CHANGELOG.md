@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.3.2
+
+- Moved `flex-grow` `Panel` style to an inline value instead of a CSS variable defined on the parent `Group` to improve rendering performance. (This significantly reduces the negative impact from forced-reflow)
+
 ## 4.3.1
 
 - [588](https://github.com/bvaughn/react-resizable-panels/pull/588): Replace `"unset"` styles with safer override values
