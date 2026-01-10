@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
-import { goToUrl } from "./utils/goToUrl";
-import { getSeparatorAriaAttributes } from "./utils/getSeparatorAriaAttributes";
+import { getSeparatorAriaAttributes } from "../src/utils/getSeparatorAriaAttributes";
+import { goToUrl } from "../src/utils/goToUrl";
 
 // References:
 // - https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/

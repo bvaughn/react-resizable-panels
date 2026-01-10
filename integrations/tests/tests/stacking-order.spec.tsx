@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import { Container } from "../src/components/Container";
-import { calculateHitArea } from "./utils/calculateHitArea";
-import { goToUrl } from "./utils/goToUrl";
+import { calculateHitArea } from "../src/utils/calculateHitArea";
+import { goToUrl } from "../src/utils/goToUrl";
 
 test.describe("stacking order", () => {
   for (const usePopUpWindow of [true, false]) {

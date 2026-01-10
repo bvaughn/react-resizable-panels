@@ -45,7 +45,7 @@ export async function goToUrl(
     .join("&");
 
   const url = new URL(
-    `http://localhost:3012/e2e/decoder/${encodedString}?${queryParams}`
+    `http://localhost:3012/decoder/${encodedString}?${queryParams}`
   );
 
   // Uncomment when testing for easier repro

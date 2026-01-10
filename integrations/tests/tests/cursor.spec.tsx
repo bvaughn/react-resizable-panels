@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
-import { calculateHitArea } from "./utils/calculateHitArea";
-import { getCenterCoordinates } from "./utils/getCenterCoordinates";
-import { goToUrl } from "./utils/goToUrl";
+import { calculateHitArea } from "../src/utils/calculateHitArea";
+import { getCenterCoordinates } from "../src/utils/getCenterCoordinates";
+import { goToUrl } from "../src/utils/goToUrl";
 
 test.describe("cursor", () => {
   for (const usePopUpWindow of [true, false]) {
