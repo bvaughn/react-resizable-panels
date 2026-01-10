@@ -1,20 +1,25 @@
-import { cookies } from "next/headers";
-import { type Layout, Panel, Separator } from "react-resizable-panels";
-import Group from "./components/Group";
-import { LayoutShiftDetecter } from "../../tests";
+import {
+  Group,
+  Panel,
+  Separator,
+  useDefaultLayout
+} from "react-resizable-panels";
+import { LayoutShiftDetecter } from "../../../tests";
 
-export default async function Home() {
-  const defaultLayoutOne = await getDefaultLayout("group-one");
-  const defaultLayoutTwo = await getDefaultLayout("group-two");
+export function HomeRoute() {
+  const groupOneProps = useDefaultLayout({
+    id: "group-one"
+  });
+
+  const groupTwoProps = useDefaultLayout({
+    id: "group-two"
+  });
 
   return (
     <div className="p-2 flex flex-col gap-2">
       <LayoutShiftDetecter />
-      <Group
-        className="h-25 gap-2"
-        defaultLayout={defaultLayoutOne}
-        id="group-one"
-      >
+
+      <Group className="h-25 gap-2" {...groupOneProps}>
         <Panel
           className="bg-slate-800 rounded rounded-md p-2"
           id="left"
@@ -39,9 +44,8 @@ export default async function Home() {
       </Group>
       <Group
         className="min-h-35 gap-2"
-        defaultLayout={defaultLayoutTwo}
-        id="group-two"
         orientation="vertical"
+        {...groupTwoProps}
       >
         <Panel
           className="bg-slate-800 rounded rounded-md p-2"
@@ -61,12 +65,4 @@ export default async function Home() {
       </Group>
     </div>
   );
-}
-
-async function getDefaultLayout(groupId: string) {
-  const api = await cookies();
-  const defaultLayoutString = api.get(groupId)?.value;
-  return defaultLayoutString
-    ? (JSON.parse(defaultLayoutString) as Layout)
-    : undefined;
 }

@@ -4,6 +4,7 @@ import {
   Separator,
   useDefaultLayout
 } from "react-resizable-panels";
+import { LayoutShiftDetecter } from "../../../tests";
 import { useCookieStorage } from "./useCookieStorage";
 
 export default function Page() {
@@ -21,44 +22,50 @@ export default function Page() {
 
   return (
     <div className="p-2 flex flex-col gap-2">
-      <Group className="h-25 gap-2" id="group-one" {...groupOneProps}>
+      <LayoutShiftDetecter />
+
+      <Group className="h-25 gap-2" {...groupOneProps}>
         <Panel
           className="bg-slate-800 rounded rounded-md p-2"
           id="left"
           minSize={50}
         >
-          left
+          id: left
         </Panel>
         <Panel
           className="bg-slate-800 rounded rounded-md p-2"
           id="center"
           minSize={50}
         >
-          center
+          id: center
         </Panel>
         <Panel
           className="bg-slate-800 rounded rounded-md p-2"
           id="right"
           minSize={50}
         >
-          right
+          id: right
         </Panel>
       </Group>
-      <Group className="h-25 gap-2" id="group-two" {...groupTwoProps}>
+      <Group
+        className="min-h-35 gap-2"
+        orientation="vertical"
+        {...groupTwoProps}
+      >
         <Panel
           className="bg-slate-800 rounded rounded-md p-2"
-          id="left"
-          minSize={50}
+          id="top"
+          minSize={30}
         >
-          left
+          id: top
         </Panel>
-        <Separator className="w-2 rounded rounded-md bg-slate-600" />
+        <Separator className="h-2 rounded rounded-md bg-slate-700" />
         <Panel
           className="bg-slate-800 rounded rounded-md p-2"
-          id="right"
-          minSize={50}
+          id="bottom"
+          minSize={30}
         >
-          right
+          id: bottom
         </Panel>
       </Group>
     </div>
