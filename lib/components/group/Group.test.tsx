@@ -355,7 +355,7 @@ describe("Group", () => {
       const { rerender } = render(
         <Group onLayoutChange={onLayoutChange}>
           <Panel id="a" defaultSize={40} />
-          <Panel id="b" defaultSize={60} />
+          <Panel id="b" />
         </Group>
       );
 
