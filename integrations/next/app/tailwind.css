@@ -1,3 +1,5 @@
+@source "../../tests";
+
 @import "tailwindcss";
 
 :root {

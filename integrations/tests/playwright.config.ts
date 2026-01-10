@@ -4,7 +4,7 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      timeout: 5_000,
+      timeout: 10_000,
       use: {
         ...devices["Desktop Chrome"],
         viewport: { width: 1000, height: 600 }

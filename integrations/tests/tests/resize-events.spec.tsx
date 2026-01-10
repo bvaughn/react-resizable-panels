@@ -1,8 +1,8 @@
 import { test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
-import { expectLayout } from "./utils/expectLayout";
-import { expectPanelSize } from "./utils/expectPanelSize";
-import { goToUrl } from "./utils/goToUrl";
+import { expectLayout } from "../src/utils/expectLayout";
+import { expectPanelSize } from "../src/utils/expectPanelSize";
+import { goToUrl } from "../src/utils/goToUrl";
 
 test.describe("resize events", () => {
   for (const usePopUpWindow of [true, false]) {

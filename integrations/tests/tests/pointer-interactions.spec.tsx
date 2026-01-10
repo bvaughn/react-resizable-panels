@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
-import { calculateHitArea } from "./utils/calculateHitArea";
-import { getCenterCoordinates } from "./utils/getCenterCoordinates";
-import { goToUrl } from "./utils/goToUrl";
-import { resizeHelper } from "./utils/pointer-interactions/resizeHelper";
-import { Container } from "../src/components/Container";
 import { Clickable } from "../src/components/Clickable";
+import { Container } from "../src/components/Container";
+import { calculateHitArea } from "../src/utils/calculateHitArea";
+import { getCenterCoordinates } from "../src/utils/getCenterCoordinates";
+import { goToUrl } from "../src/utils/goToUrl";
+import { resizeHelper } from "../src/utils/pointer-interactions/resizeHelper";
 
 test.describe("pointer interactions", () => {
   for (const usePopUpWindow of [true, false]) {

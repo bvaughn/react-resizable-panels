@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
-import { goToUrl } from "./utils/goToUrl";
+import { goToUrl } from "../src/utils/goToUrl";
 
 // High level tests; more nuanced scenarios are covered by unit tests
 test.describe("imperative API hooks", () => {

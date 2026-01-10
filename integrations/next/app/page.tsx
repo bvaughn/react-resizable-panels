@@ -1,16 +1,18 @@
 import { cookies } from "next/headers";
 import { type Layout, Panel, Separator } from "react-resizable-panels";
 import Group from "./components/Group";
+import { LayoutShiftDetecter } from "../../tests";
 
 export default async function Home() {
-  const defaultLayoutA = await getDefaultLayout("group-one");
-  const defaultLayoutB = await getDefaultLayout("group-two");
+  const defaultLayoutOne = await getDefaultLayout("group-one");
+  const defaultLayoutTwo = await getDefaultLayout("group-two");
 
   return (
     <div className="p-2 flex flex-col gap-2">
+      <LayoutShiftDetecter />
       <Group
         className="h-25 gap-2"
-        defaultLayout={defaultLayoutA}
+        defaultLayout={defaultLayoutOne}
         id="group-one"
       >
         <Panel
@@ -18,50 +20,43 @@ export default async function Home() {
           id="left"
           minSize={50}
         >
-          left
+          id: left
         </Panel>
         <Panel
           className="bg-slate-800 rounded rounded-md p-2"
           id="center"
           minSize={50}
         >
-          center
+          id: center
         </Panel>
         <Panel
           className="bg-slate-800 rounded rounded-md p-2"
           id="right"
           minSize={50}
         >
-          right
+          id: right
         </Panel>
       </Group>
       <Group
-        className="h-25 gap-2"
-        defaultLayout={defaultLayoutB}
+        className="min-h-35 gap-2"
+        defaultLayout={defaultLayoutTwo}
         id="group-two"
+        orientation="vertical"
       >
         <Panel
           className="bg-slate-800 rounded rounded-md p-2"
-          id="left"
-          minSize={50}
+          id="top"
+          minSize={30}
         >
-          left
+          id: top
         </Panel>
-        <Separator className="w-2 rounded rounded-md bg-slate-700" />
+        <Separator className="h-2 rounded rounded-md bg-slate-700" />
         <Panel
           className="bg-slate-800 rounded rounded-md p-2"
-          id="right"
-          minSize={50}
+          id="bottom"
+          minSize={30}
         >
-          right
-        </Panel>
-      </Group>
-      <Group className="h-25 gap-2">
-        <Panel className="bg-slate-800 rounded rounded-md p-2" minSize={50}>
-          left
-        </Panel>
-        <Panel className="bg-slate-800 rounded rounded-md p-2" minSize={50}>
-          right
+          id: bottom
         </Panel>
       </Group>
     </div>

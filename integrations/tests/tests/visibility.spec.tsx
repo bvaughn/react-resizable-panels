@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import { DisplayModeToggle } from "../src/components/DisplayModeToggle";
-import { goToUrl } from "./utils/goToUrl";
+import { goToUrl } from "../src/utils/goToUrl";
 
 test.describe("visibility", () => {
   for (const usePopUpWindow of [true, false]) {
