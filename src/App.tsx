@@ -9,6 +9,7 @@ import {
 } from "react-lib-tools";
 import { repository } from "../package.json";
 import { html as GroupExplicitHeightHTML } from "../public/generated/examples/GroupExplicitHeight.json";
+import { html as ConditionallyRenderPanel } from "../public/generated/examples/ConditionallyRenderPanel.json";
 import { Link } from "./components/Link";
 import { NavLink } from "./components/NavLink";
 import { Group } from "./components/styled-panels/Group";
@@ -199,6 +200,34 @@ const commonQuestions: CommonQuestion[] = [
           </Link>{" "}
           docs for examples of how to save layouts on the server.
         </p>
+      </>
+    )
+  },
+  {
+    id: "conditionally-render-panel",
+    question: "How can I conditionally render a Panel based on screen size?",
+    answer: (
+      <>
+        <p>
+          The recommended way is to use the{" "}
+          <ExternalLink href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver">
+            ResizeObserver
+          </ExternalLink>{" "}
+          API, either through a hook like{" "}
+          <ExternalLink href="http://npmjs.com/package/use-resize-observer">
+            useResizeObserver
+          </ExternalLink>{" "}
+          or a component like{" "}
+          <ExternalLink href="https://react-virtualized-auto-sizer.vercel.app/">
+            react-virtualized-auto-sizer
+          </ExternalLink>
+          .
+        </p>
+        <Code html={ConditionallyRenderPanel} />
+        <Callout>
+          Putting the <code>defaultSize</code> on the conditional{" "}
+          <code>Panel</code> is an easy way to avoid invalid layout constraints.
+        </Callout>
       </>
     )
   }
