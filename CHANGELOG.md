@@ -2,7 +2,10 @@
 
 ## 4.3.3
 
-- [595](https://github.com/bvaughn/react-resizable-panels/pull/595): Don't call `event.preventDefault()` on "pointerup" unless a handle was actively dragged,
+- [595](https://github.com/bvaughn/react-resizable-panels/pull/595): Don't call `event.preventDefault()` on "pointerup" unless a handle was actively dragged
+
+> [!NOTE]
+> This change also fixes a text selection bug that impacted Windows users (#574)
 
 ## 4.3.2
 
