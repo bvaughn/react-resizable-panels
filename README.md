@@ -120,7 +120,16 @@ Use this prop to disable that behavior for Panels and Separators in this group.<
     </tr>
     <tr>
       <td>onLayoutChange</td>
-      <td><p>Called when panel sizes change; receives a map of Panel id to size.</p>
+      <td><p>Called when the Group&#39;s layout is changing.</p>
+<p>⚠️ For layout changes caused by pointer events, this method is called each time the pointer is moved.
+For most cases, it is recommended to use the <code>onLayoutChanged</code> callback instead.</p>
+</td>
+    </tr>
+    <tr>
+      <td>onLayoutChanged</td>
+      <td><p>Called after the Group&#39;s layout has  been changed.</p>
+<p>ℹ️ For layout changes caused by pointer events, this method is not called until the pointer has been released.
+This method is recommended when saving layouts to some storage api.</p>
 </td>
     </tr>
     <tr>

@@ -64,7 +64,8 @@ export function Decoder({
     imperativeGroupApiLayout: Layout | undefined;
     imperativePanelApiSize: PanelSize | undefined;
     layout: Layout;
-    onLayoutCount: number;
+    onLayoutChangeCount: number;
+    onLayoutChangedCount: number;
     panels: {
       [id: number | string]: {
         onResizeCount: number;
@@ -75,7 +76,8 @@ export function Decoder({
     imperativeGroupApiLayout: undefined,
     imperativePanelApiSize: undefined,
     layout: {},
-    onLayoutCount: 0,
+    onLayoutChangeCount: 0,
+    onLayoutChangedCount: 0,
     panels: {}
   });
 
@@ -94,7 +96,14 @@ export function Decoder({
 
           setState((prev) => ({
             ...prev,
-            onLayoutCount: prev.onLayoutCount + 1,
+            onLayoutChangeCount: prev.onLayoutChangeCount + 1,
+            layout
+          }));
+        },
+        onLayoutChanged: (layout) => {
+          setState((prev) => ({
+            ...prev,
+            onLayoutChangedCount: prev.onLayoutChangedCount + 1,
             layout
           }));
         }
@@ -153,7 +162,8 @@ export function Decoder({
         <DebugData
           data={{
             layout: state.layout,
-            onLayoutCount: state.onLayoutCount
+            onLayoutChangeCount: state.onLayoutChangeCount,
+            onLayoutChangedCount: state.onLayoutChangedCount
           }}
         />
         {Array.from(Object.keys(state.panels)).map((panelId) => (

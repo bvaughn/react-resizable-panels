@@ -130,11 +130,29 @@
     "onLayoutChange": {
       "description": [
         {
-          "content": "<p>Called when panel sizes change; receives a map of Panel id to size.</p>\n"
+          "content": "<p>Called when the Group's layout is changing.</p>\n"
+        },
+        {
+          "content": "<p>For layout changes caused by pointer events, this method is called each time the pointer is moved.\nFor most cases, it is recommended to use the <code>onLayoutChanged</code> callback instead.</p>\n",
+          "intent": "warning"
         }
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onLayoutChange</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">Layout</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span></div>",
       "name": "onLayoutChange",
+      "required": false
+    },
+    "onLayoutChanged": {
+      "description": [
+        {
+          "content": "<p>Called after the Group's layout has  been changed.</p>\n"
+        },
+        {
+          "content": "<p>For layout changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving layouts to some storage api.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onLayoutChanged</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">Layout</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span></div>",
+      "name": "onLayoutChanged",
       "required": false
     },
     "orientation": {

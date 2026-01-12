@@ -39,20 +39,37 @@ export function Group({
   groupRef,
   id: idProp,
   onLayoutChange: onLayoutChangeUnstable,
+  onLayoutChanged: onLayoutChangedUnstable,
   orientation = "horizontal",
   style,
   ...rest
 }: GroupProps) {
-  const prevLayoutRef = useRef<Layout>({});
+  const prevLayoutRef = useRef<{
+    onLayoutChange: Layout;
+    onLayoutChanged: Layout;
+  }>({
+    onLayoutChange: {},
+    onLayoutChanged: {}
+  });
 
   const onLayoutChangeStable = useStableCallback((layout: Layout) => {
-    if (layoutsEqual(prevLayoutRef.current, layout)) {
+    if (layoutsEqual(prevLayoutRef.current.onLayoutChange, layout)) {
       // Memoize callback
       return;
     }
 
-    prevLayoutRef.current = layout;
+    prevLayoutRef.current.onLayoutChange = layout;
     onLayoutChangeUnstable?.(layout);
+  });
+
+  const onLayoutChangedStable = useStableCallback((layout: Layout) => {
+    if (layoutsEqual(prevLayoutRef.current.onLayoutChanged, layout)) {
+      // Memoize callback
+      return;
+    }
+
+    prevLayoutRef.current.onLayoutChanged = layout;
+    onLayoutChangedUnstable?.(layout);
   });
 
   const id = useId(idProp);
@@ -195,7 +212,8 @@ export function Group({
       const { defaultLayoutDeferred, derivedPanelConstraints, layout } = match;
 
       if (!defaultLayoutDeferred && derivedPanelConstraints.length > 0) {
-        onLayoutChangeStable?.(layout);
+        onLayoutChangeStable(layout);
+        onLayoutChangedStable(layout);
 
         inMemoryValues.panels.forEach((panel) => {
           panel.scheduleUpdate();
@@ -227,7 +245,13 @@ export function Group({
             return;
           }
 
-          onLayoutChangeStable?.(layout);
+          const { interactionState } = read();
+          const isCompleted = interactionState.state !== "active";
+
+          onLayoutChangeStable(layout);
+          if (isCompleted) {
+            onLayoutChangedStable(layout);
+          }
 
           inMemoryValues.panels.forEach((panel) => {
             panel.scheduleUpdate();
@@ -246,6 +270,7 @@ export function Group({
   }, [
     disabled,
     id,
+    onLayoutChangedStable,
     onLayoutChangeStable,
     orientation,
     panelOrSeparatorChangeSigil,

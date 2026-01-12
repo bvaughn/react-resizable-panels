@@ -311,8 +311,7 @@ describe("Group", () => {
       render(<Repro />);
     });
   });
-
-  describe("onLayoutChange", () => {
+  describe("onLayoutChange and onLayoutChanged", () => {
     beforeEach(() => {
       setElementBoundsFunction((element) => {
         if (element.hasAttribute("data-group")) {
@@ -325,9 +324,13 @@ describe("Group", () => {
 
     test("should not be called before layout has been initialized", () => {
       const onLayoutChange = vi.fn();
+      const onLayoutChanged = vi.fn();
 
       const { rerender } = render(
-        <Group onLayoutChange={onLayoutChange}>
+        <Group
+          onLayoutChange={onLayoutChange}
+          onLayoutChanged={onLayoutChanged}
+        >
           <Panel id="a" />
           <Panel id="b" />
         </Group>
@@ -339,21 +342,35 @@ describe("Group", () => {
         b: 50
       });
 
+      expect(onLayoutChanged).toHaveBeenCalledTimes(1);
+      expect(onLayoutChanged).toHaveBeenCalledWith({
+        a: 50,
+        b: 50
+      });
+
       rerender(
-        <Group onLayoutChange={onLayoutChange}>
+        <Group
+          onLayoutChange={onLayoutChange}
+          onLayoutChanged={onLayoutChanged}
+        >
           <Panel id="a" />
           <Panel id="b" />
         </Group>
       );
 
       expect(onLayoutChange).toHaveBeenCalledTimes(1);
+      expect(onLayoutChanged).toHaveBeenCalledTimes(1);
     });
 
     test("should be called with default layout", () => {
       const onLayoutChange = vi.fn();
+      const onLayoutChanged = vi.fn();
 
       const { rerender } = render(
-        <Group onLayoutChange={onLayoutChange}>
+        <Group
+          onLayoutChange={onLayoutChange}
+          onLayoutChanged={onLayoutChanged}
+        >
           <Panel id="a" defaultSize={40} />
           <Panel id="b" />
         </Group>
@@ -365,21 +382,36 @@ describe("Group", () => {
         b: 60
       });
 
+      expect(onLayoutChanged).toHaveBeenCalledTimes(1);
+      expect(onLayoutChanged).toHaveBeenCalledWith({
+        a: 40,
+        b: 60
+      });
+
       rerender(
-        <Group className="something" onLayoutChange={onLayoutChange}>
+        <Group
+          className="something"
+          onLayoutChange={onLayoutChange}
+          onLayoutChanged={onLayoutChanged}
+        >
           <Panel id="a" defaultSize={40} />
           <Panel id="b" defaultSize={60} />
         </Group>
       );
 
       expect(onLayoutChange).toHaveBeenCalledTimes(1);
+      expect(onLayoutChanged).toHaveBeenCalledTimes(1);
     });
 
     test("should be called when panels change", () => {
       const onLayoutChange = vi.fn();
+      const onLayoutChanged = vi.fn();
 
       const { rerender } = render(
-        <Group onLayoutChange={onLayoutChange}>
+        <Group
+          onLayoutChange={onLayoutChange}
+          onLayoutChanged={onLayoutChanged}
+        >
           <Panel id="a" />
           <Panel id="b" />
         </Group>
@@ -391,8 +423,17 @@ describe("Group", () => {
         b: 50
       });
 
+      expect(onLayoutChanged).toHaveBeenCalledTimes(1);
+      expect(onLayoutChanged).toHaveBeenCalledWith({
+        a: 50,
+        b: 50
+      });
+
       rerender(
-        <Group onLayoutChange={onLayoutChange}>
+        <Group
+          onLayoutChange={onLayoutChange}
+          onLayoutChanged={onLayoutChanged}
+        >
           <Panel id="a" />
           <Panel id="b" />
           <Panel id="c" />
@@ -407,13 +448,25 @@ describe("Group", () => {
         c: 25,
         d: 25
       });
+
+      expect(onLayoutChanged).toHaveBeenCalledTimes(2);
+      expect(onLayoutChanged).toHaveBeenCalledWith({
+        a: 25,
+        b: 25,
+        c: 25,
+        d: 25
+      });
     });
 
     test("should be called once per layout change", async () => {
       const onLayoutChange = vi.fn();
+      const onLayoutChanged = vi.fn();
 
       render(
-        <Group onLayoutChange={onLayoutChange}>
+        <Group
+          onLayoutChange={onLayoutChange}
+          onLayoutChanged={onLayoutChanged}
+        >
           <Panel id="a" defaultSize={50} />
           <Separator id="b" />
           <Panel id="c" defaultSize={50} />
@@ -426,7 +479,14 @@ describe("Group", () => {
         c: 50
       });
 
+      expect(onLayoutChanged).toHaveBeenCalledTimes(1);
+      expect(onLayoutChanged).toHaveBeenCalledWith({
+        a: 50,
+        c: 50
+      });
+
       onLayoutChange.mockReset();
+      onLayoutChanged.mockReset();
 
       // Simulate a drag from the draggable element to the target area
       await moveSeparator(25);
@@ -437,12 +497,20 @@ describe("Group", () => {
         c: 25
       });
 
+      expect(onLayoutChanged).toHaveBeenCalledTimes(1);
+      expect(onLayoutChanged).toHaveBeenCalledWith({
+        a: 75,
+        c: 25
+      });
+
       onLayoutChange.mockReset();
+      onLayoutChanged.mockReset();
 
       // Move the pointer a bit, but not enough to impact the layout
       await moveSeparator(0.0001);
 
       expect(onLayoutChange).not.toHaveBeenCalled();
+      expect(onLayoutChanged).not.toHaveBeenCalled();
     });
   });
 

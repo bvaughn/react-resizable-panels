@@ -8,13 +8,13 @@ import {
 // <begin>
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
-const { defaultLayout, onLayoutChange } = useDefaultLayout({
+const { defaultLayout, onLayoutChanged } = useDefaultLayout({
   id: "unique-layout-id",
   storage: localStorage
 });
 
 /* prettier-ignore */
-<Group defaultLayout={defaultLayout} onLayoutChange={onLayoutChange}>
+<Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged}>
   <Panel id="left" minSize={50}>left</Panel>
   <Separator />
   <Panel id="center" minSize={50}>center</Panel>

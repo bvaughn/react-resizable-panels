@@ -1,5 +1,6 @@
-import { expect, test } from "@playwright/test";
+import { test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
+import { assertLayoutChangeCounts } from "../src/utils/assertLayoutChangeCounts";
 import { goToUrl } from "../src/utils/goToUrl";
 
 test.describe("fixed size elements", () => {
@@ -23,7 +24,7 @@ test.describe("fixed size elements", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
 
         for (const text of ["foo+bar", "bar+baz", "baz+qux"]) {
           const box = (await page.getByText(text).boundingBox())!;
@@ -34,7 +35,7 @@ test.describe("fixed size elements", () => {
           await page.mouse.up();
         }
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
       });
 
       test("should work without an explicit separator", async ({
@@ -57,7 +58,7 @@ test.describe("fixed size elements", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
 
         const boxFoo = (await page.getByText("id: foo").boundingBox())!;
 
@@ -66,7 +67,7 @@ test.describe("fixed size elements", () => {
         await page.mouse.move(0, 0);
         await page.mouse.up();
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 2);
 
         const boxBar = (await page.getByText("id: bar").boundingBox())!;
 
@@ -75,7 +76,7 @@ test.describe("fixed size elements", () => {
         await page.mouse.move(1000, 0);
         await page.mouse.up();
 
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3);
       });
 
       test("should work with an explicit separator", async ({
@@ -105,7 +106,7 @@ test.describe("fixed size elements", () => {
         await page.mouse.move(0, 0);
         await page.mouse.up();
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 2);
 
         const boxBaz = (await page.getByText("id: baz").boundingBox())!;
 
@@ -114,7 +115,7 @@ test.describe("fixed size elements", () => {
         await page.mouse.move(1000, 0);
         await page.mouse.up();
 
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3);
       });
 
       test("should work with two explicit separators", async ({
@@ -146,7 +147,7 @@ test.describe("fixed size elements", () => {
         await page.mouse.move(0, 0);
         await page.mouse.up();
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 2);
 
         separatorBox = (await page.getByTestId("baz+qux+right").boundingBox())!;
 
@@ -155,7 +156,7 @@ test.describe("fixed size elements", () => {
         await page.mouse.move(1000, 0);
         await page.mouse.up();
 
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3);
       });
     });
   }

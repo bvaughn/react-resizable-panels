@@ -10,7 +10,7 @@ const showLeftPanel = false;
 // <begin>
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
-const { defaultLayout, onLayoutChange } = useDefaultLayout({
+const { defaultLayout, onLayoutChanged } = useDefaultLayout({
   id: "unique-layout-id",
   // This set of ids must match the Panels rendered during mount,
   // or the default layout will not be restored
@@ -19,7 +19,7 @@ const { defaultLayout, onLayoutChange } = useDefaultLayout({
 });
 
 /* prettier-ignore */
-<Group defaultLayout={defaultLayout} onLayoutChange={onLayoutChange}>
+<Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged}>
   {showLeftPanel && (
     <>
       <Panel id="left">left</Panel>

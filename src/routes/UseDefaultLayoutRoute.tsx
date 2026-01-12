@@ -27,6 +27,23 @@ export default function UseDefaultLayoutRoute() {
       <div className="text-lg font-bold">Parameters</div>
       <dl className="flex flex-col gap-2">
         <dd className="text-lg font-mono">
+          <span className="tok-propertyName">debounceSaveMs</span>
+          <span className="tok-punctuation">?:</span> number{" "}
+          <span className="tok-punctuation">=</span> 100
+        </dd>
+        <dt className="mb-2 flex flex-col gap-4">
+          <p>
+            Debounce save operation by the specified number of milliseconds;
+            defaults to 100ms
+          </p>
+          <Callout intent="warning" minimal>
+            This parameter corresponds to the deprecated{" "}
+            <code>onLayoutChange</code> callback. Code using the new{" "}
+            <code>onLayoutChanged</code> callback (shown above) does not need to
+            be debounced.
+          </Callout>
+        </dt>
+        <dd className="text-lg font-mono">
           <span className="tok-propertyName">id</span>
           <span className="tok-punctuation">:</span> string
         </dd>
@@ -53,15 +70,6 @@ export default function UseDefaultLayoutRoute() {
         </dd>
         <dt className="mb-2">
           Storage API; responsible for reading and writing saved layouts.
-        </dt>
-        <dd className="text-lg font-mono">
-          <span className="tok-propertyName">debounceSaveMs</span>
-          <span className="tok-punctuation">?:</span> number{" "}
-          <span className="tok-punctuation">=</span> 100
-        </dd>
-        <dt className="mb-2">
-          Debounce save operation by the specified number of milliseconds;
-          defaults to 100ms
         </dt>
       </dl>
     </Box>

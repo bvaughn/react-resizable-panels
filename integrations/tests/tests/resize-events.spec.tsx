@@ -26,7 +26,8 @@ test.describe("resize events", () => {
             right: 70
           },
           mainPage,
-          onLayoutCount: 1
+          onLayoutChangeCount: 1,
+          onLayoutChangedCount: 1
         });
         await expectPanelSize({
           mainPage,
@@ -58,7 +59,8 @@ test.describe("resize events", () => {
             right: 47
           },
           mainPage,
-          onLayoutCount: 2
+          onLayoutChangeCount: 2,
+          onLayoutChangedCount: 2
         });
         await expectPanelSize({
           mainPage,
@@ -98,7 +100,8 @@ test.describe("resize events", () => {
             right: 47
           },
           mainPage,
-          onLayoutCount: 2
+          onLayoutChangeCount: 2,
+          onLayoutChangedCount: 2
         });
       });
 
@@ -121,7 +124,8 @@ test.describe("resize events", () => {
             right: 50
           },
           mainPage,
-          onLayoutCount: 1
+          onLayoutChangeCount: 1,
+          onLayoutChangedCount: 1
         });
 
         await page.setViewportSize({
@@ -135,7 +139,8 @@ test.describe("resize events", () => {
             right: 50
           },
           mainPage,
-          onLayoutCount: 1
+          onLayoutChangeCount: 1,
+          onLayoutChangedCount: 1
         });
 
         const bounds = (await page.getByRole("separator").boundingBox())!;
@@ -150,7 +155,8 @@ test.describe("resize events", () => {
             right: 89
           },
           mainPage,
-          onLayoutCount: 2
+          onLayoutChangeCount: 2,
+          onLayoutChangedCount: 1
         });
       });
 
@@ -173,7 +179,8 @@ test.describe("resize events", () => {
             right: 70
           },
           mainPage,
-          onLayoutCount: 1
+          onLayoutChangeCount: 1,
+          onLayoutChangedCount: 1
         });
 
         await page.setViewportSize({
@@ -187,7 +194,8 @@ test.describe("resize events", () => {
             right: 47
           },
           mainPage,
-          onLayoutCount: 2
+          onLayoutChangeCount: 2,
+          onLayoutChangedCount: 2
         });
 
         await page.setViewportSize({
@@ -201,7 +209,8 @@ test.describe("resize events", () => {
             right: 47
           },
           mainPage,
-          onLayoutCount: 2
+          onLayoutChangeCount: 2,
+          onLayoutChangedCount: 2
         });
       });
     });
