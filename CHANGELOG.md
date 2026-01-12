@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.4.0
+
+- [599](https://github.com/bvaughn/react-resizable-panels/pull/599): Add new `onLayoutChanged` prop to `Group`.
+
+For layout changes caused by pointer events, this method is not called until the pointer has been released. This callback should be used if you're doing something like saving a layout as it is called less frequently than the previous approach.
+
+The `useDefaultLayout` hook has also been updated to use this callback (though it will continue to support the old callback as well, with a `@deprecation` tag).
+
 ## 4.3.3
 
 - [595](https://github.com/bvaughn/react-resizable-panels/pull/595): Don't call `event.preventDefault()` on "pointerup" unless a handle was actively dragged
