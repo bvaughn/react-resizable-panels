@@ -125,9 +125,20 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
   id?: string | number | undefined;
 
   /**
-   * Called when panel sizes change; receives a map of Panel id to size.
+   * Called when the Group's layout is changing.
+   *
+   * ⚠️ For layout changes caused by pointer events, this method is called each time the pointer is moved.
+   * For most cases, it is recommended to use the `onLayoutChanged` callback instead.
    */
   onLayoutChange?: (layout: Layout) => void | undefined;
+
+  /**
+   * Called after the Group's layout has  been changed.
+   *
+   * ℹ️ For layout changes caused by pointer events, this method is not called until the pointer has been released.
+   * This method is recommended when saving layouts to some storage api.
+   */
+  onLayoutChanged?: (layout: Layout) => void | undefined;
 
   /**
    * Specifies the resizable orientation ("horizontal" or "vertical"); defaults to "horizontal"
@@ -143,3 +154,4 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 export type OnGroupLayoutChange = GroupProps["onLayoutChange"];
+export type OnGroupLayoutChanged = GroupProps["onLayoutChanged"];

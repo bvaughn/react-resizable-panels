@@ -4,17 +4,20 @@ import type { Layout } from "react-resizable-panels";
 export async function expectLayout({
   layout,
   mainPage,
-  onLayoutCount
+  onLayoutChangeCount,
+  onLayoutChangedCount
 }: {
   layout: Layout;
   mainPage: Page;
-  onLayoutCount: number;
+  onLayoutChangeCount: number;
+  onLayoutChangedCount: number;
 }) {
   await expect(mainPage.getByText('"layout"')).toHaveText(
     JSON.stringify(
       {
         layout,
-        onLayoutCount
+        onLayoutChangeCount,
+        onLayoutChangedCount
       },
       null,
       2

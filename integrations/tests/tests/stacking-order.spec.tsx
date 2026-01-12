@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import { Container } from "../src/components/Container";
+import { assertLayoutChangeCounts } from "../src/utils/assertLayoutChangeCounts";
 import { calculateHitArea } from "../src/utils/calculateHitArea";
 import { goToUrl } from "../src/utils/goToUrl";
 
@@ -29,7 +30,7 @@ test.describe("stacking order", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
 
         const box = (await page.getByRole("separator").boundingBox())!;
 
@@ -38,7 +39,7 @@ test.describe("stacking order", () => {
         await page.mouse.move(0, 0);
         await page.mouse.up();
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
 
         const hitAreaBox = await calculateHitArea(page, ["center", "right"]);
 
@@ -47,7 +48,7 @@ test.describe("stacking order", () => {
         await page.mouse.move(1000, 0);
         await page.mouse.up();
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
       });
 
       test("should allow pointer events that target nearby but not overlapping higher z-index targets", async ({
@@ -72,7 +73,7 @@ test.describe("stacking order", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
 
         const box = (await page.getByRole("separator").boundingBox())!;
 
@@ -81,7 +82,7 @@ test.describe("stacking order", () => {
         await page.mouse.move(0, 0);
         await page.mouse.up();
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 2);
 
         const hitAreaBox = await calculateHitArea(page, ["center", "right"]);
 
@@ -90,7 +91,7 @@ test.describe("stacking order", () => {
         await page.mouse.move(1000, 0);
         await page.mouse.up();
 
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3);
       });
 
       test("should allow resizes that originate outside of an overlapping element and then move beneath it", async ({
@@ -113,35 +114,35 @@ test.describe("stacking order", () => {
         const panelBox = (await page.getByText("id: left").boundingBox())!;
         const separatorBox = (await separator.boundingBox())!;
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
 
         await page.mouse.move(separatorBox.x, separatorBox.y);
         await expect(separator).toHaveAttribute("data-separator", "hover");
 
         await page.mouse.down();
         await expect(separator).toHaveAttribute("data-separator", "active");
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
 
         await page.mouse.move(panelBox.x, separatorBox.y);
         await expect(separator).toHaveAttribute("data-separator", "active");
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 2, 1);
 
         await page.mouse.move(panelBox.x + 25, separatorBox.y);
         await expect(separator).toHaveAttribute("data-separator", "active");
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3, 1);
 
         // Releasing the cursor under the overlaid element should do two things:
         // It should deactivate the separator
         // It should transition to an "inactive" state because it's now blocked
         await page.mouse.up();
         await expect(separator).toHaveAttribute("data-separator", "inactive");
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3, 2);
 
         // No-op
         await page.mouse.down();
         await page.mouse.move(separatorBox.x, separatorBox.y);
         await page.mouse.up();
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3, 2);
       });
     });
   }

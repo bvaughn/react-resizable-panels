@@ -23,11 +23,15 @@ export function onDocumentPointerMove(event: PointerEvent) {
             ? prevState
             : {
                 cursorFlags: 0,
-                interactionState: {
-                  state: "inactive"
-                }
+                interactionState: { state: "inactive" }
               }
         );
+
+        // Dispatch one more "change" event after the interaction state has been reset
+        // Groups use this as a signal to call onLayoutChanged
+        update((prevState) => ({
+          mountedGroups: new Map(prevState.mountedGroups)
+        }));
 
         return;
       }
@@ -49,7 +53,9 @@ export function onDocumentPointerMove(event: PointerEvent) {
       if (hitRegions.length === 0) {
         if (interactionState.state !== "inactive") {
           update({
-            interactionState: { state: "inactive" }
+            interactionState: {
+              state: "inactive"
+            }
           });
         }
       } else {

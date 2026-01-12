@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
+import { assertLayoutChangeCounts } from "../src/utils/assertLayoutChangeCounts";
 import { getSeparatorAriaAttributes } from "../src/utils/getSeparatorAriaAttributes";
 import { goToUrl } from "../src/utils/goToUrl";
 
@@ -21,7 +22,7 @@ test.describe("keyboard interactions: window splitter api", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
         await expect(mainPage.getByText('"left": 30')).toBeVisible();
 
         await expect(await getSeparatorAriaAttributes(page)).toEqual({
@@ -36,7 +37,7 @@ test.describe("keyboard interactions: window splitter api", () => {
         await separator.focus();
         await page.keyboard.press("ArrowLeft");
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 2);
         await expect(mainPage.getByText('"left": 25')).toBeVisible();
 
         await expect(await getSeparatorAriaAttributes(page)).toEqual({
@@ -48,7 +49,7 @@ test.describe("keyboard interactions: window splitter api", () => {
 
         await page.keyboard.press("ArrowRight");
 
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3);
         await expect(mainPage.getByText('"left": 30')).toBeVisible();
 
         await expect(await getSeparatorAriaAttributes(page)).toEqual({
@@ -61,7 +62,7 @@ test.describe("keyboard interactions: window splitter api", () => {
         // Up/down are no-ops
         await page.keyboard.press("ArrowUp");
         await page.keyboard.press("ArrowDown");
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3);
       });
 
       test("vertical: arrow keys", async ({ page: mainPage }) => {
@@ -75,7 +76,7 @@ test.describe("keyboard interactions: window splitter api", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
         await expect(mainPage.getByText('"top": 30')).toBeVisible();
 
         await expect(await getSeparatorAriaAttributes(page)).toEqual({
@@ -90,7 +91,7 @@ test.describe("keyboard interactions: window splitter api", () => {
         await separator.focus();
         await page.keyboard.press("ArrowDown");
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 2);
         await expect(mainPage.getByText('"top": 35')).toBeVisible();
 
         await expect(await getSeparatorAriaAttributes(page)).toEqual({
@@ -102,7 +103,7 @@ test.describe("keyboard interactions: window splitter api", () => {
 
         await page.keyboard.press("ArrowUp");
 
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3);
         await expect(mainPage.getByText('"top": 30')).toBeVisible();
 
         await expect(await getSeparatorAriaAttributes(page)).toEqual({
@@ -115,7 +116,7 @@ test.describe("keyboard interactions: window splitter api", () => {
         // Left/right are no-ops
         await page.keyboard.press("ArrowLeft");
         await page.keyboard.press("ArrowRight");
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3);
       });
 
       test("enter key and collapsible panel", async ({ page: mainPage }) => {
@@ -129,7 +130,7 @@ test.describe("keyboard interactions: window splitter api", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
         await expect(mainPage.getByText('"left": 50')).toBeVisible();
         await expect(mainPage.getByText('"right": 50')).toBeVisible();
 
@@ -144,7 +145,7 @@ test.describe("keyboard interactions: window splitter api", () => {
         await separator.focus();
         await page.keyboard.press("Enter");
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 2);
         await expect(mainPage.getByText('"left": 5')).toBeVisible();
         await expect(mainPage.getByText('"right": 95')).toBeVisible();
 
@@ -157,7 +158,7 @@ test.describe("keyboard interactions: window splitter api", () => {
 
         await page.keyboard.press("Enter");
 
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3);
         await expect(mainPage.getByText('"left": 50')).toBeVisible();
         await expect(mainPage.getByText('"right": 50')).toBeVisible();
 
@@ -170,7 +171,7 @@ test.describe("keyboard interactions: window splitter api", () => {
 
         await page.keyboard.press("ArrowLeft");
 
-        await expect(mainPage.getByText('"onLayoutCount": 4')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 4);
         await expect(mainPage.getByText('"left": 45')).toBeVisible();
         await expect(mainPage.getByText('"right": 55')).toBeVisible();
 
@@ -183,7 +184,7 @@ test.describe("keyboard interactions: window splitter api", () => {
 
         await page.keyboard.press("Enter");
 
-        await expect(mainPage.getByText('"onLayoutCount": 5')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 5);
         await expect(mainPage.getByText('"left": 5')).toBeVisible();
         await expect(mainPage.getByText('"right": 95')).toBeVisible();
 
@@ -196,7 +197,7 @@ test.describe("keyboard interactions: window splitter api", () => {
 
         await page.keyboard.press("Enter");
 
-        await expect(mainPage.getByText('"onLayoutCount": 6')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 6);
         await expect(mainPage.getByText('"left": 45')).toBeVisible();
         await expect(mainPage.getByText('"right": 55')).toBeVisible();
 
@@ -221,7 +222,7 @@ test.describe("keyboard interactions: window splitter api", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
         await expect(mainPage.getByText('"left": 50')).toBeVisible();
         await expect(mainPage.getByText('"right": 50')).toBeVisible();
 
@@ -229,7 +230,7 @@ test.describe("keyboard interactions: window splitter api", () => {
         await separator.focus();
         await page.keyboard.press("Enter");
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
       });
 
       test("home and end keys", async ({ page: mainPage }) => {
@@ -243,7 +244,7 @@ test.describe("keyboard interactions: window splitter api", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
         await expect(mainPage.getByText('"left": 50')).toBeVisible();
         await expect(mainPage.getByText('"right": 50')).toBeVisible();
 
@@ -252,13 +253,13 @@ test.describe("keyboard interactions: window splitter api", () => {
         await separator.focus();
         await page.keyboard.press("Home");
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 2);
         await expect(mainPage.getByText('"left": 20')).toBeVisible();
         await expect(mainPage.getByText('"right": 80')).toBeVisible();
 
         await page.keyboard.press("End");
 
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3);
         await expect(mainPage.getByText('"left": 95')).toBeVisible();
         await expect(mainPage.getByText('"right": 5')).toBeVisible();
       });
@@ -307,7 +308,7 @@ test.describe("keyboard interactions: window splitter api", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
         await expect(mainPage.getByText('"left": 30')).toBeVisible();
 
         const separator = page.getByRole("separator");
@@ -320,7 +321,7 @@ test.describe("keyboard interactions: window splitter api", () => {
         await page.keyboard.press("Enter");
         await page.keyboard.press("Home");
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
         await expect(mainPage.getByText('"left": 30')).toBeVisible();
       });
     });

@@ -1,7 +1,17 @@
-import { useMemo, useSyncExternalStore } from "react";
-import { debounce } from "../../utils/debounce";
+import {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useSyncExternalStore
+} from "react";
 import { getStorageKey } from "./auto-save/getStorageKey";
-import type { Layout, LayoutStorage, OnGroupLayoutChange } from "./types";
+import type {
+  Layout,
+  LayoutStorage,
+  OnGroupLayoutChange,
+  OnGroupLayoutChanged
+} from "./types";
 
 /**
  * Saves and restores group layouts between page loads.
@@ -15,6 +25,8 @@ export function useDefaultLayout({
 }: {
   /**
    * Debounce save operation by the specified number of milliseconds; defaults to 100ms
+   *
+   * @deprecated Use the {@link onLayoutChanged} callback instead; it does not require debouncing
    */
   debounceSaveMs?: number;
 
@@ -70,8 +82,27 @@ export function useDefaultLayout({
     [defaultLayoutString]
   );
 
-  const onLayoutChange = useMemo<NonNullable<OnGroupLayoutChange>>(() => {
-    const saveLayout = (layout: Layout) => {
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const clearPendingTimeout = useCallback(() => {
+    const timeout = timeoutRef.current;
+    if (timeout) {
+      timeoutRef.current = null;
+
+      clearTimeout(timeout);
+    }
+  }, []);
+
+  useLayoutEffect(() => {
+    return () => {
+      clearPendingTimeout();
+    };
+  }, [clearPendingTimeout]);
+
+  const onLayoutChanged = useCallback<NonNullable<OnGroupLayoutChanged>>(
+    (layout: Layout) => {
+      clearPendingTimeout();
+
       let writeStorageKey: string;
       if (hasPanelIds) {
         writeStorageKey = getStorageKey(id, Object.keys(layout));
@@ -84,16 +115,43 @@ export function useDefaultLayout({
       } catch (error) {
         console.error(error);
       }
-    };
+    },
+    [clearPendingTimeout, hasPanelIds, id, storage]
+  );
 
-    return debounceSaveMs > 0
-      ? debounce(saveLayout, debounceSaveMs)
-      : saveLayout;
-  }, [debounceSaveMs, hasPanelIds, id, storage]);
+  // TODO Deprecated; remove this in the future release
+  const onLayoutChange = useCallback<NonNullable<OnGroupLayoutChange>>(
+    (layout: Layout) => {
+      clearPendingTimeout();
+
+      if (debounceSaveMs === 0) {
+        onLayoutChanged(layout);
+      } else {
+        timeoutRef.current = setTimeout(() => {
+          onLayoutChanged(layout);
+        }, debounceSaveMs);
+      }
+    },
+    [clearPendingTimeout, debounceSaveMs, onLayoutChanged]
+  );
 
   return {
+    /**
+     * Pass this value to `Group` as the `defaultLayout` prop.
+     */
     defaultLayout,
-    onLayoutChange
+
+    /**
+     * Attach this callback on the `Group` as the `onLayoutChange` prop.
+     *
+     * @deprecated Use the {@link onLayoutChanged} prop instead.
+     */
+    onLayoutChange,
+
+    /**
+     * Attach this callback on the `Group` as the `onLayoutChanged` prop.
+     */
+    onLayoutChanged
   };
 }
 

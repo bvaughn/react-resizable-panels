@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import { Clickable } from "../src/components/Clickable";
 import { Container } from "../src/components/Container";
+import { assertLayoutChangeCounts } from "../src/utils/assertLayoutChangeCounts";
 import { calculateHitArea } from "../src/utils/calculateHitArea";
 import { getCenterCoordinates } from "../src/utils/getCenterCoordinates";
 import { goToUrl } from "../src/utils/goToUrl";
@@ -21,22 +22,22 @@ test.describe("pointer interactions", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
         await expect(mainPage.getByText('"left": 30')).toBeVisible();
 
         await resizeHelper(page, ["left", "right"], 100, 0);
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 2);
         await expect(mainPage.getByText('"left": 40')).toBeVisible();
 
         await resizeHelper(page, ["left", "right"], 1000, 0);
 
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3);
         await expect(mainPage.getByText('"left": 95')).toBeVisible();
 
         await resizeHelper(page, ["left", "right"], -1000, 0);
 
-        await expect(mainPage.getByText('"onLayoutCount": 4')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 4);
         await expect(mainPage.getByText('"left": 5')).toBeVisible();
       });
 
@@ -54,7 +55,7 @@ test.describe("pointer interactions", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
         await expect(mainPage.getByText('"left": 30')).toBeVisible();
 
         const separator = page.getByRole("separator");
@@ -72,7 +73,7 @@ test.describe("pointer interactions", () => {
 
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
         await expect(mainPage.getByText('"left": 30')).toBeVisible();
       });
 
@@ -133,22 +134,22 @@ test.describe("pointer interactions", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
         await expect(mainPage.getByText('"left": 30')).toBeVisible();
 
         await resizeHelper(page, ["left", "right"], 100, 0);
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 2);
         await expect(mainPage.getByText('"left": 40')).toBeVisible();
 
         await resizeHelper(page, ["left", "right"], 1000, 0);
 
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3);
         await expect(mainPage.getByText('"left": 95')).toBeVisible();
 
         await resizeHelper(page, ["left", "right"], -1000, 0);
 
-        await expect(mainPage.getByText('"onLayoutCount": 4')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 4);
         await expect(mainPage.getByText('"left": 5')).toBeVisible();
       });
 
@@ -163,12 +164,12 @@ test.describe("pointer interactions", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
         await expect(mainPage.getByText('"left": 30')).toBeVisible();
 
         await resizeHelper(page, ["left", "right"], 100, 0);
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
         await expect(mainPage.getByText('"left": 30')).toBeVisible();
       });
 
@@ -187,28 +188,28 @@ test.describe("pointer interactions", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
         await expect(mainPage.getByText('"left": 33')).toBeVisible();
         await expect(mainPage.getByText('"center": 33')).toBeVisible();
         await expect(mainPage.getByText('"right": 33')).toBeVisible();
 
         await resizeHelper(page, ["left", "center"], 1000, 0);
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 2);
         await expect(mainPage.getByText('"left": 89')).toBeVisible();
         await expect(mainPage.getByText('"center": 5')).toBeVisible();
         await expect(mainPage.getByText('"right": 5')).toBeVisible();
 
         await resizeHelper(page, ["center", "right"], -1000, 0);
 
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3);
         await expect(mainPage.getByText('"left": 5')).toBeVisible();
         await expect(mainPage.getByText('"center": 5')).toBeVisible();
         await expect(mainPage.getByText('"right": 89')).toBeVisible();
 
         await resizeHelper(page, ["center", "right"], 1000, 0);
 
-        await expect(mainPage.getByText('"onLayoutCount": 4')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 4);
         await expect(mainPage.getByText('"left": 5')).toBeVisible();
         await expect(mainPage.getByText('"center": 89')).toBeVisible();
         await expect(mainPage.getByText('"right": 5')).toBeVisible();
@@ -229,7 +230,7 @@ test.describe("pointer interactions", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1, 1);
         await expect(mainPage.getByText('"left": 33')).toBeVisible();
         await expect(mainPage.getByText('"center": 33')).toBeVisible();
         await expect(mainPage.getByText('"right": 33')).toBeVisible();
@@ -243,14 +244,14 @@ test.describe("pointer interactions", () => {
           steps: 1
         });
 
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 2, 1);
         await expect(mainPage.getByText('"left": 86')).toBeVisible();
         await expect(mainPage.getByText('"center": 5')).toBeVisible();
         await expect(mainPage.getByText('"right": 9')).toBeVisible();
 
         await page.mouse.move(x - 500, y);
 
-        await expect(mainPage.getByText('"onLayoutCount": 3')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 3, 1);
         await expect(mainPage.getByText('"left": 5')).toBeVisible();
         await expect(mainPage.getByText('"center": 61')).toBeVisible();
         await expect(mainPage.getByText('"right": 33')).toBeVisible();
@@ -258,7 +259,8 @@ test.describe("pointer interactions", () => {
         await page.mouse.move(x, y);
         await page.mouse.up();
 
-        await expect(mainPage.getByText('"onLayoutCount": 4')).toBeVisible();
+        // TRICKY Because the cursor ended at the exact same starting spot, no layout change was committed
+        await assertLayoutChangeCounts(mainPage, 4, 1);
         await expect(mainPage.getByText('"left": 33')).toBeVisible();
         await expect(mainPage.getByText('"center": 33')).toBeVisible();
         await expect(mainPage.getByText('"right": 33')).toBeVisible();
@@ -277,13 +279,13 @@ test.describe("pointer interactions", () => {
           { usePopUpWindow }
         );
 
-        await expect(mainPage.getByText('"onLayoutCount": 1')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 1);
         await expect(mainPage.getByText('"left": 10')).toBeVisible();
 
         await resizeHelper(page, ["left", "right"], 800, 0);
 
         // The new layout would be ~91% and 9% if not for flex-gap
-        await expect(mainPage.getByText('"onLayoutCount": 2')).toBeVisible();
+        await assertLayoutChangeCounts(mainPage, 2);
         await expect(mainPage.getByText('"left": 95')).toBeVisible();
       });
 
@@ -313,6 +315,55 @@ test.describe("pointer interactions", () => {
 
         await page.mouse.up();
         await expect(panel).toHaveCSS("pointer-events", "auto");
+      });
+
+      test("does not notify on-changed handler until pointer resize finishes", async ({
+        page: mainPage
+      }) => {
+        const page = await goToUrl(
+          mainPage,
+          <Group>
+            <Panel id="left" minSize={50} />
+            <Separator />
+            <Panel id="center" minSize={50} />
+            <Separator />
+            <Panel id="right" minSize={50} />
+          </Group>,
+          { usePopUpWindow }
+        );
+
+        await assertLayoutChangeCounts(mainPage, 1, 1);
+        await expect(mainPage.getByText('"left": 33')).toBeVisible();
+        await expect(mainPage.getByText('"center": 33')).toBeVisible();
+        await expect(mainPage.getByText('"right": 33')).toBeVisible();
+
+        const hitAreaBox = await calculateHitArea(page, ["left", "center"]);
+        const { x, y } = getCenterCoordinates(hitAreaBox);
+
+        await page.mouse.move(x, y);
+        await page.mouse.down();
+        await page.mouse.move(x + 500, y, {
+          steps: 1
+        });
+
+        await assertLayoutChangeCounts(mainPage, 2, 1);
+        await expect(mainPage.getByText('"left": 86')).toBeVisible();
+        await expect(mainPage.getByText('"center": 5')).toBeVisible();
+        await expect(mainPage.getByText('"right": 9')).toBeVisible();
+
+        await page.mouse.move(x - 500, y);
+
+        await assertLayoutChangeCounts(mainPage, 3, 1);
+        await expect(mainPage.getByText('"left": 5')).toBeVisible();
+        await expect(mainPage.getByText('"center": 61')).toBeVisible();
+        await expect(mainPage.getByText('"right": 33')).toBeVisible();
+
+        await page.mouse.up();
+
+        await assertLayoutChangeCounts(mainPage, 3, 2);
+        await expect(mainPage.getByText('"left": 5')).toBeVisible();
+        await expect(mainPage.getByText('"center": 61')).toBeVisible();
+        await expect(mainPage.getByText('"right": 33')).toBeVisible();
       });
 
       test.describe("focus", () => {

@@ -22,6 +22,12 @@ export function onDocumentPointerUp(event: PointerEvent) {
       if (interactionState.hitRegions.length > 0) {
         updateCursorStyle(event.currentTarget as Document);
 
+        // Dispatch one more "change" event after the interaction state has been reset
+        // Groups use this as a signal to call onLayoutChanged
+        update((prevState) => ({
+          mountedGroups: new Map(prevState.mountedGroups)
+        }));
+
         event.preventDefault();
       }
     }

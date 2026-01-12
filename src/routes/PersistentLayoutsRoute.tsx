@@ -7,7 +7,7 @@ import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
 
 export default function PersistentLayoutsRoute() {
-  const { defaultLayout, onLayoutChange } = useDefaultLayout({
+  const { defaultLayout, onLayoutChanged } = useDefaultLayout({
     id: "unique-layout-id",
     storage: sessionStorage
   });
@@ -26,7 +26,7 @@ export default function PersistentLayoutsRoute() {
       <Group
         className="h-15"
         defaultLayout={defaultLayout}
-        onLayoutChange={onLayoutChange}
+        onLayoutChanged={onLayoutChanged}
       >
         <Panel id="left" minSize={50} showSizeAsPercentage>
           left
@@ -40,12 +40,6 @@ export default function PersistentLayoutsRoute() {
           right
         </Panel>
       </Group>
-      <Callout intent="primary">
-        The <code>useDefaultLayout</code> hook debounces calls to{" "}
-        <code>storage.setItem</code> by 150ms for performance reasons. This can
-        be customized (or disabled entirely) using the{" "}
-        <code>debounceSaveMs</code> param.
-      </Callout>
       <Callout intent="warning">
         Panels require unique <code>id</code> props to restore saved layouts.
       </Callout>
