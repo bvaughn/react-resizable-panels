@@ -1,5 +1,6 @@
 import { Box, Callout, Code, Header } from "react-lib-tools";
 import { html as ExampleHTML } from "../../public/generated/examples/CollapsiblePanels.json";
+import { html as ExampleCollapsedByDefaultHTML } from "../../public/generated/examples/CollapsiblePanelsCollapsedByDefault.json";
 import { html as ExampleWithCollapsedSizeHTML } from "../../public/generated/examples/CollapsiblePanelsCollapsedSize.json";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
@@ -48,6 +49,25 @@ export default function CollapsiblePanelsRoute() {
       <Callout intent="primary">
         A panel's collapse threshold is half its minimum size.
       </Callout>
+      <div>
+        Collapsible panels can also be collapsed by default by setting their{" "}
+        <code>defaultSize</code> to 0 (pixels or percent).
+      </div>
+      <Code html={ExampleCollapsedByDefaultHTML} />
+      <Group>
+        <Panel
+          collapsible
+          defaultSize={0}
+          maxSize="75%"
+          minSize="10%"
+          showSizeAsPercentage
+        />
+        <Separator />
+        <Panel>
+          The panel on the left is collapsed by default but can be expanded by
+          dragging the separator.
+        </Panel>
+      </Group>
     </Box>
   );
 }
