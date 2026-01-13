@@ -25,7 +25,7 @@ export function calculatePanelConstraints(group: RegisteredGroup) {
     const { element, panelConstraints } = panel;
 
     let collapsedSize = 0;
-    if (panelConstraints.collapsedSize) {
+    if (panelConstraints.collapsedSize !== undefined) {
       const pixels = sizeStyleToPixels({
         groupSize,
         panelElement: element,
@@ -36,7 +36,7 @@ export function calculatePanelConstraints(group: RegisteredGroup) {
     }
 
     let defaultSize: number | undefined = undefined;
-    if (panelConstraints.defaultSize) {
+    if (panelConstraints.defaultSize !== undefined) {
       const pixels = sizeStyleToPixels({
         groupSize,
         panelElement: element,
@@ -47,7 +47,7 @@ export function calculatePanelConstraints(group: RegisteredGroup) {
     }
 
     let minSize = 0;
-    if (panelConstraints.minSize) {
+    if (panelConstraints.minSize !== undefined) {
       const pixels = sizeStyleToPixels({
         groupSize,
         panelElement: element,
@@ -58,7 +58,7 @@ export function calculatePanelConstraints(group: RegisteredGroup) {
     }
 
     let maxSize = 100;
-    if (panelConstraints.maxSize) {
+    if (panelConstraints.maxSize !== undefined) {
       const pixels = sizeStyleToPixels({
         groupSize,
         panelElement: element,
