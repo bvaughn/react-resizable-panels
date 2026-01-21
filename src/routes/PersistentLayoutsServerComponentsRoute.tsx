@@ -1,4 +1,4 @@
-import { Box, Code, ExternalLink, Header } from "react-lib-tools";
+import { Box, Callout, Code, ExternalLink, Header } from "react-lib-tools";
 import { html as ClientComponentExampleHTML } from "../../public/generated/examples/ClientComponent.json";
 import { html as ServerComponentExampleHTML } from "../../public/generated/examples/ServerComponent.json";
 
@@ -19,6 +19,14 @@ export default function PersistentLayoutsServerComponentsRoute() {
       </div>
       <Code html={ServerComponentExampleHTML} />
       <Code html={ClientComponentExampleHTML} />
+      <Callout intent="primary">
+        The example above includes <code>path=/</code> so that saved layouts can
+        be shared between paths; see{" "}
+        <ExternalLink href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Cookies#define_where_cookies_are_sent">
+          Using HTTP cookies
+        </ExternalLink>{" "}
+        for more.
+      </Callout>
     </Box>
   );
 }

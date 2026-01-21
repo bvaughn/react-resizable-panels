@@ -16,7 +16,7 @@ const cookieStorage: LayoutStorage = {
     return null;
   },
   setItem(key: string, value: string) {
-    document.cookie = `${key}=${value}`;
+    document.cookie = `${key}=${value}; path=/;`;
   }
 };
 

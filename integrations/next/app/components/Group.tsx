@@ -10,7 +10,7 @@ export default function Group(props: Omit<GroupProps, "onLayoutChange">) {
     <GroupExternal
       {...props}
       onLayoutChange={(layout) => {
-        document.cookie = `${props.id}=${JSON.stringify(layout)}`;
+        document.cookie = `${props.id}=${JSON.stringify(layout)}; path=/`;
       }}
     />
   );

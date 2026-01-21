@@ -17,7 +17,7 @@ export default function ClientComponent({
       defaultLayout={defaultLayout}
       id={groupId}
       onLayoutChange={(layout) => {
-        document.cookie = `${groupId}=${JSON.stringify(layout)}`;
+        document.cookie = `${groupId}=${JSON.stringify(layout)}; path=/;`;
       }}
     >
       <Panel id="left" minSize={25}>

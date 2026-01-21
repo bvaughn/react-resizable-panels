@@ -26,6 +26,14 @@ export default function PersistentLayoutsServerRenderingRoute() {
         </ExternalLink>
         .
       </Callout>
+      <Callout intent="primary">
+        The example above includes <code>path=/</code> so that saved layouts can
+        be shared between paths; see{" "}
+        <ExternalLink href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Cookies#define_where_cookies_are_sent">
+          Using HTTP cookies
+        </ExternalLink>{" "}
+        for more.
+      </Callout>
     </Box>
   );
 }

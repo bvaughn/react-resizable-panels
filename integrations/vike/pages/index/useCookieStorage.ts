@@ -28,7 +28,7 @@ export function useCookieStorage() {
   );
 
   const setItem = useCallback((key: string, value: string) => {
-    document.cookie = `${key}=${value}`;
+    document.cookie = `${key}=${value}; path=/`;
   }, []);
 
   return useMemo<LayoutStorage>(
