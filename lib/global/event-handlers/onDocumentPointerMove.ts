@@ -37,7 +37,6 @@ export function onDocumentPointerMove(event: PointerEvent) {
       }
 
       updateActiveHitRegions({
-        document: event.currentTarget as Document,
         event,
         hitRegions: interactionState.hitRegions,
         initialLayoutMap: interactionState.initialLayoutMap,

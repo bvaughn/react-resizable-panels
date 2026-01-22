@@ -6,21 +6,18 @@ import {
   CURSOR_FLAG_VERTICAL_MIN
 } from "../../constants";
 import type { Point } from "../../types";
-import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import type { HitRegion } from "../dom/calculateHitRegions";
 import { update, type MountedGroupMap } from "../mutableState";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { layoutsEqual } from "./layoutsEqual";
 
 export function updateActiveHitRegions({
-  document,
   event,
   hitRegions,
   initialLayoutMap,
   mountedGroups,
   pointerDownAtPoint
 }: {
-  document: Document;
   event: {
     clientX: number;
     clientY: number;
@@ -119,6 +116,4 @@ export function updateActiveHitRegions({
     cursorFlags,
     mountedGroups: nextMountedGroups
   });
-
-  updateCursorStyle(document);
 }
