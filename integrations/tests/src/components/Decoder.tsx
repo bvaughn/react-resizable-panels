@@ -36,6 +36,16 @@ export function Decoder({
       ? panelRef
       : undefined;
 
+  const [cursorData, setCursorData] = useState<{
+    cursorStyle: string;
+    movementX: number;
+    movementY: number;
+  }>({
+    cursorStyle: "",
+    movementX: 0,
+    movementY: 0
+  });
+
   const stableCallbacksRef = useRef<{
     readGroupLayout: () => void;
     readPanelSize: () => void;
@@ -135,6 +145,22 @@ export function Decoder({
     return group;
   }, [encoded, groupRefProp, panelRefProp]);
 
+  useLayoutEffect(() => {
+    const onPointerMove = (event: PointerEvent) => {
+      setCursorData({
+        cursorStyle: window.getComputedStyle(document.body).cursor,
+        movementX: event.movementX,
+        movementY: event.movementY
+      });
+    };
+
+    window.addEventListener("pointermove", onPointerMove);
+
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+    };
+  }, []);
+
   // Debugging
   // console.group("Decoder");
   // console.log(encoded);
@@ -145,6 +171,7 @@ export function Decoder({
     <Box direction="column" gap={2}>
       <div>{children}</div>
       <Box className="p-2 overflow-auto" direction="row" gap={2} wrap>
+        {cursorData && <DebugData data={cursorData} />}
         {groupRefProp && (
           <DebugData
             data={{

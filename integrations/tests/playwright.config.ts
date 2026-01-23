@@ -1,20 +1,24 @@
 import { defineConfig, devices } from "@playwright/test";
 
-export default defineConfig({
-  projects: [
-    {
-      name: "chromium",
-      timeout: 10_000,
-      use: {
-        ...devices["Desktop Chrome"],
-        viewport: { width: 1000, height: 600 }
+const DEVICES = [
+  {
+    name: "chromium",
+    use: devices["Desktop Chrome"]
+  }
+];
 
-        // Uncomment to visually debug
-        // headless: false,
-        // launchOptions: {
-        //   slowMo: 500
-        // }
-      }
+export default defineConfig({
+  projects: DEVICES.map(({ name, use }) => ({
+    name,
+    timeout: 10_000,
+    use: {
+      ...use,
+      viewport: { width: 1000, height: 600 }
+      // Uncomment to visually debug
+      // headless: false,
+      // launchOptions: {
+      //   slowMo: 250
+      // }
     }
-  ]
+  }))
 });

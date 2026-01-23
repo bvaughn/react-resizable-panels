@@ -8,7 +8,7 @@ export function onDocumentPointerMove(event: PointerEvent) {
     return;
   }
 
-  const { interactionState, mountedGroups } = read();
+  const { cursorFlags, interactionState, mountedGroups } = read();
 
   switch (interactionState.state) {
     case "active": {
@@ -42,7 +42,8 @@ export function onDocumentPointerMove(event: PointerEvent) {
         hitRegions: interactionState.hitRegions,
         initialLayoutMap: interactionState.initialLayoutMap,
         mountedGroups,
-        pointerDownAtPoint: interactionState.pointerDownAtPoint
+        pointerDownAtPoint: interactionState.pointerDownAtPoint,
+        prevCursorFlags: cursorFlags
       });
       break;
     }
