@@ -31,12 +31,13 @@ pnpm test
 To run end to end tests locally:
 ```sh
 pnpm prerelease
+pnpm e2e:install
 pnpm dev:integrations & pnpm e2e:test
 ```
 
 ### Updating assets
 
-Before subtmitting, also make sure to update generated docs/examples:
+Before submitting, also make sure to update generated docs/examples:
 ```
 pnpm compile
 pnpm prettier
