@@ -366,6 +366,34 @@ test.describe("pointer interactions", () => {
         await expect(mainPage.getByText('"right": 33')).toBeVisible();
       });
 
+      test("double-clicking a separator resets panel to default size", async ({
+        page: mainPage
+      }) => {
+        const page = await goToUrl(
+          mainPage,
+          <Group>
+            <Panel defaultSize="30%" id="left" minSize={50} />
+            <Separator id="separator" />
+            <Panel id="right" minSize={50} />
+          </Group>,
+          { usePopUpWindow }
+        );
+
+        await assertLayoutChangeCounts(mainPage, 1);
+        await expect(mainPage.getByText('"left": 30')).toBeVisible();
+
+        await resizeHelper(page, ["left", "right"], 100, 0);
+
+        await assertLayoutChangeCounts(mainPage, 2);
+        await expect(mainPage.getByText('"left": 40')).toBeVisible();
+
+        const separator = page.getByTestId("separator");
+        await separator.dblclick();
+
+        await assertLayoutChangeCounts(mainPage, 3);
+        await expect(mainPage.getByText('"left": 30')).toBeVisible();
+      });
+
       test.describe("focus", () => {
         test("should update focus to the nearest separator", async ({
           page: mainPage
