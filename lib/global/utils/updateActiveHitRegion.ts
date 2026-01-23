@@ -3,7 +3,9 @@ import {
   CURSOR_FLAG_HORIZONTAL_MAX,
   CURSOR_FLAG_HORIZONTAL_MIN,
   CURSOR_FLAG_VERTICAL_MAX,
-  CURSOR_FLAG_VERTICAL_MIN
+  CURSOR_FLAG_VERTICAL_MIN,
+  CURSOR_FLAGS_HORIZONTAL,
+  CURSOR_FLAGS_VERTICAL
 } from "../../constants";
 import type { Point } from "../../types";
 import { updateCursorStyle } from "../cursor/updateCursorStyle";
@@ -18,19 +20,24 @@ export function updateActiveHitRegions({
   hitRegions,
   initialLayoutMap,
   mountedGroups,
-  pointerDownAtPoint
+  pointerDownAtPoint,
+  prevCursorFlags
 }: {
   document: Document;
   event: {
     clientX: number;
     clientY: number;
+    movementX: number;
+    movementY: number;
   };
   hitRegions: HitRegion[];
   initialLayoutMap: Map<RegisteredGroup, Layout>;
   mountedGroups: MountedGroupMap;
   pointerDownAtPoint?: Point;
+  prevCursorFlags: number;
 }) {
-  let cursorFlags = 0;
+  let nextCursorFlags = 0;
+
   const nextMountedGroups = new Map(mountedGroups);
 
   // Note that HitRegions are frozen once a drag has started
@@ -84,14 +91,14 @@ export function updateActiveHitRegions({
           // An unchanged means the cursor has exceeded the allowed bounds
           switch (orientation) {
             case "horizontal": {
-              cursorFlags |=
+              nextCursorFlags |=
                 deltaAsPercentage < 0
                   ? CURSOR_FLAG_HORIZONTAL_MIN
                   : CURSOR_FLAG_HORIZONTAL_MAX;
               break;
             }
             case "vertical": {
-              cursorFlags |=
+              nextCursorFlags |=
                 deltaAsPercentage < 0
                   ? CURSOR_FLAG_VERTICAL_MIN
                   : CURSOR_FLAG_VERTICAL_MAX;
@@ -114,6 +121,21 @@ export function updateActiveHitRegions({
       }
     }
   });
+
+  // Edge case
+  // Re-use previous horizontal/vertical cursor flags if there's been no movement since the last event
+  // This accounts for edge cases in browsers like Firefox that sometimes round clientX/clientY values
+  let cursorFlags = 0;
+  if (event.movementX === 0) {
+    cursorFlags |= prevCursorFlags & CURSOR_FLAGS_HORIZONTAL;
+  } else {
+    cursorFlags |= nextCursorFlags & CURSOR_FLAGS_HORIZONTAL;
+  }
+  if (event.movementY === 0) {
+    cursorFlags |= prevCursorFlags & CURSOR_FLAGS_VERTICAL;
+  } else {
+    cursorFlags |= nextCursorFlags & CURSOR_FLAGS_VERTICAL;
+  }
 
   update({
     cursorFlags,

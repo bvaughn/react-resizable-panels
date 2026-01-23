@@ -2,7 +2,7 @@ import { read } from "../mutableState";
 import { updateActiveHitRegions } from "../utils/updateActiveHitRegion";
 
 export function onDocumentPointerLeave(event: PointerEvent) {
-  const { interactionState, mountedGroups } = read();
+  const { cursorFlags, interactionState, mountedGroups } = read();
 
   switch (interactionState.state) {
     case "active": {
@@ -11,7 +11,8 @@ export function onDocumentPointerLeave(event: PointerEvent) {
         event,
         hitRegions: interactionState.hitRegions,
         initialLayoutMap: interactionState.initialLayoutMap,
-        mountedGroups
+        mountedGroups,
+        prevCursorFlags: cursorFlags
       });
     }
   }
