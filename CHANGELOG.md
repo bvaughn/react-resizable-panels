@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.4.2
+
+- [610](https://github.com/bvaughn/react-resizable-panels/pull/610): Fix calculated cursor style when `"pointermove"` event is has low-precision/rounded `clientX` and `clientY` values
+
 ## 4.4.1
 
 - [600](https://github.com/bvaughn/react-resizable-panels/pull/600): Bugfix: Collapsible `Panel` should treat `defaultSize={0}` as _collapsed_ on mount
