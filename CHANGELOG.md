@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- [615](https://github.com/bvaughn/react-resizable-panels/pull/615): Double-clicking on a `Separator` resets its associated `Panel` to its default-size (if there is one).
+
+https://github.com/user-attachments/assets/f19f6c5e-d290-455e-9bad-20e5038c3508
+
 ## 4.4.2
 
 - [610](https://github.com/bvaughn/react-resizable-panels/pull/610): Fix calculated cursor style when `"pointermove"` event is has low-precision/rounded `clientX` and `clientY` values
