@@ -4,7 +4,7 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 
 /* prettier-ignore */
 <Group>
-  <Panel>left</Panel>
+  <Panel defaultSize="50%">left</Panel>
   <Separator />
   <Panel>right</Panel>
 </Group>

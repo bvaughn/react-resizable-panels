@@ -1,15 +1,19 @@
 import { DEFAULT_POINTER_PRECISION } from "../../constants";
-import type { MountedGroupMap } from "../mutableState";
 import {
   calculateHitRegions,
   type HitRegion
 } from "../dom/calculateHitRegions";
+import type { MountedGroupMap } from "../mutableState";
 import { findClosetHitRegion } from "./findClosetHitRegion";
 import { isCoarsePointer } from "./isCoarsePointer";
 import { isViableHitTarget } from "./isViableHitTarget";
 
 export function findMatchingHitRegions(
-  event: PointerEvent,
+  event: {
+    clientX: number;
+    clientY: number;
+    target: EventTarget | null;
+  },
   mountedGroups: MountedGroupMap
 ): HitRegion[] {
   const matchingHitRegions: HitRegion[] = [];

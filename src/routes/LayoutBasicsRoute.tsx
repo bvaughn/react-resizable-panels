@@ -42,10 +42,11 @@ export default function LayoutBasicsRoute() {
       </Group>
       <div>
         Panels can be resized by clicking on their borders but explicit
-        separators can be rendered to improve UX.
+        separators can be rendered to improve UX. Separators provide another
+        benefit: double-clicking on one resets a panel to its default size.
       </div>
       <Group>
-        <Panel>left</Panel>
+        <Panel defaultSize="50%">left</Panel>
         <Separator orientation="horizontal" />
         <Panel>right</Panel>
       </Group>
