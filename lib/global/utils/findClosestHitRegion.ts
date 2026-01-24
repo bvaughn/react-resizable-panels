@@ -3,7 +3,7 @@ import type { Point } from "../../types";
 import type { HitRegion } from "../dom/calculateHitRegions";
 import { getDistanceBetweenPointAndRect } from "./getDistanceBetweenPointAndRect";
 
-export function findClosetHitRegion(
+export function findClosestHitRegion(
   orientation: Orientation,
   hitRegions: HitRegion[],
   point: Point

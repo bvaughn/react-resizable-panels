@@ -4,6 +4,7 @@ import type { RegisteredPanel } from "../../components/panel/types";
 import type { RegisteredSeparator } from "../../components/separator/types";
 import { isHTMLElement } from "../../utils/isHTMLElement";
 import { findClosestRect } from "../utils/findClosestRect";
+import { isCoarsePointer } from "../utils/isCoarsePointer";
 import { calculateAvailableGroupSize } from "./calculateAvailableGroupSize";
 
 type PanelsTuple = [panel: RegisteredPanel, panel: RegisteredPanel];
@@ -123,16 +124,41 @@ export function calculateHitRegions(group: RegisteredGroup) {
           }
 
           for (const rectOrSeparator of pendingRectsOrSeparators) {
+            let rect =
+              "width" in rectOrSeparator
+                ? rectOrSeparator
+                : rectOrSeparator.element.getBoundingClientRect();
+
+            // Ensure that Separators or Panel "edges" have large enough hit areas to be interacted with easily
+            // Apple interface guidelines suggest 20pt (27) on desktops and 28pt (37px) for touch devices
+            // https://developer.apple.com/design/human-interface-guidelines/accessibility
+            const minHitTargetSize = isCoarsePointer() ? 37 : 27;
+            if (rect.width < minHitTargetSize) {
+              const delta = minHitTargetSize - rect.width;
+              rect = new DOMRect(
+                rect.x - delta / 2,
+                rect.y,
+                rect.width + delta,
+                rect.height
+              );
+            }
+            if (rect.height < minHitTargetSize) {
+              const delta = minHitTargetSize - rect.height;
+              rect = new DOMRect(
+                rect.x,
+                rect.y - delta / 2,
+                rect.width,
+                rect.height + delta
+              );
+            }
+
             hitRegions.push({
               group,
               groupSize: calculateAvailableGroupSize({ group }),
               panels: [prevPanel, panelData],
               separator:
                 "width" in rectOrSeparator ? undefined : rectOrSeparator,
-              rect:
-                "width" in rectOrSeparator
-                  ? rectOrSeparator
-                  : rectOrSeparator.element.getBoundingClientRect()
+              rect
             });
           }
         }
