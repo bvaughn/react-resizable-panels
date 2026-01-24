@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.5.1
+
+- [624](https://github.com/bvaughn/react-resizable-panels/pull/624): **Bugfix**: Fallback to alternate CSS cursor styles for Safari
+
+| Safari | Chrome, Firefox
+| :--- | :---
+| `grab` | `move`
+| `col-resize` | `ew-resize`
+| `row-resize` | `ns-resize`
+
 ## 4.5.0
 
 - [616](https://github.com/bvaughn/react-resizable-panels/pull/616): Replace `Separator` and `Panel` edge hit-area padding with a minimum size threshold based on [Apple's user interface guidelines](https://developer.apple.com/design/human-interface-guidelines/accessibility). Separators that are large enough will no longer be padded; separators that are too small (or panels without separators) will more or less function like before. This should not have much of a user-facing impact other than an increase in the click target area. (Previously I was not padding enough, as per Apple's guidelines.)
