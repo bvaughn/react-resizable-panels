@@ -36,7 +36,7 @@ export default function CustomStylesRoute() {
       <Group>
         <Panel>left</Panel>
         <Separator />
-        <Panel>right</Panel>
+        <Panel defaultSize="50%">right</Panel>
       </Group>
     </Box>
   );

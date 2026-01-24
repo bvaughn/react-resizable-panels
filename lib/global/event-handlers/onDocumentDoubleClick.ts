@@ -23,14 +23,17 @@ export function onDocumentDoubleClick(event: MouseEvent) {
     });
 
     if (current.separator) {
-      const primaryPanel = current.panels[0];
-      if (primaryPanel.panelConstraints.defaultSize !== undefined) {
+      const panelWithDefaultSize = current.panels.find(
+        (panel) => panel.panelConstraints.defaultSize !== undefined
+      );
+      if (panelWithDefaultSize) {
+        const defaultSize = panelWithDefaultSize.panelConstraints.defaultSize;
         const api = getImperativePanelMethods({
           groupId: current.group.id,
-          panelId: primaryPanel.id
+          panelId: panelWithDefaultSize.id
         });
-        if (api) {
-          api.resize(primaryPanel.panelConstraints.defaultSize);
+        if (api && defaultSize !== undefined) {
+          api.resize(defaultSize);
 
           event.preventDefault();
         }
