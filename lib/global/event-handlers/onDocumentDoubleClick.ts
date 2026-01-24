@@ -31,12 +31,10 @@ export function onDocumentDoubleClick(event: MouseEvent) {
         });
         if (api) {
           api.resize(primaryPanel.panelConstraints.defaultSize);
+
+          event.preventDefault();
         }
       }
     }
   });
-
-  if (hitRegions.length) {
-    event.preventDefault();
-  }
 }
