@@ -124,6 +124,7 @@ export function Panel({
       style={{
         ...PROHIBITED_CSS_PROPERTIES,
 
+        display: "flex",
         flexBasis: 0,
         flexShrink: 1,
 
@@ -136,8 +137,8 @@ export function Panel({
       <div
         className={className}
         style={{
-          width: "100%",
-          height: "100%",
+          flexGrow: 1,
+
           ...style
         }}
       >
