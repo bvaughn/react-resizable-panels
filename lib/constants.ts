@@ -24,9 +24,3 @@ export const CURSOR_FLAG_VERTICAL_MIN = 0b0100;
 export const CURSOR_FLAG_VERTICAL_MAX = 0b1000;
 export const CURSOR_FLAGS_HORIZONTAL = 0b0011;
 export const CURSOR_FLAGS_VERTICAL = 0b1100;
-
-// Misc. shared values
-export const DEFAULT_POINTER_PRECISION = {
-  coarse: 10,
-  precise: 5
-};

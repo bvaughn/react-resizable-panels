@@ -459,6 +459,20 @@ describe("Group", () => {
     });
 
     test("should be called once per layout change", async () => {
+      setElementBoundsFunction((element) => {
+        switch (element.id) {
+          case "a": {
+            return new DOMRect(0, 0, 50, 50);
+          }
+          case "b": {
+            return new DOMRect(50, 0, 10, 50);
+          }
+          case "c": {
+            return new DOMRect(60, 0, 50, 50);
+          }
+        }
+      });
+
       const onLayoutChange = vi.fn();
       const onLayoutChanged = vi.fn();
 

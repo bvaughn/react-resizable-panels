@@ -7,6 +7,8 @@ export { usePanelCallbackRef } from "./components/panel/usePanelCallbackRef";
 export { usePanelRef } from "./components/panel/usePanelRef";
 export { Separator } from "./components/separator/Separator";
 
+export { isCoarsePointer } from "./global/utils/isCoarsePointer";
+
 export type {
   GroupImperativeHandle,
   GroupProps,
