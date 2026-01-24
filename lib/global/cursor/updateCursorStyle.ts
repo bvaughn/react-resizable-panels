@@ -24,7 +24,7 @@ export function updateCursorStyle(ownerDocument: Document) {
   if (styleSheet === undefined) {
     styleSheet = new ownerDocument.defaultView.CSSStyleSheet();
 
-    ownerDocument.adoptedStyleSheets = [styleSheet];
+    ownerDocument.adoptedStyleSheets.push(styleSheet);
   }
 
   const { cursorFlags, interactionState } = read();
