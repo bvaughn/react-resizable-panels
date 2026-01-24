@@ -4,6 +4,7 @@
 
 - [616](https://github.com/bvaughn/react-resizable-panels/pull/616): Replace `Separator` and `Panel` edge hit-area padding with a minimum size threshold based on [Apple's user interface guidelines](https://developer.apple.com/design/human-interface-guidelines/accessibility). Separators that are large enough will no longer be padded; separators that are too small (or panels without separators) will more or less function like before. This should not have much of a user-facing impact other than an increase in the click target area. (Previously I was not padding enough, as per Apple's guidelines.)
 - [615](https://github.com/bvaughn/react-resizable-panels/pull/615): Double-clicking on a `Separator` resets its associated `Panel` to its default-size (see video below); double-click will have no impact on panels without default sizes
+- [622](https://github.com/bvaughn/react-resizable-panels/pull/622): Bugfix: Panels within vertical groups are now properly sized in Safari
 - [618](https://github.com/bvaughn/react-resizable-panels/pull/618): Bugfix: Don't override `adoptedStyleSheets`
 
 https://github.com/user-attachments/assets/f19f6c5e-d290-455e-9bad-20e5038c3508
