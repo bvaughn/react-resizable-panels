@@ -155,6 +155,23 @@
       "name": "onLayoutChanged",
       "required": false
     },
+    "resizeTargetMinimumSize": {
+      "description": [
+        {
+          "content": "<p>Minimum size of the resizable hit target area (either <code>Separator</code> or <code>Panel</code> edge)\nThis threshold ensures are large enough to avoid mis-clicks.</p>\n"
+        },
+        {
+          "content": "<ul>\n<li>Coarse inputs (typically a finger on a touchscreen) have reduced accuracy;\nto ensure accessibility and ease of use, hit targets should be larger to prevent mis-clicks.</li>\n<li>Fine inputs (typically a mouse) can be smaller</li>\n</ul>\n"
+        },
+        {
+          "content": "<p><a href=\"https://developer.apple.com/design/human-interface-guidelines/accessibility\">Apple interface guidelines</a> suggest <code>20pt</code> (<code>27px</code>) on desktops and <code>28pt</code> (<code>37px</code>) for touch devices\nIn practice this seems to be much larger than many of their own applications use though.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">resizeTargetMinimumSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-propertyName tok-definition\">coarse</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"tok-punctuation\">;</span><span class=\"\"> </span><span class=\"tok-labelName\">fine</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"tok-punctuation\">;</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-labelName\">coarse</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-number\">20</span><span class=\"tok-punctuation\">,</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName\">fine</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-number\">10</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">}</span></div>",
+      "name": "resizeTargetMinimumSize",
+      "required": false
+    },
     "orientation": {
       "description": [
         {

@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.5.2
+
+- [626](https://github.com/bvaughn/react-resizable-panels/pull/626): Decrease default hit target size for `Separator` and `Panel` edges; make configurable via a new `Group` prop.
+
 ## 4.5.1
 
 - [624](https://github.com/bvaughn/react-resizable-panels/pull/624): **Bugfix**: Fallback to alternate CSS cursor styles for Safari

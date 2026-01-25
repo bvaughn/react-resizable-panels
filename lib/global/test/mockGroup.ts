@@ -57,6 +57,10 @@ export function mockGroup(
     inMemoryLastExpandedPanelSizes: {},
     inMemoryLayouts: {},
     orientation,
+    resizeTargetMinimumSize: {
+      coarse: 20,
+      fine: 10
+    },
 
     get panels() {
       return Array.from(mockPanels.values());

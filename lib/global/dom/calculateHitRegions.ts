@@ -129,10 +129,9 @@ export function calculateHitRegions(group: RegisteredGroup) {
                 ? rectOrSeparator
                 : rectOrSeparator.element.getBoundingClientRect();
 
-            // Ensure that Separators or Panel "edges" have large enough hit areas to be interacted with easily
-            // Apple interface guidelines suggest 20pt (27) on desktops and 28pt (37px) for touch devices
-            // https://developer.apple.com/design/human-interface-guidelines/accessibility
-            const minHitTargetSize = isCoarsePointer() ? 37 : 27;
+            const minHitTargetSize = isCoarsePointer()
+              ? group.resizeTargetMinimumSize.coarse
+              : group.resizeTargetMinimumSize.fine;
             if (rect.width < minHitTargetSize) {
               const delta = minHitTargetSize - rect.width;
               rect = new DOMRect(

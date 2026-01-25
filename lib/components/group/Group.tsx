@@ -14,7 +14,12 @@ import type { RegisteredPanel } from "../panel/types";
 import type { RegisteredSeparator } from "../separator/types";
 import { GroupContext } from "./GroupContext";
 import { sortByElementOffset } from "./sortByElementOffset";
-import type { GroupProps, Layout, RegisteredGroup } from "./types";
+import type {
+  GroupProps,
+  Layout,
+  RegisteredGroup,
+  ResizeTargetMinimumSize
+} from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
 
 /**
@@ -41,6 +46,10 @@ export function Group({
   onLayoutChange: onLayoutChangeUnstable,
   onLayoutChanged: onLayoutChangedUnstable,
   orientation = "horizontal",
+  resizeTargetMinimumSize = {
+    coarse: 20,
+    fine: 10
+  },
   style,
   ...rest
 }: GroupProps) {
@@ -82,11 +91,13 @@ export function Group({
     lastExpandedPanelSizes: { [panelIds: string]: number };
     layouts: { [panelIds: string]: Layout };
     panels: RegisteredPanel[];
+    resizeTargetMinimumSize: ResizeTargetMinimumSize;
     separators: RegisteredSeparator[];
   }>({
     lastExpandedPanelSizes: {},
     layouts: {},
     panels: [],
+    resizeTargetMinimumSize,
     separators: []
   });
 
@@ -199,6 +210,7 @@ export function Group({
       inMemoryLayouts: inMemoryValuesRef.current.layouts,
       orientation,
       panels: inMemoryValues.panels,
+      resizeTargetMinimumSize: inMemoryValues.resizeTargetMinimumSize,
       separators: inMemoryValues.separators
     };
 
