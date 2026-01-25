@@ -42,7 +42,7 @@ describe("findMatchingHitRegions", () => {
               "group-1-left",
               "group-1-right"
             ],
-            "rect": "36.5,0 27 x 50"
+            "rect": "45,0 10 x 50"
           }
         ]"
       `);
@@ -63,7 +63,7 @@ describe("findMatchingHitRegions", () => {
               "group-1-left",
               "group-1-right"
             ],
-            "rect": "46.5,0 27 x 50",
+            "rect": "50,0 20 x 50",
             "separator": "group-1-separator"
           }
         ]"
@@ -93,14 +93,14 @@ describe("findMatchingHitRegions", () => {
             "group-1-left",
             "group-1-right"
           ],
-          "rect": "36.5,0 27 x 50"
+          "rect": "45,0 10 x 50"
         },
         {
           "panels": [
             "group-2-top",
             "group-2-bottom"
           ],
-          "rect": "0,11.5 50 x 27"
+          "rect": "0,20 50 x 10"
         }
       ]"
     `);

@@ -41,7 +41,7 @@ describe("calculateHitRegions", () => {
             "group-1-left",
             "group-1-right"
           ],
-          "rect": "36.5,0 27 x 50"
+          "rect": "45,0 10 x 50"
         }
       ]"
     `);
@@ -60,14 +60,14 @@ describe("calculateHitRegions", () => {
             "group-1-left",
             "group-1-center"
           ],
-          "rect": "26.5,0 27 x 50"
+          "rect": "35,0 10 x 50"
         },
         {
           "panels": [
             "group-1-center",
             "group-1-right"
           ],
-          "rect": "66.5,0 27 x 50"
+          "rect": "75,0 10 x 50"
         }
       ]"
     `);
@@ -88,7 +88,7 @@ describe("calculateHitRegions", () => {
             "group-1-left",
             "group-1-center"
           ],
-          "rect": "31.5,0 27 x 50",
+          "rect": "40,0 10 x 50",
           "separator": "group-1-left"
         },
         {
@@ -96,7 +96,7 @@ describe("calculateHitRegions", () => {
             "group-1-center",
             "group-1-right"
           ],
-          "rect": "81.5,0 27 x 50",
+          "rect": "90,0 10 x 50",
           "separator": "group-1-right"
         }
       ]"
@@ -117,14 +117,14 @@ describe("calculateHitRegions", () => {
             "group-1-a",
             "group-1-b"
           ],
-          "rect": "26.5,0 27 x 50"
+          "rect": "35,0 10 x 50"
         },
         {
           "panels": [
             "group-1-b",
             "group-1-c"
           ],
-          "rect": "69,0 27 x 50",
+          "rect": "77.5,0 10 x 50",
           "separator": "group-1-separator"
         }
       ]"
@@ -148,38 +148,38 @@ describe("calculateHitRegions", () => {
             "group-1-a",
             "group-1-b"
           ],
-          "rect": "46.5,0 27 x 50"
+          "rect": "55,0 10 x 50"
         },
         {
           "panels": [
             "group-1-b",
             "group-1-c"
           ],
-          "rect": "96.5,0 27 x 50"
+          "rect": "105,0 10 x 50"
         },
         {
           "panels": [
             "group-1-b",
             "group-1-c"
           ],
-          "rect": "106.5,0 27 x 50"
+          "rect": "115,0 10 x 50"
         },
         {
           "panels": [
             "group-1-c",
             "group-1-d"
           ],
-          "rect": "156.5,0 27 x 50"
+          "rect": "165,0 10 x 50"
         }
       ]"
     `);
   });
 
   test("CSS styles (e.g. padding and flex gap)", () => {
-    const group = mockGroup(new DOMRect(0, 0, 155, 50));
-    group.addPanel(new DOMRect(5, 5, 45, 40), "left");
-    group.addPanel(new DOMRect(55, 5, 45, 40), "center");
-    group.addPanel(new DOMRect(105, 5, 45, 40), "right");
+    const group = mockGroup(new DOMRect(0, 0, 190, 70));
+    group.addPanel(new DOMRect(10, 10, 50, 40), "left");
+    group.addPanel(new DOMRect(70, 10, 50, 40), "center");
+    group.addPanel(new DOMRect(130, 10, 50, 40), "right");
 
     expect(serialize(group)).toMatchInlineSnapshot(`
       "[
@@ -188,14 +188,14 @@ describe("calculateHitRegions", () => {
             "group-1-left",
             "group-1-center"
           ],
-          "rect": "39,5 27 x 40"
+          "rect": "60,10 10 x 40"
         },
         {
           "panels": [
             "group-1-center",
             "group-1-right"
           ],
-          "rect": "89,5 27 x 40"
+          "rect": "120,10 10 x 40"
         }
       ]"
     `);
@@ -216,14 +216,14 @@ describe("calculateHitRegions", () => {
             "group-1-left",
             "group-1-center"
           ],
-          "rect": "36.5,0 27 x 50"
+          "rect": "45,0 10 x 50"
         },
         {
           "panels": [
             "group-1-center",
             "group-1-right"
           ],
-          "rect": "86.5,0 27 x 50"
+          "rect": "95,0 10 x 50"
         }
       ]"
     `);
@@ -231,13 +231,13 @@ describe("calculateHitRegions", () => {
 
   // Test covers conditionally rendered panels and separators
   test("should sort elements and separators by offset", () => {
-    const group = mockGroup(new DOMRect(0, 0, 270, 50));
-    group.addPanel(new DOMRect(205, 0, 65, 50), "d");
-    group.addPanel(new DOMRect(70, 0, 65, 50), "b");
-    group.addPanel(new DOMRect(0, 0, 65, 50), "a");
-    group.addPanel(new DOMRect(135, 0, 65, 50), "c");
-    group.addSeparator(new DOMRect(200, 0, 5, 50), "right");
-    group.addSeparator(new DOMRect(65, 0, 5, 50), "left");
+    const group = mockGroup(new DOMRect(0, 0, 260, 50));
+    group.addPanel(new DOMRect(200, 0, 60, 50), "d");
+    group.addPanel(new DOMRect(70, 0, 60, 50), "b");
+    group.addPanel(new DOMRect(0, 0, 60, 50), "a");
+    group.addPanel(new DOMRect(130, 0, 60, 50), "c");
+    group.addSeparator(new DOMRect(190, 0, 10, 50), "right");
+    group.addSeparator(new DOMRect(60, 0, 10, 50), "left");
 
     expect(serialize(group)).toMatchInlineSnapshot(`
       "[
@@ -246,7 +246,7 @@ describe("calculateHitRegions", () => {
             "group-1-a",
             "group-1-b"
           ],
-          "rect": "54,0 27 x 50",
+          "rect": "60,0 10 x 50",
           "separator": "group-1-left"
         },
         {
@@ -254,14 +254,14 @@ describe("calculateHitRegions", () => {
             "group-1-b",
             "group-1-c"
           ],
-          "rect": "121.5,0 27 x 50"
+          "rect": "125,0 10 x 50"
         },
         {
           "panels": [
             "group-1-c",
             "group-1-d"
           ],
-          "rect": "189,0 27 x 50",
+          "rect": "190,0 10 x 50",
           "separator": "group-1-right"
         }
       ]"

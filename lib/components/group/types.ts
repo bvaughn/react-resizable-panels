@@ -22,6 +22,11 @@ export type DragState = {
   separatorId: string | undefined;
 };
 
+export type ResizeTargetMinimumSize = {
+  coarse: number;
+  fine: number;
+};
+
 export type RegisteredGroup = {
   defaultLayout: Layout | undefined;
   disableCursor: boolean;
@@ -38,6 +43,7 @@ export type RegisteredGroup = {
   };
   orientation: Orientation;
   panels: RegisteredPanel[];
+  resizeTargetMinimumSize: ResizeTargetMinimumSize;
   separators: RegisteredSeparator[];
 };
 
@@ -139,6 +145,22 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    * This method is recommended when saving layouts to some storage api.
    */
   onLayoutChanged?: (layout: Layout) => void | undefined;
+
+  /**
+   * Minimum size of the resizable hit target area (either `Separator` or `Panel` edge)
+   * This threshold ensures are large enough to avoid mis-clicks.
+   *
+   * - Coarse inputs (typically a finger on a touchscreen) have reduced accuracy;
+   * to ensure accessibility and ease of use, hit targets should be larger to prevent mis-clicks.
+   * - Fine inputs (typically a mouse) can be smaller
+   *
+   * ℹ️ [Apple interface guidelines](https://developer.apple.com/design/human-interface-guidelines/accessibility) suggest `20pt` (`27px`) on desktops and `28pt` (`37px`) for touch devices
+   * In practice this seems to be much larger than many of their own applications use though.
+   */
+  resizeTargetMinimumSize?: {
+    coarse: number;
+    fine: number;
+  };
 
   /**
    * Specifies the resizable orientation ("horizontal" or "vertical"); defaults to "horizontal"
