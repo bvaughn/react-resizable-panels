@@ -20,7 +20,7 @@ export function adjustLayoutByDelta({
   panelConstraints: PanelConstraints[];
   pivotIndices: number[];
   prevLayout: Layout;
-  trigger: "imperative-api" | "keyboard" | "mouse-or-touch";
+  trigger?: "imperative-api" | "keyboard" | "mouse-or-touch";
 }): Layout {
   if (layoutNumbersEqual(delta, 0)) {
     return initialLayoutProp;
@@ -54,11 +54,89 @@ export function adjustLayoutByDelta({
   // This is accomplished by shrinking/contracting (and shifting) one or more of the panels after the separator.
 
   {
-    // If this is a resize triggered by a keyboard event, our logic for expanding/collapsing is different.
-    // We no longer check the halfway threshold because this may prevent the panel from expanding at all.
-    if (trigger === "keyboard") {
-      {
-        // Check if we should expand a collapsed panel
+    switch (trigger) {
+      case "keyboard": {
+        // If this is a resize triggered by a keyboard event, our logic for expanding/collapsing is different.
+        // We no longer check the halfway threshold because this may prevent the panel from expanding at all.
+        {
+          // Check if we should expand a collapsed panel
+          const index = delta < 0 ? secondPivotIndex : firstPivotIndex;
+          const panelConstraints = panelConstraintsArray[index];
+          assert(
+            panelConstraints,
+            `Panel constraints not found for index ${index}`
+          );
+
+          const {
+            collapsedSize = 0,
+            collapsible,
+            minSize = 0
+          } = panelConstraints;
+
+          // DEBUG.push(`edge case check 1: ${index}`);
+          // DEBUG.push(`  -> collapsible? ${collapsible}`);
+          if (collapsible) {
+            const prevSize = initialLayout[index];
+            assert(
+              prevSize != null,
+              `Previous layout not found for panel index ${index}`
+            );
+
+            if (layoutNumbersEqual(prevSize, collapsedSize)) {
+              const localDelta = minSize - prevSize;
+              // DEBUG.push(`  -> expand delta: ${localDelta}`);
+
+              if (compareLayoutNumbers(localDelta, Math.abs(delta)) > 0) {
+                delta = delta < 0 ? 0 - localDelta : localDelta;
+                // DEBUG.push(`  -> delta: ${delta}`);
+              }
+            }
+          }
+        }
+
+        {
+          // Check if we should collapse a panel at its minimum size
+          const index = delta < 0 ? firstPivotIndex : secondPivotIndex;
+          const panelConstraints = panelConstraintsArray[index];
+          assert(
+            panelConstraints,
+            `No panel constraints found for index ${index}`
+          );
+
+          const {
+            collapsedSize = 0,
+            collapsible,
+            minSize = 0
+          } = panelConstraints;
+
+          // DEBUG.push(`edge case check 2: ${index}`);
+          // DEBUG.push(`  -> collapsible? ${collapsible}`);
+          if (collapsible) {
+            const prevSize = initialLayout[index];
+            assert(
+              prevSize != null,
+              `Previous layout not found for panel index ${index}`
+            );
+
+            if (layoutNumbersEqual(prevSize, minSize)) {
+              const localDelta = prevSize - collapsedSize;
+              // DEBUG.push(`  -> expand delta: ${localDelta}`);
+
+              if (compareLayoutNumbers(localDelta, Math.abs(delta)) > 0) {
+                delta = delta < 0 ? 0 - localDelta : localDelta;
+                // DEBUG.push(`  -> delta: ${delta}`);
+              }
+            }
+          }
+        }
+        break;
+      }
+      default: {
+        // If we're starting from a collapsed state, dragging past the halfway point should cause the panel to expand
+        // This can happen for positive or negative drags, and panels on either side of the separator can be collapsible
+        // The easiest way to support this is to detect this scenario and pre-adjust the delta before applying the rest of the layout algorithm
+        // DEBUG.push(`edge case check 3: collapsible panels`);
+
         const index = delta < 0 ? secondPivotIndex : firstPivotIndex;
         const panelConstraints = panelConstraintsArray[index];
         assert(
@@ -66,67 +144,33 @@ export function adjustLayoutByDelta({
           `Panel constraints not found for index ${index}`
         );
 
-        const {
-          collapsedSize = 0,
-          collapsible,
-          minSize = 0
-        } = panelConstraints;
-
-        // DEBUG.push(`edge case check 1: ${index}`);
-        // DEBUG.push(`  -> collapsible? ${collapsible}`);
+        const { collapsible, collapsedSize, minSize } = panelConstraints;
         if (collapsible) {
-          const prevSize = initialLayout[index];
-          assert(
-            prevSize != null,
-            `Previous layout not found for panel index ${index}`
-          );
+          // DEBUG.push(`  -> collapsible panel`);
+          // DEBUG.push(`  -> halfway point: ${halfwayPoint}`);
+          if (delta > 0) {
+            const gapSize = minSize - collapsedSize;
+            const halfwayPoint = gapSize / 2;
 
-          if (layoutNumbersEqual(prevSize, collapsedSize)) {
-            const localDelta = minSize - prevSize;
-            // DEBUG.push(`  -> expand delta: ${localDelta}`);
+            if (compareLayoutNumbers(delta, minSize) < 0) {
+              delta =
+                compareLayoutNumbers(delta, halfwayPoint) <= 0 ? 0 : gapSize;
+              // DEBUG.push(`  -> adjusting delta for collapse: ${delta}`);
+            }
+          } else {
+            const gapSize = minSize - collapsedSize;
+            const halfwayPoint = 100 - gapSize / 2;
 
-            if (compareLayoutNumbers(localDelta, Math.abs(delta)) > 0) {
-              delta = delta < 0 ? 0 - localDelta : localDelta;
-              // DEBUG.push(`  -> delta: ${delta}`);
+            if (compareLayoutNumbers(100 + delta, minSize) > 0) {
+              delta =
+                compareLayoutNumbers(100 + delta, halfwayPoint) > 0
+                  ? 0
+                  : -gapSize;
+              // DEBUG.push(`  -> adjusting delta for collapse: ${delta}`);
             }
           }
         }
-      }
-
-      {
-        // Check if we should collapse a panel at its minimum size
-        const index = delta < 0 ? firstPivotIndex : secondPivotIndex;
-        const panelConstraints = panelConstraintsArray[index];
-        assert(
-          panelConstraints,
-          `No panel constraints found for index ${index}`
-        );
-
-        const {
-          collapsedSize = 0,
-          collapsible,
-          minSize = 0
-        } = panelConstraints;
-
-        // DEBUG.push(`edge case check 2: ${index}`);
-        // DEBUG.push(`  -> collapsible? ${collapsible}`);
-        if (collapsible) {
-          const prevSize = initialLayout[index];
-          assert(
-            prevSize != null,
-            `Previous layout not found for panel index ${index}`
-          );
-
-          if (layoutNumbersEqual(prevSize, minSize)) {
-            const localDelta = prevSize - collapsedSize;
-            // DEBUG.push(`  -> expand delta: ${localDelta}`);
-
-            if (compareLayoutNumbers(localDelta, Math.abs(delta)) > 0) {
-              delta = delta < 0 ? 0 - localDelta : localDelta;
-              // DEBUG.push(`  -> delta: ${delta}`);
-            }
-          }
-        }
+        break;
       }
     }
     // DEBUG.push("");

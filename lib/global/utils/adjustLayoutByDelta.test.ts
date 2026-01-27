@@ -1906,17 +1906,17 @@ describe("adjustLayoutByDelta", () => {
   test("should fallback to the previous layout if an intermediate layout is invalid", () => {
     expect(
       adjustLayoutByDelta({
-        delta: 1,
+        delta: 16,
         initialLayout: l([5, 15, 40, 40]),
         panelConstraints: c([
           { collapsedSize: 5, collapsible: true, minSize: 15, maxSize: 20 },
-          { minSize: 15, maxSize: 30 },
+          { minSize: 30, maxSize: 30 },
           { minSize: 30 },
           { minSize: 20, maxSize: 40 }
         ]),
-        prevLayout: l([5, 30, 30, 36])
+        prevLayout: l([20, 30, 30, 20])
       })
-    ).toEqual(l([5, 30, 30, 36]));
+    ).toEqual(l([20, 30, 30, 20]));
   });
 
   // Edge case (issues/311)
@@ -1934,5 +1934,212 @@ describe("adjustLayoutByDelta", () => {
         prevLayout: l([15, 15, 30, 36])
       })
     ).toEqual(l([5, 15, 40, 40]));
+  });
+
+  // Edge case issues/210 and issues/629
+  describe("collapsible panel thresholds", () => {
+    ["left", "right"].forEach((panelId) => {
+      describe(`${panelId} panel`, () => {
+        const collapsiblePanelConstraints = {
+          collapsedSize: 0,
+          collapsible: true,
+          minSize: 10
+        };
+
+        const open = panelId === "left" ? l([10, 90]) : l([90, 10]);
+        const closed = panelId === "left" ? l([0, 100]) : l([100, 0]);
+        const panelConstraints =
+          panelId === "left"
+            ? c([collapsiblePanelConstraints, {}])
+            : c([{}, collapsiblePanelConstraints]);
+
+        test.each([
+          [
+            "remain open if delta is less than minimum threshold",
+            {
+              initialLayout: open,
+              prevLayout: open,
+              delta: panelId === "left" ? -4 : 4,
+              expectedLayout: open
+            }
+          ],
+          [
+            "close if delta is greater than minimum threshold",
+            {
+              initialLayout: open,
+              prevLayout: open,
+              delta: panelId === "left" ? -6 : 6,
+              expectedLayout: closed
+            }
+          ],
+          [
+            "re-open if delta is less than minimum threshold",
+            {
+              initialLayout: open,
+              prevLayout: closed,
+              delta: panelId === "left" ? -4 : 4,
+              expectedLayout: open
+            }
+          ],
+          [
+            "remain closed if delta is more than minimum threshold",
+            {
+              initialLayout: open,
+              prevLayout: closed,
+              delta: panelId === "left" ? -6 : 6,
+              expectedLayout: closed
+            }
+          ],
+          [
+            "remain closed if delta is less than minimum threshold",
+            {
+              initialLayout: closed,
+              prevLayout: closed,
+              delta: panelId === "left" ? 4 : -4,
+              expectedLayout: closed
+            }
+          ],
+          [
+            "open if delta is greater than minimum threshold",
+            {
+              initialLayout: closed,
+              prevLayout: closed,
+              delta: panelId === "left" ? 6 : -6,
+              expectedLayout: open
+            }
+          ],
+          [
+            "close if delta is less than minimum threshold",
+            {
+              initialLayout: closed,
+              prevLayout: open,
+              delta: panelId === "left" ? 4 : -4,
+              expectedLayout: closed
+            }
+          ],
+          [
+            "remain open if delta is more than minimum threshold",
+            {
+              initialLayout: closed,
+              prevLayout: open,
+              delta: panelId === "left" ? 6 : -6,
+              expectedLayout: open
+            }
+          ]
+        ])("%s", (_, { initialLayout, prevLayout, delta, expectedLayout }) => {
+          expect(
+            adjustLayoutByDelta({
+              delta,
+              initialLayout,
+              panelConstraints,
+              prevLayout,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(expectedLayout);
+        });
+      });
+    });
+
+    ["left", "right"].forEach((panelId) => {
+      describe(`${panelId} panel`, () => {
+        const collapsiblePanelConstraints = {
+          collapsedSize: 5,
+          collapsible: true,
+          minSize: 15
+        };
+
+        const open = panelId === "left" ? l([15, 85]) : l([85, 15]);
+        const closed = panelId === "left" ? l([5, 95]) : l([95, 5]);
+        const panelConstraints =
+          panelId === "left"
+            ? c([collapsiblePanelConstraints, {}])
+            : c([{}, collapsiblePanelConstraints]);
+
+        test.each([
+          [
+            "remain open if delta is less than minimum threshold",
+            {
+              initialLayout: open,
+              prevLayout: open,
+              delta: panelId === "left" ? -4 : 4,
+              expectedLayout: open
+            }
+          ],
+          [
+            "close if delta is greater than minimum threshold",
+            {
+              initialLayout: open,
+              prevLayout: open,
+              delta: panelId === "left" ? -6 : 6,
+              expectedLayout: closed
+            }
+          ],
+          [
+            "re-open if delta is less than minimum threshold",
+            {
+              initialLayout: open,
+              prevLayout: closed,
+              delta: panelId === "left" ? -4 : 4,
+              expectedLayout: open
+            }
+          ],
+          [
+            "remain closed if delta is more than minimum threshold",
+            {
+              initialLayout: open,
+              prevLayout: closed,
+              delta: panelId === "left" ? -6 : 6,
+              expectedLayout: closed
+            }
+          ],
+          [
+            "remain closed if delta is less than minimum threshold",
+            {
+              initialLayout: closed,
+              prevLayout: closed,
+              delta: panelId === "left" ? 4 : -4,
+              expectedLayout: closed
+            }
+          ],
+          [
+            "open if delta is greater than minimum threshold",
+            {
+              initialLayout: closed,
+              prevLayout: closed,
+              delta: panelId === "left" ? 6 : -6,
+              expectedLayout: open
+            }
+          ],
+          [
+            "close if delta is less than minimum threshold",
+            {
+              initialLayout: closed,
+              prevLayout: open,
+              delta: panelId === "left" ? 4 : -4,
+              expectedLayout: closed
+            }
+          ],
+          [
+            "remain open if delta is more than minimum threshold",
+            {
+              initialLayout: closed,
+              prevLayout: open,
+              delta: panelId === "left" ? 6 : -6,
+              expectedLayout: open
+            }
+          ]
+        ])("%s", (_, { initialLayout, prevLayout, delta, expectedLayout }) => {
+          expect(
+            adjustLayoutByDelta({
+              delta,
+              initialLayout,
+              panelConstraints,
+              prevLayout,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(expectedLayout);
+        });
+      });
+    });
   });
 });
