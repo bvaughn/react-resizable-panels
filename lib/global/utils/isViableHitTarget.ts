@@ -20,8 +20,15 @@ export function isViableHitTarget({
   hitRegion: DOMRect;
   pointerEventTarget: EventTarget | null;
 }) {
+  if (!isHTMLElement(pointerEventTarget)) {
+    return true;
+  }
+
+  if (pointerEventTarget.closest("[data-resize-disabled]")) {
+    return false;
+  }
+
   if (
-    !isHTMLElement(pointerEventTarget) ||
     pointerEventTarget.contains(groupElement) ||
     groupElement.contains(pointerEventTarget)
   ) {
