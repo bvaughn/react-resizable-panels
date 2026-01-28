@@ -32,7 +32,10 @@
     ]
   },
   "include": [
+    "vite.config.ts",
+    "vitest.config.ts",
     "vitest.d.ts",
+    "vitest.setup.ts",
     "lib",
     "integrations",
     "scripts",

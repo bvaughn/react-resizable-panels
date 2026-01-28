@@ -26,6 +26,7 @@ export default tseslint.config([
       ecmaVersion: 2020,
       globals: globals.browser,
       parserOptions: {
+        projectService: true,
         tsconfigRootDir: import.meta.dirname
       }
     },
@@ -67,16 +68,23 @@ export default tseslint.config([
           ignoreRestSiblings: true
         }
       ],
+      "@typescript-eslint/no-misused-spread": ["error", {}],
       "sonarjs/cognitive-complexity": "off",
+      "sonarjs/deprecation": "off",
+      "sonarjs/different-types-comparison": "off",
+      "sonarjs/function-return-type": "off",
       "sonarjs/no-commented-code": "off",
-      "sonarjs/no-small-switch": "off",
-      "sonarjs/todo-tag": "off",
-      "sonarjs/no-nested-functions": "off",
-      "sonarjs/no-unused-vars": "off",
-      "sonarjs/no-nested-conditional": "off",
       "sonarjs/no-dead-store": "off",
+      "sonarjs/no-duplicated-branches": "off",
+      "sonarjs/no-nested-conditional": "off",
+      "sonarjs/no-nested-functions": "off",
+      "sonarjs/no-small-switch": "off",
+      "sonarjs/no-unused-vars": "off",
+      "sonarjs/prefer-read-only-props": "off",
+      "sonarjs/prefer-regexp-exec": "off",
       "sonarjs/slow-regex": "off",
-      "sonarjs/no-duplicated-branches": "off"
+      "sonarjs/todo-tag": "off",
+      "sonarjs/use-type-alias": "off"
     }
   }
 ]);

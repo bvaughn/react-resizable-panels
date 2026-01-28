@@ -4,7 +4,7 @@ export function sortByElementOffset<
   Type extends { element: HTMLElement },
   ReturnType extends Type[]
 >(orientation: Orientation, panelsOrSeparators: Type[]): ReturnType {
-  return panelsOrSeparators.sort(
+  return Array.from(panelsOrSeparators).sort(
     orientation === "horizontal" ? horizontalSort : verticalSort
   ) as ReturnType;
 }
