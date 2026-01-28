@@ -41,8 +41,7 @@ export function calculateSeparatorAriaValues({
         initialLayout: layout,
         panelConstraints,
         pivotIndices,
-        prevLayout: layout,
-        trigger: "keyboard"
+        prevLayout: layout
       }),
       panelConstraints
     });
@@ -55,8 +54,7 @@ export function calculateSeparatorAriaValues({
         initialLayout: layout,
         panelConstraints,
         pivotIndices,
-        prevLayout: layout,
-        trigger: "keyboard"
+        prevLayout: layout
       }),
       panelConstraints
     });
