@@ -214,7 +214,7 @@ const commonQuestions: CommonQuestion[] = [
             ResizeObserver
           </ExternalLink>{" "}
           API, either through a hook like{" "}
-          <ExternalLink href="http://npmjs.com/package/use-resize-observer">
+          <ExternalLink href="https://npmjs.com/package/use-resize-observer">
             useResizeObserver
           </ExternalLink>{" "}
           or a component like{" "}

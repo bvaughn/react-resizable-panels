@@ -29,9 +29,9 @@ export function calculateSeparatorAriaValues({
   );
   if (constraints) {
     const maxSize = constraints.maxSize;
-    const minSize = (valueMin = constraints.collapsible
+    const minSize = constraints.collapsible
       ? constraints.collapsedSize
-      : constraints.minSize);
+      : constraints.minSize;
 
     const pivotIndices = [panelIndex, panelIndex + 1];
 

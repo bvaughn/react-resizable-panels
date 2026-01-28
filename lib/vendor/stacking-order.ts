@@ -26,10 +26,8 @@ export function compare(
 
   // remove shared ancestors
   while (ancestors.a.at(-1) === ancestors.b.at(-1)) {
-    a = ancestors.a.pop() as HTMLElement;
-    b = ancestors.b.pop() as HTMLElement;
-
-    common_ancestor = a;
+    common_ancestor = ancestors.a.pop() as HTMLElement;
+    ancestors.b.pop();
   }
 
   assert(
