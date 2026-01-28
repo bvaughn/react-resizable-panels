@@ -137,6 +137,8 @@ export function Panel({
       <div
         className={className}
         style={{
+          maxHeight: "100%",
+          maxWidth: "100%",
           flexGrow: 1,
 
           ...style

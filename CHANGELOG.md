@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- [631](https://github.com/bvaughn/react-resizable-panels/pull/631): **Bugfix**: Panels set `max-width` and `max-height` to 100% to fix potential CSS overflow bug.
+
 ## 4.5.2
 
 - [626](https://github.com/bvaughn/react-resizable-panels/pull/626): Decrease default hit target size for `Separator` and `Panel` edges; make configurable via a new `Group` prop.
