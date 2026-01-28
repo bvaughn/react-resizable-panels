@@ -133,6 +133,11 @@ This method is recommended when saving layouts to some storage api.</p>
 </td>
     </tr>
     <tr>
+      <td>orientation</td>
+      <td><p>Specifies the resizable orientation (&quot;horizontal&quot; or &quot;vertical&quot;); defaults to &quot;horizontal&quot;</p>
+</td>
+    </tr>
+    <tr>
       <td>resizeTargetMinimumSize</td>
       <td><p>Minimum size of the resizable hit target area (either <code>Separator</code> or <code>Panel</code> edge)
 This threshold ensures are large enough to avoid mis-clicks.</p>
@@ -143,11 +148,6 @@ to ensure accessibility and ease of use, hit targets should be larger to prevent
 </ul>
 <p>ℹ️ <a href="https://developer.apple.com/design/human-interface-guidelines/accessibility">Apple interface guidelines</a> suggest <code>20pt</code> (<code>27px</code>) on desktops and <code>28pt</code> (<code>37px</code>) for touch devices
 In practice this seems to be much larger than many of their own applications use though.</p>
-</td>
-    </tr>
-    <tr>
-      <td>orientation</td>
-      <td><p>Specifies the resizable orientation (&quot;horizontal&quot; or &quot;vertical&quot;); defaults to &quot;horizontal&quot;</p>
 </td>
     </tr>
   </tbody>

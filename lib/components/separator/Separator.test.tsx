@@ -1,17 +1,29 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 import { Group } from "../group/Group";
 import { Panel } from "../panel/Panel";
 import { Separator } from "./Separator";
+import { setElementBoundsFunction } from "../../utils/test/mockBoundingClientRect";
 
 describe("Separator", () => {
+  beforeEach(() => {
+    setElementBoundsFunction((element) => {
+      if (element.hasAttribute("data-group")) {
+        return new DOMRect(0, 0, 100, 50);
+      } else {
+        const x = parseInt(element.getAttribute("data-x") || "0");
+        return new DOMRect(x, 0, 50, 50);
+      }
+    });
+  });
+
   describe("HTML attributes", () => {
     test("should expose id and data-testid", () => {
       render(
         <Group>
-          <Panel />
-          <Separator id="separator" />
-          <Panel />
+          <Panel data-x="0" />
+          <Separator data-x="10" id="separator" />
+          <Panel data-x="20" />
         </Group>
       );
 
@@ -36,14 +48,14 @@ describe("Separator", () => {
     });
 
     describe("ARIA attributes", () => {
-      test("should identify its primary panel if and only if it has an explicit id", () => {
+      test("should identify its primary panel by id", () => {
         render(
           <Group>
-            <Panel id="left-panel" />
-            <Separator id="left-separator" />
-            <Panel />
-            <Separator id="right-separator" />
-            <Panel />
+            <Panel data-x="0" id="left-panel" />
+            <Separator data-x="10" id="left-separator" />
+            <Panel data-x="20" />
+            <Separator data-x="30" id="right-separator" />
+            <Panel data-x="40" />
           </Group>
         );
 

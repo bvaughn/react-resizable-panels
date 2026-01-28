@@ -1,10 +1,5 @@
 import type { CSSProperties, HTMLAttributes, Ref } from "react";
 
-export type RegisteredSeparator = {
-  element: HTMLDivElement;
-  id: string;
-};
-
 type BaseSeparatorAttributes = Omit<
   HTMLAttributes<HTMLDivElement>,
   "role" | "tabIndex"

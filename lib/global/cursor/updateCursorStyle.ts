@@ -12,10 +12,7 @@ const documentToStyleMap = new WeakMap<
 export function updateCursorStyle(ownerDocument: Document) {
   // NOTE undefined is not technically a valid value but it has been reported that it is present in some environments (Vite HMR?)
   // See github.com/bvaughn/react-resizable-panels/issues/559
-  if (
-    ownerDocument.defaultView === null ||
-    ownerDocument.defaultView === undefined
-  ) {
+  if (ownerDocument.defaultView == null) {
     return;
   }
 
