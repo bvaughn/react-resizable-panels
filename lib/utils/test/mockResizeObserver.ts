@@ -1,7 +1,5 @@
 import { emitter } from "./mockBoundingClientRect";
 
-const elementToDOMRect = new Map<HTMLElement, DOMRect>();
-
 let disabled: boolean = false;
 
 export function disableResizeObserverForCurrentTest() {
@@ -24,8 +22,6 @@ export function mockResizeObserver() {
     window.ResizeObserver = originalResizeObserver;
 
     disabled = false;
-
-    elementToDOMRect.clear();
   };
 }
 

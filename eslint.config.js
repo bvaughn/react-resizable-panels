@@ -4,6 +4,7 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import { globalIgnores } from "eslint/config";
 import globals from "globals";
 import tseslint from "typescript-eslint";
+import sonarJs from "eslint-plugin-sonarjs";
 
 export default tseslint.config([
   globalIgnores([
@@ -18,7 +19,8 @@ export default tseslint.config([
       js.configs.recommended,
       tseslint.configs.recommended,
       reactHooks.configs["recommended-latest"],
-      reactRefresh.configs.vite
+      reactRefresh.configs.vite,
+      sonarJs.configs.recommended
     ],
     languageOptions: {
       ecmaVersion: 2020,
@@ -64,7 +66,17 @@ export default tseslint.config([
           varsIgnorePattern: "^_",
           ignoreRestSiblings: true
         }
-      ]
+      ],
+      "sonarjs/cognitive-complexity": "off",
+      "sonarjs/no-commented-code": "off",
+      "sonarjs/no-small-switch": "off",
+      "sonarjs/todo-tag": "off",
+      "sonarjs/no-nested-functions": "off",
+      "sonarjs/no-unused-vars": "off",
+      "sonarjs/no-nested-conditional": "off",
+      "sonarjs/no-dead-store": "off",
+      "sonarjs/slow-regex": "off",
+      "sonarjs/no-duplicated-branches": "off"
     }
   }
 ]);
