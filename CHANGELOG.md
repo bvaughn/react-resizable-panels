@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## 4.5.3
 
+- [635](https://github.com/bvaughn/react-resizable-panels/pull/635): Expand pre-collapsed panels if drug past the halfway point for more consistent collapse/expand behavior.
 - [631](https://github.com/bvaughn/react-resizable-panels/pull/631): **Bugfix**: Panels set `max-width` and `max-height` to 100% to fix potential CSS overflow bug.
 
 ## 4.5.2
