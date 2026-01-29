@@ -233,12 +233,23 @@ export function Group({
       }
     }
 
+    let prevInteractionStateActive = false;
+
     const removeInteractionStateChangeListener = eventEmitter.addListener(
       "interactionStateChange",
-      () => {
-        inMemoryValues.panels.forEach((panel) => {
-          panel.scheduleUpdate();
-        });
+      (interactionState) => {
+        const nextInteractionStateActive = interactionState.state === "active";
+        if (prevInteractionStateActive !== nextInteractionStateActive) {
+          prevInteractionStateActive = nextInteractionStateActive;
+
+          // The only reason to schedule a re-render in response to this event type
+          // is to disable pointer-events within a Panel while a drag is in progress
+          // (This is done to prevent text from being selected, etc)
+          // Unnecessary updates should be very fast in this case but we can still avoid them
+          inMemoryValues.panels.forEach((panel) => {
+            panel.scheduleUpdate();
+          });
+        }
       }
     );
 

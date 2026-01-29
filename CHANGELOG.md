@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- [638](https://github.com/bvaughn/react-resizable-panels/pull/638): `Panel` avoids unnecessary re-renders in response to mouse-hover state.
+
 ## 4.5.3
 
 - [635](https://github.com/bvaughn/react-resizable-panels/pull/635): Expand pre-collapsed panels if drug past the halfway point for more consistent collapse/expand behavior.
