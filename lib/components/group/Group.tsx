@@ -314,7 +314,6 @@ export function Group({
     <GroupContext.Provider value={context}>
       <div
         {...rest}
-        aria-orientation={orientation}
         className={className}
         data-group
         data-testid={id}
