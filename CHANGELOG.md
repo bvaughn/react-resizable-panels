@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.5.4
 
 - [638](https://github.com/bvaughn/react-resizable-panels/pull/638): `Panel` avoids unnecessary re-renders in response to mouse-hover state.
 
