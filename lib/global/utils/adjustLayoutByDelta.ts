@@ -146,27 +146,47 @@ export function adjustLayoutByDelta({
 
         const { collapsible, collapsedSize, minSize } = panelConstraints;
         if (collapsible) {
-          // DEBUG.push(`  -> collapsible panel`);
-          // DEBUG.push(`  -> halfway point: ${halfwayPoint}`);
+          const isSecondPanel = index === secondPivotIndex;
+
+          // DEBUG.push(`  -> collapsible ${isSecondPanel ? "2nd" : "1st"} panel`);
           if (delta > 0) {
             const gapSize = minSize - collapsedSize;
             const halfwayPoint = gapSize / 2;
+            // DEBUG.push(`  -> halfway point: ${halfwayPoint}`);
+            // DEBUG.push(`    -> between collapsed: ${collapsedSize}`);
+            // DEBUG.push(`    -> and min: ${minSize}`);
 
             if (compareLayoutNumbers(delta, minSize) < 0) {
+              // DEBUG.push(`  -> adjusting delta from: ${delta}`);
               delta =
                 compareLayoutNumbers(delta, halfwayPoint) <= 0 ? 0 : gapSize;
-              // DEBUG.push(`  -> adjusting delta for collapse: ${delta}`);
+              // DEBUG.push(`  -> adjusting delta to: ${delta}`);
             }
           } else {
             const gapSize = minSize - collapsedSize;
             const halfwayPoint = 100 - gapSize / 2;
+            // DEBUG.push(`  -> halfway point: ${halfwayPoint}`);
+            // DEBUG.push(`    -> between collapsed: ${100 - collapsedSize}`);
+            // DEBUG.push(`    -> and min: ${100 - minSize}`);
 
-            if (compareLayoutNumbers(100 + delta, minSize) > 0) {
-              delta =
-                compareLayoutNumbers(100 + delta, halfwayPoint) > 0
-                  ? 0
-                  : -gapSize;
-              // DEBUG.push(`  -> adjusting delta for collapse: ${delta}`);
+            if (isSecondPanel) {
+              if (compareLayoutNumbers(Math.abs(delta), minSize) < 0) {
+                // DEBUG.push(`  -> adjusting delta from: ${delta}`);
+                delta =
+                  compareLayoutNumbers(100 + delta, halfwayPoint) > 0
+                    ? 0
+                    : -gapSize;
+                // DEBUG.push(`  -> adjusting delta to: ${delta}`);
+              }
+            } else {
+              if (compareLayoutNumbers(100 + delta, minSize) < 0) {
+                // DEBUG.push(`  -> adjusting delta from: ${delta}`);
+                delta =
+                  compareLayoutNumbers(100 + delta, halfwayPoint) > 0
+                    ? 0
+                    : -gapSize;
+                // DEBUG.push(`  -> adjusting delta to: ${delta}`);
+              }
             }
           }
         }
