@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.5.5
+
+- [641](https://github.com/bvaughn/react-resizable-panels/pull/641): Removed `aria-orientation` role from root `Group` element as this was invalid according to the ARIA spec; (for more information see the discussion on issue [#640](https://github.com/bvaughn/react-resizable-panels/issues/640))
+- [642](https://github.com/bvaughn/react-resizable-panels/pull/642): **Bugfix**: Fix collapsible `Panel` regression introduced in 4.5.3
+
 ## 4.5.4
 
 - [638](https://github.com/bvaughn/react-resizable-panels/pull/638): `Panel` avoids unnecessary re-renders in response to mouse-hover state.
