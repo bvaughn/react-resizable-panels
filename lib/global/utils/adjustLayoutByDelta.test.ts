@@ -2141,5 +2141,62 @@ describe("adjustLayoutByDelta", () => {
         });
       });
     });
+
+    describe("3-panel layouts", () => {
+      const collapsibleConstraints = {
+        collapsedSize: 5,
+        collapsible: true,
+        minSize: 15
+      };
+
+      test.each([
+        [
+          "expand left when there are multiple panels",
+          {
+            delta: -70,
+            initialLayout: l([25, 50, 25]),
+            panelConstraints: c([{}, {}, collapsibleConstraints]),
+            prevLayout: l([25, 50, 25]),
+            expectedLayout: l([5, 0, 95]),
+            pivotIndices: [1, 2]
+          }
+        ],
+        [
+          "expand right when there are multiple panels",
+          {
+            delta: 70,
+            initialLayout: l([25, 50, 25]),
+            panelConstraints: c([collapsibleConstraints, {}, {}]),
+            prevLayout: l([25, 50, 25]),
+            expectedLayout: l([95, 0, 5]),
+            pivotIndices: [0, 1]
+          }
+        ]
+      ])(
+        "%s",
+        (
+          _,
+          {
+            delta,
+            initialLayout,
+            panelConstraints,
+            prevLayout,
+            pivotIndices,
+            expectedLayout
+          }
+        ) => {
+          expect(
+            adjustLayoutByDelta({
+              delta,
+              initialLayout,
+              panelConstraints,
+              pivotIndices,
+              prevLayout,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(expectedLayout);
+        }
+      );
+    });
   });
 });
