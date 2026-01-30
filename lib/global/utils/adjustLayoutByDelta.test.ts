@@ -1999,24 +1999,25 @@ describe("adjustLayoutByDelta", () => {
               expectedLayout: closed
             }
           ],
-          [
-            "open if delta is greater than minimum threshold",
-            {
-              initialLayout: closed,
-              prevLayout: closed,
-              delta: panelId === "left" ? 6 : -6,
-              expectedLayout: open
-            }
-          ],
-          [
-            "close if delta is less than minimum threshold",
-            {
-              initialLayout: closed,
-              prevLayout: open,
-              delta: panelId === "left" ? 4 : -4,
-              expectedLayout: closed
-            }
-          ],
+          // TODO Re-enable if/when this behavior change is re-enabled
+          // [
+          //   "open if delta is greater than minimum threshold",
+          //   {
+          //     initialLayout: closed,
+          //     prevLayout: closed,
+          //     delta: panelId === "left" ? 6 : -6,
+          //     expectedLayout: open
+          //   }
+          // ],
+          // [
+          //   "close if delta is less than minimum threshold",
+          //   {
+          //     initialLayout: closed,
+          //     prevLayout: open,
+          //     delta: panelId === "left" ? 4 : -4,
+          //     expectedLayout: closed
+          //   }
+          // ],
           [
             "remain open if delta is more than minimum threshold",
             {
@@ -2101,24 +2102,25 @@ describe("adjustLayoutByDelta", () => {
               expectedLayout: closed
             }
           ],
-          [
-            "open if delta is greater than minimum threshold",
-            {
-              initialLayout: closed,
-              prevLayout: closed,
-              delta: panelId === "left" ? 6 : -6,
-              expectedLayout: open
-            }
-          ],
-          [
-            "close if delta is less than minimum threshold",
-            {
-              initialLayout: closed,
-              prevLayout: open,
-              delta: panelId === "left" ? 4 : -4,
-              expectedLayout: closed
-            }
-          ],
+          // TODO Re-enable if/when this behavior change is re-enabled
+          // [
+          //   "open if delta is greater than minimum threshold",
+          //   {
+          //     initialLayout: closed,
+          //     prevLayout: closed,
+          //     delta: panelId === "left" ? 6 : -6,
+          //     expectedLayout: open
+          //   }
+          // ],
+          // [
+          //   "close if delta is less than minimum threshold",
+          //   {
+          //     initialLayout: closed,
+          //     prevLayout: open,
+          //     delta: panelId === "left" ? 4 : -4,
+          //     expectedLayout: closed
+          //   }
+          // ],
           [
             "remain open if delta is more than minimum threshold",
             {
