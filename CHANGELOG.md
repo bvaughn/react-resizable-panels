@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.5.6
+
+- [644](https://github.com/bvaughn/react-resizable-panels/pull/644): Disabled the change to collapsible panel behavior that was originally made in [635](https://github.com/bvaughn/react-resizable-panels/pull/635).
+
 ## 4.5.5
 
 - [641](https://github.com/bvaughn/react-resizable-panels/pull/641): Removed `aria-orientation` role from root `Group` element as this was invalid according to the ARIA spec; (for more information see the discussion on issue [#640](https://github.com/bvaughn/react-resizable-panels/issues/640))
