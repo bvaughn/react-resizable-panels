@@ -2013,8 +2013,7 @@ describe("adjustLayoutByDelta", () => {
           ).toEqual(closed);
         });
 
-        // TODO Re-enable if/when this behavior change is re-enabled
-        test.skip("open if delta is greater than minimum threshold", () => {
+        test("open if delta is greater than minimum threshold", () => {
           expect(
             adjustLayoutByDelta({
               delta: panelId === "left" ? 6 : -6,
@@ -2026,8 +2025,7 @@ describe("adjustLayoutByDelta", () => {
           ).toEqual(open);
         });
 
-        // TODO Re-enable if/when this behavior change is re-enabled
-        test.skip("close if delta is less than minimum threshold", () => {
+        test("close if delta is less than minimum threshold", () => {
           expect(
             adjustLayoutByDelta({
               delta: panelId === "left" ? 4 : -4,
@@ -2126,8 +2124,7 @@ describe("adjustLayoutByDelta", () => {
           ).toEqual(closed);
         });
 
-        // TODO Re-enable if/when this behavior change is re-enabled
-        test.skip("open if delta is greater than minimum threshold", () => {
+        test("open if delta is greater than minimum threshold", () => {
           expect(
             adjustLayoutByDelta({
               delta: panelId === "left" ? 6 : -6,
@@ -2139,8 +2136,7 @@ describe("adjustLayoutByDelta", () => {
           ).toEqual(open);
         });
 
-        // TODO Re-enable if/when this behavior change is re-enabled
-        test.skip("close if delta is less than minimum threshold", () => {
+        test("close if delta is less than minimum threshold", () => {
           expect(
             adjustLayoutByDelta({
               delta: panelId === "left" ? 4 : -4,
@@ -2197,6 +2193,111 @@ describe("adjustLayoutByDelta", () => {
             trigger: "mouse-or-touch"
           })
         ).toEqual(l([95, 0, 5]));
+      });
+
+      test("edge case issues/639", () => {
+        (
+          [
+            [-10, l([20, 40, 40])],
+            [-20, l([20, 30, 50])],
+            [-30, l([20, 20, 60])],
+            [-40, l([10, 20, 70])],
+            [-50, l([0, 20, 80])]
+          ] satisfies [number, Layout][]
+        ).forEach(([delta, expectedLayout]) => {
+          expect(
+            adjustLayoutByDelta({
+              delta,
+              initialLayout: l([20, 50, 30]),
+              panelConstraints: c([
+                {
+                  collapsedSize: 0,
+                  collapsible: true,
+                  defaultSize: 20,
+                  minSize: 10
+                },
+                {
+                  defaultSize: 50,
+                  minSize: 20
+                },
+                {
+                  collapsedSize: 0,
+                  collapsible: true,
+                  defaultSize: 30,
+                  minSize: 10
+                }
+              ]),
+              prevLayout: l([20, 50, 30]),
+              pivotIndices: [1, 2],
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(expectedLayout);
+        });
+      });
+
+      test("edge case discussions/643", () => {
+        (
+          [
+            [4, l([10, 90])],
+            [6, l([20, 80])],
+            [10, l([20, 80])],
+            [15, l([25, 75])],
+            [25, l([35, 65])],
+            [40, l([50, 50])],
+            [50, l([50, 50])]
+          ] satisfies [number, Layout][]
+        ).forEach(([delta, expectedLayout]) => {
+          expect(
+            adjustLayoutByDelta({
+              delta,
+              initialLayout: l([10, 90]),
+              panelConstraints: c([
+                {
+                  collapsedSize: 10,
+                  collapsible: true,
+                  defaultSize: 10,
+                  maxSize: 50,
+                  minSize: 20
+                },
+                {}
+              ]),
+              prevLayout: l([10, 90]),
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(expectedLayout);
+        });
+
+        // 2nd panel variation of the above
+        (
+          [
+            [-4, l([90, 10])],
+            [-6, l([80, 20])],
+            [-10, l([80, 20])],
+            [-15, l([75, 25])],
+            [-25, l([65, 35])],
+            [-40, l([50, 50])],
+            [-50, l([50, 50])]
+          ] satisfies [number, Layout][]
+        ).forEach(([delta, expectedLayout]) => {
+          expect(
+            adjustLayoutByDelta({
+              delta,
+              initialLayout: l([90, 10]),
+              panelConstraints: c([
+                {},
+                {
+                  collapsedSize: 10,
+                  collapsible: true,
+                  defaultSize: 10,
+                  maxSize: 50,
+                  minSize: 20
+                }
+              ]),
+              prevLayout: l([10, 90]),
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(expectedLayout);
+        });
       });
     });
   });

@@ -131,69 +131,74 @@ export function adjustLayoutByDelta({
         }
         break;
       }
-      // TODO Re-enable this once the Firefox behavior has been corrected
-      //      See github.com/bvaughn/react-resizable-panels/discussions/643
-      // default: {
-      //   // If we're starting from a collapsed state, dragging past the halfway point should cause the panel to expand
-      //   // This can happen for positive or negative drags, and panels on either side of the separator can be collapsible
-      //   // The easiest way to support this is to detect this scenario and pre-adjust the delta before applying the rest of the layout algorithm
-      //   // DEBUG.push(`edge case check 3: collapsible panels`);
+      default: {
+        // If we're starting from a collapsed state, dragging past the halfway point should cause the panel to expand
+        // This can happen for positive or negative drags, and panels on either side of the separator can be collapsible
+        // The easiest way to support this is to detect this scenario and pre-adjust the delta before applying the rest of the layout algorithm
+        // DEBUG.push(`edge case check 3: collapsible panels`);
 
-      //   const index = delta < 0 ? secondPivotIndex : firstPivotIndex;
-      //   const panelConstraints = panelConstraintsArray[index];
-      //   assert(
-      //     panelConstraints,
-      //     `Panel constraints not found for index ${index}`
-      //   );
+        const index = delta < 0 ? secondPivotIndex : firstPivotIndex;
+        const panelConstraints = panelConstraintsArray[index];
+        assert(
+          panelConstraints,
+          `Panel constraints not found for index ${index}`
+        );
 
-      //   const { collapsible, collapsedSize, minSize } = panelConstraints;
-      //   if (collapsible) {
-      //     const isSecondPanel = index === secondPivotIndex;
+        const { collapsible, collapsedSize, minSize } = panelConstraints;
+        if (collapsible) {
+          const isSecondPanel = index === secondPivotIndex;
 
-      //     // DEBUG.push(`  -> collapsible ${isSecondPanel ? "2nd" : "1st"} panel`);
-      //     if (delta > 0) {
-      //       const gapSize = minSize - collapsedSize;
-      //       const halfwayPoint = gapSize / 2;
-      //       // DEBUG.push(`  -> halfway point: ${halfwayPoint}`);
-      //       // DEBUG.push(`    -> between collapsed: ${collapsedSize}`);
-      //       // DEBUG.push(`    -> and min: ${minSize}`);
+          // DEBUG.push(`  -> collapsible ${isSecondPanel ? "2nd" : "1st"} panel`);
+          if (delta > 0) {
+            const gapSize = minSize - collapsedSize;
+            const halfwayPoint = gapSize / 2;
+            // DEBUG.push(`  -> halfway point: ${halfwayPoint}`);
+            // DEBUG.push(`     between collapsed: ${collapsedSize}`);
+            // DEBUG.push(`       and min: ${minSize}`);
 
-      //       if (compareLayoutNumbers(delta, minSize) < 0) {
-      //         // DEBUG.push(`  -> adjusting delta from: ${delta}`);
-      //         delta =
-      //           compareLayoutNumbers(delta, halfwayPoint) <= 0 ? 0 : gapSize;
-      //         // DEBUG.push(`  -> adjusting delta to: ${delta}`);
-      //       }
-      //     } else {
-      //       const gapSize = minSize - collapsedSize;
-      //       const halfwayPoint = 100 - gapSize / 2;
-      //       // DEBUG.push(`  -> halfway point: ${halfwayPoint}`);
-      //       // DEBUG.push(`    -> between collapsed: ${100 - collapsedSize}`);
-      //       // DEBUG.push(`    -> and min: ${100 - minSize}`);
+            if (compareLayoutNumbers(delta, gapSize) < 0) {
+              // DEBUG.push("  -> adjusting delta");
+              // DEBUG.push(`       from: ${delta}`);
+              delta =
+                compareLayoutNumbers(delta, halfwayPoint) <= 0 ? 0 : gapSize;
+              // DEBUG.push(`       to: ${delta}`);
+            }
+          } else {
+            const gapSize = minSize - collapsedSize;
+            const halfwayPoint = 100 - gapSize / 2;
+            // DEBUG.push(`  -> halfway point: ${halfwayPoint}`);
+            // DEBUG.push(`     between collapsed: ${100 - collapsedSize}`);
+            // DEBUG.push(`       and min: ${100 - minSize}`);
 
-      //       if (isSecondPanel) {
-      //         if (compareLayoutNumbers(Math.abs(delta), minSize) < 0) {
-      //           // DEBUG.push(`  -> adjusting delta from: ${delta}`);
-      //           delta =
-      //             compareLayoutNumbers(100 + delta, halfwayPoint) > 0
-      //               ? 0
-      //               : -gapSize;
-      //           // DEBUG.push(`  -> adjusting delta to: ${delta}`);
-      //         }
-      //       } else {
-      //         if (compareLayoutNumbers(100 + delta, minSize) < 0) {
-      //           // DEBUG.push(`  -> adjusting delta from: ${delta}`);
-      //           delta =
-      //             compareLayoutNumbers(100 + delta, halfwayPoint) > 0
-      //               ? 0
-      //               : -gapSize;
-      //           // DEBUG.push(`  -> adjusting delta to: ${delta}`);
-      //         }
-      //       }
-      //     }
-      //   }
-      //   break;
-      // }
+            if (isSecondPanel) {
+              if (compareLayoutNumbers(Math.abs(delta), gapSize) < 0) {
+                // DEBUG.push("  -> adjusting delta");
+                // DEBUG.push(`       from: ${delta}`);
+                delta =
+                  compareLayoutNumbers(100 + delta, halfwayPoint) > 0
+                    ? 0
+                    : -gapSize;
+                // DEBUG.push(`       to: ${delta}`);
+              } else {
+                // DEBUG.push("    -> skip");
+              }
+            } else {
+              if (compareLayoutNumbers(100 + delta, gapSize) < 0) {
+                // DEBUG.push("  -> adjusting delta");
+                // DEBUG.push(`       from: ${delta}`);
+                delta =
+                  compareLayoutNumbers(100 + delta, halfwayPoint) > 0
+                    ? 0
+                    : -gapSize;
+                // DEBUG.push(`       to: ${delta}`);
+              } else {
+                // DEBUG.push("    -> skip");
+              }
+            }
+          }
+        }
+        break;
+      }
     }
     // DEBUG.push("");
   }
