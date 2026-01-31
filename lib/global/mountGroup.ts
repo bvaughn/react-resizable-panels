@@ -8,6 +8,7 @@ import { onDocumentKeyDown } from "./event-handlers/onDocumentKeyDown";
 import { onDocumentPointerDown } from "./event-handlers/onDocumentPointerDown";
 import { onDocumentPointerLeave } from "./event-handlers/onDocumentPointerLeave";
 import { onDocumentPointerMove } from "./event-handlers/onDocumentPointerMove";
+import { onDocumentPointerOut } from "./event-handlers/onDocumentPointerOut";
 import { onDocumentPointerUp } from "./event-handlers/onDocumentPointerUp";
 import { update, type SeparatorToPanelsMap } from "./mutableState";
 import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
@@ -175,6 +176,7 @@ export function mountGroup(group: RegisteredGroup) {
     ownerDocument.addEventListener("pointerdown", onDocumentPointerDown, true);
     ownerDocument.addEventListener("pointerleave", onDocumentPointerLeave);
     ownerDocument.addEventListener("pointermove", onDocumentPointerMove);
+    ownerDocument.addEventListener("pointerout", onDocumentPointerOut);
     ownerDocument.addEventListener("pointerup", onDocumentPointerUp, true);
   }
 
@@ -211,6 +213,7 @@ export function mountGroup(group: RegisteredGroup) {
       );
       ownerDocument.removeEventListener("pointerleave", onDocumentPointerLeave);
       ownerDocument.removeEventListener("pointermove", onDocumentPointerMove);
+      ownerDocument.removeEventListener("pointerout", onDocumentPointerOut);
       ownerDocument.removeEventListener("pointerup", onDocumentPointerUp, true);
     }
 

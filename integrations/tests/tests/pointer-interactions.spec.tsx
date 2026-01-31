@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import { Clickable } from "../src/components/Clickable";
 import { Container } from "../src/components/Container";
+import { IFrame } from "../src/components/IFrame";
 import { assertLayoutChangeCounts } from "../src/utils/assertLayoutChangeCounts";
 import { calculateHitArea } from "../src/utils/calculateHitArea";
 import { getCenterCoordinates } from "../src/utils/getCenterCoordinates";
@@ -531,6 +532,35 @@ test.describe("pointer interactions", () => {
             await expect(separatorLeft).toBeFocused();
           }
         });
+      });
+
+      // See github.com/bvaughn/react-resizable-panels/issues/645
+      test("should update separator state when the cursor mouses over an iframe", async ({
+        page: mainPage
+      }) => {
+        const page = await goToUrl(
+          mainPage,
+          <Group className="gap-0!">
+            <Panel className="p-0! *:p-0!" id="left">
+              <IFrame className="w-full h-full" />
+            </Panel>
+            <Separator id="separator" />
+            <Panel className="p-0! *:p-0!" id="right" />
+          </Group>,
+          { usePopUpWindow }
+        );
+
+        const separator = page.getByTestId("separator");
+
+        const { x, y } = getCenterCoordinates((await separator.boundingBox())!);
+
+        await expect(separator).toHaveAttribute("data-separator", "inactive");
+
+        await page.mouse.move(x, y);
+        await expect(separator).toHaveAttribute("data-separator", "hover");
+
+        await page.mouse.move(x - 25, y);
+        await expect(separator).toHaveAttribute("data-separator", "inactive");
       });
     });
   }

@@ -7,6 +7,7 @@ import type { ContainerProps } from "../../../src/components/Container";
 import type { DisplayModeToggleProps } from "../../../src/components/DisplayModeToggle";
 import type { PopupWindowProps } from "../../../src/components/PopupWindow";
 import type { ClickableProps } from "../../../src/components/Clickable";
+import type { IFrameProps } from "../../components/IFrame";
 
 type EncodedElementWithChildren<Props extends object = object> = Omit<
   Props,
@@ -31,6 +32,11 @@ export interface EncodedDisplayModeToggleElement {
 export interface EncodedGroupElement {
   props: EncodedElementWithChildren<GroupProps>;
   type: "Group";
+}
+
+export interface EncodedIFrameElement {
+  props: IFrameProps;
+  type: "IFrame";
 }
 
 export interface EncodedPanelElement {
@@ -63,6 +69,7 @@ export type EncodedElement =
   | EncodedContainerElement
   | EncodedDisplayModeToggleElement
   | EncodedGroupElement
+  | EncodedIFrameElement
   | EncodedPanelElement
   | EncodedPopupWindowElement
   | EncodedSeparatorElement
