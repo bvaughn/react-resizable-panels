@@ -29,12 +29,14 @@ import type {
   EncodedDisplayModeToggleElement,
   EncodedElement,
   EncodedGroupElement,
+  EncodedIFrameElement,
   EncodedPanelElement,
   EncodedPopupWindowElement,
   EncodedSeparatorElement,
   EncodedTextElement,
   TextProps
 } from "./types";
+import { IFrame, type IFrameProps } from "../../components/IFrame";
 
 export function encode(element: ReactElement<unknown>) {
   const json = encodeChildren([element]);
@@ -70,6 +72,10 @@ function encodeChildren(children: ReactElement<unknown>[]): EncodedElement[] {
       }
       case Group: {
         elements.push(encodeGroup(current as ReactElement<GroupProps>));
+        break;
+      }
+      case IFrame: {
+        elements.push(encodeIFrame(current as ReactElement<IFrameProps>));
         break;
       }
       case Panel: {
@@ -160,6 +166,15 @@ function encodeGroup(element: ReactElement<GroupProps>): EncodedGroupElement {
       children: encodedChildren.length > 0 ? encodedChildren : undefined
     },
     type: "Group"
+  };
+}
+
+function encodeIFrame(
+  element: ReactElement<IFrameProps>
+): EncodedIFrameElement {
+  return {
+    props: element.props,
+    type: "IFrame"
   };
 }
 

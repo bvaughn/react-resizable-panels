@@ -17,12 +17,14 @@ import type {
   EncodedDisplayModeToggleElement,
   EncodedElement,
   EncodedGroupElement,
+  EncodedIFrameElement,
   EncodedPanelElement,
   EncodedPopupWindowElement,
   EncodedSeparatorElement,
   EncodedTextElement,
   TextProps
 } from "./types";
+import { IFrame } from "../../components/IFrame";
 
 type Config = {
   groupProps?: Partial<GroupProps>;
@@ -63,6 +65,10 @@ function decodeChildren(
       }
       case "Group": {
         elements.push(decodeGroup(current, config));
+        break;
+      }
+      case "IFrame": {
+        elements.push(decodeIFrame(current));
         break;
       }
       case "Panel": {
@@ -134,6 +140,13 @@ function decodeGroup(
     ...props,
     ...config.groupProps,
     children: children ? decodeChildren(children, config) : undefined
+  });
+}
+
+function decodeIFrame(json: EncodedIFrameElement): ReactElement<PanelProps> {
+  return createElement(IFrame, {
+    key: ++key,
+    ...json.props
   });
 }
 
