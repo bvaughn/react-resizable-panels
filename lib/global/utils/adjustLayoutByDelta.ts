@@ -146,8 +146,6 @@ export function adjustLayoutByDelta({
 
         const { collapsible, collapsedSize, minSize } = panelConstraints;
         if (collapsible) {
-          const isSecondPanel = index === secondPivotIndex;
-
           // DEBUG.push(`  -> collapsible ${isSecondPanel ? "2nd" : "1st"} panel`);
           if (delta > 0) {
             const gapSize = minSize - collapsedSize;
@@ -170,30 +168,15 @@ export function adjustLayoutByDelta({
             // DEBUG.push(`     between collapsed: ${100 - collapsedSize}`);
             // DEBUG.push(`       and min: ${100 - minSize}`);
 
-            if (isSecondPanel) {
-              if (compareLayoutNumbers(Math.abs(delta), gapSize) < 0) {
-                // DEBUG.push("  -> adjusting delta");
-                // DEBUG.push(`       from: ${delta}`);
-                delta =
-                  compareLayoutNumbers(100 + delta, halfwayPoint) > 0
-                    ? 0
-                    : -gapSize;
-                // DEBUG.push(`       to: ${delta}`);
-              } else {
-                // DEBUG.push("    -> skip");
-              }
-            } else {
-              if (compareLayoutNumbers(100 + delta, gapSize) < 0) {
-                // DEBUG.push("  -> adjusting delta");
-                // DEBUG.push(`       from: ${delta}`);
-                delta =
-                  compareLayoutNumbers(100 + delta, halfwayPoint) > 0
-                    ? 0
-                    : -gapSize;
-                // DEBUG.push(`       to: ${delta}`);
-              } else {
-                // DEBUG.push("    -> skip");
-              }
+            //if (isSecondPanel) {
+            if (compareLayoutNumbers(Math.abs(delta), gapSize) < 0) {
+              // DEBUG.push("  -> adjusting delta");
+              // DEBUG.push(`       from: ${delta}`);
+              delta =
+                compareLayoutNumbers(100 + delta, halfwayPoint) > 0
+                  ? 0
+                  : -gapSize;
+              // DEBUG.push(`       to: ${delta}`);
             }
           }
         }
