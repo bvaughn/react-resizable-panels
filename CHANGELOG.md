@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.5.7
 
 - [646](https://github.com/bvaughn/react-resizable-panels/pull/646): Re-enable the collapsible `Panel` from 4.5.3 that was disabled in 4.5.6
 - [648](https://github.com/bvaughn/react-resizable-panels/pull/648): **Bugfix**: Reset `Separator` hover-state on `Document` "pointerout"
