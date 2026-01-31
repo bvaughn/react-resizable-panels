@@ -1939,7 +1939,7 @@ describe("adjustLayoutByDelta", () => {
   // Edge case issues/210 and issues/629
   describe("collapsible panel thresholds", () => {
     ["left", "right"].forEach((panelId) => {
-      describe(`${panelId} panel`, () => {
+      describe(`${panelId} panel with collapsedSize:0`, () => {
         const collapsiblePanelConstraints = {
           collapsedSize: 0,
           collapsible: true,
@@ -1953,96 +1953,106 @@ describe("adjustLayoutByDelta", () => {
             ? c([collapsiblePanelConstraints, {}])
             : c([{}, collapsiblePanelConstraints]);
 
-        test.each([
-          [
-            "remain open if delta is less than minimum threshold",
-            {
-              initialLayout: open,
-              prevLayout: open,
-              delta: panelId === "left" ? -4 : 4,
-              expectedLayout: open
-            }
-          ],
-          [
-            "close if delta is greater than minimum threshold",
-            {
-              initialLayout: open,
-              prevLayout: open,
-              delta: panelId === "left" ? -6 : 6,
-              expectedLayout: closed
-            }
-          ],
-          [
-            "re-open if delta is less than minimum threshold",
-            {
-              initialLayout: open,
-              prevLayout: closed,
-              delta: panelId === "left" ? -4 : 4,
-              expectedLayout: open
-            }
-          ],
-          [
-            "remain closed if delta is more than minimum threshold",
-            {
-              initialLayout: open,
-              prevLayout: closed,
-              delta: panelId === "left" ? -6 : 6,
-              expectedLayout: closed
-            }
-          ],
-          [
-            "remain closed if delta is less than minimum threshold",
-            {
-              initialLayout: closed,
-              prevLayout: closed,
-              delta: panelId === "left" ? 4 : -4,
-              expectedLayout: closed
-            }
-          ],
-          // TODO Re-enable if/when this behavior change is re-enabled
-          // [
-          //   "open if delta is greater than minimum threshold",
-          //   {
-          //     initialLayout: closed,
-          //     prevLayout: closed,
-          //     delta: panelId === "left" ? 6 : -6,
-          //     expectedLayout: open
-          //   }
-          // ],
-          // [
-          //   "close if delta is less than minimum threshold",
-          //   {
-          //     initialLayout: closed,
-          //     prevLayout: open,
-          //     delta: panelId === "left" ? 4 : -4,
-          //     expectedLayout: closed
-          //   }
-          // ],
-          [
-            "remain open if delta is more than minimum threshold",
-            {
-              initialLayout: closed,
-              prevLayout: open,
-              delta: panelId === "left" ? 6 : -6,
-              expectedLayout: open
-            }
-          ]
-        ])("%s", (_, { initialLayout, prevLayout, delta, expectedLayout }) => {
+        test("remain open if delta is less than minimum threshold", () => {
           expect(
             adjustLayoutByDelta({
-              delta,
-              initialLayout,
+              delta: panelId === "left" ? -4 : 4,
+              initialLayout: open,
               panelConstraints,
-              prevLayout,
+              prevLayout: open,
               trigger: "mouse-or-touch"
             })
-          ).toEqual(expectedLayout);
+          ).toEqual(open);
+        });
+
+        test("close if delta is greater than minimum threshold", () => {
+          expect(
+            adjustLayoutByDelta({
+              delta: panelId === "left" ? -6 : 6,
+              initialLayout: open,
+              panelConstraints,
+              prevLayout: open,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(closed);
+        });
+
+        test("re-open if delta is less than minimum threshold", () => {
+          expect(
+            adjustLayoutByDelta({
+              delta: panelId === "left" ? -4 : 4,
+              initialLayout: open,
+              panelConstraints,
+              prevLayout: closed,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(open);
+        });
+
+        test("remain closed if delta is more than minimum threshold", () => {
+          expect(
+            adjustLayoutByDelta({
+              delta: panelId === "left" ? -6 : 6,
+              initialLayout: open,
+              panelConstraints,
+              prevLayout: closed,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(closed);
+        });
+
+        test("remain closed if delta is less than minimum threshold", () => {
+          expect(
+            adjustLayoutByDelta({
+              delta: panelId === "left" ? 4 : -4,
+              initialLayout: closed,
+              panelConstraints,
+              prevLayout: closed,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(closed);
+        });
+
+        // TODO Re-enable if/when this behavior change is re-enabled
+        test.skip("open if delta is greater than minimum threshold", () => {
+          expect(
+            adjustLayoutByDelta({
+              delta: panelId === "left" ? 6 : -6,
+              initialLayout: closed,
+              panelConstraints,
+              prevLayout: closed,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(open);
+        });
+
+        // TODO Re-enable if/when this behavior change is re-enabled
+        test.skip("close if delta is less than minimum threshold", () => {
+          expect(
+            adjustLayoutByDelta({
+              delta: panelId === "left" ? 4 : -4,
+              initialLayout: closed,
+              panelConstraints,
+              prevLayout: open,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(closed);
+        });
+
+        test("remain open if delta is more than minimum threshold", () => {
+          expect(
+            adjustLayoutByDelta({
+              delta: panelId === "left" ? 6 : -6,
+              initialLayout: closed,
+              panelConstraints,
+              prevLayout: open,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(open);
         });
       });
-    });
 
-    ["left", "right"].forEach((panelId) => {
-      describe(`${panelId} panel`, () => {
+      describe(`${panelId} panel with collapsedSize:5`, () => {
         const collapsiblePanelConstraints = {
           collapsedSize: 5,
           collapsible: true,
@@ -2056,90 +2066,102 @@ describe("adjustLayoutByDelta", () => {
             ? c([collapsiblePanelConstraints, {}])
             : c([{}, collapsiblePanelConstraints]);
 
-        test.each([
-          [
-            "remain open if delta is less than minimum threshold",
-            {
-              initialLayout: open,
-              prevLayout: open,
-              delta: panelId === "left" ? -4 : 4,
-              expectedLayout: open
-            }
-          ],
-          [
-            "close if delta is greater than minimum threshold",
-            {
-              initialLayout: open,
-              prevLayout: open,
-              delta: panelId === "left" ? -6 : 6,
-              expectedLayout: closed
-            }
-          ],
-          [
-            "re-open if delta is less than minimum threshold",
-            {
-              initialLayout: open,
-              prevLayout: closed,
-              delta: panelId === "left" ? -4 : 4,
-              expectedLayout: open
-            }
-          ],
-          [
-            "remain closed if delta is more than minimum threshold",
-            {
-              initialLayout: open,
-              prevLayout: closed,
-              delta: panelId === "left" ? -6 : 6,
-              expectedLayout: closed
-            }
-          ],
-          [
-            "remain closed if delta is less than minimum threshold",
-            {
-              initialLayout: closed,
-              prevLayout: closed,
-              delta: panelId === "left" ? 4 : -4,
-              expectedLayout: closed
-            }
-          ],
-          // TODO Re-enable if/when this behavior change is re-enabled
-          // [
-          //   "open if delta is greater than minimum threshold",
-          //   {
-          //     initialLayout: closed,
-          //     prevLayout: closed,
-          //     delta: panelId === "left" ? 6 : -6,
-          //     expectedLayout: open
-          //   }
-          // ],
-          // [
-          //   "close if delta is less than minimum threshold",
-          //   {
-          //     initialLayout: closed,
-          //     prevLayout: open,
-          //     delta: panelId === "left" ? 4 : -4,
-          //     expectedLayout: closed
-          //   }
-          // ],
-          [
-            "remain open if delta is more than minimum threshold",
-            {
-              initialLayout: closed,
-              prevLayout: open,
-              delta: panelId === "left" ? 6 : -6,
-              expectedLayout: open
-            }
-          ]
-        ])("%s", (_, { initialLayout, prevLayout, delta, expectedLayout }) => {
+        test("remain open if delta is less than minimum threshold", () => {
           expect(
             adjustLayoutByDelta({
-              delta,
-              initialLayout,
+              delta: panelId === "left" ? -4 : 4,
+              initialLayout: open,
               panelConstraints,
-              prevLayout,
+              prevLayout: open,
               trigger: "mouse-or-touch"
             })
-          ).toEqual(expectedLayout);
+          ).toEqual(open);
+        });
+
+        test("close if delta is greater than minimum threshold", () => {
+          expect(
+            adjustLayoutByDelta({
+              delta: panelId === "left" ? -6 : 6,
+              initialLayout: open,
+              panelConstraints,
+              prevLayout: open,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(closed);
+        });
+
+        test("re-open if delta is less than minimum threshold", () => {
+          expect(
+            adjustLayoutByDelta({
+              delta: panelId === "left" ? -4 : 4,
+              initialLayout: open,
+              panelConstraints,
+              prevLayout: closed,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(open);
+        });
+
+        test("remain closed if delta is more than minimum threshold", () => {
+          expect(
+            adjustLayoutByDelta({
+              delta: panelId === "left" ? -6 : 6,
+              initialLayout: open,
+              panelConstraints,
+              prevLayout: closed,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(closed);
+        });
+
+        test("remain closed if delta is less than minimum threshold", () => {
+          expect(
+            adjustLayoutByDelta({
+              delta: panelId === "left" ? 4 : -4,
+              initialLayout: closed,
+              panelConstraints,
+              prevLayout: closed,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(closed);
+        });
+
+        // TODO Re-enable if/when this behavior change is re-enabled
+        test.skip("open if delta is greater than minimum threshold", () => {
+          expect(
+            adjustLayoutByDelta({
+              delta: panelId === "left" ? 6 : -6,
+              initialLayout: closed,
+              panelConstraints,
+              prevLayout: closed,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(open);
+        });
+
+        // TODO Re-enable if/when this behavior change is re-enabled
+        test.skip("close if delta is less than minimum threshold", () => {
+          expect(
+            adjustLayoutByDelta({
+              delta: panelId === "left" ? 4 : -4,
+              initialLayout: closed,
+              panelConstraints,
+              prevLayout: open,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(closed);
+        });
+
+        test("remain open if delta is more than minimum threshold", () => {
+          expect(
+            adjustLayoutByDelta({
+              delta: panelId === "left" ? 6 : -6,
+              initialLayout: closed,
+              panelConstraints,
+              prevLayout: open,
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(open);
         });
       });
     });
@@ -2151,54 +2173,31 @@ describe("adjustLayoutByDelta", () => {
         minSize: 15
       };
 
-      test.each([
-        [
-          "expand left when there are multiple panels",
-          {
+      test("expand left when there are multiple panels", () => {
+        expect(
+          adjustLayoutByDelta({
             delta: -70,
             initialLayout: l([25, 50, 25]),
             panelConstraints: c([{}, {}, collapsibleConstraints]),
             prevLayout: l([25, 50, 25]),
-            expectedLayout: l([5, 0, 95]),
-            pivotIndices: [1, 2]
-          }
-        ],
-        [
-          "expand right when there are multiple panels",
-          {
+            pivotIndices: [1, 2],
+            trigger: "mouse-or-touch"
+          })
+        ).toEqual(l([5, 0, 95]));
+      });
+
+      test("expand right when there are multiple panels", () => {
+        expect(
+          adjustLayoutByDelta({
             delta: 70,
             initialLayout: l([25, 50, 25]),
             panelConstraints: c([collapsibleConstraints, {}, {}]),
             prevLayout: l([25, 50, 25]),
-            expectedLayout: l([95, 0, 5]),
-            pivotIndices: [0, 1]
-          }
-        ]
-      ])(
-        "%s",
-        (
-          _,
-          {
-            delta,
-            initialLayout,
-            panelConstraints,
-            prevLayout,
-            pivotIndices,
-            expectedLayout
-          }
-        ) => {
-          expect(
-            adjustLayoutByDelta({
-              delta,
-              initialLayout,
-              panelConstraints,
-              pivotIndices,
-              prevLayout,
-              trigger: "mouse-or-touch"
-            })
-          ).toEqual(expectedLayout);
-        }
-      );
+            pivotIndices: [0, 1],
+            trigger: "mouse-or-touch"
+          })
+        ).toEqual(l([95, 0, 5]));
+      });
     });
   });
 });
