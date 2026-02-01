@@ -1,13 +1,13 @@
 export { Group } from "./components/group/Group";
-export { useDefaultLayout } from "./components/group/useDefaultLayout";
-export { useGroupCallbackRef } from "./components/group/useGroupCallbackRef";
-export { useGroupRef } from "./components/group/useGroupRef";
+export { useDefaultLayout } from "./components/group/hooks/useDefaultLayout";
+export { useGroupCallbackRef } from "./components/group/hooks/useGroupCallbackRef";
+export { useGroupRef } from "./components/group/hooks/useGroupRef";
+export { usePanelCallbackRef } from "./components/panel/hooks/usePanelCallbackRef";
+export { usePanelRef } from "./components/panel/hooks/usePanelRef";
 export { Panel } from "./components/panel/Panel";
-export { usePanelCallbackRef } from "./components/panel/usePanelCallbackRef";
-export { usePanelRef } from "./components/panel/usePanelRef";
 export { Separator } from "./components/separator/Separator";
 
-export { isCoarsePointer } from "./global/utils/isCoarsePointer";
+export { isCoarsePointer } from "./utils/isCoarsePointer";
 
 export type {
   GroupImperativeHandle,

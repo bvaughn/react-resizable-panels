@@ -1,14 +1,9 @@
 "use client";
 
-import { useRef, type CSSProperties } from "react";
-import { useForceUpdate } from "../../hooks/useForceUpdate";
-import { useId } from "../../hooks/useId";
-import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
+import { useImperativeHandle, useRef } from "react";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
-import { useStableCallback } from "../../hooks/useStableCallback";
-import { useGroupContext } from "../group/useGroupContext";
-import type { PanelProps, PanelSize } from "./types";
-import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
+import { useMutablePanel } from "./hooks/useMutablePanel";
+import type { PanelProps } from "./types";
 
 /**
  * A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.
@@ -38,81 +33,33 @@ import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
 export function Panel({
   children,
   className,
-  collapsedSize = "0%",
-  collapsible = false,
+  collapsedSize,
+  collapsible,
   defaultSize,
   elementRef: elementRefProp,
   id: idProp,
-  maxSize = "100%",
-  minSize = "0%",
-  onResize: onResizeUnstable,
+  maxSize,
+  minSize,
+  onResize,
   panelRef,
-  style,
+  style: styleProp,
   ...rest
 }: PanelProps) {
-  const idIsStable = !!idProp;
-
-  const id = useId(idProp);
-
   const elementRef = useRef<HTMLDivElement | null>(null);
-
   const mergedRef = useMergedRefs(elementRef, elementRefProp);
 
-  const [, forceUpdate] = useForceUpdate();
-
-  const { getPanelStyles, id: groupId, registerPanel } = useGroupContext();
-
-  const hasOnResize = onResizeUnstable !== null;
-  const onResizeStable = useStableCallback(
-    (
-      panelSize: PanelSize,
-      _: string | number | undefined,
-      prevPanelSize: PanelSize | undefined
-    ) => {
-      onResizeUnstable?.(panelSize, idProp, prevPanelSize);
-    }
-  );
-
-  // Register Panel with parent Group
-  useIsomorphicLayoutEffect(() => {
-    const element = elementRef.current;
-    if (element !== null) {
-      return registerPanel({
-        element,
-        id,
-        idIsStable,
-        mutableValues: {
-          expandToSize: undefined,
-          prevSize: undefined
-        },
-        onResize: hasOnResize ? onResizeStable : undefined,
-        panelConstraints: {
-          collapsedSize,
-          collapsible,
-          defaultSize,
-          maxSize,
-          minSize
-        },
-        scheduleUpdate: forceUpdate
-      });
-    }
-  }, [
+  const { id, imperativeHandle, style } = useMutablePanel({
     collapsedSize,
     collapsible,
+    elementRef,
     defaultSize,
-    forceUpdate,
-    hasOnResize,
-    id,
-    idIsStable,
+    id: idProp,
     maxSize,
     minSize,
-    onResizeStable,
-    registerPanel
-  ]);
+    onResize
+  });
 
-  usePanelImperativeHandle(id, panelRef);
-
-  const panelStyles = getPanelStyles(groupId, id);
+  useImperativeHandle(panelRef, () => imperativeHandle, [imperativeHandle]);
 
   return (
     <div
@@ -121,18 +68,7 @@ export function Panel({
       data-testid={id}
       id={id}
       ref={mergedRef}
-      style={{
-        ...PROHIBITED_CSS_PROPERTIES,
-
-        display: "flex",
-        flexBasis: 0,
-        flexShrink: 1,
-
-        // Prevent Panel content from interfering with panel size
-        overflow: "hidden",
-
-        ...panelStyles
-      }}
+      style={style}
     >
       <div
         className={className}
@@ -141,7 +77,7 @@ export function Panel({
           maxWidth: "100%",
           flexGrow: 1,
 
-          ...style
+          ...styleProp
         }}
       >
         {children}
@@ -152,18 +88,3 @@ export function Panel({
 
 // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/displayName
 Panel.displayName = "Panel";
-
-const PROHIBITED_CSS_PROPERTIES: CSSProperties = {
-  minHeight: 0,
-  maxHeight: "100%",
-  height: "auto",
-
-  minWidth: 0,
-  maxWidth: "100%",
-  width: "auto",
-
-  border: "none",
-  borderWidth: 0,
-  padding: 0,
-  margin: 0
-};

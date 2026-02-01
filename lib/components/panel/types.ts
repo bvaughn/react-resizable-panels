@@ -20,19 +20,6 @@ export type PanelConstraints = {
 
 export type SizeUnit = "px" | "%" | "em" | "rem" | "vh" | "vw";
 
-export type RegisteredPanel = {
-  id: string;
-  idIsStable: boolean;
-  element: HTMLDivElement;
-  mutableValues: {
-    expandToSize: number | undefined;
-    prevSize: PanelSize | undefined;
-  };
-  onResize: OnPanelResize | undefined;
-  panelConstraints: PanelConstraintProps;
-  scheduleUpdate: () => void;
-};
-
 /**
  * Imperative Panel API
  *
@@ -176,7 +163,11 @@ export type PanelProps = BasePanelAttributes & {
   style?: CSSProperties | undefined;
 };
 
-export type OnPanelResize = PanelProps["onResize"];
+export type OnPanelResize = (
+  panelSize: PanelSize,
+  id: string | number | undefined,
+  prevPanelSize: PanelSize | undefined
+) => void;
 
 /**
  * Size constraints may be specified in a variety of ways:

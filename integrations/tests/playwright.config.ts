@@ -13,7 +13,7 @@ const DEVICES = [
     }
   },
   {
-    name: "chromium: popup",
+    name: "chromium:popup",
     use: {
       ...devices["Desktop Chrome"],
       usePopUpWindow: true

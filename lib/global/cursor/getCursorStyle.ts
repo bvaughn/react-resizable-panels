@@ -1,12 +1,6 @@
 import type { Properties } from "csstype";
-import type { RegisteredGroup } from "../../components/group/types";
-import {
-  CURSOR_FLAG_HORIZONTAL_MAX,
-  CURSOR_FLAG_HORIZONTAL_MIN,
-  CURSOR_FLAG_VERTICAL_MAX,
-  CURSOR_FLAG_VERTICAL_MIN
-} from "../../constants";
-import type { InteractionState } from "../types";
+import { CursorFlags } from "../../constants";
+import type { MutableGroup } from "../../state/MutableGroup";
 import { supportsAdvancedCursorStyles } from "./supportsAdvancedCursorStyles";
 
 export function getCursorStyle({
@@ -15,9 +9,9 @@ export function getCursorStyle({
   state
 }: {
   cursorFlags: number;
-  groups: RegisteredGroup[];
-  state: InteractionState["state"];
-}): Properties["cursor"] | null {
+  groups: MutableGroup[];
+  state: "active" | "hover" | "inactive";
+}): Properties["cursor"] {
   let horizontalCount = 0;
   let verticalCount = 0;
 
@@ -44,19 +38,17 @@ export function getCursorStyle({
   }
 
   if (horizontalCount === 0 && verticalCount === 0) {
-    return null;
+    return undefined;
   }
 
   switch (state) {
     case "active": {
       if (cursorFlags) {
         if (supportsAdvancedCursorStyles()) {
-          const horizontalMin =
-            (cursorFlags & CURSOR_FLAG_HORIZONTAL_MIN) !== 0;
-          const horizontalMax =
-            (cursorFlags & CURSOR_FLAG_HORIZONTAL_MAX) !== 0;
-          const verticalMin = (cursorFlags & CURSOR_FLAG_VERTICAL_MIN) !== 0;
-          const verticalMax = (cursorFlags & CURSOR_FLAG_VERTICAL_MAX) !== 0;
+          const horizontalMin = (cursorFlags & CursorFlags.horizontalMin) !== 0;
+          const horizontalMax = (cursorFlags & CursorFlags.horizontalMax) !== 0;
+          const verticalMin = (cursorFlags & CursorFlags.verticalMin) !== 0;
+          const verticalMax = (cursorFlags & CursorFlags.verticalMax) !== 0;
 
           if (horizontalMin) {
             if (verticalMin) {
