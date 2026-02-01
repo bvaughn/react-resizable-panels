@@ -1,9 +1,23 @@
 import { defineConfig, devices } from "@playwright/test";
 
+export type ExtendedUseOptions = {
+  usePopUpWindow: boolean;
+};
+
 const DEVICES = [
   {
     name: "chromium",
-    use: devices["Desktop Chrome"]
+    use: {
+      ...devices["Desktop Chrome"],
+      usePopUpWindow: false
+    }
+  },
+  {
+    name: "chromium: popup",
+    use: {
+      ...devices["Desktop Chrome"],
+      usePopUpWindow: true
+    }
   }
 ];
 

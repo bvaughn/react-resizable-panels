@@ -1,5 +1,7 @@
 import type { Page } from "@playwright/test";
+import { test } from "@playwright/test";
 import { createElement, type ReactElement } from "react";
+import type { ExtendedUseOptions } from "../../playwright.config";
 import { PopupWindow } from "../../src/components/PopupWindow";
 import { encode } from "./serializer/encode";
 
@@ -11,15 +13,16 @@ export async function goToUrl(
     useGroupRef?: boolean | undefined;
     usePanelCallbackRef?: boolean | undefined;
     usePanelRef?: boolean | undefined;
-    usePopUpWindow?: boolean | undefined;
   } = {}
 ): Promise<Page> {
+  const usePopUpWindow = (test.info().project.use as ExtendedUseOptions)
+    .usePopUpWindow;
+
   const {
     useGroupCallbackRef = false,
     useGroupRef = false,
     usePanelCallbackRef = false,
-    usePanelRef = false,
-    usePopUpWindow = false
+    usePanelRef = false
   } = config;
 
   let element = elementProp;

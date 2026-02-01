@@ -10,237 +10,228 @@ import { goToUrl } from "../src/utils/goToUrl";
 const moveConfig = { steps: 10 };
 
 test.describe("cursor", () => {
-  for (const usePopUpWindow of [true, false]) {
-    test.describe(usePopUpWindow ? "in a popup" : "in the main window", () => {
-      test("horizontal", async ({ page: mainPage }) => {
-        const page = await goToUrl(
-          mainPage,
+  test("horizontal", async ({ page: mainPage }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Group orientation="horizontal">
+        <Panel id="left" minSize="25%" />
+        <Separator />
+        <Panel id="right" minSize="25%" />
+      </Group>
+    );
+
+    const hitAreaBox = await calculateHitArea(page, ["left", "right"]);
+    const { x, y } = getCenterCoordinates(hitAreaBox);
+
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("auto");
+
+    await page.mouse.move(x, y, moveConfig);
+
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("ew-resize");
+
+    await page.mouse.down();
+    await page.mouse.move(25, y, moveConfig);
+
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("e-resize");
+
+    await page.mouse.move(975, y, moveConfig);
+
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("w-resize");
+  });
+
+  test("vertical", async ({ page: mainPage }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Group orientation="vertical">
+        <Panel id="top" minSize="25%" />
+        <Separator />
+        <Panel id="bottom" minSize="25%" />
+      </Group>
+    );
+
+    const hitAreaBox = await calculateHitArea(page, ["top", "bottom"]);
+    const { x, y } = getCenterCoordinates(hitAreaBox);
+
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("auto");
+
+    await page.mouse.move(x, y, moveConfig);
+
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("ns-resize");
+
+    await page.mouse.down();
+    await page.mouse.move(x, 0, moveConfig);
+
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("s-resize");
+
+    await page.mouse.move(x, 600, moveConfig);
+
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("n-resize");
+  });
+
+  test("intersecting", async ({ page: mainPage }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Group className="h-[250px]!" orientation="vertical">
+        <Panel id="top" minSize="25%" />
+        <Separator id="vertical-separator" />
+        <Panel id="bottom" minSize="25%">
           <Group orientation="horizontal">
             <Panel id="left" minSize="25%" />
             <Separator />
             <Panel id="right" minSize="25%" />
-          </Group>,
-          { usePopUpWindow }
-        );
+          </Group>
+        </Panel>
+      </Group>
+    );
 
-        const hitAreaBox = await calculateHitArea(page, ["left", "right"]);
-        const { x, y } = getCenterCoordinates(hitAreaBox);
+    const separator = page.getByTestId("vertical-separator");
+    const boundingBox = (await separator.boundingBox())!;
+    const x = boundingBox.x + boundingBox.width / 2;
+    const y = boundingBox.y;
 
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("auto");
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("auto");
 
-        await page.mouse.move(x, y, moveConfig);
+    // Centered
+    await page.mouse.move(x, y, moveConfig);
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("move");
 
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("ew-resize");
+    // Top left
+    await page.mouse.down();
+    await page.mouse.move(1, 1, moveConfig);
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("se-resize");
 
-        await page.mouse.down();
-        await page.mouse.move(25, y, moveConfig);
+    // Top
+    await page.mouse.move(x, 0, moveConfig);
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("s-resize");
 
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("e-resize");
+    // Top right
+    await page.mouse.move(1000, 1, moveConfig);
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("sw-resize");
 
-        await page.mouse.move(975, y, moveConfig);
+    // Right
+    await page.mouse.move(975, y, moveConfig);
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("w-resize");
 
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("w-resize");
-      });
+    // Bottom right
+    await page.mouse.move(1000, 600, moveConfig);
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("nw-resize");
 
-      test("vertical", async ({ page: mainPage }) => {
-        const page = await goToUrl(
-          mainPage,
-          <Group orientation="vertical">
-            <Panel id="top" minSize="25%" />
+    // Bottom
+    await page.mouse.move(x, 600, moveConfig);
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("n-resize");
+
+    // Bottom left
+    await page.mouse.move(1, 600, moveConfig);
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("ne-resize");
+
+    // Left
+    await page.mouse.move(25, y, moveConfig);
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("e-resize");
+
+    // Centered
+    await page.mouse.move(x, y, moveConfig);
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("move");
+  });
+
+  test("edge case", async ({ page: mainPage }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Group className="h-[250px]!" orientation="vertical">
+        <Panel id="top" minSize="25%" />
+        <Separator id="vertical-separator" />
+        <Panel id="bottom" minSize="25%">
+          <Group orientation="horizontal">
+            <Panel id="left" minSize="25%" />
             <Separator />
-            <Panel id="bottom" minSize="25%" />
-          </Group>,
-          { usePopUpWindow }
-        );
+            <Panel id="right" minSize="25%" />
+          </Group>
+        </Panel>
+      </Group>
+    );
 
-        const hitAreaBox = await calculateHitArea(page, ["top", "bottom"]);
-        const { x, y } = getCenterCoordinates(hitAreaBox);
+    const separator = page.getByTestId("vertical-separator");
+    const boundingBox = (await separator.boundingBox())!;
+    const x = boundingBox.x + boundingBox.width / 2;
+    const y = boundingBox.y;
 
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("auto");
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("auto");
 
-        await page.mouse.move(x, y, moveConfig);
+    // Centered
+    await page.mouse.move(x, y, moveConfig);
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("move");
 
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("ns-resize");
+    await page.mouse.down();
 
-        await page.mouse.down();
-        await page.mouse.move(x, 0, moveConfig);
+    // Moving only in one dimension should not affect the cursor
+    await page.mouse.move(x, y - 25, moveConfig);
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("move");
+  });
 
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("s-resize");
+  test("disabled", async ({ page: mainPage }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Group disableCursor orientation="vertical">
+        <Panel id="top" minSize="25%" />
+        <Separator />
+        <Panel id="bottom" minSize="25%" />
+      </Group>
+    );
 
-        await page.mouse.move(x, 600, moveConfig);
+    const hitAreaBox = await calculateHitArea(page, ["top", "bottom"]);
+    const { x, y } = getCenterCoordinates(hitAreaBox);
 
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("n-resize");
-      });
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("auto");
 
-      test("intersecting", async ({ page: mainPage }) => {
-        const page = await goToUrl(
-          mainPage,
-          <Group className="h-[250px]!" orientation="vertical">
-            <Panel id="top" minSize="25%" />
-            <Separator id="vertical-separator" />
-            <Panel id="bottom" minSize="25%">
-              <Group orientation="horizontal">
-                <Panel id="left" minSize="25%" />
-                <Separator />
-                <Panel id="right" minSize="25%" />
-              </Group>
-            </Panel>
-          </Group>,
-          { usePopUpWindow }
-        );
+    await page.mouse.move(x, y, moveConfig);
 
-        const separator = page.getByTestId("vertical-separator");
-        const boundingBox = (await separator.boundingBox())!;
-        const x = boundingBox.x + boundingBox.width / 2;
-        const y = boundingBox.y;
-
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("auto");
-
-        // Centered
-        await page.mouse.move(x, y, moveConfig);
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("move");
-
-        // Top left
-        await page.mouse.down();
-        await page.mouse.move(1, 1, moveConfig);
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("se-resize");
-
-        // Top
-        await page.mouse.move(x, 0, moveConfig);
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("s-resize");
-
-        // Top right
-        await page.mouse.move(1000, 1, moveConfig);
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("sw-resize");
-
-        // Right
-        await page.mouse.move(975, y, moveConfig);
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("w-resize");
-
-        // Bottom right
-        await page.mouse.move(1000, 600, moveConfig);
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("nw-resize");
-
-        // Bottom
-        await page.mouse.move(x, 600, moveConfig);
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("n-resize");
-
-        // Bottom left
-        await page.mouse.move(1, 600, moveConfig);
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("ne-resize");
-
-        // Left
-        await page.mouse.move(25, y, moveConfig);
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("e-resize");
-
-        // Centered
-        await page.mouse.move(x, y, moveConfig);
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("move");
-      });
-
-      test("edge case", async ({ page: mainPage }) => {
-        const page = await goToUrl(
-          mainPage,
-          <Group className="h-[250px]!" orientation="vertical">
-            <Panel id="top" minSize="25%" />
-            <Separator id="vertical-separator" />
-            <Panel id="bottom" minSize="25%">
-              <Group orientation="horizontal">
-                <Panel id="left" minSize="25%" />
-                <Separator />
-                <Panel id="right" minSize="25%" />
-              </Group>
-            </Panel>
-          </Group>,
-          { usePopUpWindow }
-        );
-
-        const separator = page.getByTestId("vertical-separator");
-        const boundingBox = (await separator.boundingBox())!;
-        const x = boundingBox.x + boundingBox.width / 2;
-        const y = boundingBox.y;
-
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("auto");
-
-        // Centered
-        await page.mouse.move(x, y, moveConfig);
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("move");
-
-        await page.mouse.down();
-
-        // Moving only in one dimension should not affect the cursor
-        await page.mouse.move(x, y - 25, moveConfig);
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("move");
-      });
-
-      test("disabled", async ({ page: mainPage }) => {
-        const page = await goToUrl(
-          mainPage,
-          <Group disableCursor orientation="vertical">
-            <Panel id="top" minSize="25%" />
-            <Separator />
-            <Panel id="bottom" minSize="25%" />
-          </Group>,
-          { usePopUpWindow }
-        );
-
-        const hitAreaBox = await calculateHitArea(page, ["top", "bottom"]);
-        const { x, y } = getCenterCoordinates(hitAreaBox);
-
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("auto");
-
-        await page.mouse.move(x, y, moveConfig);
-
-        expect(
-          await page.evaluate(() => getComputedStyle(document.body).cursor)
-        ).toBe("auto");
-      });
-    });
-  }
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("auto");
+  });
 });
