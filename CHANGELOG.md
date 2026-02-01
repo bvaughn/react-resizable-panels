@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.5.8
 
 - [651](https://github.com/bvaughn/react-resizable-panels/pull/651): Disabled the change to collapsible panel behavior that was originally made in [635](https://github.com/bvaughn/react-resizable-panels/pull/635) due to another reported regression
 
