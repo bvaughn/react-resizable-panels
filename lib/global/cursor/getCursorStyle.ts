@@ -1,12 +1,11 @@
 import type { Properties } from "csstype";
-import type { RegisteredGroup } from "../../components/group/types";
 import {
   CURSOR_FLAG_HORIZONTAL_MAX,
   CURSOR_FLAG_HORIZONTAL_MIN,
   CURSOR_FLAG_VERTICAL_MAX,
   CURSOR_FLAG_VERTICAL_MIN
 } from "../../constants";
-import type { InteractionState } from "../types";
+import type { MutableGroup } from "../../state/MutableGroup";
 import { supportsAdvancedCursorStyles } from "./supportsAdvancedCursorStyles";
 
 export function getCursorStyle({
@@ -15,9 +14,9 @@ export function getCursorStyle({
   state
 }: {
   cursorFlags: number;
-  groups: RegisteredGroup[];
-  state: InteractionState["state"];
-}): Properties["cursor"] | null {
+  groups: MutableGroup[];
+  state: "active" | "hover" | "inactive";
+}): Properties["cursor"] {
   let horizontalCount = 0;
   let verticalCount = 0;
 
@@ -44,7 +43,7 @@ export function getCursorStyle({
   }
 
   if (horizontalCount === 0 && verticalCount === 0) {
-    return null;
+    return undefined;
   }
 
   switch (state) {

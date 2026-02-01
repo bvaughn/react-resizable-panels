@@ -2,7 +2,13 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll, beforeEach, expect, vi } from "vitest";
 import failOnConsole from "vitest-fail-on-console";
-import { resetMockGroupIdCounter } from "./lib/global/test/mockGroup";
+import { MutableGroup } from "./lib/state/MutableGroup";
+import { MutablePanel } from "./lib/state/MutablePanel";
+import { MutableSeparator } from "./lib/state/MutableSeparator";
+import { serializeMutableGroup } from "./lib/state/tests/serializeMutableGroup";
+import { serializeMutablePanel } from "./lib/state/tests/serializeMutablePanel";
+import { serializeMutableSeparator } from "./lib/state/tests/serializeMutableSeparator";
+import { EventEmitter } from "./lib/utils/EventEmitter";
 import { mockBoundingClientRect } from "./lib/utils/test/mockBoundingClientRect";
 import { mockResizeObserver } from "./lib/utils/test/mockResizeObserver";
 
@@ -37,7 +43,91 @@ expect.addSnapshotSerializer({
   }
 });
 
+expect.addSnapshotSerializer({
+  serialize(value, _, indentation) {
+    return serializeMutableGroup(value as MutableGroup, indentation);
+  },
+  test(value) {
+    return value instanceof MutableGroup;
+  }
+});
+
+expect.addSnapshotSerializer({
+  serialize(value, _, indentation) {
+    return serializeMutablePanel(value as MutablePanel, indentation);
+  },
+  test(value) {
+    return value instanceof MutablePanel;
+  }
+});
+
+expect.addSnapshotSerializer({
+  serialize(value, _, indentation) {
+    return serializeMutableSeparator(value as MutableSeparator, indentation);
+  },
+  test(value) {
+    return value instanceof MutableSeparator;
+  }
+});
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GenericEventEmitter = EventEmitter<any>;
+
 expect.extend({
+  toDispatchEvents: (
+    callback: () => unknown,
+    target: EventTarget | GenericEventEmitter,
+    typeCounts: { [type: string]: number }
+  ) => {
+    let message = "";
+    let pass = true;
+
+    const listeners = new Map<string, () => void>();
+
+    for (const type in typeCounts) {
+      const listener = () => {
+        const count = typeCounts[type] ?? 0;
+        if (count === 0) {
+          message = `Unexpected event "${type}" dispatched`;
+          pass = false;
+        } else {
+          typeCounts[type] = count - 1;
+        }
+      };
+
+      if (target instanceof EventTarget) {
+        target.addEventListener(type, listener);
+      } else {
+        target.addListener(type, listener);
+      }
+
+      listeners.set(type, listener);
+    }
+
+    callback();
+
+    listeners.forEach((listener, type) => {
+      if (target instanceof EventTarget) {
+        target.removeEventListener(type, listener);
+      } else {
+        target.removeListener(type, listener);
+      }
+    });
+
+    for (const type in typeCounts) {
+      const count = typeCounts[type] ?? 0;
+      if (count > 0) {
+        message = `Expected event was not dispatched: "${type}"`;
+        pass = false;
+      }
+    }
+
+    return {
+      pass,
+      message: () => message
+    };
+  },
+
   toLogError: (callback: () => unknown, expectedError: string) => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
 
@@ -89,8 +179,6 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
-
-  resetMockGroupIdCounter();
 
   if (unmockBoundingClientRect) {
     unmockBoundingClientRect();
