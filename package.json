@@ -33,6 +33,8 @@
     "compress:og-image": "tsx ./scripts/compress-og-image",
     "e2e:install": "pnpm -C integrations/tests exec playwright install --with-deps",
     "e2e:test": "pnpm -C integrations/tests run test",
+    "e2e:test:main": "pnpm -C integrations/tests run test --project=chromium",
+    "e2e:test:popup": "pnpm -C integrations/tests run test --project=chromium:popup",
     "lint": "eslint .",
     "prerelease": "rimraf dist && pnpm run build:lib",
     "prettier": "prettier --write \"**/*.{css,html,js,json,jsx,ts,tsx}\"",

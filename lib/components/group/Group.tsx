@@ -226,10 +226,6 @@ export function Group({
       if (!defaultLayoutDeferred && derivedPanelConstraints.length > 0) {
         onLayoutChangeStable(layout);
         onLayoutChangedStable(layout);
-
-        inMemoryValues.panels.forEach((panel) => {
-          panel.scheduleUpdate();
-        });
       }
     }
 
@@ -241,14 +237,6 @@ export function Group({
         const nextInteractionStateActive = interactionState.state === "active";
         if (prevInteractionStateActive !== nextInteractionStateActive) {
           prevInteractionStateActive = nextInteractionStateActive;
-
-          // The only reason to schedule a re-render in response to this event type
-          // is to disable pointer-events within a Panel while a drag is in progress
-          // (This is done to prevent text from being selected, etc)
-          // Unnecessary updates should be very fast in this case but we can still avoid them
-          inMemoryValues.panels.forEach((panel) => {
-            panel.scheduleUpdate();
-          });
         }
       }
     );
@@ -275,10 +263,6 @@ export function Group({
           if (isCompleted) {
             onLayoutChangedStable(layout);
           }
-
-          inMemoryValues.panels.forEach((panel) => {
-            panel.scheduleUpdate();
-          });
         }
       }
     );
