@@ -4,7 +4,22 @@ export type EventMap = {
 
 export type EventListener<Data> = (data: Data) => void;
 
-export class EventEmitter<Events extends EventMap> {
+export interface IEventEmitter<Events extends EventMap> {
+  addListener<Type extends keyof Events>(
+    type: Type,
+    listener: EventListener<Events[Type]>
+  ): () => void;
+  emit<Type extends keyof Events>(type: Type, data: Events[Type]): void;
+  removeAllListeners(): void;
+  removeListener<Type extends keyof Events>(
+    type: Type,
+    listener: EventListener<Events[Type]>
+  ): void;
+}
+
+export class EventEmitter<Events extends EventMap>
+  implements IEventEmitter<Events>
+{
   #listenerMap: {
     [Key in keyof Events]?: EventListener<Events[Key]>[];
   } = {};

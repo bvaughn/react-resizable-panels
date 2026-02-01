@@ -1,20 +1,20 @@
-import { sortByElementOffset } from "../../components/group/sortByElementOffset";
-import type { RegisteredGroup } from "../../components/group/types";
-import type { RegisteredPanel } from "../../components/panel/types";
-import type { RegisteredSeparator } from "../../components/separator/types";
-import { isHTMLElement } from "../../utils/isHTMLElement";
-import { findClosestRect } from "../utils/findClosestRect";
-import { isCoarsePointer } from "../utils/isCoarsePointer";
+import { sortByElementOffset } from "../../components/group/utils/sortByElementOffset";
+import type { MutableGroup } from "../../state/MutableGroup";
+import type { MutablePanel } from "../../state/MutablePanel";
+import type { MutableSeparator } from "../../state/MutableSeparator";
+import { Rect } from "../../types";
+import { findClosestRect } from "../../utils/findClosestRect";
+import { isCoarsePointer } from "../../utils/isCoarsePointer";
 import { calculateAvailableGroupSize } from "./calculateAvailableGroupSize";
 
-type PanelsTuple = [panel: RegisteredPanel, panel: RegisteredPanel];
+type PanelsTuple = [panel: MutablePanel, panel: MutablePanel];
 
 export type HitRegion = {
-  group: RegisteredGroup;
+  group: MutableGroup;
   groupSize: number;
   panels: PanelsTuple;
-  rect: DOMRect;
-  separator?: RegisteredSeparator | undefined;
+  rect: Rect;
+  separator?: MutableSeparator | undefined;
 };
 
 /**
@@ -24,34 +24,31 @@ export type HitRegion = {
  *
  * This method determines bounding rects of all regions for the particular group.
  */
-export function calculateHitRegions(group: RegisteredGroup) {
-  const { element: groupElement, orientation, panels, separators } = group;
+export function calculateHitRegions(group: MutableGroup) {
+  const { elementInterface, orientation, panels, separators } = group;
 
   // Sort elements by offset before traversing
   const sortedChildElements: HTMLElement[] = sortByElementOffset(
     orientation,
-    Array.from(groupElement.children)
-      .filter(isHTMLElement)
-      .map((element) => ({ element: element as HTMLElement }))
-  ).map(({ element }) => element);
+    elementInterface.getChildren()
+  );
 
   const hitRegions: HitRegion[] = [];
 
   let hasInterleavedStaticContent = false;
-  let prevPanel: RegisteredPanel | undefined = undefined;
-  let pendingSeparators: RegisteredSeparator[] = [];
+  let prevPanel: MutablePanel | undefined = undefined;
+  let pendingSeparators: MutableSeparator[] = [];
 
   for (const childElement of sortedChildElements) {
     if (childElement.hasAttribute("data-panel")) {
-      const panelData = panels.find(
-        (current) => current.element === childElement
-      );
+      const id = childElement.getAttribute("id");
+      const panelData = panels.find((current) => current.id === id);
       if (panelData) {
         if (prevPanel) {
-          const prevRect = prevPanel.element.getBoundingClientRect();
+          const prevRect = prevPanel.elementInterface.getElementRect();
           const rect = childElement.getBoundingClientRect();
 
-          let pendingRectsOrSeparators: (DOMRect | RegisteredSeparator)[];
+          let pendingRectsOrSeparators: (DOMRect | MutableSeparator)[];
 
           // If an explicit Separator has been rendered, always watch it
           // Otherwise watch the entire space between the panels
@@ -85,7 +82,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
                 const closestRect = findClosestRect({
                   orientation,
                   rects: [prevRect, rect],
-                  targetRect: separator.element.getBoundingClientRect()
+                  targetRect: separator.elementInterface.getElementRect()
                 });
 
                 pendingRectsOrSeparators = [
@@ -127,7 +124,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
             let rect =
               "width" in rectOrSeparator
                 ? rectOrSeparator
-                : rectOrSeparator.element.getBoundingClientRect();
+                : rectOrSeparator.elementInterface.getElementRect();
 
             const minHitTargetSize = isCoarsePointer()
               ? group.resizeTargetMinimumSize.coarse
@@ -153,7 +150,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
 
             hitRegions.push({
               group,
-              groupSize: calculateAvailableGroupSize({ group }),
+              groupSize: calculateAvailableGroupSize(group),
               panels: [prevPanel, panelData],
               separator:
                 "width" in rectOrSeparator ? undefined : rectOrSeparator,
@@ -167,9 +164,8 @@ export function calculateHitRegions(group: RegisteredGroup) {
         pendingSeparators = [];
       }
     } else if (childElement.hasAttribute("data-separator")) {
-      const separatorData = separators.find(
-        (current) => current.element === childElement
-      );
+      const id = childElement.getAttribute("id");
+      const separatorData = separators.find((current) => current.id === id);
       if (separatorData) {
         // Separators will be included implicitly in the area between the previous and next panel
         // It's important to track them though, to handle the scenario of non-interactive group content

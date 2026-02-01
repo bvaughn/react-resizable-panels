@@ -1,6 +1,5 @@
 import type { CSSProperties, HTMLAttributes, ReactNode, Ref } from "react";
-import type { RegisteredPanel } from "../panel/types";
-import type { RegisteredSeparator } from "../separator/types";
+import type { MutableGroup } from "../../state/MutableGroup";
 
 /**
  * Panel group orientation loosely relates to the `aria-orientation` attribute.
@@ -17,42 +16,11 @@ export type Layout = {
 
 export type LayoutStorage = Pick<Storage, "getItem" | "setItem">;
 
-export type DragState = {
-  state: "default" | "hover" | "dragging";
-  separatorId: string | undefined;
-};
+export type GroupContextType = MutableGroup;
 
 export type ResizeTargetMinimumSize = {
   coarse: number;
   fine: number;
-};
-
-export type RegisteredGroup = {
-  defaultLayout: Layout | undefined;
-  disableCursor: boolean;
-  disabled: boolean;
-  element: HTMLElement;
-  id: string;
-  // TODO Move to mutable state
-  inMemoryLastExpandedPanelSizes: {
-    [panelId: string]: number;
-  };
-  // TODO Move to mutable state
-  inMemoryLayouts: {
-    [panelIds: string]: Layout;
-  };
-  orientation: Orientation;
-  panels: RegisteredPanel[];
-  resizeTargetMinimumSize: ResizeTargetMinimumSize;
-  separators: RegisteredSeparator[];
-};
-
-export type GroupContextType = {
-  getPanelStyles: (groupId: string, panelId: string) => CSSProperties;
-  id: string;
-  orientation: Orientation;
-  registerPanel: (panel: RegisteredPanel) => () => void;
-  registerSeparator: (separator: RegisteredSeparator) => () => void;
 };
 
 /**
@@ -136,7 +104,7 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    * ⚠️ For layout changes caused by pointer events, this method is called each time the pointer is moved.
    * For most cases, it is recommended to use the `onLayoutChanged` callback instead.
    */
-  onLayoutChange?: (layout: Layout) => void | undefined;
+  onLayoutChange?: ((layout: Layout) => void) | undefined;
 
   /**
    * Called after the Group's layout has  been changed.
@@ -144,7 +112,12 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    * ℹ️ For layout changes caused by pointer events, this method is not called until the pointer has been released.
    * This method is recommended when saving layouts to some storage api.
    */
-  onLayoutChanged?: (layout: Layout) => void | undefined;
+  onLayoutChanged?: ((layout: Layout) => void) | undefined;
+
+  /**
+   * Specifies the resizable orientation ("horizontal" or "vertical"); defaults to "horizontal"
+   */
+  orientation?: "horizontal" | "vertical" | undefined;
 
   /**
    * Minimum size of the resizable hit target area (either `Separator` or `Panel` edge)
@@ -163,11 +136,6 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
   };
 
   /**
-   * Specifies the resizable orientation ("horizontal" or "vertical"); defaults to "horizontal"
-   */
-  orientation?: "horizontal" | "vertical" | undefined;
-
-  /**
    * CSS properties.
    *
    * ⚠️ The following styles cannot be overridden: `display`, `flex-direction`, `flex-wrap`, and `overflow`.
@@ -175,5 +143,5 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
   style?: CSSProperties | undefined;
 };
 
-export type OnGroupLayoutChange = GroupProps["onLayoutChange"];
-export type OnGroupLayoutChanged = GroupProps["onLayoutChanged"];
+export type OnGroupLayoutChange = (layout: Layout) => void;
+export type OnGroupLayoutChanged = (layout: Layout) => void;

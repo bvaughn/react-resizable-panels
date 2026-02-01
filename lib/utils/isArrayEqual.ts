@@ -1,4 +1,4 @@
-export function isArrayEqual(a: number[], b: number[]) {
+export function isArrayEqual<Type>(a: Type[], b: Type[]) {
   if (a.length !== b.length) {
     return false;
   } else {
