@@ -7,8 +7,6 @@ import {
   type PropsWithChildren
 } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { eventEmitter } from "../../global/mutableState";
-import { moveSeparator } from "../../global/test/moveSeparator";
 import { assert } from "../../utils/assert";
 import {
   setDefaultElementBounds,
@@ -18,83 +16,14 @@ import { Panel } from "../panel/Panel";
 import type { PanelImperativeHandle } from "../panel/types";
 import { Separator } from "../separator/Separator";
 import { Group } from "./Group";
+import { useGroupRef } from "./hooks/useGroupRef";
 import type { GroupImperativeHandle } from "./types";
-import { useGroupRef } from "./useGroupRef";
 
 describe("Group", () => {
-  test("changes to defaultProps or disableCursor should not cause Group to remount", () => {
-    const onMountedGroupsChange = vi.fn();
-    const removeListener = eventEmitter.addListener(
-      "mountedGroupsChange",
-      onMountedGroupsChange
-    );
-
-    const { rerender } = render(
-      <Group
-        defaultLayout={{
-          a: 50,
-          b: 50
-        }}
-        disableCursor={false}
-      >
-        <Panel id="a" />
-        <Panel id="b" />
-      </Group>
-    );
-    expect(onMountedGroupsChange).toHaveBeenCalled();
-
-    onMountedGroupsChange.mockReset();
-
-    rerender(
-      <Group
-        defaultLayout={{
-          a: 35,
-          b: 65
-        }}
-        disableCursor={true}
-      >
-        <Panel id="a" />
-        <Panel id="b" />
-      </Group>
-    );
-    expect(onMountedGroupsChange).not.toHaveBeenCalled();
-
-    removeListener();
-  });
-
-  test("should support updates to either Group or Panel ids", () => {
-    const { rerender } = render(
-      <Group id="a">
-        <Panel id="a-a" />
-        <Panel id="a-b" />
-      </Group>
-    );
-
-    rerender(
-      <Group id="a">
-        <Panel id="b-a" />
-        <Panel id="b-b" />
-      </Group>
-    );
-
-    rerender(
-      <Group id="b">
-        <Panel id="b-a" />
-        <Panel id="b-b" />
-      </Group>
-    );
-
-    rerender(
-      <Group id="c">
-        <Panel id="c-a" />
-        <Panel id="c-b" />
-      </Group>
-    );
-  });
-
   describe("defaultLayout", () => {
     test("should be ignored if it does not match Panel ids", () => {
       const onLayoutChange = vi.fn();
+      const onLayoutChanged = vi.fn();
 
       setDefaultElementBounds(new DOMRect(0, 0, 100, 50));
 
@@ -105,21 +34,29 @@ describe("Group", () => {
             bar: 60
           }}
           onLayoutChange={onLayoutChange}
+          onLayoutChanged={onLayoutChanged}
         >
           <Panel id="bar" />
           <Panel id="baz" />
         </Group>
       );
 
+      // Change callbacks triggered because default layout was invalid
       expect(onLayoutChange).toHaveBeenCalledTimes(1);
       expect(onLayoutChange).toHaveBeenCalledWith({
         bar: 50,
         baz: 50
       });
+      expect(onLayoutChanged).toHaveBeenCalledTimes(1);
+      expect(onLayoutChanged).toHaveBeenCalledWith({
+        bar: 50,
+        baz: 50
+      });
     });
 
-    test("should be ignored if it does not match Panel ids (mounted within hidden subtree)", () => {
+    test("should be ignored if mismatch is caused by rendering within a hidden subtree", () => {
       const onLayoutChange = vi.fn();
+      const onLayoutChanged = vi.fn();
 
       render(
         <Group
@@ -128,6 +65,7 @@ describe("Group", () => {
             bar: 60
           }}
           onLayoutChange={onLayoutChange}
+          onLayoutChanged={onLayoutChanged}
         >
           <Panel id="bar" />
           <Panel id="baz" />
@@ -135,17 +73,10 @@ describe("Group", () => {
       );
 
       expect(onLayoutChange).not.toHaveBeenCalled();
-
-      setDefaultElementBounds(new DOMRect(0, 0, 100, 50));
-
-      expect(onLayoutChange).toHaveBeenCalledTimes(1);
-      expect(onLayoutChange).toHaveBeenCalledWith({
-        bar: 50,
-        baz: 50
-      });
+      expect(onLayoutChanged).not.toHaveBeenCalled();
     });
 
-    test("should note require multiple render passes", () => {
+    test("should not require multiple render passes", () => {
       setElementBoundsFunction((element) => {
         if (element.hasAttribute("data-panel")) {
           return new DOMRect(0, 0, 50, 50);
@@ -155,6 +86,7 @@ describe("Group", () => {
       });
 
       const onLayoutChange = vi.fn();
+      const onLayoutChanged = vi.fn();
 
       function DomChecker({ children }: PropsWithChildren) {
         const ref = useRef<HTMLDivElement>(null);
@@ -186,6 +118,7 @@ describe("Group", () => {
             }}
             groupRef={groupRef}
             onLayoutChange={onLayoutChange}
+            onLayoutChanged={onLayoutChanged}
           >
             <Panel defaultSize="50%" id="foo" panelRef={panelRef} />
             <Panel id="bar" />
@@ -193,8 +126,16 @@ describe("Group", () => {
         </DomChecker>
       );
 
-      expect(onLayoutChange).toHaveBeenCalledTimes(1);
-      expect(onLayoutChange).toHaveBeenCalledWith({ foo: 40, bar: 60 });
+      // Default layout should not invoke change callbacks
+      expect(onLayoutChange).not.toHaveBeenCalled();
+      expect(onLayoutChanged).not.toHaveBeenCalled();
+
+      expect(groupRef.current?.getLayout()).toMatchInlineSnapshot(`
+        {
+          "bar": 60,
+          "foo": 40,
+        }
+      `);
     });
   });
 
@@ -220,10 +161,12 @@ describe("Group", () => {
           foo: 50,
           bar: 50
         })
-      ).toThrow("Invalid 0 panel layout: 50%, 50%");
+      ).toThrow("Invalid 0 panel layout keys: foo, bar");
     });
 
     test("should work within a hidden subtree", () => {
+      vi.useFakeTimers();
+
       // Note this test mimics the hidden subtree scenario by using a groupSize of 0
       setElementBoundsFunction(() => new DOMRect(0, 0, 0, 0));
 
@@ -262,6 +205,9 @@ describe("Group", () => {
           return new DOMRect(0, 0, 100, 50);
         }
       });
+
+      vi.runOnlyPendingTimers();
+
       expect(group.getLayout()).toEqual({
         left: 35,
         right: 65
@@ -311,6 +257,68 @@ describe("Group", () => {
       render(<Repro />);
     });
   });
+
+  describe("imperative API methods", () => {
+    describe("setLayout", () => {
+      test("notifies layout change handlers", () => {
+        const ref = createRef<GroupImperativeHandle>();
+
+        setElementBoundsFunction((element) => {
+          if (element.hasAttribute("data-panel")) {
+            return new DOMRect(0, 0, 50, 50);
+          } else {
+            return new DOMRect(0, 0, 100, 50);
+          }
+        });
+
+        const onLayoutChange = vi.fn();
+        const onLayoutChanged = vi.fn();
+
+        render(
+          <Group
+            defaultLayout={{
+              a: 50,
+              b: 50
+            }}
+            disableCursor={false}
+            groupRef={ref}
+            onLayoutChange={onLayoutChange}
+            onLayoutChanged={onLayoutChanged}
+          >
+            <Panel id="a" minSize="10%" />
+            <Panel id="b" />
+          </Group>
+        );
+
+        // Default layout
+        expect(onLayoutChange).not.toHaveBeenCalled();
+        expect(onLayoutChanged).not.toHaveBeenCalled();
+
+        assert(ref.current);
+        expect(ref.current.getLayout()).toMatchInlineSnapshot(`
+          {
+            "a": 50,
+            "b": 50,
+          }
+        `);
+
+        ref.current.setLayout({
+          a: 0,
+          b: 100
+        });
+        expect(ref.current.getLayout()).toMatchInlineSnapshot(`
+          {
+            "a": 10,
+            "b": 90,
+          }
+        `);
+
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChanged).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
   describe("onLayoutChange and onLayoutChanged", () => {
     beforeEach(() => {
       setElementBoundsFunction((element) => {
@@ -461,13 +469,16 @@ describe("Group", () => {
     test("should be called once per layout change", async () => {
       setElementBoundsFunction((element) => {
         switch (element.id) {
-          case "a": {
+          case "group": {
+            return new DOMRect(0, 0, 110, 50);
+          }
+          case "leftPanel": {
             return new DOMRect(0, 0, 50, 50);
           }
-          case "b": {
+          case "separator": {
             return new DOMRect(50, 0, 10, 50);
           }
-          case "c": {
+          case "rightPanel": {
             return new DOMRect(60, 0, 50, 50);
           }
         }
@@ -476,52 +487,56 @@ describe("Group", () => {
       const onLayoutChange = vi.fn();
       const onLayoutChanged = vi.fn();
 
+      const groupRef = createRef<GroupImperativeHandle>();
+
       render(
         <Group
+          groupRef={groupRef}
+          id="group"
           onLayoutChange={onLayoutChange}
           onLayoutChanged={onLayoutChanged}
         >
-          <Panel id="a" defaultSize={50} />
-          <Separator id="b" />
-          <Panel id="c" defaultSize={50} />
+          <Panel id="leftPanel" defaultSize={50} />
+          <Separator id="separator" />
+          <Panel id="rightPanel" defaultSize={50} />
         </Group>
       );
 
       expect(onLayoutChange).toHaveBeenCalledTimes(1);
       expect(onLayoutChange).toHaveBeenCalledWith({
-        a: 50,
-        c: 50
+        leftPanel: 50,
+        rightPanel: 50
       });
 
       expect(onLayoutChanged).toHaveBeenCalledTimes(1);
       expect(onLayoutChanged).toHaveBeenCalledWith({
-        a: 50,
-        c: 50
+        leftPanel: 50,
+        rightPanel: 50
       });
 
       onLayoutChange.mockReset();
       onLayoutChanged.mockReset();
 
       // Simulate a drag from the draggable element to the target area
-      await moveSeparator(25);
+      groupRef.current?.setLayout({ leftPanel: 75, rightPanel: 25 });
 
       expect(onLayoutChange).toHaveBeenCalledTimes(1);
       expect(onLayoutChange).toHaveBeenCalledWith({
-        a: 75,
-        c: 25
+        leftPanel: 75,
+        rightPanel: 25
       });
 
       expect(onLayoutChanged).toHaveBeenCalledTimes(1);
       expect(onLayoutChanged).toHaveBeenCalledWith({
-        a: 75,
-        c: 25
+        leftPanel: 75,
+        rightPanel: 25
       });
 
       onLayoutChange.mockReset();
       onLayoutChanged.mockReset();
 
-      // Move the pointer a bit, but not enough to impact the layout
-      await moveSeparator(0.0001);
+      // No-op resize event
+      groupRef.current?.setLayout({ leftPanel: 75, rightPanel: 25 });
 
       expect(onLayoutChange).not.toHaveBeenCalled();
       expect(onLayoutChanged).not.toHaveBeenCalled();

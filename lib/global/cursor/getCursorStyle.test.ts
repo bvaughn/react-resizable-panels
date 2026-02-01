@@ -5,25 +5,31 @@ import {
   CURSOR_FLAG_VERTICAL_MAX,
   CURSOR_FLAG_VERTICAL_MIN
 } from "../../constants";
-import { mockGroup } from "../test/mockGroup";
+import { MutableGroupForTest } from "../../state/tests/MutableGroupForTest";
 import { getCursorStyle } from "./getCursorStyle";
 import { overrideSupportsAdvancedCursorStylesForTesting } from "./supportsAdvancedCursorStyles";
 
 describe("getCursorStyle", () => {
-  const horizontalGroup = mockGroup(new DOMRect(0, 0, 100, 50));
-  horizontalGroup.orientation = "horizontal";
-  horizontalGroup.addPanel(new DOMRect(0, 0, 50, 50));
-  horizontalGroup.addPanel(new DOMRect(50, 0, 50, 50));
+  const horizontalGroup = new MutableGroupForTest({
+    rect: new DOMRect(0, 0, 100, 50),
+    orientation: "horizontal"
+  });
+  horizontalGroup.addMutablePanel(new DOMRect(0, 0, 50, 50));
+  horizontalGroup.addMutablePanel(new DOMRect(50, 0, 50, 50));
 
-  const verticalGroup = mockGroup(new DOMRect(0, 0, 100, 50));
-  verticalGroup.orientation = "vertical";
-  verticalGroup.addPanel(new DOMRect(0, 0, 50, 50));
-  verticalGroup.addPanel(new DOMRect(50, 0, 50, 50));
+  const verticalGroup = new MutableGroupForTest({
+    orientation: "vertical",
+    rect: new DOMRect(0, 0, 100, 50)
+  });
+  verticalGroup.addMutablePanel(new DOMRect(0, 0, 50, 50));
+  verticalGroup.addMutablePanel(new DOMRect(50, 0, 50, 50));
 
-  const disabledGroup = mockGroup(new DOMRect(0, 0, 100, 50));
+  const disabledGroup = new MutableGroupForTest({
+    rect: new DOMRect(0, 0, 100, 50)
+  });
   disabledGroup.disableCursor = true;
-  disabledGroup.addPanel(new DOMRect(0, 0, 50, 50));
-  disabledGroup.addPanel(new DOMRect(50, 0, 50, 50));
+  disabledGroup.addMutablePanel(new DOMRect(0, 0, 50, 50));
+  disabledGroup.addMutablePanel(new DOMRect(50, 0, 50, 50));
 
   describe("advanced cursor style support", () => {
     beforeEach(() => {
@@ -38,7 +44,7 @@ describe("getCursorStyle", () => {
             groups: [horizontalGroup, verticalGroup],
             state: "inactive"
           })
-        ).toBeNull();
+        ).toBeUndefined();
       });
     });
 
@@ -90,7 +96,7 @@ describe("getCursorStyle", () => {
             groups: [disabledGroup],
             state: "hover"
           })
-        ).toBeNull();
+        ).toBeUndefined();
       });
     });
 
@@ -151,7 +157,7 @@ describe("getCursorStyle", () => {
             groups: [disabledGroup],
             state: "active"
           })
-        ).toBeNull();
+        ).toBeUndefined();
       });
     });
   });
@@ -169,7 +175,7 @@ describe("getCursorStyle", () => {
             groups: [horizontalGroup, verticalGroup],
             state: "inactive"
           })
-        ).toBeNull();
+        ).toBeUndefined();
       });
     });
 
@@ -221,7 +227,7 @@ describe("getCursorStyle", () => {
             groups: [disabledGroup],
             state: "hover"
           })
-        ).toBeNull();
+        ).toBeUndefined();
       });
     });
 
@@ -282,7 +288,7 @@ describe("getCursorStyle", () => {
             groups: [disabledGroup],
             state: "active"
           })
-        ).toBeNull();
+        ).toBeUndefined();
       });
     });
   });

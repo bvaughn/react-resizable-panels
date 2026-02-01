@@ -1,5 +1,4 @@
-import { read } from "../mutableState";
-import { getCursorStyle } from "./getCursorStyle";
+import type { Properties } from "csstype";
 
 const documentToStyleMap = new WeakMap<
   Document,
@@ -9,13 +8,18 @@ const documentToStyleMap = new WeakMap<
   }
 >();
 
-export function updateCursorStyle(ownerDocument: Document) {
+export function updateCursorStyle({
+  cursorStyle,
+  ownerDocument,
+  state
+}: {
+  cursorStyle: Properties["cursor"];
+  ownerDocument: Document;
+  state: "active" | "hover" | "inactive";
+}) {
   // NOTE undefined is not technically a valid value but it has been reported that it is present in some environments (Vite HMR?)
   // See github.com/bvaughn/react-resizable-panels/issues/559
-  if (
-    ownerDocument.defaultView === null ||
-    ownerDocument.defaultView === undefined
-  ) {
+  if (ownerDocument.defaultView == null) {
     return;
   }
 
@@ -27,42 +31,28 @@ export function updateCursorStyle(ownerDocument: Document) {
     ownerDocument.adoptedStyleSheets.push(styleSheet);
   }
 
-  const { cursorFlags, interactionState } = read();
+  if (cursorStyle === "") {
+    prevStyle = undefined;
 
-  switch (interactionState.state) {
-    case "active":
-    case "hover": {
-      const cursorStyle = getCursorStyle({
-        cursorFlags,
-        groups: interactionState.hitRegions.map((current) => current.group),
-        state: interactionState.state
-      });
-
-      const nextStyle = `*, *:hover {cursor: ${cursorStyle} !important; ${interactionState.state === "active" ? "touch-action: none;" : ""} }`;
-      if (prevStyle === nextStyle) {
-        return;
-      }
-
-      prevStyle = nextStyle;
-
-      if (cursorStyle) {
-        if (styleSheet.cssRules.length === 0) {
-          styleSheet.insertRule(nextStyle);
-        } else {
-          styleSheet.replaceSync(nextStyle);
-        }
-      } else if (styleSheet.cssRules.length === 1) {
-        styleSheet.deleteRule(0);
-      }
-      break;
+    if (styleSheet.cssRules.length === 1) {
+      styleSheet.deleteRule(0);
     }
-    case "inactive": {
-      prevStyle = undefined;
+  } else {
+    const nextStyle = `*, *:hover {cursor: ${cursorStyle} !important; ${state === "active" ? "touch-action: none;" : ""} }`;
+    if (prevStyle === nextStyle) {
+      return;
+    }
 
-      if (styleSheet.cssRules.length === 1) {
-        styleSheet.deleteRule(0);
+    prevStyle = nextStyle;
+
+    if (cursorStyle) {
+      if (styleSheet.cssRules.length === 0) {
+        styleSheet.insertRule(nextStyle);
+      } else {
+        styleSheet.replaceSync(nextStyle);
       }
-      break;
+    } else if (styleSheet.cssRules.length === 1) {
+      styleSheet.deleteRule(0);
     }
   }
 
