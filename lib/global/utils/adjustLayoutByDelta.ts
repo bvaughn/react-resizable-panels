@@ -131,6 +131,8 @@ export function adjustLayoutByDelta({
         }
         break;
       }
+      // TODO Re-enable this once issues/650 is resolved
+      /*
       default: {
         // If we're starting from a collapsed state, dragging past the halfway point should cause the panel to expand
         // This can happen for positive or negative drags, and panels on either side of the separator can be collapsible
@@ -182,6 +184,7 @@ export function adjustLayoutByDelta({
         }
         break;
       }
+        */
     }
     // DEBUG.push("");
   }
