@@ -3,6 +3,7 @@
 ## Unreleased
 
 - [649](https://github.com/bvaughn/react-resizable-panels/pull/649): Optimization: Replace `useForceUpdate` with `useSyncExternalStore`
+- [652](https://github.com/bvaughn/react-resizable-panels/pull/652): Re-enable collapsible panel bugfix after fixing another reported issue
 
 ## 4.5.8
 
