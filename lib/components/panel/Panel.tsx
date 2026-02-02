@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef, type CSSProperties } from "react";
-import { useForceUpdate } from "../../hooks/useForceUpdate";
+import { useRef, useSyncExternalStore, type CSSProperties } from "react";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
@@ -9,6 +8,7 @@ import { useStableCallback } from "../../hooks/useStableCallback";
 import { useGroupContext } from "../group/useGroupContext";
 import type { PanelProps, PanelSize } from "./types";
 import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
+import { eventEmitter } from "../../global/mutableState";
 
 /**
  * A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.
@@ -58,8 +58,6 @@ export function Panel({
 
   const mergedRef = useMergedRefs(elementRef, elementRefProp);
 
-  const [, forceUpdate] = useForceUpdate();
-
   const { getPanelStyles, id: groupId, registerPanel } = useGroupContext();
 
   const hasOnResize = onResizeUnstable !== null;
@@ -92,15 +90,13 @@ export function Panel({
           defaultSize,
           maxSize,
           minSize
-        },
-        scheduleUpdate: forceUpdate
+        }
       });
     }
   }, [
     collapsedSize,
     collapsible,
     defaultSize,
-    forceUpdate,
     hasOnResize,
     id,
     idIsStable,
@@ -112,7 +108,20 @@ export function Panel({
 
   usePanelImperativeHandle(id, panelRef);
 
-  const panelStyles = getPanelStyles(groupId, id);
+  const panelStylesString = useSyncExternalStore(
+    (subscribe) => {
+      eventEmitter.addListener("mountedGroupsChange", subscribe);
+
+      return () => {
+        eventEmitter.removeListener("mountedGroupsChange", subscribe);
+      };
+    },
+
+    // useSyncExternalStore does not support a custom equality check
+    // stringify avoids re-rendering when the style value hasn't changed
+    () => JSON.stringify(getPanelStyles(groupId, id)),
+    () => JSON.stringify(getPanelStyles(groupId, id))
+  );
 
   return (
     <div
@@ -131,7 +140,7 @@ export function Panel({
         // Prevent Panel content from interfering with panel size
         overflow: "hidden",
 
-        ...panelStyles
+        ...JSON.parse(panelStylesString)
       }}
     >
       <div

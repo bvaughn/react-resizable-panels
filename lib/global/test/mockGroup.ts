@@ -103,8 +103,7 @@ export function mockGroup(
           prevSize: undefined
         },
         panelConstraints: constraints,
-        onResize: vi.fn(),
-        scheduleUpdate: vi.fn()
+        onResize: vi.fn()
       };
 
       mockPanels.add(panel);

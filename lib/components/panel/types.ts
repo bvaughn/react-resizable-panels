@@ -30,7 +30,6 @@ export type RegisteredPanel = {
   };
   onResize: OnPanelResize | undefined;
   panelConstraints: PanelConstraintProps;
-  scheduleUpdate: () => void;
 };
 
 /**

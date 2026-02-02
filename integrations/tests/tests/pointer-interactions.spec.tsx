@@ -296,6 +296,9 @@ test.describe("pointer interactions", () => {
     await expect(panel).toHaveCSS("pointer-events", "auto");
 
     await page.mouse.down();
+    await expect(panel).toHaveCSS("pointer-events", "auto");
+
+    await page.mouse.move(x + 1, y);
     await expect(panel).toHaveCSS("pointer-events", "none");
 
     await page.mouse.up();
