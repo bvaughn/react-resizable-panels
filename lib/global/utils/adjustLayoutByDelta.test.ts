@@ -2245,9 +2245,13 @@ describe("adjustLayoutByDelta", () => {
         (
           [
             [-4, c([collapsible, {}]), l([46, 54])],
+            [-6, c([collapsible, {}]), l([44, 56])],
             [-4, c([{}, collapsible]), l([46, 54])],
+            [-6, c([{}, collapsible]), l([44, 56])],
             [4, c([collapsible, {}]), l([54, 46])],
-            [4, c([{}, collapsible]), l([54, 46])]
+            [6, c([collapsible, {}]), l([56, 44])],
+            [4, c([{}, collapsible]), l([54, 46])],
+            [6, c([{}, collapsible]), l([56, 44])]
           ] satisfies [number, PanelConstraints[], Layout][]
         ).forEach(([delta, panelConstraints, expectedLayout]) => {
           expect(
