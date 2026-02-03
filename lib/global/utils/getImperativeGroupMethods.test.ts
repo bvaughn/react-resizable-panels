@@ -137,5 +137,23 @@ describe("getImperativeGroupMethods", () => {
         }
       `);
     });
+
+    test("persists layout to inMemoryLayouts cache", () => {
+      const { api, group } = init([
+        { defaultSize: 200, minSize: 100 },
+        { defaultSize: 800 }
+      ]);
+
+      api.setLayout({
+        "A-1": 30,
+        "A-2": 70
+      });
+
+      const panelIdsKey = "A-1,A-2";
+      expect(group.inMemoryLayouts[panelIdsKey]).toEqual({
+        "A-1": 30,
+        "A-2": 70
+      });
+    });
   });
 });
