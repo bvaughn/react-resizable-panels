@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- [649](https://github.com/bvaughn/react-resizable-panels/pull/649): Optimization: Replace `useForceUpdate` with `useSyncExternalStore`
+- [649](https://github.com/bvaughn/react-resizable-panels/pull/649): Optimization: Replace `useForceUpdate` with `useSyncExternalStore` to avoid side effect of swallowing "click" events in certain cases
+- [654](https://github.com/bvaughn/react-resizable-panels/pull/654): **Bugfix** Imperative `Group` method `setLayout` persists layout to in-memory cache
 - [652](https://github.com/bvaughn/react-resizable-panels/pull/652): Re-enable collapsible panel bugfix after fixing another reported issue
 
 ## 4.5.8
