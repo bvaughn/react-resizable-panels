@@ -534,4 +534,40 @@ test.describe("pointer interactions", () => {
     await page.mouse.move(x - 25, y);
     await expect(separator).toHaveAttribute("data-separator", "inactive");
   });
+
+  test("should not prevent click events if no drag occurs", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Group className="gap-0">
+        <Panel className="[&>*]:p-0!" id="left">
+          <Clickable className="bg-red-300 h-full w-full" />
+        </Panel>
+        <Separator className="min-w-[1px] w-[1px]" id="separator" />
+        <Panel id="right" />
+      </Group>
+    );
+
+    const separator = page.getByRole("separator");
+    const hitAreaBox = await separator.boundingBox();
+    const { x, y } = getCenterCoordinates(hitAreaBox!);
+
+    const panel = page.getByText("click");
+    await expect(panel).toContainText("click:0");
+
+    // A click that does not resize should not be blocked
+    await page.mouse.move(x - 2, y);
+    await page.mouse.down();
+    await page.mouse.up();
+    // await page.mouse.click(x - 2, y);
+    await expect(panel).toContainText("click:1");
+
+    // A click that resizes should be blocked
+    await page.mouse.move(x - 2, y);
+    await page.mouse.down();
+    await page.mouse.move(x - 3, y);
+    await page.mouse.up();
+    await expect(panel).toContainText("click:1");
+  });
 });
