@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { adjustLayoutByDelta as adjustLayoutByDeltaExternal } from "./adjustLayoutByDelta";
 import type { Layout } from "../../components/group/types";
 import type { PanelConstraints } from "../../components/panel/types";
+import { adjustLayoutByDelta as adjustLayoutByDeltaExternal } from "./adjustLayoutByDelta";
 
 type Args = Parameters<typeof adjustLayoutByDeltaExternal>[0];
 
@@ -2013,8 +2013,7 @@ describe("adjustLayoutByDelta", () => {
           ).toEqual(closed);
         });
 
-        // TODO Re-enable this once issues/650 is resolved
-        test.skip("open if delta is greater than minimum threshold", () => {
+        test("open if delta is greater than minimum threshold", () => {
           expect(
             adjustLayoutByDelta({
               delta: panelId === "left" ? 6 : -6,
@@ -2026,8 +2025,7 @@ describe("adjustLayoutByDelta", () => {
           ).toEqual(open);
         });
 
-        // TODO Re-enable this once issues/650 is resolved
-        test.skip("close if delta is less than minimum threshold", () => {
+        test("close if delta is less than minimum threshold", () => {
           expect(
             adjustLayoutByDelta({
               delta: panelId === "left" ? 4 : -4,
@@ -2126,8 +2124,7 @@ describe("adjustLayoutByDelta", () => {
           ).toEqual(closed);
         });
 
-        // TODO Re-enable this once issues/650 is resolved
-        test.skip("open if delta is greater than minimum threshold", () => {
+        test("open if delta is greater than minimum threshold", () => {
           expect(
             adjustLayoutByDelta({
               delta: panelId === "left" ? 6 : -6,
@@ -2139,8 +2136,7 @@ describe("adjustLayoutByDelta", () => {
           ).toEqual(open);
         });
 
-        // TODO Re-enable this once issues/650 is resolved
-        test.skip("close if delta is less than minimum threshold", () => {
+        test("close if delta is less than minimum threshold", () => {
           expect(
             adjustLayoutByDelta({
               delta: panelId === "left" ? 4 : -4,
@@ -2239,8 +2235,35 @@ describe("adjustLayoutByDelta", () => {
         });
       });
 
-      // TODO Re-enable this once issues/650 is resolved
-      test.skip("edge case discussions/643", () => {
+      test("edge case issues/650", () => {
+        const collapsible = {
+          collapsedSize: 0,
+          collapsible: true,
+          minSize: 10
+        };
+
+        (
+          [
+            [-4, c([collapsible, {}]), l([46, 54])],
+            [-4, c([{}, collapsible]), l([46, 54])],
+            [4, c([collapsible, {}]), l([54, 46])],
+            [4, c([{}, collapsible]), l([54, 46])]
+          ] satisfies [number, PanelConstraints[], Layout][]
+        ).forEach(([delta, panelConstraints, expectedLayout]) => {
+          expect(
+            adjustLayoutByDelta({
+              delta,
+              initialLayout: l([50, 50]),
+              panelConstraints,
+              prevLayout: l([50, 50]),
+              pivotIndices: [0, 1],
+              trigger: "mouse-or-touch"
+            })
+          ).toEqual(expectedLayout);
+        });
+      });
+
+      test("edge case discussions/643", () => {
         (
           [
             [4, l([10, 90])],

@@ -131,8 +131,6 @@ export function adjustLayoutByDelta({
         }
         break;
       }
-      // TODO Re-enable this once issues/650 is resolved
-      /*
       default: {
         // If we're starting from a collapsed state, dragging past the halfway point should cause the panel to expand
         // This can happen for positive or negative drags, and panels on either side of the separator can be collapsible
@@ -146,36 +144,39 @@ export function adjustLayoutByDelta({
           `Panel constraints not found for index ${index}`
         );
 
+        const prevSize = initialLayout[index];
+
         const { collapsible, collapsedSize, minSize } = panelConstraints;
-        if (collapsible) {
-          // DEBUG.push(`  -> collapsible ${isSecondPanel ? "2nd" : "1st"} panel`);
+        if (collapsible && compareLayoutNumbers(prevSize, minSize) < 0) {
+          // DEBUG.push(`  -> collapsible ${delta < 0 ? "2nd" : "1st"} panel`);
           if (delta > 0) {
             const gapSize = minSize - collapsedSize;
-            const halfwayPoint = gapSize / 2;
-            // DEBUG.push(`  -> halfway point: ${halfwayPoint}`);
-            // DEBUG.push(`     between collapsed: ${collapsedSize}`);
-            // DEBUG.push(`       and min: ${minSize}`);
+            const halfwayDelta = gapSize / 2;
+            // DEBUG.push(`  -> halfway delta: ${halfwayDelta}`);
+            // DEBUG.push(`       collapsed: ${collapsedSize}`);
+            // DEBUG.push(`       min: ${minSize}`);
 
-            if (compareLayoutNumbers(delta, gapSize) < 0) {
+            const nextSize = prevSize + delta;
+            if (compareLayoutNumbers(nextSize, minSize) < 0) {
               // DEBUG.push("  -> adjusting delta");
               // DEBUG.push(`       from: ${delta}`);
               delta =
-                compareLayoutNumbers(delta, halfwayPoint) <= 0 ? 0 : gapSize;
+                compareLayoutNumbers(delta, halfwayDelta) <= 0 ? 0 : gapSize;
               // DEBUG.push(`       to: ${delta}`);
             }
           } else {
             const gapSize = minSize - collapsedSize;
-            const halfwayPoint = 100 - gapSize / 2;
-            // DEBUG.push(`  -> halfway point: ${halfwayPoint}`);
-            // DEBUG.push(`     between collapsed: ${100 - collapsedSize}`);
-            // DEBUG.push(`       and min: ${100 - minSize}`);
+            const halfwayDelta = 100 - gapSize / 2;
+            // DEBUG.push(`  -> halfway delta: ${halfwayDelta}`);
+            // DEBUG.push(`       collapsed: ${100 - collapsedSize}`);
+            // DEBUG.push(`       min: ${100 - minSize}`);
 
-            //if (isSecondPanel) {
-            if (compareLayoutNumbers(Math.abs(delta), gapSize) < 0) {
+            const nextSize = prevSize - delta;
+            if (compareLayoutNumbers(nextSize, minSize) < 0) {
               // DEBUG.push("  -> adjusting delta");
               // DEBUG.push(`       from: ${delta}`);
               delta =
-                compareLayoutNumbers(100 + delta, halfwayPoint) > 0
+                compareLayoutNumbers(100 + delta, halfwayDelta) > 0
                   ? 0
                   : -gapSize;
               // DEBUG.push(`       to: ${delta}`);
@@ -184,7 +185,6 @@ export function adjustLayoutByDelta({
         }
         break;
       }
-        */
     }
     // DEBUG.push("");
   }
