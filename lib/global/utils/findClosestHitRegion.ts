@@ -15,6 +15,10 @@ export function findClosestHitRegion(
   };
 
   for (const hitRegion of hitRegions) {
+    if (hitRegion.disabled) {
+      continue;
+    }
+
     const data = getDistanceBetweenPointAndRect(point, hitRegion.rect);
     switch (orientation) {
       case "horizontal": {

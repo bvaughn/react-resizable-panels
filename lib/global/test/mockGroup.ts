@@ -129,6 +129,7 @@ export function mockGroup(
       setElementBounds(element, relativeBoundsToBounds(relativeBounds));
 
       const separator: RegisteredSeparator = {
+        disabled: false,
         element,
         id: separatorId
       };

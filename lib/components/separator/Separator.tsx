@@ -28,6 +28,7 @@ import type { RegisteredSeparator, SeparatorProps } from "./types";
 export function Separator({
   children,
   className,
+  disabled,
   elementRef: elementRefProp,
   id: idProp,
   style,
@@ -64,6 +65,7 @@ export function Separator({
     const element = elementRef.current;
     if (element !== null) {
       const separator: RegisteredSeparator = {
+        disabled,
         element,
         id
       };
@@ -119,30 +121,32 @@ export function Separator({
         unregisterSeparator();
       };
     }
-  }, [groupId, id, registerSeparator]);
+  }, [disabled, groupId, id, registerSeparator]);
 
   return (
     <div
       {...rest}
       aria-controls={aria.valueControls}
+      aria-disabled={disabled}
       aria-orientation={orientation}
       aria-valuemax={aria.valueMax}
       aria-valuemin={aria.valueMin}
       aria-valuenow={aria.valueNow}
       children={children}
       className={className}
-      data-separator={dragState}
+      data-separator={disabled ? "disabled" : dragState}
       data-testid={id}
       id={id}
       ref={mergedRef}
       role="separator"
       style={{
         flexBasis: "auto",
+        cursor: disabled ? "not-allowed" : undefined,
         ...style,
         flexGrow: 0,
         flexShrink: 0
       }}
-      tabIndex={0}
+      tabIndex={disabled ? undefined : 0}
     />
   );
 }

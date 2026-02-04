@@ -10,6 +10,7 @@ import { calculateAvailableGroupSize } from "./calculateAvailableGroupSize";
 type PanelsTuple = [panel: RegisteredPanel, panel: RegisteredPanel];
 
 export type HitRegion = {
+  disabled: boolean;
   group: RegisteredGroup;
   groupSize: number;
   panels: PanelsTuple;
@@ -37,12 +38,17 @@ export function calculateHitRegions(group: RegisteredGroup) {
 
   const hitRegions: HitRegion[] = [];
 
+  let disabled = false;
   let hasInterleavedStaticContent = false;
   let prevPanel: RegisteredPanel | undefined = undefined;
   let pendingSeparators: RegisteredSeparator[] = [];
 
   for (const childElement of sortedChildElements) {
     if (childElement.hasAttribute("data-panel")) {
+      if (childElement.ariaDisabled) {
+        // A disabled panel can still be interacted with (to resize other panels indirectly)
+      }
+
       const panelData = panels.find(
         (current) => current.element === childElement
       );
@@ -152,6 +158,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
             }
 
             hitRegions.push({
+              disabled,
               group,
               groupSize: calculateAvailableGroupSize({ group }),
               panels: [prevPanel, panelData],
@@ -162,11 +169,17 @@ export function calculateHitRegions(group: RegisteredGroup) {
           }
         }
 
+        disabled = false;
         hasInterleavedStaticContent = false;
         prevPanel = panelData;
         pendingSeparators = [];
       }
     } else if (childElement.hasAttribute("data-separator")) {
+      if (childElement.ariaDisabled) {
+        // A disabled separator should prevent its neighboring panels from being resized directly.
+        disabled = true;
+      }
+
       const separatorData = separators.find(
         (current) => current.element === childElement
       );
@@ -175,6 +188,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
         // It's important to track them though, to handle the scenario of non-interactive group content
         pendingSeparators.push(separatorData);
       } else {
+        disabled = false;
         prevPanel = undefined;
         pendingSeparators = [];
       }

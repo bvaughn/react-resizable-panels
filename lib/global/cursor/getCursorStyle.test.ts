@@ -38,7 +38,7 @@ describe("getCursorStyle", () => {
             groups: [horizontalGroup, verticalGroup],
             state: "inactive"
           })
-        ).toBeNull();
+        ).toBeUndefined();
       });
     });
 
@@ -90,7 +90,7 @@ describe("getCursorStyle", () => {
             groups: [disabledGroup],
             state: "hover"
           })
-        ).toBeNull();
+        ).toBeUndefined();
       });
     });
 
@@ -151,7 +151,7 @@ describe("getCursorStyle", () => {
             groups: [disabledGroup],
             state: "active"
           })
-        ).toBeNull();
+        ).toBeUndefined();
       });
     });
   });
@@ -169,7 +169,7 @@ describe("getCursorStyle", () => {
             groups: [horizontalGroup, verticalGroup],
             state: "inactive"
           })
-        ).toBeNull();
+        ).toBeUndefined();
       });
     });
 
@@ -221,7 +221,7 @@ describe("getCursorStyle", () => {
             groups: [disabledGroup],
             state: "hover"
           })
-        ).toBeNull();
+        ).toBeUndefined();
       });
     });
 
@@ -282,7 +282,7 @@ describe("getCursorStyle", () => {
             groups: [disabledGroup],
             state: "active"
           })
-        ).toBeNull();
+        ).toBeUndefined();
       });
     });
   });

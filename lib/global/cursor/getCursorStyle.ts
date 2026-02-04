@@ -17,7 +17,7 @@ export function getCursorStyle({
   cursorFlags: number;
   groups: RegisteredGroup[];
   state: InteractionState["state"];
-}): Properties["cursor"] | null {
+}): Properties["cursor"] {
   let horizontalCount = 0;
   let verticalCount = 0;
 
@@ -44,7 +44,7 @@ export function getCursorStyle({
   }
 
   if (horizontalCount === 0 && verticalCount === 0) {
-    return null;
+    return undefined;
   }
 
   switch (state) {

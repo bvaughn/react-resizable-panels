@@ -15,6 +15,7 @@ export function calculatePanelConstraints(group: RegisteredGroup) {
       collapsedSize: 0,
       collapsible: current.panelConstraints.collapsible === true,
       defaultSize: undefined,
+      disabled: current.panelConstraints.disabled,
       minSize: 0,
       maxSize: 100,
       panelId: current.id
@@ -72,6 +73,7 @@ export function calculatePanelConstraints(group: RegisteredGroup) {
       collapsedSize,
       collapsible: panelConstraints.collapsible === true,
       defaultSize,
+      disabled: panelConstraints.disabled,
       minSize,
       maxSize,
       panelId: panel.id

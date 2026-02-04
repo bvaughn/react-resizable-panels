@@ -5,17 +5,24 @@ import { formatLayoutNumber } from "./formatLayoutNumber";
 // Panel size must be in percentages; pixel values should be pre-converted
 export function validatePanelSize({
   panelConstraints,
+  prevSize,
   size
 }: {
   panelConstraints: PanelConstraints;
+  prevSize: number;
   size: number;
 }) {
   const {
     collapsedSize = 0,
     collapsible,
+    disabled,
     maxSize = 100,
     minSize = 0
   } = panelConstraints;
+
+  if (disabled) {
+    return prevSize;
+  }
 
   if (compareLayoutNumbers(size, minSize) < 0) {
     if (collapsible) {
