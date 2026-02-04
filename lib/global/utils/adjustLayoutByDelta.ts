@@ -211,6 +211,7 @@ export function adjustLayoutByDelta({
 
       const maxSafeSize = validatePanelSize({
         panelConstraints: panelConstraintsArray[index],
+        prevSize,
         size: 100
       });
       const delta = maxSafeSize - prevSize;
@@ -248,6 +249,7 @@ export function adjustLayoutByDelta({
       const unsafeSize = prevSize - deltaRemaining;
       const safeSize = validatePanelSize({
         panelConstraints: panelConstraintsArray[index],
+        prevSize,
         size: unsafeSize
       });
 
@@ -300,6 +302,7 @@ export function adjustLayoutByDelta({
     const unsafeSize = prevSize + deltaApplied;
     const safeSize = validatePanelSize({
       panelConstraints: panelConstraintsArray[pivotIndex],
+      prevSize,
       size: unsafeSize
     });
 
@@ -322,6 +325,7 @@ export function adjustLayoutByDelta({
         const unsafeSize = prevSize + deltaRemaining;
         const safeSize = validatePanelSize({
           panelConstraints: panelConstraintsArray[index],
+          prevSize,
           size: unsafeSize
         });
 

@@ -10,6 +10,7 @@ import { calculateAvailableGroupSize } from "./calculateAvailableGroupSize";
 type PanelsTuple = [panel: RegisteredPanel, panel: RegisteredPanel];
 
 export type HitRegion = {
+  disabled: boolean;
   group: RegisteredGroup;
   groupSize: number;
   panels: PanelsTuple;
@@ -37,12 +38,18 @@ export function calculateHitRegions(group: RegisteredGroup) {
 
   const hitRegions: HitRegion[] = [];
 
+  let disabledPanel = false;
+  let disabledSeparator = false;
   let hasInterleavedStaticContent = false;
   let prevPanel: RegisteredPanel | undefined = undefined;
   let pendingSeparators: RegisteredSeparator[] = [];
 
   for (const childElement of sortedChildElements) {
     if (childElement.hasAttribute("data-panel")) {
+      if (childElement.ariaDisabled !== null) {
+        disabledPanel = true;
+      }
+
       const panelData = panels.find(
         (current) => current.element === childElement
       );
@@ -151,7 +158,10 @@ export function calculateHitRegions(group: RegisteredGroup) {
               );
             }
 
+            const hasSeparator = !("width" in rectOrSeparator);
+
             hitRegions.push({
+              disabled: disabledSeparator || (disabledPanel && !hasSeparator),
               group,
               groupSize: calculateAvailableGroupSize({ group }),
               panels: [prevPanel, panelData],
@@ -159,6 +169,9 @@ export function calculateHitRegions(group: RegisteredGroup) {
                 "width" in rectOrSeparator ? undefined : rectOrSeparator,
               rect
             });
+
+            disabledPanel = false;
+            disabledSeparator = false;
           }
         }
 
@@ -167,6 +180,10 @@ export function calculateHitRegions(group: RegisteredGroup) {
         pendingSeparators = [];
       }
     } else if (childElement.hasAttribute("data-separator")) {
+      if (childElement.ariaDisabled !== null) {
+        disabledSeparator = true;
+      }
+
       const separatorData = separators.find(
         (current) => current.element === childElement
       );

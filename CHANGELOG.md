@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.6.0
+
+- [657](https://github.com/bvaughn/react-resizable-panels/pull/657): Allow `Panel` and `Separator` components to be disabled
+
 ## 4.5.9
 
 - [649](https://github.com/bvaughn/react-resizable-panels/pull/649): Optimization: Replace `useForceUpdate` with `useSyncExternalStore` to avoid side effect of swallowing "click" events in certain cases

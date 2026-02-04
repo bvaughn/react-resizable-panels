@@ -108,6 +108,16 @@
       "name": "defaultSize",
       "required": false
     },
+    "disabled": {
+      "description": [
+        {
+          "content": "<p>When disabled, a panel cannot be resized either directly or indirectly (by resizing another panel).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disabled</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
+      "name": "disabled",
+      "required": false
+    },
     "elementRef": {
       "description": [
         {

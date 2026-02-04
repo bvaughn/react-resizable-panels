@@ -1,14 +1,14 @@
 "use client";
 
 import { useRef, useSyncExternalStore, type CSSProperties } from "react";
+import { eventEmitter } from "../../global/mutableState";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
 import { useGroupContext } from "../group/useGroupContext";
-import type { PanelProps, PanelSize } from "./types";
+import type { PanelProps, PanelSize, RegisteredPanel } from "./types";
 import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
-import { eventEmitter } from "../../global/mutableState";
 
 /**
  * A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.
@@ -41,6 +41,7 @@ export function Panel({
   collapsedSize = "0%",
   collapsible = false,
   defaultSize,
+  disabled,
   elementRef: elementRefProp,
   id: idProp,
   maxSize = "100%",
@@ -75,7 +76,7 @@ export function Panel({
   useIsomorphicLayoutEffect(() => {
     const element = elementRef.current;
     if (element !== null) {
-      return registerPanel({
+      const registeredPanel: RegisteredPanel = {
         element,
         id,
         idIsStable,
@@ -88,15 +89,19 @@ export function Panel({
           collapsedSize,
           collapsible,
           defaultSize,
+          disabled,
           maxSize,
           minSize
         }
-      });
+      };
+
+      return registerPanel(registeredPanel);
     }
   }, [
     collapsedSize,
     collapsible,
     defaultSize,
+    disabled,
     hasOnResize,
     id,
     idIsStable,
@@ -126,6 +131,7 @@ export function Panel({
   return (
     <div
       {...rest}
+      aria-disabled={disabled}
       data-panel
       data-testid={id}
       id={id}

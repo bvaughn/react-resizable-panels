@@ -1,6 +1,7 @@
 import type { CSSProperties, HTMLAttributes, Ref } from "react";
 
 export type RegisteredSeparator = {
+  disabled?: boolean | undefined;
   element: HTMLDivElement;
   id: string;
 };
@@ -19,6 +20,14 @@ export type SeparatorProps = BaseSeparatorAttributes & {
    * ⚠️ The following properties cannot be overridden: `flex-grow`, `flex-shrink`
    */
   className?: string | undefined;
+
+  /**
+   * When disabled, the separator cannot be used to resize its neighboring panels.
+   *
+   * ℹ️ The panels may still be resized indirectly (while other panels are being resized).
+   * To prevent a panel from being resized at all, it needs to also be disabled.
+   */
+  disabled?: boolean | undefined;
 
   /**
    * Ref attached to the root `HTMLDivElement`.

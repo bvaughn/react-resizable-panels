@@ -75,6 +75,20 @@
       "name": "style",
       "required": false
     },
+    "disabled": {
+      "description": [
+        {
+          "content": "<p>When disabled, the separator cannot be used to resize its neighboring panels.</p>\n"
+        },
+        {
+          "content": "<p>The panels may still be resized indirectly (while other panels are being resized).\nTo prevent a panel from being resized at all, it needs to also be disabled.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disabled</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
+      "name": "disabled",
+      "required": false
+    },
     "elementRef": {
       "description": [
         {

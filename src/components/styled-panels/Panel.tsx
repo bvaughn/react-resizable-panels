@@ -5,10 +5,12 @@ import {
   type PanelProps
 } from "react-resizable-panels";
 import { PanelText } from "./PanelText";
+import { cn } from "react-lib-tools";
 
 export function Panel({
   children,
   className = "",
+  disabled,
   showSizeAsPercentage,
   showSizeInPixels,
   ...rest
@@ -25,7 +27,12 @@ export function Panel({
 
   return (
     <PanelExternal
-      className={`bg-slate-800 rounded rounded-md overflow-auto ${className}`}
+      className={cn(
+        "bg-slate-800 rounded rounded-md overflow-auto",
+        disabled && "opacity-65",
+        className
+      )}
+      disabled={disabled}
       {...rest}
       onResize={listenForResize ? setSize : undefined}
     >

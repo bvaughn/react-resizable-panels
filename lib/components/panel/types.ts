@@ -13,6 +13,7 @@ export type PanelConstraints = {
   collapsedSize: number;
   collapsible: boolean;
   defaultSize: number | undefined;
+  disabled?: boolean | undefined;
   maxSize: number;
   minSize: number;
   panelId: string;
@@ -116,6 +117,11 @@ export type PanelProps = BasePanelAttributes & {
   defaultSize?: number | string | undefined;
 
   /**
+   * When disabled, a panel cannot be resized either directly or indirectly (by resizing another panel).
+   */
+  disabled?: boolean | undefined;
+
+  /**
    * Ref attached to the root `HTMLDivElement`.
    */
   elementRef?: Ref<HTMLDivElement | null> | undefined;
@@ -194,5 +200,10 @@ export type OnPanelResize = PanelProps["onResize"];
  */
 export type PanelConstraintProps = Pick<
   PanelProps,
-  "collapsedSize" | "collapsible" | "defaultSize" | "maxSize" | "minSize"
+  | "collapsedSize"
+  | "collapsible"
+  | "defaultSize"
+  | "disabled"
+  | "maxSize"
+  | "minSize"
 >;

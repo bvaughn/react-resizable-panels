@@ -238,6 +238,11 @@ Falls back to <code>useId</code> when not provided.</p>
 </td>
     </tr>
     <tr>
+      <td>disabled</td>
+      <td><p>When disabled, a panel cannot be resized either directly or indirectly (by resizing another panel).</p>
+</td>
+    </tr>
+    <tr>
       <td>elementRef</td>
       <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
 </td>
@@ -333,6 +338,13 @@ Falls back to <code>useId</code> when not provided.</p>
       <td><p>CSS properties.</p>
 <p>ℹ️ Use the <code>data-separator</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>
 <p>⚠️ The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code></p>
+</td>
+    </tr>
+    <tr>
+      <td>disabled</td>
+      <td><p>When disabled, the separator cannot be used to resize its neighboring panels.</p>
+<p>ℹ️ The panels may still be resized indirectly (while other panels are being resized).
+To prevent a panel from being resized at all, it needs to also be disabled.</p>
 </td>
     </tr>
     <tr>

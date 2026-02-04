@@ -43,11 +43,15 @@ export function validatePanelGroupLayout({
 
   // First pass: Validate the proposed layout given each panel's constraints
   for (let index = 0; index < panelConstraints.length; index++) {
+    const prevSize = prevLayout[index];
+    assert(prevSize != null, `No layout data found for index ${index}`);
+
     const unsafeSize = nextLayout[index];
     assert(unsafeSize != null, `No layout data found for index ${index}`);
 
     const safeSize = validatePanelSize({
       panelConstraints: panelConstraints[index],
+      prevSize,
       size: unsafeSize
     });
 
@@ -67,6 +71,7 @@ export function validatePanelGroupLayout({
       const unsafeSize = prevSize + remainingSize;
       const safeSize = validatePanelSize({
         panelConstraints: panelConstraints[index],
+        prevSize,
         size: unsafeSize
       });
 
