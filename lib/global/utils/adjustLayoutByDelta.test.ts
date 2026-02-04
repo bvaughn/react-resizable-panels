@@ -2325,11 +2325,154 @@ describe("adjustLayoutByDelta", () => {
                   minSize: 20
                 }
               ]),
-              prevLayout: l([10, 90]),
+              prevLayout: l([90, 10]),
               trigger: "mouse-or-touch"
             })
           ).toEqual(expectedLayout);
         });
+      });
+    });
+  });
+
+  describe("disabled panels", () => {
+    test("should not be resizable in a 2 panel group", () => {
+      (
+        [
+          [-50, c([{ disabled: true }, {}])],
+          [50, c([{ disabled: true }, {}])],
+          [-50, c([{}, { disabled: true }])],
+          [50, c([{}, { disabled: true }])]
+        ] satisfies [number, PanelConstraints[]][]
+      ).forEach(([delta, panelConstraints]) => {
+        expect(
+          adjustLayoutByDelta({
+            delta,
+            initialLayout: l([50, 50]),
+            panelConstraints,
+            prevLayout: l([50, 50]),
+            trigger: "mouse-or-touch"
+          })
+        ).toEqual(l([50, 50]));
+      });
+    });
+
+    test("should not be resizable if 1 of 3 panels are disabled", () => {
+      const layout = l([25, 50, 25]);
+
+      {
+        // Left panel disabled
+        const panelConstraints = c([{ disabled: true }, {}, {}]);
+
+        expect(
+          adjustLayoutByDelta({
+            delta: -25,
+            initialLayout: layout,
+            panelConstraints,
+            pivotIndices: [0, 1],
+            prevLayout: layout,
+            trigger: "mouse-or-touch"
+          })
+        ).toEqual(layout);
+
+        expect(
+          adjustLayoutByDelta({
+            delta: -75,
+            initialLayout: layout,
+            panelConstraints,
+            pivotIndices: [1, 2],
+            prevLayout: layout,
+            trigger: "mouse-or-touch"
+          })
+        ).toEqual(l([25, 0, 75]));
+      }
+
+      {
+        // Center panel disabled
+        const panelConstraints = c([{}, { disabled: true }, {}]);
+
+        expect(
+          adjustLayoutByDelta({
+            delta: -25,
+            initialLayout: layout,
+            panelConstraints,
+            pivotIndices: [0, 1],
+            prevLayout: layout,
+            trigger: "mouse-or-touch"
+          })
+        ).toEqual(l([0, 50, 50]));
+
+        expect(
+          adjustLayoutByDelta({
+            delta: -25,
+            initialLayout: layout,
+            panelConstraints,
+            pivotIndices: [1, 2],
+            prevLayout: layout,
+            trigger: "mouse-or-touch"
+          })
+        ).toEqual(l([0, 50, 50]));
+      }
+
+      {
+        // Right panel disabled
+        const panelConstraints = c([{}, {}, { disabled: true }]);
+
+        expect(
+          adjustLayoutByDelta({
+            delta: -25,
+            initialLayout: layout,
+            panelConstraints,
+            pivotIndices: [0, 1],
+            prevLayout: layout,
+            trigger: "mouse-or-touch"
+          })
+        ).toEqual(l([0, 75, 25]));
+
+        expect(
+          adjustLayoutByDelta({
+            delta: -25,
+            initialLayout: layout,
+            panelConstraints,
+            pivotIndices: [1, 2],
+            prevLayout: layout,
+            trigger: "mouse-or-touch"
+          })
+        ).toEqual(l([25, 50, 25]));
+      }
+    });
+
+    test("should not be resizable if 2 of 3 panels are disabled", () => {
+      (
+        [
+          [-50, c([{ disabled: true }, { disabled: true }, {}])],
+          [50, c([{ disabled: true }, { disabled: true }, {}])],
+          [-50, c([{ disabled: true }, {}, { disabled: true }])],
+          [50, c([{ disabled: true }, {}, { disabled: true }])],
+          [-50, c([{}, { disabled: true }, { disabled: true }])],
+          [50, c([{}, { disabled: true }, { disabled: true }])]
+        ] satisfies [number, PanelConstraints[]][]
+      ).forEach(([delta, panelConstraints]) => {
+        expect(
+          adjustLayoutByDelta({
+            delta,
+            initialLayout: l([25, 50, 25]),
+            panelConstraints,
+            pivotIndices: [0, 1],
+            prevLayout: l([25, 50, 25]),
+            trigger: "mouse-or-touch"
+          })
+        ).toEqual(l([25, 50, 25]));
+
+        expect(
+          adjustLayoutByDelta({
+            delta,
+            initialLayout: l([25, 50, 25]),
+            panelConstraints,
+            pivotIndices: [1, 2],
+            prevLayout: l([25, 50, 25]),
+            trigger: "mouse-or-touch"
+          })
+        ).toEqual(l([25, 50, 25]));
       });
     });
   });

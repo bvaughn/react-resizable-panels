@@ -17,7 +17,11 @@ export type MockGroup = RegisteredGroup & {
     id?: string,
     constraints?: Partial<PanelConstraintProps>
   ) => () => void;
-  addSeparator: (relativeBounds: DOMRect, id?: string) => () => void;
+  addSeparator: (
+    relativeBounds: DOMRect,
+    id?: string,
+    disabled?: boolean
+  ) => () => void;
 };
 
 let groupIdCounter = 0;
@@ -91,6 +95,9 @@ export function mockGroup(
 
       const element = document.createElement("div");
       element.setAttribute("data-panel", panelId);
+      if (constraints?.disabled) {
+        element.setAttribute("aria-disabled", "");
+      }
 
       setElementBounds(element, relativeBoundsToBounds(relativeBounds));
 
@@ -119,17 +126,21 @@ export function mockGroup(
 
     addSeparator: (
       relativeBounds: DOMRect,
-      id: string = `${groupId}-${++separatorIdCounter}`
+      id: string = `${groupId}-${++separatorIdCounter}`,
+      disabled?: boolean
     ) => {
       const separatorId = `${groupId}-${id}`;
 
       const element = document.createElement("div");
       element.setAttribute("data-separator", separatorId);
+      if (disabled) {
+        element.setAttribute("aria-disabled", "");
+      }
 
       setElementBounds(element, relativeBoundsToBounds(relativeBounds));
 
       const separator: RegisteredSeparator = {
-        disabled: false,
+        disabled,
         element,
         id: separatorId
       };

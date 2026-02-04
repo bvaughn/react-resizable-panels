@@ -211,7 +211,7 @@ test.describe("cursor", () => {
     ).toBe("move");
   });
 
-  test("disabled", async ({ page: mainPage }) => {
+  test("disabled group cursor", async ({ page: mainPage }) => {
     const page = await goToUrl(
       mainPage,
       <Group disableCursor orientation="vertical">
@@ -233,5 +233,57 @@ test.describe("cursor", () => {
     expect(
       await page.evaluate(() => getComputedStyle(document.body).cursor)
     ).toBe("auto");
+  });
+
+  test("disabled panel(s)", async ({ page: mainPage }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Group>
+        <Panel disabled id="left" />
+        <Panel id="right" />
+      </Group>
+    );
+
+    const hitAreaBox = await calculateHitArea(page, ["left", "right"]);
+    const { x, y } = getCenterCoordinates(hitAreaBox);
+
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("auto");
+
+    await page.mouse.move(x, y, moveConfig);
+
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("auto");
+  });
+
+  test("disabled separator", async ({ page: mainPage }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Group>
+        <Panel id="left" />
+        <Separator disabled id="separator" />
+        <Panel id="right" />
+      </Group>
+    );
+
+    const separator = page.getByTestId("separator");
+    const boundingBox = (await separator.boundingBox())!;
+    const x = boundingBox.x + boundingBox.width / 2;
+    const y = boundingBox.y + boundingBox.height / 2;
+
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("auto");
+
+    await page.mouse.move(x, y, moveConfig);
+
+    expect(
+      await page.evaluate(
+        () =>
+          getComputedStyle(document.querySelector('[role="separator"]')!).cursor
+      )
+    ).toBe("not-allowed");
   });
 });

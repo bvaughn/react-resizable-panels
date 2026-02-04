@@ -570,4 +570,46 @@ test.describe("pointer interactions", () => {
     await page.mouse.up();
     await expect(panel).toContainText("click:1");
   });
+
+  test("should not allow a disabled separator to be used to resize a panels", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Group>
+        <Panel id="left" />
+        <Separator disabled />
+        <Panel id="right" />
+      </Group>
+    );
+
+    await assertLayoutChangeCounts(mainPage, 1);
+    await expect(mainPage.getByText('"left": 50')).toBeVisible();
+
+    await resizeHelper(page, ["left", "right"], 100, 0);
+
+    await assertLayoutChangeCounts(mainPage, 1);
+    await expect(mainPage.getByText('"left": 50')).toBeVisible();
+  });
+
+  test("should not allow a disabled panel to be resized", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Group>
+        <Panel disabled id="left" />
+        <Separator />
+        <Panel id="right" />
+      </Group>
+    );
+
+    await assertLayoutChangeCounts(mainPage, 1);
+    await expect(mainPage.getByText('"left": 50')).toBeVisible();
+
+    await resizeHelper(page, ["left", "right"], 100, 0);
+
+    await assertLayoutChangeCounts(mainPage, 1);
+    await expect(mainPage.getByText('"left": 50')).toBeVisible();
+  });
 });

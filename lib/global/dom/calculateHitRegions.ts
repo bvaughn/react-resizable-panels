@@ -38,15 +38,16 @@ export function calculateHitRegions(group: RegisteredGroup) {
 
   const hitRegions: HitRegion[] = [];
 
-  let disabled = false;
+  let disabledPanel = false;
+  let disabledSeparator = false;
   let hasInterleavedStaticContent = false;
   let prevPanel: RegisteredPanel | undefined = undefined;
   let pendingSeparators: RegisteredSeparator[] = [];
 
   for (const childElement of sortedChildElements) {
     if (childElement.hasAttribute("data-panel")) {
-      if (childElement.ariaDisabled) {
-        // A disabled panel can still be interacted with (to resize other panels indirectly)
+      if (childElement.ariaDisabled !== null) {
+        disabledPanel = true;
       }
 
       const panelData = panels.find(
@@ -157,8 +158,10 @@ export function calculateHitRegions(group: RegisteredGroup) {
               );
             }
 
+            const hasSeparator = !("width" in rectOrSeparator);
+
             hitRegions.push({
-              disabled,
+              disabled: disabledSeparator || (disabledPanel && !hasSeparator),
               group,
               groupSize: calculateAvailableGroupSize({ group }),
               panels: [prevPanel, panelData],
@@ -166,18 +169,19 @@ export function calculateHitRegions(group: RegisteredGroup) {
                 "width" in rectOrSeparator ? undefined : rectOrSeparator,
               rect
             });
+
+            disabledPanel = false;
+            disabledSeparator = false;
           }
         }
 
-        disabled = false;
         hasInterleavedStaticContent = false;
         prevPanel = panelData;
         pendingSeparators = [];
       }
     } else if (childElement.hasAttribute("data-separator")) {
-      if (childElement.ariaDisabled) {
-        // A disabled separator should prevent its neighboring panels from being resized directly.
-        disabled = true;
+      if (childElement.ariaDisabled !== null) {
+        disabledSeparator = true;
       }
 
       const separatorData = separators.find(
@@ -188,7 +192,6 @@ export function calculateHitRegions(group: RegisteredGroup) {
         // It's important to track them though, to handle the scenario of non-interactive group content
         pendingSeparators.push(separatorData);
       } else {
-        disabled = false;
         prevPanel = undefined;
         pendingSeparators = [];
       }

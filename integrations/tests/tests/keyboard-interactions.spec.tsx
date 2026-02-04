@@ -313,4 +313,21 @@ test.describe("keyboard interactions: window splitter api", () => {
     await assertLayoutChangeCounts(mainPage, 1);
     await expect(mainPage.getByText('"left": 30')).toBeVisible();
   });
+
+  test("should not allow disabled separators to be focused", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Group disabled>
+        <Panel />
+        <Separator disabled id="separator" />
+        <Panel />
+      </Group>
+    );
+
+    const separator = page.getByTestId("separator");
+    await expect(separator).toHaveAttribute("aria-disabled", "true");
+    await expect(separator).not.toHaveAttribute("tabIndex");
+  });
 });

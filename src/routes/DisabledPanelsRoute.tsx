@@ -1,5 +1,6 @@
-import { Box, Code, Header } from "react-lib-tools";
+import { Box, Callout, Code, Header } from "react-lib-tools";
 import { html as DisabledSeparatorHTML } from "../../public/generated/examples/DisabledSeparator.json";
+import { html as DisabledPanelsHTML } from "../../public/generated/examples/DisabledPanels.json";
 import { html as DisabledPanelHTML } from "../../public/generated/examples/DisabledPanel.json";
 import { html as DisabledPanelAndSeparatorHTML } from "../../public/generated/examples/DisabledPanelAndSeparator.json";
 import { Group } from "../components/styled-panels/Group";
@@ -21,9 +22,22 @@ export default function DisabledPanelsRoute() {
       </div>
       <Code html={DisabledSeparatorHTML} />
       <Group>
-        <Panel minSize={50}>left</Panel>
+        <Panel>left</Panel>
         <Separator disabled />
-        <Panel minSize={50}>right</Panel>
+        <Panel>right</Panel>
+      </Group>
+      <div>
+        The same applies to disabling one or both panels when there is no
+        explicit separator element.
+      </div>
+      <Callout intent="primary">
+        Note this is functionally the same as disabling the entire{" "}
+        <code>Group</code> component.
+      </Callout>
+      <Code html={DisabledPanelsHTML} />
+      <Group>
+        <Panel disabled>left</Panel>
+        <Panel disabled>right</Panel>
       </Group>
       <div>
         In groups with three or more panels, disabling a separator does not
@@ -32,11 +46,11 @@ export default function DisabledPanelsRoute() {
         resized as well.
       </div>
       <Group>
-        <Panel minSize={50}>left</Panel>
+        <Panel>left</Panel>
         <Separator disabled />
-        <Panel minSize={50}>center</Panel>
+        <Panel>center</Panel>
         <Separator />
-        <Panel minSize={50}>right</Panel>
+        <Panel>right</Panel>
       </Group>
       <div>
         Disabling a panel prevents it from being resized, though its separator
@@ -44,11 +58,11 @@ export default function DisabledPanelsRoute() {
       </div>
       <Code html={DisabledPanelHTML} />
       <Group>
-        <Panel minSize={50}>left</Panel>
+        <Panel>left</Panel>
         <Separator />
         <Panel disabled>center (disabled)</Panel>
         <Separator />
-        <Panel minSize={50}>right</Panel>
+        <Panel>right</Panel>
       </Group>
       <div>
         You can also disable both a panel and its separator to completely
@@ -58,9 +72,9 @@ export default function DisabledPanelsRoute() {
       <Group>
         <Panel disabled>left (disabled)</Panel>
         <Separator disabled />
-        <Panel minSize={50}>center</Panel>
+        <Panel>center</Panel>
         <Separator />
-        <Panel minSize={50}>right</Panel>
+        <Panel>right</Panel>
       </Group>
     </Box>
   );
