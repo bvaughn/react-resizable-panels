@@ -6,7 +6,9 @@ export async function moveSeparator(
   separatorId?: string
 ) {
   const separatorElement = document.querySelector(
-    separatorId ? `[data-separator="${separatorId}"]` : "[data-separator]"
+    separatorId
+      ? `[data-separator][data-testid="${separatorId}"]`
+      : "[data-separator]"
   );
 
   assert(separatorElement instanceof HTMLElement);
