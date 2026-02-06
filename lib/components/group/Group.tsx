@@ -231,8 +231,25 @@ export function Group({
 
     const inMemoryValues = inMemoryValuesRef.current;
 
+    // Guard against unexpected layout attribute ordering by pre-sorting panel ids/keys; see issues/656
+    let preSortedDefaultLayout: Layout | undefined = undefined;
+    if (stableProps.defaultLayout !== undefined) {
+      if (
+        Object.keys(stableProps.defaultLayout).length ===
+        inMemoryValues.panels.length
+      ) {
+        preSortedDefaultLayout = {};
+        for (const panel of inMemoryValues.panels) {
+          const size = stableProps.defaultLayout[panel.id];
+          if (size !== undefined) {
+            preSortedDefaultLayout[panel.id] = size;
+          }
+        }
+      }
+    }
+
     const group: RegisteredGroup = {
-      defaultLayout: stableProps.defaultLayout,
+      defaultLayout: preSortedDefaultLayout,
       disableCursor: !!stableProps.disableCursor,
       disabled: !!disabled,
       element,

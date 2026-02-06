@@ -101,20 +101,20 @@ describe("Group", () => {
       render(
         <Group
           defaultLayout={{
-            foo: 40,
-            bar: 60
+            top: 40,
+            bottom: 60
           }}
           onLayoutChange={onLayoutChange}
         >
-          <Panel id="bar" />
-          <Panel id="baz" />
+          <Panel id="left" />
+          <Panel id="right" />
         </Group>
       );
 
       expect(onLayoutChange).toHaveBeenCalledTimes(1);
       expect(onLayoutChange).toHaveBeenCalledWith({
-        bar: 50,
-        baz: 50
+        left: 50,
+        right: 50
       });
     });
 
@@ -124,13 +124,13 @@ describe("Group", () => {
       render(
         <Group
           defaultLayout={{
-            foo: 40,
-            bar: 60
+            top: 40,
+            bottom: 60
           }}
           onLayoutChange={onLayoutChange}
         >
-          <Panel id="bar" />
-          <Panel id="baz" />
+          <Panel id="left" />
+          <Panel id="right" />
         </Group>
       );
 
@@ -140,8 +140,123 @@ describe("Group", () => {
 
       expect(onLayoutChange).toHaveBeenCalledTimes(1);
       expect(onLayoutChange).toHaveBeenCalledWith({
-        bar: 50,
-        baz: 50
+        left: 50,
+        right: 50
+      });
+    });
+
+    describe("should not break the layout if layout Panel ids are in an unexpected order", () => {
+      test("two panel horizontal group", async () => {
+        const onLayoutChanged = vi.fn();
+
+        setElementBoundsFunction((element) => {
+          switch (element.id) {
+            case "group": {
+              return new DOMRect(0, 0, 100, 50);
+            }
+            case "left": {
+              return new DOMRect(0, 0, 50, 50);
+            }
+            case "right": {
+              return new DOMRect(50, 0, 50, 50);
+            }
+            case "separator": {
+              return new DOMRect(50, 0, 0, 50);
+            }
+          }
+        });
+
+        render(
+          <Group
+            defaultLayout={{
+              right: 40,
+              left: 60
+            }}
+            id="group"
+            onLayoutChanged={onLayoutChanged}
+          >
+            <Panel id="left" />
+            <Separator id="separator" />
+            <Panel id="right" />
+          </Group>
+        );
+
+        expect(onLayoutChanged).toHaveBeenCalledTimes(1);
+        expect(onLayoutChanged).toHaveBeenCalledWith({
+          left: 60,
+          right: 40
+        });
+
+        // Simulate a drag from the draggable element to the target area
+        await moveSeparator(10);
+
+        expect(onLayoutChanged).toHaveBeenCalledTimes(2);
+        expect(onLayoutChanged).toHaveBeenCalledWith({
+          left: 70,
+          right: 30
+        });
+      });
+
+      test("three panel vertical group", async () => {
+        const onLayoutChanged = vi.fn();
+
+        setElementBoundsFunction((element) => {
+          switch (element.id) {
+            case "group": {
+              return new DOMRect(0, 0, 50, 150);
+            }
+            case "top": {
+              return new DOMRect(0, 0, 50, 50);
+            }
+            case "top-separator": {
+              return new DOMRect(0, 50, 0, 50);
+            }
+            case "middle": {
+              return new DOMRect(0, 50, 50, 50);
+            }
+            case "bottom": {
+              return new DOMRect(0, 100, 50, 50);
+            }
+            case "bottom-separator": {
+              return new DOMRect(0, 100, 0, 50);
+            }
+          }
+        });
+
+        render(
+          <Group
+            defaultLayout={{
+              bottom: 50,
+              middle: 30,
+              top: 20
+            }}
+            onLayoutChanged={onLayoutChanged}
+            orientation="vertical"
+          >
+            <Panel id="top" defaultSize="30%" />
+            <Separator id="top-separator" />
+            <Panel id="middle" />
+            <Separator id="bottom-separator" />
+            <Panel id="bottom" defaultSize="30%" />
+          </Group>
+        );
+
+        expect(onLayoutChanged).toHaveBeenCalledTimes(1);
+        expect(onLayoutChanged).toHaveBeenCalledWith({
+          bottom: 50,
+          middle: 30,
+          top: 20
+        });
+
+        // Simulate a drag from the draggable element to the target area
+        await moveSeparator(15, "top-separator");
+
+        expect(onLayoutChanged).toHaveBeenCalledTimes(2);
+        expect(onLayoutChanged).toHaveBeenCalledWith({
+          bottom: 50,
+          middle: 20,
+          top: 30
+        });
       });
     });
 

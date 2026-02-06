@@ -261,6 +261,36 @@ describe("useDefaultLayout", () => {
       }
     `);
     });
+
+    // See https://github.com/bvaughn/react-resizable-panels/issues/656
+    test("should support out-of-order panel ids", () => {
+      setDefaultElementBounds(new DOMRect(0, 0, 100, 50));
+
+      const groupRef = createRef<GroupImperativeHandle>();
+
+      render(
+        <Group
+          defaultLayout={{
+            bottom: 50,
+            middle: 30,
+            top: 20
+          }}
+          groupRef={groupRef}
+        >
+          <Panel id="top" defaultSize="30%" />
+          <Panel id="middle" />
+          <Panel id="bottom" defaultSize="30%" />
+        </Group>
+      );
+
+      expect(groupRef.current?.getLayout()).toMatchInlineSnapshot(`
+      {
+        "bottom": 50,
+        "middle": 30,
+        "top": 20,
+      }
+    `);
+    });
   });
 
   describe("legacy onLayoutChange prop", () => {
