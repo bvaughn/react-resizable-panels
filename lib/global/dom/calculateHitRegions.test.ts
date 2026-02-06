@@ -8,7 +8,6 @@ describe("calculateHitRegions", () => {
 
     return JSON.stringify(
       hitRegions.map((region) => ({
-        disabled: region.disabled || undefined,
         panels: region.panels.map((panel) => panel.id),
         rect: `${region.rect.x},${region.rect.y} ${region.rect.width} x ${region.rect.height}`,
         separator: region.separator?.id
@@ -276,37 +275,46 @@ describe("calculateHitRegions", () => {
     group.addPanel(new DOMRect(55, 0, 50, 50), "right");
 
     expect(serialize(group)).toMatchInlineSnapshot(`
-      "[
-        {
-          "disabled": true,
-          "panels": [
-            "group-1-left",
-            "group-1-right"
-          ],
-          "rect": "47.5,0 10 x 50",
-          "separator": "group-1-separator"
-        }
-      ]"
+      "[]"
     `);
   });
 
-  test("should disable a hit region if one or both panels are disabled and there is no explicit separator", () => {
+  test("should not disable a hit region if one or both panels are disabled but there is an enabled separator", () => {
+    const group = mockGroup(new DOMRect(0, 0, 100, 50));
+    group.addPanel(new DOMRect(0, 0, 50, 50), "left");
+    group.addSeparator(new DOMRect(50, 0, 5, 50), "separator");
+    group.addPanel(new DOMRect(55, 0, 50, 50), "center", { disabled: true });
+    group.addPanel(new DOMRect(105, 0, 50, 50), "right");
+
+    expect(serialize(group)).toMatchInlineSnapshot(`
+        "[
+          {
+            "panels": [
+              "group-1-left",
+              "group-1-center"
+            ],
+            "rect": "47.5,0 10 x 50",
+            "separator": "group-1-separator"
+          },
+          {
+            "panels": [
+              "group-1-center",
+              "group-1-right"
+            ],
+            "rect": "100,0 10 x 50"
+          }
+        ]"
+      `);
+  });
+
+  test("should disable all hit regions if there is one or fewer enabled panels", () => {
     {
       const group = mockGroup(new DOMRect(0, 0, 100, 50));
       group.addPanel(new DOMRect(0, 0, 50, 50), "left", { disabled: true });
       group.addPanel(new DOMRect(50, 0, 50, 50), "right");
 
       expect(serialize(group)).toMatchInlineSnapshot(`
-        "[
-          {
-            "disabled": true,
-            "panels": [
-              "group-1-left",
-              "group-1-right"
-            ],
-            "rect": "45,0 10 x 50"
-          }
-        ]"
+        "[]"
       `);
     }
 
@@ -316,16 +324,7 @@ describe("calculateHitRegions", () => {
       group.addPanel(new DOMRect(50, 0, 50, 50), "right", { disabled: true });
 
       expect(serialize(group)).toMatchInlineSnapshot(`
-        "[
-          {
-            "disabled": true,
-            "panels": [
-              "group-2-left",
-              "group-2-right"
-            ],
-            "rect": "45,0 10 x 50"
-          }
-        ]"
+        "[]"
       `);
     }
 
@@ -335,21 +334,21 @@ describe("calculateHitRegions", () => {
       group.addPanel(new DOMRect(50, 0, 50, 50), "right", { disabled: true });
 
       expect(serialize(group)).toMatchInlineSnapshot(`
-        "[
-          {
-            "disabled": true,
-            "panels": [
-              "group-3-left",
-              "group-3-right"
-            ],
-            "rect": "45,0 10 x 50"
-          }
-        ]"
+        "[]"
       `);
     }
-  });
 
-  test("should not disable a hit region if one or both panels are disabled but there is an enabled separator", () => {
+    {
+      const group = mockGroup(new DOMRect(0, 0, 100, 50));
+      group.addPanel(new DOMRect(0, 0, 50, 50), "left");
+      group.addSeparator(new DOMRect(50, 0, 5, 50), "separator");
+      group.addPanel(new DOMRect(55, 0, 50, 50), "right", { disabled: true });
+
+      expect(serialize(group)).toMatchInlineSnapshot(`
+        "[]"
+      `);
+    }
+
     {
       const group = mockGroup(new DOMRect(0, 0, 100, 50));
       group.addPanel(new DOMRect(0, 0, 50, 50), "left", { disabled: true });
@@ -357,57 +356,62 @@ describe("calculateHitRegions", () => {
       group.addPanel(new DOMRect(55, 0, 50, 50), "right");
 
       expect(serialize(group)).toMatchInlineSnapshot(`
+        "[]"
+      `);
+    }
+  });
+
+  test("should disable panel boundaries if there are no resizable panels before the current boundary", () => {
+    const group = mockGroup(new DOMRect(0, 0, 100, 50));
+    group.addPanel(new DOMRect(0, 0, 25, 50), "a", { disabled: true });
+    group.addPanel(new DOMRect(25, 0, 25, 50), "b");
+    group.addPanel(new DOMRect(50, 0, 25, 50), "c", { disabled: true });
+    group.addPanel(new DOMRect(75, 0, 25, 50), "d");
+
+    expect(serialize(group)).toMatchInlineSnapshot(`
       "[
         {
           "panels": [
-            "group-1-left",
-            "group-1-right"
+            "group-1-b",
+            "group-1-c"
           ],
-          "rect": "47.5,0 10 x 50",
-          "separator": "group-1-separator"
+          "rect": "45,0 10 x 50"
+        },
+        {
+          "panels": [
+            "group-1-c",
+            "group-1-d"
+          ],
+          "rect": "70,0 10 x 50"
         }
       ]"
     `);
-    }
+  });
 
-    {
-      const group = mockGroup(new DOMRect(0, 0, 100, 50));
-      group.addPanel(new DOMRect(0, 0, 50, 50), "left");
-      group.addSeparator(new DOMRect(50, 0, 5, 50), "separator");
-      group.addPanel(new DOMRect(55, 0, 50, 50), "right", { disabled: true });
+  test("should disable panel boundaries if there are no resizable panels after the current boundary", () => {
+    const group = mockGroup(new DOMRect(0, 0, 100, 50));
+    group.addPanel(new DOMRect(0, 0, 25, 50), "a");
+    group.addPanel(new DOMRect(25, 0, 25, 50), "b", { disabled: true });
+    group.addPanel(new DOMRect(50, 0, 25, 50), "c");
+    group.addPanel(new DOMRect(75, 0, 25, 50), "d", { disabled: true });
 
-      expect(serialize(group)).toMatchInlineSnapshot(`
-        "[
-          {
-            "panels": [
-              "group-2-left",
-              "group-2-right"
-            ],
-            "rect": "47.5,0 10 x 50",
-            "separator": "group-2-separator"
-          }
-        ]"
-      `);
-    }
-
-    {
-      const group = mockGroup(new DOMRect(0, 0, 100, 50));
-      group.addPanel(new DOMRect(0, 0, 50, 50), "left", { disabled: true });
-      group.addSeparator(new DOMRect(50, 0, 5, 50), "separator");
-      group.addPanel(new DOMRect(55, 0, 50, 50), "right", { disabled: true });
-
-      expect(serialize(group)).toMatchInlineSnapshot(`
-        "[
-          {
-            "panels": [
-              "group-3-left",
-              "group-3-right"
-            ],
-            "rect": "47.5,0 10 x 50",
-            "separator": "group-3-separator"
-          }
-        ]"
-      `);
-    }
+    expect(serialize(group)).toMatchInlineSnapshot(`
+      "[
+        {
+          "panels": [
+            "group-1-a",
+            "group-1-b"
+          ],
+          "rect": "20,0 10 x 50"
+        },
+        {
+          "panels": [
+            "group-1-b",
+            "group-1-c"
+          ],
+          "rect": "45,0 10 x 50"
+        }
+      ]"
+    `);
   });
 });

@@ -1,13 +1,116 @@
 import { act, render } from "@testing-library/react";
 import { createRef, Profiler } from "react";
 import { describe, expect, test, vi } from "vitest";
+import { eventEmitter } from "../../global/mutableState";
 import { assert } from "../../utils/assert";
-import { setDefaultElementBounds } from "../../utils/test/mockBoundingClientRect";
+import {
+  setDefaultElementBounds,
+  setElementBoundsFunction
+} from "../../utils/test/mockBoundingClientRect";
 import { Group } from "../group/Group";
 import type { GroupImperativeHandle } from "../group/types";
+import { Separator } from "../separator/Separator";
 import { Panel } from "./Panel";
+import { moveSeparator } from "../../global/test/moveSeparator";
 
 describe("Panel", () => {
+  describe("disabled prop", () => {
+    test("changes to disabled prop should not cause the Panel to remount", () => {
+      const onMountedGroupsChange = vi.fn();
+      const removeListener = eventEmitter.addListener(
+        "mountedGroupsChange",
+        onMountedGroupsChange
+      );
+
+      const { rerender } = render(
+        <Group>
+          <Panel disabled id="a" />
+          <Panel id="b" />
+        </Group>
+      );
+      expect(onMountedGroupsChange).toHaveBeenCalled();
+
+      onMountedGroupsChange.mockReset();
+
+      rerender(
+        <Group>
+          <Panel id="a" />
+          <Panel disabled id="b" />
+        </Group>
+      );
+      expect(onMountedGroupsChange).not.toHaveBeenCalled();
+
+      removeListener();
+    });
+
+    test("changes to this prop should update Panel behavior", async () => {
+      setElementBoundsFunction((element) => {
+        switch (element.id) {
+          case "left": {
+            return new DOMRect(0, 0, 50, 50);
+          }
+          case "separator": {
+            return new DOMRect(50, 0, 10, 50);
+          }
+          case "right": {
+            return new DOMRect(60, 0, 50, 50);
+          }
+        }
+      });
+
+      const onLayoutChange = vi.fn();
+      const onLayoutChanged = vi.fn();
+
+      const { rerender } = render(
+        <Group
+          onLayoutChange={onLayoutChange}
+          onLayoutChanged={onLayoutChanged}
+        >
+          <Panel id="left" />
+          <Separator id="separator" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      onLayoutChange.mockReset();
+      onLayoutChanged.mockReset();
+
+      rerender(
+        <Group
+          onLayoutChange={onLayoutChange}
+          onLayoutChanged={onLayoutChanged}
+        >
+          <Panel disabled id="left" />
+          <Separator id="separator" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      // Resize attempts should be ignored because the Panel is disabled
+      await moveSeparator(25);
+      expect(onLayoutChange).not.toHaveBeenCalled();
+      expect(onLayoutChanged).not.toHaveBeenCalled();
+      onLayoutChange.mockReset();
+      onLayoutChanged.mockReset();
+
+      rerender(
+        <Group
+          onLayoutChange={onLayoutChange}
+          onLayoutChanged={onLayoutChanged}
+        >
+          <Panel id="left" />
+          <Separator id="separator" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      // Resize attempts should work now that the Panel has been re-enabled
+      await moveSeparator(25);
+      expect(onLayoutChange).toHaveBeenCalled();
+      expect(onLayoutChanged).toHaveBeenCalled();
+    });
+  });
+
   test("should throw if rendered outside of a Group", () => {
     expect(() => render(<Panel />)).toThrow(
       "Group Context not found; did you render a Panel or Separator outside of a Group?"

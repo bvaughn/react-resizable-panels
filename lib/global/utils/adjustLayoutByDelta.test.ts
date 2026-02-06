@@ -34,6 +34,7 @@ function c(partials: Partial<PanelConstraints>[]) {
       collapsedSize: 0,
       collapsible: false,
       defaultSize: undefined,
+      disabled: current.disabled,
       maxSize: 100,
       minSize: 0,
       ...current,
@@ -2473,6 +2474,27 @@ describe("adjustLayoutByDelta", () => {
             trigger: "mouse-or-touch"
           })
         ).toEqual(l([25, 50, 25]));
+      });
+    });
+
+    test("should be resizable via the imperative API", () => {
+      (
+        [
+          [-5, c([{ disabled: true }, {}]), l([45, 55])],
+          [5, c([{ disabled: true }, {}]), l([55, 45])],
+          [-5, c([{}, { disabled: true }]), l([45, 55])],
+          [5, c([{}, { disabled: true }]), l([55, 45])]
+        ] satisfies [number, PanelConstraints[], Layout][]
+      ).forEach(([delta, panelConstraints, expectedLayout]) => {
+        expect(
+          adjustLayoutByDelta({
+            delta,
+            initialLayout: l([50, 50]),
+            panelConstraints,
+            prevLayout: l([50, 50]),
+            trigger: "imperative-api"
+          })
+        ).toEqual(expectedLayout);
       });
     });
   });

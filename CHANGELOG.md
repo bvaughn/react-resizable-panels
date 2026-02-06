@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.6.1
+
+- [658](https://github.com/bvaughn/react-resizable-panels/pull/658): Imperative `Panel` and `Group` APIs ignored `disabled` status when resizing panels; this is an explicit override of the _disabled_ state and is required to support conditionally disabled groups.
+- [658](https://github.com/bvaughn/react-resizable-panels/pull/658): `Separator` component does not set a `cursor: not-allowed` style if the parent `Group` has cursors disabled.
+
 ## 4.6.0
 
 - [657](https://github.com/bvaughn/react-resizable-panels/pull/657): Allow `Panel` and `Separator` components to be disabled

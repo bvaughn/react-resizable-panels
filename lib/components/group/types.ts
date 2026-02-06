@@ -48,11 +48,14 @@ export type RegisteredGroup = {
 };
 
 export type GroupContextType = {
+  disableCursor: boolean;
   getPanelStyles: (groupId: string, panelId: string) => CSSProperties;
   id: string;
   orientation: Orientation;
   registerPanel: (panel: RegisteredPanel) => () => void;
   registerSeparator: (separator: RegisteredSeparator) => () => void;
+  togglePanelDisabled: (id: string, disabled: boolean) => void;
+  toggleSeparatorDisabled: (id: string, disabled: boolean) => void;
 };
 
 /**

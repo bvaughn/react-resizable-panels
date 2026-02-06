@@ -1,6 +1,11 @@
 "use client";
 
-import { useRef, useSyncExternalStore, type CSSProperties } from "react";
+import {
+  useEffect,
+  useRef,
+  useSyncExternalStore,
+  type CSSProperties
+} from "react";
 import { eventEmitter } from "../../global/mutableState";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
@@ -9,6 +14,7 @@ import { useStableCallback } from "../../hooks/useStableCallback";
 import { useGroupContext } from "../group/useGroupContext";
 import type { PanelProps, PanelSize, RegisteredPanel } from "./types";
 import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
+import { useStableObject } from "../../hooks/useStableObject";
 
 /**
  * A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.
@@ -55,11 +61,20 @@ export function Panel({
 
   const id = useId(idProp);
 
+  const stableProps = useStableObject({
+    disabled
+  });
+
   const elementRef = useRef<HTMLDivElement | null>(null);
 
   const mergedRef = useMergedRefs(elementRef, elementRefProp);
 
-  const { getPanelStyles, id: groupId, registerPanel } = useGroupContext();
+  const {
+    getPanelStyles,
+    id: groupId,
+    registerPanel,
+    togglePanelDisabled
+  } = useGroupContext();
 
   const hasOnResize = onResizeUnstable !== null;
   const onResizeStable = useStableCallback(
@@ -89,7 +104,7 @@ export function Panel({
           collapsedSize,
           collapsible,
           defaultSize,
-          disabled,
+          disabled: stableProps.disabled,
           maxSize,
           minSize
         }
@@ -101,15 +116,20 @@ export function Panel({
     collapsedSize,
     collapsible,
     defaultSize,
-    disabled,
     hasOnResize,
     id,
     idIsStable,
     maxSize,
     minSize,
     onResizeStable,
-    registerPanel
+    registerPanel,
+    stableProps
   ]);
+
+  // Not all props require re-registering the panel;
+  useEffect(() => {
+    togglePanelDisabled(id, !!disabled);
+  }, [disabled, id, togglePanelDisabled]);
 
   usePanelImperativeHandle(id, panelRef);
 
@@ -131,7 +151,7 @@ export function Panel({
   return (
     <div
       {...rest}
-      aria-disabled={disabled}
+      aria-disabled={disabled || undefined}
       data-panel
       data-testid={id}
       id={id}

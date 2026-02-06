@@ -4,10 +4,12 @@ import { formatLayoutNumber } from "./formatLayoutNumber";
 
 // Panel size must be in percentages; pixel values should be pre-converted
 export function validatePanelSize({
+  overrideDisabledPanels,
   panelConstraints,
   prevSize,
   size
 }: {
+  overrideDisabledPanels?: boolean;
   panelConstraints: PanelConstraints;
   prevSize: number;
   size: number;
@@ -20,7 +22,7 @@ export function validatePanelSize({
     minSize = 0
   } = panelConstraints;
 
-  if (disabled) {
+  if (disabled && !overrideDisabledPanels) {
     return prevSize;
   }
 

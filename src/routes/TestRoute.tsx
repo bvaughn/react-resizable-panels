@@ -1,21 +1,19 @@
-import { Fragment } from "react";
-import { Box, Callout, ExternalLink, type Intent } from "react-lib-tools";
+import { Box } from "react-lib-tools";
+import { AccordionGroup } from "../components/accordion/AccordionGroup";
+import { AccordionPanel } from "../components/accordion/AccordionPanel";
 
 export default function TestRoute() {
   return (
-    <Box direction="column" gap={2}>
-      {INTENTS.map((intent) => (
-        <Fragment key={intent}>
-          <Callout intent={intent}>
-            Text and <ExternalLink href="#">link text</ExternalLink>.
-          </Callout>
-          <Callout intent={intent} minimal>
-            Text and <ExternalLink href="#">link text</ExternalLink>.
-          </Callout>
-        </Fragment>
-      ))}
+    <Box className="m-2" direction="column" gap={1}>
+      <div>
+        This is a test route. Any content shown here is temporary and should not
+        be referenced externally.
+      </div>
+      <AccordionGroup>
+        <AccordionPanel index={1}>This is the first panel.</AccordionPanel>
+        <AccordionPanel index={2}>This is the second panel.</AccordionPanel>
+        <AccordionPanel index={3}>This is the third panel.</AccordionPanel>
+      </AccordionGroup>
     </Box>
   );
 }
-
-const INTENTS: Intent[] = ["none", "primary", "success", "warning", "danger"];

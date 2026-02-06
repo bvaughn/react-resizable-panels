@@ -235,27 +235,121 @@ test.describe("cursor", () => {
     ).toBe("auto");
   });
 
-  test("disabled panel(s)", async ({ page: mainPage }) => {
-    const page = await goToUrl(
-      mainPage,
-      <Group>
-        <Panel disabled id="left" />
-        <Panel id="right" />
-      </Group>
-    );
+  test("all panels disabled", async ({ page: mainPage }) => {
+    const states = [
+      [true, true],
+      [true, false],
+      [false, true]
+    ] satisfies [boolean, boolean][];
 
-    const hitAreaBox = await calculateHitArea(page, ["left", "right"]);
-    const { x, y } = getCenterCoordinates(hitAreaBox);
+    for (const [leftDisabled, rightDisabled] of states) {
+      const page = await goToUrl(
+        mainPage,
+        <Group>
+          <Panel disabled={leftDisabled} id="left" />
+          <Panel disabled={rightDisabled} id="right" />
+        </Group>
+      );
 
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("auto");
+      const hitAreaBox = await calculateHitArea(page, ["left", "right"]);
+      const { x, y } = getCenterCoordinates(hitAreaBox);
 
-    await page.mouse.move(x, y, moveConfig);
+      expect(
+        await page.evaluate(() => getComputedStyle(document.body).cursor)
+      ).toBe("auto");
 
-    expect(
-      await page.evaluate(() => getComputedStyle(document.body).cursor)
-    ).toBe("auto");
+      await page.mouse.move(x, y, moveConfig);
+
+      expect(
+        await page.evaluate(() => getComputedStyle(document.body).cursor)
+      ).toBe("auto");
+    }
+  });
+
+  test("all but one panels disabled", async ({ page: mainPage }) => {
+    const states = [
+      [true, true, false],
+      [false, true, true],
+      [true, false, true]
+    ] satisfies [boolean, boolean, boolean][];
+
+    for (const [leftDisabled, centerDisabled, rightDisabled] of states) {
+      const page = await goToUrl(
+        mainPage,
+        <Group>
+          <Panel disabled={leftDisabled} id="left" />
+          <Panel disabled={centerDisabled} id="center" />
+          <Panel disabled={rightDisabled} id="right" />
+        </Group>
+      );
+
+      expect(
+        await page.evaluate(() => getComputedStyle(document.body).cursor)
+      ).toBe("auto");
+
+      {
+        const hitAreaBox = await calculateHitArea(page, ["left", "center"]);
+        const { x, y } = getCenterCoordinates(hitAreaBox);
+        await page.mouse.move(x, y, moveConfig);
+
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("auto");
+      }
+
+      {
+        const hitAreaBox = await calculateHitArea(page, ["center", "right"]);
+        const { x, y } = getCenterCoordinates(hitAreaBox);
+        await page.mouse.move(x, y, moveConfig);
+
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("auto");
+      }
+    }
+  });
+
+  test("only some panels disabled", async ({ page: mainPage }) => {
+    const states = [
+      [true, false, false],
+      [false, true, false],
+      [false, false, true]
+    ] satisfies [boolean, boolean, boolean][];
+
+    for (const [leftDisabled, centerDisabled, rightDisabled] of states) {
+      const page = await goToUrl(
+        mainPage,
+        <Group>
+          <Panel disabled={leftDisabled} id="left" />
+          <Panel disabled={centerDisabled} id="center" />
+          <Panel disabled={rightDisabled} id="right" />
+        </Group>
+      );
+
+      expect(
+        await page.evaluate(() => getComputedStyle(document.body).cursor)
+      ).toBe("auto");
+
+      if (!leftDisabled) {
+        const hitAreaBox = await calculateHitArea(page, ["left", "center"]);
+        const { x, y } = getCenterCoordinates(hitAreaBox);
+        await page.mouse.move(x, y, moveConfig);
+
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("ew-resize");
+      }
+
+      if (!rightDisabled) {
+        const hitAreaBox = await calculateHitArea(page, ["center", "right"]);
+        const { x, y } = getCenterCoordinates(hitAreaBox);
+        await page.mouse.move(x, y, moveConfig);
+
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("ew-resize");
+      }
+    }
   });
 
   test("disabled separator", async ({ page: mainPage }) => {
@@ -285,5 +379,143 @@ test.describe("cursor", () => {
           getComputedStyle(document.querySelector('[role="separator"]')!).cursor
       )
     ).toBe("not-allowed");
+  });
+
+  test("disabled separator within a disabled group", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Group disabled>
+        <Panel id="left" />
+        <Separator disabled id="separator" />
+        <Panel id="right" />
+      </Group>
+    );
+
+    const separator = page.getByTestId("separator");
+    const boundingBox = (await separator.boundingBox())!;
+    const x = boundingBox.x + boundingBox.width / 2;
+    const y = boundingBox.y + boundingBox.height / 2;
+
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("auto");
+
+    await page.mouse.move(x, y, moveConfig);
+
+    expect(
+      await page.evaluate(
+        () =>
+          getComputedStyle(document.querySelector('[role="separator"]')!).cursor
+      )
+    ).toBe("not-allowed");
+  });
+
+  test("disabled separator within a cursor-disabled group", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Group disableCursor>
+        <Panel id="left" />
+        <Separator disabled id="separator" />
+        <Panel id="right" />
+      </Group>
+    );
+
+    const separator = page.getByTestId("separator");
+    const boundingBox = (await separator.boundingBox())!;
+    const x = boundingBox.x + boundingBox.width / 2;
+    const y = boundingBox.y + boundingBox.height / 2;
+
+    expect(
+      await page.evaluate(() => getComputedStyle(document.body).cursor)
+    ).toBe("auto");
+
+    await page.mouse.move(x, y, moveConfig);
+
+    expect(
+      await page.evaluate(
+        () =>
+          getComputedStyle(document.querySelector('[role="separator"]')!).cursor
+      )
+    ).toBe("auto");
+  });
+
+  test("should not show a cursor at the panel's edge if all panels before or after are disabled", async ({
+    page: mainPage
+  }) => {
+    {
+      // All before
+      const page = await goToUrl(
+        mainPage,
+        <Group>
+          <Panel disabled id="left" />
+          <Panel id="center" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      expect(
+        await page.evaluate(() => getComputedStyle(document.body).cursor)
+      ).toBe("auto");
+
+      {
+        const hitAreaBox = await calculateHitArea(page, ["left", "center"]);
+        const { x, y } = getCenterCoordinates(hitAreaBox);
+        await page.mouse.move(x, y, moveConfig);
+
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("auto");
+      }
+
+      {
+        const hitAreaBox = await calculateHitArea(page, ["center", "right"]);
+        const { x, y } = getCenterCoordinates(hitAreaBox);
+        await page.mouse.move(x, y, moveConfig);
+
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("ew-resize");
+      }
+    }
+
+    {
+      // All before
+      const page = await goToUrl(
+        mainPage,
+        <Group>
+          <Panel id="left" />
+          <Panel id="center" />
+          <Panel disabled id="right" />
+        </Group>
+      );
+
+      expect(
+        await page.evaluate(() => getComputedStyle(document.body).cursor)
+      ).toBe("auto");
+
+      {
+        const hitAreaBox = await calculateHitArea(page, ["left", "center"]);
+        const { x, y } = getCenterCoordinates(hitAreaBox);
+        await page.mouse.move(x, y, moveConfig);
+
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("ew-resize");
+      }
+
+      {
+        const hitAreaBox = await calculateHitArea(page, ["center", "right"]);
+        const { x, y } = getCenterCoordinates(hitAreaBox);
+        await page.mouse.move(x, y, moveConfig);
+
+        expect(
+          await page.evaluate(() => getComputedStyle(document.body).cursor)
+        ).toBe("auto");
+      }
+    }
   });
 });

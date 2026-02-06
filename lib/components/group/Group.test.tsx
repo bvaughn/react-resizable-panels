@@ -311,6 +311,7 @@ describe("Group", () => {
       render(<Repro />);
     });
   });
+
   describe("onLayoutChange and onLayoutChanged", () => {
     beforeEach(() => {
       setElementBoundsFunction((element) => {

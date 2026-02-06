@@ -13,7 +13,7 @@ export type PanelConstraints = {
   collapsedSize: number;
   collapsible: boolean;
   defaultSize: number | undefined;
-  disabled?: boolean | undefined;
+  disabled: boolean | undefined;
   maxSize: number;
   minSize: number;
   panelId: string;
