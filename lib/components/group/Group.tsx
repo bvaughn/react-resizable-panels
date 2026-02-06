@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, type CSSProperties } from "react";
+import { calculatePanelConstraints } from "../../global/dom/calculatePanelConstraints";
 import { mountGroup } from "../../global/mountGroup";
 import { eventEmitter, read } from "../../global/mutableState";
 import { layoutsEqual } from "../../global/utils/layoutsEqual";
@@ -139,8 +140,16 @@ export function Group({
     }
   );
 
+  const stableProps = useStableObject({
+    defaultLayout,
+    disableCursor
+  });
+
   const context = useMemo(
     () => ({
+      get disableCursor() {
+        return !!stableProps.disableCursor;
+      },
       getPanelStyles,
       id,
       orientation,
@@ -177,15 +186,38 @@ export function Group({
 
           forceUpdate();
         };
+      },
+      togglePanelDisabled: (panelId: string, disabled: boolean) => {
+        const inMemoryValues = inMemoryValuesRef.current;
+        const panel = inMemoryValues.panels.find(
+          (current) => current.id === panelId
+        );
+        if (panel) {
+          panel.panelConstraints.disabled = disabled;
+        }
+
+        const { mountedGroups } = read();
+        for (const group of mountedGroups.keys()) {
+          if (group.id === id) {
+            const match = mountedGroups.get(group);
+            if (match) {
+              match.derivedPanelConstraints = calculatePanelConstraints(group);
+            }
+          }
+        }
+      },
+      toggleSeparatorDisabled: (separatorId: string, disabled: boolean) => {
+        const inMemoryValues = inMemoryValuesRef.current;
+        const separator = inMemoryValues.separators.find(
+          (current) => current.id === separatorId
+        );
+        if (separator) {
+          separator.disabled = disabled;
+        }
       }
     }),
-    [getPanelStyles, id, forceUpdate, orientation]
+    [getPanelStyles, id, forceUpdate, orientation, stableProps]
   );
-
-  const stableProps = useStableObject({
-    defaultLayout,
-    disableCursor
-  });
 
   const registeredGroupRef = useRef<RegisteredGroup | null>(null);
 

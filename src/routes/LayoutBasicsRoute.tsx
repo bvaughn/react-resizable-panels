@@ -34,7 +34,7 @@ export default function LayoutBasicsRoute() {
         <Link anchor="vertical-group-height" to="/common-questions">
           read more
         </Link>
-        ) .
+        ).
       </Callout>
       <Group className="min-h-30" orientation="vertical">
         <Panel>top</Panel>

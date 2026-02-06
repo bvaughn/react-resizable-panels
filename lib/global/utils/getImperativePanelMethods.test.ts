@@ -56,7 +56,14 @@ describe("getImperativePanelMethods", () => {
       const group = mockGroup(bounds, "horizontal", "A");
 
       panelConstraints.forEach(
-        ({ collapsedSize, collapsible, defaultSize, maxSize, minSize }) => {
+        ({
+          collapsedSize,
+          collapsible,
+          defaultSize,
+          disabled,
+          maxSize,
+          minSize
+        }) => {
           group.addPanel(
             new DOMRect(
               0,
@@ -73,6 +80,7 @@ describe("getImperativePanelMethods", () => {
               collapsible,
               defaultSize:
                 defaultSize !== undefined ? `${defaultSize}%` : undefined,
+              disabled,
               maxSize: maxSize !== undefined ? `${maxSize}%` : undefined,
               minSize: minSize !== undefined ? `${minSize}%` : 0
             }
@@ -152,6 +160,21 @@ describe("getImperativePanelMethods", () => {
         expect(onLayoutChange).toHaveBeenCalledTimes(1);
         expect(onLayoutChange).toHaveBeenCalledWith([0, 100]);
       });
+
+      test("allows disabled panel to be collapsed", () => {
+        const { panelApis } = init([
+          {
+            collapsible: true,
+            defaultSize: 50,
+            disabled: true
+          },
+          {}
+        ]);
+        panelApis[0].collapse();
+
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenCalledWith([0, 100]);
+      });
     });
 
     describe("expand", () => {
@@ -212,6 +235,17 @@ describe("getImperativePanelMethods", () => {
 
         expect(onLayoutChange).toHaveBeenCalledTimes(1);
         expect(onLayoutChange).toHaveBeenCalledWith([1, 99]);
+      });
+
+      test("allows disabled panel to be expanded", () => {
+        const { panelApis } = init([
+          { defaultSize: 0, collapsible: true, disabled: true, minSize: 10 },
+          {}
+        ]);
+
+        panelApis[0].expand();
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenCalledWith([10, 90]);
       });
     });
 
@@ -277,6 +311,18 @@ describe("getImperativePanelMethods", () => {
 
       test("validates and updates the panel size", () => {
         const { panelApis } = init([{ defaultSize: 25, minSize: 10 }, {}]);
+        panelApis[0].resize(0);
+
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenCalledWith([10, 90]);
+      });
+
+      test("allows disabled panel to be resized", () => {
+        const { panelApis } = init([
+          { defaultSize: 25, disabled: true, minSize: 10 },
+          {}
+        ]);
+
         panelApis[0].resize(0);
 
         expect(onLayoutChange).toHaveBeenCalledTimes(1);

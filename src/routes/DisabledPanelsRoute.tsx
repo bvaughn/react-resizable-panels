@@ -1,8 +1,9 @@
 import { Box, Callout, Code, Header } from "react-lib-tools";
-import { html as DisabledSeparatorHTML } from "../../public/generated/examples/DisabledSeparator.json";
-import { html as DisabledPanelsHTML } from "../../public/generated/examples/DisabledPanels.json";
 import { html as DisabledPanelHTML } from "../../public/generated/examples/DisabledPanel.json";
 import { html as DisabledPanelAndSeparatorHTML } from "../../public/generated/examples/DisabledPanelAndSeparator.json";
+import { html as DisabledPanelsHTML } from "../../public/generated/examples/DisabledPanels.json";
+import { html as DisabledSeparatorHTML } from "../../public/generated/examples/DisabledSeparator.json";
+import { Link } from "../components/Link";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
@@ -22,9 +23,9 @@ export default function DisabledPanelsRoute() {
       </div>
       <Code html={DisabledSeparatorHTML} />
       <Group>
-        <Panel>left</Panel>
+        <Panel minSize={50}>left</Panel>
         <Separator disabled />
-        <Panel>right</Panel>
+        <Panel minSize={50}>right</Panel>
       </Group>
       <div>
         The same applies to disabling one or both panels when there is no
@@ -36,8 +37,12 @@ export default function DisabledPanelsRoute() {
       </Callout>
       <Code html={DisabledPanelsHTML} />
       <Group>
-        <Panel disabled>left</Panel>
-        <Panel disabled>right</Panel>
+        <Panel disabled minSize={50}>
+          left
+        </Panel>
+        <Panel disabled minSize={50}>
+          right
+        </Panel>
       </Group>
       <div>
         In groups with three or more panels, disabling a separator does not
@@ -46,11 +51,11 @@ export default function DisabledPanelsRoute() {
         resized as well.
       </div>
       <Group>
-        <Panel>left</Panel>
+        <Panel minSize={50}>left</Panel>
         <Separator disabled />
-        <Panel>center</Panel>
+        <Panel minSize={50}>center</Panel>
         <Separator />
-        <Panel>right</Panel>
+        <Panel minSize={50}>right</Panel>
       </Group>
       <div>
         Disabling a panel prevents it from being resized, though its separator
@@ -58,11 +63,24 @@ export default function DisabledPanelsRoute() {
       </div>
       <Code html={DisabledPanelHTML} />
       <Group>
-        <Panel>left</Panel>
+        <Panel minSize={50}>left</Panel>
         <Separator />
-        <Panel disabled>center (disabled)</Panel>
+        <Panel disabled minSize={50}>
+          center (disabled)
+        </Panel>
         <Separator />
-        <Panel>right</Panel>
+        <Panel minSize={50}>right</Panel>
+      </Group>
+      <div>
+        When there is no separator, a disabled panel's edges can also be used to
+        resize other panels.
+      </div>
+      <Group>
+        <Panel minSize={50}>left</Panel>
+        <Panel disabled minSize={50}>
+          center (disabled)
+        </Panel>
+        <Panel minSize={50}>right</Panel>
       </Group>
       <div>
         You can also disable both a panel and its separator to completely
@@ -70,12 +88,18 @@ export default function DisabledPanelsRoute() {
       </div>
       <Code html={DisabledPanelAndSeparatorHTML} />
       <Group>
-        <Panel disabled>left (disabled)</Panel>
+        <Panel disabled minSize={50}>
+          left (disabled)
+        </Panel>
         <Separator disabled />
-        <Panel>center</Panel>
+        <Panel minSize={50}>center</Panel>
         <Separator />
-        <Panel>right</Panel>
+        <Panel minSize={50}>right</Panel>
       </Group>
+      <Callout intent="primary">
+        Note that a disabled <code>Panel</code> can still be resized using the{" "}
+        <Link to="/imperative-api/panel">imperative API</Link>.
+      </Callout>
     </Box>
   );
 }

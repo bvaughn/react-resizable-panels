@@ -155,5 +155,32 @@ describe("getImperativeGroupMethods", () => {
         "A-2": 70
       });
     });
+
+    test("allows disabled panels to be resized", () => {
+      const { api } = init([
+        { defaultSize: 200, disabled: true, minSize: 100 },
+        { defaultSize: 800, disabled: true }
+      ]);
+
+      expect(api.getLayout()).toMatchInlineSnapshot(`
+        {
+          "A-1": 20,
+          "A-2": 80,
+        }
+      `);
+
+      api.setLayout({
+        "A-1": 30,
+        "A-2": 70
+      });
+
+      expect(onMountedGroupsChange).toHaveBeenCalledTimes(1);
+      expect(api.getLayout()).toMatchInlineSnapshot(`
+        {
+          "A-1": 30,
+          "A-2": 70,
+        }
+      `);
+    });
   });
 });

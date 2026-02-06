@@ -26,6 +26,8 @@ export function adjustLayoutByDelta({
     return initialLayoutProp;
   }
 
+  const overrideDisabledPanels = trigger === "imperative-api";
+
   const initialLayout = Object.values(initialLayoutProp);
   const prevLayout = Object.values(prevLayoutProp);
   const nextLayout = [...initialLayout];
@@ -210,6 +212,7 @@ export function adjustLayoutByDelta({
       );
 
       const maxSafeSize = validatePanelSize({
+        overrideDisabledPanels,
         panelConstraints: panelConstraintsArray[index],
         prevSize,
         size: 100
@@ -248,6 +251,7 @@ export function adjustLayoutByDelta({
 
       const unsafeSize = prevSize - deltaRemaining;
       const safeSize = validatePanelSize({
+        overrideDisabledPanels,
         panelConstraints: panelConstraintsArray[index],
         prevSize,
         size: unsafeSize
@@ -301,6 +305,7 @@ export function adjustLayoutByDelta({
 
     const unsafeSize = prevSize + deltaApplied;
     const safeSize = validatePanelSize({
+      overrideDisabledPanels,
       panelConstraints: panelConstraintsArray[pivotIndex],
       prevSize,
       size: unsafeSize
@@ -324,6 +329,7 @@ export function adjustLayoutByDelta({
 
         const unsafeSize = prevSize + deltaRemaining;
         const safeSize = validatePanelSize({
+          overrideDisabledPanels,
           panelConstraints: panelConstraintsArray[index],
           prevSize,
           size: unsafeSize

@@ -50,6 +50,7 @@ export function validatePanelGroupLayout({
     assert(unsafeSize != null, `No layout data found for index ${index}`);
 
     const safeSize = validatePanelSize({
+      overrideDisabledPanels: true,
       panelConstraints: panelConstraints[index],
       prevSize,
       size: unsafeSize
@@ -70,6 +71,7 @@ export function validatePanelGroupLayout({
       assert(prevSize != null, `No layout data found for index ${index}`);
       const unsafeSize = prevSize + remainingSize;
       const safeSize = validatePanelSize({
+        overrideDisabledPanels: true,
         panelConstraints: panelConstraints[index],
         prevSize,
         size: unsafeSize

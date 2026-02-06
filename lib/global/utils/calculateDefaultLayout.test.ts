@@ -8,6 +8,7 @@ const c = (
   collapsedSize: 0,
   collapsible: false,
   defaultSize: undefined,
+  disabled: undefined,
   maxSize: 100,
   minSize: 0,
   ...partial

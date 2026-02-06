@@ -612,4 +612,50 @@ test.describe("pointer interactions", () => {
     await assertLayoutChangeCounts(mainPage, 1);
     await expect(mainPage.getByText('"left": 50')).toBeVisible();
   });
+
+  test("should allow a disabled panel's border to resize another panel indirectly", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Group>
+        <Panel id="left" />
+        <Panel disabled id="center" />
+        <Panel id="right" />
+      </Group>
+    );
+
+    await assertLayoutChangeCounts(mainPage, 1);
+    await expect(mainPage.getByText('"left": 33')).toBeVisible();
+    await expect(mainPage.getByText('"center": 33')).toBeVisible();
+    await expect(mainPage.getByText('"right": 33')).toBeVisible();
+
+    await resizeHelper(page, ["left", "center"], 100, 0);
+
+    await assertLayoutChangeCounts(mainPage, 2);
+    await expect(mainPage.getByText('"left": 43')).toBeVisible();
+    await expect(mainPage.getByText('"center": 33')).toBeVisible();
+    await expect(mainPage.getByText('"right": 23')).toBeVisible();
+
+    await resizeHelper(page, ["center", "right"], -200, 0);
+
+    await assertLayoutChangeCounts(mainPage, 3);
+    await expect(mainPage.getByText('"left": 23')).toBeVisible();
+    await expect(mainPage.getByText('"center": 33')).toBeVisible();
+    await expect(mainPage.getByText('"right": 43')).toBeVisible();
+
+    await resizeHelper(page, ["center", "right"], 200, 0);
+
+    await assertLayoutChangeCounts(mainPage, 4);
+    await expect(mainPage.getByText('"left": 43')).toBeVisible();
+    await expect(mainPage.getByText('"center": 33')).toBeVisible();
+    await expect(mainPage.getByText('"right": 23')).toBeVisible();
+
+    await resizeHelper(page, ["center", "right"], -100, 0);
+
+    await assertLayoutChangeCounts(mainPage, 5);
+    await expect(mainPage.getByText('"left": 33')).toBeVisible();
+    await expect(mainPage.getByText('"center": 33')).toBeVisible();
+    await expect(mainPage.getByText('"right": 33')).toBeVisible();
+  });
 });

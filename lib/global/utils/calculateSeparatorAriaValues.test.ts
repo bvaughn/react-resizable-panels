@@ -6,6 +6,7 @@ const DEFAULT_PANEL_CONSTRAINTS = {
   collapsedSize: 0,
   collapsible: false,
   defaultSize: undefined,
+  disabled: undefined,
   minSize: 0,
   maxSize: 100
 };
@@ -17,6 +18,7 @@ describe("calculateSeparatorAriaValues", () => {
         ...DEFAULT_PANEL_CONSTRAINTS,
         collapsedSize: 5,
         collapsible: true,
+        disabled: undefined,
         maxSize: 70,
         minSize: 20,
         panelId: "left"

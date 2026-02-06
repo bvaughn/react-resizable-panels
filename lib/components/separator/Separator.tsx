@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { eventEmitter } from "../../global/mutableState";
 import type { InteractionState } from "../../global/types";
 import { calculateSeparatorAriaValues } from "../../global/utils/calculateSeparatorAriaValues";
@@ -9,6 +9,8 @@ import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect
 import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useGroupContext } from "../group/useGroupContext";
 import type { RegisteredSeparator, SeparatorProps } from "./types";
+import type { Properties } from "csstype";
+import { useStableObject } from "../../hooks/useStableObject";
 
 /**
  * Separators are not _required_ but they are _recommended_ as they improve keyboard accessibility.
@@ -36,6 +38,10 @@ export function Separator({
 }: SeparatorProps) {
   const id = useId(idProp);
 
+  const stableProps = useStableObject({
+    disabled
+  });
+
   const [aria, setAria] = useState<{
     valueControls?: string | undefined;
     valueMin?: number | undefined;
@@ -51,9 +57,11 @@ export function Separator({
   const mergedRef = useMergedRefs(elementRef, elementRefProp);
 
   const {
+    disableCursor,
     id: groupId,
     orientation: groupOrientation,
-    registerSeparator
+    registerSeparator,
+    toggleSeparatorDisabled
   } = useGroupContext();
 
   const orientation =
@@ -65,7 +73,7 @@ export function Separator({
     const element = elementRef.current;
     if (element !== null) {
       const separator: RegisteredSeparator = {
-        disabled,
+        disabled: stableProps.disabled,
         element,
         id
       };
@@ -121,13 +129,23 @@ export function Separator({
         unregisterSeparator();
       };
     }
-  }, [disabled, groupId, id, registerSeparator]);
+  }, [groupId, id, registerSeparator, stableProps]);
+
+  // Not all props require re-registering the separator;
+  useEffect(() => {
+    toggleSeparatorDisabled(id, !!disabled);
+  }, [disabled, id, toggleSeparatorDisabled]);
+
+  let cursor: Properties["cursor"] = undefined;
+  if (disabled && !disableCursor) {
+    cursor = "not-allowed";
+  }
 
   return (
     <div
       {...rest}
       aria-controls={aria.valueControls}
-      aria-disabled={disabled}
+      aria-disabled={disabled || undefined}
       aria-orientation={orientation}
       aria-valuemax={aria.valueMax}
       aria-valuemin={aria.valueMin}
@@ -141,7 +159,7 @@ export function Separator({
       role="separator"
       style={{
         flexBasis: "auto",
-        cursor: disabled ? "not-allowed" : undefined,
+        cursor,
         ...style,
         flexGrow: 0,
         flexShrink: 0

@@ -227,7 +227,8 @@ const commonQuestions: CommonQuestion[] = [
         <Code html={ConditionallyRenderPanel} />
         <Callout>
           Putting the <code>defaultSize</code> on the conditional{" "}
-          <code>Panel</code> is an easy way to avoid invalid layout constraints.
+          <code>Panel</code> is the easiest way to avoid invalid layout
+          constraints in this type of scenario.
         </Callout>
       </>
     )
