@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.6.2
+
+- [660](https://github.com/bvaughn/react-resizable-panels/pull/660): `Group` guards against layouts with mis-ordered `Panel` id keys
+
 ## 4.6.1
 
 - [658](https://github.com/bvaughn/react-resizable-panels/pull/658): Imperative `Panel` and `Group` APIs ignored `disabled` status when resizing panels; this is an explicit override of the _disabled_ state and is required to support conditionally disabled groups.
