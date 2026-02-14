@@ -38,7 +38,7 @@ export function updateCursorStyle(ownerDocument: Document) {
         state: interactionState.state
       });
 
-      const nextStyle = `*, *:hover {cursor: ${cursorStyle} !important; ${interactionState.state === "active" ? "touch-action: none;" : ""} }`;
+      const nextStyle = `*, *:hover {cursor: ${cursorStyle} !important; }`;
       if (prevStyle === nextStyle) {
         return;
       }

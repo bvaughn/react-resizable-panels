@@ -367,10 +367,7 @@ export function Group({
           // but still allow users to scroll content within panels in the non-resizing direction
           // NOTE This is not an inherited style
           // See github.com/bvaughn/react-resizable-panels/issues/662
-          touchAction:
-            orientation === "horizontal"
-              ? "pan-y pinch-zoom"
-              : "pan-x pinch-zoom"
+          touchAction: orientation === "horizontal" ? "pan-y" : "pan-x"
         }}
       >
         {children}
