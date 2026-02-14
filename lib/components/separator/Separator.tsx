@@ -162,7 +162,8 @@ export function Separator({
         cursor,
         ...style,
         flexGrow: 0,
-        flexShrink: 0
+        flexShrink: 0,
+        touchAction: "none" // Disable touch scrolling while dragging
       }}
       tabIndex={disabled ? undefined : 0}
     />
