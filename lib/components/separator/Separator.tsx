@@ -160,10 +160,15 @@ export function Separator({
       style={{
         flexBasis: "auto",
         cursor,
+
         ...style,
+
         flexGrow: 0,
         flexShrink: 0,
-        touchAction: "none" // Disable touch scrolling while dragging
+
+        // Inform the browser that the library is handling touch events for this element
+        // See github.com/bvaughn/react-resizable-panels/issues/662
+        touchAction: "none"
       }}
       tabIndex={disabled ? undefined : 0}
     />
