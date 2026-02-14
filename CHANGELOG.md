@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- [664](https://github.com/bvaughn/react-resizable-panels/pull/664): Resize actions sometimes "jump" on touch devices
+- [664](https://github.com/bvaughn/react-resizable-panels/pull/664), [665](https://github.com/bvaughn/react-resizable-panels/pull/665): Resize actions sometimes "jump" on touch devices
 
 ## 4.6.3
 
