@@ -65,13 +65,6 @@ beforeAll(() => {
   vi.spyOn(console, "warn").mockImplementation(() => {
     throw Error("Unexpected console warning");
   });
-
-  Object.defineProperty(Document.prototype, "adoptedStyleSheets", {
-    value: []
-  });
-  Object.defineProperty(ShadowRoot.prototype, "adoptedStyleSheets", {
-    value: []
-  });
 });
 
 afterAll(() => {

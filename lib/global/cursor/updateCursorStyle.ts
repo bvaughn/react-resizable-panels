@@ -24,7 +24,10 @@ export function updateCursorStyle(ownerDocument: Document) {
   if (styleSheet === undefined) {
     styleSheet = new ownerDocument.defaultView.CSSStyleSheet();
 
-    ownerDocument.adoptedStyleSheets.push(styleSheet);
+    // adoptedStyleSheets is undefined in jsdom
+    if (ownerDocument.adoptedStyleSheets) {
+      ownerDocument.adoptedStyleSheets.push(styleSheet);
+    }
   }
 
   const { cursorFlags, interactionState } = read();
