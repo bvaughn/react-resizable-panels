@@ -113,11 +113,6 @@ export function updateActiveHitRegions({
           layout: nextLayout,
           separatorToPanels
         });
-
-        // Save the most recent layout for this group of panels in-memory
-        // so that layouts will be remembered between different sets of conditionally rendered panels
-        const panelIdsKey = current.group.panels.map(({ id }) => id).join(",");
-        current.group.inMemoryLayouts[panelIdsKey] = nextLayout;
       }
     }
   });

@@ -305,6 +305,11 @@ export function Group({
             return;
           }
 
+          // Save the layout to in-memory cache so it persists when panel configuration changes
+          // This improves UX for conditionally rendered panels without requiring defaultLayout
+          const panelIdsKey = group.panels.map(({ id }) => id).join(",");
+          group.inMemoryLayouts[panelIdsKey] = layout;
+
           const { interactionState } = read();
           const isCompleted = interactionState.state !== "active";
 

@@ -1,10 +1,12 @@
 import { render } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import {
   createRef,
   useEffect,
   useLayoutEffect,
   useRef,
-  type PropsWithChildren
+  type PropsWithChildren,
+  type RefObject
 } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { eventEmitter } from "../../global/mutableState";
@@ -18,7 +20,7 @@ import { Panel } from "../panel/Panel";
 import type { PanelImperativeHandle } from "../panel/types";
 import { Separator } from "../separator/Separator";
 import { Group } from "./Group";
-import type { GroupImperativeHandle } from "./types";
+import type { GroupImperativeHandle, Layout } from "./types";
 import { useGroupRef } from "./useGroupRef";
 
 describe("Group", () => {
@@ -90,6 +92,130 @@ describe("Group", () => {
         <Panel id="c-b" />
       </Group>
     );
+  });
+
+  describe("in-memory layout cache", () => {
+    async function runTest(
+      callback: (args: {
+        container: HTMLElement;
+        groupRef: RefObject<GroupImperativeHandle | null>;
+        panelRef: RefObject<PanelImperativeHandle | null>;
+      }) => Promise<void>,
+      expectedLayout: Layout
+    ) {
+      setElementBoundsFunction((element) => {
+        switch (element.id) {
+          case "group": {
+            return new DOMRect(0, 0, 100, 50);
+          }
+          case "left": {
+            return new DOMRect(0, 0, 50, 50);
+          }
+          case "right": {
+            return new DOMRect(50, 0, 50, 50);
+          }
+          case "separator": {
+            return new DOMRect(50, 0, 0, 50);
+          }
+        }
+      });
+
+      const onLayoutChanged = vi.fn();
+
+      const groupRef = createRef<GroupImperativeHandle>();
+      const panelRef = createRef<PanelImperativeHandle>();
+
+      const { container, rerender } = render(
+        <Group groupRef={groupRef} onLayoutChanged={onLayoutChanged}>
+          <Panel id="left" panelRef={panelRef} />
+          <Separator id="separator" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      expect(onLayoutChanged).toHaveBeenCalledTimes(1);
+      expect(onLayoutChanged).toHaveBeenLastCalledWith({
+        left: 50,
+        right: 50
+      });
+
+      await callback({ container, groupRef, panelRef });
+
+      expect(onLayoutChanged).toHaveBeenCalledTimes(2);
+      expect(onLayoutChanged).toHaveBeenLastCalledWith(expectedLayout);
+
+      rerender(
+        <Group groupRef={groupRef} onLayoutChanged={onLayoutChanged}>
+          <Panel id="right" />
+        </Group>
+      );
+
+      expect(onLayoutChanged).toHaveBeenCalledTimes(3);
+      expect(onLayoutChanged).toHaveBeenLastCalledWith({ right: 100 });
+
+      rerender(
+        <Group groupRef={groupRef} onLayoutChanged={onLayoutChanged}>
+          <Panel id="left" panelRef={panelRef} />
+          <Separator id="separator" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      expect(onLayoutChanged).toHaveBeenCalledTimes(4);
+      expect(onLayoutChanged).toHaveBeenLastCalledWith(expectedLayout);
+    }
+
+    test("should update when resized via pointer", async () => {
+      await runTest(
+        async () => {
+          await moveSeparator(10, "separator");
+        },
+        {
+          left: 60,
+          right: 40
+        }
+      );
+    });
+
+    test("should update when resized via keyboard", async () => {
+      await runTest(
+        async ({ container }) => {
+          const separator = container.querySelector("#separator")!;
+          await userEvent.type(separator, " {ArrowRight}");
+        },
+        {
+          left: 55,
+          right: 45
+        }
+      );
+    });
+
+    test("should update when resized via Group imperative API", async () => {
+      await runTest(
+        async ({ groupRef }) => {
+          groupRef.current?.setLayout({
+            left: 75,
+            right: 25
+          });
+        },
+        {
+          left: 75,
+          right: 25
+        }
+      );
+    });
+
+    test("should update when resized via Panel imperative API", async () => {
+      await runTest(
+        async ({ panelRef }) => {
+          panelRef.current?.resize(35);
+        },
+        {
+          left: 35,
+          right: 65
+        }
+      );
+    });
   });
 
   describe("defaultLayout", () => {
@@ -260,7 +386,7 @@ describe("Group", () => {
       });
     });
 
-    test("should note require multiple render passes", () => {
+    test("should not require multiple render passes", () => {
       setElementBoundsFunction((element) => {
         if (element.hasAttribute("data-panel")) {
           return new DOMRect(0, 0, 50, 50);
@@ -641,6 +767,54 @@ describe("Group", () => {
 
       expect(onLayoutChange).not.toHaveBeenCalled();
       expect(onLayoutChanged).not.toHaveBeenCalled();
+    });
+
+    test("should be called in response to imperative API", async () => {
+      const onLayoutChange = vi.fn();
+      const onLayoutChanged = vi.fn();
+
+      const groupRef = createRef<GroupImperativeHandle>();
+
+      const { rerender } = render(
+        <Group
+          groupRef={groupRef}
+          onLayoutChange={onLayoutChange}
+          onLayoutChanged={onLayoutChanged}
+        >
+          <Panel id="a" />
+          <Panel id="b" />
+        </Group>
+      );
+
+      onLayoutChange.mockReset();
+      onLayoutChanged.mockReset();
+
+      groupRef.current?.setLayout({ a: 25, b: 75 });
+
+      expect(onLayoutChange).toHaveBeenCalledTimes(1);
+      expect(onLayoutChange).toHaveBeenCalledWith({
+        a: 25,
+        b: 75
+      });
+
+      expect(onLayoutChanged).toHaveBeenCalledTimes(1);
+      expect(onLayoutChanged).toHaveBeenCalledWith({
+        a: 25,
+        b: 75
+      });
+
+      rerender(
+        <Group
+          onLayoutChange={onLayoutChange}
+          onLayoutChanged={onLayoutChanged}
+        >
+          <Panel id="a" />
+          <Panel id="b" />
+        </Group>
+      );
+
+      expect(onLayoutChange).toHaveBeenCalledTimes(1);
+      expect(onLayoutChanged).toHaveBeenCalledTimes(1);
     });
   });
 

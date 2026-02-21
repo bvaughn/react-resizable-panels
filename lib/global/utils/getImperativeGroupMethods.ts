@@ -67,10 +67,6 @@ export function getImperativeGroupMethods({
             separatorToPanels
           })
         }));
-
-        // Save the layout to in-memory cache so it persists when panel configuration changes
-        const panelIdsKey = group.panels.map(({ id }) => id).join(",");
-        group.inMemoryLayouts[panelIdsKey] = nextLayout;
       }
 
       return nextLayout;
