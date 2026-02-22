@@ -34,15 +34,17 @@ export function deleteMutableGroup(group: RegisteredGroup) {
   map.delete(group);
 }
 
-export function getMountedGroup(groupId: string): [RegisteredGroup, State] | [];
-export function getMountedGroup(
+export function getRegisteredGroup(
+  groupId: string
+): RegisteredGroup | undefined;
+export function getRegisteredGroup(
   groupId: string,
   assert: true
-): [RegisteredGroup, State];
-export function getMountedGroup(groupId: string, assert?: boolean) {
-  for (const [group, mountedGroup] of map) {
+): RegisteredGroup;
+export function getRegisteredGroup(groupId: string, assert?: boolean) {
+  for (const [group] of map) {
     if (group.id === groupId) {
-      return [group, mountedGroup] as [RegisteredGroup, State];
+      return group;
     }
   }
 
@@ -50,7 +52,23 @@ export function getMountedGroup(groupId: string, assert?: boolean) {
     throw Error(`Could not find data for Group with id ${groupId}`);
   }
 
-  return [];
+  return undefined;
+}
+
+export function getMountedGroupState(groupId: string): State | undefined;
+export function getMountedGroupState(groupId: string, assert: true): State;
+export function getMountedGroupState(groupId: string, assert?: boolean) {
+  for (const [group, mountedGroup] of map) {
+    if (group.id === groupId) {
+      return mountedGroup;
+    }
+  }
+
+  if (assert) {
+    throw Error(`Could not find data for Group with id ${groupId}`);
+  }
+
+  return undefined;
 }
 
 export function getMountedGroups() {

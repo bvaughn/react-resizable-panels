@@ -1,5 +1,5 @@
 import { assert } from "../../utils/assert";
-import { getMountedGroup } from "../mutable-state/groups";
+import { getMountedGroupState } from "../mutable-state/groups";
 import { adjustLayoutForSeparator } from "../utils/adjustLayoutForSeparator";
 import { findSeparatorGroup } from "../utils/findSeparatorGroup";
 
@@ -65,8 +65,8 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
 
       const group = findSeparatorGroup(separatorElement);
 
-      const [_, data] = getMountedGroup(group.id, true);
-      const { derivedPanelConstraints, layout, separatorToPanels } = data;
+      const groupState = getMountedGroupState(group.id, true);
+      const { derivedPanelConstraints, layout, separatorToPanels } = groupState;
 
       const separator = group.separators.find(
         (current) => current.element === separatorElement

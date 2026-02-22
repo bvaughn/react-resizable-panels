@@ -4,11 +4,13 @@ import { useEffect, useMemo, useRef, type CSSProperties } from "react";
 import { calculatePanelConstraints } from "../../global/dom/calculatePanelConstraints";
 import { mountGroup } from "../../global/mountGroup";
 import {
-  getMountedGroup,
+  getMountedGroupState,
+  getRegisteredGroup,
   subscribeToMountedGroup,
   updateMountedGroup
 } from "../../global/mutable-state/groups";
 import { getInteractionState } from "../../global/mutable-state/interactions";
+import { layoutNumbersEqual } from "../../global/utils/layoutNumbersEqual";
 import { layoutsEqual } from "../../global/utils/layoutsEqual";
 import { useForceUpdate } from "../../hooks/useForceUpdate";
 import { useId } from "../../hooks/useId";
@@ -27,7 +29,6 @@ import type {
   ResizeTargetMinimumSize
 } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
-import { layoutNumbersEqual } from "../../global/utils/layoutNumbersEqual";
 
 /**
  * A Group wraps a set of resizable Panel components.
@@ -116,8 +117,9 @@ export function Group({
   const getPanelStyles = useStableCallback(
     (groupId: string, panelId: string) => {
       const interactionState = getInteractionState();
-      const [group, mountedGroup] = getMountedGroup(groupId);
-      if (mountedGroup) {
+      const group = getRegisteredGroup(groupId);
+      const groupState = getMountedGroupState(groupId);
+      if (groupState) {
         let dragActive = false;
         switch (interactionState.state) {
           case "active": {
@@ -129,7 +131,7 @@ export function Group({
         }
 
         return {
-          flexGrow: mountedGroup.layout[panelId] ?? 1,
+          flexGrow: groupState.layout[panelId] ?? 1,
           pointerEvents: dragActive ? "none" : undefined
         } satisfies CSSProperties;
       }
@@ -197,7 +199,8 @@ export function Group({
           panel.panelConstraints.disabled = disabled;
         }
 
-        const [group, groupState] = getMountedGroup(id);
+        const group = getRegisteredGroup(id);
+        const groupState = getMountedGroupState(id);
         if (group && groupState) {
           updateMountedGroup(group, {
             ...groupState,
@@ -267,8 +270,9 @@ export function Group({
 
     const unmountGroup = mountGroup(group);
 
-    const data = getMountedGroup(group.id, true);
-    const { defaultLayoutDeferred, derivedPanelConstraints, layout } = data[1];
+    const { defaultLayoutDeferred, derivedPanelConstraints, layout } =
+      getMountedGroupState(group.id, true);
+
     if (!defaultLayoutDeferred && derivedPanelConstraints.length > 0) {
       onLayoutChangeStable(layout);
       onLayoutChangedStable(layout);

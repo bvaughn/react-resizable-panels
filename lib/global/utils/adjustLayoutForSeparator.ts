@@ -1,5 +1,8 @@
 import { assert } from "../../utils/assert";
-import { getMountedGroup, updateMountedGroup } from "../mutable-state/groups";
+import {
+  getMountedGroupState,
+  updateMountedGroup
+} from "../mutable-state/groups";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { findSeparatorGroup } from "./findSeparatorGroup";
 import { getImperativeGroupMethods } from "./getImperativeGroupMethods";
@@ -11,14 +14,14 @@ export function adjustLayoutForSeparator(
   delta: number
 ) {
   const group = findSeparatorGroup(separatorElement);
-  const [_, data] = getMountedGroup(group.id, true);
+  const groupState = getMountedGroupState(group.id, true);
 
   const separator = group.separators.find(
     (current) => current.element === separatorElement
   );
   assert(separator, "Matching separator not found");
 
-  const panels = data.separatorToPanels.get(separator);
+  const panels = groupState.separatorToPanels.get(separator);
   assert(panels, "Matching panels not found");
 
   const pivotIndices = panels.map((panel) => group.panels.indexOf(panel));
@@ -29,22 +32,22 @@ export function adjustLayoutForSeparator(
   const unsafeLayout = adjustLayoutByDelta({
     delta,
     initialLayout: prevLayout,
-    panelConstraints: data.derivedPanelConstraints,
+    panelConstraints: groupState.derivedPanelConstraints,
     pivotIndices,
     prevLayout,
     trigger: "keyboard"
   });
   const nextLayout = validatePanelGroupLayout({
     layout: unsafeLayout,
-    panelConstraints: data.derivedPanelConstraints
+    panelConstraints: groupState.derivedPanelConstraints
   });
 
   if (!layoutsEqual(prevLayout, nextLayout)) {
     updateMountedGroup(group, {
-      defaultLayoutDeferred: data.defaultLayoutDeferred,
-      derivedPanelConstraints: data.derivedPanelConstraints,
+      defaultLayoutDeferred: groupState.defaultLayoutDeferred,
+      derivedPanelConstraints: groupState.derivedPanelConstraints,
       layout: nextLayout,
-      separatorToPanels: data.separatorToPanels
+      separatorToPanels: groupState.separatorToPanels
     });
   }
 }

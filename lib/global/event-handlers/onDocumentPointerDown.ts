@@ -1,9 +1,6 @@
 import type { Layout, RegisteredGroup } from "../../components/group/types";
 import { getMountedGroups } from "../mutable-state/groups";
-import {
-  getInteractionState,
-  updateInteractionState
-} from "../mutable-state/interactions";
+import { updateInteractionState } from "../mutable-state/interactions";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
 
 export function onDocumentPointerDown(event: PointerEvent) {
@@ -14,7 +11,6 @@ export function onDocumentPointerDown(event: PointerEvent) {
   }
 
   const mountedGroups = getMountedGroups();
-  const interactionState = getInteractionState();
 
   const hitRegions = findMatchingHitRegions(event, mountedGroups);
 
@@ -38,7 +34,7 @@ export function onDocumentPointerDown(event: PointerEvent) {
   });
 
   updateInteractionState({
-    cursorFlags: interactionState.cursorFlags,
+    cursorFlags: 0,
     hitRegions,
     initialLayoutMap,
     pointerDownAtPoint: { x: event.clientX, y: event.clientY },

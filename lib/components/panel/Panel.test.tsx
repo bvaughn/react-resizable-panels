@@ -1,7 +1,7 @@
 import { act, render } from "@testing-library/react";
 import { createRef, Profiler } from "react";
 import { describe, expect, test, vi } from "vitest";
-import { getMountedGroup } from "../../global/mutable-state/groups";
+import { getRegisteredGroup } from "../../global/mutable-state/groups";
 import { moveSeparator } from "../../global/test/moveSeparator";
 import { assert } from "../../utils/assert";
 import {
@@ -23,7 +23,7 @@ describe("Panel", () => {
         </Group>
       );
 
-      const [{ panels: panelsMounted }] = getMountedGroup("group", true);
+      const { panels: panelsMounted } = getRegisteredGroup("group", true);
 
       rerender(
         <Group id="group">
@@ -32,7 +32,7 @@ describe("Panel", () => {
         </Group>
       );
 
-      const [{ panels: panelsUpdated }] = getMountedGroup("group", true);
+      const { panels: panelsUpdated } = getRegisteredGroup("group", true);
 
       expect(panelsMounted).toBe(panelsUpdated);
     });

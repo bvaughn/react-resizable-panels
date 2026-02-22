@@ -12,7 +12,7 @@ import { onDocumentPointerOut } from "./event-handlers/onDocumentPointerOut";
 import { onDocumentPointerUp } from "./event-handlers/onDocumentPointerUp";
 import {
   deleteMutableGroup,
-  getMountedGroup,
+  getMountedGroupState,
   updateMountedGroup
 } from "./mutable-state/groups";
 import type { SeparatorToPanelsMap } from "./mutable-state/types";
@@ -52,8 +52,8 @@ export function mountGroup(group: RegisteredGroup) {
             return;
           }
 
-          const [_, data] = getMountedGroup(group.id);
-          if (!data) {
+          const groupState = getMountedGroupState(group.id);
+          if (!groupState) {
             // Not mounted yet
             return;
           }
@@ -62,19 +62,19 @@ export function mountGroup(group: RegisteredGroup) {
           const nextDerivedPanelConstraints = calculatePanelConstraints(group);
 
           // Revalidate layout in case constraints have changed
-          const prevLayout = data.defaultLayoutDeferred
+          const prevLayout = groupState.defaultLayoutDeferred
             ? calculateDefaultLayout(nextDerivedPanelConstraints)
-            : data.layout;
+            : groupState.layout;
           const nextLayout = validatePanelGroupLayout({
             layout: prevLayout,
             panelConstraints: nextDerivedPanelConstraints
           });
 
           if (
-            !data.defaultLayoutDeferred &&
+            !groupState.defaultLayoutDeferred &&
             layoutsEqual(prevLayout, nextLayout) &&
             objectsEqual(
-              data.derivedPanelConstraints,
+              groupState.derivedPanelConstraints,
               nextDerivedPanelConstraints
             )
           ) {
@@ -85,7 +85,7 @@ export function mountGroup(group: RegisteredGroup) {
             defaultLayoutDeferred: false,
             derivedPanelConstraints: nextDerivedPanelConstraints,
             layout: nextLayout,
-            separatorToPanels: data.separatorToPanels
+            separatorToPanels: groupState.separatorToPanels
           });
         }
       } else {

@@ -1,7 +1,7 @@
 import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import {
-  getMountedGroup,
   getMountedGroups,
+  getMountedGroupState,
   updateMountedGroup
 } from "../mutable-state/groups";
 import {
@@ -35,8 +35,8 @@ export function onDocumentPointerMove(event: PointerEvent) {
         // Dispatch one more "change" event after the interaction state has been reset
         // Groups use this as a signal to call onLayoutChanged
         interactionState.hitRegions.forEach((hitRegion) => {
-          const [_, data] = getMountedGroup(hitRegion.group.id, true);
-          updateMountedGroup(hitRegion.group, data);
+          const groupState = getMountedGroupState(hitRegion.group.id, true);
+          updateMountedGroup(hitRegion.group, groupState);
         });
 
         return;
