@@ -1,16 +1,17 @@
 "use client";
 
+import type { Properties } from "csstype";
 import { useEffect, useRef, useState } from "react";
-import { eventEmitter } from "../../global/mutableState";
-import type { InteractionState } from "../../global/types";
+import { subscribeToMountedGroup } from "../../global/mutable-state/groups";
+import { subscribeToInteractionState } from "../../global/mutable-state/interactions";
+import type { InteractionState } from "../../global/mutable-state/types";
 import { calculateSeparatorAriaValues } from "../../global/utils/calculateSeparatorAriaValues";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
+import { useStableObject } from "../../hooks/useStableObject";
 import { useGroupContext } from "../group/useGroupContext";
 import type { RegisteredSeparator, SeparatorProps } from "./types";
-import type { Properties } from "csstype";
-import { useStableObject } from "../../hooks/useStableObject";
 
 /**
  * Separators are not _required_ but they are _recommended_ as they improve keyboard accessibility.
@@ -80,46 +81,38 @@ export function Separator({
 
       const unregisterSeparator = registerSeparator(separator);
 
-      const removeInteractionStateChangeListener = eventEmitter.addListener(
-        "interactionStateChange",
-        (interactionState) => {
+      const removeInteractionStateChangeListener = subscribeToInteractionState(
+        (event) => {
           setDragState(
-            interactionState.state !== "inactive" &&
-              interactionState.hitRegions.some(
+            event.next.state !== "inactive" &&
+              event.next.hitRegions.some(
                 (hitRegion) => hitRegion.separator === separator
               )
-              ? interactionState.state
+              ? event.next.state
               : "inactive"
           );
         }
       );
 
-      const removeMountedGroupsChangeListener = eventEmitter.addListener(
-        "mountedGroupsChange",
-        (mountedGroups) => {
-          mountedGroups.forEach(
-            (
-              { derivedPanelConstraints, layout, separatorToPanels },
-              mountedGroup
-            ) => {
-              if (mountedGroup.id === groupId) {
-                const panels = separatorToPanels.get(separator);
-                if (panels) {
-                  const primaryPanel = panels[0];
-                  const panelIndex = mountedGroup.panels.indexOf(primaryPanel);
+      const removeMountedGroupsChangeListener = subscribeToMountedGroup(
+        groupId,
+        (event) => {
+          const { derivedPanelConstraints, layout, separatorToPanels } =
+            event.next;
+          const panels = separatorToPanels.get(separator);
+          if (panels) {
+            const primaryPanel = panels[0];
+            const panelIndex = panels.indexOf(primaryPanel);
 
-                  setAria(
-                    calculateSeparatorAriaValues({
-                      layout,
-                      panelConstraints: derivedPanelConstraints,
-                      panelId: primaryPanel.id,
-                      panelIndex
-                    })
-                  );
-                }
-              }
-            }
-          );
+            setAria(
+              calculateSeparatorAriaValues({
+                layout,
+                panelConstraints: derivedPanelConstraints,
+                panelId: primaryPanel.id,
+                panelIndex
+              })
+            );
+          }
         }
       );
 

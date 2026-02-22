@@ -1,4 +1,7 @@
-import { read, update } from "../mutableState";
+import {
+  getInteractionState,
+  updateInteractionState
+} from "../mutable-state/interactions";
 
 export function onDocumentPointerOut(event: PointerEvent) {
   // For some reason, "pointerout" events don't fire if the `relatedTarget` is an iframe
@@ -6,13 +9,12 @@ export function onDocumentPointerOut(event: PointerEvent) {
   // The easiest fix for this case is to reset the interaction state in this specific circumstance
   // See issues/645
   if (event.relatedTarget instanceof HTMLIFrameElement) {
-    const { interactionState } = read();
+    const interactionState = getInteractionState();
     switch (interactionState.state) {
       case "hover": {
-        update({
-          interactionState: {
-            state: "inactive"
-          }
+        updateInteractionState({
+          cursorFlags: 0,
+          state: "inactive"
         });
       }
     }

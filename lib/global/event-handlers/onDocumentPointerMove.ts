@@ -1,5 +1,13 @@
 import { updateCursorStyle } from "../cursor/updateCursorStyle";
-import { read, update } from "../mutableState";
+import {
+  getMountedGroup,
+  getMountedGroups,
+  updateMountedGroup
+} from "../mutable-state/groups";
+import {
+  getInteractionState,
+  updateInteractionState
+} from "../mutable-state/interactions";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
 import { updateActiveHitRegions } from "../utils/updateActiveHitRegion";
 
@@ -8,7 +16,8 @@ export function onDocumentPointerMove(event: PointerEvent) {
     return;
   }
 
-  const { cursorFlags, interactionState, mountedGroups } = read();
+  const interactionState = getInteractionState();
+  const mountedGroups = getMountedGroups();
 
   switch (interactionState.state) {
     case "active": {
@@ -18,20 +27,17 @@ export function onDocumentPointerMove(event: PointerEvent) {
         // Skip this check for "pointerleave" events, else Firefox triggers a false positive (see #514)
         event.buttons === 0
       ) {
-        update((prevState) =>
-          prevState.interactionState.state === "inactive"
-            ? prevState
-            : {
-                cursorFlags: 0,
-                interactionState: { state: "inactive" }
-              }
-        );
+        updateInteractionState({
+          cursorFlags: 0,
+          state: "inactive"
+        });
 
         // Dispatch one more "change" event after the interaction state has been reset
         // Groups use this as a signal to call onLayoutChanged
-        update((prevState) => ({
-          mountedGroups: new Map(prevState.mountedGroups)
-        }));
+        interactionState.hitRegions.forEach((hitRegion) => {
+          const [_, data] = getMountedGroup(hitRegion.group.id, true);
+          updateMountedGroup(hitRegion.group, data);
+        });
 
         return;
       }
@@ -43,7 +49,7 @@ export function onDocumentPointerMove(event: PointerEvent) {
         initialLayoutMap: interactionState.initialLayoutMap,
         mountedGroups,
         pointerDownAtPoint: interactionState.pointerDownAtPoint,
-        prevCursorFlags: cursorFlags
+        prevCursorFlags: interactionState.cursorFlags
       });
       break;
     }
@@ -53,18 +59,16 @@ export function onDocumentPointerMove(event: PointerEvent) {
 
       if (hitRegions.length === 0) {
         if (interactionState.state !== "inactive") {
-          update({
-            interactionState: {
-              state: "inactive"
-            }
+          updateInteractionState({
+            cursorFlags: 0,
+            state: "inactive"
           });
         }
       } else {
-        update({
-          interactionState: {
-            hitRegions,
-            state: "hover"
-          }
+        updateInteractionState({
+          cursorFlags: 0,
+          hitRegions,
+          state: "hover"
         });
       }
 

@@ -1,4 +1,4 @@
-import { read } from "../mutableState";
+import { getInteractionState } from "../mutable-state/interactions";
 import { getCursorStyle } from "./getCursorStyle";
 
 const documentToStyleMap = new WeakMap<
@@ -30,13 +30,13 @@ export function updateCursorStyle(ownerDocument: Document) {
     }
   }
 
-  const { cursorFlags, interactionState } = read();
+  const interactionState = getInteractionState();
 
   switch (interactionState.state) {
     case "active":
     case "hover": {
       const cursorStyle = getCursorStyle({
-        cursorFlags,
+        cursorFlags: interactionState.cursorFlags,
         groups: interactionState.hitRegions.map((current) => current.group),
         state: interactionState.state
       });

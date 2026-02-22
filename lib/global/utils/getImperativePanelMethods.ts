@@ -1,6 +1,6 @@
 import type { PanelImperativeHandle } from "../../components/panel/types";
 import { calculateAvailableGroupSize } from "../dom/calculateAvailableGroupSize";
-import { read, update } from "../mutableState";
+import { getMountedGroups, updateMountedGroup } from "../mutable-state/groups";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { formatLayoutNumber } from "./formatLayoutNumber";
 import { layoutNumbersEqual } from "./layoutNumbersEqual";
@@ -15,7 +15,7 @@ export function getImperativePanelMethods({
   panelId: string;
 }): PanelImperativeHandle {
   const find = () => {
-    const { mountedGroups } = read();
+    const mountedGroups = getMountedGroups();
     for (const [
       group,
       {
@@ -99,14 +99,12 @@ export function getImperativePanelMethods({
       panelConstraints: derivedPanelConstraints
     });
     if (!layoutsEqual(prevLayout, nextLayout)) {
-      update((prevState) => ({
-        mountedGroups: new Map(prevState.mountedGroups).set(group, {
-          defaultLayoutDeferred,
-          derivedPanelConstraints,
-          layout: nextLayout,
-          separatorToPanels
-        })
-      }));
+      updateMountedGroup(group, {
+        defaultLayoutDeferred,
+        derivedPanelConstraints,
+        layout: nextLayout,
+        separatorToPanels
+      });
     }
   };
 

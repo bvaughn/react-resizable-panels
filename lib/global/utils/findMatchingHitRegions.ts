@@ -2,7 +2,7 @@ import {
   calculateHitRegions,
   type HitRegion
 } from "../dom/calculateHitRegions";
-import type { MountedGroupMap } from "../mutableState";
+import type { MountedGroups } from "../mutable-state/groups";
 import { findClosestHitRegion } from "./findClosestHitRegion";
 import { isViableHitTarget } from "./isViableHitTarget";
 
@@ -12,7 +12,7 @@ export function findMatchingHitRegions(
     clientY: number;
     target: EventTarget | null;
   },
-  mountedGroups: MountedGroupMap
+  mountedGroups: MountedGroups
 ): HitRegion[] {
   const matchingHitRegions: HitRegion[] = [];
 

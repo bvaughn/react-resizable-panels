@@ -10,7 +10,11 @@ import {
 import type { Point } from "../../types";
 import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import type { HitRegion } from "../dom/calculateHitRegions";
-import { update, type MountedGroupMap } from "../mutableState";
+import {
+  updateMountedGroup,
+  type MountedGroups
+} from "../mutable-state/groups";
+import { updateCursorFlags } from "../mutable-state/interactions";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { layoutsEqual } from "./layoutsEqual";
 
@@ -32,13 +36,11 @@ export function updateActiveHitRegions({
   };
   hitRegions: HitRegion[];
   initialLayoutMap: Map<RegisteredGroup, Layout>;
-  mountedGroups: MountedGroupMap;
+  mountedGroups: MountedGroups;
   pointerDownAtPoint?: Point;
   prevCursorFlags: number;
 }) {
   let nextCursorFlags = 0;
-
-  const nextMountedGroups = new Map(mountedGroups);
 
   // Note that HitRegions are frozen once a drag has started
   // Modify the Group layouts for all matching HitRegions though
@@ -108,7 +110,7 @@ export function updateActiveHitRegions({
           }
         }
       } else {
-        nextMountedGroups.set(current.group, {
+        updateMountedGroup(current.group, {
           defaultLayoutDeferred,
           derivedPanelConstraints: derivedPanelConstraints,
           layout: nextLayout,
@@ -133,10 +135,6 @@ export function updateActiveHitRegions({
     cursorFlags |= nextCursorFlags & CURSOR_FLAGS_VERTICAL;
   }
 
-  update({
-    cursorFlags,
-    mountedGroups: nextMountedGroups
-  });
-
+  updateCursorFlags(cursorFlags);
   updateCursorStyle(document);
 }

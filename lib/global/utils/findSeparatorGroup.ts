@@ -1,7 +1,7 @@
-import { read } from "../mutableState";
+import { getMountedGroups } from "../mutable-state/groups";
 
 export function findSeparatorGroup(separatorElement: HTMLElement) {
-  const { mountedGroups } = read();
+  const mountedGroups = getMountedGroups();
 
   for (const [group] of mountedGroups) {
     if (

@@ -1,7 +1,8 @@
 import { act, render } from "@testing-library/react";
 import { createRef, Profiler } from "react";
 import { describe, expect, test, vi } from "vitest";
-import { eventEmitter } from "../../global/mutableState";
+import { getMountedGroup } from "../../global/mutable-state/groups";
+import { moveSeparator } from "../../global/test/moveSeparator";
 import { assert } from "../../utils/assert";
 import {
   setDefaultElementBounds,
@@ -11,36 +12,29 @@ import { Group } from "../group/Group";
 import type { GroupImperativeHandle } from "../group/types";
 import { Separator } from "../separator/Separator";
 import { Panel } from "./Panel";
-import { moveSeparator } from "../../global/test/moveSeparator";
 
 describe("Panel", () => {
   describe("disabled prop", () => {
     test("changes to disabled prop should not cause the Panel to remount", () => {
-      const onMountedGroupsChange = vi.fn();
-      const removeListener = eventEmitter.addListener(
-        "mountedGroupsChange",
-        onMountedGroupsChange
-      );
-
       const { rerender } = render(
-        <Group>
+        <Group id="group">
           <Panel disabled id="a" />
           <Panel id="b" />
         </Group>
       );
-      expect(onMountedGroupsChange).toHaveBeenCalled();
 
-      onMountedGroupsChange.mockReset();
+      const [{ panels: panelsMounted }] = getMountedGroup("group", true);
 
       rerender(
-        <Group>
+        <Group id="group">
           <Panel id="a" />
           <Panel disabled id="b" />
         </Group>
       );
-      expect(onMountedGroupsChange).not.toHaveBeenCalled();
 
-      removeListener();
+      const [{ panels: panelsUpdated }] = getMountedGroup("group", true);
+
+      expect(panelsMounted).toBe(panelsUpdated);
     });
 
     test("changes to this prop should update Panel behavior", async () => {

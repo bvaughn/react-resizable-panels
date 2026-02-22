@@ -10,7 +10,12 @@ import { onDocumentPointerLeave } from "./event-handlers/onDocumentPointerLeave"
 import { onDocumentPointerMove } from "./event-handlers/onDocumentPointerMove";
 import { onDocumentPointerOut } from "./event-handlers/onDocumentPointerOut";
 import { onDocumentPointerUp } from "./event-handlers/onDocumentPointerUp";
-import { update, type SeparatorToPanelsMap } from "./mutableState";
+import {
+  deleteMutableGroup,
+  getMountedGroup,
+  updateMountedGroup
+} from "./mutable-state/groups";
+import type { SeparatorToPanelsMap } from "./mutable-state/types";
 import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
 import { layoutsEqual } from "./utils/layoutsEqual";
 import { notifyPanelOnResize } from "./utils/notifyPanelOnResize";
@@ -47,44 +52,40 @@ export function mountGroup(group: RegisteredGroup) {
             return;
           }
 
-          update((prevState) => {
-            const match = prevState.mountedGroups.get(group);
-            if (match) {
-              // Update non-percentage based constraints
-              const nextDerivedPanelConstraints =
-                calculatePanelConstraints(group);
+          const [_, data] = getMountedGroup(group.id);
+          if (!data) {
+            // Not mounted yet
+            return;
+          }
 
-              // Revalidate layout in case constraints have changed
-              const prevLayout = match.defaultLayoutDeferred
-                ? calculateDefaultLayout(nextDerivedPanelConstraints)
-                : match.layout;
-              const nextLayout = validatePanelGroupLayout({
-                layout: prevLayout,
-                panelConstraints: nextDerivedPanelConstraints
-              });
+          // Update non-percentage based constraints
+          const nextDerivedPanelConstraints = calculatePanelConstraints(group);
 
-              if (
-                !match.defaultLayoutDeferred &&
-                layoutsEqual(prevLayout, nextLayout) &&
-                objectsEqual(
-                  match.derivedPanelConstraints,
-                  nextDerivedPanelConstraints
-                )
-              ) {
-                return prevState;
-              }
+          // Revalidate layout in case constraints have changed
+          const prevLayout = data.defaultLayoutDeferred
+            ? calculateDefaultLayout(nextDerivedPanelConstraints)
+            : data.layout;
+          const nextLayout = validatePanelGroupLayout({
+            layout: prevLayout,
+            panelConstraints: nextDerivedPanelConstraints
+          });
 
-              return {
-                mountedGroups: new Map(prevState.mountedGroups).set(group, {
-                  defaultLayoutDeferred: false,
-                  derivedPanelConstraints: nextDerivedPanelConstraints,
-                  layout: nextLayout,
-                  separatorToPanels: match.separatorToPanels
-                })
-              };
-            }
+          if (
+            !data.defaultLayoutDeferred &&
+            layoutsEqual(prevLayout, nextLayout) &&
+            objectsEqual(
+              data.derivedPanelConstraints,
+              nextDerivedPanelConstraints
+            )
+          ) {
+            return;
+          }
 
-            return prevState;
+          updateMountedGroup(group, {
+            defaultLayoutDeferred: false,
+            derivedPanelConstraints: nextDerivedPanelConstraints,
+            layout: nextLayout,
+            separatorToPanels: data.separatorToPanels
           });
         }
       } else {
@@ -92,7 +93,9 @@ export function mountGroup(group: RegisteredGroup) {
       }
     }
   });
+
   resizeObserver.observe(group.element);
+
   group.panels.forEach((panel) => {
     assert(
       !panelIds.has(panel.id),
@@ -131,32 +134,26 @@ export function mountGroup(group: RegisteredGroup) {
     panelConstraints: derivedPanelConstraints
   });
 
-  const hitRegions = calculateHitRegions(group);
-
   const ownerDocument = group.element.ownerDocument;
 
-  update((prevState) => {
-    const separatorToPanels: SeparatorToPanelsMap = new Map();
+  ownerDocumentReferenceCounts.set(
+    ownerDocument,
+    (ownerDocumentReferenceCounts.get(ownerDocument) ?? 0) + 1
+  );
 
-    ownerDocumentReferenceCounts.set(
-      ownerDocument,
-      (ownerDocumentReferenceCounts.get(ownerDocument) ?? 0) + 1
-    );
+  const separatorToPanels: SeparatorToPanelsMap = new Map();
+  const hitRegions = calculateHitRegions(group);
+  hitRegions.forEach((hitRegion) => {
+    if (hitRegion.separator) {
+      separatorToPanels.set(hitRegion.separator, hitRegion.panels);
+    }
+  });
 
-    hitRegions.forEach((hitRegion) => {
-      if (hitRegion.separator) {
-        separatorToPanels.set(hitRegion.separator, hitRegion.panels);
-      }
-    });
-
-    return {
-      mountedGroups: new Map(prevState.mountedGroups).set(group, {
-        defaultLayoutDeferred: groupSize === 0,
-        derivedPanelConstraints,
-        layout: defaultLayoutSafe,
-        separatorToPanels
-      })
-    };
+  updateMountedGroup(group, {
+    defaultLayoutDeferred: groupSize === 0,
+    derivedPanelConstraints,
+    layout: defaultLayoutSafe,
+    separatorToPanels
   });
 
   group.separators.forEach((separator) => {
@@ -188,12 +185,7 @@ export function mountGroup(group: RegisteredGroup) {
       Math.max(0, (ownerDocumentReferenceCounts.get(ownerDocument) ?? 0) - 1)
     );
 
-    update((prevState) => {
-      const mountedGroups = new Map(prevState.mountedGroups);
-      mountedGroups.delete(group);
-
-      return { mountedGroups };
-    });
+    deleteMutableGroup(group);
 
     group.separators.forEach((separator) => {
       separator.element.removeEventListener("keydown", onDocumentKeyDown);

@@ -1,23 +1,20 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
+import { subscribeToMountedGroup } from "../../global/mutable-state/groups";
+import { moveSeparator } from "../../global/test/moveSeparator";
+import { setElementBoundsFunction } from "../../utils/test/mockBoundingClientRect";
 import { Group } from "../group/Group";
 import { Panel } from "../panel/Panel";
 import { Separator } from "./Separator";
-import { eventEmitter } from "../../global/mutableState";
-import { setElementBoundsFunction } from "../../utils/test/mockBoundingClientRect";
-import { moveSeparator } from "../../global/test/moveSeparator";
 
 describe("Separator", () => {
   describe("disabled prop", () => {
     test("changes to disabled prop should not cause the Separator to remount", () => {
-      const onMountedGroupsChange = vi.fn();
-      const removeListener = eventEmitter.addListener(
-        "mountedGroupsChange",
-        onMountedGroupsChange
-      );
+      const onChange = vi.fn();
+      const removeListener = subscribeToMountedGroup("group", onChange);
 
       const { rerender } = render(
-        <Group>
+        <Group id="group">
           <Panel />
           <Separator disabled id="left" />
           <Panel />
@@ -25,12 +22,12 @@ describe("Separator", () => {
           <Panel />
         </Group>
       );
-      expect(onMountedGroupsChange).toHaveBeenCalled();
+      expect(onChange).toHaveBeenCalled();
 
-      onMountedGroupsChange.mockReset();
+      onChange.mockReset();
 
       rerender(
-        <Group>
+        <Group id="group">
           <Panel />
           <Separator id="left" />
           <Panel />
@@ -38,7 +35,7 @@ describe("Separator", () => {
           <Panel />
         </Group>
       );
-      expect(onMountedGroupsChange).not.toHaveBeenCalled();
+      expect(onChange).not.toHaveBeenCalled();
 
       removeListener();
     });

@@ -9,13 +9,14 @@ import {
 } from "vitest";
 import type { PanelConstraints } from "../../components/panel/types";
 import { mountGroup } from "../mountGroup";
-import { eventEmitter } from "../mutableState";
+import { subscribeToMountedGroup } from "../mutable-state/groups";
 import { mockGroup } from "../test/mockGroup";
 import { getImperativeGroupMethods } from "./getImperativeGroupMethods";
 
 describe("getImperativeGroupMethods", () => {
+  let removeChangeListener: (() => void) | undefined = undefined;
   let unmountGroup: (() => void) | undefined = undefined;
-  let onMountedGroupsChange: Mock;
+  let onGroupChange: Mock;
 
   function init(
     panelConstraints: (Partial<PanelConstraints> & {
@@ -23,7 +24,7 @@ describe("getImperativeGroupMethods", () => {
     })[]
   ) {
     const group = mockGroup(new DOMRect(0, 0, 1000, 50), {
-      id: "A",
+      id: "group",
       orientation: "horizontal"
     });
 
@@ -44,7 +45,7 @@ describe("getImperativeGroupMethods", () => {
 
     unmountGroup = mountGroup(group);
 
-    eventEmitter.addListener("mountedGroupsChange", onMountedGroupsChange);
+    removeChangeListener = subscribeToMountedGroup("group", onGroupChange);
 
     return {
       api: getImperativeGroupMethods({ groupId: group.id }),
@@ -53,24 +54,26 @@ describe("getImperativeGroupMethods", () => {
   }
 
   beforeEach(() => {
-    onMountedGroupsChange = vi.fn();
+    onGroupChange = vi.fn();
   });
 
   afterEach(() => {
+    if (removeChangeListener) {
+      removeChangeListener();
+    }
+
     if (unmountGroup) {
       unmountGroup();
     }
-
-    eventEmitter.removeListener("mountedGroupsChange", onMountedGroupsChange);
   });
 
   describe("getLayout", () => {
     test("throws if group not mounted", () => {
       expect(() =>
         getImperativeGroupMethods({
-          groupId: "A"
+          groupId: "group"
         }).getLayout()
-      ).toThrowError('Could not find Group with id "A"');
+      ).toThrowError('Could not find Group with id "group"');
     });
 
     test("returns the current group layout", () => {
@@ -82,9 +85,9 @@ describe("getImperativeGroupMethods", () => {
 
       expect(api.getLayout()).toMatchInlineSnapshot(`
         {
-          "A-1": 20,
-          "A-2": 50,
-          "A-3": 30,
+          "group-1": 20,
+          "group-2": 50,
+          "group-3": 30,
         }
       `);
     });
@@ -94,19 +97,19 @@ describe("getImperativeGroupMethods", () => {
     test("throws if group not mounted", () => {
       expect(() =>
         getImperativeGroupMethods({
-          groupId: "A"
+          groupId: "group"
         }).setLayout({})
-      ).toThrowError('Could not find Group with id "A"');
+      ).toThrowError('Could not find Group with id "group"');
     });
 
     test("ignores a no-op layout update", () => {
       const { api } = init([{ defaultSize: 200 }, { defaultSize: 800 }]);
       api.setLayout({
-        "A-1": 20,
-        "A-2": 80
+        "group-1": 20,
+        "group-2": 80
       });
 
-      expect(onMountedGroupsChange).not.toHaveBeenCalled();
+      expect(onGroupChange).not.toHaveBeenCalled();
     });
 
     test("ignores an invalid layout update", () => {
@@ -115,11 +118,11 @@ describe("getImperativeGroupMethods", () => {
         { defaultSize: 800 }
       ]);
       api.setLayout({
-        "A-1": 10,
-        "A-2": 90
+        "group-1": 10,
+        "group-2": 90
       });
 
-      expect(onMountedGroupsChange).not.toHaveBeenCalled();
+      expect(onGroupChange).not.toHaveBeenCalled();
     });
 
     test("validates and updates the group layout", () => {
@@ -128,15 +131,15 @@ describe("getImperativeGroupMethods", () => {
         { defaultSize: 800 }
       ]);
       api.setLayout({
-        "A-1": 0,
-        "A-2": 100
+        "group-1": 0,
+        "group-2": 100
       });
 
-      expect(onMountedGroupsChange).toHaveBeenCalledTimes(1);
+      expect(onGroupChange).toHaveBeenCalledTimes(1);
       expect(api.getLayout()).toMatchInlineSnapshot(`
         {
-          "A-1": 10,
-          "A-2": 90,
+          "group-1": 10,
+          "group-2": 90,
         }
       `);
     });
@@ -149,21 +152,21 @@ describe("getImperativeGroupMethods", () => {
 
       expect(api.getLayout()).toMatchInlineSnapshot(`
         {
-          "A-1": 20,
-          "A-2": 80,
+          "group-1": 20,
+          "group-2": 80,
         }
       `);
 
       api.setLayout({
-        "A-1": 30,
-        "A-2": 70
+        "group-1": 30,
+        "group-2": 70
       });
 
-      expect(onMountedGroupsChange).toHaveBeenCalledTimes(1);
+      expect(onGroupChange).toHaveBeenCalledTimes(1);
       expect(api.getLayout()).toMatchInlineSnapshot(`
         {
-          "A-1": 30,
-          "A-2": 70,
+          "group-1": 30,
+          "group-2": 70,
         }
       `);
     });

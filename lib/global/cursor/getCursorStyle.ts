@@ -6,7 +6,7 @@ import {
   CURSOR_FLAG_VERTICAL_MAX,
   CURSOR_FLAG_VERTICAL_MIN
 } from "../../constants";
-import type { InteractionState } from "../types";
+import type { InteractionState } from "../mutable-state/types";
 import { supportsAdvancedCursorStyles } from "./supportsAdvancedCursorStyles";
 
 export function getCursorStyle({

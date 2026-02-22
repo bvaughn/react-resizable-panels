@@ -9,7 +9,7 @@ import {
   type RefObject
 } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { eventEmitter } from "../../global/mutableState";
+import { subscribeToMountedGroup } from "../../global/mutable-state/groups";
 import { moveSeparator } from "../../global/test/moveSeparator";
 import { assert } from "../../utils/assert";
 import {
@@ -25,11 +25,8 @@ import { useGroupRef } from "./useGroupRef";
 
 describe("Group", () => {
   test("changes to defaultProps or disableCursor should not cause Group to remount", () => {
-    const onMountedGroupsChange = vi.fn();
-    const removeListener = eventEmitter.addListener(
-      "mountedGroupsChange",
-      onMountedGroupsChange
-    );
+    const onChange = vi.fn();
+    const removeListener = subscribeToMountedGroup("group", onChange);
 
     const { rerender } = render(
       <Group
@@ -38,14 +35,15 @@ describe("Group", () => {
           b: 50
         }}
         disableCursor={false}
+        id="group"
       >
         <Panel id="a" />
         <Panel id="b" />
       </Group>
     );
-    expect(onMountedGroupsChange).toHaveBeenCalled();
+    expect(onChange).toHaveBeenCalled();
 
-    onMountedGroupsChange.mockReset();
+    onChange.mockReset();
 
     rerender(
       <Group
@@ -54,12 +52,13 @@ describe("Group", () => {
           b: 65
         }}
         disableCursor={true}
+        id="group"
       >
         <Panel id="a" />
         <Panel id="b" />
       </Group>
     );
-    expect(onMountedGroupsChange).not.toHaveBeenCalled();
+    expect(onChange).not.toHaveBeenCalled();
 
     removeListener();
   });

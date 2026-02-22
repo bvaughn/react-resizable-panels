@@ -6,15 +6,15 @@ import {
   useSyncExternalStore,
   type CSSProperties
 } from "react";
-import { eventEmitter } from "../../global/mutableState";
+import { subscribeToMountedGroup } from "../../global/mutable-state/groups";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
+import { useStableObject } from "../../hooks/useStableObject";
 import { useGroupContext } from "../group/useGroupContext";
 import type { PanelProps, PanelSize, RegisteredPanel } from "./types";
 import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
-import { useStableObject } from "../../hooks/useStableObject";
 
 /**
  * A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.
@@ -135,7 +135,7 @@ export function Panel({
   usePanelImperativeHandle(id, panelRef);
 
   const panelStylesString = useSyncExternalStore(
-    (subscribe) => eventEmitter.addListener("mountedGroupsChange", subscribe),
+    (subscribe) => subscribeToMountedGroup(groupId, subscribe),
 
     // useSyncExternalStore does not support a custom equality check
     // stringify avoids re-rendering when the style value hasn't changed

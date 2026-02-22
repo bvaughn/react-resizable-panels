@@ -12,7 +12,7 @@ import type {
   PanelImperativeHandle
 } from "../../components/panel/types";
 import { mountGroup } from "../mountGroup";
-import { eventEmitter } from "../mutableState";
+import { subscribeToMountedGroup } from "../mutable-state/groups";
 import { mockGroup } from "../test/mockGroup";
 import { getImperativePanelMethods } from "./getImperativePanelMethods";
 
@@ -27,17 +27,17 @@ describe("getImperativePanelMethods", () => {
     const key = name as keyof PanelImperativeHandle;
 
     const group = mockGroup(new DOMRect(), {
-      id: "A",
+      id: "group",
       orientation: "horizontal"
     });
 
     const api = getImperativePanelMethods({
-      groupId: "A",
+      groupId: "group",
       panelId: "B"
     });
 
     expect(() => (key === "resize" ? api[key](1) : api[key]())).toThrow(
-      "Group A not found"
+      "Group group not found"
     );
 
     const unmountGroup = mountGroup(group);
@@ -57,7 +57,7 @@ describe("getImperativePanelMethods", () => {
     function init(panelConstraints: Partial<PanelConstraints>[]) {
       const bounds = new DOMRect(0, 0, 1000, 50);
       const group = mockGroup(bounds, {
-        id: "A",
+        id: "group",
         orientation: "horizontal"
       });
 
@@ -96,14 +96,9 @@ describe("getImperativePanelMethods", () => {
 
       unmountGroup = mountGroup(group);
 
-      removeChangeListener = eventEmitter.addListener(
-        "mountedGroupsChange",
-        (mountedGroups) => {
-          mountedGroups.forEach((group) => {
-            onLayoutChange(Object.values(group.layout));
-          });
-        }
-      );
+      removeChangeListener = subscribeToMountedGroup("group", ({ next }) => {
+        onLayoutChange(Object.values(next.layout));
+      });
 
       return {
         group,
@@ -121,15 +116,13 @@ describe("getImperativePanelMethods", () => {
     });
 
     afterEach(() => {
-      if (unmountGroup) {
-        unmountGroup();
-      }
-
       if (removeChangeListener) {
         removeChangeListener();
       }
 
-      eventEmitter.removeListener("mountedGroupsChange", onLayoutChange);
+      if (unmountGroup) {
+        unmountGroup();
+      }
     });
 
     describe("collapse", () => {

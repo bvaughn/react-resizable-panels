@@ -1,5 +1,9 @@
 import { updateCursorStyle } from "../cursor/updateCursorStyle";
-import { read, update } from "../mutableState";
+import { getMountedGroup, updateMountedGroup } from "../mutable-state/groups";
+import {
+  getInteractionState,
+  updateInteractionState
+} from "../mutable-state/interactions";
 
 export function onDocumentPointerUp(event: PointerEvent) {
   if (event.defaultPrevented) {
@@ -8,15 +12,13 @@ export function onDocumentPointerUp(event: PointerEvent) {
     return;
   }
 
-  const { interactionState } = read();
+  const interactionState = getInteractionState();
 
   switch (interactionState.state) {
     case "active": {
-      update({
+      updateInteractionState({
         cursorFlags: 0,
-        interactionState: {
-          state: "inactive"
-        }
+        state: "inactive"
       });
 
       if (interactionState.hitRegions.length > 0) {
@@ -24,9 +26,10 @@ export function onDocumentPointerUp(event: PointerEvent) {
 
         // Dispatch one more "change" event after the interaction state has been reset
         // Groups use this as a signal to call onLayoutChanged
-        update((prevState) => ({
-          mountedGroups: new Map(prevState.mountedGroups)
-        }));
+        interactionState.hitRegions.forEach((hitRegion) => {
+          const [_, data] = getMountedGroup(hitRegion.group.id, true);
+          updateMountedGroup(hitRegion.group, data);
+        });
 
         event.preventDefault();
       }
