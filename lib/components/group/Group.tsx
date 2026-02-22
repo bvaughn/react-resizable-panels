@@ -279,18 +279,6 @@ export function Group({
       }
     }
 
-    let prevInteractionStateActive = false;
-
-    const removeInteractionStateChangeListener = eventEmitter.addListener(
-      "interactionStateChange",
-      (interactionState) => {
-        const nextInteractionStateActive = interactionState.state === "active";
-        if (prevInteractionStateActive !== nextInteractionStateActive) {
-          prevInteractionStateActive = nextInteractionStateActive;
-        }
-      }
-    );
-
     const removeMountedGroupsChangeEventListener = eventEmitter.addListener(
       "mountedGroupsChange",
       (mountedGroups) => {
@@ -326,7 +314,6 @@ export function Group({
       registeredGroupRef.current = null;
 
       unmountGroup();
-      removeInteractionStateChangeListener();
       removeMountedGroupsChangeEventListener();
     };
   }, [

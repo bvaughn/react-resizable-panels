@@ -47,11 +47,13 @@ let state: State = {
 
 export const eventEmitter = new EventEmitter<Events>();
 
-export function read(): State {
+export function read(): Readonly<State> {
   return state;
 }
 
-export function update(value: Partial<State> | UpdaterFunction) {
+export function update(
+  value: Partial<State> | UpdaterFunction
+): Readonly<State> {
   const partialState = typeof value === "function" ? value(state) : value;
   if (state === partialState) {
     return state;

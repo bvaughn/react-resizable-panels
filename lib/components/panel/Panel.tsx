@@ -135,13 +135,7 @@ export function Panel({
   usePanelImperativeHandle(id, panelRef);
 
   const panelStylesString = useSyncExternalStore(
-    (subscribe) => {
-      eventEmitter.addListener("mountedGroupsChange", subscribe);
-
-      return () => {
-        eventEmitter.removeListener("mountedGroupsChange", subscribe);
-      };
-    },
+    (subscribe) => eventEmitter.addListener("mountedGroupsChange", subscribe),
 
     // useSyncExternalStore does not support a custom equality check
     // stringify avoids re-rendering when the style value hasn't changed
