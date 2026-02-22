@@ -27,25 +27,25 @@ export type ResizeTargetMinimumSize = {
   fine: number;
 };
 
-export type RegisteredGroup = {
-  defaultLayout: Layout | undefined;
-  disableCursor: boolean;
+export type RegisteredGroup = Readonly<{
   disabled: boolean;
   element: HTMLElement;
   id: string;
-  // TODO Move to mutable state
-  inMemoryLastExpandedPanelSizes: {
-    [panelId: string]: number;
-  };
-  // TODO Move to mutable state
-  inMemoryLayouts: {
-    [panelIds: string]: Layout;
+  mutableState: {
+    defaultLayout: Readonly<Layout> | undefined;
+    disableCursor: boolean;
+    expandedPanelSizes: {
+      [panelId: string]: number;
+    };
+    layouts: {
+      [panelIds: string]: Layout;
+    };
   };
   orientation: Orientation;
   panels: RegisteredPanel[];
   resizeTargetMinimumSize: ResizeTargetMinimumSize;
   separators: RegisteredSeparator[];
-};
+}>;
 
 export type GroupContextType = {
   disableCursor: boolean;

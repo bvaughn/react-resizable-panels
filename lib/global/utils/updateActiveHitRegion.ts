@@ -44,7 +44,8 @@ export function updateActiveHitRegions({
   // Modify the Group layouts for all matching HitRegions though
   hitRegions.forEach((current) => {
     const { group, groupSize } = current;
-    const { disableCursor, orientation, panels } = group;
+    const { orientation, panels } = group;
+    const { disableCursor } = group.mutableState;
 
     let deltaAsPercentage = 0;
     if (pointerDownAtPoint) {

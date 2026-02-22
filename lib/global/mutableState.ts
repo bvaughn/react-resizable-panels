@@ -89,7 +89,7 @@ export function update(value: Partial<State> | UpdaterFunction) {
               prevLayout[constraints.panelId]
             );
             if (isCollapsed && !wasCollapsed) {
-              group.inMemoryLastExpandedPanelSizes[constraints.panelId] =
+              group.mutableState.expandedPanelSizes[constraints.panelId] =
                 prevLayout[constraints.panelId];
             }
           }

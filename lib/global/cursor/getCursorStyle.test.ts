@@ -10,18 +10,20 @@ import { getCursorStyle } from "./getCursorStyle";
 import { overrideSupportsAdvancedCursorStylesForTesting } from "./supportsAdvancedCursorStyles";
 
 describe("getCursorStyle", () => {
-  const horizontalGroup = mockGroup(new DOMRect(0, 0, 100, 50));
-  horizontalGroup.orientation = "horizontal";
+  const horizontalGroup = mockGroup(new DOMRect(0, 0, 100, 50), {
+    orientation: "horizontal"
+  });
   horizontalGroup.addPanel(new DOMRect(0, 0, 50, 50));
   horizontalGroup.addPanel(new DOMRect(50, 0, 50, 50));
 
-  const verticalGroup = mockGroup(new DOMRect(0, 0, 100, 50));
-  verticalGroup.orientation = "vertical";
+  const verticalGroup = mockGroup(new DOMRect(0, 0, 100, 50), {
+    orientation: "vertical"
+  });
   verticalGroup.addPanel(new DOMRect(0, 0, 50, 50));
   verticalGroup.addPanel(new DOMRect(50, 0, 50, 50));
 
   const disabledGroup = mockGroup(new DOMRect(0, 0, 100, 50));
-  disabledGroup.disableCursor = true;
+  disabledGroup.mutableState.disableCursor = true;
   disabledGroup.addPanel(new DOMRect(0, 0, 50, 50));
   disabledGroup.addPanel(new DOMRect(50, 0, 50, 50));
 

@@ -26,7 +26,10 @@ describe("getImperativePanelMethods", () => {
   ])("method %o: throws if group or panel not mounted", (name) => {
     const key = name as keyof PanelImperativeHandle;
 
-    const group = mockGroup(new DOMRect(), "horizontal", "A");
+    const group = mockGroup(new DOMRect(), {
+      id: "A",
+      orientation: "horizontal"
+    });
 
     const api = getImperativePanelMethods({
       groupId: "A",
@@ -53,7 +56,10 @@ describe("getImperativePanelMethods", () => {
 
     function init(panelConstraints: Partial<PanelConstraints>[]) {
       const bounds = new DOMRect(0, 0, 1000, 50);
-      const group = mockGroup(bounds, "horizontal", "A");
+      const group = mockGroup(bounds, {
+        id: "A",
+        orientation: "horizontal"
+      });
 
       panelConstraints.forEach(
         ({

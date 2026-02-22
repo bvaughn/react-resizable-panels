@@ -25,7 +25,7 @@ export function getCursorStyle({
     case "active":
     case "hover": {
       groups.forEach((group) => {
-        if (group.disableCursor) {
+        if (group.mutableState.disableCursor) {
           return;
         }
 

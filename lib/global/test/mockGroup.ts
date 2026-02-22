@@ -28,10 +28,9 @@ let groupIdCounter = 0;
 
 export function mockGroup(
   groupBounds: DOMRect,
-  orientation: Orientation = "horizontal",
-  groupIdStable?: string
+  config: Partial<RegisteredGroup> = {}
 ): MockGroup {
-  const groupId = groupIdStable ?? `group-${++groupIdCounter}`;
+  const groupId = config.id ?? `group-${++groupIdCounter}`;
 
   let panelIdCounter = 0;
   let separatorIdCounter = 0;
@@ -53,18 +52,21 @@ export function mockGroup(
     );
 
   const group = {
-    defaultLayout: undefined,
-    disableCursor: false,
     disabled: false,
     element: groupElement,
     id: groupId,
-    inMemoryLastExpandedPanelSizes: {},
-    inMemoryLayouts: {},
-    orientation,
+    mutableState: {
+      defaultLayout: undefined,
+      disableCursor: false,
+      expandedPanelSizes: {},
+      layouts: {}
+    },
+    orientation: "horizontal" as Orientation,
     resizeTargetMinimumSize: {
       coarse: 20,
       fine: 10
     },
+    ...config,
 
     get panels() {
       return Array.from(mockPanels.values());

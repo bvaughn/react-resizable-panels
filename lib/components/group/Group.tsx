@@ -249,14 +249,15 @@ export function Group({
     }
 
     const group: RegisteredGroup = {
-      defaultLayout: preSortedDefaultLayout,
-      disableCursor: !!stableProps.disableCursor,
       disabled: !!disabled,
       element,
       id,
-      inMemoryLastExpandedPanelSizes:
-        inMemoryValuesRef.current.lastExpandedPanelSizes,
-      inMemoryLayouts: inMemoryValuesRef.current.layouts,
+      mutableState: {
+        defaultLayout: preSortedDefaultLayout,
+        disableCursor: !!stableProps.disableCursor,
+        expandedPanelSizes: inMemoryValuesRef.current.lastExpandedPanelSizes,
+        layouts: inMemoryValuesRef.current.layouts
+      },
       orientation,
       panels: inMemoryValues.panels,
       resizeTargetMinimumSize: inMemoryValues.resizeTargetMinimumSize,
@@ -308,7 +309,7 @@ export function Group({
           // Save the layout to in-memory cache so it persists when panel configuration changes
           // This improves UX for conditionally rendered panels without requiring defaultLayout
           const panelIdsKey = group.panels.map(({ id }) => id).join(",");
-          group.inMemoryLayouts[panelIdsKey] = layout;
+          group.mutableState.layouts[panelIdsKey] = layout;
 
           const { interactionState } = read();
           const isCompleted = interactionState.state !== "active";
@@ -343,8 +344,8 @@ export function Group({
   useEffect(() => {
     const registeredGroup = registeredGroupRef.current;
     if (registeredGroup) {
-      registeredGroup.defaultLayout = defaultLayout;
-      registeredGroup.disableCursor = !!disableCursor;
+      registeredGroup.mutableState.defaultLayout = defaultLayout;
+      registeredGroup.mutableState.disableCursor = !!disableCursor;
     }
   });
 

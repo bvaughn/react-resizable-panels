@@ -115,7 +115,7 @@ export function mountGroup(group: RegisteredGroup) {
   // Gracefully handle an invalid default layout
   // This could happen when e.g. useDefaultLayout is combined with dynamic Panels
   // In this case the best we can do is ignore the incoming layout
-  let defaultLayout: Layout | undefined = group.defaultLayout;
+  let defaultLayout: Layout | undefined = group.mutableState.defaultLayout;
   if (defaultLayout) {
     if (!validateLayoutKeys(group.panels, defaultLayout)) {
       defaultLayout = undefined;
@@ -123,7 +123,7 @@ export function mountGroup(group: RegisteredGroup) {
   }
 
   const defaultLayoutUnsafe: Layout =
-    group.inMemoryLayouts[panelIdsKey] ??
+    group.mutableState.layouts[panelIdsKey] ??
     defaultLayout ??
     calculateDefaultLayout(derivedPanelConstraints);
   const defaultLayoutSafe = validatePanelGroupLayout({

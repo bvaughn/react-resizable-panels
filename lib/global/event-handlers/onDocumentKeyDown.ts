@@ -86,7 +86,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
 
         const nextSize =
           constraints.collapsedSize === prevSize
-            ? (group.inMemoryLastExpandedPanelSizes[primaryPanel.id] ??
+            ? (group.mutableState.expandedPanelSizes[primaryPanel.id] ??
               constraints.minSize)
             : constraints.collapsedSize;
 

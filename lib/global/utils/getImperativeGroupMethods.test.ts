@@ -22,7 +22,10 @@ describe("getImperativeGroupMethods", () => {
       defaultSize: number;
     })[]
   ) {
-    const group = mockGroup(new DOMRect(0, 0, 1000, 50), "horizontal", "A");
+    const group = mockGroup(new DOMRect(0, 0, 1000, 50), {
+      id: "A",
+      orientation: "horizontal"
+    });
 
     panelConstraints.forEach((current) => {
       group.addPanel(

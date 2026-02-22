@@ -76,7 +76,9 @@ describe("findMatchingHitRegions", () => {
     outerGroup.addPanel(new DOMRect(50, 0, 50, 50), "right");
     mountGroup(outerGroup);
 
-    const innerGroup = mockGroup(new DOMRect(0, 0, 50, 50), "vertical");
+    const innerGroup = mockGroup(new DOMRect(0, 0, 50, 50), {
+      orientation: "vertical"
+    });
     innerGroup.addPanel(new DOMRect(0, 0, 50, 25), "top");
     innerGroup.addPanel(new DOMRect(0, 25, 50, 25), "bottom");
     mountGroup(innerGroup);
@@ -107,10 +109,9 @@ describe("findMatchingHitRegions", () => {
   });
 
   test("should skip disabled groups", () => {
-    const group = mockGroup(new DOMRect(0, 0, 100, 50));
+    const group = mockGroup(new DOMRect(0, 0, 100, 50), { disabled: true });
     group.addPanel(new DOMRect(0, 0, 50, 50), "left");
     group.addPanel(new DOMRect(50, 0, 50, 50), "right");
-    group.disabled = true;
     mountGroup(group);
 
     expect(serialize(mockPointerEvent({ clientX: 50 }), read().mountedGroups))
