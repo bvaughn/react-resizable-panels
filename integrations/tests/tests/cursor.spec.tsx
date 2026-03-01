@@ -91,7 +91,7 @@ test.describe("cursor", () => {
         <Panel id="top" minSize="25%" />
         <Separator id="vertical-separator" />
         <Panel id="bottom" minSize="25%">
-          <Group orientation="horizontal">
+          <Group className="relative top-[-5rem]" orientation="horizontal">
             <Panel id="left" minSize="25%" />
             <Separator />
             <Panel id="right" minSize="25%" />
@@ -178,7 +178,7 @@ test.describe("cursor", () => {
         <Panel id="top" minSize="25%" />
         <Separator id="vertical-separator" />
         <Panel id="bottom" minSize="25%">
-          <Group orientation="horizontal">
+          <Group className="relative top-[-5rem]" orientation="horizontal">
             <Panel id="left" minSize="25%" />
             <Separator />
             <Panel id="right" minSize="25%" />

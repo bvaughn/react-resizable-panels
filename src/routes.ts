@@ -35,6 +35,7 @@ export const routes = {
   "/examples/disabled-panels": lazy(
     () => import("./routes/DisabledPanelsRoute")
   ),
+  "/examples/overflow": lazy(() => import("./routes/OverflowRoute")),
   "/examples/custom-css-styles": lazy(
     () => import("./routes/CustomStylesRoute")
   ),

@@ -3,4 +3,6 @@
 /generated
 /public
 
+src/routes/examples/*.html
+
 integrations/next/.next
