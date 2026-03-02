@@ -8,6 +8,8 @@ import {
   Tooltip
 } from "react-lib-tools";
 import { html as GroupAndPanelElementsHTML } from "../../public/generated/examples/GroupAndPanelElements.json";
+import { html as GroupOverflowClassNameHTML } from "../../public/generated/examples/GroupOverflowClassName.json";
+import { html as GroupOverflowStyleHTML } from "../../public/generated/examples/GroupOverflowStyle.json";
 import { html as PanelDropShadowHTML } from "../../public/generated/examples/PanelDropShadow.json";
 import { html as PanelFocusOutlineHTML } from "../../public/generated/examples/PanelFocusOutline.json";
 import { html as PanelTooltipHTML } from "../../public/generated/examples/PanelTooltip.json";
@@ -31,15 +33,23 @@ export default function OverflowRoute() {
       </div>
       <Code html={GroupAndPanelElementsHTML} />
       <div>
-        This combination of styles allows overflow content to be scrollable
-        while also allowing Panels to have visual styles like shadows or
-        outlines.
+        This combination of styles ensures overflow content is scrollable
+        without unexpectedly stretching the size of the group. To enable Panels
+        to have overflowing visual styles (like shadows or outlines) you just
+        need to change the style as shown below, either using class name:
       </div>
+      <Code html={GroupOverflowClassNameHTML} />
+      <div>Or with an inline style:</div>
+      <Code html={GroupOverflowStyleHTML} />
+      <Callout intent="warning">
+        If you change the overflow style, be sure to set an explicit
+        width/height on the group as well.
+      </Callout>
       <div>
         For example, this group of panels demonstrate drop-shadow style.
       </div>
       <Code html={PanelDropShadowHTML} />
-      <Group>
+      <Group className="overflow-visible!">
         <Panel
           className="bg-fuchsia-600 shadow-md shadow-fuchsia-600/50"
           minSize={100}
@@ -55,7 +65,7 @@ export default function OverflowRoute() {
       </Group>
       <div>And this group demonstrate a focus outline style.</div>
       <Code html={PanelFocusOutlineHTML} />
-      <Group>
+      <Group className="overflow-visible!">
         <Panel
           className="focus-within:z-10 focus-within:outline-2! outline-offset-2 outline-solid outline-blue-500!"
           minSize={100}
@@ -97,7 +107,7 @@ export default function OverflowRoute() {
         for these. However you can override the default style as shown below.
       </div>
       <Code html={PanelTooltipHTML} />
-      <Group>
+      <Group className="overflow-visible!">
         <Panel className="overflow-visible!" minSize={100}>
           <Tooltip content="This is the left panel" positions={["top"]}>
             left
@@ -111,7 +121,7 @@ export default function OverflowRoute() {
       </Group>
       <div>All of the above styles also apply to the separator component.</div>
       <Code html={SeparatorFocusOutlineHTML} />
-      <Group>
+      <Group className="overflow-visible!">
         <Panel minSize={100}>left</Panel>
         <Separator className="focus-within:z-10 focus-within:outline-2! outline-offset-2 outline-solid outline-blue-500!" />
         <Panel minSize={100}>right</Panel>

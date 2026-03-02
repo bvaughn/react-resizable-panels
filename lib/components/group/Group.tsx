@@ -363,7 +363,7 @@ export function Group({
         style={{
           height: "100%",
           width: "100%",
-          overflow: "visible",
+          overflow: "hidden",
 
           ...style,
 
