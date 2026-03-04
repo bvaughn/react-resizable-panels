@@ -35,15 +35,14 @@ export default function OverflowRoute() {
       <div>
         This combination of styles ensures overflow content is scrollable
         without unexpectedly stretching the size of the group. To enable Panels
-        to have overflowing visual styles (like shadows or outlines) you just
-        need to change the style as shown below, either using class name:
+        to have overflowing visual styles (like shadows or outlines) you need to
+        change the group overflow style to "visible":
       </div>
       <Code html={GroupOverflowClassNameHTML} />
-      <div>Or with an inline style:</div>
       <Code html={GroupOverflowStyleHTML} />
       <Callout intent="warning">
-        If you change the overflow style, be sure to set an explicit
-        width/height on the group as well.
+        If you change the overflow style, it is recommended that you also
+        specify an explicit width/height on the group.
       </Callout>
       <div>
         For example, this group of panels demonstrate drop-shadow style.
