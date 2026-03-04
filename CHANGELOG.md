@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.7.1 (Unreleased)
+## 4.7.1
 
 - [678](https://github.com/bvaughn/react-resizable-panels/pull/678): Change default overflow styles to support shadows
 
