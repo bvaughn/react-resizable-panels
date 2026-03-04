@@ -1,8 +1,12 @@
 # Changelog
 
+## 4.7.1 (Unreleased)
+
+- [678](https://github.com/bvaughn/react-resizable-panels/pull/678): Change default overflow styles to support shadows
+
 ## 4.7.0
 
-= [677](https://github.com/bvaughn/react-resizable-panels/pull/677): Add `groupResizeBehavior` prop to `Panel`, enabling panels to retain their current size (pixels) size when the parent `Group` is resized.
+- [677](https://github.com/bvaughn/react-resizable-panels/pull/677): Add `groupResizeBehavior` prop to `Panel`, enabling panels to retain their current size (pixels) size when the parent `Group` is resized.
 
 ## 4.6.5
 

@@ -160,9 +160,7 @@ export function Panel({
         display: "flex",
         flexBasis: 0,
         flexShrink: 1,
-
-        // Prevent Panel content from interfering with panel size
-        overflow: "hidden",
+        overflow: "visible",
 
         ...JSON.parse(panelStylesString)
       }}
@@ -173,6 +171,7 @@ export function Panel({
           maxHeight: "100%",
           maxWidth: "100%",
           flexGrow: 1,
+          overflow: "auto",
 
           ...style,
 

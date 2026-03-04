@@ -56,6 +56,7 @@ export default function App() {
             <NavLink path="/examples/group-resize-behavior">
               Group resize behavior
             </NavLink>
+            <NavLink path="/examples/overflow">Overflow</NavLink>
             <NavLink path="/examples/custom-css-styles">
               Custom CSS styles
             </NavLink>
