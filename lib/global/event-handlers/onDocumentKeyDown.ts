@@ -120,7 +120,9 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
           : 0;
 
       const nextSeparatorElement = separatorElements[nextIndex] as HTMLElement;
-      nextSeparatorElement.focus();
+      nextSeparatorElement.focus({
+        preventScroll: true
+      });
       break;
     }
     case "Home": {

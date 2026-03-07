@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.7.2 (unreleased)
+
+- [683](https://github.com/bvaughn/react-resizable-panels/pull/683): Don't scroll separator when setting focus
+
 ## 4.7.1
 
 - [678](https://github.com/bvaughn/react-resizable-panels/pull/678): Change default overflow styles to support shadows
