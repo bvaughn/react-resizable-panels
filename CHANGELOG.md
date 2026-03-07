@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.7.2 (unreleased)
+## 4.7.2
 
 - [683](https://github.com/bvaughn/react-resizable-panels/pull/683): Don't scroll separator when setting focus
 
