@@ -23,7 +23,9 @@ export function onDocumentPointerDown(event: PointerEvent) {
       if (!didChangeFocus) {
         didChangeFocus = true;
 
-        current.separator.element.focus();
+        current.separator.element.focus({
+          preventScroll: true
+        });
       }
     }
 
