@@ -11,6 +11,10 @@ export function NavLink({
   path: Path | DefaultPath;
 }>) {
   return (
-    <NavLinkExternal children={children} className={className} path={path} />
+    <NavLinkExternal<Path | DefaultPath>
+      children={children}
+      className={className}
+      path={path}
+    />
   );
 }
