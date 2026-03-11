@@ -8,8 +8,8 @@ import {
   type CommonQuestion
 } from "react-lib-tools";
 import { repository } from "../package.json";
-import { html as GroupExplicitHeightHTML } from "../public/generated/examples/GroupExplicitHeight.json";
 import { html as ConditionallyRenderPanel } from "../public/generated/examples/ConditionallyRenderPanel.json";
+import { html as GroupExplicitHeightHTML } from "../public/generated/examples/GroupExplicitHeight.json";
 import { Link } from "./components/Link";
 import { NavLink } from "./components/NavLink";
 import { Group } from "./components/styled-panels/Group";
@@ -21,6 +21,7 @@ export default function App() {
   return (
     <AppRoot
       commonQuestions={commonQuestions}
+      enableSiteSearch
       navLinks={
         <>
           <NavLink path="/">Getting started</NavLink>
