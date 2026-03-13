@@ -11,6 +11,10 @@ import type {
   PanelConstraints,
   PanelImperativeHandle
 } from "../../components/panel/types";
+import {
+  mockGetComputedStyle,
+  setDefaultElementStyle
+} from "../../utils/test/mockGetComputedStyle";
 import { mountGroup } from "../mountGroup";
 import { subscribeToMountedGroup } from "../mutable-state/groups";
 import { mockGroup } from "../test/mockGroup";
@@ -294,23 +298,71 @@ describe("getImperativePanelMethods", () => {
     });
 
     describe("resize", () => {
+      describe("units", () => {
+        test("accepts percentage units", () => {
+          const { panelApis } = init([{}, {}]);
+          panelApis[0].resize("35%");
+
+          expect(onLayoutChange).toHaveBeenCalledTimes(1);
+          expect(onLayoutChange).toHaveBeenCalledWith([35, 65]);
+        });
+
+        test("accepts pixel units", () => {
+          // Computed group size is 1,000
+          const { panelApis } = init([{}, {}]);
+          panelApis[0].resize(400);
+
+          expect(onLayoutChange).toHaveBeenCalledTimes(1);
+          expect(onLayoutChange).toHaveBeenCalledWith([40, 60]);
+        });
+
+        test("accepts rem units", () => {
+          setDefaultElementStyle({
+            fontSize: 16,
+            writingMode: ""
+          } as unknown as CSSStyleDeclaration);
+          const unmockGetComputedStyle = mockGetComputedStyle();
+
+          try {
+            const { panelApis } = init([{}, {}]);
+            panelApis[0].resize("10rem");
+
+            expect(onLayoutChange).toHaveBeenCalledTimes(1);
+            expect(onLayoutChange).toHaveBeenCalledWith([16, 84]);
+          } finally {
+            unmockGetComputedStyle();
+          }
+        });
+
+        test("accepts viewport units", () => {
+          window.innerHeight = 2000;
+          window.innerWidth = 2000;
+
+          const { panelApis } = init([{}, {}]);
+          panelApis[0].resize("15vw");
+
+          expect(onLayoutChange).toHaveBeenCalledTimes(1);
+          expect(onLayoutChange).toHaveBeenCalledWith([30, 70]);
+        });
+      });
+
       test("ignores a no-op size update", () => {
         const { panelApis } = init([{ defaultSize: 10 }, {}]);
-        panelApis[0].resize(10);
+        panelApis[0].resize("10%");
 
         expect(onLayoutChange).not.toHaveBeenCalled();
       });
 
       test("ignores an invalid size update", () => {
         const { panelApis } = init([{ defaultSize: 10, minSize: 10 }, {}]);
-        panelApis[0].resize(0);
+        panelApis[0].resize("0%");
 
         expect(onLayoutChange).not.toHaveBeenCalled();
       });
 
       test("validates and updates the panel size", () => {
         const { panelApis } = init([{ defaultSize: 25, minSize: 10 }, {}]);
-        panelApis[0].resize(0);
+        panelApis[0].resize("0%");
 
         expect(onLayoutChange).toHaveBeenCalledTimes(1);
         expect(onLayoutChange).toHaveBeenCalledWith([10, 90]);
@@ -322,7 +374,7 @@ describe("getImperativePanelMethods", () => {
           {}
         ]);
 
-        panelApis[0].resize(0);
+        panelApis[0].resize("0%");
 
         expect(onLayoutChange).toHaveBeenCalledTimes(1);
         expect(onLayoutChange).toHaveBeenCalledWith([10, 90]);

@@ -1,6 +1,7 @@
 import type { PanelImperativeHandle } from "../../components/panel/types";
 import { calculateAvailableGroupSize } from "../dom/calculateAvailableGroupSize";
 import { getMountedGroups, updateMountedGroup } from "../mutable-state/groups";
+import { sizeStyleToPixels } from "../styles/sizeStyleToPixels";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { formatLayoutNumber } from "./formatLayoutNumber";
 import { layoutNumbersEqual } from "./layoutNumbersEqual";
@@ -164,24 +165,19 @@ export function getImperativePanelMethods({
       return collapsible && layoutNumbersEqual(collapsedSize, size);
     },
     resize: (size: number | string) => {
-      const prevSize = getPanelSize();
-      if (prevSize !== size) {
-        let asPercentage;
-        switch (typeof size) {
-          case "number": {
-            const { group } = find();
-            const groupSize = calculateAvailableGroupSize({ group });
-            asPercentage = formatLayoutNumber((size / groupSize) * 100);
-            break;
-          }
-          case "string": {
-            asPercentage = parseFloat(size);
-            break;
-          }
-        }
+      const { group } = find();
+      const { element } = getPanel();
+      const groupSize = calculateAvailableGroupSize({ group });
 
-        setPanelSize(asPercentage);
-      }
+      const asPixels = sizeStyleToPixels({
+        groupSize,
+        panelElement: element,
+        styleProp: size
+      });
+
+      const asPercentage = formatLayoutNumber((asPixels / groupSize) * 100);
+
+      setPanelSize(asPercentage);
     }
   } satisfies PanelImperativeHandle;
 }
