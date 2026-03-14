@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.7.3
+
+- [690](https://github.com/bvaughn/react-resizable-panels/pull/690): Imperative Panel API supports non-percentage sizes
+
 ## 4.7.2
 
 - [683](https://github.com/bvaughn/react-resizable-panels/pull/683): Don't scroll separator when setting focus
