@@ -1,23 +1,12 @@
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
-import { NOOP_FUNCTION } from "../../constants";
-import {
-  mockGetComputedStyle,
-  setDefaultElementStyle
-} from "../../utils/test/mockGetComputedStyle";
+import { beforeEach, describe, expect, test } from "vitest";
+import { setDefaultElementStyle } from "../../utils/test/mockGetComputedStyle";
 import { sizeStyleToPixels } from "./sizeStyleToPixels";
 
 describe("sizeStyleToPixels", () => {
   let panelElement: HTMLElement;
-  let unmockGetComputedStyle = NOOP_FUNCTION;
 
   beforeEach(() => {
-    unmockGetComputedStyle = mockGetComputedStyle();
-
     panelElement = document.createElement("div");
-  });
-
-  afterEach(() => {
-    unmockGetComputedStyle();
   });
 
   describe("implicit units", () => {

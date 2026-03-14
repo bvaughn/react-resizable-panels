@@ -321,17 +321,13 @@ describe("getImperativePanelMethods", () => {
             fontSize: 16,
             writingMode: ""
           } as unknown as CSSStyleDeclaration);
-          const unmockGetComputedStyle = mockGetComputedStyle();
+          mockGetComputedStyle();
 
-          try {
-            const { panelApis } = init([{}, {}]);
-            panelApis[0].resize("10rem");
+          const { panelApis } = init([{}, {}]);
+          panelApis[0].resize("10rem");
 
-            expect(onLayoutChange).toHaveBeenCalledTimes(1);
-            expect(onLayoutChange).toHaveBeenCalledWith([16, 84]);
-          } finally {
-            unmockGetComputedStyle();
-          }
+          expect(onLayoutChange).toHaveBeenCalledTimes(1);
+          expect(onLayoutChange).toHaveBeenCalledWith([16, 84]);
         });
 
         test("accepts viewport units", () => {

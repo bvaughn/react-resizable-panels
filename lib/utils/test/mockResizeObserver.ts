@@ -1,5 +1,7 @@
 import { emitter } from "./mockBoundingClientRect";
 
+const originalResizeObserver = window.ResizeObserver;
+
 let disabled: boolean = false;
 
 export function disableResizeObserverForCurrentTest() {
@@ -14,15 +16,13 @@ export function simulateUnsupportedEnvironmentForTest() {
 export function mockResizeObserver() {
   disabled = false;
 
-  const originalResizeObserver = window.ResizeObserver;
-
   window.ResizeObserver = MockResizeObserver;
+}
 
-  return function unmockResizeObserver() {
-    window.ResizeObserver = originalResizeObserver;
+export function unmockResizeObserver() {
+  window.ResizeObserver = originalResizeObserver;
 
-    disabled = false;
-  };
+  disabled = false;
 }
 
 class MockResizeObserver implements ResizeObserver {

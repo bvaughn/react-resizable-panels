@@ -2,6 +2,9 @@ import EventEmitter from "node:events";
 
 type GetDOMRect = (element: HTMLElement) => DOMRectReadOnly | undefined | void;
 
+const originalGetBoundingClientRect =
+  HTMLElement.prototype.getBoundingClientRect;
+
 export const emitter = new EventEmitter();
 emitter.setMaxListeners(100);
 
@@ -76,9 +79,6 @@ export function setElementBounds(element: HTMLElement, rect: DOMRect) {
 }
 
 export function mockBoundingClientRect() {
-  const originalGetBoundingClientRect =
-    HTMLElement.prototype.getBoundingClientRect;
-
   HTMLElement.prototype.getBoundingClientRect =
     function getBoundingClientRect() {
       if (getDOMRect) {
@@ -129,13 +129,13 @@ export function mockBoundingClientRect() {
       return (this as HTMLElement).getBoundingClientRect().width;
     }
   });
+}
 
-  return function unmockBoundingClientRect() {
-    HTMLElement.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+export function unmockBoundingClientRect() {
+  HTMLElement.prototype.getBoundingClientRect = originalGetBoundingClientRect;
 
-    defaultDomRect = new DOMRect(0, 0, 0, 0);
-    getDOMRect = undefined;
+  defaultDomRect = new DOMRect(0, 0, 0, 0);
+  getDOMRect = undefined;
 
-    elementToDOMRect.clear();
-  };
+  elementToDOMRect.clear();
 }
