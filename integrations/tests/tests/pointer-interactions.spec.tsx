@@ -562,7 +562,7 @@ test.describe("pointer interactions", () => {
     await page.mouse.down();
     await expect(separator).toHaveAttribute("data-separator", "active");
 
-    await page.mouse.move(x - 25, y);
+    await page.mouse.move(x - 25, y, { steps: 10 });
     await expect(separator).toHaveAttribute("data-separator", "active");
 
     await page.mouse.up();
