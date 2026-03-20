@@ -45,8 +45,8 @@ export function onDocumentPointerMove(event: PointerEvent) {
       for (const hitRegion of interactionState.hitRegions) {
         if (hitRegion.separator) {
           const { element } = hitRegion.separator;
-          if (!element.hasPointerCapture(event.pointerId)) {
-            element.setPointerCapture(event.pointerId);
+          if (!element.hasPointerCapture?.(event.pointerId)) {
+            element.setPointerCapture?.(event.pointerId);
           }
         }
       }
