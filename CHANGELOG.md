@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.7.4
+- [689](https://github.com/bvaughn/react-resizable-panels/pull/689): Fix edge case bug with pointer event capture
+
 ## 4.7.3
 
 - [690](https://github.com/bvaughn/react-resizable-panels/pull/690): Imperative Panel API supports non-percentage sizes
