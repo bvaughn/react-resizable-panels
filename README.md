@@ -235,6 +235,8 @@ Falls back to <code>useId</code> when not provided.</p>
     <tr>
       <td>defaultSize</td>
       <td><p>Default size of Panel within its parent group; default is auto-assigned based on the total number of Panels.</p>
+<p>⚠️ This prop is useful for client side rendering but may cause problems when used with server rendering.
+It is recommended to use the <code>defaultLayout</code> prop of the parent <code>Group</code> instead.</p>
 </td>
     </tr>
     <tr>
