@@ -42,6 +42,15 @@ export function onDocumentPointerMove(event: PointerEvent) {
         return;
       }
 
+      interactionState.hitRegions.forEach((hitRegion) => {
+        if (hitRegion.separator) {
+          const { element } = hitRegion.separator;
+          if (!element.hasPointerCapture(event.pointerId)) {
+            element.setPointerCapture(event.pointerId);
+          }
+        }
+      });
+
       updateActiveHitRegions({
         document: event.currentTarget as Document,
         event,
