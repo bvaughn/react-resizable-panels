@@ -535,6 +535,40 @@ test.describe("pointer interactions", () => {
     await expect(separator).toHaveAttribute("data-separator", "inactive");
   });
 
+  // See github.com/bvaughn/react-resizable-panels/issues/688
+  test("should update separator state when the cursor is released while over an iframe", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Group className="gap-0!">
+        <Panel className="p-0! *:p-0!" id="left" minSize="25%">
+          <IFrame className="w-full h-full bg-red-300" />
+        </Panel>
+        <Separator id="separator" />
+        <Panel className="p-0! *:p-0!" id="right" />
+      </Group>
+    );
+
+    const separator = page.getByTestId("separator");
+
+    const { x, y } = getCenterCoordinates((await separator.boundingBox())!);
+
+    await expect(separator).toHaveAttribute("data-separator", "inactive");
+
+    await page.mouse.move(x, y);
+    await expect(separator).toHaveAttribute("data-separator", "hover");
+
+    await page.mouse.down();
+    await expect(separator).toHaveAttribute("data-separator", "active");
+
+    await page.mouse.move(x - 25, y, { steps: 10 });
+    await expect(separator).toHaveAttribute("data-separator", "active");
+
+    await page.mouse.up();
+    await expect(separator).toHaveAttribute("data-separator", "inactive");
+  });
+
   test("should not prevent click events if no drag occurs", async ({
     page: mainPage
   }) => {
