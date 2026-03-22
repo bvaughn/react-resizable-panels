@@ -75,7 +75,7 @@
           "intent": "primary"
         },
         {
-          "content": "<p>Refer to the documentation for how to avoid layout shift when using server components.</p>\n",
+          "content": "<p>Slight layout shift may occur when server-rendering panels with percentage-based default sizes.\nRefer to the documentation for suggestions on how to minimize the impact of this.</p>\n",
           "intent": "warning"
         }
       ],

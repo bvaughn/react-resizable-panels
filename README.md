@@ -89,7 +89,8 @@ Falls back to <code>useId</code> when not provided.</p>
       <td>defaultLayout</td>
       <td><p>Default layout for the Group.</p>
 <p>ℹ️ This value allows layouts to be remembered between page reloads.</p>
-<p>⚠️ Refer to the documentation for how to avoid layout shift when using server components.</p>
+<p>⚠️ Slight layout shift may occur when server-rendering panels with percentage-based default sizes.
+Refer to the documentation for suggestions on how to minimize the impact of this.</p>
 </td>
     </tr>
     <tr>

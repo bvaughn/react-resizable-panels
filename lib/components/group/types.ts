@@ -99,7 +99,8 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    *
    * ℹ️ This value allows layouts to be remembered between page reloads.
    *
-   * ⚠️ Refer to the documentation for how to avoid layout shift when using server components.
+   * ⚠️ Slight layout shift may occur when server-rendering panels with percentage-based default sizes.
+   * Refer to the documentation for suggestions on how to minimize the impact of this.
    */
   defaultLayout?: Layout | undefined;
 
