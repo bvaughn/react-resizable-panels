@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.7.5
+
+- [696](https://github.com/bvaughn/react-resizable-panels/pull/696): Improved server rendering support for `defaultSize` prop
+
 ## 4.7.4
 - [689](https://github.com/bvaughn/react-resizable-panels/pull/689): Fix edge case bug with pointer event capture
 
