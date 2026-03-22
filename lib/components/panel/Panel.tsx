@@ -137,14 +137,33 @@ export function Panel({
 
   usePanelImperativeHandle(id, panelRef);
 
+  // useSyncExternalStore does not support a custom equality check
+  // stringify avoids re-rendering when the style value hasn't changed
+  const read = () => {
+    const maybePanelStyles = getPanelStyles(groupId, id);
+    if (maybePanelStyles) {
+      return JSON.stringify(maybePanelStyles);
+    }
+  };
+
   const panelStylesString = useSyncExternalStore(
     (subscribe) => subscribeToMountedGroup(groupId, subscribe),
-
-    // useSyncExternalStore does not support a custom equality check
-    // stringify avoids re-rendering when the style value hasn't changed
-    () => JSON.stringify(getPanelStyles(groupId, id)),
-    () => JSON.stringify(getPanelStyles(groupId, id))
+    read,
+    read
   );
+
+  let panelStyles: CSSProperties;
+  if (panelStylesString) {
+    panelStyles = JSON.parse(panelStylesString);
+  } else if (defaultSize) {
+    panelStyles = {
+      flexGrow: undefined,
+      flexShrink: undefined,
+      flexBasis: defaultSize
+    };
+  } else {
+    panelStyles = { flexGrow: 1 };
+  }
 
   return (
     <div
@@ -162,7 +181,7 @@ export function Panel({
         flexShrink: 1,
         overflow: "visible",
 
-        ...JSON.parse(panelStylesString)
+        ...panelStyles
       }}
     >
       <div

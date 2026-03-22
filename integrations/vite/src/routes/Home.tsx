@@ -18,7 +18,7 @@ export function HomeRoute() {
   return (
     <div className="p-2 flex flex-col gap-2">
       <LayoutShiftDetecter />
-
+      <div className="text-lg">Group: Default layout</div>
       <Group className="h-25 gap-2" {...groupOneProps}>
         <Panel
           className="bg-slate-800 rounded rounded-md p-2"
@@ -63,6 +63,28 @@ export function HomeRoute() {
           id: bottom
         </Panel>
       </Group>
+      <div className="text-lg">Panel: Default sizes</div>
+      <DefaultSize defaultSize="25%" />
+      <DefaultSize defaultSize="100px" />
+      <DefaultSize defaultSize="25vw" />
+      <DefaultSize defaultSize="15rem" />
     </div>
+  );
+}
+
+function DefaultSize({ defaultSize }: { defaultSize: string }) {
+  return (
+    <Group className="h-25 gap-2">
+      <Panel className="bg-slate-800 rounded rounded-md p-2" id="left">
+        left
+      </Panel>
+      <Panel
+        className="bg-slate-800 rounded rounded-md p-2"
+        defaultSize={defaultSize}
+        id="right"
+      >
+        right: {defaultSize}
+      </Panel>
+    </Group>
   );
 }

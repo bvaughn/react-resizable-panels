@@ -137,9 +137,11 @@ export function Group({
       }
 
       // This is unexpected except for the initial mount (before the group has registered with the global store)
-      return {
-        flexGrow: defaultLayout?.[panelId] ?? 1
-      } satisfies CSSProperties;
+      if (defaultLayout?.[panelId]) {
+        return {
+          flexGrow: defaultLayout?.[panelId]
+        } satisfies CSSProperties;
+      }
     }
   );
 
