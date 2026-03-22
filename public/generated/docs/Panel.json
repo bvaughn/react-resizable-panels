@@ -104,7 +104,7 @@
           "content": "<p>Default size of Panel within its parent group; default is auto-assigned based on the total number of Panels.</p>\n"
         },
         {
-          "content": "<p>This prop is useful for client side rendering but may cause problems when used with server rendering.\nIt is recommended to use the <code>defaultLayout</code> prop of the parent <code>Group</code> instead.</p>\n",
+          "content": "<p>Percentage based sizes may cause slight layout shift when server-rendering.\nFor more information see the documentation.</p>\n",
           "intent": "warning"
         }
       ],

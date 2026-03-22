@@ -119,8 +119,8 @@ export type PanelProps = BasePanelAttributes & {
   /**
    * Default size of Panel within its parent group; default is auto-assigned based on the total number of Panels.
    *
-   * ⚠️ This prop is useful for client side rendering but may cause problems when used with server rendering.
-   * It is recommended to use the `defaultLayout` prop of the parent `Group` instead.
+   * ⚠️ Percentage based sizes may cause slight layout shift when server-rendering.
+   * For more information see the documentation.
    */
   defaultSize?: number | string | undefined;
 

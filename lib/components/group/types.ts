@@ -49,7 +49,10 @@ export type RegisteredGroup = Readonly<{
 
 export type GroupContextType = {
   disableCursor: boolean;
-  getPanelStyles: (groupId: string, panelId: string) => CSSProperties;
+  getPanelStyles: (
+    groupId: string,
+    panelId: string
+  ) => CSSProperties | undefined;
   id: string;
   orientation: Orientation;
   registerPanel: (panel: RegisteredPanel) => () => void;
