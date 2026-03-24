@@ -168,7 +168,7 @@ export function Panel({
   return (
     <div
       {...rest}
-      aria-disabled={disabled || undefined}
+      data-disabled={disabled || undefined}
       data-panel
       data-testid={id}
       id={id}

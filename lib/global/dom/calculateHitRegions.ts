@@ -52,7 +52,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
       if (childElement.hasAttribute("data-panel")) {
         currentPanelIndex++;
 
-        if (childElement.ariaDisabled === null) {
+        if (!childElement.hasAttribute("data-disabled")) {
           numEnabledPanels++;
 
           if (firstEnabledPanelIndex === -1) {
