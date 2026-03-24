@@ -98,7 +98,7 @@ export function mockGroup(
       const element = document.createElement("div");
       element.setAttribute("data-panel", panelId);
       if (constraints?.disabled) {
-        element.setAttribute("aria-disabled", "");
+        element.setAttribute("data-disabled", "");
       }
 
       setElementBounds(element, relativeBoundsToBounds(relativeBounds));

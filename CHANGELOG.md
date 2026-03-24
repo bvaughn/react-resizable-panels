@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.7.6
+
+- [698](https://github.com/bvaughn/react-resizable-panels/pull/698): Replace `Panel` `aria-disabled` attribute with `data-disabled`
+
 ## 4.7.5
 
 - [696](https://github.com/bvaughn/react-resizable-panels/pull/696): Improved server rendering support for `defaultSize` prop
