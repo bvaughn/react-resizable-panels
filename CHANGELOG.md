@@ -2,7 +2,7 @@
 
 ## 4.8.0
 
-- [699](https://github.com/bvaughn/react-resizable-panels/pull/699): `useDefaultLayout` hook automatically migrates legacy layouts to version 4 format
+- [699](https://github.com/bvaughn/react-resizable-panels/pull/699): `useDefaultLayout` hook automatically migrates legacy layouts to version 4 format; see issue [605](https://github.com/bvaughn/react-resizable-panels/issues/605) for details on how this works.
 
 ## 4.7.6
 
