@@ -3,8 +3,14 @@ import { createRef } from "react";
 import { describe, expect, test, vi } from "vitest";
 import { setDefaultElementBounds } from "../../utils/test/mockBoundingClientRect";
 import { Panel } from "../panel/Panel";
+import { getStorageKey } from "./auto-save/getStorageKey";
 import { Group } from "./Group";
-import { type GroupImperativeHandle, type LayoutStorage } from "./types";
+import type { LegacyLayout } from "./readLegacyLayout";
+import {
+  type GroupImperativeHandle,
+  type Layout,
+  type LayoutStorage
+} from "./types";
 import { useDefaultLayout } from "./useDefaultLayout";
 
 describe("useDefaultLayout", () => {
@@ -677,5 +683,251 @@ describe("useDefaultLayout", () => {
     vi.advanceTimersByTime(150);
 
     expect(storage.setItem).toHaveBeenCalledTimes(1);
+  });
+
+  describe("legacy layout fallback", () => {
+    function mockLayoutStorage({
+      groupId,
+      legacyLayout = {
+        "left,right": {
+          expandToSizes: {},
+          layout: [50, 50]
+        },
+        "center,left,right": {
+          expandToSizes: {},
+          layout: [33, 33, 34]
+        }
+      },
+      matchV3,
+      matchV4,
+      modernLayout = {
+        left: 25,
+        center: 35,
+        right: 40
+      },
+      panelIds
+    }: {
+      groupId: string;
+      legacyLayout?: LegacyLayout;
+      matchV3?: boolean;
+      matchV4?: boolean;
+      modernLayout?: Layout;
+      panelIds?: string[] | undefined;
+    }) {
+      const keyV3 = getStorageKey(groupId, []);
+      const keyV4 = getStorageKey(groupId, panelIds ?? []);
+
+      const storage: LayoutStorage = {
+        getItem: vi.fn((key) => {
+          if (matchV4 && key === keyV4) {
+            return JSON.stringify(modernLayout);
+          } else if (matchV3 && key === keyV3) {
+            return JSON.stringify(legacyLayout);
+          } else {
+            return null;
+          }
+        }),
+        setItem: vi.fn()
+      };
+
+      return {
+        keyV3,
+        keyV4,
+        storage
+      };
+    }
+
+    describe("with panel ids prop", () => {
+      test("skips mismatched legacy layout", () => {
+        const { keyV3, keyV4, storage } = mockLayoutStorage({
+          groupId: "test-group-id",
+          matchV3: true,
+          panelIds: ["left", "center"]
+        });
+
+        const { result } = renderHook(() =>
+          useDefaultLayout({
+            id: "test-group-id",
+            panelIds: ["left", "center"],
+            storage
+          })
+        );
+
+        expect(result.current.defaultLayout).toMatchInlineSnapshot(`undefined`);
+        expect(storage.getItem).toHaveBeenCalledWith(keyV4);
+        expect(storage.getItem).toHaveBeenCalledWith(keyV3);
+        expect(storage.setItem).not.toHaveBeenCalled();
+      });
+
+      test("returns matching legacy layout", () => {
+        const { keyV3, keyV4, storage } = mockLayoutStorage({
+          groupId: "test-group-id",
+          matchV3: true,
+          panelIds: ["left", "right"]
+        });
+
+        const { result } = renderHook(() =>
+          useDefaultLayout({
+            id: "test-group-id",
+            panelIds: ["left", "right"],
+            storage
+          })
+        );
+
+        expect(result.current.defaultLayout).toMatchInlineSnapshot(`
+          {
+            "left": 50,
+            "right": 50,
+          }
+        `);
+        expect(storage.getItem).toHaveBeenCalledWith(keyV4);
+        expect(storage.getItem).toHaveBeenCalledWith(keyV3);
+        expect(storage.setItem).not.toHaveBeenCalled();
+      });
+
+      test("prefers matching modern layouts if both are present", () => {
+        const { keyV3, keyV4, storage } = mockLayoutStorage({
+          groupId: "test-group-id",
+          matchV3: true,
+          matchV4: true,
+          panelIds: ["left", "center", "right"]
+        });
+
+        const { result } = renderHook(() =>
+          useDefaultLayout({
+            id: "test-group-id",
+            panelIds: ["left", "center", "right"],
+            storage
+          })
+        );
+
+        expect(result.current.defaultLayout).toMatchInlineSnapshot(`
+          {
+            "center": 35,
+            "left": 25,
+            "right": 40,
+          }
+        `);
+        expect(storage.getItem).toHaveBeenCalledWith(keyV4);
+        expect(storage.getItem).not.toHaveBeenCalledWith(keyV3);
+        expect(storage.setItem).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("without panel ids prop", () => {
+      test("skips mismatched legacy layout", () => {
+        const { keyV3, keyV4, storage } = mockLayoutStorage({
+          groupId: "test-group-id",
+          matchV3: true
+        });
+
+        const { result } = renderHook(() =>
+          useDefaultLayout({
+            id: "test-group-id",
+            storage
+          })
+        );
+
+        expect(result.current.defaultLayout).toMatchInlineSnapshot(`undefined`);
+        expect(storage.getItem).toHaveBeenCalledWith(keyV4);
+        expect(storage.getItem).toHaveBeenCalledWith(keyV3);
+        expect(storage.setItem).not.toHaveBeenCalled();
+      });
+
+      test("returns matching legacy layout", () => {
+        const { keyV3, keyV4, storage } = mockLayoutStorage({
+          groupId: "test-group-id",
+          legacyLayout: {
+            "center,right": {
+              expandToSizes: {},
+              layout: [50, 50]
+            }
+          },
+          matchV3: true
+        });
+
+        const { result } = renderHook(() =>
+          useDefaultLayout({
+            id: "test-group-id",
+            storage
+          })
+        );
+
+        expect(result.current.defaultLayout).toMatchInlineSnapshot(`
+          {
+            "center": 50,
+            "right": 50,
+          }
+        `);
+        expect(storage.getItem).toHaveBeenCalledWith(keyV4);
+        expect(storage.getItem).toHaveBeenCalledWith(keyV3);
+        expect(storage.setItem).not.toHaveBeenCalled();
+      });
+
+      test("prefers matching modern layouts if both are present", () => {
+        const { keyV4, storage } = mockLayoutStorage({
+          groupId: "test-group-id",
+          matchV3: true,
+          matchV4: true
+        });
+
+        const { result } = renderHook(() =>
+          useDefaultLayout({
+            id: "test-group-id",
+            storage
+          })
+        );
+
+        expect(result.current.defaultLayout).toMatchInlineSnapshot(`
+          {
+            "center": 35,
+            "left": 25,
+            "right": 40,
+          }
+        `);
+        expect(storage.getItem).toHaveBeenCalledWith(keyV4);
+        expect(storage.setItem).not.toHaveBeenCalled();
+      });
+    });
+
+    test("updates persisted modern layout", () => {
+      const { keyV3, keyV4, storage } = mockLayoutStorage({
+        groupId: "test-group-id",
+        matchV3: true,
+        panelIds: ["left", "right"]
+      });
+
+      const { result } = renderHook(() =>
+        useDefaultLayout({
+          id: "test-group-id",
+          panelIds: ["left", "right"],
+          storage
+        })
+      );
+
+      expect(result.current.defaultLayout).toMatchInlineSnapshot(`
+        {
+          "left": 50,
+          "right": 50,
+        }
+      `);
+      expect(storage.getItem).toHaveBeenCalledWith(keyV4);
+      expect(storage.getItem).toHaveBeenCalledWith(keyV3);
+      expect(storage.setItem).not.toHaveBeenCalled();
+
+      result.current.onLayoutChanged({
+        left: 35,
+        right: 65
+      });
+
+      expect(storage.setItem).toHaveBeenCalledTimes(1);
+      expect(storage.setItem).toHaveBeenCalledWith(
+        keyV4,
+        JSON.stringify({
+          left: 35,
+          right: 65
+        })
+      );
+    });
   });
 });

@@ -6,6 +6,7 @@ import {
   useSyncExternalStore
 } from "react";
 import { getStorageKey } from "./auto-save/getStorageKey";
+import { readLegacyLayout } from "./readLegacyLayout";
 import type {
   Layout,
   LayoutStorage,
@@ -68,19 +69,37 @@ export function useDefaultLayout({
   // In the event that a client-only storage API is provided,
   // useSyncExternalStore prevents server/client hydration mismatch warning
   // This is not ideal; if possible a server-friendly storage API should be used
+  // Try to read v4 Layout format first
   const defaultLayoutString = useSyncExternalStore(
     subscribe,
     () => storage.getItem(readStorageKey),
     () => storage.getItem(readStorageKey)
   );
+  const defaultLayoutModern = useMemo(() => {
+    if (defaultLayoutString) {
+      // Rule out false positive for legacy layout format
+      const parsed = JSON.parse(defaultLayoutString);
+      const values = Object.values(parsed);
+      if (Array.from(values).every((value) => typeof value === "number")) {
+        return parsed as Layout;
+      }
+    }
+  }, [defaultLayoutString]);
 
-  const defaultLayout = useMemo(
-    () =>
-      defaultLayoutString
-        ? (JSON.parse(defaultLayoutString) as Layout)
-        : undefined,
-    [defaultLayoutString]
-  );
+  // If not v4 layout was found, check for legacy v3 layout format
+  const defaultLayoutLegacy = useMemo(() => {
+    if (defaultLayoutModern) {
+      return undefined;
+    }
+
+    return readLegacyLayout({
+      id,
+      panelIds,
+      storage
+    });
+  }, [defaultLayoutModern, id, panelIds, storage]);
+
+  const defaultLayout = defaultLayoutModern ?? defaultLayoutLegacy;
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 

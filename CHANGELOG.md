@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.8.0
+
+- [699](https://github.com/bvaughn/react-resizable-panels/pull/699): `useDefaultLayout` hook automatically migrates legacy layouts to version 4 format
+
 ## 4.7.6
 
 - [698](https://github.com/bvaughn/react-resizable-panels/pull/698): Replace `Panel` `aria-disabled` attribute with `data-disabled`
