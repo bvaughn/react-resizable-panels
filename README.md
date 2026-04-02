@@ -363,6 +363,11 @@ To prevent a panel from being resized at all, it needs to also be disabled.</p>
 </td>
     </tr>
     <tr>
+      <td>disableDoubleClick</td>
+      <td><p>When true, double-clicking this <code>Separator</code> will not reset its <code>Panel</code> to its default size.</p>
+</td>
+    </tr>
+    <tr>
       <td>elementRef</td>
       <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
 </td>

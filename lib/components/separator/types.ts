@@ -2,6 +2,7 @@ import type { CSSProperties, HTMLAttributes, Ref } from "react";
 
 export type RegisteredSeparator = {
   disabled?: boolean | undefined;
+  disableDoubleClick?: boolean | undefined;
   element: HTMLDivElement;
   id: string;
 };
@@ -28,6 +29,11 @@ export type SeparatorProps = BaseSeparatorAttributes & {
    * To prevent a panel from being resized at all, it needs to also be disabled.
    */
   disabled?: boolean | undefined;
+
+  /**
+   * When true, double-clicking this `Separator` will not reset its `Panel` to its default size.
+   */
+  disableDoubleClick?: boolean;
 
   /**
    * Ref attached to the root `HTMLDivElement`.

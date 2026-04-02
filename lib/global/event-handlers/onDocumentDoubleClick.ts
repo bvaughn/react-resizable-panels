@@ -10,7 +10,7 @@ export function onDocumentDoubleClick(event: MouseEvent) {
   const mountedGroups = getMountedGroups();
   const hitRegions = findMatchingHitRegions(event, mountedGroups);
   hitRegions.forEach((current) => {
-    if (current.separator) {
+    if (current.separator && !current.separator.disableDoubleClick) {
       const panelWithDefaultSize = current.panels.find(
         (panel) => panel.panelConstraints.defaultSize !== undefined
       );

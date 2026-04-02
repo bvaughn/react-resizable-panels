@@ -129,7 +129,8 @@ export function mockGroup(
     addSeparator: (
       relativeBounds: DOMRect,
       id: string = `${groupId}-${++separatorIdCounter}`,
-      disabled?: boolean
+      disabled?: boolean,
+      disableDoubleClick?: boolean
     ) => {
       const separatorId = `${groupId}-${id}`;
 
@@ -143,6 +144,7 @@ export function mockGroup(
 
       const separator: RegisteredSeparator = {
         disabled,
+        disableDoubleClick,
         element,
         id: separatorId
       };

@@ -192,7 +192,10 @@ export function Group({
           forceUpdate();
         };
       },
-      togglePanelDisabled: (panelId: string, disabled: boolean) => {
+      updatePanelProps: (
+        panelId: string,
+        { disabled }: { disabled: boolean | undefined }
+      ) => {
         const inMemoryValues = inMemoryValuesRef.current;
         const panel = inMemoryValues.panels.find(
           (current) => current.id === panelId
@@ -210,13 +213,23 @@ export function Group({
           });
         }
       },
-      toggleSeparatorDisabled: (separatorId: string, disabled: boolean) => {
+      updateSeparatorProps: (
+        separatorId: string,
+        {
+          disabled,
+          disableDoubleClick
+        }: {
+          disabled: boolean | undefined;
+          disableDoubleClick: boolean | undefined;
+        }
+      ) => {
         const inMemoryValues = inMemoryValuesRef.current;
         const separator = inMemoryValues.separators.find(
           (current) => current.id === separatorId
         );
         if (separator) {
           separator.disabled = disabled;
+          separator.disableDoubleClick = disableDoubleClick;
         }
       }
     }),
