@@ -89,6 +89,16 @@
       "name": "disabled",
       "required": false
     },
+    "disableDoubleClick": {
+      "description": [
+        {
+          "content": "<p>When true, double-clicking this <code>Separator</code> will not reset its <code>Panel</code> to its default size.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disableDoubleClick</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
+      "name": "disableDoubleClick",
+      "required": false
+    },
     "elementRef": {
       "description": [
         {

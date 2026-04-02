@@ -57,8 +57,17 @@ export type GroupContextType = {
   orientation: Orientation;
   registerPanel: (panel: RegisteredPanel) => () => void;
   registerSeparator: (separator: RegisteredSeparator) => () => void;
-  togglePanelDisabled: (id: string, disabled: boolean) => void;
-  toggleSeparatorDisabled: (id: string, disabled: boolean) => void;
+  updatePanelProps: (
+    id: string,
+    props: { disabled: boolean | undefined }
+  ) => void;
+  updateSeparatorProps: (
+    id: string,
+    props: {
+      disabled: boolean | undefined;
+      disableDoubleClick: boolean | undefined;
+    }
+  ) => void;
 };
 
 /**

@@ -75,7 +75,7 @@ export function Panel({
     id: groupId,
     orientation,
     registerPanel,
-    togglePanelDisabled
+    updatePanelProps
   } = useGroupContext();
 
   const hasOnResize = onResizeUnstable !== null;
@@ -132,8 +132,8 @@ export function Panel({
 
   // Not all props require re-registering the panel;
   useEffect(() => {
-    togglePanelDisabled(id, !!disabled);
-  }, [disabled, id, togglePanelDisabled]);
+    updatePanelProps(id, { disabled });
+  }, [disabled, id, updatePanelProps]);
 
   usePanelImperativeHandle(id, panelRef);
 
