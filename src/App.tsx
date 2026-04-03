@@ -89,10 +89,6 @@ export default function App() {
           </div>
         </>
       }
-      packageDescription="flexible layout components"
-      packageName="react-resizable-panels"
-      repositoryUrl={repository.url}
-      routes={routes}
       overview={
         <>
           <div>
@@ -116,6 +112,10 @@ export default function App() {
           </div>
         </>
       }
+      packageDescription="flexible layout components"
+      packageName="react-resizable-panels"
+      repositoryUrl={repository.url}
+      routes={routes}
       versions={VERSIONS}
     />
   );
