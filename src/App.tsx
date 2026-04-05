@@ -160,7 +160,7 @@ const commonQuestions: CommonQuestion[] = [
           </ExternalLink>
           :
         </p>
-        <Callout minimal>
+        <Callout intent="primary" minimal>
           The percentage is calculated with respect to the height of the
           generated box's containing block. If the height of the containing
           block is not specified explicitly (i.e., it depends on content
@@ -173,7 +173,7 @@ const commonQuestions: CommonQuestion[] = [
           <code>HTMLElement</code>.
         </p>
         <Code html={GroupExplicitHeightHTML} />
-        <Callout intent="warning">
+        <Callout intent="primary" minimal>
           Note that because the default height is an inline style, it can only
           be overridden by another inline style or an{" "}
           <ExternalLink href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/important">
@@ -230,7 +230,7 @@ const commonQuestions: CommonQuestion[] = [
           .
         </p>
         <Code html={ConditionallyRenderPanel} />
-        <Callout>
+        <Callout intent="primary" minimal>
           Putting the <code>defaultSize</code> on the conditional{" "}
           <code>Panel</code> is the easiest way to avoid invalid layout
           constraints in this type of scenario.
