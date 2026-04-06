@@ -88,62 +88,40 @@ export function getImperativePanelMethods({
 
     const index = group.panels.findIndex((current) => current.id === panelId);
     const isLastPanel = index === group.panels.length - 1;
-    const isCollapsing = nextSize < prevSize;
 
     // Edge case: collapsing the last panel when all previous panels are already
     // collapsed. The normal last-panel logic reverses delta/pivot so the panel
     // before absorbs freed space, but when every prior panel is collapsed the
     // space cascades all the way to the first panel. Instead, keep the last
-    // panel as the remainder recipient.
-    if (isLastPanel && isCollapsing && index > 0) {
-      const allPreviousCollapsed = group.panels
+    // panel as the remainder recipient by computing the layout directly.
+    let unsafeLayout;
+    if (
+      isLastPanel &&
+      nextSize < prevSize &&
+      index > 0 &&
+      group.panels.slice(0, index).every((_panel, panelIndex) => {
+        const pc = derivedPanelConstraints[panelIndex];
+        return (
+          pc?.collapsible &&
+          layoutNumbersEqual(pc.collapsedSize, prevLayout[pc.panelId])
+        );
+      })
+    ) {
+      const occupiedByPrevious = group.panels
         .slice(0, index)
-        .every((_panel, panelIndex) => {
-          const panelConstraints = derivedPanelConstraints[panelIndex];
-          return (
-            panelConstraints?.collapsible &&
-            layoutNumbersEqual(
-              panelConstraints.collapsedSize,
-              prevLayout[panelConstraints.panelId]
-            )
-          );
-        });
-
-      if (allPreviousCollapsed) {
-        // Build layout keeping every prior panel as-is; the last panel gets
-        // whatever remains so the total stays at 100%.
-        const occupiedByPrevious = group.panels
-          .slice(0, index)
-          .reduce((total, panel) => total + prevLayout[panel.id], 0);
-
-        const fallbackLayout = { ...prevLayout };
-        fallbackLayout[panelId] = formatLayoutNumber(100 - occupiedByPrevious);
-
-        const nextLayout = validatePanelGroupLayout({
-          layout: fallbackLayout,
-          panelConstraints: derivedPanelConstraints
-        });
-        if (!layoutsEqual(prevLayout, nextLayout)) {
-          updateMountedGroup(group, {
-            defaultLayoutDeferred,
-            derivedPanelConstraints,
-            groupSize,
-            layout: nextLayout,
-            separatorToPanels
-          });
-        }
-        return;
-      }
+        .reduce((total, panel) => total + prevLayout[panel.id], 0);
+      unsafeLayout = { ...prevLayout };
+      unsafeLayout[panelId] = formatLayoutNumber(100 - occupiedByPrevious);
+    } else {
+      unsafeLayout = adjustLayoutByDelta({
+        delta: isLastPanel ? prevSize - nextSize : nextSize - prevSize,
+        initialLayout: prevLayout,
+        panelConstraints: derivedPanelConstraints,
+        pivotIndices: isLastPanel ? [index - 1, index] : [index, index + 1],
+        prevLayout,
+        trigger: "imperative-api"
+      });
     }
-
-    const unsafeLayout = adjustLayoutByDelta({
-      delta: isLastPanel ? prevSize - nextSize : nextSize - prevSize,
-      initialLayout: prevLayout,
-      panelConstraints: derivedPanelConstraints,
-      pivotIndices: isLastPanel ? [index - 1, index] : [index, index + 1],
-      prevLayout,
-      trigger: "imperative-api"
-    });
 
     const nextLayout = validatePanelGroupLayout({
       layout: unsafeLayout,
