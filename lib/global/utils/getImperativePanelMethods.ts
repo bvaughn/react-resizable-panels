@@ -1,7 +1,8 @@
 import type { Layout } from "../../components/group/types";
 import type {
   PanelConstraints,
-  PanelImperativeHandle
+  PanelImperativeHandle,
+  RegisteredPanel
 } from "../../components/panel/types";
 import { calculateAvailableGroupSize } from "../dom/calculateAvailableGroupSize";
 import { getMountedGroups, updateMountedGroup } from "../mutable-state/groups";
@@ -90,7 +91,7 @@ export function getImperativePanelMethods({
     derivedPanelConstraints
   }: {
     nextSize: number;
-    panels: { id: string }[];
+    panels: RegisteredPanel[];
     prevLayout: Layout;
     derivedPanelConstraints: PanelConstraints[];
   }): Layout => {
