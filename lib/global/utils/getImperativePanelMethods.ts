@@ -99,10 +99,13 @@ export function getImperativePanelMethods({
       const allPreviousCollapsed = group.panels
         .slice(0, index)
         .every((_panel, panelIndex) => {
-          const pc = derivedPanelConstraints[panelIndex];
+          const panelConstraints = derivedPanelConstraints[panelIndex];
           return (
-            pc?.collapsible === true &&
-            layoutNumbersEqual(pc.collapsedSize, prevLayout[pc.panelId])
+            panelConstraints?.collapsible &&
+            layoutNumbersEqual(
+              panelConstraints.collapsedSize,
+              prevLayout[panelConstraints.panelId]
+            )
           );
         });
 
