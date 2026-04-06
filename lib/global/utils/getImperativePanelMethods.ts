@@ -88,6 +88,53 @@ export function getImperativePanelMethods({
 
     const index = group.panels.findIndex((current) => current.id === panelId);
     const isLastPanel = index === group.panels.length - 1;
+    const isCollapsing = nextSize < prevSize;
+
+    // Edge case: collapsing the last panel when all previous panels are already
+    // collapsed. The normal last-panel logic reverses delta/pivot so the panel
+    // before absorbs freed space, but when every prior panel is collapsed the
+    // space cascades all the way to the first panel. Instead, keep the last
+    // panel as the remainder recipient.
+    if (isLastPanel && isCollapsing && index > 0) {
+      const allPreviousCollapsed = group.panels
+        .slice(0, index)
+        .every((_panel, panelIndex) => {
+          const pc = derivedPanelConstraints[panelIndex];
+          return (
+            pc?.collapsible === true &&
+            layoutNumbersEqual(pc.collapsedSize, prevLayout[pc.panelId])
+          );
+        });
+
+      if (allPreviousCollapsed) {
+        // Build layout keeping every prior panel as-is; the last panel gets
+        // whatever remains so the total stays at 100%.
+        const occupiedByPrevious = group.panels
+          .slice(0, index)
+          .reduce((total, panel) => total + prevLayout[panel.id], 0);
+
+        const fallbackLayout: Record<string, number> = {};
+        for (const key of Object.keys(prevLayout)) {
+          fallbackLayout[key] = prevLayout[key];
+        }
+        fallbackLayout[panelId] = formatLayoutNumber(100 - occupiedByPrevious);
+
+        const nextLayout = validatePanelGroupLayout({
+          layout: fallbackLayout,
+          panelConstraints: derivedPanelConstraints
+        });
+        if (!layoutsEqual(prevLayout, nextLayout)) {
+          updateMountedGroup(group, {
+            defaultLayoutDeferred,
+            derivedPanelConstraints,
+            groupSize,
+            layout: nextLayout,
+            separatorToPanels
+          });
+        }
+        return;
+      }
+    }
 
     const unsafeLayout = adjustLayoutByDelta({
       delta: isLastPanel ? prevSize - nextSize : nextSize - prevSize,
