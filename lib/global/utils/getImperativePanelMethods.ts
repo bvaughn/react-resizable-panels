@@ -79,10 +79,11 @@ export function getImperativePanelMethods({
   /**
    * Compute the next (unvalidated) layout when resizing a panel imperatively.
    *
-   * Handles the edge case where the last panel is being collapsed but all
-   * preceding panels are already collapsed — the normal reversed-delta logic
-   * would cascade the freed space to the first panel. Instead the last panel
-   * keeps the remainder so it stays the largest.
+   * Handles two edge cases for the last panel:
+   * 1. Single panel in the group — no sibling exists to form valid pivot indices.
+   * 2. All preceding panels are already collapsed — the normal reversed-delta
+   *    logic would cascade the freed space to the first panel. Instead the last
+   *    panel keeps the remainder so it stays the largest.
    */
   const computeLayout = ({
     nextSize,
@@ -98,20 +99,22 @@ export function getImperativePanelMethods({
     const prevSize = getPanelSize();
 
     const index = panels.findIndex((current) => current.id === panelId);
+    const isFirstPanel = index === 0;
     const isLastPanel = index === panels.length - 1;
 
-    if (
+    const allPreviousCollapsed =
       isLastPanel &&
       nextSize < prevSize &&
-      index > 0 &&
-      panels.slice(0, index).every((_panel, panelIndex) => {
-        const pc = derivedPanelConstraints[panelIndex];
-        return (
-          pc?.collapsible &&
-          layoutNumbersEqual(pc.collapsedSize, prevLayout[pc.panelId])
-        );
-      })
-    ) {
+      (isFirstPanel ||
+        panels.slice(0, index).every((_panel, panelIndex) => {
+          const pc = derivedPanelConstraints[panelIndex];
+          return (
+            pc?.collapsible &&
+            layoutNumbersEqual(pc.collapsedSize, prevLayout[pc.panelId])
+          );
+        }));
+
+    if (allPreviousCollapsed) {
       const occupiedByPrevious = panels
         .slice(0, index)
         .reduce((total, panel) => total + prevLayout[panel.id], 0);
