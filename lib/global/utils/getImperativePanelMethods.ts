@@ -116,10 +116,7 @@ export function getImperativePanelMethods({
           .slice(0, index)
           .reduce((total, panel) => total + prevLayout[panel.id], 0);
 
-        const fallbackLayout: Record<string, number> = {};
-        for (const key of Object.keys(prevLayout)) {
-          fallbackLayout[key] = prevLayout[key];
-        }
+        const fallbackLayout = { ...prevLayout };
         fallbackLayout[panelId] = formatLayoutNumber(100 - occupiedByPrevious);
 
         const nextLayout = validatePanelGroupLayout({
