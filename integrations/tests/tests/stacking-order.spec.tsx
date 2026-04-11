@@ -120,9 +120,9 @@ test.describe("stacking order", () => {
 
     // Releasing the cursor under the overlaid element should do two things:
     // It should deactivate the separator
-    // It should transition to an "inactive" state because it's now blocked
+    // It should update the data state
     await page.mouse.up();
-    await expect(separator).toHaveAttribute("data-separator", "inactive");
+    await expect(separator).not.toHaveAttribute("data-separator", "active");
     await assertLayoutChangeCounts(mainPage, 3, 2);
 
     // No-op

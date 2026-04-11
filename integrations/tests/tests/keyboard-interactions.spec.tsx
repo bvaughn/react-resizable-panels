@@ -84,7 +84,12 @@ test.describe("keyboard interactions: window splitter api", () => {
 
     const separator = page.getByRole("separator");
 
+    await expect(separator).toHaveAttribute("data-separator", "inactive");
+
     await separator.focus();
+
+    await expect(separator).toHaveAttribute("data-separator", "focus");
+
     await page.keyboard.press("ArrowDown");
 
     await assertLayoutChangeCounts(mainPage, 2);

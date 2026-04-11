@@ -592,6 +592,10 @@ test.describe("pointer interactions", () => {
     await expect(separator).toHaveAttribute("data-separator", "active");
 
     await page.mouse.up();
+    await expect(separator).toHaveAttribute("data-separator", "focus");
+
+    await page.mouse.move(0, 0);
+    await page.mouse.down();
     await expect(separator).toHaveAttribute("data-separator", "inactive");
   });
 
