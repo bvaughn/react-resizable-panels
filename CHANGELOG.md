@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.10.0
+
+- [705](https://github.com/bvaughn/react-resizable-panels/pull/705): Add `data-separator="focus"` state for `Separator` elements for more consistent custom CSS styles.
+
 ## 4.9.0
 
 - [702](https://github.com/bvaughn/react-resizable-panels/pull/702): Add `disableDoubleClick` prop to `Separator` to enable turning _off_ the double-click size reset behavior.
