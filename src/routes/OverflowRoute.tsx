@@ -125,6 +125,9 @@ export default function OverflowRoute() {
         <Separator className="focus-within:z-10 focus-within:outline-2! outline-offset-2 outline-solid outline-blue-500!" />
         <Panel minSize={100}>right</Panel>
       </Group>
+      <Callout>
+        You could also use the <code>data-separator='focus'</code> selector.
+      </Callout>
     </Box>
   );
 }
