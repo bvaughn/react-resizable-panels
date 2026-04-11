@@ -54,6 +54,7 @@ export function Separator({
 
   const [dragState, setDragState] =
     useState<InteractionState["state"]>("inactive");
+  const [isFocused, setIsFocused] = useState(false);
 
   const elementRef = useRef<HTMLDivElement | null>(null);
 
@@ -137,6 +138,25 @@ export function Separator({
     cursor = "not-allowed";
   }
 
+  let dataSeparator = undefined;
+  if (disabled) {
+    dataSeparator = "disabled";
+  } else {
+    switch (dragState) {
+      case "active": {
+        dataSeparator = "active";
+        break;
+      }
+      default: {
+        if (isFocused) {
+          dataSeparator = "focus";
+        } else {
+          dataSeparator = dragState;
+        }
+      }
+    }
+  }
+
   return (
     <div
       {...rest}
@@ -148,9 +168,11 @@ export function Separator({
       aria-valuenow={aria.valueNow}
       children={children}
       className={className}
-      data-separator={disabled ? "disabled" : dragState}
+      data-separator={dataSeparator}
       data-testid={id}
       id={id}
+      onBlur={() => setIsFocused(false)}
+      onFocus={() => setIsFocused(true)}
       ref={mergedRef}
       role="separator"
       style={{
