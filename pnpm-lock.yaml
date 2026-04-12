@@ -138,8 +138,8 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0(react@19.2.3)
       react-lib-tools:
-        specifier: 0.0.48
-        version: 0.0.48(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.8.3)
+        specifier: 0.0.51
+        version: 0.0.51(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.8.3)
       react-router-dom:
         specifier: ^7.6.3
         version: 7.10.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -3050,10 +3050,6 @@ packages:
   functions-have-names@1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
 
-  fuse.js@7.1.0:
-    resolution: {integrity: sha512-trLf4SzuuUxfusZADLINj+dE8clK1frKdmqiJNb1Es75fmI5oY6X2mxLVUciLLjxqw/xr72Dhy+lER6dGd02FQ==}
-    engines: {node: '>=10'}
-
   generator-function@2.0.1:
     resolution: {integrity: sha512-SFdFmIJi+ybC0vjlHN0ZGVGHc3lgE0DxPAT0djjVg+kjOnSqclqmj0KQ7ykTOLP6YxoqOvuAODGdcHJn+43q3g==}
     engines: {node: '>= 0.4'}
@@ -4108,8 +4104,8 @@ packages:
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
 
-  react-lib-tools@0.0.48:
-    resolution: {integrity: sha512-5kCZpvs5WdilyZFDgyRQ/U553RB6vXR17/p67+0L4EWmI2IoNNVmI3qzZuEnhLfcWtT23bWe7JrHL/zOz0h/Rg==}
+  react-lib-tools@0.0.51:
+    resolution: {integrity: sha512-hpj7D91sKmyxS/J0SGGjV3BErOcwhB+z4zJn8CfYKEBRc1aXUV2F5tUACHa2Mpw9Hi78MXLTkAXmxIzStYpoIQ==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
@@ -7958,8 +7954,6 @@ snapshots:
 
   functions-have-names@1.2.3: {}
 
-  fuse.js@7.1.0: {}
-
   generator-function@2.0.1: {}
 
   gensync@1.0.0-beta.2: {}
@@ -8971,7 +8965,7 @@ snapshots:
 
   react-is@17.0.2: {}
 
-  react-lib-tools@0.0.48(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.8.3):
+  react-lib-tools@0.0.51(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.8.3):
     dependencies:
       '@codemirror/lang-css': 6.3.1
       '@codemirror/lang-html': 6.4.11
@@ -8982,7 +8976,6 @@ snapshots:
       '@codemirror/state': 6.5.3
       '@lezer/highlight': 1.2.3
       '@ts-ast-parser/core': 0.8.0(typescript@5.8.3)
-      fuse.js: 7.1.0
       puppeteer: 24.38.0(typescript@5.8.3)
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
