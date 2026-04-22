@@ -25,7 +25,7 @@ export default function SizeConstraintsRoute() {
       </ul>
       <div>
         For example, the left panel below only allows itself to be resized
-        between 10v0-200 pixels.
+        between 100-200 pixels.
       </div>
       <Code html={MinMaxExampleHTML} />
       <Group>
