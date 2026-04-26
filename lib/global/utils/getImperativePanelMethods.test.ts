@@ -375,6 +375,42 @@ describe("getImperativePanelMethods", () => {
         expect(onLayoutChange).toHaveBeenCalledTimes(1);
         expect(onLayoutChange).toHaveBeenCalledWith([10, 90]);
       });
+
+      describe("edge cases", () => {
+        test("does not throw when resizing the only panel in the group", () => {
+          const { panelApis } = init([{ defaultSize: 100 }]);
+
+          expect(() => panelApis[0].resize("50%")).not.toThrow();
+          expect(onLayoutChange).not.toHaveBeenCalled();
+        });
+
+        test("last panel keeps the remainder when all preceding panels are collapsed and it is resized smaller", () => {
+          const { panelApis } = init([
+            { collapsible: true, defaultSize: 0, minSize: 20 },
+            { collapsible: true, defaultSize: 0, minSize: 20 },
+            { defaultSize: 100 }
+          ]);
+
+          panelApis[2].resize("50%");
+
+          // The last panel should remain at 100% (the remainder) rather than
+          // cascading the freed space to the first panel.
+          expect(onLayoutChange).not.toHaveBeenCalled();
+        });
+
+        test("last panel can still be resized normally when preceding panels are not all collapsed", () => {
+          const { panelApis } = init([
+            { defaultSize: 30 },
+            { defaultSize: 30 },
+            { defaultSize: 40 }
+          ]);
+
+          panelApis[2].resize("20%");
+
+          expect(onLayoutChange).toHaveBeenCalledTimes(1);
+          expect(onLayoutChange).toHaveBeenCalledWith([30, 50, 20]);
+        });
+      });
     });
   });
 });
