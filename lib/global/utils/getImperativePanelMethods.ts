@@ -1,4 +1,9 @@
-import type { PanelImperativeHandle } from "../../components/panel/types";
+import type { Layout } from "../../components/group/types";
+import type {
+  PanelConstraints,
+  PanelImperativeHandle,
+  RegisteredPanel
+} from "../../components/panel/types";
 import { calculateAvailableGroupSize } from "../dom/calculateAvailableGroupSize";
 import { getMountedGroups, updateMountedGroup } from "../mutable-state/groups";
 import { sizeStyleToPixels } from "../styles/sizeStyleToPixels";
@@ -71,6 +76,64 @@ export function getImperativePanelMethods({
     throw Error(`Layout not found for Panel ${panelId}`);
   };
 
+  /**
+   * Compute the next (unvalidated) layout when resizing a panel imperatively.
+   *
+   * Handles two edge cases for the last panel:
+   * 1. Single panel in the group — no sibling exists to form valid pivot indices.
+   * 2. All preceding panels are already collapsed — the normal reversed-delta
+   *    logic would cascade the freed space to the first panel. Instead the last
+   *    panel keeps the remainder so it stays the largest.
+   */
+  const computeLayout = ({
+    nextSize,
+    panels,
+    prevLayout,
+    derivedPanelConstraints
+  }: {
+    nextSize: number;
+    panels: RegisteredPanel[];
+    prevLayout: Layout;
+    derivedPanelConstraints: PanelConstraints[];
+  }): Layout => {
+    const prevSize = getPanelSize();
+
+    const index = panels.findIndex((current) => current.id === panelId);
+    const isFirstPanel = index === 0;
+    const isLastPanel = index === panels.length - 1;
+
+    const allPreviousCollapsed =
+      isLastPanel &&
+      nextSize < prevSize &&
+      (isFirstPanel ||
+        panels.slice(0, index).every((_panel, panelIndex) => {
+          const pc = derivedPanelConstraints[panelIndex];
+          return (
+            pc?.collapsible &&
+            layoutNumbersEqual(pc.collapsedSize, prevLayout[pc.panelId])
+          );
+        }));
+
+    if (allPreviousCollapsed) {
+      const occupiedByPrevious = panels
+        .slice(0, index)
+        .reduce((total, panel) => total + prevLayout[panel.id], 0);
+      return {
+        ...prevLayout,
+        [panelId]: formatLayoutNumber(100 - occupiedByPrevious)
+      };
+    }
+
+    return adjustLayoutByDelta({
+      delta: isLastPanel ? prevSize - nextSize : nextSize - prevSize,
+      initialLayout: prevLayout,
+      panelConstraints: derivedPanelConstraints,
+      pivotIndices: isLastPanel ? [index - 1, index] : [index, index + 1],
+      prevLayout,
+      trigger: "imperative-api"
+    });
+  };
+
   const setPanelSize = (nextSize: number) => {
     const prevSize = getPanelSize();
     if (nextSize === prevSize) {
@@ -86,16 +149,11 @@ export function getImperativePanelMethods({
       separatorToPanels
     } = find();
 
-    const index = group.panels.findIndex((current) => current.id === panelId);
-    const isLastPanel = index === group.panels.length - 1;
-
-    const unsafeLayout = adjustLayoutByDelta({
-      delta: isLastPanel ? prevSize - nextSize : nextSize - prevSize,
-      initialLayout: prevLayout,
-      panelConstraints: derivedPanelConstraints,
-      pivotIndices: isLastPanel ? [index - 1, index] : [index, index + 1],
+    const unsafeLayout = computeLayout({
+      nextSize,
+      panels: group.panels,
       prevLayout,
-      trigger: "imperative-api"
+      derivedPanelConstraints
     });
 
     const nextLayout = validatePanelGroupLayout({
