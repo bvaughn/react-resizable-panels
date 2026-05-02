@@ -10,10 +10,12 @@ import GrabDotsIcon from "../../../public/svgs/grab-dots.svg?react";
 export function Separator({
   className = "",
   orientation = "horizontal",
+  useFocusPseudoClasses,
   ...rest
 }: PropsWithChildren<
   SeparatorProps & {
     orientation?: Orientation;
+    useFocusPseudoClasses?: boolean;
   }
 >) {
   return (
@@ -22,7 +24,9 @@ export function Separator({
         "rounded rounded-xs flex items-center justify-center",
         "bg-slate-600 [&[data-separator='disabled']]:opacity-50 [&[data-separator='hover']]:bg-slate-500 [&[data-separator='active']]:bg-slate-400",
         "text-slate-900 [&[data-separator='hover']]:text-slate-950 [&[data-separator='active']]:text-slate-950",
-        "[&[data-separator='focus']]:bg-sky-400",
+        useFocusPseudoClasses
+          ? "focus-visible:bg-sky-400!"
+          : "[&[data-separator='focus']]:bg-sky-400",
         orientation === "horizontal" ? "w-4 sm:w-2" : "h-4 sm:h-2",
         className
       )}

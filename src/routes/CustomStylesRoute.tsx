@@ -1,5 +1,6 @@
 import { Box, Callout, Code, Header } from "react-lib-tools";
 import { html as CustomStylesExampleHTML } from "../../public/generated/examples/SeparatorCustomStyles.json";
+import { html as SeparatorCustomStylesFocusVisibleHTML } from "../../public/generated/examples/SeparatorCustomStylesFocusVisible.json";
 import { html as DataAttributesExampleHTML } from "../../public/generated/examples/SeparatorDataAttributes.json";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
@@ -36,6 +37,17 @@ export default function CustomStylesRoute() {
       <Group>
         <Panel>left</Panel>
         <Separator />
+        <Panel defaultSize="50%">right</Panel>
+      </Group>
+      <div>
+        If you want to differentiate between keyboard-initiated focus and
+        pointer-initiated focus, you can use the <code>:focus</code> and{" "}
+        <code>:focus-visible</code> CSS pseudo-class instead.
+      </div>
+      <Code html={SeparatorCustomStylesFocusVisibleHTML} />
+      <Group>
+        <Panel>left</Panel>
+        <Separator useFocusPseudoClasses />
         <Panel defaultSize="50%">right</Panel>
       </Group>
     </Box>

@@ -26,7 +26,14 @@ export function updateCursorStyle(ownerDocument: Document) {
 
     // adoptedStyleSheets is undefined in jsdom
     if (ownerDocument.adoptedStyleSheets) {
-      ownerDocument.adoptedStyleSheets.push(styleSheet);
+      if (Object.isExtensible(ownerDocument.adoptedStyleSheets)) {
+        ownerDocument.adoptedStyleSheets.push(styleSheet);
+      } else {
+        ownerDocument.adoptedStyleSheets = [
+          ...ownerDocument.adoptedStyleSheets,
+          styleSheet
+        ];
+      }
     }
   }
 

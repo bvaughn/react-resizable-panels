@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.11.0
+
+- [712](https://github.com/bvaughn/react-resizable-panels/issues/712): `Separator` supports `:focus-visible` pseudo-class
+- [703](https://github.com/bvaughn/react-resizable-panels/pull/703): Fix: edge case scenarios when collapsing the last panel
+- [711](https://github.com/bvaughn/react-resizable-panels/issues/711): Improve legacy browser support wrt global stylesheets
+
 ## 4.10.0
 
 - [705](https://github.com/bvaughn/react-resizable-panels/pull/705): Add `data-separator="focus"` state for `Separator` elements for more consistent custom CSS styles.
