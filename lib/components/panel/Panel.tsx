@@ -155,7 +155,7 @@ export function Panel({
   let panelStyles: CSSProperties;
   if (panelStylesString) {
     panelStyles = JSON.parse(panelStylesString);
-  } else if (defaultSize) {
+  } else if (defaultSize !== undefined) {
     panelStyles = {
       flexGrow: undefined,
       flexShrink: undefined,
