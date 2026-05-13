@@ -68,11 +68,12 @@ export function HomeRoute() {
       <DefaultSize defaultSize="100px" />
       <DefaultSize defaultSize="25vw" />
       <DefaultSize defaultSize="15rem" />
+      <DefaultSize defaultSize={0} />
     </div>
   );
 }
 
-function DefaultSize({ defaultSize }: { defaultSize: string }) {
+function DefaultSize({ defaultSize }: { defaultSize: number | string }) {
   return (
     <Group className="h-25 gap-2">
       <Panel className="bg-slate-800 rounded rounded-md p-2" id="left">
