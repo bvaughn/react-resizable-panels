@@ -26,7 +26,7 @@ export function LayoutShiftDetecter() {
   useEffect(() => {
     const timeout = setTimeout(() => {
       setState((prevState) => (prevState === null ? 0 : prevState));
-    }, 250);
+    }, 100);
 
     return () => {
       clearTimeout(timeout);

@@ -3,7 +3,7 @@ import { resizeHelper } from "../src/utils/pointer-interactions/resizeHelper";
 
 // High level tests; more nuanced scenarios are covered by unit tests
 test.describe("default layouts", () => {
-  test("should not cause layout shift for client components", async ({
+  test("should not cause layout shift for client components", async ({
     page
   }) => {
     await page.goto("http://localhost:3012/");
@@ -16,7 +16,7 @@ test.describe("default layouts", () => {
     await expect(page.getByText("No layout shift")).toBeVisible();
   });
 
-  test("should not cause layout shift for server-rendered client components", async ({
+  test("should not cause layout shift for server-rendered client components", async ({
     page
   }) => {
     await page.goto("http://localhost:3011/");
@@ -29,7 +29,7 @@ test.describe("default layouts", () => {
     await expect(page.getByText("No layout shift")).toBeVisible();
   });
 
-  test("should not cause layout shift for server components", async ({
+  test("should not cause layout shift for server components", async ({
     page
   }) => {
     await page.goto("http://localhost:3010/");
