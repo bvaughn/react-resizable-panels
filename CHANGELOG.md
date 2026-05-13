@@ -1,5 +1,9 @@
 # Changelog
 
+# 4.11.1
+
+- [715)](https://github.com/bvaughn/react-resizable-panels/pull/715): Edge case SSR bug fix for panels with `defaultSize={0}`
+
 ## 4.11.0
 
 - [712](https://github.com/bvaughn/react-resizable-panels/issues/712): `Separator` supports `:focus-visible` pseudo-class
