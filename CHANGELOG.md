@@ -1,6 +1,10 @@
 # Changelog
 
-# 4.11.1
+## Unreleased
+
+- [719)](https://github.com/bvaughn/react-resizable-panels/pull/719): Bug fix: Calculate rem-based sizes relative to owner document (not body)
+
+## 4.11.1
 
 - [715)](https://github.com/bvaughn/react-resizable-panels/pull/715): Edge case SSR bug fix for panels with `defaultSize={0}`
 
