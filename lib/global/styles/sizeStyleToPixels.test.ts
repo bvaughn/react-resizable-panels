@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { setDefaultElementStyle } from "../../utils/test/mockGetComputedStyle";
+import {
+  setDefaultElementStyle,
+  setElementStyle
+} from "../../utils/test/mockGetComputedStyle";
 import { sizeStyleToPixels } from "./sizeStyleToPixels";
 
 describe("sizeStyleToPixels", () => {
@@ -117,7 +120,10 @@ describe("sizeStyleToPixels", () => {
     });
 
     test("rem units", () => {
-      setDefaultElementStyle({
+      setElementStyle(document.body, {
+        fontSize: 10
+      } as unknown as CSSStyleDeclaration);
+      setElementStyle(document.documentElement, {
         fontSize: 20
       } as unknown as CSSStyleDeclaration);
 
