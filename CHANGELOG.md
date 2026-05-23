@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.11.2
 
 - [719)](https://github.com/bvaughn/react-resizable-panels/pull/719): Bug fix: Calculate rem-based sizes relative to owner document (not body)
 
