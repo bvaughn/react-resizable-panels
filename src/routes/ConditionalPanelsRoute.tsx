@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Callout, Code, Header } from "react-lib-tools";
+import { Box, Callout, Code, ExternalLink, Header } from "react-lib-tools";
 import { html as SeparatorsExampleHTML } from "../../public/generated/examples/ConditionalSeparators.json";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
@@ -52,6 +52,15 @@ export default function ConditionalPanelsRoute() {
       <Callout intent="warning">
         Conditional panels should also specify ids to help match previous, saved
         layouts.
+      </Callout>
+      <Callout intent="warning">
+        It is recommended to use <code>usePanelCallbackRef</code> rather than{" "}
+        <code>usePanelRef</code> when attaching a ref to a
+        conditionally-rendered panel. See{" "}
+        <ExternalLink href="https://github.com/bvaughn/react-resizable-panels/issues/717">
+          issue #717
+        </ExternalLink>{" "}
+        for more information.
       </Callout>
     </Box>
   );
