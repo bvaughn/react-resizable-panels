@@ -4,11 +4,21 @@ import {
   Separator,
   useDefaultLayout
 } from "react-resizable-panels";
+import { usePageContext } from "vike-react/usePageContext";
 import { LayoutShiftDetecter } from "../../../tests";
 import { useCookieStorage } from "./useCookieStorage";
+import { useLocalStorage } from "./useLocalStorage";
 
 export default function Page() {
-  const storage = useCookieStorage();
+  const {
+    urlParsed: {
+      search: { storageType }
+    }
+  } = usePageContext();
+
+  const cookieStorage = useCookieStorage();
+  const localStorage = useLocalStorage();
+  const storage = storageType === "localStorage" ? localStorage : cookieStorage;
 
   const groupOneProps = useDefaultLayout({
     id: "group-one",

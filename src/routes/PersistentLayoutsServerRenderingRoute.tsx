@@ -18,13 +18,18 @@ export default function PersistentLayoutsServerRenderingRoute() {
         this:
       </div>
       <Code html={cookieStorageExampleHTML} />
-      <Callout intent="primary">
-        If an async storage API is required, saved layouts should be loaded
-        using{" "}
+      <Callout intent="warning">
+        If async storage is needed, use{" "}
         <ExternalLink href="https://react.dev/reference/react/Suspense">
-          suspense
-        </ExternalLink>
-        .
+          Suspense
+        </ExternalLink>{" "}
+        to load saved layouts. Do not conditionally use{" "}
+        <code>localStorage</code> as it will cause errors during hydration and
+        may leave CSS styles in an invalid state. See{" "}
+        <ExternalLink href="https://github.com/bvaughn/react-resizable-panels/issues/714">
+          issue #714
+        </ExternalLink>{" "}
+        for more information.
       </Callout>
       <Callout intent="primary">
         The example above includes <code>path=/</code> so that saved layouts can

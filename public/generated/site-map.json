@@ -42,7 +42,7 @@
   {
     "path": "/examples/persistent-layout/server-rendering",
     "section": "Examples",
-    "text": " Because localStorage is unavailable on the server, a custom storage configuration is needed to avoid layout shift when server rendering. Building on the previous example, a Cookie based storage might look like this: import { type LayoutStorage } from \"react-resizable-panels\";\n \nconst cookieStorage: LayoutStorage = {\n getItem(key: string) {\n const cookies = document.cookie.split(\";\");\n for (const cookie of cookies) {\n const [name, value] = cookie.trim().split(\"=\");\n if (name === key) {\n return value;\n }\n }\n return null;\n },\n setItem(key: string, value: string) {\n document.cookie = `${key}=${value}; path=/;`;\n }\n};\n \nuseDefaultLayout({\n id: \"unique-layout-id\",\n storage: cookieStorage\n}); If an async storage API is required, saved layouts should be loaded using suspense. The example above includes path=/ so that saved layouts can be shared between paths; see Using HTTP cookies for more. ",
+    "text": " Because localStorage is unavailable on the server, a custom storage configuration is needed to avoid layout shift when server rendering. Building on the previous example, a Cookie based storage might look like this: import { type LayoutStorage } from \"react-resizable-panels\";\n \nconst cookieStorage: LayoutStorage = {\n getItem(key: string) {\n const cookies = document.cookie.split(\";\");\n for (const cookie of cookies) {\n const [name, value] = cookie.trim().split(\"=\");\n if (name === key) {\n return value;\n }\n }\n return null;\n },\n setItem(key: string, value: string) {\n document.cookie = `${key}=${value}; path=/;`;\n }\n};\n \nuseDefaultLayout({\n id: \"unique-layout-id\",\n storage: cookieStorage\n}); If an async storage API is required, saved layouts should be loaded using suspense. Do not conditionally use localStorage as it will cause errors during hydration. The example above includes path=/ so that saved layouts can be shared between paths; see Using HTTP cookies for more. ",
     "title": "Persistent layouts with server rendering"
   },
   {
@@ -60,7 +60,7 @@
   {
     "path": "/examples/conditional-panels",
     "section": "Examples",
-    "text": " Panel can be conditionally rendered. hide left panel hide right panel <Group>\n {hideLeftPanel || (\n <>\n <Panel id=\"left\">left panel</Panel>\n <Separator />\n </>\n )}\n <Panel id=\"center\">center panel</Panel>\n {hideRightPanel || (\n <>\n <Separator />\n <Panel id=\"right\">right panel</Panel>\n </>\n )}\n</Group> Conditional panels should also specify ids to help match previous, saved layouts. ",
+    "text": " Panel can be conditionally rendered. hide left panel hide right panel <Group>\n {hideLeftPanel || (\n <>\n <Panel id=\"left\">left panel</Panel>\n <Separator />\n </>\n )}\n <Panel id=\"center\">center panel</Panel>\n {hideRightPanel || (\n <>\n <Separator />\n <Panel id=\"right\">right panel</Panel>\n </>\n )}\n</Group> Conditional panels should also specify ids to help match previous, saved layouts. It is recommended to use usePanelCallbackRef rather than usePanelRef when attaching a ref to a conditionally-rendered panel. See issue #717 for more information. ",
     "title": "Conditional Panels"
   },
   {
