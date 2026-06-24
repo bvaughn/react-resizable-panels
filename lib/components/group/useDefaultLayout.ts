@@ -119,6 +119,11 @@ export function useDefaultLayout({
   }, [clearPendingTimeout]);
 
   const onLayoutChanged = useCallback<NonNullable<OnGroupLayoutChanged>>(
+    // The hook persists every layout commit -- including library-driven ones --
+    // because it owns its own storage and the goal is to remember whatever
+    // layout the user is currently looking at. Consumers that only want to
+    // persist on user interaction should branch on `isUserInteraction` in
+    // their own callback (see #716) rather than via this hook.
     (layout: Layout) => {
       clearPendingTimeout();
 
@@ -144,10 +149,10 @@ export function useDefaultLayout({
       clearPendingTimeout();
 
       if (debounceSaveMs === 0) {
-        onLayoutChanged(layout);
+        onLayoutChanged(layout, { isUserInteraction: false });
       } else {
         timeoutRef.current = setTimeout(() => {
-          onLayoutChanged(layout);
+          onLayoutChanged(layout, { isUserInteraction: false });
         }, debounceSaveMs);
       }
     },

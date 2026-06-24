@@ -79,15 +79,17 @@ export function Group({
     onLayoutChangeUnstable?.(layout);
   });
 
-  const onLayoutChangedStable = useStableCallback((layout: Layout) => {
-    if (layoutsEqual(prevLayoutRef.current.onLayoutChanged, layout)) {
-      // Memoize callback
-      return;
-    }
+  const onLayoutChangedStable = useStableCallback(
+    (layout: Layout, isUserInteraction: boolean) => {
+      if (layoutsEqual(prevLayoutRef.current.onLayoutChanged, layout)) {
+        // Memoize callback
+        return;
+      }
 
-    prevLayoutRef.current.onLayoutChanged = layout;
-    onLayoutChangedUnstable?.(layout);
-  });
+      prevLayoutRef.current.onLayoutChanged = layout;
+      onLayoutChangedUnstable?.(layout, { isUserInteraction });
+    }
+  );
 
   const id = useId(idProp);
 
@@ -290,7 +292,8 @@ export function Group({
 
     if (!defaultLayoutDeferred && derivedPanelConstraints.length > 0) {
       onLayoutChangeStable(layout);
-      onLayoutChangedStable(layout);
+      // Initial mount is not a user interaction (#716).
+      onLayoutChangedStable(layout, false);
     }
 
     const removeChangeEventListener = subscribeToMountedGroup(id, (event) => {
@@ -336,7 +339,7 @@ export function Group({
       const isCompleted = interactionState.state !== "active";
       onLayoutChangeStable(layout);
       if (isCompleted) {
-        onLayoutChangedStable(layout);
+        onLayoutChangedStable(layout, event.isUserInteraction);
       }
     });
 

@@ -32,11 +32,15 @@ export function onDocumentPointerMove(event: PointerEvent) {
           state: "inactive"
         });
 
-        // Dispatch one more "change" event after the interaction state has been reset
-        // Groups use this as a signal to call onLayoutChanged
+        // Dispatch one more "change" event after the interaction state has been reset.
+        // Groups use this as a signal to call onLayoutChanged.
+        // This is the missed-pointerup fallback (pointer released outside a
+        // cross-origin iframe, see #340) — still a real user interaction.
         interactionState.hitRegions.forEach((hitRegion) => {
           const groupState = getMountedGroupState(hitRegion.group.id, true);
-          updateMountedGroup(hitRegion.group, groupState);
+          updateMountedGroup(hitRegion.group, groupState, {
+            isUserInteraction: true
+          });
         });
 
         return;

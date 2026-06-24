@@ -17,6 +17,9 @@ let map: MountedGroups = new Map();
 
 type GroupChangeEvent = {
   group: RegisteredGroup;
+  // True if the change was triggered by a pointer or keyboard event handler
+  // False for other types of resize (constraint recompute, default-size change, imperative API, etc.).
+  isUserInteraction: boolean;
   next: State;
   prev: State | undefined;
 };
@@ -87,7 +90,11 @@ export function subscribeToMountedGroup(
   });
 }
 
-export function updateMountedGroup(group: RegisteredGroup, next: State) {
+export function updateMountedGroup(
+  group: RegisteredGroup,
+  next: State,
+  meta?: { isUserInteraction?: boolean }
+) {
   const prev = map.get(group);
 
   map = new Map(map);
@@ -95,6 +102,7 @@ export function updateMountedGroup(group: RegisteredGroup, next: State) {
 
   eventEmitter.emit("groupChange", {
     group,
+    isUserInteraction: meta?.isUserInteraction === true,
     prev,
     next
   });
