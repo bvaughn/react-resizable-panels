@@ -9,6 +9,7 @@ import { getStorageKey } from "./auto-save/getStorageKey";
 import { readLegacyLayout } from "./readLegacyLayout";
 import type {
   Layout,
+  LayoutChangedMeta,
   LayoutStorage,
   OnGroupLayoutChange,
   OnGroupLayoutChanged
@@ -20,6 +21,7 @@ import type {
  */
 export function useDefaultLayout({
   debounceSaveMs = 100,
+  onlySaveAfterUserInteractions,
   panelIds,
   storage = localStorage,
   ...rest
@@ -30,6 +32,12 @@ export function useDefaultLayout({
    * @deprecated Use the {@link onLayoutChanged} callback instead; it does not require debouncing
    */
   debounceSaveMs?: number;
+
+  /**
+   * Only auto-save layouts that were directly caused by user input (e.g. keyboard or mouse events).
+   * Ignore layout changes resulting from imperative API calls or window resize events.
+   */
+  onlySaveAfterUserInteractions?: boolean;
 
   /**
    * For Groups that contain conditionally-rendered Panels, this prop can be used to save and restore multiple layouts.
@@ -124,7 +132,11 @@ export function useDefaultLayout({
     // layout the user is currently looking at. Consumers that only want to
     // persist on user interaction should branch on `isUserInteraction` in
     // their own callback (see #716) rather than via this hook.
-    (layout: Layout) => {
+    (layout: Layout, meta: LayoutChangedMeta) => {
+      if (onlySaveAfterUserInteractions && !meta.isUserInteraction) {
+        return;
+      }
+
       clearPendingTimeout();
 
       let writeStorageKey: string;
@@ -140,7 +152,13 @@ export function useDefaultLayout({
         console.error(error);
       }
     },
-    [clearPendingTimeout, hasPanelIds, id, storage]
+    [
+      clearPendingTimeout,
+      hasPanelIds,
+      id,
+      onlySaveAfterUserInteractions,
+      storage
+    ]
   );
 
   // TODO Deprecated; remove this in the future release

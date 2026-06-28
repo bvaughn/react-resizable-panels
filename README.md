@@ -131,13 +131,10 @@ For most cases, it is recommended to use the <code>onLayoutChanged</code> callba
       <td><p>Called after the Group&#39;s layout has  been changed.</p>
 <p>ℹ️ For layout changes caused by pointer events, this method is not called until the pointer has been released.
 This method is recommended when saving layouts to some storage api.</p>
-<p>The second argument is a <code>meta</code> object whose <code>isUserInteraction</code> field is
-<code>true</code> when the change was caused by the user directly manipulating a
-separator — releasing a pointer drag or pressing a resize key (arrow keys,
-Home/End, Enter). It is <code>false</code> for every other source (programmatic
-<code>setLayout</code> and other imperative API calls, constraint recompute,
-default-size change, initial mount), because the library cannot attribute
-the caller&#39;s intent there. See #716.</p>
+<p>ℹ️ The second argument contains meta information about the layout change.
+The <code>isUserInteraction</code> attribute signals whether the resize was caused by direct user input.
+It is true for resizes caused by pointer or keyboard input
+and false for other triggers (e.g. imperative API calls, initial mount, etc.)</p>
 </td>
     </tr>
     <tr>

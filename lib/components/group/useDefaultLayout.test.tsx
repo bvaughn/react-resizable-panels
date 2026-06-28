@@ -309,6 +309,40 @@ describe("useDefaultLayout", () => {
       }
     `);
     });
+
+    // See github.com/bvaughn/react-resizable-panels/pull/716
+    test("should ignore non-user interactions", () => {
+      const storage: LayoutStorage = {
+        getItem: vi.fn(() => null),
+        setItem: vi.fn()
+      };
+
+      const { result } = renderHook(() =>
+        useDefaultLayout({
+          id: "test-group-id",
+          onlySaveAfterUserInteractions: true,
+          storage
+        })
+      );
+
+      result.current.onLayoutChanged(
+        {
+          bar: 35,
+          baz: 65
+        },
+        { isUserInteraction: false }
+      );
+      expect(storage.setItem).not.toHaveBeenCalled();
+
+      result.current.onLayoutChanged(
+        {
+          bar: 35,
+          baz: 65
+        },
+        { isUserInteraction: true }
+      );
+      expect(storage.setItem).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("legacy onLayoutChange prop", () => {

@@ -151,7 +151,8 @@
           "intent": "primary"
         },
         {
-          "content": "<p>The second argument is a <code>meta</code> object whose <code>isUserInteraction</code> field is\n<code>true</code> when the change was caused by the user directly manipulating a\nseparator — releasing a pointer drag or pressing a resize key (arrow keys,\nHome/End, Enter). It is <code>false</code> for every other source (programmatic\n<code>setLayout</code> and other imperative API calls, constraint recompute,\ndefault-size change, initial mount), because the library cannot attribute\nthe caller's intent there. See #716.</p>\n"
+          "content": "<p>The second argument contains meta information about the layout change.\nThe <code>isUserInteraction</code> attribute signals whether the resize was caused by direct user input.\nIt is true for resizes caused by pointer or keyboard input\nand false for other triggers (e.g. imperative API calls, initial mount, etc.)</p>\n",
+          "intent": "primary"
         }
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onLayoutChanged</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">Layout</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">meta</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">LayoutChangedMeta</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span></div>",

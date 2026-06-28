@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.12.0
+
+- [716)](https://github.com/bvaughn/react-resizable-panels/pull/716): Meta info available to `onLayoutChanged` callback signalling whether resize event was triggered by direct user input (keyboard or mouse)
+
 ## 4.11.2
 
 - [719)](https://github.com/bvaughn/react-resizable-panels/pull/719): Bug fix: Calculate rem-based sizes relative to owner document (not body)

@@ -49,6 +49,17 @@ export default function UseDefaultLayoutRoute() {
         </dd>
         <dt className="mb-2">Uniquely identifies a specific group/layout.</dt>
         <dd className="text-lg font-mono">
+          <span className="tok-propertyName">
+            onlySaveAfterUserInteractions
+          </span>
+          <span className="tok-punctuation">?:</span> boolean
+        </dd>
+        <dt className="mb-2">
+          Only auto-save layouts that were directly caused by user input (e.g.
+          keyboard or mouse events). Ignore layout changes resulting from
+          imperative API calls or window resize events.
+        </dt>
+        <dd className="text-lg font-mono">
           <span className="tok-propertyName">panelIds</span>
           <span className="tok-punctuation">?:</span> string[] | undefined
         </dd>
