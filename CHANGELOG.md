@@ -3,6 +3,7 @@
 ## 4.12.0
 
 - [716)](https://github.com/bvaughn/react-resizable-panels/pull/716): Meta info available to `onLayoutChanged` callback signalling whether resize event was triggered by direct user input (keyboard or mouse)
+- `useDefaultLayout` hook supports `onlySaveAfterUserInteractions` option to only save layouts when directly triggered by user interactions.
 
 ## 4.11.2
 
