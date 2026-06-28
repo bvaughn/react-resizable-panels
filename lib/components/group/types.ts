@@ -17,6 +17,22 @@ export type Layout = {
 
 export type LayoutStorage = Pick<Storage, "getItem" | "setItem">;
 
+/**
+ * Metadata describing a completed layout change, passed as the second argument
+ * to the `onLayoutChanged` callback. See #716.
+ */
+export type LayoutChangedMeta = {
+  /**
+   * `true` when the change was caused by the user directly manipulating a
+   * separator — releasing a pointer drag or pressing a resize key (arrow keys,
+   * Home/End, Enter). `false` for every other source (programmatic `setLayout`
+   * and other imperative API calls, constraint recompute, default-size change,
+   * initial mount), because the library cannot attribute the caller's intent
+   * there.
+   */
+  isUserInteraction: boolean;
+};
+
 export type DragState = {
   state: "default" | "hover" | "dragging";
   separatorId: string | undefined;
@@ -159,8 +175,16 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    *
    * ℹ️ For layout changes caused by pointer events, this method is not called until the pointer has been released.
    * This method is recommended when saving layouts to some storage api.
+   *
+   * The second argument is a `meta` object whose `isUserInteraction` field is
+   * `true` when the change was caused by the user directly manipulating a
+   * separator — releasing a pointer drag or pressing a resize key (arrow keys,
+   * Home/End, Enter). It is `false` for every other source (programmatic
+   * `setLayout` and other imperative API calls, constraint recompute,
+   * default-size change, initial mount), because the library cannot attribute
+   * the caller's intent there. See #716.
    */
-  onLayoutChanged?: (layout: Layout) => void | undefined;
+  onLayoutChanged?: (layout: Layout, meta: LayoutChangedMeta) => void;
 
   /**
    * Minimum size of the resizable hit target area (either `Separator` or `Panel` edge)

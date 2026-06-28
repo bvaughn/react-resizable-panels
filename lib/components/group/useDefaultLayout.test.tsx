@@ -35,10 +35,13 @@ describe("useDefaultLayout", () => {
       );
       expect(storage.setItem).not.toHaveBeenCalled();
 
-      result.current.onLayoutChanged({
-        bar: 35,
-        baz: 65
-      });
+      result.current.onLayoutChanged(
+        {
+          bar: 35,
+          baz: 65
+        },
+        { isUserInteraction: false }
+      );
       expect(storage.setItem).toHaveBeenCalledTimes(1);
       expect(storage.setItem).toHaveBeenCalledWith(
         "react-resizable-panels:test-group-id",
@@ -68,10 +71,13 @@ describe("useDefaultLayout", () => {
       expect(result.current.defaultLayout).toMatchInlineSnapshot(`undefined`);
       expect(storage.setItem).not.toHaveBeenCalled();
 
-      result.current.onLayoutChanged({
-        bar: 35,
-        baz: 65
-      });
+      result.current.onLayoutChanged(
+        {
+          bar: 35,
+          baz: 65
+        },
+        { isUserInteraction: false }
+      );
 
       expect(storage.setItem).toHaveBeenCalledTimes(1);
       expect(storage.setItem).toHaveBeenCalledWith(
@@ -210,10 +216,13 @@ describe("useDefaultLayout", () => {
       );
       expect(storage.setItem).not.toHaveBeenCalled();
 
-      result.current.onLayoutChanged({
-        foo: 35,
-        bar: 65
-      });
+      result.current.onLayoutChanged(
+        {
+          foo: 35,
+          bar: 65
+        },
+        { isUserInteraction: false }
+      );
       expect(storage.setItem).toHaveBeenCalledTimes(1);
       expect(storage.setItem).toHaveBeenCalledWith(
         "react-resizable-panels:test-group-id:foo:bar",
@@ -226,11 +235,14 @@ describe("useDefaultLayout", () => {
       // This test verifies two things:
       // 1. Panel layout is saved separately
       // 2. Panel ids in the Layout are prioritized over those in the prop
-      result.current.onLayoutChanged({
-        foo: 25,
-        bar: 55,
-        baz: 20
-      });
+      result.current.onLayoutChanged(
+        {
+          foo: 25,
+          bar: 55,
+          baz: 20
+        },
+        { isUserInteraction: false }
+      );
       expect(storage.setItem).toHaveBeenCalledTimes(2);
       expect(storage.setItem).toHaveBeenCalledWith(
         "react-resizable-panels:test-group-id:foo:bar:baz",
@@ -666,10 +678,13 @@ describe("useDefaultLayout", () => {
       bar: 35,
       baz: 65
     });
-    result.current.onLayoutChanged({
-      bar: 35,
-      baz: 65
-    });
+    result.current.onLayoutChanged(
+      {
+        bar: 35,
+        baz: 65
+      },
+      { isUserInteraction: false }
+    );
 
     expect(storage.setItem).toHaveBeenCalledTimes(1);
     expect(storage.setItem).toHaveBeenCalledWith(
@@ -915,10 +930,13 @@ describe("useDefaultLayout", () => {
       expect(storage.getItem).toHaveBeenCalledWith(keyV3);
       expect(storage.setItem).not.toHaveBeenCalled();
 
-      result.current.onLayoutChanged({
-        left: 35,
-        right: 65
-      });
+      result.current.onLayoutChanged(
+        {
+          left: 35,
+          right: 65
+        },
+        { isUserInteraction: false }
+      );
 
       expect(storage.setItem).toHaveBeenCalledTimes(1);
       expect(storage.setItem).toHaveBeenCalledWith(

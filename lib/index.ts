@@ -13,6 +13,7 @@ export type {
   GroupImperativeHandle,
   GroupProps,
   Layout,
+  LayoutChangedMeta,
   LayoutStorage,
   OnGroupLayoutChange,
   Orientation
