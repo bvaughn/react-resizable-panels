@@ -191,6 +191,88 @@ describe("Group", () => {
       );
     });
 
+    // See github.com/bvaughn/react-resizable-panels/issues/723
+    test("should not break if right click occurs while left click is active", async () => {
+      await runTest(
+        async () => {
+          const separatorElement = document.querySelector("[data-separator]");
+          assert(separatorElement instanceof HTMLElement);
+
+          const clientX = separatorElement.offsetLeft;
+          const clientY = separatorElement.offsetHeight / 2;
+
+          expect(separatorElement.getAttribute("data-separator")).toBe(
+            "inactive"
+          );
+
+          await userEvent.pointer([
+            {
+              keys: "[MouseLeft>]",
+              coords: {
+                clientX,
+                clientY
+              }
+            },
+            {
+              coords: {
+                clientX: clientX + 10,
+                clientY
+              }
+            }
+          ]);
+
+          expect(separatorElement.getAttribute("data-separator")).toBe(
+            "active"
+          );
+
+          await userEvent.pointer([
+            {
+              keys: "[MouseRight>]",
+              coords: {
+                clientX,
+                clientY
+              }
+            },
+            {
+              keys: "[/MouseRight]",
+              coords: {
+                clientX,
+                clientY
+              }
+            }
+          ]);
+
+          expect(separatorElement.getAttribute("data-separator")).toBe(
+            "inactive"
+          );
+
+          // No-op
+          await userEvent.pointer([
+            {
+              coords: {
+                clientX,
+                clientY
+              }
+            },
+            {
+              keys: "[/MouseLeft]",
+              coords: {
+                clientX: clientX + 10,
+                clientY
+              }
+            }
+          ]);
+
+          // TODO Verify drag state no longer active
+        },
+        {
+          left: 60,
+          right: 40
+        },
+        true
+      );
+    });
+
     test("should update when resized via keyboard", async () => {
       await runTest(
         async ({ container }) => {

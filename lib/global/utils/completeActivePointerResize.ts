@@ -8,8 +8,10 @@ import {
   updateInteractionState
 } from "../mutable-state/interactions.ts";
 
-export function completeResize(event: MouseEvent, preventDefault: boolean) {
+export function completeActivePointerResize(document: Document) {
   const interactionState = getInteractionState();
+
+  let match = false;
 
   switch (interactionState.state) {
     case "active": {
@@ -19,7 +21,9 @@ export function completeResize(event: MouseEvent, preventDefault: boolean) {
       });
 
       if (interactionState.hitRegions.length > 0) {
-        updateCursorStyle(event.currentTarget as Document);
+        updateCursorStyle(document);
+
+        match = true;
 
         // Dispatch one more "change" event after the interaction state has been reset.
         // Groups use this as a signal to call onLayoutChanged.
@@ -31,11 +35,9 @@ export function completeResize(event: MouseEvent, preventDefault: boolean) {
             isUserInteraction: true
           });
         });
-
-        if (preventDefault) {
-          event.preventDefault();
-        }
       }
     }
   }
+
+  return match;
 }

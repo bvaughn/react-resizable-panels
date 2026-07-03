@@ -1,4 +1,4 @@
-import { completeResize } from "../utils/completeResize.ts";
+import { completeActivePointerResize } from "../utils/completeActivePointerResize.ts";
 
 export function onDocumentPointerUp(event: PointerEvent) {
   if (event.defaultPrevented) {
@@ -7,5 +7,8 @@ export function onDocumentPointerUp(event: PointerEvent) {
     return;
   }
 
-  completeResize(event, true);
+  const matched = completeActivePointerResize(event.currentTarget as Document);
+  if (matched) {
+    event.preventDefault();
+  }
 }
