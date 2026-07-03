@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.12.1
+
+- [723](https://github.com/bvaughn/react-resizable-panels/issues/723): Bug fix for context menu event (right click) occurring while pointer-resize is active
+
 ## 4.12.0
 
 - [716)](https://github.com/bvaughn/react-resizable-panels/pull/716): Meta info available to `onLayoutChanged` callback signalling whether resize event was triggered by direct user input (keyboard or mouse)
