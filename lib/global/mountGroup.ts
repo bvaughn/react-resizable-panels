@@ -3,6 +3,7 @@ import { assert } from "../utils/assert";
 import { calculateAvailableGroupSize } from "./dom/calculateAvailableGroupSize";
 import { calculateHitRegions } from "./dom/calculateHitRegions";
 import { calculatePanelConstraints } from "./dom/calculatePanelConstraints";
+import { onDocumentContextMenu } from "./event-handlers/onDocumentContextMenu";
 import { onDocumentDoubleClick } from "./event-handlers/onDocumentDoubleClick";
 import { onDocumentKeyDown } from "./event-handlers/onDocumentKeyDown";
 import { onDocumentPointerDown } from "./event-handlers/onDocumentPointerDown";
@@ -179,6 +180,7 @@ export function mountGroup(group: RegisteredGroup) {
 
   // If this is the first group to be mounted, initialize event handlers
   if (ownerDocumentReferenceCounts.get(ownerDocument) === 1) {
+    ownerDocument.addEventListener("contextmenu", onDocumentContextMenu, true);
     ownerDocument.addEventListener("dblclick", onDocumentDoubleClick, true);
     ownerDocument.addEventListener("pointerdown", onDocumentPointerDown, true);
     ownerDocument.addEventListener("pointerleave", onDocumentPointerLeave);
@@ -203,6 +205,11 @@ export function mountGroup(group: RegisteredGroup) {
 
     // If this was the last group to be mounted, tear down event handlers
     if (!ownerDocumentReferenceCounts.get(ownerDocument)) {
+      ownerDocument.removeEventListener(
+        "contextmenu",
+        onDocumentContextMenu,
+        true
+      );
       ownerDocument.removeEventListener(
         "dblclick",
         onDocumentDoubleClick,
