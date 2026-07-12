@@ -240,6 +240,12 @@ Falls back to <code>useId</code> when not provided.</p>
     <tr>
       <td>defaultSize</td>
       <td><p>Default size of Panel within its parent group; default is auto-assigned based on the total number of Panels.</p>
+<p>ℹ️ Interpretation rules:</p>
+<ul>
+<li>Numbers are interpreted as pixels (e.g. <code>defaultSize={200}</code> is 200 pixels)</li>
+<li>Strings without explicit units are interpreted as percentage (e.g. <code>defaultSize=&quot;50&quot;</code> is 50 percent)</li>
+<li>Use explicit units (e.g. &quot;px&quot;, &quot;%&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot;) to change interpretation</li>
+</ul>
 <p>⚠️ Percentage based sizes may cause slight layout shift when server-rendering.
 For more information see the documentation.</p>
 </td>
@@ -268,12 +274,24 @@ Defaults to <code>preserve-relative-size</code>.</p>
     </tr>
     <tr>
       <td>maxSize</td>
-      <td><p>Maximum size of Panel within its parent group; defaults to 100%.</p>
+      <td><p>Maximum size of Panel within its parent group; defaults to <code>&quot;100%&quot;</code>.</p>
+<p>ℹ️ Interpretation rules:</p>
+<ul>
+<li>Numbers are interpreted as pixels (e.g. <code>maxSize={200}</code> is 200 pixels)</li>
+<li>Strings without explicit units are interpreted as percentage (e.g. <code>maxSize=&quot;50&quot;</code> is 50 percent)</li>
+<li>Use explicit units (e.g. &quot;px&quot;, &quot;%&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot;) to change interpretation</li>
+</ul>
 </td>
     </tr>
     <tr>
       <td>minSize</td>
       <td><p>Minimum size of Panel within its parent group; defaults to 0%.</p>
+<p>ℹ️ Interpretation rules:</p>
+<ul>
+<li>Numbers are interpreted as pixels (e.g. <code>minSize={200}</code> is 200 pixels)</li>
+<li>Strings without explicit units are interpreted as percentage (e.g. <code>minSize=&quot;50&quot;</code> is 50 percent)</li>
+<li>Use explicit units (e.g. &quot;px&quot;, &quot;%&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot;) to change interpretation</li>
+</ul>
 </td>
     </tr>
     <tr>

@@ -119,6 +119,11 @@ export type PanelProps = BasePanelAttributes & {
   /**
    * Default size of Panel within its parent group; default is auto-assigned based on the total number of Panels.
    *
+   * ℹ️ Interpretation rules:
+   * - Numbers are interpreted as pixels (e.g. `defaultSize={200}` is 200 pixels)
+   * - Strings without explicit units are interpreted as percentage (e.g. `defaultSize="50"` is 50 percent)
+   * - Use explicit units (e.g. "px", "%", "em", "rem", "vh", or "vw") to change interpretation
+   *
    * ⚠️ Percentage based sizes may cause slight layout shift when server-rendering.
    * For more information see the documentation.
    */
@@ -161,12 +166,22 @@ export type PanelProps = BasePanelAttributes & {
   id?: string | number | undefined;
 
   /**
-   * Maximum size of Panel within its parent group; defaults to 100%.
+   * Maximum size of Panel within its parent group; defaults to `"100%"`.
+   *
+   * ℹ️ Interpretation rules:
+   * - Numbers are interpreted as pixels (e.g. `maxSize={200}` is 200 pixels)
+   * - Strings without explicit units are interpreted as percentage (e.g. `maxSize="50"` is 50 percent)
+   * - Use explicit units (e.g. "px", "%", "em", "rem", "vh", or "vw") to change interpretation
    */
   maxSize?: number | string | undefined;
 
   /**
    * Minimum size of Panel within its parent group; defaults to 0%.
+   *
+   * ℹ️ Interpretation rules:
+   * - Numbers are interpreted as pixels (e.g. `minSize={200}` is 200 pixels)
+   * - Strings without explicit units are interpreted as percentage (e.g. `minSize="50"` is 50 percent)
+   * - Use explicit units (e.g. "px", "%", "em", "rem", "vh", or "vw") to change interpretation
    */
   minSize?: number | string | undefined;
 

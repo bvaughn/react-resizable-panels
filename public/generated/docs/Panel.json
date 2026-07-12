@@ -104,6 +104,10 @@
           "content": "<p>Default size of Panel within its parent group; default is auto-assigned based on the total number of Panels.</p>\n"
         },
         {
+          "content": "<p>Interpretation rules:</p>\n<ul>\n<li>Numbers are interpreted as pixels (e.g. <code>defaultSize={200}</code> is 200 pixels)</li>\n<li>Strings without explicit units are interpreted as percentage (e.g. <code>defaultSize=&quot;50&quot;</code> is 50 percent)</li>\n<li>Use explicit units (e.g. &quot;px&quot;, &quot;%&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot;) to change interpretation</li>\n</ul>\n",
+          "intent": "primary"
+        },
+        {
           "content": "<p>Percentage based sizes may cause slight layout shift when server-rendering.\nFor more information see the documentation.</p>\n",
           "intent": "warning"
         }
@@ -156,7 +160,11 @@
     "maxSize": {
       "description": [
         {
-          "content": "<p>Maximum size of Panel within its parent group; defaults to 100%.</p>\n"
+          "content": "<p>Maximum size of Panel within its parent group; defaults to <code>&quot;100%&quot;</code>.</p>\n"
+        },
+        {
+          "content": "<p>Interpretation rules:</p>\n<ul>\n<li>Numbers are interpreted as pixels (e.g. <code>maxSize={200}</code> is 200 pixels)</li>\n<li>Strings without explicit units are interpreted as percentage (e.g. <code>maxSize=&quot;50&quot;</code> is 50 percent)</li>\n<li>Use explicit units (e.g. &quot;px&quot;, &quot;%&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot;) to change interpretation</li>\n</ul>\n",
+          "intent": "primary"
         }
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">maxSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"100%\"</span></div>",
@@ -167,6 +175,10 @@
       "description": [
         {
           "content": "<p>Minimum size of Panel within its parent group; defaults to 0%.</p>\n"
+        },
+        {
+          "content": "<p>Interpretation rules:</p>\n<ul>\n<li>Numbers are interpreted as pixels (e.g. <code>minSize={200}</code> is 200 pixels)</li>\n<li>Strings without explicit units are interpreted as percentage (e.g. <code>minSize=&quot;50&quot;</code> is 50 percent)</li>\n<li>Use explicit units (e.g. &quot;px&quot;, &quot;%&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot;) to change interpretation</li>\n</ul>\n",
+          "intent": "primary"
         }
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">minSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"0%\"</span></div>",

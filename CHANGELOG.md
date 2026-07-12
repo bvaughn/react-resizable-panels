@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.12.2
+
+- [726](https://github.com/bvaughn/react-resizable-panels/issues/726): Updated inline documentation to clarify size units.
+
 ## 4.12.1
 
 - [723](https://github.com/bvaughn/react-resizable-panels/issues/723): Bug fix for context menu event (right click) occurring while pointer-resize is active
