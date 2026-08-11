@@ -1,5 +1,6 @@
 import { updateCursorStyle } from "../cursor/updateCursorStyle.ts";
 import {
+  getMountedGroups,
   getMountedGroupState,
   updateMountedGroup
 } from "../mutable-state/groups.ts";
@@ -30,6 +31,11 @@ export function completeActivePointerResize(document: Document) {
         // This is the canonical user-pointer-up site, so flag the dispatch with
         // isUserInteraction: true. See #716.
         interactionState.hitRegions.forEach((hitRegion) => {
+          // Skip if the group was re-registered mid-gesture, so the old hit region
+          // doesn't resurrect a stale entry in the mounted-groups map. See #729.
+          if (!getMountedGroups().has(hitRegion.group)) {
+            return;
+          }
           const groupState = getMountedGroupState(hitRegion.group.id, true);
           updateMountedGroup(hitRegion.group, groupState, {
             isUserInteraction: true
