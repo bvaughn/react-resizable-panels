@@ -40,64 +40,81 @@ export function mountGroup(group: RegisteredGroup) {
   const panelIds = new Set<string>();
   const separatorIds = new Set<string>();
 
+  // Debounce timer to skip transient resize bursts (e.g. iPadOS Safari
+  // backgrounding fires a rapid sequence of fake resize events, see #731).
+  let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function handleGroupResize() {
+    if (!isMounted) {
+      return;
+    }
+
+    const groupSize = calculateAvailableGroupSize({ group });
+    if (groupSize === 0) {
+      // Can't calculate anything meaningful if the group has a width/height of 0
+      // (This could indicate that it's within a hidden subtree)
+      return;
+    }
+
+    const groupState = getMountedGroupState(group.id);
+    if (!groupState) {
+      // Not mounted yet
+      return;
+    }
+
+    // Update non-percentage based constraints
+    const nextDerivedPanelConstraints = calculatePanelConstraints(group);
+
+    // Revalidate layout in case constraints have changed or group size changed
+    const prevLayout = groupState.defaultLayoutDeferred
+      ? calculateDefaultLayout(nextDerivedPanelConstraints)
+      : groupState.layout;
+    const unsafeLayout = preserveFixedPanelSizes({
+      group,
+      nextGroupSize: groupSize,
+      prevGroupSize: groupState.groupSize,
+      prevLayout
+    });
+    const nextLayout = validatePanelGroupLayout({
+      layout: unsafeLayout,
+      panelConstraints: nextDerivedPanelConstraints
+    });
+
+    if (
+      !groupState.defaultLayoutDeferred &&
+      layoutsEqual(groupState.layout, nextLayout) &&
+      objectsEqual(
+        groupState.derivedPanelConstraints,
+        nextDerivedPanelConstraints
+      ) &&
+      groupState.groupSize === groupSize
+    ) {
+      return;
+    }
+
+    updateMountedGroup(group, {
+      defaultLayoutDeferred: false,
+      derivedPanelConstraints: nextDerivedPanelConstraints,
+      groupSize,
+      layout: nextLayout,
+      separatorToPanels: groupState.separatorToPanels
+    });
+  }
+
   // Add Panels with onResize callbacks to ResizeObserver
   // Add Group to ResizeObserver also in order to sync % based constraints
   const resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {
       const { borderBoxSize, target } = entry;
       if (target === group.element) {
-        if (isMounted) {
-          const groupSize = calculateAvailableGroupSize({ group });
-          if (groupSize === 0) {
-            // Can't calculate anything meaningful if the group has a width/height of 0
-            // (This could indicate that it's within a hidden subtree)
-            return;
-          }
-
-          const groupState = getMountedGroupState(group.id);
-          if (!groupState) {
-            // Not mounted yet
-            return;
-          }
-
-          // Update non-percentage based constraints
-          const nextDerivedPanelConstraints = calculatePanelConstraints(group);
-
-          // Revalidate layout in case constraints have changed or group size changed
-          const prevLayout = groupState.defaultLayoutDeferred
-            ? calculateDefaultLayout(nextDerivedPanelConstraints)
-            : groupState.layout;
-          const unsafeLayout = preserveFixedPanelSizes({
-            group,
-            nextGroupSize: groupSize,
-            prevGroupSize: groupState.groupSize,
-            prevLayout
-          });
-          const nextLayout = validatePanelGroupLayout({
-            layout: unsafeLayout,
-            panelConstraints: nextDerivedPanelConstraints
-          });
-
-          if (
-            !groupState.defaultLayoutDeferred &&
-            layoutsEqual(groupState.layout, nextLayout) &&
-            objectsEqual(
-              groupState.derivedPanelConstraints,
-              nextDerivedPanelConstraints
-            ) &&
-            groupState.groupSize === groupSize
-          ) {
-            return;
-          }
-
-          updateMountedGroup(group, {
-            defaultLayoutDeferred: false,
-            derivedPanelConstraints: nextDerivedPanelConstraints,
-            groupSize,
-            layout: nextLayout,
-            separatorToPanels: groupState.separatorToPanels
-          });
+        // Debounce to skip transient resize bursts (issue #731).
+        // On iPadOS Safari, backgrounding the app can fire a rapid sequence
+        // of resize events with transiently wrong container widths.  A short
+        // debounce ensures only the final settled size is applied.
+        if (resizeTimer !== null) {
+          clearTimeout(resizeTimer);
         }
+        resizeTimer = setTimeout(handleGroupResize, 50);
       } else {
         notifyPanelOnResize(group, target as HTMLElement, borderBoxSize);
       }
@@ -224,6 +241,11 @@ export function mountGroup(group: RegisteredGroup) {
       ownerDocument.removeEventListener("pointermove", onDocumentPointerMove);
       ownerDocument.removeEventListener("pointerout", onDocumentPointerOut);
       ownerDocument.removeEventListener("pointerup", onDocumentPointerUp, true);
+    }
+
+    if (resizeTimer !== null) {
+      clearTimeout(resizeTimer);
+      resizeTimer = null;
     }
 
     resizeObserver.disconnect();
