@@ -1,8 +1,9 @@
 # Changelog
 
-## 4.12.3 (PENDING)
+## 4.12.3
 
 - [730](https://github.com/bvaughn/react-resizable-panels/pull/730): Guard `CSSStyleSheet` construction to avoid throwing in unsupported environments (@leo-yang-qiong)
+- [736](https://github.com/bvaughn/react-resizable-panels/pull/736): Bugfix: Derived Panel constraints equality check
 - [732](https://github.com/bvaughn/react-resizable-panels/pull/732): Bugfix: Prevent orphaned groups in "pointerup" edge case (@waterWang)
 
 ## 4.12.2
