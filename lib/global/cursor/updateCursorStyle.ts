@@ -10,25 +10,19 @@ const documentToStyleMap = new WeakMap<
 >();
 
 export function updateCursorStyle(ownerDocument: Document) {
-  // NOTE undefined is not technically a valid value but it has been reported that it is present in some environments (Vite HMR?)
-  // See github.com/bvaughn/react-resizable-panels/issues/559
-  if (
-    ownerDocument.defaultView === null ||
-    ownerDocument.defaultView === undefined
-  ) {
+  if (!ownerDocument.defaultView || !ownerDocument.adoptedStyleSheets) {
+    // Gracefully degrade for environments that don't support these DOM APIs (e.g. Safari < 16.4, jsdom)
+    // See issues#559, issues#621, issues#554, pull#730
     return;
   }
 
   let { prevStyle, styleSheet } = documentToStyleMap.get(ownerDocument) ?? {};
 
   if (styleSheet === undefined) {
-    // Constructable stylesheets aren't supported in all environments
-    // (e.g. Safari < 16.4, jsdom). Calling `new CSSStyleSheet()` there
-    // throws "TypeError: Illegal constructor", so only construct one when
-    // adoptedStyleSheets is available.
-    if (ownerDocument.adoptedStyleSheets) {
-      styleSheet = new ownerDocument.defaultView.CSSStyleSheet();
+    styleSheet = new ownerDocument.defaultView.CSSStyleSheet();
 
+    // adoptedStyleSheets is undefined in jsdom
+    if (ownerDocument.adoptedStyleSheets) {
       if (Object.isExtensible(ownerDocument.adoptedStyleSheets)) {
         ownerDocument.adoptedStyleSheets.push(styleSheet);
       } else {
@@ -38,12 +32,6 @@ export function updateCursorStyle(ownerDocument: Document) {
         ];
       }
     }
-  }
-
-  if (styleSheet === undefined) {
-    // The environment doesn't support constructed stylesheets, so cursor
-    // overrides can't be applied. This is a no-op, not an error.
-    return;
   }
 
   const interactionState = getInteractionState();
