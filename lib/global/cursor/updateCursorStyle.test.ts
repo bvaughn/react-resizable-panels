@@ -28,6 +28,7 @@ describe("updateCursorStyle", () => {
   test("should not throw if the environment doesn't support constructable stylesheets", () => {
     // e.g. Safari < 16.4. Calling `new CSSStyleSheet()` throws
     // "TypeError: Illegal constructor" in those browsers.
+    // @ts-expect-error Testing
     window.CSSStyleSheet = class CSSStyleSheet {
       constructor() {
         throw new TypeError("Illegal constructor");
