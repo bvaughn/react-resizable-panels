@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.12.3 (PENDING)
+
+- [730](https://github.com/bvaughn/react-resizable-panels/pull/730): Guard `CSSStyleSheet` construction to avoid throwing in unsupported environments (@leo-yang-qiong)
+- [732](https://github.com/bvaughn/react-resizable-panels/pull/732): Bugfix: Prevent orphaned groups in "pointerup" edge case (@waterWang)
+
 ## 4.12.2
 
 - [726](https://github.com/bvaughn/react-resizable-panels/issues/726): Updated inline documentation to clarify size units.
