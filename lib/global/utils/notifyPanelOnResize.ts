@@ -4,14 +4,8 @@ import { formatLayoutNumber } from "./formatLayoutNumber";
 
 export function notifyPanelOnResize(
   group: RegisteredGroup,
-  element: HTMLElement,
-  borderBoxSize: readonly ResizeObserverSize[]
+  element: HTMLElement
 ) {
-  const resizeObserverSize = borderBoxSize[0];
-  if (!resizeObserverSize) {
-    return;
-  }
-
   const panel = group.panels.find((current) => current.element === element);
   if (!panel || !panel.onResize) {
     return;

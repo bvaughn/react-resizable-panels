@@ -11,17 +11,11 @@ import { onDocumentPointerLeave } from "./event-handlers/onDocumentPointerLeave"
 import { onDocumentPointerMove } from "./event-handlers/onDocumentPointerMove";
 import { onDocumentPointerOut } from "./event-handlers/onDocumentPointerOut";
 import { onDocumentPointerUp } from "./event-handlers/onDocumentPointerUp";
-import {
-  deleteMutableGroup,
-  getMountedGroupState,
-  updateMountedGroup
-} from "./mutable-state/groups";
+import { onDocumentVisibilityChange } from "./event-handlers/onDocumentVisibilityChange";
+import { resizeObserverCallback } from "./event-handlers/resizeObserverCallback";
+import { deleteMutableGroup, updateMountedGroup } from "./mutable-state/groups";
 import type { SeparatorToPanelsMap } from "./mutable-state/types";
 import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
-import { layoutsEqual } from "./utils/layoutsEqual";
-import { notifyPanelOnResize } from "./utils/notifyPanelOnResize";
-import { objectsEqual } from "./utils/objectsEqual";
-import { preserveFixedPanelSizes } from "./utils/preserveFixedPanelSizes";
 import { validateLayoutKeys } from "./utils/validateLayoutKeys";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 
@@ -43,64 +37,17 @@ export function mountGroup(group: RegisteredGroup) {
   // Add Panels with onResize callbacks to ResizeObserver
   // Add Group to ResizeObserver also in order to sync % based constraints
   const resizeObserver = new ResizeObserver((entries) => {
+    if (!isMounted) {
+      return;
+    }
+
     for (const entry of entries) {
-      const { borderBoxSize, target } = entry;
-      if (target === group.element) {
-        if (isMounted) {
-          const groupSize = calculateAvailableGroupSize({ group });
-          if (groupSize === 0) {
-            // Can't calculate anything meaningful if the group has a width/height of 0
-            // (This could indicate that it's within a hidden subtree)
-            return;
-          }
+      const { target } = entry;
 
-          const groupState = getMountedGroupState(group.id);
-          if (!groupState) {
-            // Not mounted yet
-            return;
-          }
-
-          // Update non-percentage based constraints
-          const nextDerivedPanelConstraints = calculatePanelConstraints(group);
-
-          // Revalidate layout in case constraints have changed or group size changed
-          const prevLayout = groupState.defaultLayoutDeferred
-            ? calculateDefaultLayout(nextDerivedPanelConstraints)
-            : groupState.layout;
-          const unsafeLayout = preserveFixedPanelSizes({
-            group,
-            nextGroupSize: groupSize,
-            prevGroupSize: groupState.groupSize,
-            prevLayout
-          });
-          const nextLayout = validatePanelGroupLayout({
-            layout: unsafeLayout,
-            panelConstraints: nextDerivedPanelConstraints
-          });
-
-          if (
-            !groupState.defaultLayoutDeferred &&
-            layoutsEqual(groupState.layout, nextLayout) &&
-            objectsEqual(
-              groupState.derivedPanelConstraints,
-              nextDerivedPanelConstraints
-            ) &&
-            groupState.groupSize === groupSize
-          ) {
-            return;
-          }
-
-          updateMountedGroup(group, {
-            defaultLayoutDeferred: false,
-            derivedPanelConstraints: nextDerivedPanelConstraints,
-            groupSize,
-            layout: nextLayout,
-            separatorToPanels: groupState.separatorToPanels
-          });
-        }
-      } else {
-        notifyPanelOnResize(group, target as HTMLElement, borderBoxSize);
-      }
+      resizeObserverCallback({
+        group,
+        target
+      });
     }
   });
 
@@ -159,12 +106,16 @@ export function mountGroup(group: RegisteredGroup) {
     }
   });
 
-  updateMountedGroup(group, {
-    defaultLayoutDeferred: groupSize === 0,
-    derivedPanelConstraints,
-    groupSize,
-    layout: defaultLayoutSafe,
-    separatorToPanels
+  updateMountedGroup({
+    group,
+    partial: {
+      defaultLayoutDeferred: groupSize === 0,
+      derivedPanelConstraints,
+      groupSize,
+      pendingResizeEventsForElements: new Set(),
+      layout: defaultLayoutSafe,
+      separatorToPanels
+    }
   });
 
   group.separators.forEach((separator) => {
@@ -187,6 +138,10 @@ export function mountGroup(group: RegisteredGroup) {
     ownerDocument.addEventListener("pointermove", onDocumentPointerMove);
     ownerDocument.addEventListener("pointerout", onDocumentPointerOut);
     ownerDocument.addEventListener("pointerup", onDocumentPointerUp, true);
+    ownerDocument.addEventListener(
+      "visibilitychange",
+      onDocumentVisibilityChange
+    );
   }
 
   return function unmountGroup() {
@@ -224,6 +179,10 @@ export function mountGroup(group: RegisteredGroup) {
       ownerDocument.removeEventListener("pointermove", onDocumentPointerMove);
       ownerDocument.removeEventListener("pointerout", onDocumentPointerOut);
       ownerDocument.removeEventListener("pointerup", onDocumentPointerUp, true);
+      ownerDocument.removeEventListener(
+        "onvisibilitychange",
+        onDocumentVisibilityChange
+      );
     }
 
     resizeObserver.disconnect();

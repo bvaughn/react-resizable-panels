@@ -7,6 +7,7 @@ type State = {
   defaultLayoutDeferred: boolean;
   derivedPanelConstraints: PanelConstraints[];
   groupSize: number;
+  pendingResizeEventsForElements: Set<Element>;
   layout: Layout;
   separatorToPanels: SeparatorToPanelsMap;
 };
@@ -90,12 +91,41 @@ export function subscribeToMountedGroup(
   });
 }
 
-export function updateMountedGroup(
-  group: RegisteredGroup,
-  next: State,
-  meta?: { isUserInteraction?: boolean }
-) {
+export function updateMountedGroup({
+  group,
+  meta,
+  partial,
+  state
+}: {
+  group: RegisteredGroup;
+  meta?: { isUserInteraction?: boolean };
+} & (
+  | {
+      partial?: never;
+      state: State;
+    }
+  | {
+      partial: Partial<State>;
+      state?: never;
+    }
+)) {
   const prev = map.get(group);
+
+  let next: State;
+  if (state) {
+    next = state;
+  } else {
+    next = {
+      defaultLayoutDeferred: false,
+      derivedPanelConstraints: [],
+      groupSize: 0,
+      pendingResizeEventsForElements: new Set(),
+      layout: {},
+      separatorToPanels: new Map(),
+      ...prev,
+      ...partial
+    };
+  }
 
   map = new Map(map);
   map.set(group, next);

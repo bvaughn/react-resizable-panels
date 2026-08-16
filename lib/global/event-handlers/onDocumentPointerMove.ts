@@ -43,8 +43,12 @@ export function onDocumentPointerMove(event: PointerEvent) {
             return;
           }
           const groupState = getMountedGroupState(hitRegion.group.id, true);
-          updateMountedGroup(hitRegion.group, groupState, {
-            isUserInteraction: true
+          updateMountedGroup({
+            group: hitRegion.group,
+            meta: {
+              isUserInteraction: true
+            },
+            state: groupState
           });
         });
 

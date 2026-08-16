@@ -110,12 +110,15 @@ export function updateActiveHitRegions({
           }
         }
       } else {
-        updateMountedGroup(current.group, {
-          defaultLayoutDeferred,
-          derivedPanelConstraints: derivedPanelConstraints,
-          groupSize: mountedGroupSize,
-          layout: nextLayout,
-          separatorToPanels
+        updateMountedGroup({
+          group: current.group,
+          partial: {
+            defaultLayoutDeferred,
+            derivedPanelConstraints: derivedPanelConstraints,
+            groupSize: mountedGroupSize,
+            layout: nextLayout,
+            separatorToPanels
+          }
         });
       }
     }

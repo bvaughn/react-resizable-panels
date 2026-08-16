@@ -207,11 +207,12 @@ export function Group({
         }
 
         const group = getRegisteredGroup(id);
-        const groupState = getMountedGroupState(id);
-        if (group && groupState) {
-          updateMountedGroup(group, {
-            ...groupState,
-            derivedPanelConstraints: calculatePanelConstraints(group)
+        if (group) {
+          updateMountedGroup({
+            group,
+            partial: {
+              derivedPanelConstraints: calculatePanelConstraints(group)
+            }
           });
         }
       },

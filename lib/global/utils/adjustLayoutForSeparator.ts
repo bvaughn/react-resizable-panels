@@ -43,20 +43,20 @@ export function adjustLayoutForSeparator(
   });
 
   if (!layoutsEqual(prevLayout, nextLayout)) {
-    updateMountedGroup(
+    updateMountedGroup({
       group,
-      {
+      // Keyboard resizes (arrow keys, Home/End, Enter collapse/expand) originate
+      // from a real DOM event on the separator, so they are user interactions
+      // just like pointer drags. This function is only reached from
+      // onDocumentKeyDown. See #716.
+      meta: { isUserInteraction: true },
+      partial: {
         defaultLayoutDeferred: groupState.defaultLayoutDeferred,
         derivedPanelConstraints: groupState.derivedPanelConstraints,
         groupSize: groupState.groupSize,
         layout: nextLayout,
         separatorToPanels: groupState.separatorToPanels
-      },
-      // Keyboard resizes (arrow keys, Home/End, Enter collapse/expand) originate
-      // from a real DOM event on the separator, so they are user interactions
-      // just like pointer drags. This function is only reached from
-      // onDocumentKeyDown. See #716.
-      { isUserInteraction: true }
-    );
+      }
+    });
   }
 }
