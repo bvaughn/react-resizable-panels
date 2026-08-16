@@ -161,12 +161,15 @@ export function getImperativePanelMethods({
       panelConstraints: derivedPanelConstraints
     });
     if (!layoutsEqual(prevLayout, nextLayout)) {
-      updateMountedGroup(group, {
-        defaultLayoutDeferred,
-        derivedPanelConstraints,
-        groupSize,
-        layout: nextLayout,
-        separatorToPanels
+      updateMountedGroup({
+        group,
+        partial: {
+          defaultLayoutDeferred,
+          derivedPanelConstraints,
+          groupSize,
+          layout: nextLayout,
+          separatorToPanels
+        }
       });
     }
   };
