@@ -1,4 +1,5 @@
 import { ArrowTurnDownRightIcon } from "@heroicons/react/20/solid";
+import { type ReactNode } from "react";
 import {
   AppRoot,
   Callout,
@@ -17,6 +18,24 @@ import { Panel } from "./components/styled-panels/Panel";
 import { Separator } from "./components/styled-panels/Separator";
 import { routes } from "./routes";
 
+function NestedNavLink({
+  children,
+  path
+}: {
+  children: ReactNode;
+  path: Parameters<typeof NavLink>[0]["path"];
+}) {
+  return (
+    <NavLink className="flex items-center gap-1.5" path={path}>
+      <ArrowTurnDownRightIcon
+        aria-hidden
+        className="size-5 shrink-0 fill-fuchsia-200"
+      />
+      {children}
+    </NavLink>
+  );
+}
+
 export default function App() {
   return (
     <AppRoot
@@ -34,18 +53,15 @@ export default function App() {
             <NavLink path="/examples/persistent-layout">
               Persistent layouts
             </NavLink>
-            <NavLink path="/examples/persistent-layout/conditional-panels">
-              <ArrowTurnDownRightIcon className="size-4 fill-white/60" />
+            <NestedNavLink path="/examples/persistent-layout/conditional-panels">
               Conditional panels
-            </NavLink>
-            <NavLink path="/examples/persistent-layout/server-rendering">
-              <ArrowTurnDownRightIcon className="size-4 fill-white/60" /> Server
-              rendering
-            </NavLink>
-            <NavLink path="/examples/persistent-layout/server-components">
-              <ArrowTurnDownRightIcon className="size-4 fill-white/60" /> Server
-              components
-            </NavLink>
+            </NestedNavLink>
+            <NestedNavLink path="/examples/persistent-layout/server-rendering">
+              Server rendering
+            </NestedNavLink>
+            <NestedNavLink path="/examples/persistent-layout/server-components">
+              Server components
+            </NestedNavLink>
             <NavLink path="/examples/nested-groups">Nested groups</NavLink>
             <NavLink path="/examples/conditional-panels">
               Conditional panels
