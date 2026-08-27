@@ -28,7 +28,7 @@ export function Panel({
   return (
     <PanelExternal
       className={cn(
-        "bg-slate-800 rounded rounded-md",
+        "bg-slate-800 rounded-md",
         disabled && "opacity-65",
         className
       )}

@@ -26,10 +26,13 @@ function NestedNavLink({
   path: Parameters<typeof NavLink>[0]["path"];
 }) {
   return (
-    <NavLink className="flex items-center gap-1.5 whitespace-nowrap" path={path}>
+    <NavLink
+      className="flex items-center gap-1.5 whitespace-nowrap"
+      path={path}
+    >
       <ArrowTurnDownRightIcon
         aria-hidden
-        className="size-5 shrink-0 fill-fuchsia-200"
+        className="size-3.5 shrink-0 fill-fuchsia-200"
       />
       {children}
     </NavLink>
@@ -112,13 +115,9 @@ export default function App() {
             resizable layouts like the one below:
           </div>
           <Group>
-            <Panel className="p-1" minSize={100}>
-              This panel is resizable
-            </Panel>
+            <Panel minSize={100}>This panel is resizable</Panel>
             <Separator />
-            <Panel className="p-1" minSize={100}>
-              This one is too
-            </Panel>
+            <Panel minSize={100}>This one is too</Panel>
           </Group>
           <div>
             There are many types of layouts, covered in the{" "}
