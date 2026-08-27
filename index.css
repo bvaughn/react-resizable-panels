@@ -42,6 +42,13 @@
   scrollbar-color: var(--color-slate-400) transparent;
 }
 
+@media (min-width: 768px) {
+  #root section:has(> nav) {
+    flex: 0 0 18rem;
+    width: 18rem;
+  }
+}
+
 #root nav {
   height: auto;
   overflow: visible;

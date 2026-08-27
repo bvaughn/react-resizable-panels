@@ -26,7 +26,7 @@ function NestedNavLink({
   path: Parameters<typeof NavLink>[0]["path"];
 }) {
   return (
-    <NavLink className="flex items-center gap-1.5" path={path}>
+    <NavLink className="flex items-center gap-1.5 whitespace-nowrap" path={path}>
       <ArrowTurnDownRightIcon
         aria-hidden
         className="size-5 shrink-0 fill-fuchsia-200"
