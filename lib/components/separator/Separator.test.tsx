@@ -158,6 +158,42 @@ describe("Separator", () => {
           "aria-controls"
         );
       });
+
+      test("should compute values relative to the Group (not the Separator's own panel pair)", () => {
+        render(
+          <Group>
+            <Panel id="left-panel" />
+            <Separator id="left-separator" />
+            <Panel id="middle-panel" />
+            <Separator id="right-separator" />
+            <Panel id="right-panel" />
+          </Group>
+        );
+
+        // Every Separator's aria-valuenow should fall within its advertised
+        // aria-valuemin/aria-valuemax range; see #740
+        expect(
+          screen
+            .getAllByRole("separator")
+            .map((separator) =>
+              (
+                [
+                  "aria-controls",
+                  "aria-valuemin",
+                  "aria-valuenow",
+                  "aria-valuemax"
+                ] as const
+              )
+                .map((name) => `${name}=${separator.getAttribute(name)}`)
+                .join(" ")
+            )
+        ).toMatchInlineSnapshot(`
+          [
+            "aria-controls=left-panel aria-valuemin=0 aria-valuenow=33.334 aria-valuemax=100",
+            "aria-controls=middle-panel aria-valuemin=0 aria-valuenow=33.333 aria-valuemax=66.666",
+          ]
+        `);
+      });
     });
   });
 });
