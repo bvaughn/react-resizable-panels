@@ -7,7 +7,7 @@ import {
 
 export type DisplayModeToggleProps = PropsWithChildren<{
   defaultVisible?: boolean;
-  mode: "activity" | "css";
+  mode: "activity" | "conditional" | "css";
 }>;
 
 export function DisplayModeToggle({
@@ -37,6 +37,10 @@ export function DisplayModeToggle({
           {childrenProp}
         </div>
       );
+      break;
+    }
+    case "conditional": {
+      children = visible ? childrenProp : null;
       break;
     }
   }
