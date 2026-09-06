@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import { Clickable } from "../src/components/Clickable";
 import { Container } from "../src/components/Container";
+import { DisplayModeToggle } from "../src/components/DisplayModeToggle";
 import { IFrame } from "../src/components/IFrame";
 import { assertLayoutChangeCounts } from "../src/utils/assertLayoutChangeCounts";
 import { calculateHitArea } from "../src/utils/calculateHitArea";
@@ -597,6 +598,50 @@ test.describe("pointer interactions", () => {
     await page.mouse.move(0, 0);
     await page.mouse.down();
     await expect(separator).toHaveAttribute("data-separator", "inactive");
+  });
+
+  test("should ignore pointer capture for a group unmounted during a drag", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Container className="flex flex-col gap-4">
+        <DisplayModeToggle defaultVisible mode="conditional">
+          <Group>
+            <Panel id="left" />
+            <Separator id="unmounted-separator" />
+            <Panel id="right" />
+          </Group>
+        </DisplayModeToggle>
+        <Group>
+          <Panel id="persistent-left" />
+          <Separator />
+          <Panel id="persistent-right" />
+        </Group>
+      </Container>
+    );
+    const errors: Error[] = [];
+    page.on("pageerror", (error) => errors.push(error));
+
+    const separator = page.getByTestId("unmounted-separator");
+    const { x, y } = getCenterCoordinates((await separator.boundingBox())!);
+
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x - 25, y);
+    await expect(separator).toHaveAttribute("data-separator", "active");
+
+    await page
+      .getByRole("button")
+      .evaluate((button) =>
+        button.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+      );
+    await expect(separator).toHaveCount(0);
+
+    await page.mouse.move(x - 50, y);
+    await page.mouse.up();
+
+    expect(errors).toEqual([]);
   });
 
   test("should not prevent click events if no drag occurs", async ({
