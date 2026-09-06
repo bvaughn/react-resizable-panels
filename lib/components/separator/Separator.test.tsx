@@ -139,6 +139,18 @@ describe("Separator", () => {
     });
 
     describe("ARIA attributes", () => {
+      function printSeparators() {
+        return screen
+          .getAllByRole("separator")
+          .map(
+            (separator) => `${separator.id}
+  controls: ${separator.getAttribute("aria-controls")}
+  value: ${separator.getAttribute("aria-valuenow")}% (${separator.getAttribute("aria-valuemin")}% - ${separator.getAttribute("aria-valuemax")}%)
+`
+          )
+          .join("\n");
+      }
+
       test("should identify its primary panel if and only if it has an explicit id", () => {
         render(
           <Group>
@@ -170,28 +182,33 @@ describe("Separator", () => {
           </Group>
         );
 
-        // Every Separator's aria-valuenow should fall within its advertised
-        // aria-valuemin/aria-valuemax range; see #740
-        expect(
-          screen
-            .getAllByRole("separator")
-            .map((separator) =>
-              (
-                [
-                  "aria-controls",
-                  "aria-valuemin",
-                  "aria-valuenow",
-                  "aria-valuemax"
-                ] as const
-              )
-                .map((name) => `${name}=${separator.getAttribute(name)}`)
-                .join(" ")
-            )
-        ).toMatchInlineSnapshot(`
-          [
-            "aria-controls=left-panel aria-valuemin=0 aria-valuenow=33.334 aria-valuemax=100",
-            "aria-controls=middle-panel aria-valuemin=0 aria-valuenow=33.333 aria-valuemax=66.666",
-          ]
+        expect(printSeparators()).toMatchInlineSnapshot(`
+          "left-separator
+            controls: left-panel
+            value: 33.334% (0% - 100%)
+
+          right-separator
+            controls: middle-panel
+            value: 33.333% (0% - 66.666%)
+          "
+        `);
+      });
+
+      test("should blah", () => {
+        render(
+          <Group>
+            <Panel id="left-panel" />
+            <Panel id="middle-panel" />
+            <Separator id="only-separator" />
+            <Panel id="right-panel" />
+          </Group>
+        );
+
+        expect(printSeparators()).toMatchInlineSnapshot(`
+          "only-separator
+            controls: middle-panel
+            value: 33.333% (0% - 66.666%)
+          "
         `);
       });
     });

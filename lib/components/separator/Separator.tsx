@@ -107,10 +107,10 @@ export function Separator({
           if (panels) {
             const primaryPanel = panels[0];
 
-            // The index must be relative to the Group's panels (not the pair
-            // this Separator sits between) because it's used as a pivot index
-            // into the Group's layout. derivedPanelConstraints is derived from
-            // group.panels, so it's already in panel order. See #740.
+            // The index must be relative to the Group's panels (not the pair this Separator sits between
+            // because it's used as a pivot index into the Group's layout.
+            // derivedPanelConstraints is derived from group.panels, so it's already in panel order.
+            // See #740.
             const panelIndex = derivedPanelConstraints.findIndex(
               (constraints) => constraints.panelId === primaryPanel.id
             );
