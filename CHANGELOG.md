@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.12.4
+
+- [743](https://github.com/bvaughn/react-resizable-panels/issues/743): Don't capture pointer for a detached `Separator`
+- [741](https://github.com/bvaughn/react-resizable-panels/issues/741): `Separator` ARIA values use proper panel indices
+
 ## 4.12.3
 
 - [730](https://github.com/bvaughn/react-resizable-panels/pull/730): Guard `CSSStyleSheet` construction to avoid throwing in unsupported environments (@leo-yang-qiong)
