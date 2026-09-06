@@ -139,6 +139,18 @@ describe("Separator", () => {
     });
 
     describe("ARIA attributes", () => {
+      function printSeparators() {
+        return screen
+          .getAllByRole("separator")
+          .map(
+            (separator) => `${separator.id}
+  controls: ${separator.getAttribute("aria-controls")}
+  value: ${separator.getAttribute("aria-valuenow")}% (${separator.getAttribute("aria-valuemin")}% - ${separator.getAttribute("aria-valuemax")}%)
+`
+          )
+          .join("\n");
+      }
+
       test("should identify its primary panel if and only if it has an explicit id", () => {
         render(
           <Group>
@@ -157,6 +169,47 @@ describe("Separator", () => {
         expect(screen.getByTestId("right-separator")).toHaveAttribute(
           "aria-controls"
         );
+      });
+
+      test("should compute values relative to the Group (not the Separator's own panel pair)", () => {
+        render(
+          <Group>
+            <Panel id="left-panel" />
+            <Separator id="left-separator" />
+            <Panel id="middle-panel" />
+            <Separator id="right-separator" />
+            <Panel id="right-panel" />
+          </Group>
+        );
+
+        expect(printSeparators()).toMatchInlineSnapshot(`
+          "left-separator
+            controls: left-panel
+            value: 33.334% (0% - 100%)
+
+          right-separator
+            controls: middle-panel
+            value: 33.333% (0% - 66.666%)
+          "
+        `);
+      });
+
+      test("should blah", () => {
+        render(
+          <Group>
+            <Panel id="left-panel" />
+            <Panel id="middle-panel" />
+            <Separator id="only-separator" />
+            <Panel id="right-panel" />
+          </Group>
+        );
+
+        expect(printSeparators()).toMatchInlineSnapshot(`
+          "only-separator
+            controls: middle-panel
+            value: 33.333% (0% - 66.666%)
+          "
+        `);
       });
     });
   });
