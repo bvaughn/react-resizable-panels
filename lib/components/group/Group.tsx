@@ -118,23 +118,10 @@ export function Group({
   // TRICKY Don't read for state; it will always lag behind by one tick
   const getPanelStyles = useStableCallback(
     (groupId: string, panelId: string) => {
-      const interactionState = getInteractionState();
-      const group = getRegisteredGroup(groupId);
       const groupState = getMountedGroupState(groupId);
       if (groupState) {
-        let dragActive = false;
-        switch (interactionState.state) {
-          case "active": {
-            dragActive = interactionState.hitRegions.some(
-              (current) => current.group === group
-            );
-            break;
-          }
-        }
-
         return {
-          flexGrow: groupState.layout[panelId] ?? 1,
-          pointerEvents: dragActive ? "none" : undefined
+          flexGrow: groupState.layout[panelId] ?? 1
         } satisfies CSSProperties;
       }
 
