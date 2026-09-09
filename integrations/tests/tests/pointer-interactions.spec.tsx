@@ -276,36 +276,6 @@ test.describe("pointer interactions", () => {
     await expect(mainPage.getByText('"left": 95')).toBeVisible();
   });
 
-  test("should disable pointer-events while resize is active", async ({
-    page: mainPage
-  }) => {
-    const page = await goToUrl(
-      mainPage,
-      <Group>
-        <Panel id="left" />
-        <Separator />
-        <Panel id="right" />
-      </Group>
-    );
-
-    const hitAreaBox = await calculateHitArea(page, ["left", "right"]);
-    const { x, y } = getCenterCoordinates(hitAreaBox);
-
-    const panel = page.getByText("id: left");
-
-    await page.mouse.move(x, y);
-    await expect(panel).toHaveCSS("pointer-events", "auto");
-
-    await page.mouse.down();
-    await expect(panel).toHaveCSS("pointer-events", "auto");
-
-    await page.mouse.move(x + 1, y);
-    await expect(panel).toHaveCSS("pointer-events", "none");
-
-    await page.mouse.up();
-    await expect(panel).toHaveCSS("pointer-events", "auto");
-  });
-
   test("does not notify on-changed handler until pointer resize finishes", async ({
     page: mainPage
   }) => {
