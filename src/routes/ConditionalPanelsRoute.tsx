@@ -12,16 +12,16 @@ export default function ConditionalPanelsRoute() {
   return (
     <Box direction="column" gap={4}>
       <Header section="Examples" title="Conditional Panels" />
-      <div>Panel can be conditionally rendered.</div>
+      <div>Panels can be conditionally rendered.</div>
       <Box direction="row" gap={4} justify="center">
         <button
-          className="bg-sky-700 hover:bg-sky-600 py-1 px-2 rounded cursor-pointer"
+          className="bg-sky-700 hover:bg-sky-600 min-h-11 px-3 rounded font-medium cursor-pointer"
           onClick={() => setHideRight(!hideRight)}
         >
           {hideRight ? "show left panel" : "hide left panel"}
         </button>
         <button
-          className="bg-sky-700 hover:bg-sky-600 py-1 px-2 rounded cursor-pointer"
+          className="bg-sky-700 hover:bg-sky-600 min-h-11 px-3 rounded font-medium cursor-pointer"
           onClick={() => setHideLeftPanel(!hideLeftPanel)}
         >
           {hideLeftPanel ? "show right panel" : "hide right panel"}

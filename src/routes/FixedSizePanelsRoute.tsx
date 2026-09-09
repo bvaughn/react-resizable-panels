@@ -46,7 +46,7 @@ export default function FixedSizePanelsRoute() {
 
 function FixedSizeContent() {
   return (
-    <div className="w-45 bg-slate-600 rounded rounded-md flex items-center justify-center p-2 overflow-auto">
+    <div className="flex w-45 items-center justify-center overflow-auto rounded-md bg-slate-600 p-2">
       Fixed sized element
     </div>
   );
