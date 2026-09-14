@@ -41,6 +41,12 @@ export function updateCursorFlags(cursorFlags: number) {
 
 export function updateInteractionState(next: InteractionState) {
   const prev = state;
+  if (
+    prev.state === "active" &&
+    (next.state !== "active" || next.preview !== prev.preview)
+  ) {
+    prev.preview?.forEach(({ indicator }) => indicator.remove());
+  }
 
   state = next;
 

@@ -17,6 +17,7 @@ import {
 import { updateCursorFlags } from "../mutable-state/interactions";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { layoutsEqual } from "./layoutsEqual";
+import { getResizePreview, updateResizePreview } from "./resizePreview";
 
 export function updateActiveHitRegions({
   document,
@@ -76,9 +77,11 @@ export function updateActiveHitRegions({
       defaultLayoutDeferred,
       derivedPanelConstraints,
       groupSize: mountedGroupSize,
-      layout: prevLayout,
+      layout,
       separatorToPanels
     } = groupState;
+    const preview = getResizePreview(current, initialLayout);
+    const prevLayout = preview?.layout ?? layout;
     if (derivedPanelConstraints && prevLayout && separatorToPanels) {
       const nextLayout = adjustLayoutByDelta({
         delta: deltaAsPercentage,
@@ -109,6 +112,8 @@ export function updateActiveHitRegions({
             }
           }
         }
+      } else if (preview) {
+        preview.layout = nextLayout;
       } else {
         updateMountedGroup(current.group, {
           defaultLayoutDeferred,
@@ -118,6 +123,7 @@ export function updateActiveHitRegions({
           separatorToPanels
         });
       }
+      if (preview) updateResizePreview(preview, current, initialLayout);
     }
   });
 

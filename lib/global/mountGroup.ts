@@ -187,6 +187,7 @@ export function mountGroup(group: RegisteredGroup) {
     ownerDocument.addEventListener("pointermove", onDocumentPointerMove);
     ownerDocument.addEventListener("pointerout", onDocumentPointerOut);
     ownerDocument.addEventListener("pointerup", onDocumentPointerUp, true);
+    ownerDocument.addEventListener("pointercancel", onDocumentPointerUp, true);
   }
 
   return function unmountGroup() {
@@ -224,6 +225,11 @@ export function mountGroup(group: RegisteredGroup) {
       ownerDocument.removeEventListener("pointermove", onDocumentPointerMove);
       ownerDocument.removeEventListener("pointerout", onDocumentPointerOut);
       ownerDocument.removeEventListener("pointerup", onDocumentPointerUp, true);
+      ownerDocument.removeEventListener(
+        "pointercancel",
+        onDocumentPointerUp,
+        true
+      );
     }
 
     resizeObserver.disconnect();

@@ -133,7 +133,7 @@
           "content": "<p>Called when the Group's layout is changing.</p>\n"
         },
         {
-          "content": "<p>For layout changes caused by pointer events, this method is called each time the pointer is moved.\nFor most cases, it is recommended to use the <code>onLayoutChanged</code> callback instead.</p>\n",
+          "content": "<p>For live pointer resizing, this method is called as the layout changes.\nPreview resizing calls it on release.\nFor most cases, it is recommended to use the <code>onLayoutChanged</code> callback instead.</p>\n",
           "intent": "warning"
         }
       ],

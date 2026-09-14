@@ -15,11 +15,14 @@ export type InteractionHover = {
   state: "hover";
 };
 
+export type ResizePreview = { layout: Layout; indicator: HTMLElement };
+
 export type InteractionActive = {
   cursorFlags: number;
   hitRegions: HitRegion[];
   initialLayoutMap: Map<RegisteredGroup, Layout>;
   pointerDownAtPoint: Point;
+  preview?: Map<RegisteredGroup, ResizePreview>;
   state: "active";
 };
 

@@ -165,7 +165,8 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
   /**
    * Called when the Group's layout is changing.
    *
-   * ⚠️ For layout changes caused by pointer events, this method is called each time the pointer is moved.
+   * ⚠️ For live pointer resizing, this method is called as the layout changes.
+   * Preview resizing calls it on release.
    * For most cases, it is recommended to use the `onLayoutChanged` callback instead.
    */
   onLayoutChange?: (layout: Layout) => void | undefined;
