@@ -27,7 +27,6 @@ export type PanelConstraints = {
 export type SizeUnit = "px" | "%" | "em" | "rem" | "vh" | "vw";
 
 export type RegisteredPanel = {
-  mode?: PanelProps["mode"];
   id: string;
   idIsStable: boolean;
   element: HTMLDivElement;
@@ -185,15 +184,6 @@ export type PanelProps = BasePanelAttributes & {
    * - Use explicit units (e.g. "px", "%", "em", "rem", "vh", or "vw") to change interpretation
    */
   minSize?: number | string | undefined;
-
-  /**
-   * Optional pointer resize mode. Omit for live resizing.
-   * "freeze" holds this panel's content size until release; its bounds resize live.
-   * "preview" defers resizing for the whole group and moves a divider indicator.
-   * Preview takes precedence over freeze in the same group.
-   * Keyboard and imperative resizing remain immediate.
-   */
-  mode?: "freeze" | "preview" | undefined;
 
   /**
    * Called when panel sizes change.

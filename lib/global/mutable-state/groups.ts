@@ -1,7 +1,6 @@
 import type { Layout, RegisteredGroup } from "../../components/group/types";
 import type { PanelConstraints } from "../../components/panel/types";
 import { EventEmitter } from "../../utils/EventEmitter";
-import { getInteractionState } from "./interactions";
 import type { SeparatorToPanelsMap } from "./types";
 
 type State = {
@@ -35,11 +34,6 @@ const eventEmitter = new EventEmitter<{
 }>();
 
 export function deleteMutableGroup(group: RegisteredGroup) {
-  const state = getInteractionState();
-  if (state.state === "active") {
-    state.preview?.get(group)?.indicator.remove();
-    state.preview?.delete(group);
-  }
   map = new Map(map);
   map.delete(group);
 }

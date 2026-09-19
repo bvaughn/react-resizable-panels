@@ -16,7 +16,8 @@ export type {
   LayoutChangedMeta,
   LayoutStorage,
   OnGroupLayoutChange,
-  Orientation
+  Orientation,
+  ResizePreviewMode
 } from "./components/group/types";
 export type {
   OnPanelResize,

@@ -5,5 +5,5 @@ export function onDocumentContextMenu(event: MouseEvent) {
     return;
   }
 
-  completeActivePointerResize(event.currentTarget as Document, false);
+  completeActivePointerResize(event.currentTarget as Document);
 }

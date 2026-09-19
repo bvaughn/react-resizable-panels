@@ -7,10 +7,7 @@ export function onDocumentPointerUp(event: PointerEvent) {
     return;
   }
 
-  const matched = completeActivePointerResize(
-    event.currentTarget as Document,
-    event.type !== "pointercancel"
-  );
+  const matched = completeActivePointerResize(event.currentTarget as Document);
   if (matched) {
     event.preventDefault();
   }

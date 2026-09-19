@@ -133,8 +133,11 @@
           "content": "<p>Called when the Group's layout is changing.</p>\n"
         },
         {
-          "content": "<p>For live pointer resizing, this method is called as the layout changes.\nPreview resizing calls it on release.\nFor most cases, it is recommended to use the <code>onLayoutChanged</code> callback instead.</p>\n",
+          "content": "<p>For layout changes caused by pointer events:</p>\n<ul>\n<li>If <code>resizePreviewMode</code> is &quot;panels&quot;, this method is called each time the pointer is moved</li>\n<li>If <code>resizePreviewMode</code> is &quot;separator&quot;, it is called on pointer release</li>\n</ul>\n",
           "intent": "warning"
+        },
+        {
+          "content": "<p>For most cases, it is recommended to use the <code>onLayoutChanged</code> callback instead.</p>\n"
         }
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onLayoutChange</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">Layout</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span></div>",
@@ -157,6 +160,16 @@
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onLayoutChanged</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">Layout</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">meta</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">LayoutChangedMeta</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span></div>",
       "name": "onLayoutChanged",
+      "required": false
+    },
+    "resizePreviewMode": {
+      "description": [
+        {
+          "content": "<p>TODO</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">resizePreviewMode</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ResizePreviewMode</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"panels\"</span></div>",
+      "name": "resizePreviewMode",
       "required": false
     },
     "resizeTargetMinimumSize": {

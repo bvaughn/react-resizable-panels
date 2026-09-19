@@ -4,7 +4,7 @@ import { Group, Panel } from "react-resizable-panels";
 
 /* prettier-ignore */
 <Group orientation="horizontal">
-  <Panel mode="freeze">expensive content</Panel>
+  <Panel>left</Panel>
   <Panel>
     <Group orientation="vertical">
       <Panel>top</Panel>

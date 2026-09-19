@@ -185,16 +185,6 @@
       "name": "minSize",
       "required": false
     },
-    "mode": {
-      "description": [
-        {
-          "content": "<p>Optional pointer resize mode. Omit for live resizing.\n&quot;freeze&quot; holds this panel's content size until release; its bounds resize live.\n&quot;preview&quot; defers resizing for the whole group and moves a divider indicator.\nPreview takes precedence over freeze in the same group.\nKeyboard and imperative resizing remain immediate.</p>\n"
-        }
-      ],
-      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">mode</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"freeze\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"preview\"</span></div>",
-      "name": "mode",
-      "required": false
-    },
     "onResize": {
       "description": [
         {

@@ -1,4 +1,3 @@
-import { validatePanelGroupLayout } from "./validatePanelGroupLayout";
 import { updateCursorStyle } from "../cursor/updateCursorStyle.ts";
 import {
   getMountedGroups,
@@ -10,10 +9,7 @@ import {
   updateInteractionState
 } from "../mutable-state/interactions.ts";
 
-export function completeActivePointerResize(
-  document: Document,
-  commitPreview = true
-) {
+export function completeActivePointerResize(document: Document) {
   const interactionState = getInteractionState();
   const mountedGroups = getMountedGroups();
 
@@ -42,19 +38,7 @@ export function completeActivePointerResize(
             return;
           }
           const groupState = getMountedGroupState(hitRegion.group.id, true);
-          const pending = commitPreview
-            ? interactionState.preview?.get(hitRegion.group)
-            : undefined;
-          const nextState = pending
-            ? {
-                ...groupState,
-                layout: validatePanelGroupLayout({
-                  layout: pending.layout,
-                  panelConstraints: groupState.derivedPanelConstraints
-                })
-              }
-            : groupState;
-          updateMountedGroup(hitRegion.group, nextState, {
+          updateMountedGroup(hitRegion.group, groupState, {
             isUserInteraction: true
           });
         });

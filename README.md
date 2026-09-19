@@ -21,9 +21,6 @@ npm install react-resizable-panels
 
 TypeScript definitions are included within the published `dist` folder
 
-For expensive content, use `Panel mode="freeze"` to hold content size during dragging, or `mode="preview"` to defer the group's resize until release.
-Compare both with live resizing in the [nested groups example](https://react-resizable-panels.vercel.app/examples/nested-groups).
-
 ## FAQs
 
 Frequently asked questions can be found [here](https://react-resizable-panels.vercel.app/common-questions).
@@ -125,9 +122,12 @@ Use this prop to disable that behavior for Panels and Separators in this group.<
     <tr>
       <td>onLayoutChange</td>
       <td><p>Called when the Group&#39;s layout is changing.</p>
-<p>⚠️ For live pointer resizing, this method is called as the layout changes.
-Preview resizing calls it on release.
-For most cases, it is recommended to use the <code>onLayoutChanged</code> callback instead.</p>
+<p>⚠️ For layout changes caused by pointer events:</p>
+<ul>
+<li>If <code>resizePreviewMode</code> is &quot;panels&quot;, this method is called each time the pointer is moved</li>
+<li>If <code>resizePreviewMode</code> is &quot;separator&quot;, it is called on pointer release</li>
+</ul>
+<p>For most cases, it is recommended to use the <code>onLayoutChanged</code> callback instead.</p>
 </td>
     </tr>
     <tr>
@@ -139,6 +139,11 @@ This method is recommended when saving layouts to some storage api.</p>
 The <code>isUserInteraction</code> attribute signals whether the resize was caused by direct user input.
 It is true for resizes caused by pointer or keyboard input
 and false for other triggers (e.g. imperative API calls, initial mount, etc.)</p>
+</td>
+    </tr>
+    <tr>
+      <td>resizePreviewMode</td>
+      <td><p>TODO</p>
 </td>
     </tr>
     <tr>
@@ -296,15 +301,6 @@ Defaults to <code>preserve-relative-size</code>.</p>
 <li>Strings without explicit units are interpreted as percentage (e.g. <code>minSize=&quot;50&quot;</code> is 50 percent)</li>
 <li>Use explicit units (e.g. &quot;px&quot;, &quot;%&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot;) to change interpretation</li>
 </ul>
-</td>
-    </tr>
-    <tr>
-      <td>mode</td>
-      <td><p>Optional pointer resize mode. Omit for live resizing.
-&quot;freeze&quot; holds this panel&#39;s content size until release; its bounds resize live.
-&quot;preview&quot; defers resizing for the whole group and moves a divider indicator.
-Preview takes precedence over freeze in the same group.
-Keyboard and imperative resizing remain immediate.</p>
 </td>
     </tr>
     <tr>

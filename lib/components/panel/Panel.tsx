@@ -14,7 +14,6 @@ import { useStableCallback } from "../../hooks/useStableCallback";
 import { useStableObject } from "../../hooks/useStableObject";
 import { useGroupContext } from "../group/useGroupContext";
 import type { PanelProps, PanelSize, RegisteredPanel } from "./types";
-import { useFrozenContent } from "./useFrozenContent";
 import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
 
 /**
@@ -54,7 +53,6 @@ export function Panel({
   id: idProp,
   maxSize = "100%",
   minSize = "0%",
-  mode,
   onResize: onResizeUnstable,
   panelRef,
   style,
@@ -65,13 +63,10 @@ export function Panel({
   const id = useId(idProp);
 
   const stableProps = useStableObject({
-    disabled,
-    mode
+    disabled
   });
 
   const elementRef = useRef<HTMLDivElement | null>(null);
-  const contentRef = useRef<HTMLDivElement | null>(null);
-  const frozenStyles = useFrozenContent(mode, elementRef, contentRef);
 
   const mergedRef = useMergedRefs(elementRef, elementRefProp);
 
@@ -99,9 +94,6 @@ export function Panel({
     const element = elementRef.current;
     if (element !== null) {
       const registeredPanel: RegisteredPanel = {
-        get mode() {
-          return stableProps.mode;
-        },
         element,
         id,
         idIsStable,
@@ -187,13 +179,12 @@ export function Panel({
         display: "flex",
         flexBasis: 0,
         flexShrink: 1,
-        overflow: frozenStyles ? "clip" : "visible",
+        overflow: "visible",
 
         ...panelStyles
       }}
     >
       <div
-        ref={contentRef}
         className={className}
         style={{
           maxHeight: "100%",
@@ -202,7 +193,6 @@ export function Panel({
           overflow: "auto",
 
           ...style,
-          ...frozenStyles,
 
           // Inform the browser that the library is handling touch events for this element
           // but still allow users to scroll content within panels in the non-resizing direction

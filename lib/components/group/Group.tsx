@@ -54,6 +54,7 @@ export function Group({
   onLayoutChange: onLayoutChangeUnstable,
   onLayoutChanged: onLayoutChangedUnstable,
   orientation = "horizontal",
+  resizePreviewMode = "panels",
   resizeTargetMinimumSize = {
     coarse: 20,
     fine: 10
@@ -147,6 +148,7 @@ export function Group({
       getPanelStyles,
       id,
       orientation,
+      resizePreviewMode,
       registerPanel: (panel: RegisteredPanel) => {
         const inMemoryValues = inMemoryValuesRef.current;
         inMemoryValues.panels = sortByElementOffset(orientation, [
@@ -222,7 +224,14 @@ export function Group({
         }
       }
     }),
-    [getPanelStyles, id, forceUpdate, orientation, stableProps]
+    [
+      getPanelStyles,
+      id,
+      forceUpdate,
+      orientation,
+      resizePreviewMode,
+      stableProps
+    ]
   );
 
   const registeredGroupRef = useRef<RegisteredGroup | null>(null);

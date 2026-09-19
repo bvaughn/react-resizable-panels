@@ -1,6 +1,9 @@
 import { updateCursorStyle } from "../cursor/updateCursorStyle";
-import { getMountedGroups } from "../mutable-state/groups";
-import { completeActivePointerResize } from "../utils/completeActivePointerResize";
+import {
+  getMountedGroups,
+  getMountedGroupState,
+  updateMountedGroup
+} from "../mutable-state/groups";
 import {
   getInteractionState,
   updateInteractionState
@@ -24,7 +27,26 @@ export function onDocumentPointerMove(event: PointerEvent) {
         // Skip this check for "pointerleave" events, else Firefox triggers a false positive (see #514)
         event.buttons === 0
       ) {
-        completeActivePointerResize(event.currentTarget as Document);
+        updateInteractionState({
+          cursorFlags: 0,
+          state: "inactive"
+        });
+
+        // Dispatch one more "change" event after the interaction state has been reset.
+        // Groups use this as a signal to call onLayoutChanged.
+        // This is the missed-pointerup fallback (pointer released outside a
+        // cross-origin iframe, see #340) — still a real user interaction.
+        interactionState.hitRegions.forEach((hitRegion) => {
+          // Skip if the group was re-registered mid-gesture, so the old hit region
+          // doesn't resurrect a stale entry in the mounted-groups map. See #729.
+          if (!mountedGroups.has(hitRegion.group)) {
+            return;
+          }
+          const groupState = getMountedGroupState(hitRegion.group.id, true);
+          updateMountedGroup(hitRegion.group, groupState, {
+            isUserInteraction: true
+          });
+        });
 
         return;
       }

@@ -9,6 +9,11 @@ import type { RegisteredSeparator } from "../separator/types";
 export type Orientation = "horizontal" | "vertical";
 
 /**
+ * TODO
+ */
+export type ResizePreviewMode = "panels" | "separator";
+
+/**
  * Map of Panel id to flexGrow value;
  */
 export type Layout = {
@@ -59,6 +64,7 @@ export type RegisteredGroup = Readonly<{
   };
   orientation: Orientation;
   panels: RegisteredPanel[];
+  resizePreviewMode?: ResizePreviewMode;
   resizeTargetMinimumSize: ResizeTargetMinimumSize;
   separators: RegisteredSeparator[];
 }>;
@@ -73,6 +79,7 @@ export type GroupContextType = {
   orientation: Orientation;
   registerPanel: (panel: RegisteredPanel) => () => void;
   registerSeparator: (separator: RegisteredSeparator) => () => void;
+  resizePreviewMode: ResizePreviewMode;
   updatePanelProps: (
     id: string,
     props: { disabled: boolean | undefined }
@@ -165,8 +172,10 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
   /**
    * Called when the Group's layout is changing.
    *
-   * ⚠️ For live pointer resizing, this method is called as the layout changes.
-   * Preview resizing calls it on release.
+   * ⚠️ For layout changes caused by pointer events:
+   * - If `resizePreviewMode` is "panels", this method is called each time the pointer is moved
+   * - If `resizePreviewMode` is "separator", it is called on pointer release
+   *
    * For most cases, it is recommended to use the `onLayoutChanged` callback instead.
    */
   onLayoutChange?: (layout: Layout) => void | undefined;
@@ -183,6 +192,11 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    * and false for other triggers (e.g. imperative API calls, initial mount, etc.)
    */
   onLayoutChanged?: (layout: Layout, meta: LayoutChangedMeta) => void;
+
+  /**
+   * TODO
+   */
+  resizePreviewMode?: ResizePreviewMode;
 
   /**
    * Minimum size of the resizable hit target area (either `Separator` or `Panel` edge)
