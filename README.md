@@ -77,7 +77,7 @@ Falls back to <code>useId</code> when not provided.</p>
     <tr>
       <td>style</td>
       <td><p>CSS properties.</p>
-<p>⚠️ The default inline styles cannot be overridden, except for <a href="https://react-resizable-panels.vercel.app/examples/overflow">overflow</a>.</p>
+<p>⚠️ The default inline styles cannot be overridden, except for <a href="https://react-resizable-panels.vercel.app/examples/overflow"><code>overflow</code></a>.</p>
 </td>
     </tr>
     <tr>
@@ -223,7 +223,7 @@ Falls back to <code>useId</code> when not provided.</p>
     <tr>
       <td>style</td>
       <td><p>CSS properties.</p>
-<p>⚠️ The default inline styles cannot be overridden, except for <a href="https://react-resizable-panels.vercel.app/examples/overflow">overflow</a>.</p>
+<p>⚠️ The default inline styles cannot be overridden, except for <a href="https://react-resizable-panels.vercel.app/examples/overflow"><code>overflow</code></a>.</p>
 </td>
     </tr>
     <tr>

@@ -215,7 +215,7 @@ export type PanelProps = BasePanelAttributes & {
   /**
    * CSS properties.
    *
-   * ⚠️ Style is applied to nested `HTMLDivElement` to avoid styles that interfere with Flex layout.
+   * ⚠️ The default inline styles cannot be overridden, except for [`overflow`](https://react-resizable-panels.vercel.app/examples/overflow).
    */
   style?: CSSProperties | undefined;
 };

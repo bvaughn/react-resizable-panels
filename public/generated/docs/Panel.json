@@ -66,7 +66,7 @@
           "content": "<p>CSS properties.</p>\n"
         },
         {
-          "content": "<p>Style is applied to nested <code>HTMLDivElement</code> to avoid styles that interfere with Flex layout.</p>\n",
+          "content": "<p>The default inline styles cannot be overridden, except for <a href=\"https://react-resizable-panels.vercel.app/examples/overflow\"><code>overflow</code></a>.</p>\n",
           "intent": "warning"
         }
       ],

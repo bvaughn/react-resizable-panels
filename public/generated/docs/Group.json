@@ -47,7 +47,7 @@
           "content": "<p>CSS properties.</p>\n"
         },
         {
-          "content": "<p>The following styles cannot be overridden: <code>display</code>, <code>flex-direction</code>, <code>flex-wrap</code>, and <code>overflow</code>.</p>\n",
+          "content": "<p>The default inline styles cannot be overridden, except for <a href=\"https://react-resizable-panels.vercel.app/examples/overflow\"><code>overflow</code></a>.</p>\n",
           "intent": "warning"
         }
       ],

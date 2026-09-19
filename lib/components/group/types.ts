@@ -207,7 +207,7 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
   /**
    * CSS properties.
    *
-   * ⚠️ The following styles cannot be overridden: `display`, `flex-direction`, `flex-wrap`, and `overflow`.
+   * ⚠️ The default inline styles cannot be overridden, except for [`overflow`](https://react-resizable-panels.vercel.app/examples/overflow).
    */
   style?: CSSProperties | undefined;
 };
