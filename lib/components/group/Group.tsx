@@ -32,12 +32,7 @@ import type {
 import { GroupContext } from "./GroupContext";
 import { ResizePreview } from "./ResizePreview";
 import { sortByElementOffset } from "./sortByElementOffset";
-import type {
-  GroupProps,
-  Layout,
-  RegisteredGroup,
-  ResizeTargetMinimumSize
-} from "./types";
+import type { GroupProps, Layout, RegisteredGroup } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
 import { useResizePreviews } from "./useResizePreviews";
 
@@ -120,13 +115,11 @@ export function Group({
     lastExpandedPanelSizes: { [panelIds: string]: number };
     layouts: { [panelIds: string]: Layout };
     panels: RegisteredPanel[];
-    resizeTargetMinimumSize: ResizeTargetMinimumSize;
     separators: RegisteredSeparator[];
   }>({
     lastExpandedPanelSizes: {},
     layouts: {},
     panels: [],
-    resizeTargetMinimumSize,
     separators: []
   });
 
@@ -155,7 +148,8 @@ export function Group({
 
   const stableProps = useStableObject({
     defaultLayout,
-    disableCursor
+    disableCursor,
+    resizeTargetMinimumSize
   });
 
   const context = useMemo(
@@ -293,7 +287,9 @@ export function Group({
       orientation,
       panels: inMemoryValues.panels,
       resizePreviewMode,
-      resizeTargetMinimumSize: inMemoryValues.resizeTargetMinimumSize,
+      get resizeTargetMinimumSize() {
+        return stableProps.resizeTargetMinimumSize;
+      },
       separators: inMemoryValues.separators
     };
 
@@ -350,7 +346,9 @@ export function Group({
 
       // Lastly notify layout-change(d) handlers of the update
       const interactionState = getInteractionState();
-      const isCompleted = interactionState.state !== "active";
+      const isCompleted =
+        interactionState.state !== "active" ||
+        !interactionState.hitRegions.some((region) => region.group === group);
       onLayoutChangeStable(layout);
       if (isCompleted) {
         onLayoutChangedStable(layout, event.isUserInteraction);

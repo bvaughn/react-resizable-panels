@@ -3,6 +3,32 @@ import { mockGroup, type MockGroup } from "../test/mockGroup";
 import { calculateHitRegions } from "./calculateHitRegions";
 
 describe("calculateHitRegions", () => {
+  test("bounds panel dimension reads during hit testing", () => {
+    const panelCount = 20;
+    const group = mockGroup(new DOMRect(0, 0, panelCount * 50, 50));
+    for (let index = 0; index < panelCount; index++) {
+      group.addPanel(new DOMRect(index * 50, 0, 50, 50));
+    }
+
+    let dimensionReads = 0;
+    group.panels.forEach((panel) => {
+      Object.defineProperty(panel.element, "offsetWidth", {
+        configurable: true,
+        get() {
+          dimensionReads++;
+          return 50;
+        }
+      });
+    });
+
+    const hitRegions = calculateHitRegions({ group });
+    expect(hitRegions).toHaveLength(panelCount - 1);
+    expect(
+      hitRegions.every((region) => region.groupSize === panelCount * 50)
+    ).toBe(true);
+    expect(dimensionReads).toBeLessThanOrEqual(panelCount * 2);
+  });
+
   function serialize(group: MockGroup) {
     const hitRegions = calculateHitRegions({ group });
 

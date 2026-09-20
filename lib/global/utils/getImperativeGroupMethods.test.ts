@@ -94,6 +94,17 @@ describe("getImperativeGroupMethods", () => {
   });
 
   describe("setLayout", () => {
+    test("matches constraints by panel ID regardless of layout key order", () => {
+      const { api } = init([
+        { defaultSize: 500, minSize: 400 },
+        { defaultSize: 500 }
+      ]);
+
+      api.setLayout({ "group-2": 80, "group-1": 20 });
+
+      expect(api.getLayout()).toEqual({ "group-1": 40, "group-2": 60 });
+    });
+
     test("throws if group not mounted", () => {
       expect(() =>
         getImperativeGroupMethods({

@@ -14,6 +14,9 @@ export function onDocumentPointerDown(event: PointerEvent) {
   const mountedGroups = getMountedGroups();
 
   const hitRegions = findMatchingHitRegions(event, mountedGroups);
+  if (hitRegions.length === 0) {
+    return;
+  }
 
   const initialLayoutMap = new Map<RegisteredGroup, Layout>();
   let didChangeFocus = false;
@@ -58,7 +61,5 @@ export function onDocumentPointerDown(event: PointerEvent) {
     state: "active"
   });
 
-  if (hitRegions.length) {
-    event.preventDefault();
-  }
+  event.preventDefault();
 }

@@ -1,4 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { createRef } from "react";
+import type { GroupImperativeHandle } from "../group/types";
 import { describe, expect, test, vi } from "vitest";
 import { subscribeToMountedGroup } from "../../global/mutable-state/groups";
 import { moveSeparator } from "../../global/test/moveSeparator";
@@ -9,6 +12,41 @@ import { Separator } from "./Separator";
 
 describe("Separator", () => {
   describe("disabled prop", () => {
+    test("keyboard resizing follows changes to disabled state", async () => {
+      setElementBoundsFunction(
+        (element) =>
+          new DOMRect(
+            element.id === "left" ? 0 : 50,
+            0,
+            element.id === "separator" ? 0 : 50,
+            50
+          )
+      );
+      const groupRef = createRef<GroupImperativeHandle>();
+      const ui = (disabled: boolean) => (
+        <Group groupRef={groupRef}>
+          <Panel id="left" />
+          <Separator disabled={disabled} id="separator" />
+          <Panel id="right" />
+        </Group>
+      );
+      const { rerender } = render(ui(true));
+      rerender(ui(false));
+      act(() => screen.getByRole("separator").focus());
+
+      await userEvent.keyboard("{ArrowRight}");
+      expect(groupRef.current!.getLayout()).toEqual({ left: 55, right: 45 });
+
+      rerender(ui(true));
+      expect(screen.getByRole("separator")).toHaveFocus();
+      await userEvent.keyboard("{ArrowRight}{Home}{End}{Enter}");
+      expect(groupRef.current!.getLayout()).toEqual({ left: 55, right: 45 });
+
+      rerender(ui(false));
+      await userEvent.keyboard("{ArrowLeft}");
+      expect(groupRef.current!.getLayout()).toEqual({ left: 50, right: 50 });
+    });
+
     test("changes to disabled prop should not cause the Separator to remount", () => {
       const onChange = vi.fn();
       const removeListener = subscribeToMountedGroup("group", onChange);
