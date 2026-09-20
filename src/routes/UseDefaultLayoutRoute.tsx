@@ -25,63 +25,73 @@ export default function UseDefaultLayoutRoute() {
         server-rendered application.
       </div>
       <div className="text-lg font-bold">Parameters</div>
-      <dl className="flex flex-col gap-2">
-        <dd className="text-lg font-mono">
-          <span className="tok-propertyName">debounceSaveMs</span>
-          <span className="tok-punctuation">?:</span> number{" "}
-          <span className="tok-punctuation">=</span> 100
-        </dd>
-        <dt className="mb-2 flex flex-col gap-4">
-          <p>
-            Debounce save operation by the specified number of milliseconds;
-            defaults to 100ms
-          </p>
-          <Callout intent="warning" minimal>
-            This parameter corresponds to the deprecated{" "}
-            <code>onLayoutChange</code> callback. Code using the new{" "}
-            <code>onLayoutChanged</code> callback (shown above) does not need to
-            be debounced.
-          </Callout>
-        </dt>
-        <dd className="text-lg font-mono">
-          <span className="tok-propertyName">id</span>
-          <span className="tok-punctuation">:</span> string
-        </dd>
-        <dt className="mb-2">Uniquely identifies a specific group/layout.</dt>
-        <dd className="text-lg font-mono">
-          <span className="tok-propertyName">
-            onlySaveAfterUserInteractions
-          </span>
-          <span className="tok-punctuation">?:</span> boolean
-        </dd>
-        <dt className="mb-2">
-          Only auto-save layouts that were directly caused by user input (e.g.
-          keyboard or mouse events). Ignore layout changes resulting from
-          imperative API calls or window resize events.
-        </dt>
-        <dd className="text-lg font-mono">
-          <span className="tok-propertyName">panelIds</span>
-          <span className="tok-punctuation">?:</span> string[] | undefined
-        </dd>
-        <dt className="mb-2 flex flex-col gap-4">
-          <p>
-            Groups that contain conditionally-rendered Panels should use this
-            parameter to determine which layout is retrieved on mount.
-          </p>
-          <Callout intent="warning" minimal>
-            This prevents layout shift for server-rendered apps. Ids must match
-            during mount to avoid layout shift.
-          </Callout>
-        </dt>
-        <dd className="text-lg font-mono">
-          <span className="tok-propertyName">storage</span>
-          <span className="tok-punctuation">?:</span>{" "}
-          <span className="tok-typeName">LayoutStorage</span>{" "}
-          <span className="tok-punctuation">=</span> localStorage
-        </dd>
-        <dt className="mb-2">
-          Storage API; responsible for reading and writing saved layouts.
-        </dt>
+      <dl className="flex flex-col gap-4">
+        <div>
+          <dt className="text-lg font-mono">
+            <span className="tok-propertyName">debounceSaveMs</span>
+            <span className="tok-punctuation">?:</span> number{" "}
+            <span className="tok-punctuation">=</span> 100
+          </dt>
+          <dd className="mt-1 flex flex-col gap-4">
+            <p>
+              Debounce save operation by the specified number of milliseconds;
+              defaults to 100ms
+            </p>
+            <Callout intent="warning" minimal>
+              This parameter corresponds to the deprecated{" "}
+              <code>onLayoutChange</code> callback. Code using the new{" "}
+              <code>onLayoutChanged</code> callback (shown above) does not need
+              to be debounced.
+            </Callout>
+          </dd>
+        </div>
+        <div>
+          <dt className="text-lg font-mono">
+            <span className="tok-propertyName">id</span>
+            <span className="tok-punctuation">:</span> string
+          </dt>
+          <dd className="mt-1">Uniquely identifies a specific group/layout.</dd>
+        </div>
+        <div>
+          <dt className="text-lg font-mono">
+            <span className="tok-propertyName">
+              onlySaveAfterUserInteractions
+            </span>
+            <span className="tok-punctuation">?:</span> boolean
+          </dt>
+          <dd className="mt-1">
+            Only auto-save layouts that were directly caused by user input (e.g.
+            keyboard or mouse events). Ignore layout changes resulting from
+            imperative API calls or window resize events.
+          </dd>
+        </div>
+        <div>
+          <dt className="text-lg font-mono">
+            <span className="tok-propertyName">panelIds</span>
+            <span className="tok-punctuation">?:</span> string[] | undefined
+          </dt>
+          <dd className="mt-1 flex flex-col gap-4">
+            <p>
+              Groups that contain conditionally-rendered Panels should use this
+              parameter to determine which layout is retrieved on mount.
+            </p>
+            <Callout intent="warning" minimal>
+              This prevents layout shift for server-rendered apps. Ids must
+              match during mount to avoid layout shift.
+            </Callout>
+          </dd>
+        </div>
+        <div>
+          <dt className="text-lg font-mono">
+            <span className="tok-propertyName">storage</span>
+            <span className="tok-punctuation">?:</span>{" "}
+            <span className="tok-typeName">LayoutStorage</span>{" "}
+            <span className="tok-punctuation">=</span> localStorage
+          </dt>
+          <dd className="mt-1">
+            Storage API; responsible for reading and writing saved layouts.
+          </dd>
+        </div>
       </dl>
     </Box>
   );

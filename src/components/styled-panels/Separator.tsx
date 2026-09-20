@@ -21,18 +21,18 @@ export function Separator({
   return (
     <SeparatorExternal
       className={cn(
-        "rounded rounded-xs flex items-center justify-center",
+        "flex items-center justify-center overflow-hidden rounded-xs",
         "bg-slate-600 [&[data-separator='disabled']]:opacity-50 [&[data-separator='hover']]:bg-slate-500 [&[data-separator='active']]:bg-slate-400",
         "text-slate-900 [&[data-separator='hover']]:text-slate-950 [&[data-separator='active']]:text-slate-950",
         useFocusPseudoClasses
           ? "focus-visible:bg-sky-400!"
           : "[&[data-separator='focus']]:bg-sky-400",
-        orientation === "horizontal" ? "w-4 sm:w-2" : "h-4 sm:h-2",
+        orientation === "horizontal" ? "w-3.5 sm:w-2.5" : "h-3.5 sm:h-2.5",
         className
       )}
       {...rest}
     >
-      <GrabDotsIcon className="w-6 h-6 sm:w-4 sm:h-4 shrink-0" />
+      <GrabDotsIcon className="size-3.5 sm:size-2.5 shrink-0" />
     </SeparatorExternal>
   );
 }

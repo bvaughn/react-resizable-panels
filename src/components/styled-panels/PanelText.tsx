@@ -2,7 +2,7 @@ import type { PropsWithChildren } from "react";
 
 export function PanelText({ children }: PropsWithChildren) {
   return (
-    <div className="w-full min-h-full flex flex-col items-center justify-center p-1">
+    <div className="flex min-h-full w-full flex-col items-center justify-center px-3 py-2.5 text-center">
       {children}
     </div>
   );

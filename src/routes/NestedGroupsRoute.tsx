@@ -3,7 +3,6 @@ import { Panel } from "react-resizable-panels";
 import { html as ExampleHTML } from "../../public/generated/examples/NestedGroups.json";
 import { Group } from "../components/styled-panels/Group";
 import { Panel as PreStyledPanel } from "../components/styled-panels/Panel";
-import { PanelText } from "../components/styled-panels/PanelText";
 
 export default function NestedGroupsRoute() {
   return (
@@ -15,29 +14,19 @@ export default function NestedGroupsRoute() {
       </div>
       <Code html={ExampleHTML} />
       <Group className="h-50!">
-        <PreStyledPanel minSize={50}>
-          <PanelText>left</PanelText>
-        </PreStyledPanel>
+        <PreStyledPanel minSize={50}>left</PreStyledPanel>
         <Panel minSize={200}>
           <Group orientation="vertical">
-            <PreStyledPanel minSize={20}>
-              <PanelText>top</PanelText>
-            </PreStyledPanel>
+            <PreStyledPanel minSize={20}>top</PreStyledPanel>
             <Panel minSize={20}>
               <Group>
-                <PreStyledPanel minSize={50}>
-                  <PanelText>left</PanelText>
-                </PreStyledPanel>
-                <PreStyledPanel minSize={50}>
-                  <PanelText>right</PanelText>
-                </PreStyledPanel>
+                <PreStyledPanel minSize={50}>left</PreStyledPanel>
+                <PreStyledPanel minSize={50}>right</PreStyledPanel>
               </Group>
             </Panel>
           </Group>
         </Panel>
-        <PreStyledPanel minSize={50}>
-          <PanelText>right</PanelText>
-        </PreStyledPanel>
+        <PreStyledPanel minSize={50}>right</PreStyledPanel>
       </Group>
     </Box>
   );

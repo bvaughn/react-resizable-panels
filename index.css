@@ -12,3 +12,198 @@
   --color-focus-2: var(--color-sky-400);
   --color-focus-3: var(--color-sky-600);
 }
+
+:root {
+  --docs-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --docs-duration: 180ms;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+@media only screen and (max-width: 600px) {
+  :root {
+    font-size: 16px;
+  }
+}
+
+.tok-comment {
+  color: var(--color-slate-400);
+}
+
+/* Chrome: h-12 + p-4 collapsed the bar below the logo. */
+#root .max-w-350 > .h-12 {
+  height: auto;
+  min-height: 3.75rem;
+  padding-block: 0.625rem;
+  padding-inline: 1.25rem;
+}
+
+@media (max-width: 639px) {
+  #root .max-w-350 > .h-12 {
+    gap: 0.5rem;
+    padding-inline: 0.75rem;
+  }
+
+  /* ^K is a text node in the pill — hide it, keep the icon. */
+  #root .max-w-350 > .h-12 .h-8.rounded-full {
+    width: 2rem;
+    padding-inline: 0;
+    gap: 0;
+    font-size: 0;
+  }
+
+  #root
+    .max-w-350
+    > .h-12
+    .group:has([aria-label="Documentation for other versions"]) {
+    display: none;
+  }
+}
+
+/* Sidebar: one scroller, room at the end of a long nav. */
+#root section:has(> nav) {
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 1.25rem 1rem 2.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-slate-400) transparent;
+}
+
+@media (min-width: 768px) {
+  #root section:has(> nav) {
+    flex: 0 0 17.5rem;
+    width: 17.5rem;
+  }
+}
+
+#root nav {
+  height: auto;
+  overflow: visible;
+  padding: 0;
+  margin: 0;
+  gap: 1.25rem;
+}
+
+/* Content: clear the top mask, give demos real height, group code+preview. */
+[data-main-scrollable] {
+  padding: 1.75rem 1.15rem 3.5rem;
+}
+
+@media (min-width: 768px) {
+  [data-main-scrollable] {
+    padding: 2.25rem 2rem 4rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  [data-main-scrollable] {
+    padding-inline: 2.5rem;
+  }
+}
+
+[data-main-scrollable] > .flex.flex-col {
+  gap: 1.35rem;
+  padding-bottom: 1.5rem;
+}
+
+[data-main-scrollable] > .flex.flex-col > header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin-bottom: 0.25rem;
+}
+
+[data-main-scrollable] > .flex.flex-col > header svg.size-4.text-slate-400 {
+  display: none;
+}
+
+[data-main-scrollable] [data-section] {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: color-mix(in oklab, white 58%, var(--color-fuchsia-300));
+}
+
+[data-main-scrollable] [data-title] {
+  font-size: 1.5rem;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+[data-main-scrollable] > .flex.flex-col > div:not([class]) {
+  max-width: 68ch;
+}
+
+[data-main-scrollable] [data-group] {
+  min-height: 11.5rem;
+}
+
+[data-main-scrollable] [data-group][style*="column"] {
+  min-height: 16rem;
+}
+
+[data-main-scrollable] [data-group] [data-group] {
+  min-height: 0;
+}
+
+[data-main-scrollable] .relative:has(> code) + [data-group],
+[data-main-scrollable] .relative:has(> code) + .relative:has(> code) {
+  margin-top: -0.45rem;
+}
+
+#root .fixed.inset-0.backdrop-blur-md {
+  padding-top: 10vh;
+  background: rgb(0 0 0 / 0.4);
+  animation: docs-search-in var(--docs-duration) var(--docs-ease) both;
+}
+
+#root .fixed.inset-0.backdrop-blur-md > div {
+  box-shadow:
+    0 8px 28px oklch(0.28 0.08 300 / 0.45),
+    0 0 0 1px oklch(0.72 0.2 320 / 0.35);
+}
+
+#root .fixed.inset-0.backdrop-blur-md[data-docs-search-exit] {
+  animation: docs-search-out var(--docs-duration) var(--docs-ease) both;
+}
+
+@keyframes docs-search-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes docs-search-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+[data-main-scrollable].docs-content-fade {
+  animation: docs-content-in 280ms var(--docs-ease) both;
+}
+
+@keyframes docs-content-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
