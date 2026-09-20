@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.13.0
+
+- [746](https://github.com/bvaughn/react-resizable-panels/issues/746): Customizable resize preview mode
+- [749](https://github.com/bvaughn/react-resizable-panels/pull/749): Panels support configurable collapse threshold
+
 ## 4.12.4
 
 - [743](https://github.com/bvaughn/react-resizable-panels/issues/743): Don't capture pointer for a detached `Separator`
