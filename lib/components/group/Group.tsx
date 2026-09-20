@@ -275,6 +275,7 @@ export function Group({
       },
       orientation,
       panels: inMemoryValues.panels,
+      resizePreviewMode,
       resizeTargetMinimumSize: inMemoryValues.resizeTargetMinimumSize,
       separators: inMemoryValues.separators
     };
@@ -352,6 +353,7 @@ export function Group({
     onLayoutChangeStable,
     orientation,
     panelOrSeparatorChangeSigil,
+    resizePreviewMode,
     stableProps
   ]);
 

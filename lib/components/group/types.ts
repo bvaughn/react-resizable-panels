@@ -64,7 +64,7 @@ export type RegisteredGroup = Readonly<{
   };
   orientation: Orientation;
   panels: RegisteredPanel[];
-  resizePreviewMode?: ResizePreviewMode;
+  resizePreviewMode: ResizePreviewMode;
   resizeTargetMinimumSize: ResizeTargetMinimumSize;
   separators: RegisteredSeparator[];
 }>;

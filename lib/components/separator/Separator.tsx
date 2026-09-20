@@ -13,6 +13,9 @@ import { useStableObject } from "../../hooks/useStableObject";
 import { useGroupContext } from "../group/useGroupContext";
 import type { RegisteredSeparator, SeparatorProps } from "./types";
 
+// TODO If a separator is active and being dragged, render a second preview version
+//      Else Group should render a ghost drag indicator
+
 /**
  * Separators are not _required_ but they are _recommended_ as they improve keyboard accessibility.
  *
@@ -65,6 +68,7 @@ export function Separator({
     id: groupId,
     orientation: groupOrientation,
     registerSeparator,
+    resizePreviewMode,
     updateSeparatorProps
   } = useGroupContext();
 
@@ -164,7 +168,7 @@ export function Separator({
     }
   }
 
-  return (
+  const separator = (
     <div
       {...rest}
       aria-controls={aria.valueControls}
@@ -198,6 +202,17 @@ export function Separator({
       tabIndex={disabled ? undefined : 0}
     />
   );
+
+  if (resizePreviewMode === "separator" && dragState === "active") {
+    return (
+      <>
+        {separator}
+        {/* TODO */}
+      </>
+    );
+  }
+
+  return separator;
 }
 
 // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/displayName

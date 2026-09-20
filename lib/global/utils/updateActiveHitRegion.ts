@@ -21,6 +21,7 @@ import { layoutsEqual } from "./layoutsEqual";
 export function updateActiveHitRegions({
   document,
   event,
+  force,
   hitRegions,
   initialLayoutMap,
   mountedGroups,
@@ -34,6 +35,7 @@ export function updateActiveHitRegions({
     movementX: number;
     movementY: number;
   };
+  force?: boolean;
   hitRegions: HitRegion[];
   initialLayoutMap: Map<RegisteredGroup, Layout>;
   mountedGroups: MountedGroups;
@@ -41,13 +43,22 @@ export function updateActiveHitRegions({
   prevCursorFlags: number;
 }) {
   let nextCursorFlags = 0;
+  console.log("updateActiveHitRegions: %o, %o", event.clientX, event.clientY);
 
   // Note that HitRegions are frozen once a drag has started
   // Modify the Group layouts for all matching HitRegions though
   hitRegions.forEach((current) => {
     const { group, groupSize } = current;
-    const { orientation, panels } = group;
-    const { disableCursor } = group.mutableState;
+    const {
+      orientation,
+      mutableState: { disableCursor },
+      panels
+    } = group;
+
+    if (group.resizePreviewMode === "separator" && !force) {
+      console.log("updateActiveHitRegions bailout");
+      return; // TODO
+    }
 
     let deltaAsPercentage = 0;
     if (pointerDownAtPoint) {
@@ -89,6 +100,11 @@ export function updateActiveHitRegions({
         trigger: "mouse-or-touch"
       });
 
+      console.log(
+        "updateActiveHitRegions:\n  prev: %o\n  next: %o",
+        prevLayout,
+        nextLayout
+      );
       if (layoutsEqual(nextLayout, prevLayout)) {
         if (deltaAsPercentage !== 0 && !disableCursor) {
           // An unchanged means the cursor has exceeded the allowed bounds

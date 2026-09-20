@@ -8,8 +8,20 @@ import {
   getInteractionState,
   updateInteractionState
 } from "../mutable-state/interactions.ts";
+import { updateActiveHitRegions } from "./updateActiveHitRegion.ts";
 
-export function completeActivePointerResize(document: Document) {
+export function completeActivePointerResize({
+  document,
+  event
+}: {
+  document: Document;
+  event: {
+    clientX: number;
+    clientY: number;
+    movementX: number;
+    movementY: number;
+  };
+}) {
   const interactionState = getInteractionState();
   const mountedGroups = getMountedGroups();
 
@@ -17,6 +29,28 @@ export function completeActivePointerResize(document: Document) {
 
   switch (interactionState.state) {
     case "active": {
+      interactionState.hitRegions.forEach((hitRegion) => {
+        // Skip if the group was re-registered mid-gesture, so the old hit region
+        // doesn't resurrect a stale entry in the mounted-groups map. See #729.
+        if (!mountedGroups.has(hitRegion.group)) {
+          return;
+        }
+
+        if (hitRegion.group.resizePreviewMode === "separator") {
+          // TODO
+          console.log("force updateActiveHitRegions");
+          updateActiveHitRegions({
+            document,
+            event,
+            force: true,
+            hitRegions: interactionState.hitRegions,
+            initialLayoutMap: interactionState.initialLayoutMap,
+            mountedGroups,
+            prevCursorFlags: interactionState.cursorFlags
+          });
+        }
+      });
+
       updateInteractionState({
         cursorFlags: 0,
         state: "inactive"
@@ -37,7 +71,9 @@ export function completeActivePointerResize(document: Document) {
           if (!mountedGroups.has(hitRegion.group)) {
             return;
           }
+
           const groupState = getMountedGroupState(hitRegion.group.id, true);
+
           updateMountedGroup(hitRegion.group, groupState, {
             isUserInteraction: true
           });

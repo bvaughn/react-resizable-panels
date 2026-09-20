@@ -15,6 +15,8 @@ export default function ResizeBehavior() {
       <Group resizePreviewMode="separator">
         <Panel minSize="10%">left</Panel>
         <Separator />
+        <Panel minSize="10%">center</Panel>
+        <Separator />
         <Panel minSize="10%">right</Panel>
       </Group>
       <div className="text-lg font-bold">

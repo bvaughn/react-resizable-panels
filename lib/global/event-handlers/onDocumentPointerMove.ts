@@ -42,6 +42,7 @@ export function onDocumentPointerMove(event: PointerEvent) {
           if (!mountedGroups.has(hitRegion.group)) {
             return;
           }
+
           const groupState = getMountedGroupState(hitRegion.group.id, true);
           updateMountedGroup(hitRegion.group, groupState, {
             isUserInteraction: true
