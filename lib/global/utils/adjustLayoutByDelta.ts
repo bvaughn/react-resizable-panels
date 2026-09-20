@@ -28,8 +28,12 @@ export function adjustLayoutByDelta({
 
   const overrideDisabledPanels = trigger === "imperative-api";
 
-  const initialLayout = Object.values(initialLayoutProp);
-  const prevLayout = Object.values(prevLayoutProp);
+  const initialLayout = panelConstraintsArray.map(
+    ({ panelId }) => initialLayoutProp[panelId]
+  );
+  const prevLayout = panelConstraintsArray.map(
+    ({ panelId }) => prevLayoutProp[panelId]
+  );
   const nextLayout = [...initialLayout];
 
   const [firstPivotIndex, secondPivotIndex] = pivotIndices;
@@ -318,10 +322,8 @@ export function adjustLayoutByDelta({
     return prevLayoutProp;
   }
 
-  const prevLayoutKeys = Object.keys(prevLayoutProp);
-
   return nextLayout.reduce<Layout>((accumulated, current, index) => {
-    accumulated[prevLayoutKeys[index]] = current;
+    accumulated[panelConstraintsArray[index].panelId] = current;
     return accumulated;
   }, {});
 }

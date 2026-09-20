@@ -15,6 +15,13 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
     return;
   }
 
+  const separator = group.separators.find(
+    (current) => current.element === separatorElement
+  );
+  if (separator?.disabled) {
+    return;
+  }
+
   switch (event.key) {
     case "ArrowDown": {
       event.preventDefault();

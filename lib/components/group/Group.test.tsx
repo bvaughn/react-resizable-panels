@@ -24,6 +24,169 @@ import type { GroupImperativeHandle, Layout } from "./types";
 import { useGroupRef } from "./useGroupRef";
 
 describe("Group", () => {
+  test.each(["keyboard", "pointer", "imperative"])(
+    "resizes panels with numeric IDs in physical order using %s",
+    async (trigger) => {
+      setElementBoundsFunction(
+        (element) =>
+          new DOMRect(
+            element.id === "1" || element.id === "separator" ? 50 : 0,
+            0,
+            element.id === "separator" ? 0 : 50,
+            50
+          )
+      );
+      const groupRef = createRef<GroupImperativeHandle>();
+      const panelRef = createRef<PanelImperativeHandle>();
+      const { getByTestId } = render(
+        <Group groupRef={groupRef}>
+          <Panel id="2" panelRef={panelRef} />
+          <Separator id="separator" />
+          <Panel id="1" />
+        </Group>
+      );
+
+      if (trigger === "keyboard") {
+        act(() => getByTestId("separator").focus());
+        await userEvent.keyboard("{ArrowRight}");
+      } else if (trigger === "pointer") {
+        await moveSeparator(5);
+      } else {
+        act(() => panelRef.current!.resize("55%"));
+      }
+      expect(groupRef.current!.getLayout()).toEqual({ "2": 55, "1": 45 });
+    }
+  );
+
+  test.each([0, 30])(
+    "revealing a hidden group validates its default layout with minSize %s",
+    (minSize) => {
+      const groupRef = createRef<GroupImperativeHandle>();
+      render(
+        <Group groupRef={groupRef} defaultLayout={{ a: 20, b: 80 }}>
+          <Panel id="a" minSize={minSize} />
+          <Panel id="b" />
+        </Group>
+      );
+      expect(groupRef.current!.getLayout()).toEqual({});
+
+      act(() => setDefaultElementBounds(new DOMRect(0, 0, 50, 50)));
+      const a = Math.max(20, minSize);
+      expect(groupRef.current!.getLayout()).toEqual({ a, b: 100 - a });
+    }
+  );
+
+  test("ordinary pointer presses do not suppress layout commit callbacks", async () => {
+    setDefaultElementBounds(new DOMRect(0, 0, 50, 50));
+    const groupRef = createRef<GroupImperativeHandle>();
+    const onLayoutChanged = vi.fn();
+    const { getByRole } = render(
+      <Group groupRef={groupRef} onLayoutChanged={onLayoutChanged}>
+        <Panel id="a">
+          <button>Resize</button>
+        </Panel>
+        <Panel id="b" />
+      </Group>
+    );
+    onLayoutChanged.mockClear();
+    await userEvent.pointer({
+      keys: "[MouseLeft>]",
+      target: getByRole("button"),
+      coords: { clientX: 10, clientY: 25 }
+    });
+    act(() => {
+      groupRef.current!.setLayout({ a: 25, b: 75 });
+    });
+    await userEvent.pointer({ keys: "[/MouseLeft]" });
+
+    expect(onLayoutChanged).toHaveBeenCalledExactlyOnceWith(
+      { a: 25, b: 75 },
+      { isUserInteraction: false }
+    );
+  });
+
+  test("updates resizeTargetMinimumSize without resetting the layout", async () => {
+    setElementBoundsFunction(
+      (element) =>
+        new DOMRect(
+          element.id === "a" ? 0 : 50,
+          0,
+          element.id === "separator" ? 0 : 50,
+          50
+        )
+    );
+    const groupRef = createRef<GroupImperativeHandle>();
+    const ui = (size: number) => (
+      <Group
+        groupRef={groupRef}
+        resizeTargetMinimumSize={{ fine: size, coarse: size }}
+      >
+        <Panel id="a" />
+        <Separator id="separator" />
+        <Panel id="b" />
+      </Group>
+    );
+    const { rerender, getByTestId } = render(ui(10));
+    act(() => {
+      groupRef.current!.setLayout({ a: 40, b: 60 });
+    });
+    rerender(ui(40));
+    expect(groupRef.current!.getLayout()).toEqual({ a: 40, b: 60 });
+
+    await userEvent.pointer([
+      {
+        keys: "[MouseLeft>]",
+        target: getByTestId("a"),
+        coords: { clientX: 35, clientY: 25 }
+      },
+      { coords: { clientX: 40, clientY: 25 } },
+      { keys: "[/MouseLeft]" }
+    ]);
+    expect(groupRef.current!.getLayout()).toEqual({ a: 45, b: 55 });
+  });
+
+  test("resizing another group does not suppress layout commit callbacks", async () => {
+    setElementBoundsFunction(
+      (element) =>
+        new DOMRect(
+          element.id === "left" ? 0 : 50,
+          element.id === "a" || element.id === "b" ? 100 : 0,
+          element.id === "separator" ? 0 : 50,
+          50
+        )
+    );
+    const groupRef = createRef<GroupImperativeHandle>();
+    const onLayoutChanged = vi.fn();
+    const { getByTestId } = render(
+      <>
+        <Group>
+          <Panel id="left" />
+          <Separator id="separator" />
+          <Panel id="right" />
+        </Group>
+        <Group groupRef={groupRef} onLayoutChanged={onLayoutChanged}>
+          <Panel id="a" />
+          <Panel id="b" />
+        </Group>
+      </>
+    );
+    onLayoutChanged.mockClear();
+    await userEvent.pointer({
+      keys: "[MouseLeft>]",
+      target: getByTestId("separator"),
+      coords: { clientX: 50, clientY: 25 }
+    });
+    act(() => {
+      groupRef.current!.setLayout({ a: 25, b: 75 });
+    });
+    await userEvent.pointer({ keys: "[/MouseLeft]" });
+
+    expect(onLayoutChanged).toHaveBeenCalledExactlyOnceWith(
+      { a: 25, b: 75 },
+      { isUserInteraction: false }
+    );
+  });
+
   test("changes to defaultProps or disableCursor should not cause Group to remount", () => {
     const onChange = vi.fn();
     const removeListener = subscribeToMountedGroup("group", onChange);

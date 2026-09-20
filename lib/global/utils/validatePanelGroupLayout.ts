@@ -12,7 +12,7 @@ export function validatePanelGroupLayout({
   layout: Layout;
   panelConstraints: PanelConstraints[];
 }): Layout {
-  const prevLayout = Object.values(layout);
+  const prevLayout = panelConstraints.map(({ panelId }) => layout[panelId]);
   const nextLayout = [...prevLayout];
 
   const nextLayoutTotalSize = nextLayout.reduce(
@@ -21,9 +21,9 @@ export function validatePanelGroupLayout({
   );
 
   // Validate layout expectations
-  if (nextLayout.length !== panelConstraints.length) {
+  if (Object.keys(layout).length !== panelConstraints.length) {
     throw Error(
-      `Invalid ${panelConstraints.length} panel layout: ${nextLayout
+      `Invalid ${panelConstraints.length} panel layout: ${Object.values(layout)
         .map((size) => `${size}%`)
         .join(", ")}`
     );
@@ -89,10 +89,8 @@ export function validatePanelGroupLayout({
     }
   }
 
-  const prevLayoutKeys = Object.keys(layout);
-
   return nextLayout.reduce<Layout>((accumulated, current, index) => {
-    accumulated[prevLayoutKeys[index]] = current;
+    accumulated[panelConstraints[index].panelId] = current;
     return accumulated;
   }, {});
 }

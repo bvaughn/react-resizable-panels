@@ -1,4 +1,4 @@
-import type { Layout, RegisteredGroup } from "../components/group/types";
+import type { RegisteredGroup } from "../components/group/types";
 import { updateCursorStyle } from "./cursor/updateCursorStyle";
 import { removeGroupFromInteraction } from "./mutable-state/interactions";
 import { assert } from "../utils/assert";
@@ -19,12 +19,11 @@ import {
   updateMountedGroup
 } from "./mutable-state/groups";
 import type { SeparatorToPanelsMap } from "./mutable-state/types";
-import { calculateDefaultLayout } from "./utils/calculateDefaultLayout";
+import { getDefaultLayout } from "./utils/getDefaultLayout";
 import { layoutsEqual } from "./utils/layoutsEqual";
 import { notifyPanelOnResize } from "./utils/notifyPanelOnResize";
 import { panelConstraintsEqual } from "./utils/panelConstraintsEqual";
 import { preserveFixedPanelSizes } from "./utils/preserveFixedPanelSizes";
-import { validateLayoutKeys } from "./utils/validateLayoutKeys";
 import { validatePanelGroupLayout } from "./utils/validatePanelGroupLayout";
 
 const ownerDocumentReferenceCounts = new Map<Document, number>();
@@ -67,7 +66,10 @@ export function mountGroup(group: RegisteredGroup) {
 
           // Revalidate layout in case constraints have changed or group size changed
           const prevLayout = groupState.defaultLayoutDeferred
-            ? calculateDefaultLayout(nextDerivedPanelConstraints)
+            ? getDefaultLayout({
+                group,
+                panelConstraints: nextDerivedPanelConstraints
+              })
             : groupState.layout;
           const unsafeLayout = preserveFixedPanelSizes({
             group,
@@ -125,22 +127,10 @@ export function mountGroup(group: RegisteredGroup) {
 
   // Calculate initial layout for the new Panel configuration
   const derivedPanelConstraints = calculatePanelConstraints(group);
-  const panelIdsKey = group.panels.map(({ id }) => id).join(",");
-
-  // Gracefully handle an invalid default layout
-  // This could happen when e.g. useDefaultLayout is combined with dynamic Panels
-  // In this case the best we can do is ignore the incoming layout
-  let defaultLayout: Layout | undefined = group.mutableState.defaultLayout;
-  if (defaultLayout) {
-    if (!validateLayoutKeys(group.panels, defaultLayout)) {
-      defaultLayout = undefined;
-    }
-  }
-
-  const defaultLayoutUnsafe: Layout =
-    group.mutableState.layouts[panelIdsKey] ??
-    defaultLayout ??
-    calculateDefaultLayout(derivedPanelConstraints);
+  const defaultLayoutUnsafe = getDefaultLayout({
+    group,
+    panelConstraints: derivedPanelConstraints
+  });
   const defaultLayoutSafe = validatePanelGroupLayout({
     layout: defaultLayoutUnsafe,
     panelConstraints: derivedPanelConstraints
@@ -154,7 +144,10 @@ export function mountGroup(group: RegisteredGroup) {
   );
 
   const separatorToPanels: SeparatorToPanelsMap = new Map();
-  const hitRegions = calculateHitRegions({ group });
+
+  // Include disabled separators because enabling them later does not rebuild this map.
+  // The keyboard handler checks disabled state before resizing.
+  const hitRegions = calculateHitRegions({ group, includeDisabled: true });
   hitRegions.forEach((hitRegion) => {
     if (hitRegion.separator) {
       separatorToPanels.set(hitRegion.separator, hitRegion.panels);

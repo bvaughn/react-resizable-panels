@@ -49,6 +49,7 @@ export function calculateHitRegions({
   let disabledSeparator = false;
   let hasInterleavedStaticContent = false;
   let firstEnabledPanelIndex = -1;
+  let groupSize: number | undefined;
   let lastEnabledPanelIndex = -1;
   let numEnabledPanels = 0;
   let prevPanel: RegisteredPanel | undefined = undefined;
@@ -202,9 +203,11 @@ export function calculateHitRegions({
                 currentPanelIndex > lastEnabledPanelIndex;
 
               if (includeDisabled || (!disabledSeparator && !skip)) {
+                groupSize ??= calculateAvailableGroupSize({ group });
+
                 hitRegions.push({
                   group,
-                  groupSize: calculateAvailableGroupSize({ group }),
+                  groupSize,
                   panels: [prevPanel, panelData],
                   separator:
                     "width" in rectOrSeparator ? undefined : rectOrSeparator,
