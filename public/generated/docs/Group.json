@@ -159,6 +159,22 @@
       "name": "onLayoutChanged",
       "required": false
     },
+    "resizePreviewMode": {
+      "description": [
+        {
+          "content": "<p>Controls whether pointer dragging updates <code>Panel</code>s sizes immediately,\nor renders overlay separator previews until the pointer is released.</p>\n"
+        },
+        {
+          "content": "<p>Defaults to <code>&quot;panel&quot;</code> (immediate resizing); <code>&quot;separator&quot;</code> defers resizing until release.</p>\n"
+        },
+        {
+          "content": "<p>Customize previews using the <code>SeparatorOverlay</code> component.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">resizePreviewMode</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ResizePreviewMode</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"panel\"</span></div>",
+      "name": "resizePreviewMode",
+      "required": false
+    },
     "resizeTargetMinimumSize": {
       "description": [
         {

@@ -1,4 +1,5 @@
 import { updateCursorStyle } from "../cursor/updateCursorStyle.ts";
+import { updateActiveHitRegions } from "./updateActiveHitRegion";
 import {
   getMountedGroups,
   getMountedGroupState,
@@ -9,7 +10,15 @@ import {
   updateInteractionState
 } from "../mutable-state/interactions.ts";
 
-export function completeActivePointerResize(document: Document) {
+export function completeActivePointerResize(
+  document: Document,
+  event: {
+    clientX: number;
+    clientY: number;
+    movementX: number;
+    movementY: number;
+  }
+) {
   const interactionState = getInteractionState();
   const mountedGroups = getMountedGroups();
 
@@ -17,6 +26,17 @@ export function completeActivePointerResize(document: Document) {
 
   switch (interactionState.state) {
     case "active": {
+      updateActiveHitRegions({
+        commit: true,
+        document,
+        event,
+        hitRegions: interactionState.hitRegions,
+        initialLayoutMap: interactionState.initialLayoutMap,
+        mountedGroups,
+        pointerDownAtPoint: interactionState.pointerDownAtPoint,
+        prevCursorFlags: interactionState.cursorFlags
+      });
+
       updateInteractionState({
         cursorFlags: 0,
         state: "inactive"

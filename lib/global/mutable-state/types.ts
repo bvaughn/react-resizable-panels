@@ -15,11 +15,23 @@ export type InteractionHover = {
   state: "hover";
 };
 
+export type ResizePreview = {
+  active: boolean;
+  group: RegisteredGroup;
+  key: string;
+  offset: number;
+  panelIndex: number;
+  rect: DOMRect;
+  separator?: RegisteredSeparator | undefined;
+};
+
 export type InteractionActive = {
   cursorFlags: number;
   hitRegions: HitRegion[];
   initialLayoutMap: Map<RegisteredGroup, Layout>;
   pointerDownAtPoint: Point;
+  previewLayoutMap: Map<RegisteredGroup, Layout>;
+  previews: ResizePreview[];
   state: "active";
 };
 

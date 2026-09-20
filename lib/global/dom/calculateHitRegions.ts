@@ -24,7 +24,15 @@ export type HitRegion = {
  *
  * This method determines bounding rects of all regions for the particular group.
  */
-export function calculateHitRegions(group: RegisteredGroup) {
+export function calculateHitRegions({
+  expandHitTargets = true,
+  group,
+  includeDisabled = false
+}: {
+  expandHitTargets?: boolean;
+  group: RegisteredGroup;
+  includeDisabled?: boolean;
+}) {
   const { element: groupElement, orientation, panels, separators } = group;
 
   // Sort elements by offset before traversing
@@ -32,6 +40,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
     orientation,
     Array.from(groupElement.children)
       .filter(isHTMLElement)
+      .filter((element) => !element.hasAttribute("data-resize-preview"))
       .map((element) => ({ element: element as HTMLElement }))
   ).map(({ element }) => element);
 
@@ -66,7 +75,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
   }
 
   // If all (or all but one) of the Panels are disabled, there can be no resize interactions.
-  if (numEnabledPanels > 1) {
+  if (includeDisabled || numEnabledPanels > 1) {
     let currentPanelIndex = -1;
 
     for (const childElement of sortedChildElements) {
@@ -164,9 +173,11 @@ export function calculateHitRegions(group: RegisteredGroup) {
                   ? rectOrSeparator
                   : rectOrSeparator.element.getBoundingClientRect();
 
-              const minHitTargetSize = isCoarsePointer()
-                ? group.resizeTargetMinimumSize.coarse
-                : group.resizeTargetMinimumSize.fine;
+              const minHitTargetSize = expandHitTargets
+                ? isCoarsePointer()
+                  ? group.resizeTargetMinimumSize.coarse
+                  : group.resizeTargetMinimumSize.fine
+                : 0;
               if (rect.width < minHitTargetSize) {
                 const delta = minHitTargetSize - rect.width;
                 rect = new DOMRect(
@@ -190,7 +201,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
                 currentPanelIndex <= firstEnabledPanelIndex ||
                 currentPanelIndex > lastEnabledPanelIndex;
 
-              if (!disabledSeparator && !skip) {
+              if (includeDisabled || (!disabledSeparator && !skip)) {
                 hitRegions.push({
                   group,
                   groupSize: calculateAvailableGroupSize({ group }),

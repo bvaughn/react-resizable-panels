@@ -3,7 +3,10 @@
 import type { Properties } from "csstype";
 import { useEffect, useRef, useState } from "react";
 import { subscribeToMountedGroup } from "../../global/mutable-state/groups";
-import { subscribeToInteractionState } from "../../global/mutable-state/interactions";
+import {
+  notifySeparatorPreviewChanged,
+  subscribeToInteractionState
+} from "../../global/mutable-state/interactions";
 import type { InteractionState } from "../../global/mutable-state/types";
 import { calculateSeparatorAriaValues } from "../../global/utils/calculateSeparatorAriaValues";
 import { useId } from "../../hooks/useId";
@@ -35,6 +38,7 @@ export function Separator({
   disableDoubleClick,
   elementRef: elementRefProp,
   id: idProp,
+  preview,
   style,
   ...rest
 }: SeparatorProps) {
@@ -42,7 +46,11 @@ export function Separator({
 
   const stableProps = useStableObject({
     disabled,
-    disableDoubleClick
+    disableDoubleClick,
+    children,
+    className,
+    preview,
+    style
   });
 
   const [aria, setAria] = useState<{
@@ -57,6 +65,7 @@ export function Separator({
   const [isFocused, setIsFocused] = useState(false);
 
   const elementRef = useRef<HTMLDivElement | null>(null);
+  const registeredSeparatorRef = useRef<RegisteredSeparator | null>(null);
 
   const mergedRef = useMergedRefs(elementRef, elementRefProp);
 
@@ -80,8 +89,22 @@ export function Separator({
         disabled: stableProps.disabled,
         disableDoubleClick: stableProps.disableDoubleClick,
         element,
-        id
+        id,
+        get children() {
+          return stableProps.children;
+        },
+        get className() {
+          return stableProps.className;
+        },
+        get preview() {
+          return stableProps.preview;
+        },
+        get style() {
+          return stableProps.style;
+        }
       };
+
+      registeredSeparatorRef.current = separator;
 
       const unregisterSeparator = registerSeparator(separator);
 
@@ -128,12 +151,21 @@ export function Separator({
       );
 
       return () => {
+        registeredSeparatorRef.current = null;
+
         removeInteractionStateChangeListener();
         removeMountedGroupsChangeListener();
         unregisterSeparator();
       };
     }
   }, [groupId, id, registerSeparator, stableProps]);
+
+  useIsomorphicLayoutEffect(() => {
+    const separator = registeredSeparatorRef.current;
+    if (separator) {
+      notifySeparatorPreviewChanged(separator);
+    }
+  }, [preview]);
 
   // Not all props require re-registering the separator;
   useEffect(() => {

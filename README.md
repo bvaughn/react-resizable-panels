@@ -138,6 +138,14 @@ and false for other triggers (e.g. imperative API calls, initial mount, etc.)</p
 </td>
     </tr>
     <tr>
+      <td>resizePreviewMode</td>
+      <td><p>Controls whether pointer dragging updates <code>Panel</code>s sizes immediately,
+or renders overlay separator previews until the pointer is released.</p>
+<p>Defaults to <code>&quot;panel&quot;</code> (immediate resizing); <code>&quot;separator&quot;</code> defers resizing until release.</p>
+<p>Customize previews using the <code>SeparatorOverlay</code> component.</p>
+</td>
+    </tr>
+    <tr>
       <td>resizeTargetMinimumSize</td>
       <td><p>Minimum size of the resizable hit target area (either <code>Separator</code> or <code>Panel</code> edge)
 This threshold ensures are large enough to avoid mis-clicks.</p>
@@ -392,6 +400,11 @@ To prevent a panel from being resized at all, it needs to also be disabled.</p>
     <tr>
       <td>elementRef</td>
       <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
+</td>
+    </tr>
+    <tr>
+      <td>preview</td>
+      <td><p>Overrides the <code>Group</code> default preview for this <code>Separator</code> when <code>resizePreviewMode</code> is &quot;separator&quot;.</p>
 </td>
     </tr>
   </tbody>

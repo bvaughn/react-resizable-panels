@@ -1,10 +1,14 @@
-import type { CSSProperties, HTMLAttributes, Ref } from "react";
+import type { CSSProperties, HTMLAttributes, ReactNode, Ref } from "react";
 
 export type RegisteredSeparator = {
+  children?: ReactNode;
+  className?: string | undefined;
   disabled?: boolean | undefined;
   disableDoubleClick?: boolean | undefined;
   element: HTMLDivElement;
   id: string;
+  preview?: ReactNode;
+  style?: CSSProperties | undefined;
 };
 
 type BaseSeparatorAttributes = Omit<
@@ -49,6 +53,11 @@ export type SeparatorProps = BaseSeparatorAttributes & {
   id?: string | number | undefined;
 
   /**
+   * Overrides the `Group` default preview for this `Separator` when `resizePreviewMode` is "separator".
+   */
+  preview?: ReactNode;
+
+  /**
    * CSS properties.
    *
    * ℹ️ Use the `data-separator` attribute for custom _hover_ and _active_ styles
@@ -57,3 +66,5 @@ export type SeparatorProps = BaseSeparatorAttributes & {
    */
   style?: CSSProperties | undefined;
 };
+
+export type SeparatorOverlayProps = HTMLAttributes<HTMLDivElement>;

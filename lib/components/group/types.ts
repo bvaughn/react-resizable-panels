@@ -1,5 +1,6 @@
 import type { CSSProperties, HTMLAttributes, ReactNode, Ref } from "react";
 import type { RegisteredPanel } from "../panel/types";
+import type { SeparatorOverlayProps } from "../separator/types";
 import type { RegisteredSeparator } from "../separator/types";
 
 /**
@@ -38,6 +39,8 @@ export type DragState = {
   separatorId: string | undefined;
 };
 
+export type ResizePreviewMode = "panel" | "separator";
+
 export type ResizeTargetMinimumSize = {
   coarse: number;
   fine: number;
@@ -59,6 +62,7 @@ export type RegisteredGroup = Readonly<{
   };
   orientation: Orientation;
   panels: RegisteredPanel[];
+  resizePreviewMode: ResizePreviewMode;
   resizeTargetMinimumSize: ResizeTargetMinimumSize;
   separators: RegisteredSeparator[];
 }>;
@@ -71,6 +75,7 @@ export type GroupContextType = {
   ) => CSSProperties | undefined;
   id: string;
   orientation: Orientation;
+  registerOverlay: (props: SeparatorOverlayProps) => () => void;
   registerPanel: (panel: RegisteredPanel) => () => void;
   registerSeparator: (separator: RegisteredSeparator) => () => void;
   updatePanelProps: (
@@ -182,6 +187,16 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    * and false for other triggers (e.g. imperative API calls, initial mount, etc.)
    */
   onLayoutChanged?: (layout: Layout, meta: LayoutChangedMeta) => void;
+
+  /**
+   * Controls whether pointer dragging updates `Panel`s sizes immediately,
+   * or renders overlay separator previews until the pointer is released.
+   *
+   * Defaults to `"panel"` (immediate resizing); `"separator"` defers resizing until release.
+   *
+   * Customize previews using the `SeparatorOverlay` component.
+   */
+  resizePreviewMode?: ResizePreviewMode | undefined;
 
   /**
    * Minimum size of the resizable hit target area (either `Separator` or `Panel` edge)

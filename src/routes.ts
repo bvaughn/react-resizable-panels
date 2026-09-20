@@ -29,6 +29,9 @@ export const routes = {
   "/examples/fixed-size-panels": lazy(
     () => import("./routes/FixedSizePanelsRoute")
   ),
+  "/examples/panel-resize-behavior": lazy(
+    () => import("./routes/PanelResizeBehaviorRoute")
+  ),
   "/examples/group-resize-behavior": lazy(
     () => import("./routes/GroupResizeBehaviorRoute")
   ),

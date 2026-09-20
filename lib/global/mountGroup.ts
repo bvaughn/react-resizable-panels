@@ -1,4 +1,6 @@
 import type { Layout, RegisteredGroup } from "../components/group/types";
+import { updateCursorStyle } from "./cursor/updateCursorStyle";
+import { removeGroupFromInteraction } from "./mutable-state/interactions";
 import { assert } from "../utils/assert";
 import { calculateAvailableGroupSize } from "./dom/calculateAvailableGroupSize";
 import { calculateHitRegions } from "./dom/calculateHitRegions";
@@ -152,7 +154,7 @@ export function mountGroup(group: RegisteredGroup) {
   );
 
   const separatorToPanels: SeparatorToPanelsMap = new Map();
-  const hitRegions = calculateHitRegions(group);
+  const hitRegions = calculateHitRegions({ group });
   hitRegions.forEach((hitRegion) => {
     if (hitRegion.separator) {
       separatorToPanels.set(hitRegion.separator, hitRegion.panels);
@@ -198,6 +200,9 @@ export function mountGroup(group: RegisteredGroup) {
     );
 
     deleteMutableGroup(group);
+    if (removeGroupFromInteraction(group)) {
+      updateCursorStyle(ownerDocument);
+    }
 
     group.separators.forEach((separator) => {
       separator.element.removeEventListener("keydown", onDocumentKeyDown);

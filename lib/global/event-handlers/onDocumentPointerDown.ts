@@ -1,3 +1,4 @@
+import { calculateResizePreviews } from "../utils/calculateResizePreviews";
 import type { Layout, RegisteredGroup } from "../../components/group/types";
 import { getMountedGroups } from "../mutable-state/groups";
 import { updateInteractionState } from "../mutable-state/interactions";
@@ -15,7 +16,6 @@ export function onDocumentPointerDown(event: PointerEvent) {
   const hitRegions = findMatchingHitRegions(event, mountedGroups);
 
   const initialLayoutMap = new Map<RegisteredGroup, Layout>();
-
   let didChangeFocus = false;
 
   hitRegions.forEach((current) => {
@@ -42,11 +42,19 @@ export function onDocumentPointerDown(event: PointerEvent) {
     }
   });
 
+  const previews = Array.from(initialLayoutMap.keys()).flatMap((group) =>
+    group.resizePreviewMode === "separator"
+      ? calculateResizePreviews(group, hitRegions)
+      : []
+  );
+
   updateInteractionState({
     cursorFlags: 0,
     hitRegions,
     initialLayoutMap,
     pointerDownAtPoint: { x: event.clientX, y: event.clientY },
+    previewLayoutMap: new Map(initialLayoutMap),
+    previews,
     state: "active"
   });
 
