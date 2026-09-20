@@ -12,7 +12,7 @@ import {
 
 export function completeActivePointerResize(
   document: Document,
-  event?: {
+  event: {
     clientX: number;
     clientY: number;
     movementX: number;
@@ -26,18 +26,16 @@ export function completeActivePointerResize(
 
   switch (interactionState.state) {
     case "active": {
-      if (event) {
-        updateActiveHitRegions({
-          commit: true,
-          document,
-          event,
-          hitRegions: interactionState.hitRegions,
-          initialLayoutMap: interactionState.initialLayoutMap,
-          mountedGroups,
-          pointerDownAtPoint: interactionState.pointerDownAtPoint,
-          prevCursorFlags: interactionState.cursorFlags
-        });
-      }
+      updateActiveHitRegions({
+        commit: true,
+        document,
+        event,
+        hitRegions: interactionState.hitRegions,
+        initialLayoutMap: interactionState.initialLayoutMap,
+        mountedGroups,
+        pointerDownAtPoint: interactionState.pointerDownAtPoint,
+        prevCursorFlags: interactionState.cursorFlags
+      });
 
       updateInteractionState({
         cursorFlags: 0,
