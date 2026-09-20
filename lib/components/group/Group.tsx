@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, type CSSProperties } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties
+} from "react";
 import { calculatePanelConstraints } from "../../global/dom/calculatePanelConstraints";
 import { mountGroup } from "../../global/mountGroup";
 import {
@@ -19,7 +25,10 @@ import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
 import { useStableObject } from "../../hooks/useStableObject";
 import type { RegisteredPanel } from "../panel/types";
-import type { RegisteredSeparator } from "../separator/types";
+import type {
+  RegisteredSeparator,
+  SeparatorOverlayProps
+} from "../separator/types";
 import { GroupContext } from "./GroupContext";
 import { ResizePreview } from "./ResizePreview";
 import { sortByElementOffset } from "./sortByElementOffset";
@@ -30,6 +39,7 @@ import type {
   ResizeTargetMinimumSize
 } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
+import { useResizePreviews } from "./useResizePreviews";
 
 /**
  * A Group wraps a set of resizable Panel components.
@@ -94,6 +104,13 @@ export function Group({
   );
 
   const id = useId(idProp);
+
+  const [overlay, setOverlay] = useState<SeparatorOverlayProps>();
+
+  const previews = useResizePreviews({
+    groupId: id,
+    resizePreviewMode
+  });
 
   const elementRef = useRef<HTMLDivElement | null>(null);
 
@@ -164,6 +181,13 @@ export function Group({
           );
 
           forceUpdate();
+        };
+      },
+      registerOverlay: (props: SeparatorOverlayProps) => {
+        setOverlay(props);
+
+        return () => {
+          setOverlay(undefined);
         };
       },
       registerSeparator: (separator: RegisteredSeparator) => {
@@ -389,7 +413,13 @@ export function Group({
         }}
       >
         {children}
-        {resizePreviewMode === "separator" && <ResizePreview groupId={id} />}
+        {previews.map((preview) => (
+          <ResizePreview
+            key={preview.key}
+            overlay={overlay}
+            preview={preview}
+          />
+        ))}
       </div>
     </GroupContext.Provider>
   );

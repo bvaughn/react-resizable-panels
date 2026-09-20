@@ -1,3 +1,4 @@
+import { calculateResizePreviews } from "../utils/calculateResizePreviews";
 import type { Layout, RegisteredGroup } from "../../components/group/types";
 import { getMountedGroups } from "../mutable-state/groups";
 import { updateInteractionState } from "../mutable-state/interactions";
@@ -15,13 +16,6 @@ export function onDocumentPointerDown(event: PointerEvent) {
   const hitRegions = findMatchingHitRegions(event, mountedGroups);
 
   const initialLayoutMap = new Map<RegisteredGroup, Layout>();
-  const previewHitRegion =
-    hitRegions.find(
-      ({ separator }) =>
-        event.target instanceof Node &&
-        separator?.element.contains(event.target)
-    ) ?? hitRegions[0];
-
   let didChangeFocus = false;
 
   hitRegions.forEach((current) => {
@@ -48,32 +42,19 @@ export function onDocumentPointerDown(event: PointerEvent) {
     }
   });
 
-  let preview;
-  if (
-    previewHitRegion?.group.resizePreviewMode === "separator" &&
-    previewHitRegion.separator
-  ) {
-    const { element } = previewHitRegion.group;
-    const groupRect = element.getBoundingClientRect();
-    const rect = previewHitRegion.separator.element.getBoundingClientRect();
-    preview = {
-      hitRegion: previewHitRegion,
-      rect: new DOMRect(
-        rect.left - groupRect.left - element.clientLeft + element.scrollLeft,
-        rect.top - groupRect.top - element.clientTop + element.scrollTop,
-        rect.width,
-        rect.height
-      ),
-      offset: 0
-    };
-  }
+  const previews = Array.from(initialLayoutMap.keys()).flatMap((group) =>
+    group.resizePreviewMode === "separator"
+      ? calculateResizePreviews(group, hitRegions)
+      : []
+  );
 
   updateInteractionState({
     cursorFlags: 0,
     hitRegions,
     initialLayoutMap,
     pointerDownAtPoint: { x: event.clientX, y: event.clientY },
-    preview,
+    previewLayoutMap: new Map(initialLayoutMap),
+    previews,
     state: "active"
   });
 

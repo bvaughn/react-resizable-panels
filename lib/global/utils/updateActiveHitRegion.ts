@@ -47,8 +47,10 @@ export function updateActiveHitRegions({
 }) {
   let nextCursorFlags = 0;
   const interaction = getInteractionState();
-  let preview =
-    interaction.state === "active" ? interaction.preview : undefined;
+  let previews = interaction.state === "active" ? interaction.previews : [];
+  const previewLayoutMap = new Map(
+    interaction.state === "active" ? interaction.previewLayoutMap : undefined
+  );
 
   // Note that HitRegions are frozen once a drag has started
   // Modify the Group layouts for all matching HitRegions though
@@ -87,10 +89,14 @@ export function updateActiveHitRegions({
       defaultLayoutDeferred,
       derivedPanelConstraints,
       groupSize: mountedGroupSize,
-      layout: prevLayout,
+      layout: mountedLayout,
       separatorToPanels
     } = groupState;
-    if (derivedPanelConstraints && prevLayout && separatorToPanels) {
+    if (derivedPanelConstraints && mountedLayout && separatorToPanels) {
+      const prevLayout =
+        group.resizePreviewMode === "separator"
+          ? (previewLayoutMap.get(group) ?? mountedLayout)
+          : mountedLayout;
       const nextLayout = adjustLayoutByDelta({
         delta: deltaAsPercentage,
         initialLayout,
@@ -100,21 +106,33 @@ export function updateActiveHitRegions({
         trigger: "mouse-or-touch"
       });
 
-      // The preview implementation hinges on this block: consume resizePreviewMode and use commit to defer the Group layout update until the pointer is released.
-      if (group.resizePreviewMode === "separator" && !commit) {
-        const pivotIndex = panels.indexOf(current.panels[0]);
-        const offset =
-          panels.slice(0, pivotIndex + 1).reduce((total, panel) => {
-            return total + nextLayout[panel.id] - initialLayout[panel.id];
-          }, 0) *
-          (groupSize / 100);
+      // Preview every moved boundary, deferring the layout update until release.
+      if (
+        group.resizePreviewMode === "separator" &&
+        !commit &&
+        !layoutsEqual(nextLayout, prevLayout)
+      ) {
+        previewLayoutMap.set(group, nextLayout);
 
-        if (preview?.hitRegion === current) {
-          preview = { ...preview, offset };
-        }
-      } else if (layoutsEqual(nextLayout, prevLayout)) {
+        let total = 0;
+        const offsets = panels.map((panel) => {
+          total += nextLayout[panel.id] - initialLayout[panel.id];
+          return total * (groupSize / 100);
+        });
+
+        previews = previews.map((preview) => {
+          if (preview.group !== group) {
+            return preview;
+          }
+
+          const offset = offsets[preview.panelIndex];
+          return offset === preview.offset ? preview : { ...preview, offset };
+        });
+      }
+
+      if (layoutsEqual(nextLayout, prevLayout)) {
         if (deltaAsPercentage !== 0 && !disableCursor) {
-          // An unchanged means the cursor has exceeded the allowed bounds
+          // An unchanged layout means the cursor has exceeded the allowed bounds
           switch (orientation) {
             case "horizontal": {
               nextCursorFlags |=
@@ -132,7 +150,12 @@ export function updateActiveHitRegions({
             }
           }
         }
-      } else {
+      }
+
+      if (
+        (group.resizePreviewMode !== "separator" || commit) &&
+        !layoutsEqual(nextLayout, mountedLayout)
+      ) {
         updateMountedGroup(current.group, {
           defaultLayoutDeferred,
           derivedPanelConstraints: derivedPanelConstraints,
@@ -159,6 +182,6 @@ export function updateActiveHitRegions({
     cursorFlags |= nextCursorFlags & CURSOR_FLAGS_VERTICAL;
   }
 
-  updateCursorFlags(cursorFlags, preview);
+  updateCursorFlags(cursorFlags, previews, previewLayoutMap);
   updateCursorStyle(document);
 }

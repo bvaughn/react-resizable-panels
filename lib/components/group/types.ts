@@ -1,5 +1,6 @@
 import type { CSSProperties, HTMLAttributes, ReactNode, Ref } from "react";
 import type { RegisteredPanel } from "../panel/types";
+import type { SeparatorOverlayProps } from "../separator/types";
 import type { RegisteredSeparator } from "../separator/types";
 
 /**
@@ -74,6 +75,7 @@ export type GroupContextType = {
   ) => CSSProperties | undefined;
   id: string;
   orientation: Orientation;
+  registerOverlay: (props: SeparatorOverlayProps) => () => void;
   registerPanel: (panel: RegisteredPanel) => () => void;
   registerSeparator: (separator: RegisteredSeparator) => () => void;
   updatePanelProps: (
@@ -187,10 +189,12 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
   onLayoutChanged?: (layout: Layout, meta: LayoutChangedMeta) => void;
 
   /**
-   * Controls whether pointer dragging resizes Panels immediately or only moves
-   * a preview separator element until the pointer is released.
+   * Controls whether pointer dragging updates `Panel`s sizes immediately,
+   * or renders overlay separator previews until the pointer is released.
+   *
    * Defaults to `"panel"` (immediate resizing); `"separator"` defers resizing until release.
-   * A visible preview requires an explicit Separator.
+   *
+   * Customize previews using the `SeparatorOverlay` component.
    */
   resizePreviewMode?: ResizePreviewMode | undefined;
 

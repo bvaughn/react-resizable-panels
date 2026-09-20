@@ -8,6 +8,7 @@ import {
   getInteractionState,
   updateInteractionState
 } from "../mutable-state/interactions";
+import { layoutsEqual } from "../utils/layoutsEqual";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
 import { updateActiveHitRegions } from "../utils/updateActiveHitRegion";
 
@@ -27,15 +28,17 @@ export function onDocumentPointerMove(event: PointerEvent) {
         // Skip this check for "pointerleave" events, else Firefox triggers a false positive (see #514)
         event.buttons === 0
       ) {
-        updateActiveHitRegions({
-          commit: true,
-          document: event.currentTarget as Document,
-          event,
-          hitRegions: interactionState.hitRegions,
-          initialLayoutMap: interactionState.initialLayoutMap,
-          mountedGroups,
-          pointerDownAtPoint: interactionState.pointerDownAtPoint,
-          prevCursorFlags: interactionState.cursorFlags
+        // This event is a later hover, not the release position.
+        // Commit the last preview without incorporating movement after the button was released.
+        interactionState.previewLayoutMap.forEach((layout, group) => {
+          const groupState = mountedGroups.get(group);
+          if (
+            group.resizePreviewMode === "separator" &&
+            groupState &&
+            !layoutsEqual(layout, groupState.layout)
+          ) {
+            updateMountedGroup(group, { ...groupState, layout });
+          }
         });
 
         updateInteractionState({
@@ -58,6 +61,8 @@ export function onDocumentPointerMove(event: PointerEvent) {
             isUserInteraction: true
           });
         });
+
+        updateCursorStyle(event.currentTarget as Document);
 
         return;
       }

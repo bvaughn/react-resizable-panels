@@ -54,8 +54,11 @@ export default function App() {
               Fixed size panels
             </NavLink>
             <NavLink path="/examples/disabled-panels">Disabled panels</NavLink>
+            <NavLink path="/examples/panel-resize-behavior">
+              Panel resize behavior
+            </NavLink>
             <NavLink path="/examples/group-resize-behavior">
-              Resize behaviors
+              Group resize behavior
             </NavLink>
             <NavLink path="/examples/overflow">Overflow</NavLink>
             <NavLink path="/examples/custom-css-styles">

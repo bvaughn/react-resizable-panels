@@ -4,7 +4,7 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 
 /* prettier-ignore */
 <Group resizePreviewMode="separator">
-  <Panel defaultSize="50%" minSize="20%">left</Panel>
+  <Panel minSize="10%">left</Panel>
   <Separator />
-  <Panel minSize="20%">right</Panel>
+  <Panel minSize="10%">right</Panel>
 </Group>

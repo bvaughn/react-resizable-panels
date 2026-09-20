@@ -16,9 +16,13 @@ export type InteractionHover = {
 };
 
 export type ResizePreview = {
-  hitRegion: HitRegion;
-  rect: DOMRect;
+  active: boolean;
+  group: RegisteredGroup;
+  key: string;
   offset: number;
+  panelIndex: number;
+  rect: DOMRect;
+  separator?: RegisteredSeparator | undefined;
 };
 
 export type InteractionActive = {
@@ -26,7 +30,8 @@ export type InteractionActive = {
   hitRegions: HitRegion[];
   initialLayoutMap: Map<RegisteredGroup, Layout>;
   pointerDownAtPoint: Point;
-  preview: ResizePreview | undefined;
+  previewLayoutMap: Map<RegisteredGroup, Layout>;
+  previews: ResizePreview[];
   state: "active";
 };
 

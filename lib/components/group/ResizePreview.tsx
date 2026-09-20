@@ -1,61 +1,64 @@
-import { useSyncExternalStore } from "react";
-import {
-  getInteractionState,
-  subscribeToInteractionState
-} from "../../global/mutable-state/interactions";
+import { isValidElement } from "react";
+import type { ResizePreview as ResizePreviewState } from "../../global/mutable-state/types";
+import { SeparatorClone } from "../separator/SeparatorClone";
+import { SeparatorOverlay } from "../separator/SeparatorOverlay";
+import { SeparatorOverlayRenderer } from "../separator/SeparatorOverlayRenderer";
+import type { SeparatorOverlayProps } from "../separator/types";
 
-export function ResizePreview({ groupId }: { groupId: string }) {
-  const read = () => {
-    const interaction = getInteractionState();
-    return interaction.state === "active" &&
-      interaction.preview?.hitRegion.group.id === groupId
-      ? interaction.preview
-      : undefined;
-  };
-  const preview = useSyncExternalStore(
-    subscribeToInteractionState,
-    read,
-    () => undefined
-  );
-  if (!preview) {
-    return null;
+export function ResizePreview({
+  overlay,
+  preview
+}: {
+  overlay?: SeparatorOverlayProps | undefined;
+  preview: ResizePreviewState;
+}) {
+  const { group, offset, rect, separator } = preview;
+
+  const horizontal = group.orientation === "horizontal";
+
+  let rendered = separator?.preview;
+  let overlayProps = overlay;
+
+  if (
+    isValidElement<SeparatorOverlayProps>(rendered) &&
+    rendered.type === SeparatorOverlay
+  ) {
+    overlayProps = rendered.props;
+    rendered = undefined;
   }
 
-  const { hitRegion, rect, offset } = preview;
-  const { group, separator } = hitRegion;
-  const horizontal = group.orientation === "horizontal";
-  const { children, className, style } = separator ?? {};
+  if (rendered == null) {
+    if (overlayProps) {
+      rendered = (
+        <SeparatorOverlayRenderer
+          {...overlayProps}
+          active={preview.active}
+          orientation={group.orientation}
+        />
+      );
+    } else if (separator) {
+      rendered = <SeparatorClone separator={separator} />;
+    }
+  }
 
   return (
     <div
       aria-hidden="true"
-      inert
       data-resize-preview
+      inert
       style={{
-        position: "absolute",
-        left: rect.left,
-        top: rect.top,
-        width: rect.width,
         height: rect.height,
+        left: rect.left,
+        pointerEvents: "none",
+        position: "absolute",
+        top: rect.top,
         transform: horizontal
           ? `translateX(${offset}px)`
           : `translateY(${offset}px)`,
-        pointerEvents: "none"
+        width: rect.width
       }}
     >
-      <div
-        className={className}
-        data-separator="active"
-        style={{
-          ...style,
-          boxSizing: "border-box",
-          width: "100%",
-          height: "100%",
-          pointerEvents: "none"
-        }}
-      >
-        {children}
-      </div>
+      {rendered}
     </div>
   );
 }

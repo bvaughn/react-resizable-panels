@@ -4,7 +4,7 @@ import { calculateHitRegions } from "./calculateHitRegions";
 
 describe("calculateHitRegions", () => {
   function serialize(group: MockGroup) {
-    const hitRegions = calculateHitRegions(group);
+    const hitRegions = calculateHitRegions({ group });
 
     return JSON.stringify(
       hitRegions.map((region) => ({

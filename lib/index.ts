@@ -6,6 +6,7 @@ export { Panel } from "./components/panel/Panel";
 export { usePanelCallbackRef } from "./components/panel/usePanelCallbackRef";
 export { usePanelRef } from "./components/panel/usePanelRef";
 export { Separator } from "./components/separator/Separator";
+export { SeparatorOverlay } from "./components/separator/SeparatorOverlay";
 
 export { isCoarsePointer } from "./global/utils/isCoarsePointer";
 
@@ -18,6 +19,7 @@ export type {
   OnGroupLayoutChange,
   Orientation
 } from "./components/group/types";
+
 export type {
   OnPanelResize,
   PanelImperativeHandle,
@@ -25,4 +27,8 @@ export type {
   PanelSize,
   SizeUnit
 } from "./components/panel/types";
-export type { SeparatorProps } from "./components/separator/types";
+
+export type {
+  SeparatorProps,
+  SeparatorOverlayProps
+} from "./components/separator/types";

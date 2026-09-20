@@ -21,7 +21,7 @@ export function findMatchingHitRegions(
       return;
     }
 
-    const hitRegions = calculateHitRegions(groupData);
+    const hitRegions = calculateHitRegions({ group: groupData });
     const match = findClosestHitRegion(groupData.orientation, hitRegions, {
       x: event.clientX,
       y: event.clientY
