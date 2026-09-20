@@ -15,6 +15,7 @@ export type GroupResizeBehavior =
  */
 export type PanelConstraints = {
   collapsedSize: number;
+  collapsedThreshold?: number | undefined;
   collapsible: boolean;
   defaultSize: number | undefined;
   disabled: boolean | undefined;
@@ -108,6 +109,21 @@ export type PanelProps = BasePanelAttributes & {
    * Panel size when collapsed; defaults to 0%.
    */
   collapsedSize?: number | string | undefined;
+
+  /**
+   * Distance a collapsible panel must be resized past its `minSize` to collapse,
+   * or past its `collapsedSize` to expand.
+   * Defaults to half the distance between `collapsedSize` and `minSize`.
+   *
+   * For example if a panel declares `collapsedSize="5%"`, `collapsedThreshold="5%"`, and `minSize="25%"`,
+   * it will collapse when resized below 20% and expands when resized above 10%.
+   *
+   * ℹ️ Interpretation rules:
+   * - Numbers are interpreted as pixels (e.g. `minSize={200}` is 200 pixels)
+   * - Strings without explicit units are interpreted as percentage (e.g. `minSize="50"` is 50 percent)
+   * - Use explicit units (e.g. "px", "%", "em", "rem", "vh", or "vw") to change interpretation
+   */
+  collapsedThreshold?: number | string | undefined;
 
   /**
    * This panel can be collapsed.
@@ -240,6 +256,7 @@ export type OnPanelResize = PanelProps["onResize"];
 export type PanelConstraintProps = Pick<
   PanelProps,
   | "collapsedSize"
+  | "collapsedThreshold"
   | "collapsible"
   | "defaultSize"
   | "disabled"

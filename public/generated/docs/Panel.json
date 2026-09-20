@@ -84,6 +84,23 @@
       "name": "collapsedSize",
       "required": false
     },
+    "collapsedThreshold": {
+      "description": [
+        {
+          "content": "<p>Distance a collapsible panel must be resized past its <code>minSize</code> to collapse,\nor past its <code>collapsedSize</code> to expand.\nDefaults to half the distance between <code>collapsedSize</code> and <code>minSize</code>.</p>\n"
+        },
+        {
+          "content": "<p>For example if a panel declares <code>collapsedSize=&quot;5%&quot;</code>, <code>collapsedThreshold=&quot;5%&quot;</code>, and <code>minSize=&quot;25%&quot;</code>,\nit will collapse when resized below 20% and expands when resized above 10%.</p>\n"
+        },
+        {
+          "content": "<p>Interpretation rules:</p>\n<ul>\n<li>Numbers are interpreted as pixels (e.g. <code>minSize={200}</code> is 200 pixels)</li>\n<li>Strings without explicit units are interpreted as percentage (e.g. <code>minSize=&quot;50&quot;</code> is 50 percent)</li>\n<li>Use explicit units (e.g. &quot;px&quot;, &quot;%&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot;) to change interpretation</li>\n</ul>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">collapsedThreshold</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "collapsedThreshold",
+      "required": false
+    },
     "collapsible": {
       "description": [
         {

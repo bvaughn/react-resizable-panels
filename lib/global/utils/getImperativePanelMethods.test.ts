@@ -68,6 +68,7 @@ describe("getImperativePanelMethods", () => {
       panelConstraints.forEach(
         ({
           collapsedSize,
+          collapsedThreshold,
           collapsible,
           defaultSize,
           disabled,
@@ -87,6 +88,10 @@ describe("getImperativePanelMethods", () => {
             {
               collapsedSize:
                 collapsedSize !== undefined ? `${collapsedSize}%` : 0,
+              collapsedThreshold:
+                collapsedThreshold !== undefined
+                  ? `${collapsedThreshold}%`
+                  : undefined,
               collapsible,
               defaultSize:
                 defaultSize !== undefined ? `${defaultSize}%` : undefined,
@@ -130,6 +135,32 @@ describe("getImperativePanelMethods", () => {
     });
 
     describe("collapse", () => {
+      test.each([20, 30])(
+        "collapses and restores a panel with threshold %s",
+        (collapsedThreshold) => {
+          const { panelApis } = init([
+            {
+              collapsedSize: 5,
+              collapsedThreshold,
+              collapsible: true,
+              defaultSize: 25,
+              minSize: 25
+            },
+            {}
+          ]);
+
+          panelApis[0].collapse();
+
+          expect(panelApis[0].isCollapsed()).toBe(true);
+          expect(onLayoutChange).toHaveBeenLastCalledWith([5, 95]);
+
+          panelApis[0].expand();
+
+          expect(panelApis[0].isCollapsed()).toBe(false);
+          expect(onLayoutChange).toHaveBeenLastCalledWith([25, 75]);
+        }
+      );
+
       test("does nothing if panel is not collapsible", () => {
         const { panelApis } = init([{}, {}]);
         panelApis[0].collapse();

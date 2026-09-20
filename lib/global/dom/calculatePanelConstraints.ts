@@ -37,6 +37,17 @@ export function calculatePanelConstraints(group: RegisteredGroup) {
       collapsedSize = formatLayoutNumber((pixels / groupSize) * 100);
     }
 
+    let collapsedThreshold: number | undefined = undefined;
+    if (panelConstraints.collapsedThreshold !== undefined) {
+      const pixels = sizeStyleToPixels({
+        groupSize,
+        panelElement: element,
+        styleProp: panelConstraints.collapsedThreshold
+      });
+
+      collapsedThreshold = formatLayoutNumber((pixels / groupSize) * 100);
+    }
+
     let defaultSize: number | undefined = undefined;
     if (panelConstraints.defaultSize !== undefined) {
       const pixels = sizeStyleToPixels({
@@ -73,6 +84,7 @@ export function calculatePanelConstraints(group: RegisteredGroup) {
     return {
       groupResizeBehavior: panelConstraints.groupResizeBehavior,
       collapsedSize,
+      collapsedThreshold,
       collapsible: panelConstraints.collapsible === true,
       defaultSize,
       disabled: panelConstraints.disabled,

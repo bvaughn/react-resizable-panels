@@ -56,6 +56,63 @@ function l(numbers: number[]) {
 }
 
 describe("adjustLayoutByDelta", () => {
+  describe("collapsedThreshold", () => {
+    test.each([0, 1])("panel at index %s", (index) => {
+      const constraints = c([{}, {}]);
+      constraints[index] = {
+        ...constraints[index],
+        collapsedSize: 5,
+        collapsedThreshold: 5,
+        collapsible: true,
+        minSize: 25
+      };
+
+      function resize(
+        size: number,
+        delta: number,
+        trigger: Args["trigger"] = "mouse-or-touch"
+      ) {
+        const sizes = index === 0 ? [size, 100 - size] : [100 - size, size];
+
+        return Object.values(
+          adjustLayoutByDelta({
+            delta: index === 0 ? delta : -delta,
+            initialLayout: l(sizes),
+            panelConstraints: constraints,
+            prevLayout: l(sizes),
+            trigger
+          })
+        )[index];
+      }
+
+      expect(resize(25, -4)).toBe(25);
+      expect(resize(25, -5)).toBe(25);
+      expect(resize(25, -6)).toBe(5);
+
+      expect(resize(5, 4)).toBe(5);
+      expect(resize(5, 5)).toBe(5);
+      expect(resize(5, 6)).toBe(25);
+
+      expect(resize(25, -1, "keyboard")).toBe(5);
+      expect(resize(5, 1, "keyboard")).toBe(25);
+
+      for (const threshold of [20, 30]) {
+        constraints[index].collapsedThreshold = threshold;
+
+        expect(resize(25, -1, "keyboard")).toBe(5);
+        expect(resize(5, 1, "keyboard")).toBe(25);
+        expect(resize(25, -19)).toBe(25);
+        expect(resize(25, -20)).toBe(5);
+        expect(resize(25, -21)).toBe(5);
+      }
+
+      constraints[index].collapsedThreshold = 0;
+
+      expect(resize(25, -1)).toBe(5);
+      expect(resize(5, 1)).toBe(25);
+    });
+  });
+
   test("[1++,2]", () => {
     expect(
       adjustLayoutByDelta({
