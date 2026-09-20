@@ -15,11 +15,18 @@ export type InteractionHover = {
   state: "hover";
 };
 
+export type ResizePreview = {
+  hitRegion: HitRegion;
+  rect: DOMRect;
+  offset: number;
+};
+
 export type InteractionActive = {
   cursorFlags: number;
   hitRegions: HitRegion[];
   initialLayoutMap: Map<RegisteredGroup, Layout>;
   pointerDownAtPoint: Point;
+  preview: ResizePreview | undefined;
   state: "active";
 };
 

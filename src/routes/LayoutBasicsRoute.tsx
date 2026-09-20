@@ -51,6 +51,12 @@ export default function LayoutBasicsRoute() {
         <Panel>right</Panel>
       </Group>
       <Code html={SeparatorHTML} />
+      <div>
+        For panels that are expensive to resize, you can use{" "}
+        <code>{'<Group resizePreviewMode="separator">'}</code> to defer panel
+        resizing until release. See{" "}
+        <Link to="/examples/group-resize-behavior">Resize behaviors</Link>.
+      </div>
       <Callout intent="primary">
         Separators improve keyboard accessibility by providing a tab-focusable{" "}
         <ExternalLink href="https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/">

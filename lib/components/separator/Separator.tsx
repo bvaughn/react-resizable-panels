@@ -42,7 +42,10 @@ export function Separator({
 
   const stableProps = useStableObject({
     disabled,
-    disableDoubleClick
+    disableDoubleClick,
+    children,
+    className,
+    style
   });
 
   const [aria, setAria] = useState<{
@@ -80,7 +83,16 @@ export function Separator({
         disabled: stableProps.disabled,
         disableDoubleClick: stableProps.disableDoubleClick,
         element,
-        id
+        id,
+        get children() {
+          return stableProps.children;
+        },
+        get className() {
+          return stableProps.className;
+        },
+        get style() {
+          return stableProps.style;
+        }
       };
 
       const unregisterSeparator = registerSeparator(separator);

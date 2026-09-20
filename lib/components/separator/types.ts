@@ -1,6 +1,9 @@
-import type { CSSProperties, HTMLAttributes, Ref } from "react";
+import type { CSSProperties, HTMLAttributes, ReactNode, Ref } from "react";
 
 export type RegisteredSeparator = {
+  children?: ReactNode;
+  className?: string | undefined;
+  style?: CSSProperties | undefined;
   disabled?: boolean | undefined;
   disableDoubleClick?: boolean | undefined;
   element: HTMLDivElement;

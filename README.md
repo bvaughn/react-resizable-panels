@@ -138,6 +138,14 @@ and false for other triggers (e.g. imperative API calls, initial mount, etc.)</p
 </td>
     </tr>
     <tr>
+      <td>resizePreviewMode</td>
+      <td><p>Controls whether pointer dragging resizes Panels immediately or only moves
+a preview separator element until the pointer is released.
+Defaults to <code>&quot;panel&quot;</code> (immediate resizing); <code>&quot;separator&quot;</code> defers resizing until release.
+A visible preview requires an explicit Separator.</p>
+</td>
+    </tr>
+    <tr>
       <td>resizeTargetMinimumSize</td>
       <td><p>Minimum size of the resizable hit target area (either <code>Separator</code> or <code>Panel</code> edge)
 This threshold ensures are large enough to avoid mis-clicks.</p>

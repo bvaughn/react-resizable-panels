@@ -27,6 +27,17 @@ export function onDocumentPointerMove(event: PointerEvent) {
         // Skip this check for "pointerleave" events, else Firefox triggers a false positive (see #514)
         event.buttons === 0
       ) {
+        updateActiveHitRegions({
+          commit: true,
+          document: event.currentTarget as Document,
+          event,
+          hitRegions: interactionState.hitRegions,
+          initialLayoutMap: interactionState.initialLayoutMap,
+          mountedGroups,
+          pointerDownAtPoint: interactionState.pointerDownAtPoint,
+          prevCursorFlags: interactionState.cursorFlags
+        });
+
         updateInteractionState({
           cursorFlags: 0,
           state: "inactive"
@@ -64,6 +75,7 @@ export function onDocumentPointerMove(event: PointerEvent) {
       }
 
       updateActiveHitRegions({
+        commit: false,
         document: event.currentTarget as Document,
         event,
         hitRegions: interactionState.hitRegions,

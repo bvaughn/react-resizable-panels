@@ -15,6 +15,12 @@ export function onDocumentPointerDown(event: PointerEvent) {
   const hitRegions = findMatchingHitRegions(event, mountedGroups);
 
   const initialLayoutMap = new Map<RegisteredGroup, Layout>();
+  const previewHitRegion =
+    hitRegions.find(
+      ({ separator }) =>
+        event.target instanceof Node &&
+        separator?.element.contains(event.target)
+    ) ?? hitRegions[0];
 
   let didChangeFocus = false;
 
@@ -42,11 +48,32 @@ export function onDocumentPointerDown(event: PointerEvent) {
     }
   });
 
+  let preview;
+  if (
+    previewHitRegion?.group.resizePreviewMode === "separator" &&
+    previewHitRegion.separator
+  ) {
+    const { element } = previewHitRegion.group;
+    const groupRect = element.getBoundingClientRect();
+    const rect = previewHitRegion.separator.element.getBoundingClientRect();
+    preview = {
+      hitRegion: previewHitRegion,
+      rect: new DOMRect(
+        rect.left - groupRect.left - element.clientLeft + element.scrollLeft,
+        rect.top - groupRect.top - element.clientTop + element.scrollTop,
+        rect.width,
+        rect.height
+      ),
+      offset: 0
+    };
+  }
+
   updateInteractionState({
     cursorFlags: 0,
     hitRegions,
     initialLayoutMap,
     pointerDownAtPoint: { x: event.clientX, y: event.clientY },
+    preview,
     state: "active"
   });
 

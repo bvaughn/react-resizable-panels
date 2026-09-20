@@ -62,6 +62,7 @@ export function mockGroup(
       layouts: {}
     },
     orientation: "horizontal" as Orientation,
+    resizePreviewMode: "panel" as const,
     resizeTargetMinimumSize: {
       coarse: 20,
       fine: 10

@@ -38,6 +38,8 @@ export type DragState = {
   separatorId: string | undefined;
 };
 
+export type ResizePreviewMode = "panel" | "separator";
+
 export type ResizeTargetMinimumSize = {
   coarse: number;
   fine: number;
@@ -59,6 +61,7 @@ export type RegisteredGroup = Readonly<{
   };
   orientation: Orientation;
   panels: RegisteredPanel[];
+  resizePreviewMode: ResizePreviewMode;
   resizeTargetMinimumSize: ResizeTargetMinimumSize;
   separators: RegisteredSeparator[];
 }>;
@@ -182,6 +185,14 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    * and false for other triggers (e.g. imperative API calls, initial mount, etc.)
    */
   onLayoutChanged?: (layout: Layout, meta: LayoutChangedMeta) => void;
+
+  /**
+   * Controls whether pointer dragging resizes Panels immediately or only moves
+   * a preview separator element until the pointer is released.
+   * Defaults to `"panel"` (immediate resizing); `"separator"` defers resizing until release.
+   * A visible preview requires an explicit Separator.
+   */
+  resizePreviewMode?: ResizePreviewMode | undefined;
 
   /**
    * Minimum size of the resizable hit target area (either `Separator` or `Panel` edge)

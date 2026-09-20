@@ -1,5 +1,6 @@
 import { Box, Callout, Code, Header } from "react-lib-tools";
 import { html as ExampleHTML } from "../../public/generated/examples/GroupResizeBehavior.json";
+import { html as PreviewHTML } from "../../public/generated/examples/ResizePreview.json";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
@@ -7,7 +8,32 @@ import { Separator } from "../components/styled-panels/Separator";
 export default function GroupResizeBehaviorRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Examples" title="Group resize behavior" />
+      <Header section="Examples" title="Resize behaviors" />
+      <h2>Separator preview</h2>
+      <div>
+        Set <code>resizePreviewMode="separator"</code> to preview a resize
+        without changing panel sizes until release. The preview respects panel
+        size constraints and reuses the clicked Separator’s class, inline
+        styles, and children. The default, <code>"panel"</code>, resizes panels
+        while dragging.
+      </div>
+      <Code html={PreviewHTML} />
+      <Group resizePreviewMode="separator">
+        <Panel defaultSize="50%" minSize="20%" showSizeAsPercentage>
+          left
+        </Panel>
+        <Separator />
+        <Panel minSize="20%" showSizeAsPercentage>
+          right
+        </Panel>
+      </Group>
+      <Callout>
+        Render an explicit <code>Separator</code> for a visible preview. The
+        preview is rendered inside the Group and reuses the Separator’s
+        presentation. Panel-edge drags without a Separator still defer resizing
+        until release, but do not show a preview.
+      </Callout>
+      <h2>Group resize behavior</h2>
       <div>
         Resizing a group typically affects the size of panels within the group.
         The <code>groupResizeBehavior</code> prop can be used override this

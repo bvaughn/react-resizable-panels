@@ -55,7 +55,7 @@ export default function App() {
             </NavLink>
             <NavLink path="/examples/disabled-panels">Disabled panels</NavLink>
             <NavLink path="/examples/group-resize-behavior">
-              Group resize behavior
+              Resize behaviors
             </NavLink>
             <NavLink path="/examples/overflow">Overflow</NavLink>
             <NavLink path="/examples/custom-css-styles">

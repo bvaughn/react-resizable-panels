@@ -159,6 +159,16 @@
       "name": "onLayoutChanged",
       "required": false
     },
+    "resizePreviewMode": {
+      "description": [
+        {
+          "content": "<p>Controls whether pointer dragging resizes Panels immediately or only moves\na preview separator element until the pointer is released.\nDefaults to <code>&quot;panel&quot;</code> (immediate resizing); <code>&quot;separator&quot;</code> defers resizing until release.\nA visible preview requires an explicit Separator.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">resizePreviewMode</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ResizePreviewMode</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"panel\"</span></div>",
+      "name": "resizePreviewMode",
+      "required": false
+    },
     "resizeTargetMinimumSize": {
       "description": [
         {

@@ -21,6 +21,7 @@ import { useStableObject } from "../../hooks/useStableObject";
 import type { RegisteredPanel } from "../panel/types";
 import type { RegisteredSeparator } from "../separator/types";
 import { GroupContext } from "./GroupContext";
+import { ResizePreview } from "./ResizePreview";
 import { sortByElementOffset } from "./sortByElementOffset";
 import type {
   GroupProps,
@@ -54,6 +55,7 @@ export function Group({
   onLayoutChange: onLayoutChangeUnstable,
   onLayoutChanged: onLayoutChangedUnstable,
   orientation = "horizontal",
+  resizePreviewMode = "panel",
   resizeTargetMinimumSize = {
     coarse: 20,
     fine: 10
@@ -266,6 +268,7 @@ export function Group({
       },
       orientation,
       panels: inMemoryValues.panels,
+      resizePreviewMode,
       resizeTargetMinimumSize: inMemoryValues.resizeTargetMinimumSize,
       separators: inMemoryValues.separators
     };
@@ -343,6 +346,7 @@ export function Group({
     onLayoutChangeStable,
     orientation,
     panelOrSeparatorChangeSigil,
+    resizePreviewMode,
     stableProps
   ]);
 
@@ -369,6 +373,7 @@ export function Group({
           height: "100%",
           width: "100%",
           overflow: "hidden",
+          position: resizePreviewMode === "separator" ? "relative" : undefined,
 
           ...style,
 
@@ -384,6 +389,7 @@ export function Group({
         }}
       >
         {children}
+        {resizePreviewMode === "separator" && <ResizePreview groupId={id} />}
       </div>
     </GroupContext.Provider>
   );

@@ -9,6 +9,7 @@ export function onDocumentPointerLeave(event: PointerEvent) {
   switch (interactionState.state) {
     case "active": {
       updateActiveHitRegions({
+        commit: false,
         document: event.currentTarget as Document,
         event,
         hitRegions: interactionState.hitRegions,

@@ -14,11 +14,15 @@ import {
   updateMountedGroup,
   type MountedGroups
 } from "../mutable-state/groups";
-import { updateCursorFlags } from "../mutable-state/interactions";
+import {
+  getInteractionState,
+  updateCursorFlags
+} from "../mutable-state/interactions";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { layoutsEqual } from "./layoutsEqual";
 
 export function updateActiveHitRegions({
+  commit,
   document,
   event,
   hitRegions,
@@ -27,6 +31,7 @@ export function updateActiveHitRegions({
   pointerDownAtPoint,
   prevCursorFlags
 }: {
+  commit: boolean;
   document: Document;
   event: {
     clientX: number;
@@ -41,12 +46,18 @@ export function updateActiveHitRegions({
   prevCursorFlags: number;
 }) {
   let nextCursorFlags = 0;
+  const interaction = getInteractionState();
+  let preview =
+    interaction.state === "active" ? interaction.preview : undefined;
 
   // Note that HitRegions are frozen once a drag has started
   // Modify the Group layouts for all matching HitRegions though
   hitRegions.forEach((current) => {
     const { group, groupSize } = current;
     const { orientation, panels } = group;
+    if (commit && group.resizePreviewMode !== "separator") {
+      return;
+    }
     const { disableCursor } = group.mutableState;
 
     let deltaAsPercentage = 0;
@@ -89,7 +100,19 @@ export function updateActiveHitRegions({
         trigger: "mouse-or-touch"
       });
 
-      if (layoutsEqual(nextLayout, prevLayout)) {
+      // The preview implementation hinges on this block: consume resizePreviewMode and use commit to defer the Group layout update until the pointer is released.
+      if (group.resizePreviewMode === "separator" && !commit) {
+        const pivotIndex = panels.indexOf(current.panels[0]);
+        const offset =
+          panels.slice(0, pivotIndex + 1).reduce((total, panel) => {
+            return total + nextLayout[panel.id] - initialLayout[panel.id];
+          }, 0) *
+          (groupSize / 100);
+
+        if (preview?.hitRegion === current) {
+          preview = { ...preview, offset };
+        }
+      } else if (layoutsEqual(nextLayout, prevLayout)) {
         if (deltaAsPercentage !== 0 && !disableCursor) {
           // An unchanged means the cursor has exceeded the allowed bounds
           switch (orientation) {
@@ -136,6 +159,6 @@ export function updateActiveHitRegions({
     cursorFlags |= nextCursorFlags & CURSOR_FLAGS_VERTICAL;
   }
 
-  updateCursorFlags(cursorFlags);
+  updateCursorFlags(cursorFlags, preview);
   updateCursorStyle(document);
 }

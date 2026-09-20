@@ -32,6 +32,7 @@ export function calculateHitRegions(group: RegisteredGroup) {
     orientation,
     Array.from(groupElement.children)
       .filter(isHTMLElement)
+      .filter((element) => !element.hasAttribute("data-resize-preview"))
       .map((element) => ({ element: element as HTMLElement }))
   ).map(({ element }) => element);
 
