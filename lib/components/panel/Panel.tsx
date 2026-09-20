@@ -45,6 +45,7 @@ export function Panel({
   children,
   className,
   collapsedSize = "0%",
+  collapsedThreshold,
   collapsible = false,
   defaultSize,
   disabled,
@@ -105,6 +106,7 @@ export function Panel({
         panelConstraints: {
           groupResizeBehavior,
           collapsedSize,
+          collapsedThreshold,
           collapsible,
           defaultSize,
           disabled: stableProps.disabled,
@@ -118,6 +120,7 @@ export function Panel({
   }, [
     groupResizeBehavior,
     collapsedSize,
+    collapsedThreshold,
     collapsible,
     defaultSize,
     hasOnResize,

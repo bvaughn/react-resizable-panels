@@ -1,6 +1,7 @@
 import { act, render } from "@testing-library/react";
 import { createRef, Profiler } from "react";
 import { describe, expect, test, vi } from "vitest";
+import { calculatePanelConstraints } from "../../global/dom/calculatePanelConstraints";
 import { getRegisteredGroup } from "../../global/mutable-state/groups";
 import { moveSeparator } from "../../global/test/moveSeparator";
 import { assert } from "../../utils/assert";
@@ -14,6 +15,42 @@ import { Separator } from "../separator/Separator";
 import { Panel } from "./Panel";
 
 describe("Panel", () => {
+  test.each(["5%", "5", "10px", 10])(
+    "collapsedThreshold %s is converted and updated",
+    (collapsedThreshold) => {
+      setDefaultElementBounds(new DOMRect(0, 0, 100, 100));
+
+      const { rerender } = render(
+        <Group id="group">
+          <Panel collapsedThreshold={collapsedThreshold} collapsible id="a" />
+          <Panel id="b" />
+        </Group>
+      );
+
+      expect(
+        calculatePanelConstraints(getRegisteredGroup("group", true)).find(
+          ({ panelId }) => panelId === "a"
+        )?.collapsedThreshold
+      ).toBe(5);
+      expect(document.getElementById("a")).not.toHaveAttribute(
+        "collapsedThreshold"
+      );
+
+      rerender(
+        <Group id="group">
+          <Panel collapsedThreshold="3%" collapsible id="a" />
+          <Panel id="b" />
+        </Group>
+      );
+
+      expect(
+        calculatePanelConstraints(getRegisteredGroup("group", true)).find(
+          ({ panelId }) => panelId === "a"
+        )?.collapsedThreshold
+      ).toBe(3);
+    }
+  );
+
   describe("disabled prop", () => {
     test("changes to disabled prop should not cause the Panel to remount", () => {
       const { rerender } = render(

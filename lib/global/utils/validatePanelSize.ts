@@ -16,6 +16,7 @@ export function validatePanelSize({
 }) {
   const {
     collapsedSize = 0,
+    collapsedThreshold,
     collapsible,
     disabled,
     maxSize = 100,
@@ -28,9 +29,18 @@ export function validatePanelSize({
 
   if (compareLayoutNumbers(size, minSize) < 0) {
     if (collapsible) {
-      // Collapsible panels should snap closed or open only once they cross the halfway point between collapsed and min size.
-      const halfwayPoint = (collapsedSize + minSize) / 2;
-      if (compareLayoutNumbers(size, halfwayPoint) < 0) {
+      const threshold = collapsedThreshold ?? (minSize - collapsedSize) / 2;
+      const wasCollapsed = compareLayoutNumbers(prevSize, collapsedSize) <= 0;
+      const boundary = wasCollapsed
+        ? collapsedSize + threshold
+        : minSize - threshold;
+      const comparison = compareLayoutNumbers(size, boundary);
+
+      if (
+        compareLayoutNumbers(size, collapsedSize) <= 0 ||
+        comparison < 0 ||
+        (collapsedThreshold !== undefined && wasCollapsed && comparison === 0)
+      ) {
         size = collapsedSize;
       } else {
         size = minSize;

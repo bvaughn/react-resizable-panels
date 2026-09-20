@@ -38,15 +38,6 @@ export function adjustLayoutByDelta({
 
   let deltaApplied = 0;
 
-  // const DEBUG = [];
-  // DEBUG.push(`adjustLayoutByDelta()`);
-  // DEBUG.push(`  initialLayout: ${initialLayout.join(", ")}`);
-  // DEBUG.push(`  prevLayout: ${prevLayout.join(", ")}`);
-  // DEBUG.push(`  delta: ${delta}`);
-  // DEBUG.push(`  pivotIndices: ${pivotIndices.join(", ")}`);
-  // DEBUG.push(`  trigger: ${trigger}`);
-  // DEBUG.push("");
-
   // A resizing panel affects the panels before or after it.
   //
   // A negative delta means the panel(s) immediately after the separator should grow/expand by decreasing its offset.
@@ -75,8 +66,6 @@ export function adjustLayoutByDelta({
             minSize = 0
           } = panelConstraints;
 
-          // DEBUG.push(`edge case check 1: ${index}`);
-          // DEBUG.push(`  -> collapsible? ${collapsible}`);
           if (collapsible) {
             const prevSize = initialLayout[index];
             assert(
@@ -86,11 +75,9 @@ export function adjustLayoutByDelta({
 
             if (layoutNumbersEqual(prevSize, collapsedSize)) {
               const localDelta = minSize - prevSize;
-              // DEBUG.push(`  -> expand delta: ${localDelta}`);
 
               if (compareLayoutNumbers(localDelta, Math.abs(delta)) > 0) {
                 delta = delta < 0 ? 0 - localDelta : localDelta;
-                // DEBUG.push(`  -> delta: ${delta}`);
               }
             }
           }
@@ -111,8 +98,6 @@ export function adjustLayoutByDelta({
             minSize = 0
           } = panelConstraints;
 
-          // DEBUG.push(`edge case check 2: ${index}`);
-          // DEBUG.push(`  -> collapsible? ${collapsible}`);
           if (collapsible) {
             const prevSize = initialLayout[index];
             assert(
@@ -122,11 +107,9 @@ export function adjustLayoutByDelta({
 
             if (layoutNumbersEqual(prevSize, minSize)) {
               const localDelta = prevSize - collapsedSize;
-              // DEBUG.push(`  -> expand delta: ${localDelta}`);
 
               if (compareLayoutNumbers(localDelta, Math.abs(delta)) > 0) {
                 delta = delta < 0 ? 0 - localDelta : localDelta;
-                // DEBUG.push(`  -> delta: ${delta}`);
               }
             }
           }
@@ -134,10 +117,9 @@ export function adjustLayoutByDelta({
         break;
       }
       default: {
-        // If we're starting from a collapsed state, dragging past the halfway point should cause the panel to expand
+        // If we're starting from a collapsed state, dragging past the threshold should cause the panel to expand
         // This can happen for positive or negative drags, and panels on either side of the separator can be collapsible
         // The easiest way to support this is to detect this scenario and pre-adjust the delta before applying the rest of the layout algorithm
-        // DEBUG.push(`edge case check 3: collapsible panels`);
 
         const index = delta < 0 ? secondPivotIndex : firstPivotIndex;
         const panelConstraints = panelConstraintsArray[index];
@@ -148,47 +130,28 @@ export function adjustLayoutByDelta({
 
         const prevSize = initialLayout[index];
 
-        const { collapsible, collapsedSize, minSize } = panelConstraints;
+        const { collapsedSize, collapsedThreshold, collapsible, minSize } =
+          panelConstraints;
         if (collapsible && compareLayoutNumbers(prevSize, minSize) < 0) {
-          // DEBUG.push(`  -> collapsible ${delta < 0 ? "2nd" : "1st"} panel`);
-          if (delta > 0) {
-            const gapSize = minSize - collapsedSize;
-            const halfwayDelta = gapSize / 2;
-            // DEBUG.push(`  -> halfway delta: ${halfwayDelta}`);
-            // DEBUG.push(`       collapsed: ${collapsedSize}`);
-            // DEBUG.push(`       min: ${minSize}`);
+          const gapSize = minSize - collapsedSize;
+          const threshold = collapsedThreshold ?? gapSize / 2;
+          const nextSize = prevSize + Math.abs(delta);
 
-            const nextSize = prevSize + delta;
-            if (compareLayoutNumbers(nextSize, minSize) < 0) {
-              // DEBUG.push("  -> adjusting delta");
-              // DEBUG.push(`       from: ${delta}`);
-              delta =
-                compareLayoutNumbers(delta, halfwayDelta) <= 0 ? 0 : gapSize;
-              // DEBUG.push(`       to: ${delta}`);
-            }
-          } else {
-            const gapSize = minSize - collapsedSize;
-            const halfwayDelta = 100 - gapSize / 2;
-            // DEBUG.push(`  -> halfway delta: ${halfwayDelta}`);
-            // DEBUG.push(`       collapsed: ${100 - collapsedSize}`);
-            // DEBUG.push(`       min: ${100 - minSize}`);
-
-            const nextSize = prevSize - delta;
-            if (compareLayoutNumbers(nextSize, minSize) < 0) {
-              // DEBUG.push("  -> adjusting delta");
-              // DEBUG.push(`       from: ${delta}`);
-              delta =
-                compareLayoutNumbers(100 + delta, halfwayDelta) > 0
-                  ? 0
-                  : -gapSize;
-              // DEBUG.push(`       to: ${delta}`);
+          if (compareLayoutNumbers(nextSize, minSize) < 0) {
+            const comparison = compareLayoutNumbers(Math.abs(delta), threshold);
+            // Preserve the existing boundary behavior when no threshold is specified.
+            const expandAtBoundary =
+              collapsedThreshold === undefined && delta < 0;
+            if (comparison > 0 || (comparison === 0 && expandAtBoundary)) {
+              delta = delta < 0 ? -gapSize : gapSize;
+            } else {
+              delta = 0;
             }
           }
         }
         break;
       }
     }
-    // DEBUG.push("");
   }
 
   {
@@ -203,7 +166,6 @@ export function adjustLayoutByDelta({
     let index = delta < 0 ? secondPivotIndex : firstPivotIndex;
     let maxAvailableDelta = 0;
 
-    // DEBUG.push("pre calc...");
     while (true) {
       const prevSize = initialLayout[index];
       assert(
@@ -218,7 +180,6 @@ export function adjustLayoutByDelta({
         size: 100
       });
       const delta = maxSafeSize - prevSize;
-      // DEBUG.push(`  ${index}: ${prevSize} -> ${maxSafeSize}`);
 
       maxAvailableDelta += delta;
       index += increment;
@@ -228,11 +189,8 @@ export function adjustLayoutByDelta({
       }
     }
 
-    // DEBUG.push(`  -> max available delta: ${maxAvailableDelta}`);
     const minAbsDelta = Math.min(Math.abs(delta), Math.abs(maxAvailableDelta));
     delta = delta < 0 ? 0 - minAbsDelta : minAbsDelta;
-    // DEBUG.push(`  -> adjusted delta: ${delta}`);
-    // DEBUG.push("");
   }
 
   {
@@ -280,16 +238,10 @@ export function adjustLayoutByDelta({
       }
     }
   }
-  // DEBUG.push(`after 1: ${nextLayout.join(", ")}`);
-  // DEBUG.push(`  deltaApplied: ${deltaApplied}`);
-  // DEBUG.push("");
 
   // If we were unable to resize any of the panels panels, return the previous state.
   // This will essentially bailout and ignore e.g. drags past a panel's boundaries
   if (isArrayEqual(prevLayout, nextLayout)) {
-    // DEBUG.push(`bailout to previous layout: ${prevLayout.join(", ")}`);
-    // console.log(DEBUG.join("\n"));
-
     return prevLayoutProp;
   }
 
@@ -353,29 +305,21 @@ export function adjustLayoutByDelta({
       }
     }
   }
-  // DEBUG.push(`after 2: ${nextLayout.join(", ")}`);
-  // DEBUG.push(`  deltaApplied: ${deltaApplied}`);
-  // DEBUG.push("");
 
   const totalSize = Object.values(nextLayout).reduce(
     (total, size) => size + total,
     0
   );
-  // DEBUG.push(`total size: ${totalSize}`);
 
   // If our new layout doesn't add up to 100%, that means the requested delta can't be applied
   // In that case, fall back to our most recent valid layout
   // Allow for a small rounding difference, else e.g. 3 panel layouts may never be considered valid
   if (!layoutNumbersEqual(totalSize, 100, 0.1)) {
-    // DEBUG.push(`bailout to previous layout: ${prevLayout.join(", ")}`);
-    // console.log(DEBUG.join("\n"));
-
     return prevLayoutProp;
   }
 
   const prevLayoutKeys = Object.keys(prevLayoutProp);
 
-  // console.log(DEBUG.join("\n"));
   return nextLayout.reduce<Layout>((accumulated, current, index) => {
     accumulated[prevLayoutKeys[index]] = current;
     return accumulated;

@@ -240,6 +240,21 @@ Falls back to <code>useId</code> when not provided.</p>
 </td>
     </tr>
     <tr>
+      <td>collapsedThreshold</td>
+      <td><p>Distance a collapsible panel must be resized past its <code>minSize</code> to collapse,
+or past its <code>collapsedSize</code> to expand.
+Defaults to half the distance between <code>collapsedSize</code> and <code>minSize</code>.</p>
+<p>For example if a panel declares <code>collapsedSize=&quot;5%&quot;</code>, <code>collapsedThreshold=&quot;5%&quot;</code>, and <code>minSize=&quot;25%&quot;</code>,
+it will collapse when resized below 20% and expands when resized above 10%.</p>
+<p>ℹ️ Interpretation rules:</p>
+<ul>
+<li>Numbers are interpreted as pixels (e.g. <code>minSize={200}</code> is 200 pixels)</li>
+<li>Strings without explicit units are interpreted as percentage (e.g. <code>minSize=&quot;50&quot;</code> is 50 percent)</li>
+<li>Use explicit units (e.g. &quot;px&quot;, &quot;%&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot;) to change interpretation</li>
+</ul>
+</td>
+    </tr>
+    <tr>
       <td>collapsible</td>
       <td><p>This panel can be collapsed.</p>
 <p>ℹ️ A collapsible panel will collapse when it&#39;s size is less than of the specified <code>minSize</code></p>

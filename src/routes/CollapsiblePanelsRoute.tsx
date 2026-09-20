@@ -2,6 +2,7 @@ import { Box, Callout, Code, Header } from "react-lib-tools";
 import { html as ExampleHTML } from "../../public/generated/examples/CollapsiblePanels.json";
 import { html as ExampleCollapsedByDefaultHTML } from "../../public/generated/examples/CollapsiblePanelsCollapsedByDefault.json";
 import { html as ExampleWithCollapsedSizeHTML } from "../../public/generated/examples/CollapsiblePanelsCollapsedSize.json";
+import { html as ExampleCollapseThresholdHTML } from "../../public/generated/examples/CollapseThreshold.json";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
@@ -66,6 +67,28 @@ export default function CollapsiblePanelsRoute() {
         <Panel>
           The panel on the left is collapsed by default but can be expanded by
           dragging the separator.
+        </Panel>
+      </Group>
+      <div>
+        By default, panels will collapse (or expand) when resized beyond the
+        midpoint of their collapsed and minimum sizes. (For example, a panel
+        with a collapsed size of 0 and a minimum size of 20% will collapse when
+        resized below 10%.) The <code>collapsedThreshold</code> prop can be used
+        to customize this behavior.
+      </div>
+      <Code html={ExampleCollapseThresholdHTML} />
+      <Group>
+        <Panel
+          collapsedSize="5%"
+          collapsible
+          collapsedThreshold="5%"
+          minSize="35%"
+          showSizeAsPercentage
+        />
+        <Separator />
+        <Panel>
+          The panel on the left will collapse when resized below 30% and expand
+          when resized above 10%
         </Panel>
       </Group>
     </Box>
