@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.13.1
+
+- [750](https://github.com/bvaughn/react-resizable-panels/pull/750): Bug fixes:
+  - Match layout values to panel IDs so reordered keys map to the correct constraints
+  - Preserve keyboard mappings for disabled separators; fixes edge case “Matching panels not found” error
+  - Respect default layout when an initially hidden group becomes visible
+  - Calculate available group size once per hit-testing pass instead of once per hit region
+  - Ensure onLayoutChanged still fires when pressing elsewhere on the page or resizing another group
+
 ## 4.13.0
 
 - [746](https://github.com/bvaughn/react-resizable-panels/issues/746): Customizable resize preview mode
