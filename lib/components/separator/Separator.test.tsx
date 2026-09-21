@@ -11,6 +11,68 @@ import { Panel } from "../panel/Panel";
 import { Separator } from "./Separator";
 
 describe("Separator", () => {
+  describe.each(["horizontal", "vertical"] as const)(
+    "zero-sized %s group",
+    (orientation) => {
+      test.each([false, true])(
+        "supports prepending a panel (disabled: %s)",
+        (disabled) => {
+          setElementBoundsFunction(() => new DOMRect(0, 0, 0, 0));
+
+          const ui = (showRail: boolean) => (
+            <Group orientation={orientation}>
+              {showRail && <Panel id="rail" disabled={disabled} />}
+              {showRail && <Separator id="separator" />}
+              <Panel id="main" />
+            </Group>
+          );
+
+          const { rerender } = render(ui(false));
+          rerender(ui(true));
+
+          expect(screen.getByRole("separator")).toHaveAttribute(
+            "aria-controls",
+            "rail"
+          );
+          expect(screen.getByRole("separator")).toHaveAttribute(
+            "aria-valuenow",
+            "50"
+          );
+        }
+      );
+
+      test.each([false, true])(
+        "supports remounting a middle panel (disabled: %s)",
+        (disabled) => {
+          setElementBoundsFunction(() => new DOMRect(0, 0, 0, 0));
+
+          const ui = (showMiddle: boolean) => (
+            <Group orientation={orientation}>
+              <Panel id="a" />
+              <Separator id="first" />
+              {showMiddle && <Panel id="b" disabled={disabled} />}
+              {showMiddle && <Separator id="second" />}
+              <Panel id="c" disabled={disabled} />
+            </Group>
+          );
+
+          const { rerender } = render(ui(true));
+          rerender(ui(false));
+          rerender(ui(true));
+
+          expect(screen.getByTestId("first")).toHaveAttribute(
+            "aria-controls",
+            "a"
+          );
+          expect(screen.getByTestId("second")).toHaveAttribute(
+            "aria-controls",
+            "b"
+          );
+        }
+      );
+    }
+  );
+
   describe("disabled prop", () => {
     test("keyboard resizing follows changes to disabled state", async () => {
       setElementBoundsFunction(

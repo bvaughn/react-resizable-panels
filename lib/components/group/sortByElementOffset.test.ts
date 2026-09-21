@@ -34,6 +34,30 @@ describe("sortByElementOffset", () => {
     });
   });
 
+  test.each(["horizontal", "vertical"] as const)(
+    "should use DOM order when %s offsets and sizes are equal",
+    (orientation) => {
+      const parent = document.createElement("div");
+      const a = createElementContainer({});
+      const b = createElementContainer({});
+      const c = createElementContainer({});
+      parent.append(a.element, b.element, c.element);
+
+      expect(sortByElementOffset(orientation, [c, a, b])).toEqual([a, b, c]);
+    }
+  );
+
+  test.each(["horizontal", "vertical"] as const)(
+    "should preserve input order for disconnected elements with equal %s geometry",
+    (orientation) => {
+      const a = createElementContainer({});
+      const b = createElementContainer({});
+
+      expect(sortByElementOffset(orientation, [b, a])).toEqual([b, a]);
+      expect(sortByElementOffset(orientation, [a, b])).toEqual([a, b]);
+    }
+  );
+
   describe("orientation: horizontal", () => {
     test("should handle empty elements array", () => {
       expect(sortByElementOffset("horizontal", [])).toMatchInlineSnapshot(`[]`);
