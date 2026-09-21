@@ -27,6 +27,7 @@ export type ResizePreview = {
 
 export type InteractionActive = {
   cursorFlags: number;
+  didPointerMove: boolean;
   hitRegions: HitRegion[];
   initialLayoutMap: Map<RegisteredGroup, Layout>;
   pointerDownAtPoint: Point;

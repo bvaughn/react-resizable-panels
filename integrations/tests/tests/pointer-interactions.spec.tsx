@@ -405,6 +405,46 @@ test.describe("pointer interactions", () => {
   });
 
   test.describe("focus", () => {
+    for (const returnToStart of [false, true]) {
+      test(`should blur after dragging${returnToStart ? " back to the starting point" : ""}`, async ({
+        page: mainPage
+      }) => {
+        const page = await goToUrl(
+          mainPage,
+          <Group>
+            <Panel id="left" />
+            <Separator />
+            <Panel id="right" />
+          </Group>
+        );
+        const separator = page.getByRole("separator");
+        const { x, y } = getCenterCoordinates((await separator.boundingBox())!);
+
+        await page.mouse.move(x, y);
+        await page.mouse.down();
+        await expect(separator).toBeFocused();
+        await page.mouse.move(x + 25, y);
+        if (returnToStart) {
+          await page.mouse.move(x, y);
+        }
+        await page.mouse.up();
+        await expect(separator).not.toBeFocused();
+        const valueAfterDrag = await separator.getAttribute("aria-valuenow");
+        await page.keyboard.press("ArrowRight");
+        await expect(separator).toHaveAttribute(
+          "aria-valuenow",
+          valueAfterDrag!
+        );
+
+        // A subsequent click should still retain focus and support keyboard resizing.
+        await separator.click();
+        await expect(separator).toBeFocused();
+        const value = await separator.getAttribute("aria-valuenow");
+        await page.keyboard.press("ArrowRight");
+        await expect(separator).not.toHaveAttribute("aria-valuenow", value!);
+      });
+    }
+
     test("should update focus to the nearest separator", async ({
       page: mainPage
     }) => {
@@ -563,7 +603,8 @@ test.describe("pointer interactions", () => {
     await expect(separator).toHaveAttribute("data-separator", "active");
 
     await page.mouse.up();
-    await expect(separator).toHaveAttribute("data-separator", "focus");
+    await expect(separator).not.toBeFocused();
+    await expect(separator).not.toHaveAttribute("data-separator", "active");
 
     await page.mouse.move(0, 0);
     await page.mouse.down();

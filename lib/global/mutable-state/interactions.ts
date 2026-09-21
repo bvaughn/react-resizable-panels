@@ -34,13 +34,15 @@ export function subscribeToInteractionState(
 export function updateCursorFlags(
   cursorFlags: number,
   previews: ResizePreview[] = [],
-  previewLayoutMap?: InteractionActive["previewLayoutMap"]
+  previewLayoutMap?: InteractionActive["previewLayoutMap"],
+  didPointerMove = false
 ) {
   const prev = state;
 
   const next = { ...state };
   next.cursorFlags = cursorFlags;
   if (next.state === "active") {
+    next.didPointerMove ||= didPointerMove;
     next.previews = previews;
     if (previewLayoutMap) {
       next.previewLayoutMap = previewLayoutMap;
@@ -59,6 +61,23 @@ export function updateInteractionState(next: InteractionState) {
   const prev = state;
 
   state = next;
+
+  // Keep click-to-focus behavior, but release keyboard focus after a drag.
+  // This also handles interactions completed by the missed-pointerup fallback.
+  if (
+    prev.state === "active" &&
+    next.state !== "active" &&
+    prev.didPointerMove
+  ) {
+    prev.hitRegions.forEach(({ separator }) => {
+      if (
+        separator &&
+        separator.element.ownerDocument.activeElement === separator.element
+      ) {
+        separator.element.blur();
+      }
+    });
+  }
 
   eventEmitter.emit("change", {
     prev,

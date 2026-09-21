@@ -48,6 +48,7 @@ describe("updateActiveHitRegions preview bounds", () => {
 
     updateInteractionState({
       cursorFlags: 0,
+      didPointerMove: false,
       hitRegions,
       initialLayoutMap,
       pointerDownAtPoint,
@@ -121,6 +122,7 @@ describe("updateActiveHitRegions preview bounds", () => {
           updateInteractionState({
             state: "active",
             cursorFlags: 0,
+            didPointerMove: false,
             hitRegions,
             initialLayoutMap,
             pointerDownAtPoint,
