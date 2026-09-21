@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.13.2
+
+- [751](https://github.com/bvaughn/react-resizable-panels/issues/751): `Separator` no longer retains focus after a drag
+- [753](https://github.com/bvaughn/react-resizable-panels/pull/753): Fix `Panel` order in environments like JSDom with invalid `offset` values
+
+
 ## 4.13.1
 
 - [750](https://github.com/bvaughn/react-resizable-panels/pull/750): Bug fixes:
