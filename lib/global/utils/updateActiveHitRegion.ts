@@ -182,6 +182,11 @@ export function updateActiveHitRegions({
     cursorFlags |= nextCursorFlags & CURSOR_FLAGS_VERTICAL;
   }
 
-  updateCursorFlags(cursorFlags, previews, previewLayoutMap);
+  const didPointerMove =
+    interaction.state === "active" &&
+    (event.clientX !== interaction.pointerDownAtPoint.x ||
+      event.clientY !== interaction.pointerDownAtPoint.y);
+
+  updateCursorFlags(cursorFlags, previews, previewLayoutMap, didPointerMove);
   updateCursorStyle(document);
 }

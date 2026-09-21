@@ -53,6 +53,7 @@ export function onDocumentPointerDown(event: PointerEvent) {
 
   updateInteractionState({
     cursorFlags: 0,
+    didPointerMove: false,
     hitRegions,
     initialLayoutMap,
     pointerDownAtPoint: { x: event.clientX, y: event.clientY },

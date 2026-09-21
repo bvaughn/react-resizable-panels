@@ -205,6 +205,7 @@ describe("separator previews", () => {
     let interaction: InteractionActive = {
       state: "active",
       cursorFlags: 0,
+      didPointerMove: false,
       hitRegions: [],
       initialLayoutMap: new Map(),
       previewLayoutMap: new Map(),
