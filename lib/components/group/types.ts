@@ -1,4 +1,5 @@
 import type { CSSProperties, HTMLAttributes, ReactNode, Ref } from "react";
+import type { HitRegion } from "../../global/dom/calculateHitRegions";
 import type { RegisteredPanel } from "../panel/types";
 import type { SeparatorOverlayProps } from "../separator/types";
 import type { RegisteredSeparator } from "../separator/types";
@@ -46,10 +47,40 @@ export type ResizeTargetMinimumSize = {
   fine: number;
 };
 
+/**
+ * By default a registered group is a flex container whose (direct) children are Panel and Separator elements;
+ * its size and resize targets are measured from those elements.
+ *
+ * Components with a different DOM structure (e.g. each axis of a Grid) can supply a layout strategy
+ * to override how the group is measured.
+ * The rest of the resize machinery (layout math, pointer and keyboard interactions, cursors) is shared.
+ */
+export type GroupLayoutStrategy = {
+  /**
+   * Total size (in pixels) available to the group's resizable items along the group's orientation.
+   */
+  calculateAvailableSize: () => number;
+
+  /**
+   * Resize targets for the group; see `calculateHitRegions` for the default implementation.
+   */
+  calculateHitRegions: (options: {
+    expandHitTargets: boolean;
+    group: RegisteredGroup;
+    includeDisabled: boolean;
+  }) => HitRegion[];
+
+  /**
+   * Current size (in pixels) of the item with the specified id.
+   */
+  getItemSizeInPixels: (id: string) => number;
+};
+
 export type RegisteredGroup = Readonly<{
   disabled: boolean;
   element: HTMLElement;
   id: string;
+  layoutStrategy?: GroupLayoutStrategy | undefined;
   mutableState: {
     defaultLayout: Readonly<Layout> | undefined;
     disableCursor: boolean;

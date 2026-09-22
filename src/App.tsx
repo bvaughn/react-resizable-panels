@@ -47,6 +47,7 @@ export default function App() {
               components
             </NavLink>
             <NavLink path="/examples/nested-groups">Nested groups</NavLink>
+            <NavLink path="/examples/grid-layouts">Grid layouts</NavLink>
             <NavLink path="/examples/conditional-panels">
               Conditional panels
             </NavLink>
@@ -69,10 +70,16 @@ export default function App() {
             <NavLink path="/props/group">Group component</NavLink>
             <NavLink path="/props/panel">Panel component</NavLink>
             <NavLink path="/props/separator">Separator component</NavLink>
+            <NavLink path="/props/grid">Grid component</NavLink>
+            <NavLink path="/props/cell">Cell component</NavLink>
+            <NavLink path="/props/grid-separator">
+              GridSeparator component
+            </NavLink>
           </NavSection>
           <NavSection label="Imperative APIs">
             <NavLink path="/imperative-api/group">Group API</NavLink>
             <NavLink path="/imperative-api/panel">Panel API</NavLink>
+            <NavLink path="/imperative-api/grid">Grid API</NavLink>
           </NavSection>
           <NavSection label="Hooks">
             <NavLink path="/hooks/use-default-layout">useDefaultLayout</NavLink>

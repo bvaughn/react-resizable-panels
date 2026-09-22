@@ -1,0 +1,123 @@
+{
+  "description": [
+    {
+      "content": "<p>A Cell occupies one or more tracks (columns and rows) within a Grid.\nCells are resized along with the tracks they occupy.</p>\n"
+    },
+    {
+      "content": "<p>Cell elements always include the following attributes:</p>\n"
+    },
+    {
+      "content": "<div><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-cell</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-testid</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"cell-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"cell-id-prop\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
+    },
+    {
+      "content": "<p><a href=\"https://testing-library.com/docs/queries/bytestid/\">Test id</a> can be used to narrow selection when unit testing.</p>\n",
+      "intent": "primary"
+    },
+    {
+      "content": "<p>Cell elements must be direct DOM children of their parent Grid elements.</p>\n",
+      "intent": "warning"
+    }
+  ],
+  "filePath": "lib/components/grid/Cell.tsx",
+  "name": "Cell",
+  "props": {
+    "className": {
+      "description": [
+        {
+          "content": "<p>CSS class name.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
+      "name": "className",
+      "required": false
+    },
+    "id": {
+      "description": [
+        {
+          "content": "<p>Uniquely identifies this cell within the parent grid.\nFalls back to <code>useId</code> when not provided.</p>\n"
+        },
+        {
+          "content": "<p>This value will also be assigned to the <code>data-cell</code> attribute.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "id",
+      "required": false
+    },
+    "style": {
+      "description": [
+        {
+          "content": "<p>CSS properties.</p>\n"
+        },
+        {
+          "content": "<p>Grid placement properties are managed by the Cell and cannot be overridden.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span></div>",
+      "name": "style",
+      "required": false
+    },
+    "children": {
+      "description": [
+        {
+          "content": "<p>Cell contents.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">children</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span></div>",
+      "name": "children",
+      "required": false
+    },
+    "column": {
+      "description": [
+        {
+          "content": "<p>Index of the (first) column this cell occupies.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\"><span class=\"tok-propertyName\">column</span></span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "column",
+      "required": true
+    },
+    "columnSpan": {
+      "description": [
+        {
+          "content": "<p>Number of columns this cell spans; defaults to 1.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">columnSpan</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-number\">1</span></div>",
+      "name": "columnSpan",
+      "required": false
+    },
+    "elementRef": {
+      "description": [
+        {
+          "content": "<p>Ref attached to the root <code>HTMLDivElement</code>.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-keyword\">null</span><span class=\"\">&#62;</span></div>",
+      "name": "elementRef",
+      "required": false
+    },
+    "row": {
+      "description": [
+        {
+          "content": "<p>Index of the (first) row this cell occupies.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\"><span class=\"tok-propertyName\">row</span></span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "row",
+      "required": true
+    },
+    "rowSpan": {
+      "description": [
+        {
+          "content": "<p>Number of rows this cell spans; defaults to 1.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">rowSpan</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-number\">1</span></div>",
+      "name": "rowSpan",
+      "required": false
+    }
+  }
+}

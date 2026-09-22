@@ -206,8 +206,9 @@ export function getImperativePanelMethods({
       const asPercentage = getPanelSize();
       const { element } = getPanel();
 
-      const inPixels =
-        group.orientation === "horizontal"
+      const inPixels = group.layoutStrategy
+        ? group.layoutStrategy.getItemSizeInPixels(panelId)
+        : group.orientation === "horizontal"
           ? element.offsetWidth
           : element.offsetHeight;
 

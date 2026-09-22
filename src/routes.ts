@@ -23,6 +23,7 @@ export const routes = {
     () => import("./routes/PersistentLayoutsServerRenderingRoute")
   ),
   "/examples/nested-groups": lazy(() => import("./routes/NestedGroupsRoute")),
+  "/examples/grid-layouts": lazy(() => import("./routes/GridLayoutRoute")),
   "/examples/conditional-panels": lazy(
     () => import("./routes/ConditionalPanelsRoute")
   ),
@@ -45,11 +46,19 @@ export const routes = {
   "/props/group": lazy(() => import("./routes/GroupPropsRoute")),
   "/props/panel": lazy(() => import("./routes/PanelPropsRoute")),
   "/props/separator": lazy(() => import("./routes/SeparatorPropsRoute")),
+  "/props/grid": lazy(() => import("./routes/GridPropsRoute")),
+  "/props/cell": lazy(() => import("./routes/CellPropsRoute")),
+  "/props/grid-separator": lazy(
+    () => import("./routes/GridSeparatorPropsRoute")
+  ),
   "/imperative-api/group": lazy(
     () => import("./routes/GroupImperativeHandleRoute")
   ),
   "/imperative-api/panel": lazy(
     () => import("./routes/PanelImperativeHandleRoute")
+  ),
+  "/imperative-api/grid": lazy(
+    () => import("./routes/GridImperativeHandleRoute")
   ),
   "/platform-requirements": lazy(
     () => import("./routes/PlatformRequirementsRoute")

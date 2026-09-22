@@ -1,0 +1,174 @@
+{
+  "description": [
+    {
+      "content": "<p>GridSeparators are not <em>required</em> but they are <em>recommended</em> as they improve keyboard accessibility.</p>\n"
+    },
+    {
+      "content": "<p>A separator resizes either the columns or the rows of a Grid:</p>\n<ul>\n<li><code>&lt;GridSeparator column={1} /&gt;</code> is rendered between columns 0 and 1 (and spans all rows)</li>\n<li><code>&lt;GridSeparator row={1} /&gt;</code> is rendered between rows 0 and 1 (and spans all columns)</li>\n</ul>\n"
+    },
+    {
+      "content": "<p>Separators can also span a subset of the opposite axis (e.g. <code>&lt;GridSeparator column={1} rowStart={1} rowSpan={2} /&gt;</code>).</p>\n"
+    },
+    {
+      "content": "<p>Where column and row separators intersect, dragging resizes both axes.</p>\n"
+    },
+    {
+      "content": "<p>GridSeparators support the same props and attributes as Separators:</p>\n"
+    },
+    {
+      "content": "<div><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-separator</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-testid</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">role</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
+    },
+    {
+      "content": "<p>GridSeparator elements must be direct DOM children of their parent Grid elements.</p>\n",
+      "intent": "warning"
+    }
+  ],
+  "filePath": "lib/components/grid/GridSeparator.tsx",
+  "name": "GridSeparator",
+  "props": {
+    "className": {
+      "description": [
+        {
+          "content": "<p>CSS class name.</p>\n"
+        },
+        {
+          "content": "<p>Use the <code>data-separator</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code></p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
+      "name": "className",
+      "required": false
+    },
+    "id": {
+      "description": [
+        {
+          "content": "<p>Uniquely identifies the separator within the parent group.\nFalls back to <code>useId</code> when not provided.</p>\n"
+        },
+        {
+          "content": "<p>This value will also be assigned to the <code>data-separator</code> attribute.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
+      "name": "id",
+      "required": false
+    },
+    "style": {
+      "description": [
+        {
+          "content": "<p>CSS properties.</p>\n"
+        },
+        {
+          "content": "<p>Use the <code>data-separator</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>The following properties cannot be overridden: <code>flex-grow</code>, <code>flex-shrink</code></p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span></div>",
+      "name": "style",
+      "required": false
+    },
+    "disabled": {
+      "description": [
+        {
+          "content": "<p>When disabled, the separator cannot be used to resize its neighboring panels.</p>\n"
+        },
+        {
+          "content": "<p>The panels may still be resized indirectly (while other panels are being resized).\nTo prevent a panel from being resized at all, it needs to also be disabled.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disabled</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
+      "name": "disabled",
+      "required": false
+    },
+    "disableDoubleClick": {
+      "description": [
+        {
+          "content": "<p>When true, double-clicking this <code>Separator</code> will not reset its <code>Panel</code> to its default size.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disableDoubleClick</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
+      "name": "disableDoubleClick",
+      "required": false
+    },
+    "elementRef": {
+      "description": [
+        {
+          "content": "<p>Ref attached to the root <code>HTMLDivElement</code>.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\">&#62;</span></div>",
+      "name": "elementRef",
+      "required": false
+    },
+    "column": {
+      "description": [
+        {
+          "content": "<p>The separator is rendered along the leading (left) edge of this column,\nbetween it and the previous column.\nMust be greater than 0.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">column</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "column",
+      "required": false
+    },
+    "rowStart": {
+      "description": [
+        {
+          "content": "<p>First row the separator is rendered alongside; defaults to 0.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">rowStart</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "rowStart",
+      "required": false
+    },
+    "rowSpan": {
+      "description": [
+        {
+          "content": "<p>Number of rows the separator spans; defaults to all rows (starting from <code>rowStart</code>).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">rowSpan</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "rowSpan",
+      "required": false
+    },
+    "row": {
+      "description": [
+        {
+          "content": "<p>The separator is rendered along the leading (top) edge of this row,\nbetween it and the previous row.\nMust be greater than 0.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">row</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "row",
+      "required": false
+    },
+    "columnStart": {
+      "description": [
+        {
+          "content": "<p>First column the separator is rendered alongside; defaults to 0.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">columnStart</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "columnStart",
+      "required": false
+    },
+    "columnSpan": {
+      "description": [
+        {
+          "content": "<p>Number of columns the separator spans; defaults to all columns (starting from <code>columnStart</code>).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">columnSpan</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "columnSpan",
+      "required": false
+    }
+  }
+}

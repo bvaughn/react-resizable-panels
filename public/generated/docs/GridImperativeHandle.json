@@ -1,0 +1,42 @@
+{
+  "description": [
+    {
+      "content": "<p>Imperative Grid API.</p>\n"
+    },
+    {
+      "content": "<p>The <code>useGridRef</code> and <code>useGridCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>\n",
+      "intent": "primary"
+    }
+  ],
+  "filePath": "lib/components/grid/types.ts",
+  "methods": [
+    {
+      "description": [
+        {
+          "content": "<p>Get the Grid's current layout.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">getLayout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">GridLayout</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "getLayout"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Imperative API for a specific column or row.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">getTrack</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">axis</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">GridAxis</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">id</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">number</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">GridTrackImperativeHandle</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "getTrack"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Set a new layout for one or both of the Grid's axes.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">setLayout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">Partial</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">GridLayout</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">GridLayout</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "setLayout"
+    }
+  ],
+  "name": "GridImperativeHandle"
+}
