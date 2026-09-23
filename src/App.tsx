@@ -46,6 +46,7 @@ export default function App() {
               <ArrowTurnDownRightIcon className="size-4 fill-white/60" /> Server
               components
             </NavLink>
+            <NavLink path="/examples/grid">Resizable grids</NavLink>
             <NavLink path="/examples/nested-groups">Nested groups</NavLink>
             <NavLink path="/examples/conditional-panels">
               Conditional panels
@@ -66,11 +67,14 @@ export default function App() {
             </NavLink>
           </NavSection>
           <NavSection label="Props">
+            <NavLink path="/props/grid">Grid</NavLink>
+            <NavLink path="/props/cell">Cell</NavLink>
             <NavLink path="/props/group">Group component</NavLink>
             <NavLink path="/props/panel">Panel component</NavLink>
             <NavLink path="/props/separator">Separator component</NavLink>
           </NavSection>
           <NavSection label="Imperative APIs">
+            <NavLink path="/imperative-api/grid">Grid</NavLink>
             <NavLink path="/imperative-api/group">Group API</NavLink>
             <NavLink path="/imperative-api/panel">Panel API</NavLink>
           </NavSection>

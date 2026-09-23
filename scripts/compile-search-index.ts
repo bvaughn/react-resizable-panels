@@ -2,5 +2,5 @@ import { compileSearchIndex } from "react-lib-tools/scripts/compile-search-index
 
 await compileSearchIndex({
   chromeExecutablePath: process.env.CHROME_PATH,
-  filterSelector: "[data-group]"
+  filterSelector: "[data-group], [data-grid]"
 });

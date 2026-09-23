@@ -1,0 +1,29 @@
+{
+  "description": [
+    {
+      "content": "<p>Imperative API for reading and updating both axes of a Grid.</p>\n"
+    }
+  ],
+  "filePath": "lib/components/grid/types.ts",
+  "methods": [
+    {
+      "description": [
+        {
+          "content": "<p>Returns a snapshot of row and column sizes as percentages.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">getLayout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">GridLayout</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "getLayout"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Validates both axes and returns the applied layout.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">setLayout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">GridLayout</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">GridLayout</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "setLayout"
+    }
+  ],
+  "name": "GridImperativeHandle"
+}

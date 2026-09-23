@@ -32,3 +32,17 @@ export type {
   SeparatorProps,
   SeparatorOverlayProps
 } from "./components/separator/types";
+
+export { Grid } from "./components/grid/Grid";
+export { Cell } from "./components/grid/Cell";
+export { useGridRef } from "./components/grid/useGridRef";
+export type {
+  GridProps,
+  GridTrack,
+  GridAxis,
+  GridLayout,
+  GridImperativeHandle,
+  GridSeparatorProps,
+  CellProps,
+  CellSize
+} from "./components/grid/types";

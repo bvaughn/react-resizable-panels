@@ -1,0 +1,131 @@
+{
+  "description": [
+    {
+      "content": "<p>A resizable two-dimensional layout with shared row and column tracks.</p>\n"
+    }
+  ],
+  "filePath": "lib/components/grid/Grid.tsx",
+  "name": "Grid",
+  "props": {
+    "id": {
+      "description": [
+        {
+          "content": ""
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "id",
+      "required": false
+    },
+    "rows": {
+      "description": [
+        {
+          "content": "<p>Omit to infer the track count from registered cells.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">rows</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">readonly </span><span class=\"\">GridTrack</span><span class=\"tok-punctuation\">[</span><span class=\"tok-punctuation\">]</span></div>",
+      "name": "rows",
+      "required": false
+    },
+    "columns": {
+      "description": [
+        {
+          "content": ""
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">columns</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">readonly </span><span class=\"\">GridTrack</span><span class=\"tok-punctuation\">[</span><span class=\"tok-punctuation\">]</span></div>",
+      "name": "columns",
+      "required": false
+    },
+    "defaultLayout": {
+      "description": [
+        {
+          "content": ""
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">defaultLayout</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">GridLayout</span></div>",
+      "name": "defaultLayout",
+      "required": false
+    },
+    "gridRef": {
+      "description": [
+        {
+          "content": ""
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">gridRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">GridImperativeHandle</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-keyword\">null</span><span class=\"\">&#62;</span></div>",
+      "name": "gridRef",
+      "required": false
+    },
+    "elementRef": {
+      "description": [
+        {
+          "content": ""
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-keyword\">null</span><span class=\"\">&#62;</span></div>",
+      "name": "elementRef",
+      "required": false
+    },
+    "disabled": {
+      "description": [
+        {
+          "content": ""
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disabled</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-bool\">false</span></div>",
+      "name": "disabled",
+      "required": false
+    },
+    "disableCursor": {
+      "description": [
+        {
+          "content": ""
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disableCursor</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-bool\">false</span></div>",
+      "name": "disableCursor",
+      "required": false
+    },
+    "gap": {
+      "description": [
+        {
+          "content": "<p>Width of column gutters and height of row gutters, in pixels. Defaults to 4.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">gap</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-number\">4</span></div>",
+      "name": "gap",
+      "required": false
+    },
+    "resizeTargetMinimumSize": {
+      "description": [
+        {
+          "content": ""
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">resizeTargetMinimumSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ResizeTargetMinimumSize</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-propertyName tok-definition\">fine</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-number\">10</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-propertyName tok-definition\">coarse</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-number\">20</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span></div>",
+      "name": "resizeTargetMinimumSize",
+      "required": false
+    },
+    "onLayoutChange": {
+      "description": [
+        {
+          "content": ""
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onLayoutChange</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">GridLayout</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "onLayoutChange",
+      "required": false
+    },
+    "onLayoutChanged": {
+      "description": [
+        {
+          "content": ""
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onLayoutChanged</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">GridLayout</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">meta</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">LayoutChangedMeta</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "onLayoutChanged",
+      "required": false
+    }
+  }
+}

@@ -1,5 +1,7 @@
 <img src="https://react-resizable-panels.vercel.app/og.png" alt="react-resizable-panels logo" width="400" height="210" />
 
+For two-dimensional layouts, see the [Grid and Cell API](./GRID.md).
+
 `react-resizable-panels`: React components for resizable panel groups/layouts.
 
 ## Support
@@ -346,9 +348,11 @@ Defaults to <code>preserve-relative-size</code>.</p>
 ### Separator
 
 <!-- Separator:description:begin -->
-Separators are not _required_ but they are _recommended_ as they improve keyboard accessibility.
+In a Grid, specify axis and after to customize an automatically generated boundary.
 
-⚠️ Separator elements must be direct DOM children of their parent Group elements.
+In a Group, separators are not _required_ but they are _recommended_ as they improve keyboard accessibility.
+
+⚠️ Separator elements must be direct DOM children of their parent Group or Grid elements.
 
 Separator elements always include the following attributes:
 
@@ -422,7 +426,164 @@ To prevent a panel from being resized at all, it needs to also be disabled.</p>
       <td><p>Overrides the <code>Group</code> default preview for this <code>Separator</code> when <code>resizePreviewMode</code> is &quot;separator&quot;.</p>
 </td>
     </tr>
+    <tr>
+      <td>axis</td>
+      <td><p>Grid only: the tracks resized by this boundary. Requires after.</p>
+</td>
+    </tr>
+    <tr>
+      <td>after</td>
+      <td><p>Grid only: zero-based index of the track preceding the boundary. Requires axis.</p>
+</td>
+    </tr>
   </tbody>
 </table>
 
 <!-- Separator:optional-props:end -->
+
+### Grid
+
+<!-- Grid:description:begin -->
+A resizable two-dimensional layout with shared row and column tracks.
+<!-- Grid:description:end -->
+
+#### Required props
+
+<!-- Grid:required-props:begin -->
+None
+<!-- Grid:required-props:end -->
+
+#### Optional props
+
+<!-- Grid:optional-props:begin -->
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>id</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>rows</td>
+      <td><p>Omit to infer the track count from registered cells.</p>
+</td>
+    </tr>
+    <tr>
+      <td>columns</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>defaultLayout</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>gridRef</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>elementRef</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>disabled</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>disableCursor</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>gap</td>
+      <td><p>Width of column gutters and height of row gutters, in pixels. Defaults to 4.</p>
+</td>
+    </tr>
+    <tr>
+      <td>resizeTargetMinimumSize</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>onLayoutChange</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>onLayoutChanged</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Grid:optional-props:end -->
+
+### Cell
+
+<!-- Cell:description:begin -->
+A rectangular region of a Grid. Positions are zero-based; spans default to one.
+<!-- Cell:description:end -->
+
+#### Required props
+
+<!-- Cell:required-props:begin -->
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>row</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>column</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Cell:required-props:end -->
+
+#### Optional props
+
+<!-- Cell:optional-props:begin -->
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>id</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>rowSpan</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>columnSpan</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>elementRef</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>onResize</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Cell:optional-props:end -->

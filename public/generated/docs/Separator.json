@@ -1,10 +1,13 @@
 {
   "description": [
     {
-      "content": "<p>Separators are not <em>required</em> but they are <em>recommended</em> as they improve keyboard accessibility.</p>\n"
+      "content": "<p>In a Grid, specify axis and after to customize an automatically generated boundary.</p>\n"
     },
     {
-      "content": "<p>Separator elements must be direct DOM children of their parent Group elements.</p>\n",
+      "content": "<p>In a Group, separators are not <em>required</em> but they are <em>recommended</em> as they improve keyboard accessibility.</p>\n"
+    },
+    {
+      "content": "<p>Separator elements must be direct DOM children of their parent Group or Grid elements.</p>\n",
       "intent": "warning"
     },
     {
@@ -53,7 +56,7 @@
           "intent": "primary"
         }
       ],
-      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
       "name": "id",
       "required": false
     },
@@ -117,6 +120,26 @@
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">preview</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span></div>",
       "name": "preview",
+      "required": false
+    },
+    "axis": {
+      "description": [
+        {
+          "content": "<p>Grid only: the tracks resized by this boundary. Requires after.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">axis</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">GridAxis</span></div>",
+      "name": "axis",
+      "required": false
+    },
+    "after": {
+      "description": [
+        {
+          "content": "<p>Grid only: zero-based index of the track preceding the boundary. Requires axis.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">after</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "after",
       "required": false
     }
   }

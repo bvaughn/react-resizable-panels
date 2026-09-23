@@ -3,6 +3,7 @@ import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 export type Route = LazyExoticComponent<ComponentType<unknown>>;
 
 export const routes = {
+  "/examples/grid": lazy(() => import("./routes/GridRoute")),
   "/examples/the-basics": lazy(() => import("./routes/LayoutBasicsRoute")),
   "/examples/min-max-sizes": lazy(
     () => import("./routes/SizeConstraintsRoute")
@@ -41,6 +42,11 @@ export const routes = {
   "/examples/overflow": lazy(() => import("./routes/OverflowRoute")),
   "/examples/custom-css-styles": lazy(
     () => import("./routes/CustomStylesRoute")
+  ),
+  "/props/grid": lazy(() => import("./routes/GridPropsRoute")),
+  "/props/cell": lazy(() => import("./routes/CellPropsRoute")),
+  "/imperative-api/grid": lazy(
+    () => import("./routes/GridImperativeHandleRoute")
   ),
   "/props/group": lazy(() => import("./routes/GroupPropsRoute")),
   "/props/panel": lazy(() => import("./routes/PanelPropsRoute")),

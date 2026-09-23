@@ -1,0 +1,236 @@
+"use client";
+
+import type { Properties } from "csstype";
+import { useEffect, useRef, useState } from "react";
+import { subscribeToMountedGroup } from "../../global/mutable-state/groups";
+import {
+  notifySeparatorPreviewChanged,
+  subscribeToInteractionState
+} from "../../global/mutable-state/interactions";
+import type { InteractionState } from "../../global/mutable-state/types";
+import { calculateSeparatorAriaValues } from "../../global/utils/calculateSeparatorAriaValues";
+import { useId } from "../../hooks/useId";
+import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
+import { useMergedRefs } from "../../hooks/useMergedRefs";
+import { useStableObject } from "../../hooks/useStableObject";
+import { useGroupContext } from "../group/useGroupContext";
+import type { RegisteredSeparator, SeparatorProps } from "./types";
+
+/**
+ * Separators are not _required_ but they are _recommended_ as they improve keyboard accessibility.
+ *
+ * ⚠️ Separator elements must be direct DOM children of their parent Group elements.
+ *
+ * Separator elements always include the following attributes:
+ *
+ * ```html
+ * <div data-separator data-testid="separator-id-prop" id="separator-id-prop" role="separator">
+ * ```
+ *
+ * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+ *
+ * ℹ️ In addition to the attributes shown above, separator also renders all required [WAI-ARIA properties](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/separator_role#associated_wai-aria_roles_states_and_properties).
+ */
+export function GroupSeparator({
+  children,
+  className,
+  disabled,
+  disableDoubleClick,
+  elementRef: elementRefProp,
+  id: idProp,
+  preview,
+  style,
+  ...rest
+}: SeparatorProps) {
+  const id = useId(idProp);
+
+  const stableProps = useStableObject({
+    disabled,
+    disableDoubleClick,
+    children,
+    className,
+    preview,
+    style
+  });
+
+  const [aria, setAria] = useState<{
+    valueControls?: string | undefined;
+    valueMin?: number | undefined;
+    valueMax?: number | undefined;
+    valueNow?: number | undefined;
+  }>({});
+
+  const [dragState, setDragState] =
+    useState<InteractionState["state"]>("inactive");
+  const [isFocused, setIsFocused] = useState(false);
+
+  const elementRef = useRef<HTMLDivElement | null>(null);
+  const registeredSeparatorRef = useRef<RegisteredSeparator | null>(null);
+
+  const mergedRef = useMergedRefs(elementRef, elementRefProp);
+
+  const {
+    disableCursor,
+    id: groupId,
+    orientation: groupOrientation,
+    registerSeparator,
+    updateSeparatorProps
+  } = useGroupContext();
+
+  const orientation =
+    groupOrientation === "horizontal" ? "vertical" : "horizontal";
+
+  // Register Separator with parent Group
+  // Listen to global state for drag state related to this Separator
+  useIsomorphicLayoutEffect(() => {
+    const element = elementRef.current;
+    if (element !== null) {
+      const separator: RegisteredSeparator = {
+        disabled: stableProps.disabled,
+        disableDoubleClick: stableProps.disableDoubleClick,
+        element,
+        id,
+        get children() {
+          return stableProps.children;
+        },
+        get className() {
+          return stableProps.className;
+        },
+        get preview() {
+          return stableProps.preview;
+        },
+        get style() {
+          return stableProps.style;
+        }
+      };
+
+      registeredSeparatorRef.current = separator;
+
+      const unregisterSeparator = registerSeparator(separator);
+
+      const removeInteractionStateChangeListener = subscribeToInteractionState(
+        (event) => {
+          setDragState(
+            event.next.state !== "inactive" &&
+              event.next.hitRegions.some(
+                (hitRegion) => hitRegion.separator === separator
+              )
+              ? event.next.state
+              : "inactive"
+          );
+        }
+      );
+
+      const removeMountedGroupsChangeListener = subscribeToMountedGroup(
+        groupId,
+        (event) => {
+          const { derivedPanelConstraints, layout, separatorToPanels } =
+            event.next;
+          const panels = separatorToPanels.get(separator);
+          if (panels) {
+            const primaryPanel = panels[0];
+
+            // The index must be relative to the Group's panels (not the pair this Separator sits between
+            // because it's used as a pivot index into the Group's layout.
+            // derivedPanelConstraints is derived from group.panels, so it's already in panel order.
+            // See #740.
+            const panelIndex = derivedPanelConstraints.findIndex(
+              (constraints) => constraints.panelId === primaryPanel.id
+            );
+
+            setAria(
+              calculateSeparatorAriaValues({
+                layout,
+                panelConstraints: derivedPanelConstraints,
+                panelId: primaryPanel.id,
+                panelIndex
+              })
+            );
+          }
+        }
+      );
+
+      return () => {
+        registeredSeparatorRef.current = null;
+
+        removeInteractionStateChangeListener();
+        removeMountedGroupsChangeListener();
+        unregisterSeparator();
+      };
+    }
+  }, [groupId, id, registerSeparator, stableProps]);
+
+  useIsomorphicLayoutEffect(() => {
+    const separator = registeredSeparatorRef.current;
+    if (separator) {
+      notifySeparatorPreviewChanged(separator);
+    }
+  }, [preview]);
+
+  // Not all props require re-registering the separator;
+  useEffect(() => {
+    updateSeparatorProps(id, { disabled, disableDoubleClick });
+  }, [disabled, disableDoubleClick, id, updateSeparatorProps]);
+
+  let cursor: Properties["cursor"] = undefined;
+  if (disabled && !disableCursor) {
+    cursor = "not-allowed";
+  }
+
+  let dataSeparator = undefined;
+  if (disabled) {
+    dataSeparator = "disabled";
+  } else {
+    switch (dragState) {
+      case "active": {
+        dataSeparator = "active";
+        break;
+      }
+      default: {
+        if (isFocused) {
+          dataSeparator = "focus";
+        } else {
+          dataSeparator = dragState;
+        }
+      }
+    }
+  }
+
+  return (
+    <div
+      {...rest}
+      aria-controls={aria.valueControls}
+      aria-disabled={disabled || undefined}
+      aria-orientation={orientation}
+      aria-valuemax={aria.valueMax}
+      aria-valuemin={aria.valueMin}
+      aria-valuenow={aria.valueNow}
+      children={children}
+      className={className}
+      data-separator={dataSeparator}
+      data-testid={id}
+      id={id}
+      onBlur={() => setIsFocused(false)}
+      onFocus={() => setIsFocused(true)}
+      ref={mergedRef}
+      role="separator"
+      style={{
+        flexBasis: "auto",
+        cursor,
+
+        ...style,
+
+        flexGrow: 0,
+        flexShrink: 0,
+
+        // Inform the browser that the library is handling touch events for this element
+        // See github.com/bvaughn/react-resizable-panels/issues/662
+        touchAction: "none"
+      }}
+      tabIndex={disabled ? undefined : 0}
+    />
+  );
+}
+
+// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/displayName
+GroupSeparator.displayName = "Separator";
