@@ -4,6 +4,7 @@ import type {
   SeparatorProps
 } from "react-resizable-panels";
 import type { ContainerProps } from "../../../src/components/Container";
+import type { DialogProps } from "../../components/Dialog";
 import type { DisplayModeToggleProps } from "../../../src/components/DisplayModeToggle";
 import type { PopupWindowProps } from "../../../src/components/PopupWindow";
 import type { ClickableProps } from "../../../src/components/Clickable";
@@ -22,6 +23,11 @@ export interface EncodedClickableElement {
 export interface EncodedContainerElement {
   props: EncodedElementWithChildren<ContainerProps>;
   type: "Container";
+}
+
+export interface EncodedDialogElement {
+  props: EncodedElementWithChildren<DialogProps>;
+  type: "Dialog";
 }
 
 export interface EncodedDisplayModeToggleElement {
@@ -67,6 +73,7 @@ export interface EncodedTextElement {
 export type EncodedElement =
   | EncodedClickableElement
   | EncodedContainerElement
+  | EncodedDialogElement
   | EncodedDisplayModeToggleElement
   | EncodedGroupElement
   | EncodedIFrameElement

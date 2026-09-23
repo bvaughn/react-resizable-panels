@@ -1,6 +1,7 @@
 import { isHTMLElement } from "../../utils/isHTMLElement";
 import { compare } from "../../vendor/stacking-order";
 import { doRectsIntersect } from "./doRectsIntersect";
+import { isModal } from "./isModal";
 
 // This library adds pointer event handlers to the Window for two reasons:
 // 1. It allows detecting when the pointer is "near" to a panel border or separator element,
@@ -20,6 +21,16 @@ export function isViableHitTarget({
   hitRegion: DOMRect;
   pointerEventTarget: EventTarget | null;
 }) {
+  if (isHTMLElement(pointerEventTarget)) {
+    // A modal dialog is rendered in the top layer and makes everything outside of it inert,
+    // regardless of where the dialog is in the DOM (e.g. even if it's a descendant of the group).
+    // Stacking order comparison can't detect this, so check for it explicitly.
+    const dialog = pointerEventTarget.closest("dialog");
+    if (dialog && !dialog.contains(groupElement) && isModal(dialog)) {
+      return false;
+    }
+  }
+
   if (
     !isHTMLElement(pointerEventTarget) ||
     pointerEventTarget.contains(groupElement) ||
