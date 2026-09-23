@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.13.3
+
+- [755](https://github.com/bvaughn/react-resizable-panels/pull/755): Bugfix: `Separator` behind a modal `<dialog>` can no longer be dragged
+
 ## 4.13.2
 
 - [751](https://github.com/bvaughn/react-resizable-panels/issues/751): `Separator` no longer retains focus after a drag
