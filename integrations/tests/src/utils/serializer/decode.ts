@@ -6,6 +6,7 @@ import type {
 } from "react-resizable-panels";
 import { Clickable } from "../../../src/components/Clickable";
 import { Container } from "../../../src/components/Container";
+import { Dialog } from "../../components/Dialog";
 import { DisplayModeToggle } from "../../../src/components/DisplayModeToggle";
 import { Group } from "../../../src/components/Group";
 import { Panel } from "../../../src/components/Panel";
@@ -14,6 +15,7 @@ import { Separator } from "../../../src/components/Separator";
 import type {
   EncodedClickableElement,
   EncodedContainerElement,
+  EncodedDialogElement,
   EncodedDisplayModeToggleElement,
   EncodedElement,
   EncodedGroupElement,
@@ -57,6 +59,10 @@ function decodeChildren(
       }
       case "Container": {
         elements.push(decodeContainer(current, config));
+        break;
+      }
+      case "Dialog": {
+        elements.push(decodeDialog(current, config));
         break;
       }
       case "DisplayModeToggle": {
@@ -110,6 +116,19 @@ function decodeContainer(
   const { children, ...props } = json.props;
 
   return createElement(Container, {
+    key: ++key,
+    ...props,
+    children: children ? decodeChildren(children, config) : undefined
+  });
+}
+
+function decodeDialog(
+  json: EncodedDialogElement,
+  config: Config
+): ReactElement<unknown> {
+  const { children, ...props } = json.props;
+
+  return createElement(Dialog, {
     key: ++key,
     ...props,
     children: children ? decodeChildren(children, config) : undefined

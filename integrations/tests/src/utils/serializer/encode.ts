@@ -15,6 +15,7 @@ import {
   Container,
   type ContainerProps
 } from "../../../src/components/Container";
+import { Dialog, type DialogProps } from "../../components/Dialog";
 import {
   DisplayModeToggle,
   type DisplayModeToggleProps
@@ -26,6 +27,7 @@ import {
 import type {
   EncodedClickableElement,
   EncodedContainerElement,
+  EncodedDialogElement,
   EncodedDisplayModeToggleElement,
   EncodedElement,
   EncodedGroupElement,
@@ -60,6 +62,10 @@ function encodeChildren(children: ReactElement<unknown>[]): EncodedElement[] {
       }
       case Container: {
         elements.push(encodeContainer(current as ReactElement<ContainerProps>));
+        break;
+      }
+      case Dialog: {
+        elements.push(encodeDialog(current as ReactElement<DialogProps>));
         break;
       }
       case DisplayModeToggle: {
@@ -132,6 +138,24 @@ function encodeContainer(
       children: encodedChildren.length > 0 ? encodedChildren : undefined
     },
     type: "Container"
+  };
+}
+
+function encodeDialog(
+  element: ReactElement<DialogProps>
+): EncodedDialogElement {
+  const { children, ...props } = element.props;
+
+  const encodedChildren = encodeChildren(
+    Array.isArray(children) ? children : [children]
+  );
+
+  return {
+    props: {
+      ...props,
+      children: encodedChildren.length > 0 ? encodedChildren : undefined
+    },
+    type: "Dialog"
   };
 }
 
