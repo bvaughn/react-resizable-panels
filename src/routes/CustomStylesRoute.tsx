@@ -9,7 +9,7 @@ import { Separator } from "../components/styled-panels/Separator";
 export default function CustomStylesRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Examples" title="Custom CSS styles" />
+      <Header section="Flex" title="Custom CSS styles" />
       <div>
         <code>className</code> and <code>style</code> props can be used to
         customize styles, but there are a few limitations to remember:

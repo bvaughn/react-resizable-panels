@@ -5,7 +5,11 @@ export function calculateAvailableGroupSize({
 }: {
   group: RegisteredGroup;
 }) {
-  const { orientation, panels } = group;
+  const { layoutStrategy, orientation, panels } = group;
+
+  if (layoutStrategy) {
+    return layoutStrategy.calculateAvailableSize();
+  }
 
   return panels.reduce((totalSize, panel) => {
     totalSize +=

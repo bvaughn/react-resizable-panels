@@ -1,9 +1,15 @@
 import { createElement, type ReactElement } from "react";
 import type {
+  CellProps,
+  GridProps,
+  GridlineProps,
   GroupProps,
   PanelProps,
   SeparatorProps
 } from "react-resizable-panels";
+import { Cell } from "../../components/Cell";
+import { Grid } from "../../components/Grid";
+import { Gridline } from "../../components/Gridline";
 import { Clickable } from "../../../src/components/Clickable";
 import { Container } from "../../../src/components/Container";
 import { Dialog } from "../../components/Dialog";
@@ -13,11 +19,14 @@ import { Panel } from "../../../src/components/Panel";
 import { PopupWindow } from "../../../src/components/PopupWindow";
 import { Separator } from "../../../src/components/Separator";
 import type {
+  EncodedCellElement,
   EncodedClickableElement,
   EncodedContainerElement,
   EncodedDialogElement,
   EncodedDisplayModeToggleElement,
   EncodedElement,
+  EncodedGridElement,
+  EncodedGridlineElement,
   EncodedGroupElement,
   EncodedIFrameElement,
   EncodedPanelElement,
@@ -29,6 +38,7 @@ import type {
 import { IFrame } from "../../components/IFrame";
 
 type Config = {
+  gridProps?: Partial<GridProps>;
   groupProps?: Partial<GroupProps>;
   panelProps?: Partial<PanelProps>;
 };
@@ -53,6 +63,18 @@ function decodeChildren(
     }
 
     switch (current.type) {
+      case "Cell": {
+        elements.push(decodeCell(current, config));
+        break;
+      }
+      case "Gridline": {
+        elements.push(decodeGridline(current));
+        break;
+      }
+      case "Grid": {
+        elements.push(decodeGrid(current, config));
+        break;
+      }
       case "Clickable": {
         elements.push(decodeClickable(current));
         break;
@@ -100,6 +122,42 @@ function decodeChildren(
   });
 
   return elements;
+}
+
+function decodeCell(
+  json: EncodedCellElement,
+  config: Config
+): ReactElement<CellProps> {
+  const { children, ...props } = json.props;
+
+  return createElement(Cell, {
+    key: ++key,
+    ...props,
+    children: children ? decodeChildren(children, config) : undefined
+  });
+}
+
+function decodeGridline(
+  json: EncodedGridlineElement
+): ReactElement<GridlineProps> {
+  return createElement(Gridline, {
+    ...(json.props as GridlineProps),
+    key: ++key
+  });
+}
+
+function decodeGrid(
+  json: EncodedGridElement,
+  config: Config
+): ReactElement<GridProps> {
+  const { children, ...props } = json.props;
+
+  return createElement(Grid, {
+    key: ++key,
+    ...props,
+    ...config.gridProps,
+    children: children ? decodeChildren(children, config) : undefined
+  });
 }
 
 function decodeClickable(json: EncodedClickableElement): ReactElement<unknown> {

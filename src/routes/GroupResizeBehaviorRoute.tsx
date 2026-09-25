@@ -7,7 +7,7 @@ import { Separator } from "../components/styled-panels/Separator";
 export default function GroupResizeBehaviorRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Examples" title="Group resize behavior" />
+      <Header section="Flex" title="Group resize behavior" />
       <div>
         Resizing a group typically affects the size of panels within the group.
         The <code>groupResizeBehavior</code> prop can be used override this

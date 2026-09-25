@@ -10,7 +10,7 @@ import { Separator } from "../components/styled-panels/Separator";
 export default function CollapsiblePanelsRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Examples" title="Collapsible panels" />
+      <Header section="Flex" title="Collapsible panels" />
       <div>
         Panels can be configured to be collapsible using the{" "}
         <code>collapsible</code> and <code>minSize</code> properties.

@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.14.0
+
+- New `Grid`, `Cell`, and `Gridline` components for resizable two-dimensional layouts:
+  - Columns and rows support the same size constraints as `Panel`s (e.g. min/max size, collapsible)
+  - Cells can span multiple columns and/or rows
+  - Dragging where column and row boundaries intersect resizes both axes
+  - `Gridline`s (optional, like `Separator`s) can span a subset of tracks to avoid spanning cells
+- New `useDefaultGridLayout`, `useGridRef`, and `useGridCallbackRef` hooks
+
 ## 4.13.3
 
 - [755](https://github.com/bvaughn/react-resizable-panels/pull/755): Bugfix: `Separator` behind a modal `<dialog>` can no longer be dragged

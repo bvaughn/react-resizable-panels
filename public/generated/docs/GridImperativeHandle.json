@@ -1,0 +1,67 @@
+{
+  "description": [
+    {
+      "content": "<p>Imperative Grid API.</p>\n"
+    },
+    {
+      "content": "<p>The <code>useGridRef</code> and <code>useGridCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>\n",
+      "intent": "primary"
+    }
+  ],
+  "filePath": "lib/components/grid/types.ts",
+  "methods": [
+    {
+      "description": [
+        {
+          "content": "<p>Get the Grid's current layout: maps of column and row ids to percentages (0..100)</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">getLayout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-labelName\">columns</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-punctuation\">[</span><span class=\"tok-variableName\">columnId</span><span class=\"tok-punctuation\">:</span><span class=\"tok-variableName\"> </span><span class=\"\">string</span><span class=\"tok-punctuation\">]</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-labelName\">rows</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-punctuation\">[</span><span class=\"tok-variableName\">rowId</span><span class=\"tok-punctuation\">:</span><span class=\"tok-variableName\"> </span><span class=\"\">string</span><span class=\"tok-punctuation\">]</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "getLayout"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Imperative API for the column or row with the specified id (see <code>GridTrackImperativeHandle</code>).</p>\n"
+        },
+        {
+          "content": "<p>Tracks without an explicit <code>id</code> use their index (e.g. <code>&quot;0&quot;</code>) as their id.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>An error will be thrown if the Grid does not contain a matching track.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">getTrackById</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">axis</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"column\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"row\"</span><span class=\"tok-punctuation\">,</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">id</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">number</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">GridTrackImperativeHandle</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "getTrackById"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Imperative API for the column or row at the specified index (see <code>GridTrackImperativeHandle</code>).</p>\n"
+        },
+        {
+          "content": "<p>The index is resolved to a track id when this method is called; the returned API continues to refer to that id.\nTracks without an explicit <code>id</code> use their index as their id,\nso specify ids if the API needs to refer to the same track after tracks are added or removed before it.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>An error will be thrown if the index is out of range.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">getTrackByIndex</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">axis</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"column\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"row\"</span><span class=\"tok-punctuation\">,</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">index</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">number</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">GridTrackImperativeHandle</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "getTrackByIndex"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Set a new layout for one or both of the Grid's axes.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">setLayout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-propertyName tok-definition\">columns</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-punctuation\">[</span><span class=\"tok-propertyName tok-definition\">columnId</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">]</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">number</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-propertyName tok-definition\">rows</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-punctuation\">[</span><span class=\"tok-propertyName tok-definition\">rowId</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">]</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">number</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-labelName\">columns</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-punctuation\">[</span><span class=\"tok-variableName\">columnId</span><span class=\"tok-punctuation\">:</span><span class=\"tok-variableName\"> </span><span class=\"\">string</span><span class=\"tok-punctuation\">]</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-labelName\">rows</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-punctuation\">[</span><span class=\"tok-variableName\">rowId</span><span class=\"tok-punctuation\">:</span><span class=\"tok-variableName\"> </span><span class=\"\">string</span><span class=\"tok-punctuation\">]</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "setLayout"
+    }
+  ],
+  "name": "GridImperativeHandle"
+}

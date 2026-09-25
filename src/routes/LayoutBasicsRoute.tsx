@@ -10,7 +10,7 @@ import { Link } from "../components/Link";
 export default function LayoutBasicsRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Examples" title="The basics" />
+      <Header section="Flex" title="The basics" />
       <div>
         The simplest resizable panel configuration is two panels within a group.
       </div>
