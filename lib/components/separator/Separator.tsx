@@ -72,8 +72,10 @@ export function Separator({
   const {
     disableCursor,
     id: groupId,
+    isSeparatorHitRegion,
     orientation: groupOrientation,
     registerSeparator,
+    separatorTabIndex = 0,
     updateSeparatorProps
   } = useGroupContext();
 
@@ -113,7 +115,10 @@ export function Separator({
           setDragState(
             event.next.state !== "inactive" &&
               event.next.hitRegions.some(
-                (hitRegion) => hitRegion.separator === separator
+                (hitRegion) =>
+                  hitRegion.separator === separator ||
+                  // Separators that resize the same tracks share state (e.g. multiple separators along a Grid boundary)
+                  (isSeparatorHitRegion?.(hitRegion) ?? false)
               )
               ? event.next.state
               : "inactive"
@@ -138,14 +143,19 @@ export function Separator({
               (constraints) => constraints.panelId === primaryPanel.id
             );
 
-            setAria(
-              calculateSeparatorAriaValues({
+            setAria({
+              ...calculateSeparatorAriaValues({
                 layout,
                 panelConstraints: derivedPanelConstraints,
                 panelId: primaryPanel.id,
                 panelIndex
-              })
-            );
+              }),
+              valueControls: event.group.layoutStrategy?.getItemAriaControls
+                ? event.group.layoutStrategy.getItemAriaControls(
+                    primaryPanel.id
+                  )
+                : primaryPanel.id
+            });
           }
         }
       );
@@ -158,7 +168,7 @@ export function Separator({
         unregisterSeparator();
       };
     }
-  }, [groupId, id, registerSeparator, stableProps]);
+  }, [groupId, id, isSeparatorHitRegion, registerSeparator, stableProps]);
 
   useIsomorphicLayoutEffect(() => {
     const separator = registeredSeparatorRef.current;
@@ -227,7 +237,7 @@ export function Separator({
         // See github.com/bvaughn/react-resizable-panels/issues/662
         touchAction: "none"
       }}
-      tabIndex={disabled ? undefined : 0}
+      tabIndex={disabled ? undefined : separatorTabIndex}
     />
   );
 }

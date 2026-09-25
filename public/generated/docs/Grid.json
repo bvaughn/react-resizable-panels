@@ -1,0 +1,199 @@
+{
+  "description": [
+    {
+      "content": "<p>A Grid arranges resizable Cells in two dimensions.\nColumns can be resized horizontally and rows can be resized vertically;\ndragging the point where a column boundary and a row boundary intersect resizes both.</p>\n"
+    },
+    {
+      "content": "<p>Size constraints (e.g. min/max size, collapsible) are specified per track (column or row),\nusing the same format as Panel props.</p>\n"
+    },
+    {
+      "content": "<p>Cells can span multiple columns and/or rows.\nTrack boundaries cannot be resized alongside of a cell that spans across them.</p>\n"
+    },
+    {
+      "content": "<p>Grid elements always include the following attributes:</p>\n"
+    },
+    {
+      "content": "<div><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-grid</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-testid</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"grid-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"grid-id-prop\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
+    },
+    {
+      "content": "<p><a href=\"https://testing-library.com/docs/queries/bytestid/\">Test id</a> can be used to narrow selection when unit testing.</p>\n",
+      "intent": "primary"
+    }
+  ],
+  "filePath": "lib/components/grid/Grid.tsx",
+  "name": "Grid",
+  "props": {
+    "className": {
+      "description": [
+        {
+          "content": "<p>CSS class name.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
+      "name": "className",
+      "required": false
+    },
+    "id": {
+      "description": [
+        {
+          "content": "<p>Uniquely identifies this grid within an application.\nFalls back to <code>useId</code> when not provided.</p>\n"
+        },
+        {
+          "content": "<p>This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "id",
+      "required": false
+    },
+    "style": {
+      "description": [
+        {
+          "content": "<p>CSS properties.</p>\n"
+        },
+        {
+          "content": "<p>Grid template and display properties are managed by the Grid and cannot be overridden.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span></div>",
+      "name": "style",
+      "required": false
+    },
+    "children": {
+      "description": [
+        {
+          "content": "<p>Cell and Gridline components that comprise this grid.</p>\n"
+        },
+        {
+          "content": "<p>Cell and Gridline elements must be direct DOM children of their parent Grid element.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">children</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span></div>",
+      "name": "children",
+      "required": false
+    },
+    "columns": {
+      "description": [
+        {
+          "content": "<p>Grid columns; either the number of columns or an array of size constraints (one per column).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\"><span class=\"tok-propertyName\">columns</span></span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">GridTrackProps</span><span class=\"tok-punctuation\">[</span><span class=\"tok-punctuation\">]</span></div>",
+      "name": "columns",
+      "required": true
+    },
+    "defaultLayout": {
+      "description": [
+        {
+          "content": "<p>Default layout for either or both of the Grid's axes.</p>\n"
+        },
+        {
+          "content": "<p>This value allows layouts to be remembered between page reloads.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">defaultLayout</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Partial</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">GridLayout</span><span class=\"\">&#62;</span></div>",
+      "name": "defaultLayout",
+      "required": false
+    },
+    "disableCursor": {
+      "description": [
+        {
+          "content": "<p>This library sets custom mouse cursor styles to indicate drag state.\nUse this prop to disable that behavior for this grid.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disableCursor</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
+      "name": "disableCursor",
+      "required": false
+    },
+    "disabled": {
+      "description": [
+        {
+          "content": "<p>Disable resize functionality.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disabled</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
+      "name": "disabled",
+      "required": false
+    },
+    "elementRef": {
+      "description": [
+        {
+          "content": "<p>Ref attached to the root <code>HTMLDivElement</code>.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-keyword\">null</span><span class=\"\">&#62;</span></div>",
+      "name": "elementRef",
+      "required": false
+    },
+    "gridRef": {
+      "description": [
+        {
+          "content": "<p>Exposes the following imperative API:</p>\n<ul>\n<li><code>getLayout(): GridLayout</code></li>\n<li><code>getTrackById(axis: &quot;column&quot; | &quot;row&quot;, id: string | number): GridTrackImperativeHandle</code></li>\n<li><code>getTrackByIndex(axis: &quot;column&quot; | &quot;row&quot;, index: number): GridTrackImperativeHandle</code></li>\n<li><code>setLayout(layout: Partial&lt;GridLayout&gt;): GridLayout</code></li>\n</ul>\n"
+        },
+        {
+          "content": "<p>The <code>useGridRef</code> and <code>useGridCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">gridRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">GridImperativeHandle</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-keyword\">null</span><span class=\"\">&#62;</span></div>",
+      "name": "gridRef",
+      "required": false
+    },
+    "onLayoutChange": {
+      "description": [
+        {
+          "content": "<p>Called when the Grid's layout is changing.</p>\n"
+        },
+        {
+          "content": "<p>For layout changes caused by pointer events, this method is called each time the pointer is moved.\nFor most cases, it is recommended to use the <code>onLayoutChanged</code> callback instead.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onLayoutChange</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">GridLayout</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "onLayoutChange",
+      "required": false
+    },
+    "onLayoutChanged": {
+      "description": [
+        {
+          "content": "<p>Called after the Grid's layout has been changed.</p>\n"
+        },
+        {
+          "content": "<p>For layout changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving layouts to some storage api.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onLayoutChanged</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">GridLayout</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">meta</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">LayoutChangedMeta</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "onLayoutChanged",
+      "required": false
+    },
+    "resizeTargetMinimumSize": {
+      "description": [
+        {
+          "content": "<p>Minimum size of the resizable hit target area (either a <code>Gridline</code> or a <code>Cell</code> edge)\nThis threshold ensures targets are large enough to avoid mis-clicks.</p>\n"
+        },
+        {
+          "content": "<p>Refer to the <code>Group</code> prop of the same name for more information.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">resizeTargetMinimumSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-propertyName tok-definition\">coarse</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"tok-punctuation\">;</span><span class=\"\"> </span><span class=\"tok-labelName\">fine</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"tok-punctuation\">;</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-labelName\">coarse</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-number\">20</span><span class=\"tok-punctuation\">,</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName\">fine</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-number\">10</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">}</span></div>",
+      "name": "resizeTargetMinimumSize",
+      "required": false
+    },
+    "rows": {
+      "description": [
+        {
+          "content": "<p>Grid rows; either the number of rows or an array of size constraints (one per row).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\"><span class=\"tok-propertyName\">rows</span></span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">GridTrackProps</span><span class=\"tok-punctuation\">[</span><span class=\"tok-punctuation\">]</span></div>",
+      "name": "rows",
+      "required": true
+    }
+  }
+}

@@ -25,7 +25,7 @@ export default function App() {
       navLinks={
         <>
           <NavLink path="/">Getting started</NavLink>
-          <NavSection label="Examples">
+          <NavSection label="Flex">
             <NavLink path="/examples/the-basics">The basics</NavLink>
             <NavLink path="/examples/min-max-sizes">Min/max sizes</NavLink>
             <NavLink path="/examples/collapsible-panels">
@@ -65,17 +65,34 @@ export default function App() {
               Custom CSS styles
             </NavLink>
           </NavSection>
+          <NavSection label="Grids">
+            <NavLink path="/examples/grid-basics">The basics</NavLink>
+            <NavLink path="/examples/grid-constraints">Min/max sizes</NavLink>
+            <NavLink path="/examples/gridlines">Gridlines</NavLink>
+          </NavSection>
           <NavSection label="Props">
-            <NavLink path="/props/group">Group component</NavLink>
-            <NavLink path="/props/panel">Panel component</NavLink>
-            <NavLink path="/props/separator">Separator component</NavLink>
+            <NavLink path="/props/cell">Cell</NavLink>
+            <NavLink path="/props/grid">Grid</NavLink>
+            <NavLink path="/props/gridline">Gridline</NavLink>
+            <NavLink path="/props/group">Group</NavLink>
+            <NavLink path="/props/panel">Panel</NavLink>
+            <NavLink path="/props/separator">Separator</NavLink>
           </NavSection>
           <NavSection label="Imperative APIs">
-            <NavLink path="/imperative-api/group">Group API</NavLink>
-            <NavLink path="/imperative-api/panel">Panel API</NavLink>
+            <NavLink path="/imperative-api/grid">Grid</NavLink>
+            <NavLink path="/imperative-api/grid-track">GridTrack</NavLink>
+            <NavLink path="/imperative-api/group">Group</NavLink>
+            <NavLink path="/imperative-api/panel">Panel</NavLink>
           </NavSection>
           <NavSection label="Hooks">
             <NavLink path="/hooks/use-default-layout">useDefaultLayout</NavLink>
+            <NavLink path="/hooks/use-default-grid-layout">
+              useDefaultGridLayout
+            </NavLink>
+            <NavLink path="/hooks/use-grid-ref">useGridRef</NavLink>
+            <NavLink path="/hooks/use-grid-callback-ref">
+              useGridCallbackRef
+            </NavLink>
             <NavLink path="/hooks/use-group-ref">useGroupRef</NavLink>
             <NavLink path="/hooks/use-group-callback-ref">
               useGroupCallbackRef

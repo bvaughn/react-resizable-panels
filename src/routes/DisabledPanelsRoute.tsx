@@ -11,7 +11,7 @@ import { Separator } from "../components/styled-panels/Separator";
 export default function DisabledPanelsRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Examples" title="Disabling interactions" />
+      <Header section="Flex" title="Disabling interactions" />
       <div>
         <code>Panel</code> and <code>Separator</code> components can be disabled
         to disable or limit resize behavior. Below are a few examples of how

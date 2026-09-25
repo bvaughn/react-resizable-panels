@@ -4,7 +4,7 @@ import type { RegisteredPanel } from "../../components/panel/types";
 import type { RegisteredSeparator } from "../../components/separator/types";
 import { isHTMLElement } from "../../utils/isHTMLElement";
 import { findClosestRect } from "../utils/findClosestRect";
-import { isCoarsePointer } from "../utils/isCoarsePointer";
+import { expandHitTarget } from "../utils/expandHitTarget";
 import { calculateAvailableGroupSize } from "./calculateAvailableGroupSize";
 
 type PanelsTuple = [panel: RegisteredPanel, panel: RegisteredPanel];
@@ -33,6 +33,14 @@ export function calculateHitRegions({
   group: RegisteredGroup;
   includeDisabled?: boolean;
 }) {
+  if (group.layoutStrategy) {
+    return group.layoutStrategy.calculateHitRegions({
+      expandHitTargets,
+      group,
+      includeDisabled
+    });
+  }
+
   const { element: groupElement, orientation, panels, separators } = group;
 
   // Sort elements by offset before traversing
@@ -169,34 +177,14 @@ export function calculateHitRegions({
             }
 
             for (const rectOrSeparator of pendingRectsOrSeparators) {
-              let rect =
-                "width" in rectOrSeparator
-                  ? rectOrSeparator
-                  : rectOrSeparator.element.getBoundingClientRect();
-
-              const minHitTargetSize = expandHitTargets
-                ? isCoarsePointer()
-                  ? group.resizeTargetMinimumSize.coarse
-                  : group.resizeTargetMinimumSize.fine
-                : 0;
-              if (rect.width < minHitTargetSize) {
-                const delta = minHitTargetSize - rect.width;
-                rect = new DOMRect(
-                  rect.x - delta / 2,
-                  rect.y,
-                  rect.width + delta,
-                  rect.height
-                );
-              }
-              if (rect.height < minHitTargetSize) {
-                const delta = minHitTargetSize - rect.height;
-                rect = new DOMRect(
-                  rect.x,
-                  rect.y - delta / 2,
-                  rect.width,
-                  rect.height + delta
-                );
-              }
+              const rect = expandHitTarget({
+                expandHitTargets,
+                group,
+                rect:
+                  "width" in rectOrSeparator
+                    ? rectOrSeparator
+                    : rectOrSeparator.element.getBoundingClientRect()
+              });
 
               const skip =
                 currentPanelIndex <= firstEnabledPanelIndex ||

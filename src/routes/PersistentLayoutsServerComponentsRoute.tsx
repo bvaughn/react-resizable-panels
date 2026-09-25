@@ -6,7 +6,7 @@ export default function PersistentLayoutsServerComponentsRoute() {
   return (
     <Box direction="column" gap={4}>
       <Header
-        section="Examples"
+        section="Flex"
         title="Persistent layouts with server components"
       />
       <div>

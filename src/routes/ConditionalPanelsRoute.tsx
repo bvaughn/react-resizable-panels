@@ -11,7 +11,7 @@ export default function ConditionalPanelsRoute() {
 
   return (
     <Box direction="column" gap={4}>
-      <Header section="Examples" title="Conditional Panels" />
+      <Header section="Flex" title="Conditional Panels" />
       <div>Panel can be conditionally rendered.</div>
       <Box direction="row" gap={4} justify="center">
         <button

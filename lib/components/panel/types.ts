@@ -177,7 +177,7 @@ export type PanelProps = BasePanelAttributes & {
    *
    * ℹ️ This prop is used to associate persisted group layouts with the original panel.
    *
-   * ℹ️ This value will also be assigned to the `data-panel` attribute.
+   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes.
    */
   id?: string | number | undefined;
 

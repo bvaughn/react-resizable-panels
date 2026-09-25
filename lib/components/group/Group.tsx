@@ -16,8 +16,8 @@ import {
   updateMountedGroup
 } from "../../global/mutable-state/groups";
 import { getInteractionState } from "../../global/mutable-state/interactions";
-import { layoutNumbersEqual } from "../../global/utils/layoutNumbersEqual";
 import { layoutsEqual } from "../../global/utils/layoutsEqual";
+import { recordGroupLayoutChange } from "../../global/utils/recordGroupLayoutChange";
 import { useForceUpdate } from "../../hooks/useForceUpdate";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
@@ -317,31 +317,11 @@ export function Group({
         return;
       }
 
-      // Save the layout to in-memory cache so it persists when panel configuration changes
-      // This improves UX for conditionally rendered panels without requiring defaultLayout
-      const panelIdsKey = group.panels.map(({ id }) => id).join(",");
-      group.mutableState.layouts[panelIdsKey] = layout;
-
-      // Also check if any collapsible Panels were collapsed in this update,
-      // and record their previous sizes so we can restore them on expand
-      derivedPanelConstraints.forEach((constraints) => {
-        if (constraints.collapsible) {
-          const { layout: prevLayout } = event.prev ?? {};
-          if (prevLayout) {
-            const isCollapsed = layoutNumbersEqual(
-              constraints.collapsedSize,
-              layout[constraints.panelId]
-            );
-            const wasCollapsed = layoutNumbersEqual(
-              constraints.collapsedSize,
-              prevLayout[constraints.panelId]
-            );
-            if (isCollapsed && !wasCollapsed) {
-              group.mutableState.expandedPanelSizes[constraints.panelId] =
-                prevLayout[constraints.panelId];
-            }
-          }
-        }
+      recordGroupLayoutChange({
+        derivedPanelConstraints,
+        group,
+        layout,
+        prevLayout: event.prev?.layout
       });
 
       // Lastly notify layout-change(d) handlers of the update
