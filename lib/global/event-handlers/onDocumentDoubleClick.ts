@@ -1,24 +1,24 @@
-import { getMountedGroups } from "../mutable-state/groups";
+import { getMountedAxes } from "../mutable-state/axes";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
-import { getImperativePanelMethods } from "../utils/getImperativePanelMethods";
+import { getImperativeItemMethods } from "../utils/getImperativeItemMethods";
 
 export function onDocumentDoubleClick(event: MouseEvent) {
   if (event.defaultPrevented) {
     return;
   }
 
-  const mountedGroups = getMountedGroups();
-  const hitRegions = findMatchingHitRegions(event, mountedGroups);
+  const mountedAxes = getMountedAxes();
+  const hitRegions = findMatchingHitRegions(event, mountedAxes);
   hitRegions.forEach((current) => {
     if (current.separator && !current.separator.disableDoubleClick) {
-      const panelWithDefaultSize = current.panels.find(
-        (panel) => panel.panelConstraints.defaultSize !== undefined
+      const itemWithDefaultSize = current.items.find(
+        (item) => item.constraintProps.defaultSize !== undefined
       );
-      if (panelWithDefaultSize) {
-        const defaultSize = panelWithDefaultSize.panelConstraints.defaultSize;
-        const api = getImperativePanelMethods({
-          groupId: current.group.id,
-          panelId: panelWithDefaultSize.id
+      if (itemWithDefaultSize) {
+        const defaultSize = itemWithDefaultSize.constraintProps.defaultSize;
+        const api = getImperativeItemMethods({
+          axisId: current.axis.id,
+          itemId: itemWithDefaultSize.id
         });
         if (api && defaultSize !== undefined) {
           api.resize(defaultSize);

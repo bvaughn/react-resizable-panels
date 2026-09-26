@@ -16,24 +16,24 @@ describe("sizeStyleToPixels", () => {
     test("% units", () => {
       expect(
         sizeStyleToPixels({
-          groupSize: 800,
-          panelElement,
+          axisSize: 800,
+          itemElement: panelElement,
           styleProp: "100"
         })
       ).toBe(800);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 800,
-          panelElement,
+          axisSize: 800,
+          itemElement: panelElement,
           styleProp: "50"
         })
       ).toBe(400);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 800,
-          panelElement,
+          axisSize: 800,
+          itemElement: panelElement,
           styleProp: "0"
         })
       ).toBe(0);
@@ -42,24 +42,24 @@ describe("sizeStyleToPixels", () => {
     test("px units", () => {
       expect(
         sizeStyleToPixels({
-          groupSize: 800,
-          panelElement,
+          axisSize: 800,
+          itemElement: panelElement,
           styleProp: 800
         })
       ).toBe(800);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 800,
-          panelElement,
+          axisSize: 800,
+          itemElement: panelElement,
           styleProp: 400
         })
       ).toBe(400);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 800,
-          panelElement,
+          axisSize: 800,
+          itemElement: panelElement,
           styleProp: 0
         })
       ).toBe(0);
@@ -70,24 +70,24 @@ describe("sizeStyleToPixels", () => {
     test("% units", () => {
       expect(
         sizeStyleToPixels({
-          groupSize: 800,
-          panelElement,
+          axisSize: 800,
+          itemElement: panelElement,
           styleProp: "100%"
         })
       ).toBe(800);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 800,
-          panelElement,
+          axisSize: 800,
+          itemElement: panelElement,
           styleProp: "50%"
         })
       ).toBe(400);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 800,
-          panelElement,
+          axisSize: 800,
+          itemElement: panelElement,
           styleProp: "0%"
         })
       ).toBe(0);
@@ -96,24 +96,24 @@ describe("sizeStyleToPixels", () => {
     test("px units", () => {
       expect(
         sizeStyleToPixels({
-          groupSize: 800,
-          panelElement,
+          axisSize: 800,
+          itemElement: panelElement,
           styleProp: "800px"
         })
       ).toBe(800);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 800,
-          panelElement,
+          axisSize: 800,
+          itemElement: panelElement,
           styleProp: "400px"
         })
       ).toBe(400);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 800,
-          panelElement,
+          axisSize: 800,
+          itemElement: panelElement,
           styleProp: "0px"
         })
       ).toBe(0);
@@ -129,24 +129,24 @@ describe("sizeStyleToPixels", () => {
 
       expect(
         sizeStyleToPixels({
-          groupSize: 100,
-          panelElement,
+          axisSize: 100,
+          itemElement: panelElement,
           styleProp: "1rem"
         })
       ).toBe(20);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 100,
-          panelElement,
+          axisSize: 100,
+          itemElement: panelElement,
           styleProp: ".5rem"
         })
       ).toBe(10);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 100,
-          panelElement,
+          axisSize: 100,
+          itemElement: panelElement,
           styleProp: "0rem"
         })
       ).toBe(0);
@@ -159,24 +159,24 @@ describe("sizeStyleToPixels", () => {
 
       expect(
         sizeStyleToPixels({
-          groupSize: 100,
-          panelElement,
+          axisSize: 100,
+          itemElement: panelElement,
           styleProp: "1em"
         })
       ).toBe(20);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 100,
-          panelElement,
+          axisSize: 100,
+          itemElement: panelElement,
           styleProp: ".5em"
         })
       ).toBe(10);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 100,
-          panelElement,
+          axisSize: 100,
+          itemElement: panelElement,
           styleProp: "0em"
         })
       ).toBe(0);
@@ -188,24 +188,24 @@ describe("sizeStyleToPixels", () => {
 
       expect(
         sizeStyleToPixels({
-          groupSize: 1600,
-          panelElement,
+          axisSize: 1600,
+          itemElement: panelElement,
           styleProp: "100vh"
         })
       ).toBe(800);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 1600,
-          panelElement,
+          axisSize: 1600,
+          itemElement: panelElement,
           styleProp: "50vh"
         })
       ).toBe(400);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 1600,
-          panelElement,
+          axisSize: 1600,
+          itemElement: panelElement,
           styleProp: "0vh"
         })
       ).toBe(0);
@@ -217,24 +217,24 @@ describe("sizeStyleToPixels", () => {
 
       expect(
         sizeStyleToPixels({
-          groupSize: 1600,
-          panelElement,
+          axisSize: 1600,
+          itemElement: panelElement,
           styleProp: "100vw"
         })
       ).toBe(800);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 1600,
-          panelElement,
+          axisSize: 1600,
+          itemElement: panelElement,
           styleProp: "50vw"
         })
       ).toBe(400);
 
       expect(
         sizeStyleToPixels({
-          groupSize: 1600,
-          panelElement,
+          axisSize: 1600,
+          itemElement: panelElement,
           styleProp: "0vw"
         })
       ).toBe(0);

@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vitest";
-import type { Layout } from "../../components/group/types";
-import type { PanelConstraints } from "../../components/panel/types";
+import type { Layout, ResizeItemConstraints } from "../types";
 import { adjustLayoutByDelta as adjustLayoutByDeltaExternal } from "./adjustLayoutByDelta";
 
 type Args = Parameters<typeof adjustLayoutByDeltaExternal>[0];
@@ -8,7 +7,7 @@ type Args = Parameters<typeof adjustLayoutByDeltaExternal>[0];
 function adjustLayoutByDelta({
   delta,
   initialLayout,
-  panelConstraints,
+  itemConstraints: panelConstraints,
   pivotIndices = [0, 1],
   prevLayout,
   trigger = "imperative-api"
@@ -19,15 +18,15 @@ function adjustLayoutByDelta({
   return adjustLayoutByDeltaExternal({
     delta,
     initialLayout,
-    panelConstraints,
+    itemConstraints: panelConstraints,
     pivotIndices,
     prevLayout,
     trigger
   });
 }
 
-function c(partials: Partial<PanelConstraints>[]) {
-  const constraints: PanelConstraints[] = [];
+function c(partials: Partial<ResizeItemConstraints>[]) {
+  const constraints: ResizeItemConstraints[] = [];
 
   partials.forEach((current, index) => {
     constraints.push({
@@ -38,7 +37,7 @@ function c(partials: Partial<PanelConstraints>[]) {
       maxSize: 100,
       minSize: 0,
       ...current,
-      panelId: "" + index
+      itemId: "" + index
     });
   });
 
@@ -78,7 +77,7 @@ describe("adjustLayoutByDelta", () => {
           adjustLayoutByDelta({
             delta: index === 0 ? delta : -delta,
             initialLayout: l(sizes),
-            panelConstraints: constraints,
+            itemConstraints: constraints,
             prevLayout: l(sizes),
             trigger
           })
@@ -118,7 +117,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 1,
         initialLayout: l([50, 50]),
-        panelConstraints: c([{}, {}]),
+        itemConstraints: c([{}, {}]),
         prevLayout: l([50, 50])
       })
     ).toEqual(l([51, 49]));
@@ -129,7 +128,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 25,
         initialLayout: l([50, 50]),
-        panelConstraints: c([{}, {}]),
+        itemConstraints: c([{}, {}]),
         prevLayout: l([50, 50])
       })
     ).toEqual(l([75, 25]));
@@ -138,7 +137,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 50,
         initialLayout: l([50, 50]),
-        panelConstraints: c([{}, {}]),
+        itemConstraints: c([{}, {}]),
         prevLayout: l([50, 50])
       })
     ).toEqual(l([100, 0]));
@@ -149,7 +148,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 50,
         initialLayout: l([50, 50]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             minSize: 20,
             maxSize: 60
@@ -169,7 +168,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 25,
         initialLayout: l([50, 50]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {
             collapsedSize: 5,
@@ -187,7 +186,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 40,
         initialLayout: l([50, 50]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {
             collapsedSize: 5,
@@ -207,7 +206,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 5,
         initialLayout: l([10, 90]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 10,
             collapsible: true,
@@ -227,7 +226,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 5,
         initialLayout: l([10, 90]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 10,
             collapsible: true,
@@ -248,7 +247,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 5,
         initialLayout: l([75, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {
             collapsible: true,
@@ -268,7 +267,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 1,
         initialLayout: l([4, 96]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 4,
             collapsible: true,
@@ -292,7 +291,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 1,
         initialLayout: l([4, 96]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 4,
             collapsible: true,
@@ -317,7 +316,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 25,
         initialLayout: l([4, 96]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 4,
             collapsible: true,
@@ -341,7 +340,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 30,
         initialLayout: l([5, 95]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -364,7 +363,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 30,
         initialLayout: l([5, 95]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -388,7 +387,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 30,
         initialLayout: l([0, 100]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 0,
             collapsible: true,
@@ -408,7 +407,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -1,
         initialLayout: l([50, 50]),
-        panelConstraints: c([{}, {}]),
+        itemConstraints: c([{}, {}]),
         prevLayout: l([50, 50])
       })
     ).toEqual(l([49, 51]));
@@ -419,7 +418,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -25,
         initialLayout: l([50, 50]),
-        panelConstraints: c([{}, {}]),
+        itemConstraints: c([{}, {}]),
         prevLayout: l([50, 50])
       })
     ).toEqual(l([25, 75]));
@@ -430,7 +429,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -50,
         initialLayout: l([50, 50]),
-        panelConstraints: c([{}, {}]),
+        itemConstraints: c([{}, {}]),
         prevLayout: l([50, 50])
       })
     ).toEqual(l([0, 100]));
@@ -441,7 +440,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -50,
         initialLayout: l([50, 50]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             minSize: 20,
             maxSize: 60
@@ -461,7 +460,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -25,
         initialLayout: l([50, 50]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -479,7 +478,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -30,
         initialLayout: l([50, 50]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -495,7 +494,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -36,
         initialLayout: l([50, 50]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -515,7 +514,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -30,
         initialLayout: l([50, 50]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -535,7 +534,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -5,
         initialLayout: l([90, 10]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {
             collapsedSize: 10,
@@ -556,7 +555,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -5,
         initialLayout: l([25, 75]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 10,
             collapsible: true,
@@ -575,7 +574,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 1,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, {}]),
+        itemConstraints: c([{}, {}, {}]),
         prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([26, 49, 25]));
@@ -586,7 +585,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 25,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, {}]),
+        itemConstraints: c([{}, {}, {}]),
         prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([50, 25, 25]));
@@ -597,7 +596,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 50,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, {}]),
+        itemConstraints: c([{}, {}, {}]),
         prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([75, 0, 25]));
@@ -608,7 +607,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 75,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, {}]),
+        itemConstraints: c([{}, {}, {}]),
         prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([100, 0, 0]));
@@ -619,7 +618,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 25,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{ maxSize: 35 }, { minSize: 25 }, {}]),
+        itemConstraints: c([{ maxSize: 35 }, { minSize: 25 }, {}]),
         prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([35, 40, 25]));
@@ -631,7 +630,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 25,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{ maxSize: 35 }, { minSize: 25 }, {}]),
+        itemConstraints: c([{ maxSize: 35 }, { minSize: 25 }, {}]),
         prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([35, 40, 25]));
@@ -642,7 +641,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 5,
         initialLayout: l([25, 40, 35]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {
             collapsedSize: 5,
@@ -661,7 +660,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 26,
         initialLayout: l([25, 40, 35]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {
             collapsedSize: 5,
@@ -680,7 +679,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 80,
         initialLayout: l([25, 40, 35]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {
             collapsedSize: 5,
@@ -699,7 +698,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -1,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, {}]),
+        itemConstraints: c([{}, {}, {}]),
         prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([24, 51, 25]));
@@ -710,7 +709,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -25,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, {}]),
+        itemConstraints: c([{}, {}, {}]),
         prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([0, 75, 25]));
@@ -721,7 +720,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -1,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{ minSize: 20 }, {}, {}]),
+        itemConstraints: c([{ minSize: 20 }, {}, {}]),
         prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([24, 51, 25]));
@@ -732,7 +731,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -10,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{ minSize: 20 }, {}, {}]),
+        itemConstraints: c([{ minSize: 20 }, {}, {}]),
         prevLayout: l([25, 50, 25])
       })
     ).toEqual(l([20, 55, 25]));
@@ -743,7 +742,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -5,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             // Implied min size 10
           },
@@ -760,7 +759,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -20,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             // Implied min size 10
           },
@@ -777,7 +776,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -10,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -796,7 +795,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -20,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -815,7 +814,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -20,
         initialLayout: l([45, 50, 5]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {
             maxSize: 50
@@ -836,7 +835,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -1,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, {}]),
+        itemConstraints: c([{}, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 50, 25])
       })
@@ -848,7 +847,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -25,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, {}]),
+        itemConstraints: c([{}, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 50, 25])
       })
@@ -860,7 +859,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -50,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, {}]),
+        itemConstraints: c([{}, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 50, 25])
       })
@@ -872,7 +871,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -75,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, {}]),
+        itemConstraints: c([{}, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 50, 25])
       })
@@ -884,7 +883,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 5,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, { minSize: 15 }]),
+        itemConstraints: c([{}, {}, { minSize: 15 }]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 50, 25])
       })
@@ -896,7 +895,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 20,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, { minSize: 15 }]),
+        itemConstraints: c([{}, {}, { minSize: 15 }]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 50, 25])
       })
@@ -908,7 +907,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 5,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, { collapsible: true, minSize: 20 }]),
+        itemConstraints: c([{}, {}, { collapsible: true, minSize: 20 }]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 50, 25])
       })
@@ -920,7 +919,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 10,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, { collapsible: true, minSize: 20 }]),
+        itemConstraints: c([{}, {}, { collapsible: true, minSize: 20 }]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 50, 25])
       })
@@ -930,7 +929,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 16,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, { collapsible: true, minSize: 20 }]),
+        itemConstraints: c([{}, {}, { collapsible: true, minSize: 20 }]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 50, 25])
       })
@@ -942,7 +941,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 1,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, {}]),
+        itemConstraints: c([{}, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 50, 25])
       })
@@ -954,7 +953,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 25,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, {}]),
+        itemConstraints: c([{}, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 50, 25])
       })
@@ -966,7 +965,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -20,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, { minSize: 40 }, {}]),
+        itemConstraints: c([{}, { minSize: 40 }, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 50, 25])
       })
@@ -978,7 +977,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -10,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([{}, {}, { maxSize: 30 }]),
+        itemConstraints: c([{}, {}, { maxSize: 30 }]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 50, 25])
       })
@@ -990,7 +989,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -35,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {
             collapsedSize: 5,
@@ -1008,7 +1007,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -40,
         initialLayout: l([25, 50, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {
             collapsedSize: 5,
@@ -1028,7 +1027,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -10,
         initialLayout: l([25, 0, 75]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -1046,7 +1045,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -20,
         initialLayout: l([25, 0, 75]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -1067,7 +1066,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -100,
         initialLayout: l([100 / 3, 100 / 3, 100 / 3]),
-        panelConstraints: c([{}, {}, {}]),
+        itemConstraints: c([{}, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([100 / 3, 100 / 3, 100 / 3]),
         trigger: "mouse-or-touch"
@@ -1080,7 +1079,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 1,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([26, 24, 25, 25]));
@@ -1091,7 +1090,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 25,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([50, 0, 25, 25]));
@@ -1102,7 +1101,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 50,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([75, 0, 0, 25]));
@@ -1113,7 +1112,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 75,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([100, 0, 0, 0]));
@@ -1124,7 +1123,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 25,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{ maxSize: 35 }, {}, {}, {}]),
+        itemConstraints: c([{ maxSize: 35 }, {}, {}, {}]),
         prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([35, 15, 25, 25]));
@@ -1135,7 +1134,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 100,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           { minSize: 10 },
           { minSize: 10 },
@@ -1151,7 +1150,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 10,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {
             collapsedSize: 5,
@@ -1177,7 +1176,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 15,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {
             collapsedSize: 5,
@@ -1205,7 +1204,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 40,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {
             collapsedSize: 5,
@@ -1233,7 +1232,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 100,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {
             collapsedSize: 5,
@@ -1261,7 +1260,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -1,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([24, 26, 25, 25]));
@@ -1272,7 +1271,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -25,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([0, 50, 25, 25]));
@@ -1283,7 +1282,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -10,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{ minSize: 20 }, {}, {}, {}]),
+        itemConstraints: c([{ minSize: 20 }, {}, {}, {}]),
         prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([20, 30, 25, 25]));
@@ -1294,7 +1293,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -25,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, { maxSize: 35 }, {}, {}]),
+        itemConstraints: c([{}, { maxSize: 35 }, {}, {}]),
         prevLayout: l([25, 25, 25, 25])
       })
     ).toEqual(l([0, 35, 40, 25]));
@@ -1305,7 +1304,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -10,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -1323,7 +1322,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -15,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -1343,7 +1342,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -10,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -1361,7 +1360,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -15,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -1387,7 +1386,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -10,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -1413,7 +1412,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -10,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -1435,7 +1434,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -10,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -1456,7 +1455,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -20,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -1476,7 +1475,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 10,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1488,7 +1487,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 30,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1500,7 +1499,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 50,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1512,7 +1511,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 50,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, { maxSize: 35 }, {}, {}]),
+        itemConstraints: c([{}, { maxSize: 35 }, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1524,7 +1523,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 50,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, { minSize: 20 }, {}]),
+        itemConstraints: c([{}, {}, { minSize: 20 }, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1536,7 +1535,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 10,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {},
           {},
@@ -1557,7 +1556,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 30,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {},
           {
@@ -1578,7 +1577,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 50,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {},
           {
@@ -1599,7 +1598,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -25,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1611,7 +1610,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -50,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1623,7 +1622,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -50,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, { minSize: 20 }, {}, {}]),
+        itemConstraints: c([{}, { minSize: 20 }, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1635,7 +1634,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -50,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{ minSize: 20 }, {}, {}, {}]),
+        itemConstraints: c([{ minSize: 20 }, {}, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1647,7 +1646,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -50,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{ minSize: 20 }, { minSize: 20 }, {}, {}]),
+        itemConstraints: c([{ minSize: 20 }, { minSize: 20 }, {}, {}]),
         pivotIndices: [1, 2],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1659,7 +1658,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -5,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -1680,7 +1679,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -50,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -1701,7 +1700,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -50,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {
             collapsedSize: 5,
@@ -1722,7 +1721,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 10,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [2, 3],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1734,7 +1733,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 30,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [2, 3],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1746,7 +1745,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 30,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, { maxSize: 40 }, {}]),
+        itemConstraints: c([{}, {}, { maxSize: 40 }, {}]),
         pivotIndices: [2, 3],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1758,7 +1757,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 30,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, { minSize: 10 }]),
+        itemConstraints: c([{}, {}, {}, { minSize: 10 }]),
         pivotIndices: [2, 3],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1770,7 +1769,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 5,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {},
           {},
@@ -1791,7 +1790,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 50,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {},
           {},
           {},
@@ -1812,7 +1811,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -10,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [2, 3],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1824,7 +1823,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -40,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [2, 3],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1836,7 +1835,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -100,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, {}]),
+        itemConstraints: c([{}, {}, {}, {}]),
         pivotIndices: [2, 3],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1848,7 +1847,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -50,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           { minSize: 10 },
           { minSize: 10 },
           { minSize: 10 },
@@ -1865,7 +1864,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -50,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, {}, {}, { maxSize: 40 }]),
+        itemConstraints: c([{}, {}, {}, { maxSize: 40 }]),
         pivotIndices: [2, 3],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1877,7 +1876,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -50,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([{}, { minSize: 5 }, {}, {}]),
+        itemConstraints: c([{}, { minSize: 5 }, {}, {}]),
         pivotIndices: [2, 3],
         prevLayout: l([25, 25, 25, 25])
       })
@@ -1889,7 +1888,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -100,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             collapsedSize: 5,
             collapsible: true,
@@ -1918,7 +1917,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -100,
         initialLayout: l([25, 25, 25, 25]),
-        panelConstraints: c([
+        itemConstraints: c([
           {
             minSize: 20
           },
@@ -1944,7 +1943,7 @@ describe("adjustLayoutByDelta", () => {
         adjustLayoutByDelta({
           delta: 1,
           initialLayout: l([50, 50]),
-          panelConstraints: c([{ maxSize: 50 }, {}]),
+          itemConstraints: c([{ maxSize: 50 }, {}]),
           prevLayout: l([50, 50])
         })
       ).toEqual(l([50, 50]));
@@ -1953,7 +1952,7 @@ describe("adjustLayoutByDelta", () => {
         adjustLayoutByDelta({
           delta: 1,
           initialLayout: l([50, 50]),
-          panelConstraints: c([{}, { minSize: 50 }]),
+          itemConstraints: c([{}, { minSize: 50 }]),
           prevLayout: l([50, 50])
         })
       ).toEqual(l([50, 50]));
@@ -1966,7 +1965,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: 16,
         initialLayout: l([5, 15, 40, 40]),
-        panelConstraints: c([
+        itemConstraints: c([
           { collapsedSize: 5, collapsible: true, minSize: 15, maxSize: 20 },
           { minSize: 30, maxSize: 30 },
           { minSize: 30 },
@@ -1983,7 +1982,7 @@ describe("adjustLayoutByDelta", () => {
       adjustLayoutByDelta({
         delta: -3,
         initialLayout: l([5, 15, 40, 40]),
-        panelConstraints: c([
+        itemConstraints: c([
           { collapsedSize: 5, collapsible: true, minSize: 15, maxSize: 20 },
           { minSize: 15, maxSize: 30 },
           { minSize: 30 },
@@ -2016,7 +2015,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? -4 : 4,
               initialLayout: open,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: open,
               trigger: "mouse-or-touch"
             })
@@ -2028,7 +2027,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? -6 : 6,
               initialLayout: open,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: open,
               trigger: "mouse-or-touch"
             })
@@ -2040,7 +2039,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? -4 : 4,
               initialLayout: open,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: closed,
               trigger: "mouse-or-touch"
             })
@@ -2052,7 +2051,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? -6 : 6,
               initialLayout: open,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: closed,
               trigger: "mouse-or-touch"
             })
@@ -2064,7 +2063,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? 4 : -4,
               initialLayout: closed,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: closed,
               trigger: "mouse-or-touch"
             })
@@ -2076,7 +2075,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? 6 : -6,
               initialLayout: closed,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: closed,
               trigger: "mouse-or-touch"
             })
@@ -2088,7 +2087,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? 4 : -4,
               initialLayout: closed,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: open,
               trigger: "mouse-or-touch"
             })
@@ -2100,7 +2099,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? 6 : -6,
               initialLayout: closed,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: open,
               trigger: "mouse-or-touch"
             })
@@ -2127,7 +2126,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? -4 : 4,
               initialLayout: open,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: open,
               trigger: "mouse-or-touch"
             })
@@ -2139,7 +2138,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? -6 : 6,
               initialLayout: open,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: open,
               trigger: "mouse-or-touch"
             })
@@ -2151,7 +2150,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? -4 : 4,
               initialLayout: open,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: closed,
               trigger: "mouse-or-touch"
             })
@@ -2163,7 +2162,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? -6 : 6,
               initialLayout: open,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: closed,
               trigger: "mouse-or-touch"
             })
@@ -2175,7 +2174,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? 4 : -4,
               initialLayout: closed,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: closed,
               trigger: "mouse-or-touch"
             })
@@ -2187,7 +2186,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? 6 : -6,
               initialLayout: closed,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: closed,
               trigger: "mouse-or-touch"
             })
@@ -2199,7 +2198,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? 4 : -4,
               initialLayout: closed,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: open,
               trigger: "mouse-or-touch"
             })
@@ -2211,7 +2210,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta: panelId === "left" ? 6 : -6,
               initialLayout: closed,
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: open,
               trigger: "mouse-or-touch"
             })
@@ -2232,7 +2231,7 @@ describe("adjustLayoutByDelta", () => {
           adjustLayoutByDelta({
             delta: -70,
             initialLayout: l([25, 50, 25]),
-            panelConstraints: c([{}, {}, collapsibleConstraints]),
+            itemConstraints: c([{}, {}, collapsibleConstraints]),
             prevLayout: l([25, 50, 25]),
             pivotIndices: [1, 2],
             trigger: "mouse-or-touch"
@@ -2245,7 +2244,7 @@ describe("adjustLayoutByDelta", () => {
           adjustLayoutByDelta({
             delta: 70,
             initialLayout: l([25, 50, 25]),
-            panelConstraints: c([collapsibleConstraints, {}, {}]),
+            itemConstraints: c([collapsibleConstraints, {}, {}]),
             prevLayout: l([25, 50, 25]),
             pivotIndices: [0, 1],
             trigger: "mouse-or-touch"
@@ -2267,7 +2266,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta,
               initialLayout: l([20, 50, 30]),
-              panelConstraints: c([
+              itemConstraints: c([
                 {
                   collapsedSize: 0,
                   collapsible: true,
@@ -2310,13 +2309,13 @@ describe("adjustLayoutByDelta", () => {
             [6, c([collapsible, {}]), l([56, 44])],
             [4, c([{}, collapsible]), l([54, 46])],
             [6, c([{}, collapsible]), l([56, 44])]
-          ] satisfies [number, PanelConstraints[], Layout][]
+          ] satisfies [number, ResizeItemConstraints[], Layout][]
         ).forEach(([delta, panelConstraints, expectedLayout]) => {
           expect(
             adjustLayoutByDelta({
               delta,
               initialLayout: l([50, 50]),
-              panelConstraints,
+              itemConstraints: panelConstraints,
               prevLayout: l([50, 50]),
               pivotIndices: [0, 1],
               trigger: "mouse-or-touch"
@@ -2341,7 +2340,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta,
               initialLayout: l([10, 90]),
-              panelConstraints: c([
+              itemConstraints: c([
                 {
                   collapsedSize: 10,
                   collapsible: true,
@@ -2373,7 +2372,7 @@ describe("adjustLayoutByDelta", () => {
             adjustLayoutByDelta({
               delta,
               initialLayout: l([90, 10]),
-              panelConstraints: c([
+              itemConstraints: c([
                 {},
                 {
                   collapsedSize: 10,
@@ -2400,13 +2399,13 @@ describe("adjustLayoutByDelta", () => {
           [50, c([{ disabled: true }, {}])],
           [-50, c([{}, { disabled: true }])],
           [50, c([{}, { disabled: true }])]
-        ] satisfies [number, PanelConstraints[]][]
+        ] satisfies [number, ResizeItemConstraints[]][]
       ).forEach(([delta, panelConstraints]) => {
         expect(
           adjustLayoutByDelta({
             delta,
             initialLayout: l([50, 50]),
-            panelConstraints,
+            itemConstraints: panelConstraints,
             prevLayout: l([50, 50]),
             trigger: "mouse-or-touch"
           })
@@ -2425,7 +2424,7 @@ describe("adjustLayoutByDelta", () => {
           adjustLayoutByDelta({
             delta: -25,
             initialLayout: layout,
-            panelConstraints,
+            itemConstraints: panelConstraints,
             pivotIndices: [0, 1],
             prevLayout: layout,
             trigger: "mouse-or-touch"
@@ -2436,7 +2435,7 @@ describe("adjustLayoutByDelta", () => {
           adjustLayoutByDelta({
             delta: -75,
             initialLayout: layout,
-            panelConstraints,
+            itemConstraints: panelConstraints,
             pivotIndices: [1, 2],
             prevLayout: layout,
             trigger: "mouse-or-touch"
@@ -2452,7 +2451,7 @@ describe("adjustLayoutByDelta", () => {
           adjustLayoutByDelta({
             delta: -25,
             initialLayout: layout,
-            panelConstraints,
+            itemConstraints: panelConstraints,
             pivotIndices: [0, 1],
             prevLayout: layout,
             trigger: "mouse-or-touch"
@@ -2463,7 +2462,7 @@ describe("adjustLayoutByDelta", () => {
           adjustLayoutByDelta({
             delta: -25,
             initialLayout: layout,
-            panelConstraints,
+            itemConstraints: panelConstraints,
             pivotIndices: [1, 2],
             prevLayout: layout,
             trigger: "mouse-or-touch"
@@ -2479,7 +2478,7 @@ describe("adjustLayoutByDelta", () => {
           adjustLayoutByDelta({
             delta: -25,
             initialLayout: layout,
-            panelConstraints,
+            itemConstraints: panelConstraints,
             pivotIndices: [0, 1],
             prevLayout: layout,
             trigger: "mouse-or-touch"
@@ -2490,7 +2489,7 @@ describe("adjustLayoutByDelta", () => {
           adjustLayoutByDelta({
             delta: -25,
             initialLayout: layout,
-            panelConstraints,
+            itemConstraints: panelConstraints,
             pivotIndices: [1, 2],
             prevLayout: layout,
             trigger: "mouse-or-touch"
@@ -2508,13 +2507,13 @@ describe("adjustLayoutByDelta", () => {
           [50, c([{ disabled: true }, {}, { disabled: true }])],
           [-50, c([{}, { disabled: true }, { disabled: true }])],
           [50, c([{}, { disabled: true }, { disabled: true }])]
-        ] satisfies [number, PanelConstraints[]][]
+        ] satisfies [number, ResizeItemConstraints[]][]
       ).forEach(([delta, panelConstraints]) => {
         expect(
           adjustLayoutByDelta({
             delta,
             initialLayout: l([25, 50, 25]),
-            panelConstraints,
+            itemConstraints: panelConstraints,
             pivotIndices: [0, 1],
             prevLayout: l([25, 50, 25]),
             trigger: "mouse-or-touch"
@@ -2525,7 +2524,7 @@ describe("adjustLayoutByDelta", () => {
           adjustLayoutByDelta({
             delta,
             initialLayout: l([25, 50, 25]),
-            panelConstraints,
+            itemConstraints: panelConstraints,
             pivotIndices: [1, 2],
             prevLayout: l([25, 50, 25]),
             trigger: "mouse-or-touch"
@@ -2541,13 +2540,13 @@ describe("adjustLayoutByDelta", () => {
           [5, c([{ disabled: true }, {}]), l([55, 45])],
           [-5, c([{}, { disabled: true }]), l([45, 55])],
           [5, c([{}, { disabled: true }]), l([55, 45])]
-        ] satisfies [number, PanelConstraints[], Layout][]
+        ] satisfies [number, ResizeItemConstraints[], Layout][]
       ).forEach(([delta, panelConstraints, expectedLayout]) => {
         expect(
           adjustLayoutByDelta({
             delta,
             initialLayout: l([50, 50]),
-            panelConstraints,
+            itemConstraints: panelConstraints,
             prevLayout: l([50, 50]),
             trigger: "imperative-api"
           })

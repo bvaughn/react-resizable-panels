@@ -1,4 +1,3 @@
-import type { Layout, RegisteredGroup } from "../../components/group/types";
 import {
   CURSOR_FLAG_HORIZONTAL_MAX,
   CURSOR_FLAG_HORIZONTAL_MIN,
@@ -9,15 +8,12 @@ import {
 } from "../../constants";
 import type { Point } from "../../types";
 import { updateCursorStyle } from "../cursor/updateCursorStyle";
-import type { HitRegion } from "../dom/calculateHitRegions";
-import {
-  updateMountedGroup,
-  type MountedGroups
-} from "../mutable-state/groups";
+import { updateMountedAxis, type MountedAxes } from "../mutable-state/axes";
 import {
   getInteractionState,
   updateCursorFlags
 } from "../mutable-state/interactions";
+import type { HitRegion, Layout, RegisteredResizeAxis } from "../types";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { layoutsEqual } from "./layoutsEqual";
 
@@ -27,7 +23,7 @@ export function updateActiveHitRegions({
   event,
   hitRegions,
   initialLayoutMap,
-  mountedGroups,
+  mountedAxes,
   pointerDownAtPoint,
   prevCursorFlags
 }: {
@@ -40,8 +36,8 @@ export function updateActiveHitRegions({
     movementY: number;
   };
   hitRegions: HitRegion[];
-  initialLayoutMap: Map<RegisteredGroup, Layout>;
-  mountedGroups: MountedGroups;
+  initialLayoutMap: Map<RegisteredResizeAxis, Layout>;
+  mountedAxes: MountedAxes;
   pointerDownAtPoint?: Point;
   prevCursorFlags: number;
 }) {
@@ -55,21 +51,21 @@ export function updateActiveHitRegions({
   // Note that HitRegions are frozen once a drag has started
   // Modify the Group layouts for all matching HitRegions though
   hitRegions.forEach((current) => {
-    const { group, groupSize } = current;
-    const { orientation, panels } = group;
-    if (commit && group.resizePreviewMode !== "separator") {
+    const { axis, axisSize } = current;
+    const { orientation, items } = axis;
+    if (commit && axis.resizePreviewMode !== "separator") {
       return;
     }
-    const { disableCursor } = group.mutableState;
+    const { disableCursor } = axis.mutableState;
 
     let deltaAsPercentage = 0;
     if (pointerDownAtPoint) {
       if (orientation === "horizontal") {
         deltaAsPercentage =
-          ((event.clientX - pointerDownAtPoint.x) / groupSize) * 100;
+          ((event.clientX - pointerDownAtPoint.x) / axisSize) * 100;
       } else {
         deltaAsPercentage =
-          ((event.clientY - pointerDownAtPoint.y) / groupSize) * 100;
+          ((event.clientY - pointerDownAtPoint.y) / axisSize) * 100;
       }
     } else {
       if (orientation === "horizontal") {
@@ -79,53 +75,53 @@ export function updateActiveHitRegions({
       }
     }
 
-    const initialLayout = initialLayoutMap.get(group);
-    const groupState = mountedGroups.get(group);
-    if (!initialLayout || !groupState) {
+    const initialLayout = initialLayoutMap.get(axis);
+    const axisState = mountedAxes.get(axis);
+    if (!initialLayout || !axisState) {
       return;
     }
 
     const {
       defaultLayoutDeferred,
-      derivedPanelConstraints,
-      groupSize: mountedGroupSize,
+      derivedItemConstraints,
+      axisSize: mountedAxisSize,
       layout: mountedLayout,
-      separatorToPanels
-    } = groupState;
-    if (derivedPanelConstraints && mountedLayout && separatorToPanels) {
+      separatorToItems
+    } = axisState;
+    if (derivedItemConstraints && mountedLayout && separatorToItems) {
       const prevLayout =
-        group.resizePreviewMode === "separator"
-          ? (previewLayoutMap.get(group) ?? mountedLayout)
+        axis.resizePreviewMode === "separator"
+          ? (previewLayoutMap.get(axis) ?? mountedLayout)
           : mountedLayout;
       const nextLayout = adjustLayoutByDelta({
         delta: deltaAsPercentage,
         initialLayout,
-        panelConstraints: derivedPanelConstraints,
-        pivotIndices: current.panels.map((panel) => panels.indexOf(panel)),
+        itemConstraints: derivedItemConstraints,
+        pivotIndices: current.items.map((item) => items.indexOf(item)),
         prevLayout,
         trigger: "mouse-or-touch"
       });
 
       // Preview every moved boundary, deferring the layout update until release.
       if (
-        group.resizePreviewMode === "separator" &&
+        axis.resizePreviewMode === "separator" &&
         !commit &&
         !layoutsEqual(nextLayout, prevLayout)
       ) {
-        previewLayoutMap.set(group, nextLayout);
+        previewLayoutMap.set(axis, nextLayout);
 
         let total = 0;
-        const offsets = panels.map((panel) => {
-          total += nextLayout[panel.id] - initialLayout[panel.id];
-          return total * (groupSize / 100);
+        const offsets = items.map((item) => {
+          total += nextLayout[item.id] - initialLayout[item.id];
+          return total * (axisSize / 100);
         });
 
         previews = previews.map((preview) => {
-          if (preview.group !== group) {
+          if (preview.axis !== axis) {
             return preview;
           }
 
-          const offset = offsets[preview.panelIndex];
+          const offset = offsets[preview.itemIndex];
           return offset === preview.offset ? preview : { ...preview, offset };
         });
       }
@@ -153,15 +149,15 @@ export function updateActiveHitRegions({
       }
 
       if (
-        (group.resizePreviewMode !== "separator" || commit) &&
+        (axis.resizePreviewMode !== "separator" || commit) &&
         !layoutsEqual(nextLayout, mountedLayout)
       ) {
-        updateMountedGroup(current.group, {
+        updateMountedAxis(current.axis, {
           defaultLayoutDeferred,
-          derivedPanelConstraints: derivedPanelConstraints,
-          groupSize: mountedGroupSize,
+          derivedItemConstraints,
+          axisSize: mountedAxisSize,
           layout: nextLayout,
-          separatorToPanels
+          separatorToItems
         });
       }
     }

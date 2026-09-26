@@ -5,12 +5,12 @@ import { convertVwToPixels } from "./convertVwToPixels";
 import { parseSizeAndUnit } from "./parseSizeAndUnit";
 
 export function sizeStyleToPixels({
-  groupSize,
-  panelElement,
+  axisSize,
+  itemElement,
   styleProp
 }: {
-  groupSize: number;
-  panelElement: HTMLElement;
+  axisSize: number;
+  itemElement: HTMLElement;
   styleProp: number | string;
 }) {
   let pixels: number | undefined = undefined;
@@ -19,7 +19,7 @@ export function sizeStyleToPixels({
 
   switch (unit) {
     case "%": {
-      pixels = (size / 100) * groupSize;
+      pixels = (size / 100) * axisSize;
       break;
     }
     case "px": {
@@ -27,11 +27,11 @@ export function sizeStyleToPixels({
       break;
     }
     case "rem": {
-      pixels = convertRemToPixels(panelElement, size);
+      pixels = convertRemToPixels(itemElement, size);
       break;
     }
     case "em": {
-      pixels = convertEmToPixels(panelElement, size);
+      pixels = convertEmToPixels(itemElement, size);
       break;
     }
     case "vh": {

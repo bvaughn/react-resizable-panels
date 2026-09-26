@@ -1,18 +1,17 @@
-import type { Layout } from "../../components/group/types";
-import type { PanelConstraints } from "../../components/panel/types";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
-import { validatePanelGroupLayout } from "./validatePanelGroupLayout";
+import { validateAxisLayout } from "./validateAxisLayout";
+import type { Layout, ResizeItemConstraints } from "../types";
 
 export function calculateSeparatorAriaValues({
   layout,
-  panelConstraints,
-  panelId,
-  panelIndex
+  itemConstraints,
+  itemId,
+  itemIndex
 }: {
   layout: Layout;
-  panelConstraints: PanelConstraints[];
-  panelId: string;
-  panelIndex: number;
+  itemConstraints: ResizeItemConstraints[];
+  itemId: string;
+  itemIndex: number;
 }): {
   valueControls: string | undefined;
   valueMax: number | undefined;
@@ -22,10 +21,10 @@ export function calculateSeparatorAriaValues({
   let valueMax: number | undefined = undefined;
   let valueMin: number | undefined = undefined;
 
-  const panelSize = layout[panelId];
+  const itemSize = layout[itemId];
 
-  const constraints = panelConstraints.find(
-    (current) => current.panelId === panelId
+  const constraints = itemConstraints.find(
+    (current) => current.itemId === itemId
   );
   if (constraints) {
     const maxSize = constraints.maxSize;
@@ -33,39 +32,39 @@ export function calculateSeparatorAriaValues({
       ? constraints.collapsedSize
       : constraints.minSize;
 
-    const pivotIndices = [panelIndex, panelIndex + 1];
+    const pivotIndices = [itemIndex, itemIndex + 1];
 
-    const minSizeLayout = validatePanelGroupLayout({
+    const minSizeLayout = validateAxisLayout({
       layout: adjustLayoutByDelta({
-        delta: minSize - panelSize,
+        delta: minSize - itemSize,
         initialLayout: layout,
-        panelConstraints,
+        itemConstraints,
         pivotIndices,
         prevLayout: layout
       }),
-      panelConstraints
+      itemConstraints
     });
 
-    valueMin = minSizeLayout[panelId];
+    valueMin = minSizeLayout[itemId];
 
-    const maxSizeLayout = validatePanelGroupLayout({
+    const maxSizeLayout = validateAxisLayout({
       layout: adjustLayoutByDelta({
-        delta: maxSize - panelSize,
+        delta: maxSize - itemSize,
         initialLayout: layout,
-        panelConstraints,
+        itemConstraints,
         pivotIndices,
         prevLayout: layout
       }),
-      panelConstraints
+      itemConstraints
     });
 
-    valueMax = maxSizeLayout[panelId];
+    valueMax = maxSizeLayout[itemId];
   }
 
   return {
-    valueControls: panelId,
+    valueControls: itemId,
     valueMax,
     valueMin,
-    valueNow: panelSize
+    valueNow: itemSize
   };
 }

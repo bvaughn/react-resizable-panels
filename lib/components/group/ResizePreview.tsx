@@ -12,7 +12,7 @@ export function ResizePreview({
   overlay?: SeparatorOverlayProps | undefined;
   preview: ResizePreviewState;
 }) {
-  const { group, offset, rect, separator } = preview;
+  const { axis: group, offset, rect, separator } = preview;
 
   const horizontal = group.orientation === "horizontal";
 

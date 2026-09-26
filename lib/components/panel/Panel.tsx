@@ -6,14 +6,15 @@ import {
   useSyncExternalStore,
   type CSSProperties
 } from "react";
-import { subscribeToMountedGroup } from "../../global/mutable-state/groups";
+import { subscribeToMountedAxis } from "../../global/mutable-state/axes";
+import type { RegisteredResizeItem } from "../../global/types";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
 import { useStableObject } from "../../hooks/useStableObject";
 import { useGroupContext } from "../group/useGroupContext";
-import type { PanelProps, PanelSize, RegisteredPanel } from "./types";
+import type { PanelProps, PanelSize } from "./types";
 import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
 
 /**
@@ -94,7 +95,7 @@ export function Panel({
   useIsomorphicLayoutEffect(() => {
     const element = elementRef.current;
     if (element !== null) {
-      const registeredPanel: RegisteredPanel = {
+      const registeredPanel: RegisteredResizeItem = {
         element,
         id,
         idIsStable,
@@ -103,7 +104,7 @@ export function Panel({
           prevSize: undefined
         },
         onResize: hasOnResize ? onResizeStable : undefined,
-        panelConstraints: {
+        constraintProps: {
           groupResizeBehavior,
           collapsedSize,
           collapsedThreshold,
@@ -150,7 +151,7 @@ export function Panel({
   };
 
   const panelStylesString = useSyncExternalStore(
-    (subscribe) => subscribeToMountedGroup(groupId, subscribe),
+    (subscribe) => subscribeToMountedAxis(groupId, subscribe),
     read,
     read
   );

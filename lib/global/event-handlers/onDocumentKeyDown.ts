@@ -1,7 +1,7 @@
 import { assert } from "../../utils/assert";
-import { getMountedGroupState } from "../mutable-state/groups";
+import { getMountedAxisState } from "../mutable-state/axes";
 import { adjustLayoutForSeparator } from "../utils/adjustLayoutForSeparator";
-import { findSeparatorGroup } from "../utils/findSeparatorGroup";
+import { findSeparatorAxis } from "../utils/findSeparatorAxis";
 
 export function onDocumentKeyDown(event: KeyboardEvent) {
   if (event.defaultPrevented) {
@@ -10,12 +10,12 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
 
   const separatorElement = event.currentTarget as HTMLElement;
 
-  const group = findSeparatorGroup(separatorElement);
-  if (group.disabled) {
+  const axis = findSeparatorAxis(separatorElement);
+  if (axis.disabled) {
     return;
   }
 
-  const separator = group.separators.find(
+  const separator = axis.separators.find(
     (current) => current.element === separatorElement
   );
   if (separator?.disabled) {
@@ -26,7 +26,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
     case "ArrowDown": {
       event.preventDefault();
 
-      if (group.orientation === "vertical") {
+      if (axis.orientation === "vertical") {
         adjustLayoutForSeparator(separatorElement, 5);
       }
       break;
@@ -34,7 +34,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
     case "ArrowLeft": {
       event.preventDefault();
 
-      if (group.orientation === "horizontal") {
+      if (axis.orientation === "horizontal") {
         adjustLayoutForSeparator(separatorElement, -5);
       }
       break;
@@ -42,7 +42,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
     case "ArrowRight": {
       event.preventDefault();
 
-      if (group.orientation === "horizontal") {
+      if (axis.orientation === "horizontal") {
         adjustLayoutForSeparator(separatorElement, 5);
       }
       break;
@@ -50,7 +50,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
     case "ArrowUp": {
       event.preventDefault();
 
-      if (group.orientation === "vertical") {
+      if (axis.orientation === "vertical") {
         adjustLayoutForSeparator(separatorElement, -5);
       }
       break;
@@ -70,31 +70,29 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
       // If the primary pane is not collapsed, collapses the pane.
       // If the pane is collapsed, restores the splitter to its previous position.
 
-      const group = findSeparatorGroup(separatorElement);
+      const axisState = getMountedAxisState(axis.id, true);
+      const { derivedItemConstraints, layout, separatorToItems } = axisState;
 
-      const groupState = getMountedGroupState(group.id, true);
-      const { derivedPanelConstraints, layout, separatorToPanels } = groupState;
-
-      const separator = group.separators.find(
+      const separator = axis.separators.find(
         (current) => current.element === separatorElement
       );
       assert(separator, "Matching separator not found");
 
-      const panels = separatorToPanels.get(separator);
-      assert(panels, "Matching panels not found");
+      const items = separatorToItems.get(separator);
+      assert(items, "Matching panels not found");
 
-      const primaryPanel = panels[0];
-      const constraints = derivedPanelConstraints.find(
-        (current) => current.panelId === primaryPanel.id
+      const primaryItem = items[0];
+      const constraints = derivedItemConstraints.find(
+        (current) => current.itemId === primaryItem.id
       );
       assert(constraints, "Panel metadata not found");
 
       if (constraints.collapsible) {
-        const prevSize = layout[primaryPanel.id];
+        const prevSize = layout[primaryItem.id];
 
         const nextSize =
           constraints.collapsedSize === prevSize
-            ? (group.mutableState.expandedPanelSizes[primaryPanel.id] ??
+            ? (axis.mutableState.expandedItemSizes[primaryItem.id] ??
               constraints.minSize)
             : constraints.collapsedSize;
 
@@ -107,9 +105,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
 
       // Cycle through window panes.
 
-      const group = findSeparatorGroup(separatorElement);
-
-      const separatorElements = group.separators.map(
+      const separatorElements = axis.separators.map(
         (separator) => separator.element
       );
 

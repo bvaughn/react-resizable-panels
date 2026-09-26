@@ -1,7 +1,7 @@
 import { calculateResizePreviews } from "../utils/calculateResizePreviews";
-import type { Layout, RegisteredGroup } from "../../components/group/types";
-import { getMountedGroups } from "../mutable-state/groups";
+import { getMountedAxes } from "../mutable-state/axes";
 import { updateInteractionState } from "../mutable-state/interactions";
+import type { Layout, RegisteredResizeAxis } from "../types";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
 
 export function onDocumentPointerDown(event: PointerEvent) {
@@ -11,14 +11,14 @@ export function onDocumentPointerDown(event: PointerEvent) {
     return;
   }
 
-  const mountedGroups = getMountedGroups();
+  const mountedAxes = getMountedAxes();
 
-  const hitRegions = findMatchingHitRegions(event, mountedGroups);
+  const hitRegions = findMatchingHitRegions(event, mountedAxes);
   if (hitRegions.length === 0) {
     return;
   }
 
-  const initialLayoutMap = new Map<RegisteredGroup, Layout>();
+  const initialLayoutMap = new Map<RegisteredResizeAxis, Layout>();
   let didChangeFocus = false;
 
   hitRegions.forEach((current) => {
@@ -39,15 +39,15 @@ export function onDocumentPointerDown(event: PointerEvent) {
       }
     }
 
-    const match = mountedGroups.get(current.group);
+    const match = mountedAxes.get(current.axis);
     if (match) {
-      initialLayoutMap.set(current.group, match.layout);
+      initialLayoutMap.set(current.axis, match.layout);
     }
   });
 
-  const previews = Array.from(initialLayoutMap.keys()).flatMap((group) =>
-    group.resizePreviewMode === "separator"
-      ? calculateResizePreviews(group, hitRegions)
+  const previews = Array.from(initialLayoutMap.keys()).flatMap((axis) =>
+    axis.resizePreviewMode === "separator"
+      ? calculateResizePreviews(axis, hitRegions)
       : []
   );
 

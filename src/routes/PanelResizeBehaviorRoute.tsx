@@ -11,7 +11,7 @@ import { Link } from "../components/Link";
 export default function PanelResizeBehaviorRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Examples" title="Panel resize behavior" />
+      <Header section="Flex" title="Panel resize behavior" />
       <div>
         Dragging a resize separator causes panels to re-render with updated
         sizes. In most cases, this is what you want, but if re-rendering the

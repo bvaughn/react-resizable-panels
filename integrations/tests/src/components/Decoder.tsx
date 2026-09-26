@@ -7,6 +7,7 @@ import {
   useGroupRef,
   usePanelCallbackRef,
   usePanelRef,
+  type GridLayout,
   type Layout,
   type PanelSize
 } from "react-resizable-panels";
@@ -70,6 +71,16 @@ export function Decoder({
     };
   });
 
+  const [gridState, setGridState] = useState<{
+    gridLayout: GridLayout | undefined;
+    onGridLayoutChangeCount: number;
+    onGridLayoutChangedCount: number;
+  }>({
+    gridLayout: undefined,
+    onGridLayoutChangeCount: 0,
+    onGridLayoutChangedCount: 0
+  });
+
   const [state, setState] = useState<{
     imperativeGroupApiLayout: Layout | undefined;
     imperativePanelApiSize: PanelSize | undefined;
@@ -97,6 +108,22 @@ export function Decoder({
     }
 
     const group = decode(encoded, {
+      gridProps: {
+        onLayoutChange: (gridLayout) => {
+          setGridState((prev) => ({
+            ...prev,
+            gridLayout,
+            onGridLayoutChangeCount: prev.onGridLayoutChangeCount + 1
+          }));
+        },
+        onLayoutChanged: (gridLayout) => {
+          setGridState((prev) => ({
+            ...prev,
+            gridLayout,
+            onGridLayoutChangedCount: prev.onGridLayoutChangedCount + 1
+          }));
+        }
+      },
       groupProps: {
         groupRef: groupRefProp,
         onLayoutChange: (layout) => {
@@ -186,6 +213,7 @@ export function Decoder({
             }}
           />
         )}
+        {gridState.gridLayout && <DebugData data={gridState} />}
         <DebugData
           data={{
             layout: state.layout,

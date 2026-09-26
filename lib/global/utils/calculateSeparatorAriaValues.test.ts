@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import type { PanelConstraints } from "../../components/panel/types";
+import type { ResizeItemConstraints } from "../types";
 import { calculateSeparatorAriaValues } from "./calculateSeparatorAriaValues";
 
 const DEFAULT_PANEL_CONSTRAINTS = {
@@ -13,7 +13,7 @@ const DEFAULT_PANEL_CONSTRAINTS = {
 
 describe("calculateSeparatorAriaValues", () => {
   test("should calculate the correct min/max/now values for collapsible panels", () => {
-    const panelConstraints: PanelConstraints[] = [
+    const panelConstraints: ResizeItemConstraints[] = [
       {
         ...DEFAULT_PANEL_CONSTRAINTS,
         collapsedSize: 5,
@@ -21,21 +21,21 @@ describe("calculateSeparatorAriaValues", () => {
         disabled: undefined,
         maxSize: 70,
         minSize: 20,
-        panelId: "left"
+        itemId: "left"
       },
       {
         ...DEFAULT_PANEL_CONSTRAINTS,
         minSize: 20,
-        panelId: "right"
+        itemId: "right"
       }
     ];
 
     expect(
       calculateSeparatorAriaValues({
         layout: { left: 35, right: 65 },
-        panelId: "left",
-        panelConstraints,
-        panelIndex: 0
+        itemId: "left",
+        itemConstraints: panelConstraints,
+        itemIndex: 0
       })
     ).toMatchInlineSnapshot(`
       {
@@ -48,30 +48,30 @@ describe("calculateSeparatorAriaValues", () => {
   });
 
   test("should consider other panel constraints when computing min/max values", () => {
-    const panelConstraints: PanelConstraints[] = [
+    const panelConstraints: ResizeItemConstraints[] = [
       {
         ...DEFAULT_PANEL_CONSTRAINTS,
         minSize: 10,
-        panelId: "left"
+        itemId: "left"
       },
       {
         ...DEFAULT_PANEL_CONSTRAINTS,
         minSize: 20,
-        panelId: "center"
+        itemId: "center"
       },
       {
         ...DEFAULT_PANEL_CONSTRAINTS,
         minSize: 30,
-        panelId: "right"
+        itemId: "right"
       }
     ];
 
     expect(
       calculateSeparatorAriaValues({
         layout: { left: 35, center: 25, right: 40 },
-        panelConstraints,
-        panelId: "center",
-        panelIndex: 1
+        itemConstraints: panelConstraints,
+        itemId: "center",
+        itemIndex: 1
       })
     ).toMatchInlineSnapshot(`
       {
@@ -85,9 +85,9 @@ describe("calculateSeparatorAriaValues", () => {
     expect(
       calculateSeparatorAriaValues({
         layout: { left: 10, center: 35, right: 55 },
-        panelConstraints,
-        panelId: "center",
-        panelIndex: 1
+        itemConstraints: panelConstraints,
+        itemId: "center",
+        itemIndex: 1
       })
     ).toMatchInlineSnapshot(`
       {
@@ -100,28 +100,28 @@ describe("calculateSeparatorAriaValues", () => {
   });
 
   test("should assign aria-controls if an explicit id was passed as a prop", () => {
-    const panelConstraints: PanelConstraints[] = [
+    const panelConstraints: ResizeItemConstraints[] = [
       {
         ...DEFAULT_PANEL_CONSTRAINTS,
         collapsedSize: 5,
         collapsible: true,
         maxSize: 70,
         minSize: 20,
-        panelId: "left"
+        itemId: "left"
       },
       {
         ...DEFAULT_PANEL_CONSTRAINTS,
         minSize: 20,
-        panelId: "right"
+        itemId: "right"
       }
     ];
 
     expect(
       calculateSeparatorAriaValues({
         layout: { left: 35, right: 65 },
-        panelId: "left",
-        panelConstraints,
-        panelIndex: 0
+        itemId: "left",
+        itemConstraints: panelConstraints,
+        itemIndex: 0
       })
     ).toMatchInlineSnapshot(`
       {

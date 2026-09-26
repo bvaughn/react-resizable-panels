@@ -24,7 +24,7 @@ describe("isViableHitTarget", () => {
 
     expect(
       isViableHitTarget({
-        groupElement,
+        axisElement: groupElement,
         hitRegion,
         pointerEventTarget: target
       })
@@ -43,7 +43,7 @@ describe("isViableHitTarget", () => {
 
     expect(
       isViableHitTarget({
-        groupElement,
+        axisElement: groupElement,
         hitRegion,
         pointerEventTarget: target
       })
@@ -52,7 +52,7 @@ describe("isViableHitTarget", () => {
     // The dialog itself (e.g. its ::backdrop) should also be ignored
     expect(
       isViableHitTarget({
-        groupElement,
+        axisElement: groupElement,
         hitRegion,
         pointerEventTarget: dialog
       })
@@ -71,7 +71,7 @@ describe("isViableHitTarget", () => {
 
     expect(
       isViableHitTarget({
-        groupElement,
+        axisElement: groupElement,
         hitRegion,
         pointerEventTarget: target
       })
@@ -90,7 +90,7 @@ describe("isViableHitTarget", () => {
 
     expect(
       isViableHitTarget({
-        groupElement,
+        axisElement: groupElement,
         hitRegion,
         pointerEventTarget: target
       })
@@ -109,7 +109,7 @@ describe("isViableHitTarget", () => {
 
     expect(
       isViableHitTarget({
-        groupElement,
+        axisElement: groupElement,
         hitRegion,
         pointerEventTarget: target
       })
@@ -129,7 +129,7 @@ describe("isViableHitTarget", () => {
 
     expect(
       isViableHitTarget({
-        groupElement,
+        axisElement: groupElement,
         hitRegion,
         pointerEventTarget: target
       })

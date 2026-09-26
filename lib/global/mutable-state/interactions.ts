@@ -1,6 +1,5 @@
-import type { RegisteredGroup } from "../../components/group/types";
-import type { RegisteredSeparator } from "../../components/separator/types";
 import { EventEmitter } from "../../utils/EventEmitter";
+import type { RegisteredResizeAxis, RegisteredSeparator } from "../types";
 import type {
   InteractionActive,
   InteractionState,
@@ -105,17 +104,15 @@ export function notifySeparatorPreviewChanged(separator: RegisteredSeparator) {
   });
 }
 
-export function removeGroupFromInteraction(group: RegisteredGroup) {
+export function removeAxisFromInteraction(axis: RegisteredResizeAxis) {
   if (state.state === "inactive") {
     return false;
   }
 
-  const hitRegions = state.hitRegions.filter(
-    (region) => region.group !== group
-  );
+  const hitRegions = state.hitRegions.filter((region) => region.axis !== axis);
   const hasPreviews =
     state.state === "active" &&
-    state.previews.some((preview) => preview.group === group);
+    state.previews.some((preview) => preview.axis === axis);
   if (hitRegions.length === state.hitRegions.length && !hasPreviews) {
     return false;
   }
@@ -125,8 +122,8 @@ export function removeGroupFromInteraction(group: RegisteredGroup) {
   } else if (state.state === "active") {
     const initialLayoutMap = new Map(state.initialLayoutMap);
     const previewLayoutMap = new Map(state.previewLayoutMap);
-    initialLayoutMap.delete(group);
-    previewLayoutMap.delete(group);
+    initialLayoutMap.delete(axis);
+    previewLayoutMap.delete(axis);
 
     updateInteractionState({
       ...state,
@@ -134,7 +131,7 @@ export function removeGroupFromInteraction(group: RegisteredGroup) {
       hitRegions,
       initialLayoutMap,
       previewLayoutMap,
-      previews: state.previews.filter((preview) => preview.group !== group)
+      previews: state.previews.filter((preview) => preview.axis !== axis)
     });
   } else {
     updateInteractionState({ ...state, hitRegions });

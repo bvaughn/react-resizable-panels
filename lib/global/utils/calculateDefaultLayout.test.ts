@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
-import type { PanelConstraints } from "../../components/panel/types";
+import type { ResizeItemConstraints } from "../types";
 import { calculateDefaultLayout } from "./calculateDefaultLayout";
 
 const c = (
-  partial: Partial<PanelConstraints> & { panelId: string }
-): PanelConstraints => ({
+  partial: Partial<ResizeItemConstraints> & { itemId: string }
+): ResizeItemConstraints => ({
   collapsedSize: 0,
   collapsible: false,
   defaultSize: undefined,
@@ -18,9 +18,9 @@ describe("calculateDefaultLayout", () => {
   test("inferred", () => {
     expect(
       calculateDefaultLayout([
-        c({ panelId: "a" }),
-        c({ panelId: "b" }),
-        c({ panelId: "c" })
+        c({ itemId: "a" }),
+        c({ itemId: "b" }),
+        c({ itemId: "c" })
       ])
     ).toMatchInlineSnapshot(`
       {
@@ -34,9 +34,9 @@ describe("calculateDefaultLayout", () => {
   test("explicit", () => {
     expect(
       calculateDefaultLayout([
-        c({ panelId: "a", defaultSize: 25 }),
-        c({ panelId: "b", defaultSize: 50 }),
-        c({ panelId: "c", defaultSize: 25 })
+        c({ itemId: "a", defaultSize: 25 }),
+        c({ itemId: "b", defaultSize: 50 }),
+        c({ itemId: "c", defaultSize: 25 })
       ])
     ).toMatchInlineSnapshot(`
       {
@@ -50,9 +50,9 @@ describe("calculateDefaultLayout", () => {
   test("mix of explicit and inferred", () => {
     expect(
       calculateDefaultLayout([
-        c({ panelId: "a", defaultSize: 25 }),
-        c({ panelId: "b" }),
-        c({ panelId: "c" })
+        c({ itemId: "a", defaultSize: 25 }),
+        c({ itemId: "b" }),
+        c({ itemId: "c" })
       ])
     ).toMatchInlineSnapshot(`
       {
@@ -64,9 +64,9 @@ describe("calculateDefaultLayout", () => {
 
     expect(
       calculateDefaultLayout([
-        c({ panelId: "a", defaultSize: 20 }),
-        c({ panelId: "b", defaultSize: 50 }),
-        c({ panelId: "c" })
+        c({ itemId: "a", defaultSize: 20 }),
+        c({ itemId: "b", defaultSize: 50 }),
+        c({ itemId: "c" })
       ])
     ).toMatchInlineSnapshot(`
       {

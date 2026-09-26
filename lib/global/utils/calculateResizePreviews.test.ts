@@ -22,7 +22,7 @@ describe("calculateResizePreviews", () => {
           group.addHTMLElement(rect(explicit ? 110 : 100, explicit ? 90 : 100));
           group.addPanel(rect(200, 100));
 
-          const hitRegions = calculateHitRegions({ group });
+          const hitRegions = calculateHitRegions({ axis: group });
           const previews = calculateResizePreviews(group, [
             hitRegions[activeIndex]
           ]);
@@ -52,7 +52,7 @@ describe("calculateResizePreviews", () => {
     group.addSeparator(new DOMRect(100, 0, 10, 100), "separator", true);
     group.addPanel(new DOMRect(110, 0, 100, 100));
 
-    expect(calculateHitRegions({ group })).toHaveLength(0);
+    expect(calculateHitRegions({ axis: group })).toHaveLength(0);
 
     const previews = calculateResizePreviews(group, []);
     expect(previews).toHaveLength(1);

@@ -4,7 +4,7 @@ import { mockGroup } from "../test/mockGroup";
 import { calculateResizePreviews } from "../utils/calculateResizePreviews";
 import {
   getInteractionState,
-  removeGroupFromInteraction,
+  removeAxisFromInteraction,
   updateInteractionState
 } from "./interactions";
 
@@ -19,13 +19,15 @@ test("removing a group preserves the other group in a shared drag", () => {
     group.addPanel(new DOMRect(100, 0, 100, 100));
     return group;
   });
-  const hitRegions = groups.flatMap((group) => calculateHitRegions({ group }));
+  const hitRegions = groups.flatMap((group) =>
+    calculateHitRegions({ axis: group })
+  );
   const initialLayoutMap = new Map(
     groups.map((group) => [
       group,
       {
-        [group.panels[0].id]: 50,
-        [group.panels[1].id]: 50
+        [group.items[0].id]: 50,
+        [group.items[1].id]: 50
       }
     ])
   );
@@ -44,7 +46,7 @@ test("removing a group preserves the other group in a shared drag", () => {
     state: "active"
   });
 
-  removeGroupFromInteraction(groups[0]);
+  removeAxisFromInteraction(groups[0]);
 
   const interaction = getInteractionState();
   expect(interaction.state).toBe("active");
@@ -60,6 +62,6 @@ test("removing a group preserves the other group in a shared drag", () => {
     initialLayoutMap.get(groups[1])
   );
 
-  removeGroupFromInteraction(groups[1]);
+  removeAxisFromInteraction(groups[1]);
   expect(getInteractionState().state).toBe("inactive");
 });

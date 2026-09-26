@@ -5,7 +5,7 @@ export default function PersistentLayoutsConditionalPanelsRoute() {
   return (
     <Box direction="column" gap={4}>
       <Header
-        section="Examples"
+        section="Flex"
         title="Persistent layouts with conditional panels"
       />
       <div>

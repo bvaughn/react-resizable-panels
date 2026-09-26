@@ -1,8 +1,8 @@
 import { act, render } from "@testing-library/react";
 import { createRef, Profiler } from "react";
 import { describe, expect, test, vi } from "vitest";
-import { calculatePanelConstraints } from "../../global/dom/calculatePanelConstraints";
-import { getRegisteredGroup } from "../../global/mutable-state/groups";
+import { calculateItemConstraints } from "../../global/dom/calculateItemConstraints";
+import { getRegisteredAxis } from "../../global/mutable-state/axes";
 import { moveSeparator } from "../../global/test/moveSeparator";
 import { assert } from "../../utils/assert";
 import {
@@ -28,8 +28,8 @@ describe("Panel", () => {
       );
 
       expect(
-        calculatePanelConstraints(getRegisteredGroup("group", true)).find(
-          ({ panelId }) => panelId === "a"
+        calculateItemConstraints(getRegisteredAxis("group", true)).find(
+          ({ itemId: panelId }) => panelId === "a"
         )?.collapsedThreshold
       ).toBe(5);
       expect(document.getElementById("a")).not.toHaveAttribute(
@@ -44,8 +44,8 @@ describe("Panel", () => {
       );
 
       expect(
-        calculatePanelConstraints(getRegisteredGroup("group", true)).find(
-          ({ panelId }) => panelId === "a"
+        calculateItemConstraints(getRegisteredAxis("group", true)).find(
+          ({ itemId: panelId }) => panelId === "a"
         )?.collapsedThreshold
       ).toBe(3);
     }
@@ -60,7 +60,7 @@ describe("Panel", () => {
         </Group>
       );
 
-      const { panels: panelsMounted } = getRegisteredGroup("group", true);
+      const { items: panelsMounted } = getRegisteredAxis("group", true);
 
       rerender(
         <Group id="group">
@@ -69,7 +69,7 @@ describe("Panel", () => {
         </Group>
       );
 
-      const { panels: panelsUpdated } = getRegisteredGroup("group", true);
+      const { items: panelsUpdated } = getRegisteredAxis("group", true);
 
       expect(panelsMounted).toBe(panelsUpdated);
     });

@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { createRef, Profiler } from "react";
 import { createPortal } from "react-dom";
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { getRegisteredGroup } from "../../global/mutable-state/groups";
+import { getRegisteredAxis } from "../../global/mutable-state/axes";
 import {
   getInteractionState,
   updateInteractionState
@@ -73,7 +73,7 @@ describe("separator previews", () => {
         keys: "[MouseLeft>]",
         coords: { clientX: 105, clientY: 50 }
       });
-      const group = getRegisteredGroup("group", true);
+      const group = getRegisteredAxis("group", true);
       expect(
         container.querySelector("[data-resize-preview]")
       ).toHaveTextContent("old");
@@ -82,7 +82,7 @@ describe("separator previews", () => {
       expect(
         container.querySelector("[data-resize-preview]")
       ).toHaveTextContent("new");
-      expect(getRegisteredGroup("group", true)).toBe(group);
+      expect(getRegisteredAxis("group", true)).toBe(group);
       expect(getInteractionState().state).toBe("active");
 
       rerender(ui(""));
@@ -141,10 +141,10 @@ describe("separator previews", () => {
         <ResizePreview
           preview={{
             active: true,
-            group,
+            axis: group,
             key: "separator",
             offset: 0,
-            panelIndex: 0,
+            itemIndex: 0,
             rect: new DOMRect(100, 0, 10, 100),
             separator: { element, id: "separator" }
           }}
@@ -179,11 +179,11 @@ describe("separator previews", () => {
     );
 
     const { container, rerender, unmount } = render(ui());
-    const group = getRegisteredGroup("group", true);
+    const group = getRegisteredAxis("group", true);
 
     const preview = {
-      group,
-      panelIndex: 0,
+      axis: group,
+      itemIndex: 0,
       key: "active",
       active: true,
       rect: new DOMRect(50, 0, 0, 100),
@@ -196,7 +196,7 @@ describe("separator previews", () => {
     };
     const unrelated = {
       ...preview,
-      group: {
+      axis: {
         ...group,
         id: "other"
       }

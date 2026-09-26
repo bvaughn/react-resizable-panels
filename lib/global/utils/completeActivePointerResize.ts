@@ -1,10 +1,10 @@
 import { updateCursorStyle } from "../cursor/updateCursorStyle.ts";
 import { updateActiveHitRegions } from "./updateActiveHitRegion";
 import {
-  getMountedGroups,
-  getMountedGroupState,
-  updateMountedGroup
-} from "../mutable-state/groups.ts";
+  getMountedAxes,
+  getMountedAxisState,
+  updateMountedAxis
+} from "../mutable-state/axes.ts";
 import {
   getInteractionState,
   updateInteractionState
@@ -20,7 +20,7 @@ export function completeActivePointerResize(
   }
 ) {
   const interactionState = getInteractionState();
-  const mountedGroups = getMountedGroups();
+  const mountedAxes = getMountedAxes();
 
   let match = false;
 
@@ -32,7 +32,7 @@ export function completeActivePointerResize(
         event,
         hitRegions: interactionState.hitRegions,
         initialLayoutMap: interactionState.initialLayoutMap,
-        mountedGroups,
+        mountedAxes,
         pointerDownAtPoint: interactionState.pointerDownAtPoint,
         prevCursorFlags: interactionState.cursorFlags
       });
@@ -54,11 +54,11 @@ export function completeActivePointerResize(
         interactionState.hitRegions.forEach((hitRegion) => {
           // Skip if the group was re-registered mid-gesture, so the old hit region
           // doesn't resurrect a stale entry in the mounted-groups map. See #729.
-          if (!mountedGroups.has(hitRegion.group)) {
+          if (!mountedAxes.has(hitRegion.axis)) {
             return;
           }
-          const groupState = getMountedGroupState(hitRegion.group.id, true);
-          updateMountedGroup(hitRegion.group, groupState, {
+          const axisState = getMountedAxisState(hitRegion.axis.id, true);
+          updateMountedAxis(hitRegion.axis, axisState, {
             isUserInteraction: true
           });
         });

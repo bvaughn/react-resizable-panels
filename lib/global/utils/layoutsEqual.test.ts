@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
+import type { Layout } from "../types";
 import { layoutsEqual } from "./layoutsEqual";
-import type { Layout } from "../../components/group/types";
 
 const EMPTY: Layout = {};
 const A: Layout = { a: 25, b: 75 };

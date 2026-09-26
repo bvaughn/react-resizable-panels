@@ -1,5 +1,5 @@
-import type { Orientation } from "../../components/group/types";
 import { assert } from "../../utils/assert";
+import type { Orientation } from "../types";
 import { getDistanceBetweenPointAndRect } from "./getDistanceBetweenPointAndRect";
 
 export function findClosestRect({

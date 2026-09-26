@@ -9,35 +9,7 @@ export type GroupResizeBehavior =
   | "preserve-relative-size"
   | "preserve-pixel-size";
 
-/**
- * Numeric Panel constraints are represented as numeric percentages (0..100)
- * Values specified using other CSS units must be pre-converted.
- */
-export type PanelConstraints = {
-  collapsedSize: number;
-  collapsedThreshold?: number | undefined;
-  collapsible: boolean;
-  defaultSize: number | undefined;
-  disabled: boolean | undefined;
-  groupResizeBehavior?: GroupResizeBehavior | undefined;
-  maxSize: number;
-  minSize: number;
-  panelId: string;
-};
-
 export type SizeUnit = "px" | "%" | "em" | "rem" | "vh" | "vw";
-
-export type RegisteredPanel = {
-  id: string;
-  idIsStable: boolean;
-  element: HTMLDivElement;
-  mutableValues: {
-    expandToSize: number | undefined;
-    prevSize: PanelSize | undefined;
-  };
-  onResize: OnPanelResize | undefined;
-  panelConstraints: PanelConstraintProps;
-};
 
 /**
  * Imperative Panel API
@@ -177,7 +149,7 @@ export type PanelProps = BasePanelAttributes & {
    *
    * ℹ️ This prop is used to associate persisted group layouts with the original panel.
    *
-   * ℹ️ This value will also be assigned to the `data-panel` attribute.
+   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes.
    */
   id?: string | number | undefined;
 

@@ -1,23 +1,26 @@
-import type { Layout, RegisteredGroup } from "../../components/group/types";
-import type { PanelConstraints } from "../../components/panel/types";
 import { calculateDefaultLayout } from "./calculateDefaultLayout";
 import { validateLayoutKeys } from "./validateLayoutKeys";
+import type {
+  Layout,
+  RegisteredResizeAxis,
+  ResizeItemConstraints
+} from "../types";
 
 export function getDefaultLayout({
-  group,
-  panelConstraints
+  axis,
+  itemConstraints
 }: {
-  group: RegisteredGroup;
-  panelConstraints: PanelConstraints[];
+  axis: RegisteredResizeAxis;
+  itemConstraints: ResizeItemConstraints[];
 }): Layout {
-  const panelIdsKey = group.panels.map(({ id }) => id).join(",");
-  const defaultLayout = group.mutableState.defaultLayout;
+  const itemIdsKey = axis.items.map(({ id }) => id).join(",");
+  const defaultLayout = axis.mutableState.defaultLayout;
 
   // Dynamic panel configurations can invalidate a supplied default layout.
   return (
-    group.mutableState.layouts[panelIdsKey] ??
-    (defaultLayout && validateLayoutKeys(group.panels, defaultLayout)
+    axis.mutableState.layouts[itemIdsKey] ??
+    (defaultLayout && validateLayoutKeys(axis.items, defaultLayout)
       ? defaultLayout
-      : calculateDefaultLayout(panelConstraints))
+      : calculateDefaultLayout(itemConstraints))
   );
 }

@@ -8,7 +8,7 @@ import { Separator } from "../components/styled-panels/Separator";
 export default function SizeConstraintsRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Examples" title="Min/max sizes" />
+      <Header section="Flex" title="Min/max sizes" />
       <div>
         Panels can be configured with minimum/maximum allowed sizes. Size can be
         specified using the following{" "}

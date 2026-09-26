@@ -7,32 +7,33 @@ import {
   useState,
   type CSSProperties
 } from "react";
-import { calculatePanelConstraints } from "../../global/dom/calculatePanelConstraints";
-import { mountGroup } from "../../global/mountGroup";
+import { calculateItemConstraints } from "../../global/dom/calculateItemConstraints";
+import { mountAxis } from "../../global/mountAxis";
 import {
-  getMountedGroupState,
-  getRegisteredGroup,
-  subscribeToMountedGroup,
-  updateMountedGroup
-} from "../../global/mutable-state/groups";
+  getMountedAxisState,
+  getRegisteredAxis,
+  subscribeToMountedAxis,
+  updateMountedAxis
+} from "../../global/mutable-state/axes";
 import { getInteractionState } from "../../global/mutable-state/interactions";
-import { layoutNumbersEqual } from "../../global/utils/layoutNumbersEqual";
+import type {
+  RegisteredResizeAxis,
+  RegisteredResizeItem,
+  RegisteredSeparator
+} from "../../global/types";
 import { layoutsEqual } from "../../global/utils/layoutsEqual";
+import { recordAxisLayoutChange } from "../../global/utils/recordAxisLayoutChange";
 import { useForceUpdate } from "../../hooks/useForceUpdate";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
 import { useStableObject } from "../../hooks/useStableObject";
-import type { RegisteredPanel } from "../panel/types";
-import type {
-  RegisteredSeparator,
-  SeparatorOverlayProps
-} from "../separator/types";
+import type { SeparatorOverlayProps } from "../separator/types";
 import { GroupContext } from "./GroupContext";
 import { ResizePreview } from "./ResizePreview";
 import { sortByElementOffset } from "./sortByElementOffset";
-import type { GroupProps, Layout, RegisteredGroup } from "./types";
+import type { GroupProps, Layout } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
 import { useResizePreviews } from "./useResizePreviews";
 
@@ -114,7 +115,7 @@ export function Group({
   const inMemoryValuesRef = useRef<{
     lastExpandedPanelSizes: { [panelIds: string]: number };
     layouts: { [panelIds: string]: Layout };
-    panels: RegisteredPanel[];
+    panels: RegisteredResizeItem[];
     separators: RegisteredSeparator[];
   }>({
     lastExpandedPanelSizes: {},
@@ -130,7 +131,7 @@ export function Group({
   // TRICKY Don't read for state; it will always lag behind by one tick
   const getPanelStyles = useStableCallback(
     (groupId: string, panelId: string) => {
-      const groupState = getMountedGroupState(groupId);
+      const groupState = getMountedAxisState(groupId);
       if (groupState) {
         return {
           flexGrow: groupState.layout[panelId] ?? 1
@@ -160,7 +161,7 @@ export function Group({
       getPanelStyles,
       id,
       orientation,
-      registerPanel: (panel: RegisteredPanel) => {
+      registerPanel: (panel: RegisteredResizeItem) => {
         const inMemoryValues = inMemoryValuesRef.current;
         inMemoryValues.panels = sortByElementOffset(orientation, [
           ...inMemoryValues.panels,
@@ -210,15 +211,15 @@ export function Group({
           (current) => current.id === panelId
         );
         if (panel) {
-          panel.panelConstraints.disabled = disabled;
+          panel.constraintProps.disabled = disabled;
         }
 
-        const group = getRegisteredGroup(id);
-        const groupState = getMountedGroupState(id);
+        const group = getRegisteredAxis(id);
+        const groupState = getMountedAxisState(id);
         if (group && groupState) {
-          updateMountedGroup(group, {
+          updateMountedAxis(group, {
             ...groupState,
-            derivedPanelConstraints: calculatePanelConstraints(group)
+            derivedItemConstraints: calculateItemConstraints(group)
           });
         }
       },
@@ -245,7 +246,7 @@ export function Group({
     [getPanelStyles, id, forceUpdate, orientation, stableProps]
   );
 
-  const registeredGroupRef = useRef<RegisteredGroup | null>(null);
+  const registeredGroupRef = useRef<RegisteredResizeAxis | null>(null);
 
   // Register Group and child Panels/Separators with global state
   // Listen to global state for drag state related to this Group
@@ -274,18 +275,18 @@ export function Group({
       }
     }
 
-    const group: RegisteredGroup = {
+    const group: RegisteredResizeAxis = {
       disabled: !!disabled,
       element,
       id,
       mutableState: {
         defaultLayout: preSortedDefaultLayout,
         disableCursor: !!stableProps.disableCursor,
-        expandedPanelSizes: inMemoryValuesRef.current.lastExpandedPanelSizes,
+        expandedItemSizes: inMemoryValuesRef.current.lastExpandedPanelSizes,
         layouts: inMemoryValuesRef.current.layouts
       },
       orientation,
-      panels: inMemoryValues.panels,
+      items: inMemoryValues.panels,
       resizePreviewMode,
       get resizeTargetMinimumSize() {
         return stableProps.resizeTargetMinimumSize;
@@ -295,10 +296,13 @@ export function Group({
 
     registeredGroupRef.current = group;
 
-    const unmountGroup = mountGroup(group);
+    const unmountGroup = mountAxis(group);
 
-    const { defaultLayoutDeferred, derivedPanelConstraints, layout } =
-      getMountedGroupState(group.id, true);
+    const {
+      defaultLayoutDeferred,
+      derivedItemConstraints: derivedPanelConstraints,
+      layout
+    } = getMountedAxisState(group.id, true);
 
     if (!defaultLayoutDeferred && derivedPanelConstraints.length > 0) {
       onLayoutChangeStable(layout);
@@ -306,9 +310,12 @@ export function Group({
       onLayoutChangedStable(layout, false);
     }
 
-    const removeChangeEventListener = subscribeToMountedGroup(id, (event) => {
-      const { defaultLayoutDeferred, derivedPanelConstraints, layout } =
-        event.next;
+    const removeChangeEventListener = subscribeToMountedAxis(id, (event) => {
+      const {
+        defaultLayoutDeferred,
+        derivedItemConstraints: derivedPanelConstraints,
+        layout
+      } = event.next;
 
       if (defaultLayoutDeferred || derivedPanelConstraints.length === 0) {
         // This indicates that the Group has not finished mounting yet
@@ -317,38 +324,18 @@ export function Group({
         return;
       }
 
-      // Save the layout to in-memory cache so it persists when panel configuration changes
-      // This improves UX for conditionally rendered panels without requiring defaultLayout
-      const panelIdsKey = group.panels.map(({ id }) => id).join(",");
-      group.mutableState.layouts[panelIdsKey] = layout;
-
-      // Also check if any collapsible Panels were collapsed in this update,
-      // and record their previous sizes so we can restore them on expand
-      derivedPanelConstraints.forEach((constraints) => {
-        if (constraints.collapsible) {
-          const { layout: prevLayout } = event.prev ?? {};
-          if (prevLayout) {
-            const isCollapsed = layoutNumbersEqual(
-              constraints.collapsedSize,
-              layout[constraints.panelId]
-            );
-            const wasCollapsed = layoutNumbersEqual(
-              constraints.collapsedSize,
-              prevLayout[constraints.panelId]
-            );
-            if (isCollapsed && !wasCollapsed) {
-              group.mutableState.expandedPanelSizes[constraints.panelId] =
-                prevLayout[constraints.panelId];
-            }
-          }
-        }
+      recordAxisLayoutChange({
+        derivedItemConstraints: derivedPanelConstraints,
+        axis: group,
+        layout,
+        prevLayout: event.prev?.layout
       });
 
       // Lastly notify layout-change(d) handlers of the update
       const interactionState = getInteractionState();
       const isCompleted =
         interactionState.state !== "active" ||
-        !interactionState.hitRegions.some((region) => region.group === group);
+        !interactionState.hitRegions.some((region) => region.axis === group);
       onLayoutChangeStable(layout);
       if (isCompleted) {
         onLayoutChangedStable(layout, event.isUserInteraction);

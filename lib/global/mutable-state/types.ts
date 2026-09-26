@@ -1,8 +1,11 @@
-import type { Layout, RegisteredGroup } from "../../components/group/types";
-import type { RegisteredPanel } from "../../components/panel/types";
-import type { RegisteredSeparator } from "../../components/separator/types";
 import type { Point } from "../../types";
-import type { HitRegion } from "../dom/calculateHitRegions";
+import type {
+  HitRegion,
+  Layout,
+  RegisteredResizeAxis,
+  RegisteredResizeItem,
+  RegisteredSeparator
+} from "../types";
 
 export type InteractionInactive = {
   cursorFlags: 0;
@@ -17,10 +20,10 @@ export type InteractionHover = {
 
 export type ResizePreview = {
   active: boolean;
-  group: RegisteredGroup;
+  axis: RegisteredResizeAxis;
   key: string;
   offset: number;
-  panelIndex: number;
+  itemIndex: number;
   rect: DOMRect;
   separator?: RegisteredSeparator | undefined;
 };
@@ -29,9 +32,9 @@ export type InteractionActive = {
   cursorFlags: number;
   didPointerMove: boolean;
   hitRegions: HitRegion[];
-  initialLayoutMap: Map<RegisteredGroup, Layout>;
+  initialLayoutMap: Map<RegisteredResizeAxis, Layout>;
   pointerDownAtPoint: Point;
-  previewLayoutMap: Map<RegisteredGroup, Layout>;
+  previewLayoutMap: Map<RegisteredResizeAxis, Layout>;
   previews: ResizePreview[];
   state: "active";
 };
@@ -41,7 +44,7 @@ export type InteractionState =
   | InteractionHover
   | InteractionActive;
 
-export type SeparatorToPanelsMap = Map<
+export type SeparatorToItemsMap = Map<
   RegisteredSeparator,
-  [primaryPanel: RegisteredPanel, secondaryPanel: RegisteredPanel]
+  [primaryItem: RegisteredResizeItem, secondaryItem: RegisteredResizeItem]
 >;

@@ -1,23 +1,22 @@
-import type { Layout } from "../../components/group/types";
-import type { PanelConstraints } from "../../components/panel/types";
 import { assert } from "../../utils/assert";
 import { isArrayEqual } from "../../utils/isArrayEqual";
+import type { Layout, ResizeItemConstraints } from "../types";
 import { compareLayoutNumbers } from "../utils/compareLayoutNumbers";
 import { layoutNumbersEqual } from "../utils/layoutNumbersEqual";
-import { validatePanelSize } from "../utils/validatePanelSize";
+import { validateItemSize } from "./validateItemSize";
 
 // All units must be in percentages; pixel values should be pre-converted
 export function adjustLayoutByDelta({
   delta,
   initialLayout: initialLayoutProp,
-  panelConstraints: panelConstraintsArray,
+  itemConstraints: itemConstraintsArray,
   pivotIndices,
   prevLayout: prevLayoutProp,
   trigger
 }: {
   delta: number;
   initialLayout: Layout;
-  panelConstraints: PanelConstraints[];
+  itemConstraints: ResizeItemConstraints[];
   pivotIndices: number[];
   prevLayout: Layout;
   trigger?: "imperative-api" | "keyboard" | "mouse-or-touch";
@@ -26,13 +25,13 @@ export function adjustLayoutByDelta({
     return initialLayoutProp;
   }
 
-  const overrideDisabledPanels = trigger === "imperative-api";
+  const overrideDisabledItems = trigger === "imperative-api";
 
-  const initialLayout = panelConstraintsArray.map(
-    ({ panelId }) => initialLayoutProp[panelId]
+  const initialLayout = itemConstraintsArray.map(
+    ({ itemId }) => initialLayoutProp[itemId]
   );
-  const prevLayout = panelConstraintsArray.map(
-    ({ panelId }) => prevLayoutProp[panelId]
+  const prevLayout = itemConstraintsArray.map(
+    ({ itemId }) => prevLayoutProp[itemId]
   );
   const nextLayout = [...initialLayout];
 
@@ -58,9 +57,9 @@ export function adjustLayoutByDelta({
         {
           // Check if we should expand a collapsed panel
           const index = delta < 0 ? secondPivotIndex : firstPivotIndex;
-          const panelConstraints = panelConstraintsArray[index];
+          const itemConstraints = itemConstraintsArray[index];
           assert(
-            panelConstraints,
+            itemConstraints,
             `Panel constraints not found for index ${index}`
           );
 
@@ -68,7 +67,7 @@ export function adjustLayoutByDelta({
             collapsedSize = 0,
             collapsible,
             minSize = 0
-          } = panelConstraints;
+          } = itemConstraints;
 
           if (collapsible) {
             const prevSize = initialLayout[index];
@@ -90,9 +89,9 @@ export function adjustLayoutByDelta({
         {
           // Check if we should collapse a panel at its minimum size
           const index = delta < 0 ? firstPivotIndex : secondPivotIndex;
-          const panelConstraints = panelConstraintsArray[index];
+          const itemConstraints = itemConstraintsArray[index];
           assert(
-            panelConstraints,
+            itemConstraints,
             `No panel constraints found for index ${index}`
           );
 
@@ -100,7 +99,7 @@ export function adjustLayoutByDelta({
             collapsedSize = 0,
             collapsible,
             minSize = 0
-          } = panelConstraints;
+          } = itemConstraints;
 
           if (collapsible) {
             const prevSize = initialLayout[index];
@@ -126,16 +125,16 @@ export function adjustLayoutByDelta({
         // The easiest way to support this is to detect this scenario and pre-adjust the delta before applying the rest of the layout algorithm
 
         const index = delta < 0 ? secondPivotIndex : firstPivotIndex;
-        const panelConstraints = panelConstraintsArray[index];
+        const itemConstraints = itemConstraintsArray[index];
         assert(
-          panelConstraints,
+          itemConstraints,
           `Panel constraints not found for index ${index}`
         );
 
         const prevSize = initialLayout[index];
 
         const { collapsedSize, collapsedThreshold, collapsible, minSize } =
-          panelConstraints;
+          itemConstraints;
         if (collapsible && compareLayoutNumbers(prevSize, minSize) < 0) {
           const gapSize = minSize - collapsedSize;
           const threshold = collapsedThreshold ?? gapSize / 2;
@@ -177,9 +176,9 @@ export function adjustLayoutByDelta({
         `Previous layout not found for panel index ${index}`
       );
 
-      const maxSafeSize = validatePanelSize({
-        overrideDisabledPanels,
-        panelConstraints: panelConstraintsArray[index],
+      const maxSafeSize = validateItemSize({
+        overrideDisabledItems,
+        itemConstraints: itemConstraintsArray[index],
         prevSize,
         size: 100
       });
@@ -188,7 +187,7 @@ export function adjustLayoutByDelta({
       maxAvailableDelta += delta;
       index += increment;
 
-      if (index < 0 || index >= panelConstraintsArray.length) {
+      if (index < 0 || index >= itemConstraintsArray.length) {
         break;
       }
     }
@@ -202,7 +201,7 @@ export function adjustLayoutByDelta({
 
     const pivotIndex = delta < 0 ? firstPivotIndex : secondPivotIndex;
     let index = pivotIndex;
-    while (index >= 0 && index < panelConstraintsArray.length) {
+    while (index >= 0 && index < itemConstraintsArray.length) {
       const deltaRemaining = Math.abs(delta) - Math.abs(deltaApplied);
 
       const prevSize = initialLayout[index];
@@ -212,9 +211,9 @@ export function adjustLayoutByDelta({
       );
 
       const unsafeSize = prevSize - deltaRemaining;
-      const safeSize = validatePanelSize({
-        overrideDisabledPanels,
-        panelConstraints: panelConstraintsArray[index],
+      const safeSize = validateItemSize({
+        overrideDisabledItems,
+        itemConstraints: itemConstraintsArray[index],
         prevSize,
         size: unsafeSize
       });
@@ -260,9 +259,9 @@ export function adjustLayoutByDelta({
     );
 
     const unsafeSize = prevSize + deltaApplied;
-    const safeSize = validatePanelSize({
-      overrideDisabledPanels,
-      panelConstraints: panelConstraintsArray[pivotIndex],
+    const safeSize = validateItemSize({
+      overrideDisabledItems,
+      itemConstraints: itemConstraintsArray[pivotIndex],
       prevSize,
       size: unsafeSize
     });
@@ -276,7 +275,7 @@ export function adjustLayoutByDelta({
 
       const pivotIndex = delta < 0 ? secondPivotIndex : firstPivotIndex;
       let index = pivotIndex;
-      while (index >= 0 && index < panelConstraintsArray.length) {
+      while (index >= 0 && index < itemConstraintsArray.length) {
         const prevSize = nextLayout[index];
         assert(
           prevSize != null,
@@ -284,9 +283,9 @@ export function adjustLayoutByDelta({
         );
 
         const unsafeSize = prevSize + deltaRemaining;
-        const safeSize = validatePanelSize({
-          overrideDisabledPanels,
-          panelConstraints: panelConstraintsArray[index],
+        const safeSize = validateItemSize({
+          overrideDisabledItems,
+          itemConstraints: itemConstraintsArray[index],
           prevSize,
           size: unsafeSize
         });
@@ -323,7 +322,7 @@ export function adjustLayoutByDelta({
   }
 
   return nextLayout.reduce<Layout>((accumulated, current, index) => {
-    accumulated[panelConstraintsArray[index].panelId] = current;
+    accumulated[itemConstraintsArray[index].itemId] = current;
     return accumulated;
   }, {});
 }

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { getRegisteredGroup } from "../../global/mutable-state/groups";
+import { getRegisteredAxis } from "../../global/mutable-state/axes";
 import {
   getInteractionState,
   subscribeToInteractionState
@@ -25,12 +25,12 @@ export function useResizePreviews({
 
   useIsomorphicLayoutEffect(() => {
     const updatePreviews = (interaction: InteractionState) => {
-      const group = getRegisteredGroup(groupId);
+      const group = getRegisteredAxis(groupId);
       const nextPreviews =
         resizePreviewMode === "separator" && interaction.state === "active"
           ? interaction.previews.filter(
               (preview) =>
-                preview.group === group &&
+                preview.axis === group &&
                 (preview.active || !layoutNumbersEqual(preview.offset, 0))
             )
           : [];

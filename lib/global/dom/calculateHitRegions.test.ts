@@ -11,7 +11,7 @@ describe("calculateHitRegions", () => {
     }
 
     let dimensionReads = 0;
-    group.panels.forEach((panel) => {
+    group.items.forEach((panel) => {
       Object.defineProperty(panel.element, "offsetWidth", {
         configurable: true,
         get() {
@@ -21,20 +21,20 @@ describe("calculateHitRegions", () => {
       });
     });
 
-    const hitRegions = calculateHitRegions({ group });
+    const hitRegions = calculateHitRegions({ axis: group });
     expect(hitRegions).toHaveLength(panelCount - 1);
     expect(
-      hitRegions.every((region) => region.groupSize === panelCount * 50)
+      hitRegions.every((region) => region.axisSize === panelCount * 50)
     ).toBe(true);
     expect(dimensionReads).toBeLessThanOrEqual(panelCount * 2);
   });
 
   function serialize(group: MockGroup) {
-    const hitRegions = calculateHitRegions({ group });
+    const hitRegions = calculateHitRegions({ axis: group });
 
     return JSON.stringify(
       hitRegions.map((region) => ({
-        panels: region.panels.map((panel) => panel.id),
+        panels: region.items.map((panel) => panel.id),
         rect: `${region.rect.x},${region.rect.y} ${region.rect.width} x ${region.rect.height}`,
         separator: region.separator?.id
       })),

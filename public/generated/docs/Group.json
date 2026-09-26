@@ -33,7 +33,7 @@
           "content": "<p>Uniquely identifies this group within an application.\nFalls back to <code>useId</code> when not provided.</p>\n"
         },
         {
-          "content": "<p>This value will also be assigned to the <code>data-group</code> attribute.</p>\n",
+          "content": "<p>This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes.</p>\n",
           "intent": "primary"
         }
       ],

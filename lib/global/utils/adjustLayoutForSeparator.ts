@@ -1,56 +1,53 @@
 import { assert } from "../../utils/assert";
-import {
-  getMountedGroupState,
-  updateMountedGroup
-} from "../mutable-state/groups";
+import { getMountedAxisState, updateMountedAxis } from "../mutable-state/axes";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
-import { findSeparatorGroup } from "./findSeparatorGroup";
-import { getImperativeGroupMethods } from "./getImperativeGroupMethods";
+import { findSeparatorAxis } from "./findSeparatorAxis";
+import { getImperativeAxisMethods } from "./getImperativeAxisMethods";
 import { layoutsEqual } from "./layoutsEqual";
-import { validatePanelGroupLayout } from "./validatePanelGroupLayout";
+import { validateAxisLayout } from "./validateAxisLayout";
 
 export function adjustLayoutForSeparator(
   separatorElement: HTMLElement,
   delta: number
 ) {
-  const group = findSeparatorGroup(separatorElement);
-  const groupState = getMountedGroupState(group.id, true);
+  const axis = findSeparatorAxis(separatorElement);
+  const axisState = getMountedAxisState(axis.id, true);
 
-  const separator = group.separators.find(
+  const separator = axis.separators.find(
     (current) => current.element === separatorElement
   );
   assert(separator, "Matching separator not found");
 
-  const panels = groupState.separatorToPanels.get(separator);
-  assert(panels, "Matching panels not found");
+  const items = axisState.separatorToItems.get(separator);
+  assert(items, "Matching panels not found");
 
-  const pivotIndices = panels.map((panel) => group.panels.indexOf(panel));
+  const pivotIndices = items.map((item) => axis.items.indexOf(item));
 
-  const groupAPI = getImperativeGroupMethods({ groupId: group.id });
-  const prevLayout = groupAPI.getLayout();
+  const axisAPI = getImperativeAxisMethods({ axisId: axis.id });
+  const prevLayout = axisAPI.getLayout();
 
   const unsafeLayout = adjustLayoutByDelta({
     delta,
     initialLayout: prevLayout,
-    panelConstraints: groupState.derivedPanelConstraints,
+    itemConstraints: axisState.derivedItemConstraints,
     pivotIndices,
     prevLayout,
     trigger: "keyboard"
   });
-  const nextLayout = validatePanelGroupLayout({
+  const nextLayout = validateAxisLayout({
     layout: unsafeLayout,
-    panelConstraints: groupState.derivedPanelConstraints
+    itemConstraints: axisState.derivedItemConstraints
   });
 
   if (!layoutsEqual(prevLayout, nextLayout)) {
-    updateMountedGroup(
-      group,
+    updateMountedAxis(
+      axis,
       {
-        defaultLayoutDeferred: groupState.defaultLayoutDeferred,
-        derivedPanelConstraints: groupState.derivedPanelConstraints,
-        groupSize: groupState.groupSize,
+        defaultLayoutDeferred: axisState.defaultLayoutDeferred,
+        derivedItemConstraints: axisState.derivedItemConstraints,
+        axisSize: axisState.axisSize,
         layout: nextLayout,
-        separatorToPanels: groupState.separatorToPanels
+        separatorToItems: axisState.separatorToItems
       },
       // Keyboard resizes (arrow keys, Home/End, Enter collapse/expand) originate
       // from a real DOM event on the separator, so they are user interactions

@@ -13,11 +13,11 @@ import { isModal } from "./isModal";
 // as this should prevent the separator element from being clicked.
 // This function does that determination.
 export function isViableHitTarget({
-  groupElement,
+  axisElement,
   hitRegion,
   pointerEventTarget
 }: {
-  groupElement: HTMLElement;
+  axisElement: HTMLElement;
   hitRegion: DOMRect;
   pointerEventTarget: EventTarget | null;
 }) {
@@ -26,22 +26,22 @@ export function isViableHitTarget({
     // regardless of where the dialog is in the DOM (e.g. even if it's a descendant of the group).
     // Stacking order comparison can't detect this, so check for it explicitly.
     const dialog = pointerEventTarget.closest("dialog");
-    if (dialog && !dialog.contains(groupElement) && isModal(dialog)) {
+    if (dialog && !dialog.contains(axisElement) && isModal(dialog)) {
       return false;
     }
   }
 
   if (
     !isHTMLElement(pointerEventTarget) ||
-    pointerEventTarget.contains(groupElement) ||
-    groupElement.contains(pointerEventTarget)
+    pointerEventTarget.contains(axisElement) ||
+    axisElement.contains(pointerEventTarget)
   ) {
     // Calculating stacking order has a cost;
     // If either group or element contain the other, the click is safe and we can skip calculating the indices
     return true;
   }
 
-  if (compare(pointerEventTarget, groupElement) > 0) {
+  if (compare(pointerEventTarget, axisElement) > 0) {
     // If the pointer target is above the separator, check for overlap
     // If they are near each other, but not overlapping, then the separator is still a viable target
     //
@@ -50,7 +50,7 @@ export function isViableHitTarget({
     // (For example, a SPAN or a DIV inside of a larger modal dialog)
     let currentElement: HTMLElement | SVGElement | null = pointerEventTarget;
     while (currentElement) {
-      if (currentElement.contains(groupElement)) {
+      if (currentElement.contains(axisElement)) {
         return true;
       } else if (
         doRectsIntersect(currentElement.getBoundingClientRect(), hitRegion)
