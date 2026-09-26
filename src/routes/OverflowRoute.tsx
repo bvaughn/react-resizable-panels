@@ -23,7 +23,7 @@ const noop = () => {};
 export default function OverflowRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Examples" title="Overflow" />
+      <Header section="Flex" title="Overflow" />
       <div>
         Groups and Panels set the{" "}
         <ExternalLink href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/overflow">

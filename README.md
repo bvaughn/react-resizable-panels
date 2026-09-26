@@ -71,7 +71,7 @@ None
       <td>id</td>
       <td><p>Uniquely identifies this group within an application.
 Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>data-group</code> attribute.</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes.</p>
 </td>
     </tr>
     <tr>
@@ -225,7 +225,7 @@ None
       <td><p>Uniquely identifies this panel within the parent group.
 Falls back to <code>useId</code> when not provided.</p>
 <p>ℹ️ This prop is used to associate persisted group layouts with the original panel.</p>
-<p>ℹ️ This value will also be assigned to the <code>data-panel</code> attribute.</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes.</p>
 </td>
     </tr>
     <tr>
@@ -390,7 +390,7 @@ None
       <td>id</td>
       <td><p>Uniquely identifies the separator within the parent group.
 Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>data-separator</code> attribute.</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes.</p>
 </td>
     </tr>
     <tr>
@@ -426,3 +426,392 @@ To prevent a panel from being resized at all, it needs to also be disabled.</p>
 </table>
 
 <!-- Separator:optional-props:end -->
+
+### Grid
+
+<!-- Grid:description:begin -->
+A Grid arranges resizable Cells in two dimensions.
+Columns can be resized horizontally and rows can be resized vertically;
+dragging the point where a column boundary and a row boundary intersect resizes both.
+
+Size constraints (e.g. min/max size, collapsible) are specified per track (column or row),
+using the same format as Panel props.
+
+Cells can span multiple columns and/or rows.
+Track boundaries cannot be resized alongside of a cell that spans across them.
+
+Grid elements always include the following attributes:
+
+```html
+<div data-grid data-testid="grid-id-prop" id="grid-id-prop">
+```
+
+ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+<!-- Grid:description:end -->
+
+#### Required props
+
+<!-- Grid:required-props:begin -->
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>columns</td>
+      <td><p>Grid columns; either the number of columns or an array of size constraints (one per column).</p>
+</td>
+    </tr>
+    <tr>
+      <td>rows</td>
+      <td><p>Grid rows; either the number of rows or an array of size constraints (one per row).</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Grid:required-props:end -->
+
+#### Optional props
+
+<!-- Grid:optional-props:begin -->
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>className</td>
+      <td><p>CSS class name.</p>
+</td>
+    </tr>
+    <tr>
+      <td>id</td>
+      <td><p>Uniquely identifies this grid within an application.
+Falls back to <code>useId</code> when not provided.</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes.</p>
+</td>
+    </tr>
+    <tr>
+      <td>style</td>
+      <td><p>CSS properties.</p>
+<p>⚠️ Grid template and display properties are managed by the Grid and cannot be overridden.</p>
+</td>
+    </tr>
+    <tr>
+      <td>children</td>
+      <td><p>Cell and Gridline components that comprise this grid.</p>
+<p>⚠️ Cell and Gridline elements must be direct DOM children of their parent Grid element.</p>
+</td>
+    </tr>
+    <tr>
+      <td>defaultLayout</td>
+      <td><p>Default layout for either or both of the Grid&#39;s axes.</p>
+<p>ℹ️ This value allows layouts to be remembered between page reloads.</p>
+</td>
+    </tr>
+    <tr>
+      <td>disableCursor</td>
+      <td><p>This library sets custom mouse cursor styles to indicate drag state.
+Use this prop to disable that behavior for this grid.</p>
+</td>
+    </tr>
+    <tr>
+      <td>disabled</td>
+      <td><p>Disable resize functionality.</p>
+</td>
+    </tr>
+    <tr>
+      <td>elementRef</td>
+      <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
+</td>
+    </tr>
+    <tr>
+      <td>gridRef</td>
+      <td><p>Exposes the following imperative API:</p>
+<ul>
+<li><code>getLayout(): GridLayout</code></li>
+<li><code>getTrackById(axis: &quot;column&quot; | &quot;row&quot;, id: string | number): GridTrackImperativeHandle</code></li>
+<li><code>getTrackByIndex(axis: &quot;column&quot; | &quot;row&quot;, index: number): GridTrackImperativeHandle</code></li>
+<li><code>setLayout(layout: Partial&lt;GridLayout&gt;): GridLayout</code></li>
+</ul>
+<p>ℹ️ The <code>useGridRef</code> and <code>useGridCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>
+</td>
+    </tr>
+    <tr>
+      <td>onLayoutChange</td>
+      <td><p>Called when the Grid&#39;s layout is changing.</p>
+<p>⚠️ For layout changes caused by pointer events, this method is called each time the pointer is moved.
+For most cases, it is recommended to use the <code>onLayoutChanged</code> callback instead.</p>
+</td>
+    </tr>
+    <tr>
+      <td>onLayoutChanged</td>
+      <td><p>Called after the Grid&#39;s layout has been changed.</p>
+<p>ℹ️ For layout changes caused by pointer events, this method is not called until the pointer has been released.
+This method is recommended when saving layouts to some storage api.</p>
+</td>
+    </tr>
+    <tr>
+      <td>resizeTargetMinimumSize</td>
+      <td><p>Minimum size of the resizable hit target area (either a <code>Gridline</code> or a <code>Cell</code> edge)
+This threshold ensures targets are large enough to avoid mis-clicks.</p>
+<p>ℹ️ Refer to the <code>Group</code> prop of the same name for more information.</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Grid:optional-props:end -->
+
+### Cell
+
+<!-- Cell:description:begin -->
+A Cell occupies one or more tracks (columns and rows) within a Grid.
+Cells are resized along with the tracks they occupy.
+
+Cell elements always include the following attributes:
+
+```html
+<div data-cell data-testid="cell-id-prop" id="cell-id-prop">
+```
+
+ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+
+⚠️ Cell elements must be direct DOM children of their parent Grid elements.
+<!-- Cell:description:end -->
+
+#### Required props
+
+<!-- Cell:required-props:begin -->
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>column</td>
+      <td><p>Index of the (first) column this cell occupies.</p>
+</td>
+    </tr>
+    <tr>
+      <td>row</td>
+      <td><p>Index of the (first) row this cell occupies.</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Cell:required-props:end -->
+
+#### Optional props
+
+<!-- Cell:optional-props:begin -->
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>className</td>
+      <td><p>CSS class name.</p>
+</td>
+    </tr>
+    <tr>
+      <td>id</td>
+      <td><p>Uniquely identifies this cell within the parent grid.
+Falls back to <code>useId</code> when not provided.</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes.</p>
+</td>
+    </tr>
+    <tr>
+      <td>style</td>
+      <td><p>CSS properties.</p>
+<p>⚠️ Grid placement properties are managed by the Cell and cannot be overridden.</p>
+</td>
+    </tr>
+    <tr>
+      <td>children</td>
+      <td><p>Cell contents.</p>
+</td>
+    </tr>
+    <tr>
+      <td>columnSpan</td>
+      <td><p>Number of columns this cell spans; defaults to 1.</p>
+</td>
+    </tr>
+    <tr>
+      <td>elementRef</td>
+      <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
+</td>
+    </tr>
+    <tr>
+      <td>rowSpan</td>
+      <td><p>Number of rows this cell spans; defaults to 1.</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Cell:optional-props:end -->
+
+### Gridline
+
+<!-- Gridline:description:begin -->
+Resizes the columns (or rows) of a Grid.
+
+For example:
+
+```tsx
+// Rendered between columns 0 and 1 and spans all rows
+<Gridline type="column" column={1} />
+```
+
+```tsx
+// Rendered between rows 0 and 1 and spans all columns
+<Gridline type="row" row={1} />
+```
+
+```tsx
+// Rendered between columns 0 and 1 alongside of row 2 only
+<Gridline type="column" column={1} row={2} rowSpan={1} />
+```
+
+A gridline should not be rendered alongside of a Cell that spans across its boundary
+(this includes disabled gridlines; an error will be logged to the console);
+render multiple gridlines along the same boundary instead (e.g. before and after the spanning Cell).
+
+ℹ️ Once a boundary contains a gridline, it can only be resized using gridlines;
+the parts of the boundary that aren't alongside of a gridline can't be dragged.
+
+Where column and row gridlines intersect, dragging resizes both axes.
+
+Gridlines are not _required_ but they are _recommended_ as they improve keyboard accessibility.
+
+Gridline elements always include the following attributes:
+
+```html
+<div aria-orientation="vertical" data-separator role="separator">
+```
+
+ℹ️ Column gridlines are vertical (`aria-orientation="vertical"`) and row gridlines are horizontal (`aria-orientation="horizontal"`).
+
+ℹ️ In addition to the attributes shown above, gridlines also render all required [WAI-ARIA properties](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/separator_role#associated_wai-aria_roles_states_and_properties).
+
+⚠️ Gridline elements must be direct DOM children of their parent Grid elements.
+
+ℹ️ Gridlines rendered by another component (rather than directly within the Grid) aren't detected until they mount, so server-rendered layouts may shift slightly during hydration.
+<!-- Gridline:description:end -->
+
+#### Required props
+
+<!-- Gridline:required-props:begin -->
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>type</td>
+      <td><p>Column gridlines are vertical; they resize the columns on either side of them.
+Row gridlines are horizontal; they resize the rows on either side of them.</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Gridline:required-props:end -->
+
+#### Optional props
+
+<!-- Gridline:optional-props:begin -->
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>children</td>
+      <td><p>Gridline contents (e.g. a drag handle icon).</p>
+</td>
+    </tr>
+    <tr>
+      <td>className</td>
+      <td><p>CSS class name.</p>
+<p>ℹ️ Use the <code>data-separator</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>
+</td>
+    </tr>
+    <tr>
+      <td>disabled</td>
+      <td><p>When disabled, the gridline cannot be used to resize its neighboring tracks.</p>
+<p>ℹ️ The tracks may still be resized indirectly (e.g. by an intersecting gridline or another boundary).
+To prevent a track from being resized at all, it needs to also be disabled.</p>
+</td>
+    </tr>
+    <tr>
+      <td>elementRef</td>
+      <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
+</td>
+    </tr>
+    <tr>
+      <td>style</td>
+      <td><p>CSS properties.</p>
+<p>⚠️ Grid placement properties are managed by the gridline and cannot be overridden.</p>
+</td>
+    </tr>
+    <tr>
+      <td>column</td>
+      <td><p>When <code>type</code> is &quot;column&quot;, the gridline is rendered along the leading (left) edge of this column
+(between it and the previous column); must be greater than 0 and less than the number of columns.
+When <code>type</code> is &quot;row&quot;, index of the first column the gridline is rendered alongside of; defaults to 0.</p>
+</td>
+    </tr>
+    <tr>
+      <td>row</td>
+      <td><p>When <code>type</code> is &quot;column&quot;, index of the first row the gridline is rendered alongside of; defaults to 0.
+When <code>type</code> is &quot;row&quot;, the gridline is rendered along the leading (top) edge of this row
+(between it and the previous row); must be greater than 0 and less than the number of rows.</p>
+</td>
+    </tr>
+    <tr>
+      <td>rowSpan</td>
+      <td><p>Number of rows a column gridline spans; defaults to all rows (starting from <code>row</code>).</p>
+<p>ℹ️ Gridlines can span a subset of rows in order to avoid cells that span across the boundary they sit on;
+multiple gridlines can be rendered along the same boundary (e.g. above and below a spanning cell).</p>
+</td>
+    </tr>
+    <tr>
+      <td>columnSpan</td>
+      <td><p>Number of columns a row gridline spans; defaults to all columns (starting from <code>column</code>).</p>
+<p>ℹ️ Gridlines can span a subset of columns in order to avoid cells that span across the boundary they sit on;
+multiple gridlines can be rendered along the same boundary (e.g. before and after a spanning cell).</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Gridline:optional-props:end -->

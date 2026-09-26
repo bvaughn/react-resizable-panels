@@ -1,16 +1,18 @@
-import type { Layout } from "../../components/group/types";
-import type { RegisteredPanel } from "../../components/panel/types";
+import type { Layout, RegisteredResizeItem } from "../types";
 
-export function validateLayoutKeys(panels: RegisteredPanel[], layout: Layout) {
-  const panelIds = panels.map((panel) => panel.id);
+export function validateLayoutKeys(
+  items: RegisteredResizeItem[],
+  layout: Layout
+) {
+  const itemIds = items.map((item) => item.id);
   const layoutKeys = Object.keys(layout);
 
-  if (panelIds.length !== layoutKeys.length) {
+  if (itemIds.length !== layoutKeys.length) {
     return false;
   }
 
-  for (const panelId of panelIds) {
-    if (!layoutKeys.includes(panelId)) {
+  for (const itemId of itemIds) {
+    if (!layoutKeys.includes(itemId)) {
       return false;
     }
   }

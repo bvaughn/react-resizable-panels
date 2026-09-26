@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { createRef } from "react";
 import type { GroupImperativeHandle } from "../group/types";
 import { describe, expect, test, vi } from "vitest";
-import { subscribeToMountedGroup } from "../../global/mutable-state/groups";
+import { subscribeToMountedAxis } from "../../global/mutable-state/axes";
 import { moveSeparator } from "../../global/test/moveSeparator";
 import { setElementBoundsFunction } from "../../utils/test/mockBoundingClientRect";
 import { Group } from "../group/Group";
@@ -111,7 +111,7 @@ describe("Separator", () => {
 
     test("changes to disabled prop should not cause the Separator to remount", () => {
       const onChange = vi.fn();
-      const removeListener = subscribeToMountedGroup("group", onChange);
+      const removeListener = subscribeToMountedAxis("group", onChange);
 
       const { rerender } = render(
         <Group id="group">

@@ -1,17 +1,17 @@
 import { describe, expect, test } from "vitest";
-import { mountGroup } from "../mountGroup";
-import { getMountedGroups, type MountedGroups } from "../mutable-state/groups";
+import { mountAxis } from "../mountAxis";
+import { getMountedAxes, type MountedAxes } from "../mutable-state/axes";
 import { mockGroup } from "../test/mockGroup";
 import { mockPointerEvent } from "../test/mockPointerEvent";
 import { findMatchingHitRegions } from "./findMatchingHitRegions";
 
 describe("findMatchingHitRegions", () => {
-  function serialize(event: PointerEvent, mountedGroups: MountedGroups) {
+  function serialize(event: PointerEvent, mountedGroups: MountedAxes) {
     const hitRegions = findMatchingHitRegions(event, mountedGroups);
 
     return JSON.stringify(
       hitRegions.map((region) => ({
-        panels: region.panels.map((panel) => panel.id),
+        panels: region.items.map((panel) => panel.id),
         rect: `${region.rect.x},${region.rect.y} ${region.rect.width} x ${region.rect.height}`,
         separator: region.separator?.id
       })),
@@ -21,10 +21,10 @@ describe("findMatchingHitRegions", () => {
   }
 
   test("empty groups", () => {
-    mountGroup(mockGroup(new DOMRect(0, 0, 10, 50)));
+    mountAxis(mockGroup(new DOMRect(0, 0, 10, 50)));
 
     expect(
-      serialize(mockPointerEvent(), getMountedGroups())
+      serialize(mockPointerEvent(), getMountedAxes())
     ).toMatchInlineSnapshot(`"[]"`);
   });
 
@@ -32,9 +32,9 @@ describe("findMatchingHitRegions", () => {
     const group = mockGroup(new DOMRect(0, 0, 100, 50));
     group.addPanel(new DOMRect(0, 0, 50, 50), "left");
     group.addPanel(new DOMRect(50, 0, 50, 50), "right");
-    mountGroup(group);
+    mountAxis(group);
 
-    expect(serialize(mockPointerEvent({ clientX: 50 }), getMountedGroups()))
+    expect(serialize(mockPointerEvent({ clientX: 50 }), getMountedAxes()))
       .toMatchInlineSnapshot(`
         "[
           {
@@ -53,9 +53,9 @@ describe("findMatchingHitRegions", () => {
     group.addPanel(new DOMRect(0, 0, 50, 50), "left");
     group.addSeparator(new DOMRect(50, 0, 20, 50), "separator");
     group.addPanel(new DOMRect(70, 0, 50, 50), "right");
-    mountGroup(group);
+    mountAxis(group);
 
-    expect(serialize(mockPointerEvent({ clientX: 60 }), getMountedGroups()))
+    expect(serialize(mockPointerEvent({ clientX: 60 }), getMountedAxes()))
       .toMatchInlineSnapshot(`
         "[
           {
@@ -74,19 +74,19 @@ describe("findMatchingHitRegions", () => {
     const outerGroup = mockGroup(new DOMRect(0, 0, 100, 50));
     outerGroup.addPanel(new DOMRect(0, 0, 50, 50), "left");
     outerGroup.addPanel(new DOMRect(50, 0, 50, 50), "right");
-    mountGroup(outerGroup);
+    mountAxis(outerGroup);
 
     const innerGroup = mockGroup(new DOMRect(0, 0, 50, 50), {
       orientation: "vertical"
     });
     innerGroup.addPanel(new DOMRect(0, 0, 50, 25), "top");
     innerGroup.addPanel(new DOMRect(0, 25, 50, 25), "bottom");
-    mountGroup(innerGroup);
+    mountAxis(innerGroup);
 
     expect(
       serialize(
         mockPointerEvent({ clientX: 50, clientY: 25 }),
-        getMountedGroups()
+        getMountedAxes()
       )
     ).toMatchInlineSnapshot(`
       "[
@@ -112,9 +112,9 @@ describe("findMatchingHitRegions", () => {
     const group = mockGroup(new DOMRect(0, 0, 100, 50), { disabled: true });
     group.addPanel(new DOMRect(0, 0, 50, 50), "left");
     group.addPanel(new DOMRect(50, 0, 50, 50), "right");
-    mountGroup(group);
+    mountAxis(group);
 
-    expect(serialize(mockPointerEvent({ clientX: 50 }), getMountedGroups()))
+    expect(serialize(mockPointerEvent({ clientX: 50 }), getMountedAxes()))
       .toMatchInlineSnapshot(`
       "[]"
     `);

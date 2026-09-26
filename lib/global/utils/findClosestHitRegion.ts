@@ -1,6 +1,5 @@
-import type { Orientation } from "../../components/group/types";
 import type { Point } from "../../types";
-import type { HitRegion } from "../dom/calculateHitRegions";
+import type { HitRegion, Orientation } from "../types";
 import { getDistanceBetweenPointAndRect } from "./getDistanceBetweenPointAndRect";
 
 export function findClosestHitRegion(
@@ -18,14 +17,22 @@ export function findClosestHitRegion(
     const data = getDistanceBetweenPointAndRect(point, hitRegion.rect);
     switch (orientation) {
       case "horizontal": {
-        if (data.x <= minDistance.x) {
+        // Ties along the primary axis are broken by the distance along the cross axis;
+        // this matters for groups whose resize targets don't span the full cross axis (e.g. Grid)
+        if (
+          data.x < minDistance.x ||
+          (data.x === minDistance.x && data.y <= minDistance.y)
+        ) {
           closestHitRegion = hitRegion;
           minDistance = data;
         }
         break;
       }
       case "vertical": {
-        if (data.y <= minDistance.y) {
+        if (
+          data.y < minDistance.y ||
+          (data.y === minDistance.y && data.x <= minDistance.x)
+        ) {
           closestHitRegion = hitRegion;
           minDistance = data;
         }

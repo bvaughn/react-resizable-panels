@@ -1,16 +1,14 @@
 import { vi } from "vitest";
+import type { PanelConstraintProps } from "../../components/panel/types";
+import { setElementBounds } from "../../utils/test/mockBoundingClientRect";
 import type {
   Orientation,
-  RegisteredGroup
-} from "../../components/group/types";
-import type {
-  PanelConstraintProps,
-  RegisteredPanel
-} from "../../components/panel/types";
-import type { RegisteredSeparator } from "../../components/separator/types";
-import { setElementBounds } from "../../utils/test/mockBoundingClientRect";
+  RegisteredResizeAxis,
+  RegisteredResizeItem,
+  RegisteredSeparator
+} from "../types";
 
-export type MockGroup = RegisteredGroup & {
+export type MockGroup = RegisteredResizeAxis & {
   addHTMLElement: (relativeBounds: DOMRect) => () => void;
   addPanel: (
     relativeBounds: DOMRect,
@@ -28,7 +26,7 @@ let groupIdCounter = 0;
 
 export function mockGroup(
   groupBounds: DOMRect,
-  config: Partial<RegisteredGroup> = {}
+  config: Partial<RegisteredResizeAxis> = {}
 ): MockGroup {
   const groupId = config.id ?? `group-${++groupIdCounter}`;
 
@@ -40,7 +38,7 @@ export function mockGroup(
 
   setElementBounds(groupElement, groupBounds);
 
-  const mockPanels: Set<RegisteredPanel> = new Set();
+  const mockPanels: Set<RegisteredResizeItem> = new Set();
   const mockSeparators: Set<RegisteredSeparator> = new Set();
 
   const relativeBoundsToBounds = (relativeBounds: DOMRect) =>
@@ -58,7 +56,7 @@ export function mockGroup(
     mutableState: {
       defaultLayout: undefined,
       disableCursor: false,
-      expandedPanelSizes: {},
+      expandedItemSizes: {},
       layouts: {}
     },
     orientation: "horizontal" as Orientation,
@@ -69,7 +67,7 @@ export function mockGroup(
     },
     ...config,
 
-    get panels() {
+    get items() {
       return Array.from(mockPanels.values());
     },
     get separators() {
@@ -104,7 +102,7 @@ export function mockGroup(
 
       setElementBounds(element, relativeBoundsToBounds(relativeBounds));
 
-      const panel: RegisteredPanel = {
+      const panel: RegisteredResizeItem = {
         element,
         id: panelId,
         idIsStable: true,
@@ -112,7 +110,7 @@ export function mockGroup(
           expandToSize: undefined,
           prevSize: undefined
         },
-        panelConstraints: constraints,
+        constraintProps: constraints,
         onResize: vi.fn()
       };
 

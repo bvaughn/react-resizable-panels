@@ -1,16 +1,5 @@
 import type { CSSProperties, HTMLAttributes, ReactNode, Ref } from "react";
 
-export type RegisteredSeparator = {
-  children?: ReactNode;
-  className?: string | undefined;
-  disabled?: boolean | undefined;
-  disableDoubleClick?: boolean | undefined;
-  element: HTMLDivElement;
-  id: string;
-  preview?: ReactNode;
-  style?: CSSProperties | undefined;
-};
-
 type BaseSeparatorAttributes = Omit<
   HTMLAttributes<HTMLDivElement>,
   "role" | "tabIndex"
@@ -48,7 +37,7 @@ export type SeparatorProps = BaseSeparatorAttributes & {
    * Uniquely identifies the separator within the parent group.
    * Falls back to `useId` when not provided.
    *
-   * ℹ️ This value will also be assigned to the `data-separator` attribute.
+   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes.
    */
   id?: string | number | undefined;
 

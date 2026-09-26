@@ -1,8 +1,6 @@
-import {
-  calculateHitRegions,
-  type HitRegion
-} from "../dom/calculateHitRegions";
-import type { MountedGroups } from "../mutable-state/groups";
+import { calculateHitRegions } from "../dom/calculateHitRegions";
+import type { MountedAxes } from "../mutable-state/axes";
+import type { HitRegion } from "../types";
 import { findClosestHitRegion } from "./findClosestHitRegion";
 import { isViableHitTarget } from "./isViableHitTarget";
 
@@ -12,17 +10,17 @@ export function findMatchingHitRegions(
     clientY: number;
     target: EventTarget | null;
   },
-  mountedGroups: MountedGroups
+  mountedAxes: MountedAxes
 ): HitRegion[] {
   const matchingHitRegions: HitRegion[] = [];
 
-  mountedGroups.forEach((_, groupData) => {
-    if (groupData.disabled) {
+  mountedAxes.forEach((_, axisData) => {
+    if (axisData.disabled) {
       return;
     }
 
-    const hitRegions = calculateHitRegions({ group: groupData });
-    const match = findClosestHitRegion(groupData.orientation, hitRegions, {
+    const hitRegions = calculateHitRegions({ axis: axisData });
+    const match = findClosestHitRegion(axisData.orientation, hitRegions, {
       x: event.clientX,
       y: event.clientY
     });
@@ -31,7 +29,7 @@ export function findMatchingHitRegions(
       match.distance.x <= 0 &&
       match.distance.y <= 0 &&
       isViableHitTarget({
-        groupElement: groupData.element,
+        axisElement: axisData.element,
         hitRegion: match.hitRegion.rect,
         pointerEventTarget: event.target
       })

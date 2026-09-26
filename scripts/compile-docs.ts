@@ -1,6 +1,11 @@
 import { compileDocs } from "react-lib-tools/scripts/compile-docs.ts";
 
 await compileDocs({
-  componentNames: ["Group", "Panel", "Separator"],
-  imperativeHandleNames: ["GroupImperativeHandle", "PanelImperativeHandle"]
+  componentNames: ["Cell", "Grid", "Gridline", "Group", "Panel", "Separator"],
+  imperativeHandleNames: [
+    "GridImperativeHandle",
+    "GridTrackImperativeHandle",
+    "GroupImperativeHandle",
+    "PanelImperativeHandle"
+  ]
 });

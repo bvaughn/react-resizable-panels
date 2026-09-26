@@ -49,7 +49,7 @@
           "content": "<p>Uniquely identifies the separator within the parent group.\nFalls back to <code>useId</code> when not provided.</p>\n"
         },
         {
-          "content": "<p>This value will also be assigned to the <code>data-separator</code> attribute.</p>\n",
+          "content": "<p>This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes.</p>\n",
           "intent": "primary"
         }
       ],

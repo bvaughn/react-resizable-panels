@@ -1,20 +1,19 @@
 import type { CSSProperties, HTMLAttributes, ReactNode, Ref } from "react";
-import type { RegisteredPanel } from "../panel/types";
+import type {
+  Layout,
+  Orientation,
+  RegisteredResizeItem,
+  RegisteredSeparator,
+  ResizePreviewMode
+} from "../../global/types";
 import type { SeparatorOverlayProps } from "../separator/types";
-import type { RegisteredSeparator } from "../separator/types";
 
-/**
- * Panel group orientation loosely relates to the `aria-orientation` attribute.
- * It determines how panels are are laid out within the group group and the direction they can be resized in.
- */
-export type Orientation = "horizontal" | "vertical";
-
-/**
- * Map of Panel id to flexGrow value;
- */
-export type Layout = {
-  [id: string]: number;
-};
+export type {
+  Layout,
+  Orientation,
+  ResizePreviewMode,
+  ResizeTargetMinimumSize
+} from "../../global/types";
 
 export type LayoutStorage = Pick<Storage, "getItem" | "setItem">;
 
@@ -39,34 +38,6 @@ export type DragState = {
   separatorId: string | undefined;
 };
 
-export type ResizePreviewMode = "panel" | "separator";
-
-export type ResizeTargetMinimumSize = {
-  coarse: number;
-  fine: number;
-};
-
-export type RegisteredGroup = Readonly<{
-  disabled: boolean;
-  element: HTMLElement;
-  id: string;
-  mutableState: {
-    defaultLayout: Readonly<Layout> | undefined;
-    disableCursor: boolean;
-    expandedPanelSizes: {
-      [panelId: string]: number;
-    };
-    layouts: {
-      [panelIds: string]: Layout;
-    };
-  };
-  orientation: Orientation;
-  panels: RegisteredPanel[];
-  resizePreviewMode: ResizePreviewMode;
-  resizeTargetMinimumSize: ResizeTargetMinimumSize;
-  separators: RegisteredSeparator[];
-}>;
-
 export type GroupContextType = {
   disableCursor: boolean;
   getPanelStyles: (
@@ -76,7 +47,7 @@ export type GroupContextType = {
   id: string;
   orientation: Orientation;
   registerOverlay: (props: SeparatorOverlayProps) => () => void;
-  registerPanel: (panel: RegisteredPanel) => () => void;
+  registerPanel: (panel: RegisteredResizeItem) => () => void;
   registerSeparator: (separator: RegisteredSeparator) => () => void;
   updatePanelProps: (
     id: string,
@@ -163,7 +134,7 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    * Uniquely identifies this group within an application.
    * Falls back to `useId` when not provided.
    *
-   * ℹ️ This value will also be assigned to the `data-group` attribute.
+   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes.
    */
   id?: string | number | undefined;
 

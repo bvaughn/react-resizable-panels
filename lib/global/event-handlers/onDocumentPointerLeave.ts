@@ -1,9 +1,9 @@
-import { getMountedGroups } from "../mutable-state/groups";
+import { getMountedAxes } from "../mutable-state/axes";
 import { getInteractionState } from "../mutable-state/interactions";
 import { updateActiveHitRegions } from "../utils/updateActiveHitRegion";
 
 export function onDocumentPointerLeave(event: PointerEvent) {
-  const mountedGroups = getMountedGroups();
+  const mountedAxes = getMountedAxes();
   const interactionState = getInteractionState();
 
   switch (interactionState.state) {
@@ -14,7 +14,7 @@ export function onDocumentPointerLeave(event: PointerEvent) {
         event,
         hitRegions: interactionState.hitRegions,
         initialLayoutMap: interactionState.initialLayoutMap,
-        mountedGroups,
+        mountedAxes,
         prevCursorFlags: interactionState.cursorFlags
       });
     }

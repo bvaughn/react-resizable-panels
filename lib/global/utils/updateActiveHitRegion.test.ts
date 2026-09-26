@@ -7,11 +7,8 @@ import {
 } from "../../constants";
 import { calculateHitRegions } from "../dom/calculateHitRegions";
 import { onDocumentPointerMove } from "../event-handlers/onDocumentPointerMove";
-import { mountGroup } from "../mountGroup";
-import {
-  getMountedGroups,
-  getMountedGroupState
-} from "../mutable-state/groups";
+import { mountAxis } from "../mountAxis";
+import { getMountedAxes, getMountedAxisState } from "../mutable-state/axes";
 import {
   getInteractionState,
   updateInteractionState
@@ -38,11 +35,11 @@ describe("updateActiveHitRegions preview bounds", () => {
     });
     group.addPanel(new DOMRect(0, 0, 100, 100));
     group.addPanel(new DOMRect(100, 0, 100, 100));
-    unmount = mountGroup(group);
+    unmount = mountAxis(group);
 
-    const hitRegions = calculateHitRegions({ group });
+    const hitRegions = calculateHitRegions({ axis: group });
     const initialLayoutMap = new Map([
-      [group, getMountedGroupState(group.id, true).layout]
+      [group, getMountedAxisState(group.id, true).layout]
     ]);
     const pointerDownAtPoint = { x: 100, y: 50 };
 
@@ -63,13 +60,13 @@ describe("updateActiveHitRegions preview bounds", () => {
       event: { clientX: 140, clientY: 50, movementX: 40, movementY: 0 },
       hitRegions,
       initialLayoutMap,
-      mountedGroups: getMountedGroups(),
+      mountedAxes: getMountedAxes(),
       pointerDownAtPoint,
       prevCursorFlags: 0
     });
-    expect(
-      getMountedGroupState(group.id, true).layout[group.panels[0].id]
-    ).toBe(50);
+    expect(getMountedAxisState(group.id, true).layout[group.items[0].id]).toBe(
+      50
+    );
 
     onDocumentPointerMove({
       buttons: 0,
@@ -82,9 +79,9 @@ describe("updateActiveHitRegions preview bounds", () => {
     } as unknown as PointerEvent);
 
     expect(getInteractionState().state).toBe("inactive");
-    expect(
-      getMountedGroupState(group.id, true).layout[group.panels[0].id]
-    ).toBe(70);
+    expect(getMountedAxisState(group.id, true).layout[group.items[0].id]).toBe(
+      70
+    );
   });
 
   for (const orientation of ["horizontal", "vertical"] as const) {
@@ -109,10 +106,10 @@ describe("updateActiveHitRegions preview bounds", () => {
             minSize: "25%"
           });
 
-          unmount = mountGroup(group);
+          unmount = mountAxis(group);
 
-          const initialLayout = getMountedGroupState(group.id, true).layout;
-          const hitRegions = calculateHitRegions({ group });
+          const initialLayout = getMountedAxisState(group.id, true).layout;
+          const hitRegions = calculateHitRegions({ axis: group });
           const initialLayoutMap = new Map([[group, initialLayout]]);
           const pointerDownAtPoint = {
             x: 100,
@@ -140,7 +137,7 @@ describe("updateActiveHitRegions preview bounds", () => {
               document,
               hitRegions,
               initialLayoutMap,
-              mountedGroups: getMountedGroups(),
+              mountedAxes: getMountedAxes(),
               pointerDownAtPoint,
               prevCursorFlags: getInteractionState().cursorFlags,
               event: {
@@ -167,7 +164,7 @@ describe("updateActiveHitRegions preview bounds", () => {
 
           move(direction * 70);
           expect(getInteractionState().cursorFlags).toBe(expectedFlag);
-          expect(getMountedGroupState(group.id, true).layout).toEqual(
+          expect(getMountedAxisState(group.id, true).layout).toEqual(
             initialLayout
           );
 
@@ -197,7 +194,7 @@ describe("updateActiveHitRegions preview bounds", () => {
           // Committing the same preview still updates the mounted layout.
           move(direction * 70, true);
           expect(
-            getMountedGroupState(group.id, true).layout[group.panels[0].id]
+            getMountedAxisState(group.id, true).layout[group.items[0].id]
           ).toBe(50 + direction * 25);
         });
       }

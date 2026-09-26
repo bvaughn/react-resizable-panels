@@ -9,7 +9,7 @@ import { Separator } from "../components/styled-panels/Separator";
 export default function FixedSizePanelsRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Examples" title="Fixed size panels" />
+      <Header section="Flex" title="Fixed size panels" />
       <div>
         You can also render non-interactive elements inside of a group if you
         need fixed-size content.

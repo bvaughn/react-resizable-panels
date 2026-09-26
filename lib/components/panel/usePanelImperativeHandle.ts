@@ -1,6 +1,6 @@
 import { useImperativeHandle, useRef, type Ref } from "react";
 import { NOOP_FUNCTION } from "../../constants";
-import { getImperativePanelMethods } from "../../global/utils/getImperativePanelMethods";
+import { getImperativeItemMethods } from "../../global/utils/getImperativeItemMethods";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useGroupContext } from "../group/useGroupContext";
 import type { PanelImperativeHandle } from "./types";
@@ -27,7 +27,7 @@ export function usePanelImperativeHandle(
   useIsomorphicLayoutEffect(() => {
     Object.assign(
       imperativePanelRef.current,
-      getImperativePanelMethods({ groupId, panelId })
+      getImperativeItemMethods({ axisId: groupId, itemId: panelId })
     );
   });
 }

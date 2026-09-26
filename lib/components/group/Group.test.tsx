@@ -9,7 +9,7 @@ import {
   type RefObject
 } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { subscribeToMountedGroup } from "../../global/mutable-state/groups";
+import { subscribeToMountedAxis } from "../../global/mutable-state/axes";
 import { moveSeparator } from "../../global/test/moveSeparator";
 import { assert } from "../../utils/assert";
 import {
@@ -189,7 +189,7 @@ describe("Group", () => {
 
   test("changes to defaultProps or disableCursor should not cause Group to remount", () => {
     const onChange = vi.fn();
-    const removeListener = subscribeToMountedGroup("group", onChange);
+    const removeListener = subscribeToMountedAxis("group", onChange);
 
     const { rerender } = render(
       <Group

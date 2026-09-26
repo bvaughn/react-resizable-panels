@@ -1,6 +1,6 @@
 import { useImperativeHandle, useRef, type Ref } from "react";
 import { IDENTITY_FUNCTION } from "../../constants";
-import { getImperativeGroupMethods } from "../../global/utils/getImperativeGroupMethods";
+import { getImperativeAxisMethods } from "../../global/utils/getImperativeAxisMethods";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import type { GroupImperativeHandle } from "./types";
 
@@ -18,7 +18,7 @@ export function useGroupImperativeHandle(
   useIsomorphicLayoutEffect(() => {
     Object.assign(
       imperativeGroupRef.current,
-      getImperativeGroupMethods({ groupId })
+      getImperativeAxisMethods({ axisId: groupId })
     );
   });
 }

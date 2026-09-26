@@ -1,8 +1,14 @@
 import { type PropsWithChildren, type ReactElement } from "react";
 import {
+  Cell,
+  Grid,
+  Gridline,
   Group,
   Panel,
   Separator,
+  type CellProps,
+  type GridProps,
+  type GridlineProps,
   type GroupProps,
   type PanelProps,
   type SeparatorProps
@@ -25,11 +31,14 @@ import {
   type PopupWindowProps
 } from "../../../src/components/PopupWindow";
 import type {
+  EncodedCellElement,
   EncodedClickableElement,
   EncodedContainerElement,
   EncodedDialogElement,
   EncodedDisplayModeToggleElement,
   EncodedElement,
+  EncodedGridElement,
+  EncodedGridlineElement,
   EncodedGroupElement,
   EncodedIFrameElement,
   EncodedPanelElement,
@@ -56,6 +65,18 @@ function encodeChildren(children: ReactElement<unknown>[]): EncodedElement[] {
     }
 
     switch (current.type) {
+      case Cell: {
+        elements.push(encodeCell(current as ReactElement<CellProps>));
+        break;
+      }
+      case Gridline: {
+        elements.push(encodeGridline(current as ReactElement<GridlineProps>));
+        break;
+      }
+      case Grid: {
+        elements.push(encodeGrid(current as ReactElement<GridProps>));
+        break;
+      }
       case Clickable: {
         elements.push(encodeClickable(current as ReactElement<ClickableProps>));
         break;
@@ -112,6 +133,54 @@ function encodeChildren(children: ReactElement<unknown>[]): EncodedElement[] {
   });
 
   return elements;
+}
+
+function encodeCell(element: ReactElement<CellProps>): EncodedCellElement {
+  const { children, ...props } = element.props;
+
+  const encodedChildren = encodeChildren(
+    Array.isArray(children) ? children : [children]
+  );
+
+  return {
+    props: {
+      ...props,
+      children: encodedChildren.length > 0 ? encodedChildren : undefined
+    },
+    type: "Cell"
+  };
+}
+
+function encodeGridline(
+  element: ReactElement<GridlineProps>
+): EncodedGridlineElement {
+  const { children: _, elementRef: __, ...props } = element.props;
+
+  return {
+    props,
+    type: "Gridline"
+  };
+}
+
+function encodeGrid(element: ReactElement<GridProps>): EncodedGridElement {
+  const {
+    children,
+    onLayoutChange: _,
+    onLayoutChanged: __,
+    ...props
+  } = element.props;
+
+  const encodedChildren = encodeChildren(
+    Array.isArray(children) ? children : [children]
+  );
+
+  return {
+    props: {
+      ...props,
+      children: encodedChildren.length > 0 ? encodedChildren : undefined
+    },
+    type: "Grid"
+  };
 }
 
 function encodeClickable(

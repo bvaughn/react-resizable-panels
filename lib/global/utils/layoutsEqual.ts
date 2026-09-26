@@ -1,5 +1,5 @@
-import type { Layout } from "../../components/group/types";
 import { compareLayoutNumbers } from "./compareLayoutNumbers";
+import type { Layout } from "../types";
 
 export function layoutsEqual(a: Layout, b: Layout): boolean {
   if (Object.keys(a).length !== Object.keys(b).length) {

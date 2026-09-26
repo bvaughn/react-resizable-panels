@@ -1,0 +1,178 @@
+{
+  "description": [
+    {
+      "content": "<p>Resizes the columns (or rows) of a Grid.</p>\n"
+    },
+    {
+      "content": "<p>For example:</p>\n"
+    },
+    {
+      "content": "<div><span class=\"tok-comment\">// Rendered between columns 0 and 1 and spans all rows</span><span class=\"\"></span></div>\n<div><span class=\"\"></span><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">Gridline</span><span class=\"\"> </span><span class=\"tok-propertyName\">type</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"column\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">column</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-number\">1</span><span class=\"tok-punctuation\">}</span><span class=\"\"> </span><span class=\"tok-punctuation\">/&#62;</span></div>"
+    },
+    {
+      "content": "<div><span class=\"tok-comment\">// Rendered between rows 0 and 1 and spans all columns</span><span class=\"\"></span></div>\n<div><span class=\"\"></span><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">Gridline</span><span class=\"\"> </span><span class=\"tok-propertyName\">type</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"row\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">row</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-number\">1</span><span class=\"tok-punctuation\">}</span><span class=\"\"> </span><span class=\"tok-punctuation\">/&#62;</span></div>"
+    },
+    {
+      "content": "<div><span class=\"tok-comment\">// Rendered between columns 0 and 1 alongside of row 2 only</span><span class=\"\"></span></div>\n<div><span class=\"\"></span><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">Gridline</span><span class=\"\"> </span><span class=\"tok-propertyName\">type</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"column\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">column</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-number\">1</span><span class=\"tok-punctuation\">}</span><span class=\"\"> </span><span class=\"tok-propertyName\">row</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-number\">2</span><span class=\"tok-punctuation\">}</span><span class=\"\"> </span><span class=\"tok-propertyName\">rowSpan</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-number\">1</span><span class=\"tok-punctuation\">}</span><span class=\"\"> </span><span class=\"tok-punctuation\">/&#62;</span></div>"
+    },
+    {
+      "content": "<p>A gridline should not be rendered alongside of a Cell that spans across its boundary\n(this includes disabled gridlines; an error will be logged to the console);\nrender multiple gridlines along the same boundary instead (e.g. before and after the spanning Cell).</p>\n"
+    },
+    {
+      "content": "<p>Once a boundary contains a gridline, it can only be resized using gridlines;\nthe parts of the boundary that aren't alongside of a gridline can't be dragged.</p>\n",
+      "intent": "primary"
+    },
+    {
+      "content": "<p>Where column and row gridlines intersect, dragging resizes both axes.</p>\n"
+    },
+    {
+      "content": "<p>Gridlines are not <em>required</em> but they are <em>recommended</em> as they improve keyboard accessibility.</p>\n"
+    },
+    {
+      "content": "<p>Gridline elements always include the following attributes:</p>\n"
+    },
+    {
+      "content": "<div><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">aria-orientation</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"vertical\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-separator</span><span class=\"\"> </span><span class=\"tok-propertyName\">role</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
+    },
+    {
+      "content": "<p>Column gridlines are vertical (<code>aria-orientation=&quot;vertical&quot;</code>) and row gridlines are horizontal (<code>aria-orientation=&quot;horizontal&quot;</code>).</p>\n",
+      "intent": "primary"
+    },
+    {
+      "content": "<p>In addition to the attributes shown above, gridlines also render all required <a href=\"https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/separator_role#associated_wai-aria_roles_states_and_properties\">WAI-ARIA properties</a>.</p>\n",
+      "intent": "primary"
+    },
+    {
+      "content": "<p>Gridline elements must be direct DOM children of their parent Grid elements.</p>\n",
+      "intent": "warning"
+    },
+    {
+      "content": "<p>Gridlines rendered by another component (rather than directly within the Grid) aren't detected until they mount, so server-rendered layouts may shift slightly during hydration.</p>\n",
+      "intent": "primary"
+    }
+  ],
+  "filePath": "lib/components/grid/Gridline.tsx",
+  "name": "Gridline",
+  "props": {
+    "children": {
+      "description": [
+        {
+          "content": "<p>Gridline contents (e.g. a drag handle icon).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">children</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span></div>",
+      "name": "children",
+      "required": false
+    },
+    "className": {
+      "description": [
+        {
+          "content": "<p>CSS class name.</p>\n"
+        },
+        {
+          "content": "<p>Use the <code>data-separator</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
+      "name": "className",
+      "required": false
+    },
+    "disabled": {
+      "description": [
+        {
+          "content": "<p>When disabled, the gridline cannot be used to resize its neighboring tracks.</p>\n"
+        },
+        {
+          "content": "<p>The tracks may still be resized indirectly (e.g. by an intersecting gridline or another boundary).\nTo prevent a track from being resized at all, it needs to also be disabled.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disabled</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
+      "name": "disabled",
+      "required": false
+    },
+    "elementRef": {
+      "description": [
+        {
+          "content": "<p>Ref attached to the root <code>HTMLDivElement</code>.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\">&#62;</span></div>",
+      "name": "elementRef",
+      "required": false
+    },
+    "style": {
+      "description": [
+        {
+          "content": "<p>CSS properties.</p>\n"
+        },
+        {
+          "content": "<p>Grid placement properties are managed by the gridline and cannot be overridden.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span></div>",
+      "name": "style",
+      "required": false
+    },
+    "type": {
+      "description": [
+        {
+          "content": "<p>Column gridlines are vertical; they resize the columns on either side of them.\nRow gridlines are horizontal; they resize the rows on either side of them.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\"><span class=\"tok-propertyName\">type</span></span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"column\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"row\"</span></div>",
+      "name": "type",
+      "required": true
+    },
+    "column": {
+      "description": [
+        {
+          "content": "<p>When <code>type</code> is &quot;column&quot;, the gridline is rendered along the leading (left) edge of this column\n(between it and the previous column); must be greater than 0 and less than the number of columns.\nWhen <code>type</code> is &quot;row&quot;, index of the first column the gridline is rendered alongside of; defaults to 0.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">column</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "column",
+      "required": false
+    },
+    "row": {
+      "description": [
+        {
+          "content": "<p>When <code>type</code> is &quot;column&quot;, index of the first row the gridline is rendered alongside of; defaults to 0.\nWhen <code>type</code> is &quot;row&quot;, the gridline is rendered along the leading (top) edge of this row\n(between it and the previous row); must be greater than 0 and less than the number of rows.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">row</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "row",
+      "required": false
+    },
+    "rowSpan": {
+      "description": [
+        {
+          "content": "<p>Number of rows a column gridline spans; defaults to all rows (starting from <code>row</code>).</p>\n"
+        },
+        {
+          "content": "<p>Gridlines can span a subset of rows in order to avoid cells that span across the boundary they sit on;\nmultiple gridlines can be rendered along the same boundary (e.g. above and below a spanning cell).</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">rowSpan</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "rowSpan",
+      "required": false
+    },
+    "columnSpan": {
+      "description": [
+        {
+          "content": "<p>Number of columns a row gridline spans; defaults to all columns (starting from <code>column</code>).</p>\n"
+        },
+        {
+          "content": "<p>Gridlines can span a subset of columns in order to avoid cells that span across the boundary they sit on;\nmultiple gridlines can be rendered along the same boundary (e.g. before and after a spanning cell).</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">columnSpan</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "columnSpan",
+      "required": false
+    }
+  }
+}

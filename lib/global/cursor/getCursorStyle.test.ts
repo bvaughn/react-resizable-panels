@@ -37,7 +37,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [horizontalGroup, verticalGroup],
+            axes: [horizontalGroup, verticalGroup],
             state: "inactive"
           })
         ).toBeUndefined();
@@ -49,7 +49,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [horizontalGroup],
+            axes: [horizontalGroup],
             state: "hover"
           })
         ).toBe("ew-resize");
@@ -59,7 +59,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [verticalGroup],
+            axes: [verticalGroup],
             state: "hover"
           })
         ).toBe("ns-resize");
@@ -69,7 +69,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [horizontalGroup, verticalGroup],
+            axes: [horizontalGroup, verticalGroup],
             state: "hover"
           })
         ).toBe("move");
@@ -79,7 +79,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: CURSOR_FLAG_HORIZONTAL_MAX,
-            groups: [horizontalGroup],
+            axes: [horizontalGroup],
             state: "hover"
           })
         ).toBe("ew-resize");
@@ -89,7 +89,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [disabledGroup],
+            axes: [disabledGroup],
             state: "hover"
           })
         ).toBeUndefined();
@@ -101,7 +101,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [horizontalGroup],
+            axes: [horizontalGroup],
             state: "active"
           })
         ).toBe("ew-resize");
@@ -111,7 +111,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [verticalGroup],
+            axes: [verticalGroup],
             state: "active"
           })
         ).toBe("ns-resize");
@@ -121,7 +121,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [horizontalGroup, verticalGroup],
+            axes: [horizontalGroup, verticalGroup],
             state: "active"
           })
         ).toBe("move");
@@ -140,7 +140,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags,
-            groups: [horizontalGroup, verticalGroup],
+            axes: [horizontalGroup, verticalGroup],
             state: "active"
           })
         ).toBe(expected);
@@ -150,7 +150,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [disabledGroup],
+            axes: [disabledGroup],
             state: "active"
           })
         ).toBeUndefined();
@@ -168,7 +168,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [horizontalGroup, verticalGroup],
+            axes: [horizontalGroup, verticalGroup],
             state: "inactive"
           })
         ).toBeUndefined();
@@ -180,7 +180,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [horizontalGroup],
+            axes: [horizontalGroup],
             state: "hover"
           })
         ).toBe("col-resize");
@@ -190,7 +190,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [verticalGroup],
+            axes: [verticalGroup],
             state: "hover"
           })
         ).toBe("row-resize");
@@ -200,7 +200,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [horizontalGroup, verticalGroup],
+            axes: [horizontalGroup, verticalGroup],
             state: "hover"
           })
         ).toBe("grab");
@@ -210,7 +210,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: CURSOR_FLAG_HORIZONTAL_MAX,
-            groups: [horizontalGroup],
+            axes: [horizontalGroup],
             state: "hover"
           })
         ).toBe("col-resize");
@@ -220,7 +220,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [disabledGroup],
+            axes: [disabledGroup],
             state: "hover"
           })
         ).toBeUndefined();
@@ -232,7 +232,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [horizontalGroup],
+            axes: [horizontalGroup],
             state: "active"
           })
         ).toBe("col-resize");
@@ -242,7 +242,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [verticalGroup],
+            axes: [verticalGroup],
             state: "active"
           })
         ).toBe("row-resize");
@@ -252,7 +252,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [horizontalGroup, verticalGroup],
+            axes: [horizontalGroup, verticalGroup],
             state: "active"
           })
         ).toBe("grab");
@@ -271,7 +271,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags,
-            groups: [horizontalGroup, verticalGroup],
+            axes: [horizontalGroup, verticalGroup],
             state: "active"
           })
         ).toBe(expected);
@@ -281,7 +281,7 @@ describe("getCursorStyle", () => {
         expect(
           getCursorStyle({
             cursorFlags: 0,
-            groups: [disabledGroup],
+            axes: [disabledGroup],
             state: "active"
           })
         ).toBeUndefined();

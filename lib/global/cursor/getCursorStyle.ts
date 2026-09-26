@@ -1,5 +1,4 @@
 import type { Properties } from "csstype";
-import type { RegisteredGroup } from "../../components/group/types";
 import {
   CURSOR_FLAG_HORIZONTAL_MAX,
   CURSOR_FLAG_HORIZONTAL_MIN,
@@ -7,15 +6,16 @@ import {
   CURSOR_FLAG_VERTICAL_MIN
 } from "../../constants";
 import type { InteractionState } from "../mutable-state/types";
+import type { RegisteredResizeAxis } from "../types";
 import { supportsAdvancedCursorStyles } from "./supportsAdvancedCursorStyles";
 
 export function getCursorStyle({
   cursorFlags,
-  groups,
+  axes,
   state
 }: {
   cursorFlags: number;
-  groups: RegisteredGroup[];
+  axes: RegisteredResizeAxis[];
   state: InteractionState["state"];
 }): Properties["cursor"] {
   let horizontalCount = 0;
@@ -24,12 +24,12 @@ export function getCursorStyle({
   switch (state) {
     case "active":
     case "hover": {
-      groups.forEach((group) => {
-        if (group.mutableState.disableCursor) {
+      axes.forEach((axis) => {
+        if (axis.mutableState.disableCursor) {
           return;
         }
 
-        switch (group.orientation) {
+        switch (axis.orientation) {
           case "horizontal": {
             horizontalCount++;
             break;

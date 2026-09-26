@@ -1,6 +1,6 @@
 import { useRef } from "react";
+import type { RegisteredSeparator } from "../../global/types";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
-import type { RegisteredSeparator } from "./types";
 
 export function SeparatorClone({
   separator

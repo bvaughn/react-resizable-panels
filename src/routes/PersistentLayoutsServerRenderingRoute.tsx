@@ -4,10 +4,7 @@ import { html as cookieStorageExampleHTML } from "../../public/generated/example
 export default function PersistentLayoutsServerRenderingRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header
-        section="Examples"
-        title="Persistent layouts with server rendering"
-      />
+      <Header section="Flex" title="Persistent layouts with server rendering" />
       <div>
         Because <code>localStorage</code> is unavailable on the server, a custom{" "}
         <code>storage</code> configuration is needed to avoid layout shift when

@@ -14,7 +14,7 @@ export default function PersistentLayoutsRoute() {
 
   return (
     <Box direction="column" gap={4}>
-      <Header section="Examples" title="Persistent layouts" />
+      <Header section="Flex" title="Persistent layouts" />
       <div>
         Panel groups can be configured to save and restore layouts between page
         visits with the <code>useDefaultLayout</code> hook.

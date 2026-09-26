@@ -1,9 +1,9 @@
 import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import {
-  getMountedGroups,
-  getMountedGroupState,
-  updateMountedGroup
-} from "../mutable-state/groups";
+  getMountedAxes,
+  getMountedAxisState,
+  updateMountedAxis
+} from "../mutable-state/axes";
 import {
   getInteractionState,
   updateInteractionState
@@ -18,7 +18,7 @@ export function onDocumentPointerMove(event: PointerEvent) {
   }
 
   const interactionState = getInteractionState();
-  const mountedGroups = getMountedGroups();
+  const mountedAxes = getMountedAxes();
 
   switch (interactionState.state) {
     case "active": {
@@ -30,14 +30,14 @@ export function onDocumentPointerMove(event: PointerEvent) {
       ) {
         // This event is a later hover, not the release position.
         // Commit the last preview without incorporating movement after the button was released.
-        interactionState.previewLayoutMap.forEach((layout, group) => {
-          const groupState = mountedGroups.get(group);
+        interactionState.previewLayoutMap.forEach((layout, axis) => {
+          const axisState = mountedAxes.get(axis);
           if (
-            group.resizePreviewMode === "separator" &&
-            groupState &&
-            !layoutsEqual(layout, groupState.layout)
+            axis.resizePreviewMode === "separator" &&
+            axisState &&
+            !layoutsEqual(layout, axisState.layout)
           ) {
-            updateMountedGroup(group, { ...groupState, layout });
+            updateMountedAxis(axis, { ...axisState, layout });
           }
         });
 
@@ -53,11 +53,11 @@ export function onDocumentPointerMove(event: PointerEvent) {
         interactionState.hitRegions.forEach((hitRegion) => {
           // Skip if the group was re-registered mid-gesture, so the old hit region
           // doesn't resurrect a stale entry in the mounted-groups map. See #729.
-          if (!mountedGroups.has(hitRegion.group)) {
+          if (!mountedAxes.has(hitRegion.axis)) {
             return;
           }
-          const groupState = getMountedGroupState(hitRegion.group.id, true);
-          updateMountedGroup(hitRegion.group, groupState, {
+          const axisState = getMountedAxisState(hitRegion.axis.id, true);
+          updateMountedAxis(hitRegion.axis, axisState, {
             isUserInteraction: true
           });
         });
@@ -85,7 +85,7 @@ export function onDocumentPointerMove(event: PointerEvent) {
         event,
         hitRegions: interactionState.hitRegions,
         initialLayoutMap: interactionState.initialLayoutMap,
-        mountedGroups,
+        mountedAxes,
         pointerDownAtPoint: interactionState.pointerDownAtPoint,
         prevCursorFlags: interactionState.cursorFlags
       });
@@ -93,7 +93,7 @@ export function onDocumentPointerMove(event: PointerEvent) {
     }
     default: {
       // Update HitRegions if a drag has not been started
-      const hitRegions = findMatchingHitRegions(event, mountedGroups);
+      const hitRegions = findMatchingHitRegions(event, mountedAxes);
 
       if (hitRegions.length === 0) {
         if (interactionState.state !== "inactive") {

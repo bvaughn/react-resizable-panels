@@ -1,21 +1,14 @@
 import { sortByElementOffset } from "../../components/group/sortByElementOffset";
-import type { RegisteredGroup } from "../../components/group/types";
-import type { RegisteredPanel } from "../../components/panel/types";
-import type { RegisteredSeparator } from "../../components/separator/types";
 import { isHTMLElement } from "../../utils/isHTMLElement";
+import type {
+  HitRegion,
+  RegisteredResizeAxis,
+  RegisteredResizeItem,
+  RegisteredSeparator
+} from "../types";
 import { findClosestRect } from "../utils/findClosestRect";
-import { isCoarsePointer } from "../utils/isCoarsePointer";
-import { calculateAvailableGroupSize } from "./calculateAvailableGroupSize";
-
-type PanelsTuple = [panel: RegisteredPanel, panel: RegisteredPanel];
-
-export type HitRegion = {
-  group: RegisteredGroup;
-  groupSize: number;
-  panels: PanelsTuple;
-  rect: DOMRect;
-  separator?: RegisteredSeparator | undefined;
-};
+import { expandHitTarget } from "../utils/expandHitTarget";
+import { calculateAvailableAxisSize } from "./calculateAvailableAxisSize";
 
 /**
  * Determines hit regions for a Group; a hit region is either:
@@ -26,19 +19,27 @@ export type HitRegion = {
  */
 export function calculateHitRegions({
   expandHitTargets = true,
-  group,
+  axis,
   includeDisabled = false
 }: {
   expandHitTargets?: boolean;
-  group: RegisteredGroup;
+  axis: RegisteredResizeAxis;
   includeDisabled?: boolean;
 }) {
-  const { element: groupElement, orientation, panels, separators } = group;
+  if (axis.layoutStrategy) {
+    return axis.layoutStrategy.calculateHitRegions({
+      expandHitTargets,
+      axis,
+      includeDisabled
+    });
+  }
+
+  const { element: axisElement, orientation, items, separators } = axis;
 
   // Sort elements by offset before traversing
   const sortedChildElements: HTMLElement[] = sortByElementOffset(
     orientation,
-    Array.from(groupElement.children)
+    Array.from(axisElement.children)
       .filter(isHTMLElement)
       .filter((element) => !element.hasAttribute("data-resize-preview"))
       .map((element) => ({ element: element as HTMLElement }))
@@ -48,47 +49,47 @@ export function calculateHitRegions({
 
   let disabledSeparator = false;
   let hasInterleavedStaticContent = false;
-  let firstEnabledPanelIndex = -1;
-  let groupSize: number | undefined;
-  let lastEnabledPanelIndex = -1;
-  let numEnabledPanels = 0;
-  let prevPanel: RegisteredPanel | undefined = undefined;
+  let firstEnabledItemIndex = -1;
+  let axisSize: number | undefined;
+  let lastEnabledItemIndex = -1;
+  let numEnabledItems = 0;
+  let prevItem: RegisteredResizeItem | undefined = undefined;
   let pendingSeparators: RegisteredSeparator[] = [];
 
   {
-    let currentPanelIndex = -1;
+    let currentItemIndex = -1;
 
     for (const childElement of sortedChildElements) {
       if (childElement.hasAttribute("data-panel")) {
-        currentPanelIndex++;
+        currentItemIndex++;
 
         if (!childElement.hasAttribute("data-disabled")) {
-          numEnabledPanels++;
+          numEnabledItems++;
 
-          if (firstEnabledPanelIndex === -1) {
-            firstEnabledPanelIndex = currentPanelIndex;
+          if (firstEnabledItemIndex === -1) {
+            firstEnabledItemIndex = currentItemIndex;
           }
 
-          lastEnabledPanelIndex = currentPanelIndex;
+          lastEnabledItemIndex = currentItemIndex;
         }
       }
     }
   }
 
   // If all (or all but one) of the Panels are disabled, there can be no resize interactions.
-  if (includeDisabled || numEnabledPanels > 1) {
-    let currentPanelIndex = -1;
+  if (includeDisabled || numEnabledItems > 1) {
+    let currentItemIndex = -1;
 
     for (const childElement of sortedChildElements) {
       if (childElement.hasAttribute("data-panel")) {
-        currentPanelIndex++;
+        currentItemIndex++;
 
-        const panelData = panels.find(
+        const itemData = items.find(
           (current) => current.element === childElement
         );
-        if (panelData) {
-          if (prevPanel) {
-            const prevRect = prevPanel.element.getBoundingClientRect();
+        if (itemData) {
+          if (prevItem) {
+            const prevRect = prevItem.element.getBoundingClientRect();
             const rect = childElement.getBoundingClientRect();
 
             let pendingRectsOrSeparators: (DOMRect | RegisteredSeparator)[];
@@ -98,7 +99,7 @@ export function calculateHitRegions({
             // The one caveat is when there are non-interactive element(s) between panels,
             // in which case we may need to watch individual panel edges
             if (hasInterleavedStaticContent) {
-              const firstPanelEdgeRect =
+              const firstItemEdgeRect =
                 orientation === "horizontal"
                   ? new DOMRect(
                       prevRect.right,
@@ -112,7 +113,7 @@ export function calculateHitRegions({
                       prevRect.width,
                       0
                     );
-              const secondPanelEdgeRect =
+              const secondItemEdgeRect =
                 orientation === "horizontal"
                   ? new DOMRect(rect.left, rect.top, 0, rect.height)
                   : new DOMRect(rect.left, rect.top, rect.width, 0);
@@ -120,8 +121,8 @@ export function calculateHitRegions({
               switch (pendingSeparators.length) {
                 case 0: {
                   pendingRectsOrSeparators = [
-                    firstPanelEdgeRect,
-                    secondPanelEdgeRect
+                    firstItemEdgeRect,
+                    secondItemEdgeRect
                   ];
                   break;
                 }
@@ -136,8 +137,8 @@ export function calculateHitRegions({
                   pendingRectsOrSeparators = [
                     separator,
                     closestRect === prevRect
-                      ? secondPanelEdgeRect
-                      : firstPanelEdgeRect
+                      ? secondItemEdgeRect
+                      : firstItemEdgeRect
                   ];
                   break;
                 }
@@ -169,46 +170,26 @@ export function calculateHitRegions({
             }
 
             for (const rectOrSeparator of pendingRectsOrSeparators) {
-              let rect =
-                "width" in rectOrSeparator
-                  ? rectOrSeparator
-                  : rectOrSeparator.element.getBoundingClientRect();
-
-              const minHitTargetSize = expandHitTargets
-                ? isCoarsePointer()
-                  ? group.resizeTargetMinimumSize.coarse
-                  : group.resizeTargetMinimumSize.fine
-                : 0;
-              if (rect.width < minHitTargetSize) {
-                const delta = minHitTargetSize - rect.width;
-                rect = new DOMRect(
-                  rect.x - delta / 2,
-                  rect.y,
-                  rect.width + delta,
-                  rect.height
-                );
-              }
-              if (rect.height < minHitTargetSize) {
-                const delta = minHitTargetSize - rect.height;
-                rect = new DOMRect(
-                  rect.x,
-                  rect.y - delta / 2,
-                  rect.width,
-                  rect.height + delta
-                );
-              }
+              const rect = expandHitTarget({
+                expandHitTargets,
+                axis,
+                rect:
+                  "width" in rectOrSeparator
+                    ? rectOrSeparator
+                    : rectOrSeparator.element.getBoundingClientRect()
+              });
 
               const skip =
-                currentPanelIndex <= firstEnabledPanelIndex ||
-                currentPanelIndex > lastEnabledPanelIndex;
+                currentItemIndex <= firstEnabledItemIndex ||
+                currentItemIndex > lastEnabledItemIndex;
 
               if (includeDisabled || (!disabledSeparator && !skip)) {
-                groupSize ??= calculateAvailableGroupSize({ group });
+                axisSize ??= calculateAvailableAxisSize({ axis });
 
                 hitRegions.push({
-                  group,
-                  groupSize,
-                  panels: [prevPanel, panelData],
+                  axis,
+                  axisSize,
+                  items: [prevItem, itemData],
                   separator:
                     "width" in rectOrSeparator ? undefined : rectOrSeparator,
                   rect
@@ -220,7 +201,7 @@ export function calculateHitRegions({
           }
 
           hasInterleavedStaticContent = false;
-          prevPanel = panelData;
+          prevItem = itemData;
           pendingSeparators = [];
         }
       } else if (childElement.hasAttribute("data-separator")) {
@@ -236,7 +217,7 @@ export function calculateHitRegions({
           // It's important to track them though, to handle the scenario of non-interactive group content
           pendingSeparators.push(separatorData);
         } else {
-          prevPanel = undefined;
+          prevItem = undefined;
           pendingSeparators = [];
         }
       } else {
