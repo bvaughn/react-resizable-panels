@@ -157,6 +157,8 @@ export function updateActiveHitRegions({
           derivedItemConstraints,
           axisSize: mountedAxisSize,
           layout: nextLayout,
+          requestedAxisSize: mountedAxisSize,
+          requestedLayout: nextLayout,
           separatorToItems
         });
       }

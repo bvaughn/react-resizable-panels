@@ -18,19 +18,28 @@ export type {
 export type LayoutStorage = Pick<Storage, "getItem" | "setItem">;
 
 /**
- * Metadata describing a completed layout change, passed as the second argument
- * to the `onLayoutChanged` callback. See #716.
+ * Metadata describing a completed layout change, passed as the second argument to the `onLayoutChanged` callback.
+ * See #716.
  */
-export type LayoutChangedMeta = {
+export type LayoutChangedMeta<RequestedLayout = Layout> = {
   /**
-   * `true` when the change was caused by the user directly manipulating a
-   * separator — releasing a pointer drag or pressing a resize key (arrow keys,
-   * Home/End, Enter). `false` for every other source (programmatic `setLayout`
-   * and other imperative API calls, constraint recompute, default-size change,
-   * initial mount), because the library cannot attribute the caller's intent
-   * there.
+   * `true` when the change was caused by the user directly manipulating a separator (keyboard or pointer)
+   * `false` for every other source (imperative API calls, constraint recompute, default-size change, initial mount),
+   * because the library cannot attribute the caller's intent there.
    */
   isUserInteraction: boolean;
+
+  /**
+   * Layout most recently requested by the user or application (e.g. pointer or keyboard input, imperative API, default layout)
+   * before constraints were applied for the current size.
+   *
+   * This will differ from the validated layout when constraints temporarily override the requested layout,
+   * e.g. a panel with a pixel-based `minSize` taking up a larger percentage of a small Group.
+   * The requested layout is restored if the Group grows back to a size where it satisfies all constraints.
+   *
+   * ℹ️ When saving layouts to storage, prefer this value to the validated layout.
+   */
+  requestedLayout?: RequestedLayout | undefined;
 };
 
 export type DragState = {
@@ -156,6 +165,8 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    * The `isUserInteraction` attribute signals whether the resize was caused by direct user input.
    * It is true for resizes caused by pointer or keyboard input
    * and false for other triggers (e.g. imperative API calls, initial mount, etc.)
+   * The `requestedLayout` attribute is the layout before constraints were applied for the current Group size;
+   * prefer it when persisting layouts.
    */
   onLayoutChanged?: (layout: Layout, meta: LayoutChangedMeta) => void;
 

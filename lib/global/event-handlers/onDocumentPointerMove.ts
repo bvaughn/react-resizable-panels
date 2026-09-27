@@ -37,7 +37,12 @@ export function onDocumentPointerMove(event: PointerEvent) {
             axisState &&
             !layoutsEqual(layout, axisState.layout)
           ) {
-            updateMountedAxis(axis, { ...axisState, layout });
+            updateMountedAxis(axis, {
+              ...axisState,
+              layout,
+              requestedAxisSize: axisState.axisSize,
+              requestedLayout: layout
+            });
           }
         });
 

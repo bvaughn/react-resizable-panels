@@ -91,14 +91,15 @@ test.describe("resize events", () => {
       height: 500
     });
 
+    // The requested layout is restored once the minSize constraint no longer applies (see #720)
     await expectLayout({
       layout: {
-        left: 53,
-        right: 47
+        left: 30,
+        right: 70
       },
       mainPage,
-      onLayoutChangeCount: 2,
-      onLayoutChangedCount: 2
+      onLayoutChangeCount: 3,
+      onLayoutChangedCount: 3
     });
   });
 
@@ -198,14 +199,15 @@ test.describe("resize events", () => {
       height: 500
     });
 
+    // The requested layout is restored once the minSize constraint no longer applies (see #720)
     await expectLayout({
       layout: {
-        left: 53,
-        right: 47
+        left: 30,
+        right: 70
       },
       mainPage,
-      onLayoutChangeCount: 2,
-      onLayoutChangedCount: 2
+      onLayoutChangeCount: 3,
+      onLayoutChangedCount: 3
     });
   });
 

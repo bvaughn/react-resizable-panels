@@ -21,6 +21,7 @@ import type { SeparatorToItemsMap } from "./mutable-state/types";
 import type { RegisteredResizeAxis } from "./types";
 import { getDefaultLayout } from "./utils/getDefaultLayout";
 import { layoutsEqual } from "./utils/layoutsEqual";
+import { normalizeLayout } from "./utils/normalizeLayout";
 import { notifyItemOnResize } from "./utils/notifyItemOnResize";
 import { itemConstraintsEqual } from "./utils/itemConstraintsEqual";
 import { preserveFixedItemSizes } from "./utils/preserveFixedItemSizes";
@@ -65,17 +66,25 @@ export function mountAxis(axis: RegisteredResizeAxis) {
           const nextDerivedItemConstraints = calculateItemConstraints(axis);
 
           // Revalidate layout in case constraints have changed or group size changed
-          const prevLayout = axisState.defaultLayoutDeferred
-            ? getDefaultLayout({
+          // Start from the requested layout so that constraints only temporarily clamp item sizes (see #720)
+          let requestedAxisSize = axisState.requestedAxisSize;
+          let requestedLayout = axisState.requestedLayout;
+          if (axisState.defaultLayoutDeferred) {
+            requestedAxisSize = axisSize;
+            requestedLayout = normalizeLayout({
+              itemIds: axis.items.map(({ id }) => id),
+              layout: getDefaultLayout({
                 axis,
                 itemConstraints: nextDerivedItemConstraints
               })
-            : axisState.layout;
+            });
+          }
+
           const unsafeLayout = preserveFixedItemSizes({
             axis,
             nextAxisSize: axisSize,
-            prevAxisSize: axisState.axisSize,
-            prevLayout
+            prevAxisSize: requestedAxisSize,
+            prevLayout: requestedLayout
           });
           const nextLayout = validateAxisLayout({
             layout: unsafeLayout,
@@ -99,6 +108,8 @@ export function mountAxis(axis: RegisteredResizeAxis) {
             derivedItemConstraints: nextDerivedItemConstraints,
             axisSize,
             layout: nextLayout,
+            requestedAxisSize,
+            requestedLayout,
             separatorToItems: axisState.separatorToItems
           });
         }
@@ -159,6 +170,11 @@ export function mountAxis(axis: RegisteredResizeAxis) {
     derivedItemConstraints,
     axisSize,
     layout: defaultLayoutSafe,
+    requestedAxisSize: axisSize,
+    requestedLayout: normalizeLayout({
+      itemIds: axis.items.map(({ id }) => id),
+      layout: defaultLayoutUnsafe
+    }),
     separatorToItems
   });
 

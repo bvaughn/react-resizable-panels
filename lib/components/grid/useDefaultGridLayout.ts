@@ -52,13 +52,17 @@ export function useDefaultGridLayout({
   }, [defaultLayoutString]);
 
   const onLayoutChanged = useCallback(
-    (layout: GridLayout, meta: LayoutChangedMeta) => {
+    (layout: GridLayout, meta: LayoutChangedMeta<GridLayout>) => {
       if (onlySaveAfterUserInteractions && !meta.isUserInteraction) {
         return;
       }
 
       try {
-        storage.setItem(storageKey, JSON.stringify(layout));
+        // Save the requested layout so size-dependent constraints aren't persisted (see #720)
+        storage.setItem(
+          storageKey,
+          JSON.stringify(meta.requestedLayout ?? layout)
+        );
       } catch (error) {
         console.error(error);
       }

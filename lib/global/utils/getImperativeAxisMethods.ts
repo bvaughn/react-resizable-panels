@@ -63,6 +63,8 @@ export function getImperativeAxisMethods({
           derivedItemConstraints,
           axisSize,
           layout: nextLayout,
+          requestedAxisSize: axisSize,
+          requestedLayout: nextLayout,
           separatorToItems
         });
       }

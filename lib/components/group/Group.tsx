@@ -88,14 +88,15 @@ export function Group({
   });
 
   const onLayoutChangedStable = useStableCallback(
-    (layout: Layout, isUserInteraction: boolean) => {
+    (layout: Layout, isUserInteraction: boolean, requestedLayout: Layout) => {
+      // Only the validated layout is memoized; requested layout changes alone don't trigger the callback
       if (layoutsEqual(prevLayoutRef.current.onLayoutChanged, layout)) {
         // Memoize callback
         return;
       }
 
       prevLayoutRef.current.onLayoutChanged = layout;
-      onLayoutChangedUnstable?.(layout, { isUserInteraction });
+      onLayoutChangedUnstable?.(layout, { isUserInteraction, requestedLayout });
     }
   );
 
@@ -301,20 +302,22 @@ export function Group({
     const {
       defaultLayoutDeferred,
       derivedItemConstraints: derivedPanelConstraints,
-      layout
+      layout,
+      requestedLayout
     } = getMountedAxisState(group.id, true);
 
     if (!defaultLayoutDeferred && derivedPanelConstraints.length > 0) {
       onLayoutChangeStable(layout);
       // Initial mount is not a user interaction (#716).
-      onLayoutChangedStable(layout, false);
+      onLayoutChangedStable(layout, false, requestedLayout);
     }
 
     const removeChangeEventListener = subscribeToMountedAxis(id, (event) => {
       const {
         defaultLayoutDeferred,
         derivedItemConstraints: derivedPanelConstraints,
-        layout
+        layout,
+        requestedLayout
       } = event.next;
 
       if (defaultLayoutDeferred || derivedPanelConstraints.length === 0) {
@@ -328,7 +331,8 @@ export function Group({
         derivedItemConstraints: derivedPanelConstraints,
         axis: group,
         layout,
-        prevLayout: event.prev?.layout
+        prevLayout: event.prev?.layout,
+        requestedLayout
       });
 
       // Lastly notify layout-change(d) handlers of the update
@@ -338,7 +342,7 @@ export function Group({
         !interactionState.hitRegions.some((region) => region.axis === group);
       onLayoutChangeStable(layout);
       if (isCompleted) {
-        onLayoutChangedStable(layout, event.isUserInteraction);
+        onLayoutChangedStable(layout, event.isUserInteraction, requestedLayout);
       }
     });
 

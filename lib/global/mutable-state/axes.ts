@@ -11,6 +11,19 @@ type State = {
   derivedItemConstraints: ResizeItemConstraints[];
   axisSize: number;
   layout: Layout;
+
+  /**
+   * Layout most recently requested by the user or application (e.g. default layout, pointer or keyboard resize, imperative API).
+   * When the axis is resized, `layout` is re-derived from this value so that constraints don't permanently alter it.
+   * See #720.
+   */
+  requestedLayout: Layout;
+
+  /**
+   * Axis size (in pixels) when the requested layout was recorded; used for `preserve-pixel-size` items.
+   */
+  requestedAxisSize: number;
+
   separatorToItems: SeparatorToItemsMap;
 };
 

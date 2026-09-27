@@ -4,6 +4,7 @@ import { createRef, type ReactElement } from "react";
 import { describe, expect, test, vi } from "vitest";
 import { setElementBoundsFunction } from "../../utils/test/mockBoundingClientRect";
 import { Group } from "../group/Group";
+import type { LayoutChangedMeta } from "../group/types";
 import { Panel } from "../panel/Panel";
 import { Cell } from "./Cell";
 import { Grid } from "./Grid";
@@ -166,7 +167,7 @@ function renderTwoByTwoGrid({
   onLayoutChange?: (layout: GridLayout) => void;
   onLayoutChanged?: (
     layout: GridLayout,
-    meta: { isUserInteraction: boolean }
+    meta: LayoutChangedMeta<GridLayout>
   ) => void;
   rows?: number | GridTrackProps[];
   spanBottomRow?: boolean;
@@ -234,9 +235,12 @@ describe("Grid", () => {
     expect(onLayoutChange).toHaveBeenCalledTimes(1);
     expect(onLayoutChange).toHaveBeenCalledWith(layout);
     expect(onLayoutChanged).toHaveBeenCalledTimes(1);
-    expect(onLayoutChanged).toHaveBeenCalledWith(layout, {
-      isUserInteraction: false
-    });
+    expect(onLayoutChanged).toHaveBeenCalledWith(
+      layout,
+      expect.objectContaining({
+        isUserInteraction: false
+      })
+    );
   });
 
   test("respects track ids and the default layout", () => {
@@ -277,9 +281,12 @@ describe("Grid", () => {
     };
     expect(gridRef.current!.getLayout()).toEqual(layout);
     expect(onLayoutChanged).toHaveBeenCalledTimes(1);
-    expect(onLayoutChanged).toHaveBeenCalledWith(layout, {
-      isUserInteraction: true
-    });
+    expect(onLayoutChanged).toHaveBeenCalledWith(
+      layout,
+      expect.objectContaining({
+        isUserInteraction: true
+      })
+    );
 
     // Rows other than the one that was dragged should also be resized (tracks are shared)
     const grid = document.querySelector("[data-grid]") as HTMLElement;
@@ -315,9 +322,12 @@ describe("Grid", () => {
     expect(gridRef.current!.getLayout()).toEqual(layout);
     expect(onLayoutChange).toHaveBeenLastCalledWith(layout);
     expect(onLayoutChanged).toHaveBeenCalledTimes(1);
-    expect(onLayoutChanged).toHaveBeenCalledWith(layout, {
-      isUserInteraction: true
-    });
+    expect(onLayoutChanged).toHaveBeenCalledWith(
+      layout,
+      expect.objectContaining({
+        isUserInteraction: true
+      })
+    );
   });
 
   test("does not resize a boundary alongside of a cell that spans across it", async () => {
@@ -470,7 +480,7 @@ describe("Grid", () => {
           columns: { "0": 30, "1": 70 },
           rows: { "0": 50, "1": 50 }
         },
-        { isUserInteraction: false }
+        expect.objectContaining({ isUserInteraction: false })
       );
 
       const grid = document.querySelector("[data-grid]") as HTMLElement;

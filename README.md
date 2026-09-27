@@ -134,7 +134,9 @@ This method is recommended when saving layouts to some storage api.</p>
 <p>ℹ️ The second argument contains meta information about the layout change.
 The <code>isUserInteraction</code> attribute signals whether the resize was caused by direct user input.
 It is true for resizes caused by pointer or keyboard input
-and false for other triggers (e.g. imperative API calls, initial mount, etc.)</p>
+and false for other triggers (e.g. imperative API calls, initial mount, etc.)
+The <code>requestedLayout</code> attribute is the layout before constraints were applied for the current Group size;
+prefer it when persisting layouts.</p>
 </td>
     </tr>
     <tr>

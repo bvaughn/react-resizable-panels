@@ -166,6 +166,8 @@ export function getImperativeItemMethods({
         derivedItemConstraints,
         axisSize,
         layout: nextLayout,
+        requestedAxisSize: axisSize,
+        requestedLayout: nextLayout,
         separatorToItems
       });
     }

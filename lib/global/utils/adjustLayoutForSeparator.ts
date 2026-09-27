@@ -47,6 +47,8 @@ export function adjustLayoutForSeparator(
         derivedItemConstraints: axisState.derivedItemConstraints,
         axisSize: axisState.axisSize,
         layout: nextLayout,
+        requestedAxisSize: axisState.axisSize,
+        requestedLayout: nextLayout,
         separatorToItems: axisState.separatorToItems
       },
       // Keyboard resizes (arrow keys, Home/End, Enter collapse/expand) originate

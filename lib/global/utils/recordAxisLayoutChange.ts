@@ -7,7 +7,7 @@ import type {
 
 /**
  * Updates the in-memory bookkeeping a Group needs to restore previous layouts:
- * - Cache the layout (keyed by panel ids) so it persists when the panel configuration changes.
+ * - Cache the requested layout (keyed by panel ids) so it persists when the panel configuration changes.
  *   This improves UX for conditionally rendered panels without requiring defaultLayout.
  * - Record the pre-collapse size of any collapsible panel that was just collapsed,
  *   so that it can be restored when the panel is expanded (e.g. via the keyboard)
@@ -16,15 +16,17 @@ export function recordAxisLayoutChange({
   derivedItemConstraints,
   axis,
   layout,
-  prevLayout
+  prevLayout,
+  requestedLayout
 }: {
   derivedItemConstraints: ResizeItemConstraints[];
   axis: RegisteredResizeAxis;
   layout: Layout;
   prevLayout: Layout | undefined;
+  requestedLayout: Layout;
 }) {
   const itemIdsKey = axis.items.map(({ id }) => id).join(",");
-  axis.mutableState.layouts[itemIdsKey] = layout;
+  axis.mutableState.layouts[itemIdsKey] = requestedLayout;
 
   if (prevLayout) {
     derivedItemConstraints.forEach((constraints) => {
