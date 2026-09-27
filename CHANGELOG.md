@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.14.1
 
 - [720](https://github.com/bvaughn/react-resizable-panels/issues/720): Bugfix: Constraints applied because of a `Group` size change (e.g. a pixel-based `minSize` when the window is small) no longer permanently alter the layout; the requested layout is restored once the constraint no longer applies
   - `onLayoutChanged` meta includes a new `requestedLayout` attribute; `useDefaultLayout` and `useDefaultGridLayout` persist this value instead of the constrained layout
