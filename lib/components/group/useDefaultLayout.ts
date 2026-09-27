@@ -139,15 +139,18 @@ export function useDefaultLayout({
 
       clearPendingTimeout();
 
+      // Save the requested layout so size-dependent constraints aren't persisted (see #720)
+      const layoutToSave = meta.requestedLayout ?? layout;
+
       let writeStorageKey: string;
       if (hasPanelIds) {
-        writeStorageKey = getStorageKey(id, Object.keys(layout));
+        writeStorageKey = getStorageKey(id, Object.keys(layoutToSave));
       } else {
         writeStorageKey = getStorageKey(id, []);
       }
 
       try {
-        storage.setItem(writeStorageKey, JSON.stringify(layout));
+        storage.setItem(writeStorageKey, JSON.stringify(layoutToSave));
       } catch (error) {
         console.error(error);
       }

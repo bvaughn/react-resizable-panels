@@ -231,7 +231,7 @@ export type GridProps = HTMLAttributes<HTMLDivElement> & {
    * This method is recommended when saving layouts to some storage api.
    */
   onLayoutChanged?:
-    | ((layout: GridLayout, meta: LayoutChangedMeta) => void)
+    | ((layout: GridLayout, meta: LayoutChangedMeta<GridLayout>) => void)
     | undefined;
 
   /**

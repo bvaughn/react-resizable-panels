@@ -135,14 +135,19 @@ export function Grid({
   });
 
   const onLayoutChangedStable = useStableCallback(
-    (layout: GridLayout, isUserInteraction: boolean) => {
+    (
+      layout: GridLayout,
+      isUserInteraction: boolean,
+      requestedLayout: GridLayout
+    ) => {
+      // Only the validated layout is memoized; requested layout changes alone don't trigger the callback
       if (gridLayoutsEqual(prevLayoutRef.current.onLayoutChanged, layout)) {
         // Memoize callback
         return;
       }
 
       prevLayoutRef.current.onLayoutChanged = layout;
-      onLayoutChangedUnstable?.(layout, { isUserInteraction });
+      onLayoutChangedUnstable?.(layout, { isUserInteraction, requestedLayout });
     }
   );
 
@@ -443,7 +448,9 @@ export function Grid({
 
     const unmountAxes = resizeAxes.map((axis) => mountAxis(axis));
 
-    const getGridLayout = (): GridLayout | undefined => {
+    const getGridLayouts = ():
+      | { layout: GridLayout; requestedLayout: GridLayout }
+      | undefined => {
       const [columnState, rowState] = resizeAxes.map((axis) =>
         getMountedAxisState(axis.id)
       );
@@ -459,22 +466,32 @@ export function Grid({
         return undefined;
       }
 
-      return { columns: columnState.layout, rows: rowState.layout };
+      return {
+        layout: { columns: columnState.layout, rows: rowState.layout },
+        requestedLayout: {
+          columns: columnState.requestedLayout,
+          rows: rowState.requestedLayout
+        }
+      };
     };
 
     {
-      const layout = getGridLayout();
-      if (layout) {
-        onLayoutChangeStable(layout);
+      const layouts = getGridLayouts();
+      if (layouts) {
+        onLayoutChangeStable(layouts.layout);
         // Initial mount is not a user interaction (#716).
-        onLayoutChangedStable(layout, false);
+        onLayoutChangedStable(layouts.layout, false, layouts.requestedLayout);
       }
     }
 
     const removeChangeEventListeners = resizeAxes.map((axis) =>
       subscribeToMountedAxis(axis.id, (event) => {
-        const { defaultLayoutDeferred, derivedItemConstraints, layout } =
-          event.next;
+        const {
+          defaultLayoutDeferred,
+          derivedItemConstraints,
+          layout,
+          requestedLayout
+        } = event.next;
 
         if (defaultLayoutDeferred || derivedItemConstraints.length === 0) {
           return;
@@ -484,11 +501,12 @@ export function Grid({
           derivedItemConstraints,
           axis,
           layout,
-          prevLayout: event.prev?.layout
+          prevLayout: event.prev?.layout,
+          requestedLayout
         });
 
-        const gridLayout = getGridLayout();
-        if (gridLayout) {
+        const gridLayouts = getGridLayouts();
+        if (gridLayouts) {
           const interactionState = getInteractionState();
           const isCompleted =
             interactionState.state !== "active" ||
@@ -496,9 +514,13 @@ export function Grid({
               resizeAxes.includes(region.axis)
             );
 
-          onLayoutChangeStable(gridLayout);
+          onLayoutChangeStable(gridLayouts.layout);
           if (isCompleted) {
-            onLayoutChangedStable(gridLayout, event.isUserInteraction);
+            onLayoutChangedStable(
+              gridLayouts.layout,
+              event.isUserInteraction,
+              gridLayouts.requestedLayout
+            );
           }
         }
       })

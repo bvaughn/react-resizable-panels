@@ -101,7 +101,7 @@ describe("Group", () => {
 
     expect(onLayoutChanged).toHaveBeenCalledExactlyOnceWith(
       { a: 25, b: 75 },
-      { isUserInteraction: false }
+      expect.objectContaining({ isUserInteraction: false })
     );
   });
 
@@ -183,7 +183,7 @@ describe("Group", () => {
 
     expect(onLayoutChanged).toHaveBeenCalledExactlyOnceWith(
       { a: 25, b: 75 },
-      { isUserInteraction: false }
+      expect.objectContaining({ isUserInteraction: false })
     );
   });
 
@@ -305,15 +305,18 @@ describe("Group", () => {
           left: 50,
           right: 50
         },
-        { isUserInteraction: false }
+        expect.objectContaining({ isUserInteraction: false })
       );
 
       await callback({ container, groupRef, panelRef });
 
       expect(onLayoutChanged).toHaveBeenCalledTimes(2);
-      expect(onLayoutChanged).toHaveBeenLastCalledWith(expectedLayout, {
-        isUserInteraction: expectedIsUserInteraction
-      });
+      expect(onLayoutChanged).toHaveBeenLastCalledWith(
+        expectedLayout,
+        expect.objectContaining({
+          isUserInteraction: expectedIsUserInteraction
+        })
+      );
 
       rerender(
         <Group groupRef={groupRef} onLayoutChanged={onLayoutChanged}>
@@ -324,7 +327,7 @@ describe("Group", () => {
       expect(onLayoutChanged).toHaveBeenCalledTimes(3);
       expect(onLayoutChanged).toHaveBeenLastCalledWith(
         { right: 100 },
-        { isUserInteraction: false }
+        expect.objectContaining({ isUserInteraction: false })
       );
 
       rerender(
@@ -336,9 +339,12 @@ describe("Group", () => {
       );
 
       expect(onLayoutChanged).toHaveBeenCalledTimes(4);
-      expect(onLayoutChanged).toHaveBeenLastCalledWith(expectedLayout, {
-        isUserInteraction: false
-      });
+      expect(onLayoutChanged).toHaveBeenLastCalledWith(
+        expectedLayout,
+        expect.objectContaining({
+          isUserInteraction: false
+        })
+      );
     }
 
     test("should update when resized via pointer", async () => {
@@ -532,7 +538,7 @@ describe("Group", () => {
           left: 25,
           right: 75
         },
-        { isUserInteraction: false }
+        expect.objectContaining({ isUserInteraction: false })
       );
       expect(groupRef.current?.getLayout()).toEqual({
         left: 25,
@@ -581,7 +587,7 @@ describe("Group", () => {
           left: 25,
           right: 75
         },
-        { isUserInteraction: false }
+        expect.objectContaining({ isUserInteraction: false })
       );
       expect(groupRef.current?.getLayout()).toEqual({
         left: 25,
@@ -602,12 +608,279 @@ describe("Group", () => {
           left: 20,
           right: 80
         },
-        { isUserInteraction: false }
+        expect.objectContaining({ isUserInteraction: false })
       );
       expect(groupRef.current?.getLayout()).toEqual({
         left: 20,
         right: 80
       });
+    });
+  });
+
+  // See github.com/bvaughn/react-resizable-panels/issues/720
+  describe("constraints applied because of Group size changes", () => {
+    function mockElementBounds({
+      groupSize,
+      leftPanelSize,
+      rightPanelSize
+    }: {
+      groupSize: number;
+      leftPanelSize: number;
+      rightPanelSize: number;
+    }) {
+      setElementBoundsFunction((element: HTMLElement) => {
+        switch (element.id) {
+          case "group": {
+            return new DOMRect(0, 0, groupSize, 50);
+          }
+          case "left": {
+            return new DOMRect(0, 0, leftPanelSize, 50);
+          }
+          case "separator": {
+            return new DOMRect(leftPanelSize, 0, 0, 50);
+          }
+          case "right": {
+            return new DOMRect(leftPanelSize, 0, rightPanelSize, 50);
+          }
+        }
+      });
+    }
+
+    function resizeGroup(groupSize: number) {
+      // Panel sizes only matter in that they add up to the size of the Group
+      mockElementBounds({
+        groupSize,
+        leftPanelSize: groupSize / 2,
+        rightPanelSize: groupSize / 2
+      });
+    }
+
+    test("should round the requested layout the same way as the validated layout", () => {
+      resizeGroup(1000);
+
+      const groupRef = createRef<GroupImperativeHandle | null>();
+      const onLayoutChanged = vi.fn();
+
+      render(
+        <Group groupRef={groupRef} id="group" onLayoutChanged={onLayoutChanged}>
+          <Panel id="left" />
+          <Panel id="center" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      const layout = groupRef.current?.getLayout();
+      // Which panel absorbs the rounding error depends on panel order (not mocked here)
+      expect(Object.values(layout!).sort((a, b) => a - b)).toEqual([
+        33.333, 33.333, 33.334
+      ]);
+      expect(onLayoutChanged).toHaveBeenCalledTimes(1);
+      expect(onLayoutChanged).toHaveBeenLastCalledWith(layout, {
+        isUserInteraction: false,
+        requestedLayout: layout
+      });
+    });
+
+    test("should restore the requested layout once a pixel-based minSize no longer applies", async () => {
+      resizeGroup(1000);
+
+      const groupRef = createRef<GroupImperativeHandle | null>();
+      const onLayoutChanged = vi.fn();
+
+      render(
+        <Group groupRef={groupRef} id="group" onLayoutChanged={onLayoutChanged}>
+          <Panel defaultSize="10%" id="left" minSize={100} />
+          <Panel id="right" />
+        </Group>
+      );
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 10, right: 90 });
+
+      await act(() => resizeGroup(400));
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 25, right: 75 });
+      expect(onLayoutChanged).toHaveBeenLastCalledWith(
+        { left: 25, right: 75 },
+        {
+          isUserInteraction: false,
+          requestedLayout: { left: 10, right: 90 }
+        }
+      );
+
+      await act(() => resizeGroup(1000));
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 10, right: 90 });
+      expect(onLayoutChanged).toHaveBeenLastCalledWith(
+        { left: 10, right: 90 },
+        {
+          isUserInteraction: false,
+          requestedLayout: { left: 10, right: 90 }
+        }
+      );
+    });
+
+    test("should restore the requested layout once a pixel-based maxSize no longer applies", async () => {
+      resizeGroup(400);
+
+      const groupRef = createRef<GroupImperativeHandle | null>();
+
+      render(
+        <Group groupRef={groupRef} id="group">
+          <Panel defaultSize="50%" id="left" maxSize={500} />
+          <Panel id="right" />
+        </Group>
+      );
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 50, right: 50 });
+
+      await act(() => resizeGroup(2000));
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 25, right: 75 });
+
+      await act(() => resizeGroup(400));
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 50, right: 50 });
+    });
+
+    test("should restore a panel that was collapsed because of a pixel-based minSize", async () => {
+      resizeGroup(1000);
+
+      const groupRef = createRef<GroupImperativeHandle | null>();
+
+      render(
+        <Group groupRef={groupRef} id="group">
+          <Panel collapsible defaultSize="15%" id="left" minSize={100} />
+          <Panel id="right" />
+        </Group>
+      );
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 15, right: 85 });
+
+      await act(() => resizeGroup(250));
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 0, right: 100 });
+
+      await act(() => resizeGroup(1000));
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 15, right: 85 });
+    });
+
+    test("should treat a layout the user resized to while constrained as the new requested layout", async () => {
+      resizeGroup(1000);
+
+      const groupRef = createRef<GroupImperativeHandle | null>();
+      const onLayoutChanged = vi.fn();
+
+      render(
+        <Group groupRef={groupRef} id="group" onLayoutChanged={onLayoutChanged}>
+          <Panel defaultSize="10%" id="left" minSize={100} />
+          <Separator id="separator" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      await act(() =>
+        mockElementBounds({
+          groupSize: 400,
+          leftPanelSize: 100,
+          rightPanelSize: 300
+        })
+      );
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 25, right: 75 });
+
+      await moveSeparator(40);
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 35, right: 65 });
+      expect(onLayoutChanged).toHaveBeenLastCalledWith(
+        { left: 35, right: 65 },
+        {
+          isUserInteraction: true,
+          requestedLayout: { left: 35, right: 65 }
+        }
+      );
+
+      await act(() => resizeGroup(1000));
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 35, right: 65 });
+    });
+
+    test("should treat a layout set imperatively while constrained as the new requested layout", async () => {
+      resizeGroup(400);
+
+      const groupRef = createRef<GroupImperativeHandle | null>();
+
+      render(
+        <Group groupRef={groupRef} id="group">
+          <Panel id="left" minSize={100} />
+          <Panel id="right" />
+        </Group>
+      );
+
+      act(() => {
+        groupRef.current?.setLayout({ left: 15, right: 85 });
+      });
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 25, right: 75 });
+
+      // Like pointer and keyboard resizes, imperative layouts are validated before being recorded
+      await act(() => resizeGroup(1000));
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 25, right: 75 });
+    });
+
+    test("should restore a default layout that was constrained during mount", async () => {
+      resizeGroup(400);
+
+      const groupRef = createRef<GroupImperativeHandle | null>();
+
+      render(
+        <Group
+          defaultLayout={{ left: 10, right: 90 }}
+          groupRef={groupRef}
+          id="group"
+        >
+          <Panel id="left" minSize={100} />
+          <Panel id="right" />
+        </Group>
+      );
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 25, right: 75 });
+
+      await act(() => resizeGroup(1000));
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 10, right: 90 });
+    });
+
+    test("should restore the pixel size of preserve-pixel-size panels", async () => {
+      resizeGroup(1000);
+
+      const groupRef = createRef<GroupImperativeHandle | null>();
+
+      render(
+        <Group groupRef={groupRef} id="group">
+          <Panel
+            defaultSize={300}
+            groupResizeBehavior="preserve-pixel-size"
+            id="left"
+          />
+          <Panel id="right" minSize={500} />
+        </Group>
+      );
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 30, right: 70 });
+
+      await act(() => resizeGroup(600));
+
+      // The right panel's minSize takes precedence over the left panel's pixel size
+      expect(groupRef.current?.getLayout()).toEqual({
+        left: 16.667,
+        right: 83.333
+      });
+
+      await act(() => resizeGroup(1000));
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 30, right: 70 });
     });
   });
 
@@ -706,7 +979,7 @@ describe("Group", () => {
             left: 60,
             right: 40
           },
-          { isUserInteraction: false }
+          expect.objectContaining({ isUserInteraction: false })
         );
 
         // Simulate a drag from the draggable element to the target area
@@ -718,7 +991,7 @@ describe("Group", () => {
             left: 70,
             right: 30
           },
-          { isUserInteraction: true }
+          expect.objectContaining({ isUserInteraction: true })
         );
       });
 
@@ -773,7 +1046,7 @@ describe("Group", () => {
             middle: 30,
             top: 20
           },
-          { isUserInteraction: false }
+          expect.objectContaining({ isUserInteraction: false })
         );
 
         // Simulate a drag from the draggable element to the target area
@@ -786,7 +1059,7 @@ describe("Group", () => {
             middle: 20,
             top: 30
           },
-          { isUserInteraction: true }
+          expect.objectContaining({ isUserInteraction: true })
         );
       });
     });
@@ -995,7 +1268,7 @@ describe("Group", () => {
           a: 50,
           b: 50
         },
-        { isUserInteraction: false }
+        expect.objectContaining({ isUserInteraction: false })
       );
 
       rerender(
@@ -1038,7 +1311,7 @@ describe("Group", () => {
           a: 40,
           b: 60
         },
-        { isUserInteraction: false }
+        expect.objectContaining({ isUserInteraction: false })
       );
 
       rerender(
@@ -1082,7 +1355,7 @@ describe("Group", () => {
           a: 50,
           b: 50
         },
-        { isUserInteraction: false }
+        expect.objectContaining({ isUserInteraction: false })
       );
 
       rerender(
@@ -1113,7 +1386,7 @@ describe("Group", () => {
           c: 25,
           d: 25
         },
-        { isUserInteraction: false }
+        expect.objectContaining({ isUserInteraction: false })
       );
     });
 
@@ -1158,7 +1431,7 @@ describe("Group", () => {
           a: 50,
           c: 50
         },
-        { isUserInteraction: false }
+        expect.objectContaining({ isUserInteraction: false })
       );
 
       onLayoutChange.mockReset();
@@ -1179,7 +1452,7 @@ describe("Group", () => {
           a: 75,
           c: 25
         },
-        { isUserInteraction: true }
+        expect.objectContaining({ isUserInteraction: true })
       );
 
       onLayoutChange.mockReset();
@@ -1226,7 +1499,7 @@ describe("Group", () => {
           a: 25,
           b: 75
         },
-        { isUserInteraction: false }
+        expect.objectContaining({ isUserInteraction: false })
       );
 
       rerender(

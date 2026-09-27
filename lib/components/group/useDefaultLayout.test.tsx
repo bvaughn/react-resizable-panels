@@ -343,6 +343,43 @@ describe("useDefaultLayout", () => {
       );
       expect(storage.setItem).toHaveBeenCalledTimes(1);
     });
+
+    // See github.com/bvaughn/react-resizable-panels/issues/720
+    test("should save the requested layout rather than the validated layout", () => {
+      const storage: LayoutStorage = {
+        getItem: vi.fn(() => null),
+        setItem: vi.fn()
+      };
+
+      const { result } = renderHook(() =>
+        useDefaultLayout({
+          id: "test-group-id",
+          storage
+        })
+      );
+
+      result.current.onLayoutChanged(
+        {
+          bar: 25,
+          baz: 75
+        },
+        {
+          isUserInteraction: false,
+          requestedLayout: {
+            bar: 10,
+            baz: 90
+          }
+        }
+      );
+      expect(storage.setItem).toHaveBeenCalledTimes(1);
+      expect(storage.setItem).toHaveBeenCalledWith(
+        "react-resizable-panels:test-group-id",
+        JSON.stringify({
+          bar: 10,
+          baz: 90
+        })
+      );
+    });
   });
 
   describe("legacy onLayoutChange prop", () => {
