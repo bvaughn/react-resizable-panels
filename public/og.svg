@@ -1,1 +1,12 @@
-<svg viewBox="0 0 1200 630" width="600" height="315" xmlns="http://www.w3.org/2000/svg"><linearGradient id="react-resizable-panels-bg"><stop offset="0%" stop-color="oklch(71.4% 0.203 305.504)"/><stop offset="100%" stop-color="oklch(49.6% 0.265 301.924)"/></linearGradient><rect fill="url('#react-resizable-panels-bg')" width="1200" height="630"/><g><circle cx="275" cy="315" r="60" fill="#111"/><ellipse cx="275" cy="315" rx="220" ry="100" stroke="#111" stroke-width="40" fill="none" transform="rotate(45, 275, 315)"/><ellipse cx="275" cy="315" rx="220" ry="100" stroke="#111" stroke-width="40" fill="none" transform="rotate(-45, 275, 315)"/></g><g fill="#fff" font-size="140" font-family="system-ui" font-weight="bold" transform="translate(540, 165)"><text alignment-baseline="middle" dx="0" dy="0">react</text><text alignment-baseline="middle" dx="0" dy="150">resizable</text><text alignment-baseline="middle" dx="0" dy="300">panels</text></g></svg>
+<svg viewBox="0 0 1200 630" width="600" height="315" xmlns="http://www.w3.org/2000/svg"><linearGradient id="generated-og-image-bg"><stop offset="0%" stop-color="oklch(71.4% 0.203 305.504)"></stop><stop offset="100%" stop-color="oklch(49.6% 0.265 301.924)"></stop></linearGradient><rect fill="url('#generated-og-image-bg')" width="1200" height="630"></rect><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" class="rrp-logo" x="55" y="95" width="440" height="440" preserveAspectRatio="xMidYMid meet" overflow="visible">
+  <style>
+    .rrp-logo path {
+      stroke: #1A1A1A;
+    }
+    .rrp-logo rect {
+      fill: #1A1A1A;
+    }
+  </style>
+  <rect x="7" y="1" width="2" height="14" rx="1"></rect>
+  <path d="M4.5 4.5 1.5 8l3 3.5M11.5 4.5 14.5 8l-3 3.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg></g><g fill="#fff" font-family="system-ui" font-size="149" font-weight="bold"><text dominant-baseline="middle" x="535" y="161.53">react</text><text dominant-baseline="middle" x="535" y="315">resizable</text><text dominant-baseline="middle" x="535" y="468.47">panels</text></g></svg>

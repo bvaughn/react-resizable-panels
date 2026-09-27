@@ -8,6 +8,7 @@ import {
   type CommonQuestion
 } from "react-lib-tools";
 import { repository } from "../package.json";
+import logo from "../public/favicon.svg";
 import { html as ConditionallyRenderPanel } from "../public/generated/examples/ConditionallyRenderPanel.json";
 import { html as GroupExplicitHeightHTML } from "../public/generated/examples/GroupExplicitHeight.json";
 import { Link } from "./components/Link";
@@ -136,6 +137,7 @@ export default function App() {
         </>
       }
       packageDescription="flexible layout components"
+      packageLogo={<img className="w-8 h-8" src={logo} />}
       packageName="react-resizable-panels"
       repositoryUrl={repository.url}
       routes={routes}
