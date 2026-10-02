@@ -1,3 +1,4 @@
+import { compareDocumentPosition } from "./compareDocumentPosition";
 import type { Orientation } from "./types";
 
 export function sortByElementOffset<
@@ -13,18 +14,7 @@ export function sortByElementOffset<
 
     // JSDom and hidden elements may have identical offsets and sizes.
     // Use DOM order so registration order does not affect panel adjacency.
-    const position = a.element.compareDocumentPosition(b.element);
-    if (position & Node.DOCUMENT_POSITION_DISCONNECTED) {
-      return 0;
-    }
-    if (position & Node.DOCUMENT_POSITION_FOLLOWING) {
-      return -1;
-    }
-    if (position & Node.DOCUMENT_POSITION_PRECEDING) {
-      return 1;
-    }
-
-    return 0;
+    return compareDocumentPosition(a.element, b.element);
   }) as ReturnType;
 }
 

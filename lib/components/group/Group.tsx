@@ -30,8 +30,10 @@ import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
 import { useStableObject } from "../../hooks/useStableObject";
 import type { SeparatorOverlayProps } from "../separator/types";
+import { isInDocumentOrder } from "./isInDocumentOrder";
 import { GroupContext } from "./GroupContext";
 import { ResizePreview } from "./ResizePreview";
+import { sortByDocumentPosition } from "./sortByDocumentPosition";
 import { sortByElementOffset } from "./sortByElementOffset";
 import type { GroupProps, Layout } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
@@ -112,6 +114,10 @@ export function Group({
   const elementRef = useRef<HTMLDivElement | null>(null);
 
   const [panelOrSeparatorChangeSigil, forceUpdate] = useForceUpdate();
+
+  // DOM order of registered Panels/Separators, as of the last time the Group was (re)mounted;
+  // used to detect children that have been moved without re-registering (see below)
+  const domOrderRef = useRef<HTMLElement[]>([]);
 
   const inMemoryValuesRef = useRef<{
     lastExpandedPanelSizes: { [panelIds: string]: number };
@@ -259,6 +265,21 @@ export function Group({
 
     const inMemoryValues = inMemoryValuesRef.current;
 
+    // Keyed Panels/Separators can be moved without re-registering (e.g. reordered children),
+    // so registration order may be stale; re-sort before deriving constraints from it.
+    inMemoryValues.panels = sortByElementOffset(
+      orientation,
+      inMemoryValues.panels
+    );
+    inMemoryValues.separators = sortByElementOffset(
+      orientation,
+      inMemoryValues.separators
+    );
+    domOrderRef.current = sortByDocumentPosition([
+      ...inMemoryValues.panels.map(({ element }) => element),
+      ...inMemoryValues.separators.map(({ element }) => element)
+    ]);
+
     // Guard against unexpected layout attribute ordering by pre-sorting panel ids/keys; see issues/656
     let preSortedDefaultLayout: Layout | undefined = undefined;
     if (stableProps.defaultLayout !== undefined) {
@@ -362,6 +383,17 @@ export function Group({
     resizePreviewMode,
     stableProps
   ]);
+
+  // Keyed Panels/Separators can be moved (e.g. reordered) without re-registering;
+  // when that happens, remount the Group so their cached order is re-sorted.
+  // This compares DOM order (rather than element offsets) because DOM order and visual order may differ,
+  // e.g. "flex-direction: row-reverse" or CSS "order"; comparing against the offset-sorted order would never settle.
+  // Additions and removals are handled by registration, so this only needs to check order.
+  useIsomorphicLayoutEffect(() => {
+    if (!isInDocumentOrder(domOrderRef.current)) {
+      forceUpdate();
+    }
+  });
 
   // Not all props require re-registering the group;
   // Some can be updated after the group has been registered
