@@ -13,6 +13,7 @@
       "content": "<p>Grid elements always include the following attributes:</p>\n"
     },
     {
+      "code": true,
       "content": "<div><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-grid</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-testid</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"grid-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"grid-id-prop\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
     },
     {

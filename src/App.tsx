@@ -1,118 +1,28 @@
-import { ArrowTurnDownRightIcon } from "@heroicons/react/20/solid";
 import {
   AppRoot,
   Callout,
   Code,
   ExternalLink,
-  NavSection,
-  type CommonQuestion
+  type CommonQuestion,
+  type DefaultPath,
+  type NavConfig
 } from "react-lib-tools";
 import { repository } from "../package.json";
 import Logo from "../public/favicon.svg?react";
 import { html as ConditionallyRenderPanel } from "../public/generated/examples/ConditionallyRenderPanel.json";
 import { html as GroupExplicitHeightHTML } from "../public/generated/examples/GroupExplicitHeight.json";
 import { Link } from "./components/Link";
-import { NavLink } from "./components/NavLink";
 import { Group } from "./components/styled-panels/Group";
 import { Panel } from "./components/styled-panels/Panel";
 import { Separator } from "./components/styled-panels/Separator";
-import { routes } from "./routes";
+import { routes, type Path } from "./routes";
 
 export default function App() {
   return (
     <AppRoot
       commonQuestions={commonQuestions}
       enableSiteSearch
-      navLinks={
-        <>
-          <NavLink path="/">Getting started</NavLink>
-          <NavSection label="Flex">
-            <NavLink path="/examples/the-basics">The basics</NavLink>
-            <NavLink path="/examples/min-max-sizes">Min/max sizes</NavLink>
-            <NavLink path="/examples/collapsible-panels">
-              Collapsible panels
-            </NavLink>
-            <NavLink path="/examples/persistent-layout">
-              Persistent layouts
-            </NavLink>
-            <NavLink path="/examples/persistent-layout/conditional-panels">
-              <ArrowTurnDownRightIcon className="size-4 fill-white/60" />
-              Conditional panels
-            </NavLink>
-            <NavLink path="/examples/persistent-layout/server-rendering">
-              <ArrowTurnDownRightIcon className="size-4 fill-white/60" /> Server
-              rendering
-            </NavLink>
-            <NavLink path="/examples/persistent-layout/server-components">
-              <ArrowTurnDownRightIcon className="size-4 fill-white/60" /> Server
-              components
-            </NavLink>
-            <NavLink path="/examples/nested-groups">Nested groups</NavLink>
-            <NavLink path="/examples/conditional-panels">
-              Conditional panels
-            </NavLink>
-            <NavLink path="/examples/fixed-size-panels">
-              Fixed size panels
-            </NavLink>
-            <NavLink path="/examples/disabled-panels">Disabled panels</NavLink>
-            <NavLink path="/examples/panel-resize-behavior">
-              Panel resize behavior
-            </NavLink>
-            <NavLink path="/examples/group-resize-behavior">
-              Group resize behavior
-            </NavLink>
-            <NavLink path="/examples/overflow">Overflow</NavLink>
-            <NavLink path="/examples/custom-css-styles">
-              Custom CSS styles
-            </NavLink>
-          </NavSection>
-          <NavSection label="Grids">
-            <NavLink path="/examples/grid-basics">The basics</NavLink>
-            <NavLink path="/examples/grid-constraints">Min/max sizes</NavLink>
-            <NavLink path="/examples/gridlines">Gridlines</NavLink>
-            <NavLink path="/examples/collapsible-grid-cells">
-              Collapsible cells
-            </NavLink>
-          </NavSection>
-          <NavSection label="Props">
-            <NavLink path="/props/cell">Cell</NavLink>
-            <NavLink path="/props/grid">Grid</NavLink>
-            <NavLink path="/props/gridline">Gridline</NavLink>
-            <NavLink path="/props/group">Group</NavLink>
-            <NavLink path="/props/panel">Panel</NavLink>
-            <NavLink path="/props/separator">Separator</NavLink>
-          </NavSection>
-          <NavSection label="Imperative APIs">
-            <NavLink path="/imperative-api/grid">Grid</NavLink>
-            <NavLink path="/imperative-api/grid-track">GridTrack</NavLink>
-            <NavLink path="/imperative-api/group">Group</NavLink>
-            <NavLink path="/imperative-api/panel">Panel</NavLink>
-          </NavSection>
-          <NavSection label="Hooks">
-            <NavLink path="/hooks/use-default-layout">useDefaultLayout</NavLink>
-            <NavLink path="/hooks/use-default-grid-layout">
-              useDefaultGridLayout
-            </NavLink>
-            <NavLink path="/hooks/use-grid-ref">useGridRef</NavLink>
-            <NavLink path="/hooks/use-grid-callback-ref">
-              useGridCallbackRef
-            </NavLink>
-            <NavLink path="/hooks/use-group-ref">useGroupRef</NavLink>
-            <NavLink path="/hooks/use-group-callback-ref">
-              useGroupCallbackRef
-            </NavLink>
-            <NavLink path="/hooks/use-panel-ref">usePanelRef</NavLink>
-            <NavLink path="/hooks/use-panel-callback-ref">
-              usePanelCallbackRef
-            </NavLink>
-          </NavSection>
-          <div>
-            <NavLink path="/platform-requirements">Requirements</NavLink>
-            <NavLink path="/common-questions">Common questions</NavLink>
-            <NavLink path="/support">Support</NavLink>
-          </div>
-        </>
-      }
+      nav={nav}
       overview={
         <>
           <div>
@@ -146,6 +56,95 @@ export default function App() {
   );
 }
 
+const nav: NavConfig<Path | DefaultPath> = [
+  { path: "/", title: "Getting started" },
+  {
+    title: "Flex",
+    links: [
+      { path: "/examples/the-basics", title: "The basics" },
+      { path: "/examples/min-max-sizes", title: "Min/max sizes" },
+      { path: "/examples/collapsible-panels", title: "Collapsible panels" },
+      {
+        path: "/examples/persistent-layout",
+        title: "Persistent layouts",
+        children: [
+          {
+            path: "/examples/persistent-layout/conditional-panels",
+            title: "Conditional panels"
+          },
+          {
+            path: "/examples/persistent-layout/server-rendering",
+            title: "Server rendering"
+          },
+          {
+            path: "/examples/persistent-layout/server-components",
+            title: "Server components"
+          }
+        ]
+      },
+      { path: "/examples/nested-groups", title: "Nested groups" },
+      { path: "/examples/conditional-panels", title: "Conditional panels" },
+      { path: "/examples/fixed-size-panels", title: "Fixed size panels" },
+      { path: "/examples/disabled-panels", title: "Disabled panels" },
+      {
+        path: "/examples/panel-resize-behavior",
+        title: "Panel resize behavior"
+      },
+      {
+        path: "/examples/group-resize-behavior",
+        title: "Group resize behavior"
+      },
+      { path: "/examples/overflow", title: "Overflow" },
+      { path: "/examples/custom-css-styles", title: "Custom CSS styles" }
+    ]
+  },
+  {
+    title: "Grids",
+    links: [
+      { path: "/examples/grid-basics", title: "The basics" },
+      { path: "/examples/grid-constraints", title: "Min/max sizes" },
+      { path: "/examples/gridlines", title: "Gridlines" },
+      { path: "/examples/collapsible-grid-cells", title: "Collapsible cells" }
+    ]
+  },
+  {
+    title: "Props",
+    links: [
+      { path: "/props/cell", title: "Cell" },
+      { path: "/props/grid", title: "Grid" },
+      { path: "/props/gridline", title: "Gridline" },
+      { path: "/props/group", title: "Group" },
+      { path: "/props/panel", title: "Panel" },
+      { path: "/props/separator", title: "Separator" }
+    ]
+  },
+  {
+    title: "Imperative APIs",
+    links: [
+      { path: "/imperative-api/grid", title: "Grid" },
+      { path: "/imperative-api/grid-track", title: "GridTrack" },
+      { path: "/imperative-api/group", title: "Group" },
+      { path: "/imperative-api/panel", title: "Panel" }
+    ]
+  },
+  {
+    title: "Hooks",
+    links: [
+      { path: "/hooks/use-default-layout", title: "useDefaultLayout" },
+      { path: "/hooks/use-default-grid-layout", title: "useDefaultGridLayout" },
+      { path: "/hooks/use-grid-ref", title: "useGridRef" },
+      { path: "/hooks/use-grid-callback-ref", title: "useGridCallbackRef" },
+      { path: "/hooks/use-group-ref", title: "useGroupRef" },
+      { path: "/hooks/use-group-callback-ref", title: "useGroupCallbackRef" },
+      { path: "/hooks/use-panel-ref", title: "usePanelRef" },
+      { path: "/hooks/use-panel-callback-ref", title: "usePanelCallbackRef" }
+    ]
+  },
+  { path: "/platform-requirements", title: "Requirements" },
+  { path: "/common-questions", title: "Common questions" },
+  { path: "/support", title: "Support" }
+];
+
 const commonQuestions: CommonQuestion[] = [
   {
     id: "invalid-panel-layout",
@@ -165,7 +164,7 @@ const commonQuestions: CommonQuestion[] = [
           </Link>
           :
         </p>
-        <Callout intent="primary" minimal>
+        <Callout intent="primary">
           Numeric values are assumed to be pixels. Strings without explicit
           units are assumed to be percentages (0%..100%).
         </Callout>
@@ -185,7 +184,7 @@ const commonQuestions: CommonQuestion[] = [
           </ExternalLink>
           :
         </p>
-        <Callout intent="primary" minimal>
+        <Callout intent="primary">
           The percentage is calculated with respect to the height of the
           generated box's containing block. If the height of the containing
           block is not specified explicitly (i.e., it depends on content
@@ -198,7 +197,7 @@ const commonQuestions: CommonQuestion[] = [
           <code>HTMLElement</code>.
         </p>
         <Code html={GroupExplicitHeightHTML} />
-        <Callout intent="primary" minimal>
+        <Callout intent="primary">
           Note that because the default height is an inline style, it can only
           be overridden by another inline style or an{" "}
           <ExternalLink href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/important">
@@ -255,7 +254,7 @@ const commonQuestions: CommonQuestion[] = [
           .
         </p>
         <Code html={ConditionallyRenderPanel} />
-        <Callout intent="primary" minimal>
+        <Callout intent="primary">
           Putting the <code>defaultSize</code> on the conditional{" "}
           <code>Panel</code> is the easiest way to avoid invalid layout
           constraints in this type of scenario.

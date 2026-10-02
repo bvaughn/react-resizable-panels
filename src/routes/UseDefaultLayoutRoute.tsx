@@ -1,4 +1,4 @@
-import { Box, Callout, Code, Header } from "react-lib-tools";
+import { Box, Callout, Code, Header, SectionHeader } from "react-lib-tools";
 import { html } from "../../public/generated/examples/UseDefaultLayout.json";
 import { Link } from "../components/Link";
 
@@ -24,7 +24,7 @@ export default function UseDefaultLayoutRoute() {
         for more examples of how to best use the hook in your client or
         server-rendered application.
       </div>
-      <div className="text-lg font-bold">Parameters</div>
+      <SectionHeader>Parameters</SectionHeader>
       <dl className="flex flex-col gap-2">
         <dd className="text-lg font-mono">
           <span className="tok-propertyName">debounceSaveMs</span>
@@ -36,7 +36,7 @@ export default function UseDefaultLayoutRoute() {
             Debounce save operation by the specified number of milliseconds;
             defaults to 100ms
           </p>
-          <Callout intent="warning" minimal>
+          <Callout intent="warning">
             This parameter corresponds to the deprecated{" "}
             <code>onLayoutChange</code> callback. Code using the new{" "}
             <code>onLayoutChanged</code> callback (shown above) does not need to
@@ -68,7 +68,7 @@ export default function UseDefaultLayoutRoute() {
             Groups that contain conditionally-rendered Panels should use this
             parameter to determine which layout is retrieved on mount.
           </p>
-          <Callout intent="warning" minimal>
+          <Callout intent="warning">
             This prevents layout shift for server-rendered apps. Ids must match
             during mount to avoid layout shift.
           </Callout>

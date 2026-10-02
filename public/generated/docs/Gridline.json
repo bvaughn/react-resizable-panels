@@ -7,12 +7,15 @@
       "content": "<p>For example:</p>\n"
     },
     {
+      "code": true,
       "content": "<div><span class=\"tok-comment\">// Rendered between columns 0 and 1 and spans all rows</span><span class=\"\"></span></div>\n<div><span class=\"\"></span><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">Gridline</span><span class=\"\"> </span><span class=\"tok-propertyName\">type</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"column\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">column</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-number\">1</span><span class=\"tok-punctuation\">}</span><span class=\"\"> </span><span class=\"tok-punctuation\">/&#62;</span></div>"
     },
     {
+      "code": true,
       "content": "<div><span class=\"tok-comment\">// Rendered between rows 0 and 1 and spans all columns</span><span class=\"\"></span></div>\n<div><span class=\"\"></span><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">Gridline</span><span class=\"\"> </span><span class=\"tok-propertyName\">type</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"row\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">row</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-number\">1</span><span class=\"tok-punctuation\">}</span><span class=\"\"> </span><span class=\"tok-punctuation\">/&#62;</span></div>"
     },
     {
+      "code": true,
       "content": "<div><span class=\"tok-comment\">// Rendered between columns 0 and 1 alongside of row 2 only</span><span class=\"\"></span></div>\n<div><span class=\"\"></span><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">Gridline</span><span class=\"\"> </span><span class=\"tok-propertyName\">type</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"column\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">column</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-number\">1</span><span class=\"tok-punctuation\">}</span><span class=\"\"> </span><span class=\"tok-propertyName\">row</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-number\">2</span><span class=\"tok-punctuation\">}</span><span class=\"\"> </span><span class=\"tok-propertyName\">rowSpan</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-number\">1</span><span class=\"tok-punctuation\">}</span><span class=\"\"> </span><span class=\"tok-punctuation\">/&#62;</span></div>"
     },
     {
@@ -32,6 +35,7 @@
       "content": "<p>Gridline elements always include the following attributes:</p>\n"
     },
     {
+      "code": true,
       "content": "<div><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">aria-orientation</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"vertical\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-separator</span><span class=\"\"> </span><span class=\"tok-propertyName\">role</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"separator\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
     },
     {

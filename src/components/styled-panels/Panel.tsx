@@ -28,7 +28,7 @@ export function Panel({
   return (
     <PanelExternal
       className={cn(
-        "bg-slate-800 rounded rounded-md",
+        "bg-white/8 rounded-md",
         disabled && "opacity-65",
         className
       )}
@@ -40,12 +40,12 @@ export function Panel({
         {children}
 
         {showSizeAsPercentage && (
-          <div className="text-slate-300 text-xs">
+          <div className="text-white/60 text-xs">
             {Math.round(size.asPercentage)}%
           </div>
         )}
         {showSizeInPixels && (
-          <div className="text-slate-300 text-xs">
+          <div className="text-white/60 text-xs">
             {Math.round(size.inPixels)}px
           </div>
         )}

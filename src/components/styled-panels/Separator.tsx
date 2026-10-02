@@ -21,9 +21,9 @@ export function Separator({
   return (
     <SeparatorExternal
       className={cn(
-        "rounded rounded-xs flex items-center justify-center",
-        "bg-slate-600 [&[data-separator='disabled']]:opacity-50 [&[data-separator='hover']]:bg-slate-500 [&[data-separator='active']]:bg-slate-400",
-        "text-slate-900 [&[data-separator='hover']]:text-slate-950 [&[data-separator='active']]:text-slate-950",
+        "rounded-xs flex items-center justify-center",
+        "bg-white/20 [&[data-separator='disabled']]:opacity-50 [&[data-separator='hover']]:bg-white/35 [&[data-separator='active']]:bg-white/50",
+        "text-black/50 [&[data-separator='hover']]:text-black/70 [&[data-separator='active']]:text-black/70",
         useFocusPseudoClasses
           ? "focus-visible:bg-sky-400!"
           : "[&[data-separator='focus']]:bg-sky-400",

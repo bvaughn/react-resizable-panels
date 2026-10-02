@@ -9,10 +9,7 @@ export function Cell({
   ...rest
 }: PropsWithChildren<CellProps>) {
   return (
-    <CellExternal
-      className={cn("bg-slate-800 rounded rounded-md", className)}
-      {...rest}
-    >
+    <CellExternal className={cn("bg-white/8 rounded-md", className)} {...rest}>
       <PanelText>{children}</PanelText>
     </CellExternal>
   );

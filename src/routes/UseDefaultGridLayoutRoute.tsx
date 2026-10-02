@@ -1,4 +1,4 @@
-import { Box, Callout, Code, Header } from "react-lib-tools";
+import { Box, Callout, Code, Header, SectionHeader } from "react-lib-tools";
 import { html } from "../../public/generated/examples/UseDefaultGridLayout.json";
 import { Link } from "../components/Link";
 
@@ -26,11 +26,11 @@ export default function UseDefaultGridLayoutRoute() {
         for more examples of how to best use it in your client or
         server-rendered application.
       </div>
-      <Callout intent="primary" minimal>
+      <Callout intent="primary">
         A saved layout is ignored for an axis if its track ids don't match the
         Grid's (e.g. after a column has been added or removed).
       </Callout>
-      <div className="text-lg font-bold">Parameters</div>
+      <SectionHeader>Parameters</SectionHeader>
       <dl className="flex flex-col gap-2">
         <dd className="text-lg font-mono">
           <span className="tok-propertyName">id</span>
