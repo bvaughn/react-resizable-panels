@@ -259,6 +259,17 @@ export function Group({
 
     const inMemoryValues = inMemoryValuesRef.current;
 
+    // Keyed Panels/Separators can be moved without re-registering (e.g. reordered children),
+    // so registration order may be stale; re-sort before deriving constraints from it.
+    inMemoryValues.panels = sortByElementOffset(
+      orientation,
+      inMemoryValues.panels
+    );
+    inMemoryValues.separators = sortByElementOffset(
+      orientation,
+      inMemoryValues.separators
+    );
+
     // Guard against unexpected layout attribute ordering by pre-sorting panel ids/keys; see issues/656
     let preSortedDefaultLayout: Layout | undefined = undefined;
     if (stableProps.defaultLayout !== undefined) {

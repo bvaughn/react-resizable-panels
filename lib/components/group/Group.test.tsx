@@ -2,6 +2,7 @@ import { act, render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   createRef,
+  Fragment,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -254,6 +255,56 @@ describe("Group", () => {
         <Panel id="c-b" />
       </Group>
     );
+  });
+
+  test("should support reordering keyed Panels (and remounted Separators)", () => {
+    // Lay Panels out in DOM order, so that a reorder is reflected by element offsets
+    setElementBoundsFunction((element) => {
+      const parent = element.parentElement;
+      if (parent?.hasAttribute("data-group")) {
+        let left = 0;
+        for (const child of Array.from(parent.children)) {
+          if (child === element) {
+            break;
+          } else if (child.hasAttribute("data-panel")) {
+            left += 50;
+          }
+        }
+
+        return new DOMRect(
+          left,
+          0,
+          element.hasAttribute("data-panel") ? 50 : 0,
+          50
+        );
+      }
+    });
+
+    const groupRef = createRef<GroupImperativeHandle>();
+
+    function Layout({ ids }: { ids: string[] }) {
+      return (
+        <Group groupRef={groupRef}>
+          {ids.map((id, position) => (
+            <Fragment key={id}>
+              {position === 0 ? null : <Separator id={`separator-${id}`} />}
+              <Panel defaultSize={id === "a" ? "30%" : undefined} id={id} />
+            </Fragment>
+          ))}
+        </Group>
+      );
+    }
+
+    const { container, rerender } = render(<Layout ids={["a", "b"]} />);
+
+    expect(groupRef.current?.getLayout()).toEqual({ a: 30, b: 70 });
+
+    rerender(<Layout ids={["b", "a"]} />);
+
+    const separator = container.querySelector("[data-separator]");
+    expect(separator?.getAttribute("aria-controls")).toBe("b");
+    expect(separator?.getAttribute("aria-valuenow")).toBe("70");
+    expect(Object.keys(groupRef.current!.getLayout())).toEqual(["b", "a"]);
   });
 
   describe("in-memory layout cache", () => {
