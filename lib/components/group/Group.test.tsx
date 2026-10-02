@@ -307,6 +307,105 @@ describe("Group", () => {
     expect(Object.keys(groupRef.current!.getLayout())).toEqual(["b", "a"]);
   });
 
+  test("should support reordering keyed Panels between stable Separators", async () => {
+    // Lay Panels out in DOM order, so that a reorder is reflected by element offsets
+    setElementBoundsFunction((element) => {
+      const parent = element.parentElement;
+      if (parent?.hasAttribute("data-group")) {
+        let left = 0;
+        for (const child of Array.from(parent.children)) {
+          if (child === element) {
+            break;
+          } else if (child.hasAttribute("data-panel")) {
+            left += 50;
+          }
+        }
+
+        return new DOMRect(
+          left,
+          0,
+          element.hasAttribute("data-panel") ? 50 : 0,
+          50
+        );
+      }
+    });
+
+    const groupRef = createRef<GroupImperativeHandle>();
+
+    // Separators are keyed by position, so they stay mounted (and don't re-register) when Panels move
+    function Layout({ ids }: { ids: string[] }) {
+      return (
+        <Group groupRef={groupRef}>
+          {ids.flatMap((id, position) => [
+            position === 0 ? null : (
+              <Separator id={`separator-${position}`} key={position} />
+            ),
+            <Panel
+              defaultSize={id === "a" ? "30%" : undefined}
+              id={id}
+              key={id}
+            />
+          ])}
+        </Group>
+      );
+    }
+
+    const { container, rerender } = render(<Layout ids={["a", "b"]} />);
+
+    expect(groupRef.current?.getLayout()).toEqual({ a: 30, b: 70 });
+
+    rerender(<Layout ids={["b", "a"]} />);
+
+    const separator = container.querySelector<HTMLElement>("[data-separator]");
+    assert(separator, "Separator not found");
+    expect(separator.getAttribute("aria-controls")).toBe("b");
+    expect(separator.getAttribute("aria-valuenow")).toBe("70");
+    expect(Object.keys(groupRef.current!.getLayout())).toEqual(["b", "a"]);
+
+    // The Panel before the Separator ("b") should grow
+    act(() => separator.focus());
+    await userEvent.keyboard("{ArrowRight}");
+
+    expect(groupRef.current?.getLayout()).toEqual({ a: 25, b: 75 });
+  });
+
+  test("should not remount when visual order differs from DOM order", () => {
+    // Lay Panels out in reverse DOM order (e.g. "flex-direction: row-reverse")
+    setElementBoundsFunction((element) => {
+      switch (element.id) {
+        case "a":
+          return new DOMRect(50, 0, 50, 50);
+        case "b":
+          return new DOMRect(0, 0, 50, 50);
+        case "separator":
+          return new DOMRect(50, 0, 0, 50);
+      }
+    });
+
+    const onLayoutChange = vi.fn();
+
+    function Layout() {
+      return (
+        <Group onLayoutChange={onLayoutChange}>
+          <Panel id="a" />
+          <Separator id="separator" />
+          <Panel id="b" />
+        </Group>
+      );
+    }
+
+    const { rerender } = render(<Layout />);
+
+    // onLayoutChange is called each time the Group (re)mounts
+    const callCount = onLayoutChange.mock.calls.length;
+    expect(callCount).toBeGreaterThan(0);
+
+    rerender(<Layout />);
+    rerender(<Layout />);
+
+    expect(onLayoutChange).toHaveBeenCalledTimes(callCount);
+  });
+
   describe("in-memory layout cache", () => {
     async function runTest(
       callback: (args: {
