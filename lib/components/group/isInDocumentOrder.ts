@@ -1,3 +1,5 @@
+import { compareDocumentPosition } from "./compareDocumentPosition";
+
 /**
  * Checks whether the elements are (still) in DOM order.
  *
@@ -7,13 +9,7 @@
  */
 export function isInDocumentOrder(elements: HTMLElement[]): boolean {
   for (let index = 1; index < elements.length; index++) {
-    const position = elements[index - 1].compareDocumentPosition(
-      elements[index]
-    );
-    if (
-      !(position & Node.DOCUMENT_POSITION_DISCONNECTED) &&
-      position & Node.DOCUMENT_POSITION_PRECEDING
-    ) {
+    if (compareDocumentPosition(elements[index - 1], elements[index]) > 0) {
       return false;
     }
   }

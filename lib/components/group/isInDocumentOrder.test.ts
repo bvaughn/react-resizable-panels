@@ -1,19 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { isInDocumentOrder } from "./documentOrder";
-
-function createElements(...ids: string[]) {
-  const parent = document.createElement("div");
-  return ids.map((id) => {
-    const element = document.createElement("div");
-    element.id = id;
-    parent.appendChild(element);
-    return element;
-  });
-}
+import { createSiblingElements } from "../../global/test/createSiblingElements";
+import { isInDocumentOrder } from "./isInDocumentOrder";
 
 describe("isInDocumentOrder", () => {
   test("isInDocumentOrder", () => {
-    const [a, b, c] = createElements("a", "b", "c");
+    const [a, b, c] = createSiblingElements("a", "b", "c");
 
     expect(isInDocumentOrder([])).toBe(true);
     expect(isInDocumentOrder([a])).toBe(true);
@@ -24,7 +15,7 @@ describe("isInDocumentOrder", () => {
   });
 
   test("isInDocumentOrder treats disconnected elements as in order", () => {
-    const [a, b] = createElements("a", "b");
+    const [a, b] = createSiblingElements("a", "b");
     const detached = document.createElement("div");
 
     expect(isInDocumentOrder([a, detached, b])).toBe(true);

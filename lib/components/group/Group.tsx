@@ -30,7 +30,7 @@ import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
 import { useStableObject } from "../../hooks/useStableObject";
 import type { SeparatorOverlayProps } from "../separator/types";
-import { isInDocumentOrder } from "./documentOrder";
+import { isInDocumentOrder } from "./isInDocumentOrder";
 import { GroupContext } from "./GroupContext";
 import { ResizePreview } from "./ResizePreview";
 import { sortByDocumentPosition } from "./sortByDocumentPosition";
