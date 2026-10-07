@@ -7,11 +7,14 @@ import { calculateItemConstraints } from "./dom/calculateItemConstraints";
 import { onDocumentContextMenu } from "./event-handlers/onDocumentContextMenu";
 import { onDocumentDoubleClick } from "./event-handlers/onDocumentDoubleClick";
 import { onDocumentKeyDown } from "./event-handlers/onDocumentKeyDown";
+import { onDocumentLostPointerCapture } from "./event-handlers/onDocumentLostPointerCapture";
+import { onDocumentPointerCancel } from "./event-handlers/onDocumentPointerCancel";
 import { onDocumentPointerDown } from "./event-handlers/onDocumentPointerDown";
 import { onDocumentPointerLeave } from "./event-handlers/onDocumentPointerLeave";
 import { onDocumentPointerMove } from "./event-handlers/onDocumentPointerMove";
 import { onDocumentPointerOut } from "./event-handlers/onDocumentPointerOut";
 import { onDocumentPointerUp } from "./event-handlers/onDocumentPointerUp";
+import { onWindowBlur } from "./event-handlers/onWindowBlur";
 import {
   deleteMutableAxis,
   getMountedAxisState,
@@ -148,6 +151,7 @@ export function mountAxis(axis: RegisteredResizeAxis) {
   });
 
   const ownerDocument = axis.element.ownerDocument;
+  const ownerWindow = ownerDocument.defaultView;
 
   ownerDocumentReferenceCounts.set(
     ownerDocument,
@@ -193,11 +197,22 @@ export function mountAxis(axis: RegisteredResizeAxis) {
   if (ownerDocumentReferenceCounts.get(ownerDocument) === 1) {
     ownerDocument.addEventListener("contextmenu", onDocumentContextMenu, true);
     ownerDocument.addEventListener("dblclick", onDocumentDoubleClick, true);
+    ownerDocument.addEventListener(
+      "lostpointercapture",
+      onDocumentLostPointerCapture,
+      true
+    );
+    ownerDocument.addEventListener(
+      "pointercancel",
+      onDocumentPointerCancel,
+      true
+    );
     ownerDocument.addEventListener("pointerdown", onDocumentPointerDown, true);
     ownerDocument.addEventListener("pointerleave", onDocumentPointerLeave);
     ownerDocument.addEventListener("pointermove", onDocumentPointerMove);
     ownerDocument.addEventListener("pointerout", onDocumentPointerOut);
     ownerDocument.addEventListener("pointerup", onDocumentPointerUp, true);
+    ownerWindow?.addEventListener("blur", onWindowBlur);
   }
 
   return function unmountAxis() {
@@ -230,6 +245,16 @@ export function mountAxis(axis: RegisteredResizeAxis) {
         true
       );
       ownerDocument.removeEventListener(
+        "lostpointercapture",
+        onDocumentLostPointerCapture,
+        true
+      );
+      ownerDocument.removeEventListener(
+        "pointercancel",
+        onDocumentPointerCancel,
+        true
+      );
+      ownerDocument.removeEventListener(
         "pointerdown",
         onDocumentPointerDown,
         true
@@ -238,6 +263,7 @@ export function mountAxis(axis: RegisteredResizeAxis) {
       ownerDocument.removeEventListener("pointermove", onDocumentPointerMove);
       ownerDocument.removeEventListener("pointerout", onDocumentPointerOut);
       ownerDocument.removeEventListener("pointerup", onDocumentPointerUp, true);
+      ownerWindow?.removeEventListener("blur", onWindowBlur);
     }
 
     resizeObserver.disconnect();
