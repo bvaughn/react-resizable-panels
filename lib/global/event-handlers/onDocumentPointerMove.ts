@@ -1,14 +1,10 @@
 import { updateCursorStyle } from "../cursor/updateCursorStyle";
-import {
-  getMountedAxes,
-  getMountedAxisState,
-  updateMountedAxis
-} from "../mutable-state/axes";
+import { getMountedAxes } from "../mutable-state/axes";
 import {
   getInteractionState,
   updateInteractionState
 } from "../mutable-state/interactions";
-import { layoutsEqual } from "../utils/layoutsEqual";
+import { abortActivePointerResize } from "../utils/abortActivePointerResize";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
 import { updateActiveHitRegions } from "../utils/updateActiveHitRegion";
 
@@ -30,44 +26,7 @@ export function onDocumentPointerMove(event: PointerEvent) {
       ) {
         // This event is a later hover, not the release position.
         // Commit the last preview without incorporating movement after the button was released.
-        interactionState.previewLayoutMap.forEach((layout, axis) => {
-          const axisState = mountedAxes.get(axis);
-          if (
-            axis.resizePreviewMode === "separator" &&
-            axisState &&
-            !layoutsEqual(layout, axisState.layout)
-          ) {
-            updateMountedAxis(axis, {
-              ...axisState,
-              layout,
-              requestedAxisSize: axisState.axisSize,
-              requestedLayout: layout
-            });
-          }
-        });
-
-        updateInteractionState({
-          cursorFlags: 0,
-          state: "inactive"
-        });
-
-        // Dispatch one more "change" event after the interaction state has been reset.
-        // Groups use this as a signal to call onLayoutChanged.
-        // This is the missed-pointerup fallback (pointer released outside a
-        // cross-origin iframe, see #340) — still a real user interaction.
-        interactionState.hitRegions.forEach((hitRegion) => {
-          // Skip if the group was re-registered mid-gesture, so the old hit region
-          // doesn't resurrect a stale entry in the mounted-groups map. See #729.
-          if (!mountedAxes.has(hitRegion.axis)) {
-            return;
-          }
-          const axisState = getMountedAxisState(hitRegion.axis.id, true);
-          updateMountedAxis(hitRegion.axis, axisState, {
-            isUserInteraction: true
-          });
-        });
-
-        updateCursorStyle(event.currentTarget as Document);
+        abortActivePointerResize(event.currentTarget as Document);
 
         return;
       }
