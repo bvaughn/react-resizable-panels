@@ -2,7 +2,7 @@
 
 ## 4.14.3
 
-- Bugfix: A drag interrupted by `pointercancel`, `lostpointercapture`, or the window losing focus (e.g. Alt/Cmd+Tab) now ends and commits the current layout, rather than staying active until the next pointer event
+- [761](https://github.com/bvaughn/react-resizable-panels/pull/761) Bugfix: A drag interrupted by `pointercancel`, `lostpointercapture`, or the window losing focus (e.g. Alt/Cmd+Tab) now ends and commits the current layout, rather than staying active until the next pointer event
 
 ## 4.14.2
 
