@@ -22,6 +22,10 @@ export function isViableHitTarget({
   pointerEventTarget: EventTarget | null;
 }) {
   if (isHTMLElement(pointerEventTarget)) {
+    if (pointerEventTarget.ownerDocument !== axisElement.ownerDocument) {
+      return false;
+    }
+
     // A modal dialog is rendered in the top layer and makes everything outside of it inert,
     // regardless of where the dialog is in the DOM (e.g. even if it's a descendant of the group).
     // Stacking order comparison can't detect this, so check for it explicitly.
