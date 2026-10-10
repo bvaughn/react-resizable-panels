@@ -43,6 +43,7 @@ describe("updateCursorStyle", () => {
 
     updateInteractionState({
       cursorFlags: 0,
+      ownerDocument: document,
       state: "hover",
       hitRegions: []
     });
@@ -59,6 +60,7 @@ describe("updateCursorStyle", () => {
 
     updateInteractionState({
       cursorFlags: 0,
+      ownerDocument: document,
       state: "hover",
       hitRegions: []
     });

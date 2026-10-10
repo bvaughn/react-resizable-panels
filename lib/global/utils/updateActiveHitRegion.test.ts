@@ -49,6 +49,9 @@ describe("updateActiveHitRegions preview bounds", () => {
       hitRegions,
       initialLayoutMap,
       pointerDownAtPoint,
+      ownerDocument: document,
+      pointerId: 1,
+      pointerType: "mouse",
       previewLayoutMap: new Map(initialLayoutMap),
       previews: calculateResizePreviews(group, hitRegions),
       state: "active"
@@ -56,7 +59,6 @@ describe("updateActiveHitRegions preview bounds", () => {
 
     updateActiveHitRegions({
       commit: false,
-      document,
       event: { clientX: 140, clientY: 50, movementX: 40, movementY: 0 },
       hitRegions,
       initialLayoutMap,
@@ -123,6 +125,9 @@ describe("updateActiveHitRegions preview bounds", () => {
             hitRegions,
             initialLayoutMap,
             pointerDownAtPoint,
+            ownerDocument: document,
+            pointerId: 1,
+            pointerType: "mouse",
             previewLayoutMap: new Map(initialLayoutMap),
             previews: calculateResizePreviews(group, hitRegions)
           });
@@ -134,7 +139,6 @@ describe("updateActiveHitRegions preview bounds", () => {
 
             updateActiveHitRegions({
               commit,
-              document,
               hitRegions,
               initialLayoutMap,
               mountedAxes: getMountedAxes(),

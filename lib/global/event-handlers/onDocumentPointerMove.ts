@@ -1,4 +1,3 @@
-import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import { getMountedAxes } from "../mutable-state/axes";
 import {
   getInteractionState,
@@ -6,6 +5,7 @@ import {
 } from "../mutable-state/interactions";
 import { abortActivePointerResize } from "../utils/abortActivePointerResize";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
+import { isActivePointerEvent } from "../utils/isActivePointerEvent";
 import { updateActiveHitRegions } from "../utils/updateActiveHitRegion";
 
 export function onDocumentPointerMove(event: PointerEvent) {
@@ -13,11 +13,18 @@ export function onDocumentPointerMove(event: PointerEvent) {
     return;
   }
 
+  const ownerDocument = event.currentTarget as Document;
   const interactionState = getInteractionState();
   const mountedAxes = getMountedAxes();
 
   switch (interactionState.state) {
     case "active": {
+      // Ignore other pointers, and pointers in other documents (e.g. a popup window);
+      // their coordinates and buttons are unrelated to the active drag
+      if (!isActivePointerEvent(interactionState, ownerDocument, event)) {
+        return;
+      }
+
       // Edge case (see #340)
       // Detect when the pointer has been released outside an iframe on a different domain
       if (
@@ -26,7 +33,7 @@ export function onDocumentPointerMove(event: PointerEvent) {
       ) {
         // This event is a later hover, not the release position.
         // Commit the last preview without incorporating movement after the button was released.
-        abortActivePointerResize(event.currentTarget as Document);
+        abortActivePointerResize(ownerDocument, event);
 
         return;
       }
@@ -45,7 +52,6 @@ export function onDocumentPointerMove(event: PointerEvent) {
 
       updateActiveHitRegions({
         commit: false,
-        document: event.currentTarget as Document,
         event,
         hitRegions: interactionState.hitRegions,
         initialLayoutMap: interactionState.initialLayoutMap,
@@ -57,7 +63,11 @@ export function onDocumentPointerMove(event: PointerEvent) {
     }
     default: {
       // Update HitRegions if a drag has not been started
-      const hitRegions = findMatchingHitRegions(event, mountedAxes);
+      const hitRegions = findMatchingHitRegions(
+        event,
+        mountedAxes,
+        ownerDocument
+      );
 
       if (hitRegions.length === 0) {
         if (interactionState.state !== "inactive") {
@@ -70,11 +80,11 @@ export function onDocumentPointerMove(event: PointerEvent) {
         updateInteractionState({
           cursorFlags: 0,
           hitRegions,
+          ownerDocument,
           state: "hover"
         });
       }
 
-      updateCursorStyle(event.currentTarget as Document);
       break;
     }
   }

@@ -213,6 +213,9 @@ describe("separator previews", () => {
         x: 0,
         y: 0
       },
+      ownerDocument: document,
+      pointerId: 1,
+      pointerType: "mouse",
       previews: [preview, indirect, unrelated]
     };
 
@@ -256,7 +259,12 @@ describe("separator previews", () => {
     onRender.mockClear();
 
     act(() =>
-      updateInteractionState({ state: "hover", cursorFlags: 0, hitRegions: [] })
+      updateInteractionState({
+        ownerDocument: document,
+        state: "hover",
+        cursorFlags: 0,
+        hitRegions: []
+      })
     );
     expect(onRender).not.toHaveBeenCalled();
 

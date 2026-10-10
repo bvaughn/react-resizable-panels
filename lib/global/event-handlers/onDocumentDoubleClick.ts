@@ -8,7 +8,11 @@ export function onDocumentDoubleClick(event: MouseEvent) {
   }
 
   const mountedAxes = getMountedAxes();
-  const hitRegions = findMatchingHitRegions(event, mountedAxes);
+  const hitRegions = findMatchingHitRegions(
+    event,
+    mountedAxes,
+    event.currentTarget as Document
+  );
   hitRegions.forEach((current) => {
     if (current.separator && !current.separator.disableDoubleClick) {
       const itemWithDefaultSize = current.items.find(

@@ -57,6 +57,9 @@ describe("abortActivePointerResize", () => {
       hitRegions,
       initialLayoutMap,
       pointerDownAtPoint,
+      ownerDocument: document,
+      pointerId: 1,
+      pointerType: "mouse",
       previewLayoutMap: new Map(initialLayoutMap),
       previews:
         group.resizePreviewMode === "separator"
@@ -67,7 +70,6 @@ describe("abortActivePointerResize", () => {
 
     updateActiveHitRegions({
       commit: false,
-      document,
       event: {
         clientX: 100 + deltaX,
         clientY: 50,

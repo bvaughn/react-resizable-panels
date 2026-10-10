@@ -1,4 +1,3 @@
-import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import {
   getMountedAxes,
   getMountedAxisState,
@@ -8,6 +7,7 @@ import {
   getInteractionState,
   updateInteractionState
 } from "../mutable-state/interactions";
+import { isActivePointerEvent } from "./isActivePointerEvent";
 import { layoutsEqual } from "./layoutsEqual";
 
 /**
@@ -18,9 +18,15 @@ import { layoutsEqual } from "./layoutsEqual";
  * those events either have no coordinates or report a position unrelated to the drag.
  * The last previewed (or live) layout is committed instead.
  */
-export function abortActivePointerResize(document: Document) {
+export function abortActivePointerResize(
+  document: Document,
+  pointer?: { pointerId: number; pointerType: string }
+) {
   const interactionState = getInteractionState();
-  if (interactionState.state !== "active") {
+  if (
+    interactionState.state !== "active" ||
+    !isActivePointerEvent(interactionState, document, pointer)
+  ) {
     return false;
   }
 
@@ -61,8 +67,6 @@ export function abortActivePointerResize(document: Document) {
       isUserInteraction: true
     });
   });
-
-  updateCursorStyle(document);
 
   return true;
 }

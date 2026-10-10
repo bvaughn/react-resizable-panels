@@ -1,5 +1,8 @@
-import { updateCursorStyle } from "./cursor/updateCursorStyle";
-import { removeAxisFromInteraction } from "./mutable-state/interactions";
+import { updateCursorStyles } from "./cursor/updateCursorStyles";
+import {
+  removeAxisFromInteraction,
+  subscribeToInteractionState
+} from "./mutable-state/interactions";
 import { assert } from "../utils/assert";
 import { calculateAvailableAxisSize } from "./dom/calculateAvailableAxisSize";
 import { calculateHitRegions } from "./dom/calculateHitRegions";
@@ -15,6 +18,7 @@ import { onDocumentPointerMove } from "./event-handlers/onDocumentPointerMove";
 import { onDocumentPointerOut } from "./event-handlers/onDocumentPointerOut";
 import { onDocumentPointerUp } from "./event-handlers/onDocumentPointerUp";
 import { onWindowBlur } from "./event-handlers/onWindowBlur";
+import { onWindowPageHide } from "./event-handlers/onWindowPageHide";
 import {
   deleteMutableAxis,
   getMountedAxisState,
@@ -31,6 +35,8 @@ import { preserveFixedItemSizes } from "./utils/preserveFixedItemSizes";
 import { validateAxisLayout } from "./utils/validateAxisLayout";
 
 const ownerDocumentReferenceCounts = new Map<Document, number>();
+
+let didSubscribeToInteractionState = false;
 
 export function mountAxis(axis: RegisteredResizeAxis) {
   let isMounted = true;
@@ -193,6 +199,13 @@ export function mountAxis(axis: RegisteredResizeAxis) {
     separator.element.addEventListener("keydown", onDocumentKeyDown);
   });
 
+  // Cursor styles follow interaction state, for every document
+  // Subscribe lazily (rather than at module scope) so bundlers can't drop the subscription as an unused side effect
+  if (!didSubscribeToInteractionState) {
+    didSubscribeToInteractionState = true;
+    subscribeToInteractionState(updateCursorStyles);
+  }
+
   // If this is the first group to be mounted, initialize event handlers
   if (ownerDocumentReferenceCounts.get(ownerDocument) === 1) {
     ownerDocument.addEventListener("contextmenu", onDocumentContextMenu, true);
@@ -213,6 +226,7 @@ export function mountAxis(axis: RegisteredResizeAxis) {
     ownerDocument.addEventListener("pointerout", onDocumentPointerOut);
     ownerDocument.addEventListener("pointerup", onDocumentPointerUp, true);
     ownerWindow?.addEventListener("blur", onWindowBlur);
+    ownerWindow?.addEventListener("pagehide", onWindowPageHide);
   }
 
   return function unmountAxis() {
@@ -224,9 +238,7 @@ export function mountAxis(axis: RegisteredResizeAxis) {
     );
 
     deleteMutableAxis(axis);
-    if (removeAxisFromInteraction(axis)) {
-      updateCursorStyle(ownerDocument);
-    }
+    removeAxisFromInteraction(axis);
 
     axis.separators.forEach((separator) => {
       separator.element.removeEventListener("keydown", onDocumentKeyDown);
@@ -264,6 +276,7 @@ export function mountAxis(axis: RegisteredResizeAxis) {
       ownerDocument.removeEventListener("pointerout", onDocumentPointerOut);
       ownerDocument.removeEventListener("pointerup", onDocumentPointerUp, true);
       ownerWindow?.removeEventListener("blur", onWindowBlur);
+      ownerWindow?.removeEventListener("pagehide", onWindowPageHide);
     }
 
     resizeObserver.disconnect();

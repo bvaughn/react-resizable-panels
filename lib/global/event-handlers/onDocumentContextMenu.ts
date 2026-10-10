@@ -5,5 +5,13 @@ export function onDocumentContextMenu(event: MouseEvent) {
     return;
   }
 
-  completeActivePointerResize(event.currentTarget as Document, event);
+  // "contextmenu" events don't reliably report the pointerId of the pointer that opened the menu,
+  // so only match the active drag by document
+  const { clientX, clientY, movementX, movementY } = event;
+  completeActivePointerResize(event.currentTarget as Document, {
+    clientX,
+    clientY,
+    movementX,
+    movementY
+  });
 }

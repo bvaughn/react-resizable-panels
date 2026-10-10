@@ -12,10 +12,13 @@ export function onDocumentPointerOut(event: PointerEvent) {
     const interactionState = getInteractionState();
     switch (interactionState.state) {
       case "hover": {
-        updateInteractionState({
-          cursorFlags: 0,
-          state: "inactive"
-        });
+        // Ignore pointers leaving other documents (e.g. a popup window)
+        if (interactionState.ownerDocument === event.currentTarget) {
+          updateInteractionState({
+            cursorFlags: 0,
+            state: "inactive"
+          });
+        }
       }
     }
   }

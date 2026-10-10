@@ -10,12 +10,19 @@ export function findMatchingHitRegions(
     clientY: number;
     target: EventTarget | null;
   },
-  mountedAxes: MountedAxes
+  mountedAxes: MountedAxes,
+  ownerDocument: Document
 ): HitRegion[] {
   const matchingHitRegions: HitRegion[] = [];
 
   mountedAxes.forEach((_, axisData) => {
     if (axisData.disabled) {
+      return;
+    }
+
+    // Groups may be mounted in more than one document (e.g. a popup window)
+    // Pointer coordinates are only meaningful within the document the event was dispatched to
+    if (axisData.element.ownerDocument !== ownerDocument) {
       return;
     }
 

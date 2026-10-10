@@ -106,7 +106,7 @@ export function notifySeparatorPreviewChanged(separator: RegisteredSeparator) {
 
 export function removeAxisFromInteraction(axis: RegisteredResizeAxis) {
   if (state.state === "inactive") {
-    return false;
+    return;
   }
 
   const hitRegions = state.hitRegions.filter((region) => region.axis !== axis);
@@ -114,7 +114,7 @@ export function removeAxisFromInteraction(axis: RegisteredResizeAxis) {
     state.state === "active" &&
     state.previews.some((preview) => preview.axis === axis);
   if (hitRegions.length === state.hitRegions.length && !hasPreviews) {
-    return false;
+    return;
   }
 
   if (hitRegions.length === 0) {
@@ -136,6 +136,4 @@ export function removeAxisFromInteraction(axis: RegisteredResizeAxis) {
   } else {
     updateInteractionState({ ...state, hitRegions });
   }
-
-  return true;
 }
