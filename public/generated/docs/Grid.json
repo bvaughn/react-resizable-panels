@@ -175,7 +175,7 @@
     "resizeTargetMinimumSize": {
       "description": [
         {
-          "content": "<p>Minimum size of the resizable hit target area (either a <code>Gridline</code> or a <code>Cell</code> edge)\nThis threshold ensures targets are large enough to avoid mis-clicks.</p>\n"
+          "content": "<p>Minimum size of the resizable hit target area (either a <code>Gridline</code> or a <code>Cell</code> edge).\nThis threshold ensures targets are large enough to avoid mis-clicks.</p>\n"
         },
         {
           "content": "<p>Refer to the <code>Group</code> prop of the same name for more information.</p>\n",

@@ -42,7 +42,7 @@ export default function CustomStylesRoute() {
       <div>
         If you want to differentiate between keyboard-initiated focus and
         pointer-initiated focus, you can use the <code>:focus</code> and{" "}
-        <code>:focus-visible</code> CSS pseudo-class instead.
+        <code>:focus-visible</code> CSS pseudo-classes instead.
       </div>
       <Code html={SeparatorCustomStylesFocusVisibleHTML} />
       <Group>

@@ -226,7 +226,7 @@ https://github.com/user-attachments/assets/f19f6c5e-d290-455e-9bad-20e5038c3508
 
 For layout changes caused by pointer events, this method is not called until the pointer has been released. This callback should be used if you're doing something like saving a layout as it is called less frequently than the previous approach.
 
-The `useDefaultLayout` hook has also been updated to use this callback (though it will continue to support the old callback as well, with a `@deprecation` tag).
+The `useDefaultLayout` hook has also been updated to use this callback (though it will continue to support the old callback as well, with a `@deprecated` tag).
 
 ## 4.3.3
 

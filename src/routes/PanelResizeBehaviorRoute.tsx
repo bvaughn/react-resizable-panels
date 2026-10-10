@@ -34,8 +34,9 @@ export default function PanelResizeBehaviorRoute() {
       </Group>
       <div>
         By default, this overlay separator is just a partially transparent copy
-        of the separator element being dragged. The `SeparatorOverlay` component
-        allows users to customize the overlay.
+        of the separator element being dragged. The{" "}
+        <code>SeparatorOverlay</code> component allows users to customize the
+        overlay.
       </div>
       <Code html={ResizePreviewWithSeparatorOverlayHTML} />
       <Group resizePreviewMode="separator">
@@ -70,7 +71,7 @@ export default function PanelResizeBehaviorRoute() {
       </Group>
       <Callout>
         The <code>data-separator-overlay</code> attribute can be used to
-        differentiate between a separator that's being active dragged and one
+        differentiate between a separator that's being actively dragged and one
         that's being moved as a result of{" "}
         <Link to="/examples/min-max-sizes">min/max size constraints</Link>.
       </Callout>

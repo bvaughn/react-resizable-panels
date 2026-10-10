@@ -4,7 +4,7 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 
 /* prettier-ignore */
 <Group>
-  <Panel disabled>left (disabled</Panel>
+  <Panel disabled>left (disabled)</Panel>
   <Separator disabled />
   <Panel>center</Panel>
   <Separator />

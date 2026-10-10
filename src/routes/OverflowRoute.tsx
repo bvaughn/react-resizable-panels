@@ -45,7 +45,7 @@ export default function OverflowRoute() {
         specify an explicit width/height on the group.
       </Callout>
       <div>
-        For example, this group of panels demonstrate drop-shadow style.
+        For example, this group of panels demonstrates a drop-shadow style.
       </div>
       <Code html={PanelDropShadowHTML} />
       <Group className="overflow-visible!">
@@ -62,7 +62,7 @@ export default function OverflowRoute() {
           right
         </Panel>
       </Group>
-      <div>And this group demonstrate a focus outline style.</div>
+      <div>And this group demonstrates a focus outline style.</div>
       <Code html={PanelFocusOutlineHTML} />
       <Group className="overflow-visible!">
         <Panel

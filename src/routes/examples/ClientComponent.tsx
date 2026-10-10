@@ -16,7 +16,7 @@ export default function ClientComponent({
     <Group
       defaultLayout={defaultLayout}
       id={groupId}
-      onLayoutChange={(layout) => {
+      onLayoutChanged={(layout) => {
         document.cookie = `${groupId}=${JSON.stringify(layout)}; path=/;`;
       }}
     >

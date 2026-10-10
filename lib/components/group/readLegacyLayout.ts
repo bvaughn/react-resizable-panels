@@ -9,7 +9,7 @@ export type LegacyLayout = {
 };
 
 /**
- * Reads a legacy layout object from `localStorage`  and converts it to a modern `Layout` object.
+ * Reads a legacy layout object from `localStorage` and converts it to a modern `Layout` object.
  * For more information see github.com/bvaughn/react-resizable-panels/issues/605
  */
 export function readLegacyLayout({

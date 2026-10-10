@@ -12,7 +12,7 @@ export default function ConditionalPanelsRoute() {
   return (
     <Box direction="column" gap={4}>
       <Header section="Flex" title="Conditional panels" />
-      <div>Panel can be conditionally rendered.</div>
+      <div>Panels can be conditionally rendered.</div>
       <Box direction="row" gap={4} justify="center">
         <button
           className="bg-sky-700 hover:bg-sky-600 py-1 px-2 rounded cursor-pointer"

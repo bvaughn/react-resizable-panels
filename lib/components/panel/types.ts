@@ -18,7 +18,7 @@ export type SizeUnit = "px" | "%" | "em" | "rem" | "vh" | "vw";
  */
 export interface PanelImperativeHandle {
   /**
-   * Collapse the Panel to it's `collapsedSize`.
+   * Collapse the Panel to its `collapsedSize`.
    *
    * ⚠️ This method will do nothing if the Panel is not `collapsible` or if it is already collapsed.
    */
@@ -62,7 +62,6 @@ export interface PanelImperativeHandle {
    * Other units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)
    *
    * @param size New panel size
-   * @return Applied size (after validation)
    */
   resize: (size: number | string) => void;
 }
@@ -88,7 +87,7 @@ export type PanelProps = BasePanelAttributes & {
    * Defaults to half the distance between `collapsedSize` and `minSize`.
    *
    * For example if a panel declares `collapsedSize="5%"`, `collapsedThreshold="5%"`, and `minSize="25%"`,
-   * it will collapse when resized below 20% and expands when resized above 10%.
+   * it will collapse when resized below 20% and expand when resized above 10%.
    *
    * ℹ️ Interpretation rules:
    * - Numbers are interpreted as pixels (e.g. `minSize={200}` is 200 pixels)
@@ -100,7 +99,7 @@ export type PanelProps = BasePanelAttributes & {
   /**
    * This panel can be collapsed.
    *
-   * ℹ️ A collapsible panel will collapse when it's size is less than of the specified `minSize`
+   * ℹ️ A collapsible panel will collapse when its size is less than the specified `minSize`
    */
   collapsible?: boolean | undefined;
 
@@ -192,9 +191,9 @@ export type PanelProps = BasePanelAttributes & {
    * Exposes the following imperative API:
    * - `collapse(): void`
    * - `expand(): void`
-   * - `getSize(): number`
+   * - `getSize(): PanelSize`
    * - `isCollapsed(): boolean`
-   * - `resize(size: number): void`
+   * - `resize(size: number | string): void`
    *
    * ℹ️ The `usePanelRef` and `usePanelCallbackRef` hooks are exported for convenience use in TypeScript projects.
    */

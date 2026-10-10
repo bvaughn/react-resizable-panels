@@ -117,7 +117,7 @@
     "groupRef": {
       "description": [
         {
-          "content": "<p>Exposes the following imperative API:</p>\n<ul>\n<li><code>getLayout(): Layout</code></li>\n<li><code>setLayout(layout: Layout): void</code></li>\n</ul>\n"
+          "content": "<p>Exposes the following imperative API:</p>\n<ul>\n<li><code>getLayout(): Layout</code></li>\n<li><code>setLayout(layout: Layout): Layout</code></li>\n</ul>\n"
         },
         {
           "content": "<p>The <code>useGroupRef</code> and <code>useGroupCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>\n",
@@ -145,7 +145,7 @@
     "onLayoutChanged": {
       "description": [
         {
-          "content": "<p>Called after the Group's layout has  been changed.</p>\n"
+          "content": "<p>Called after the Group's layout has been changed.</p>\n"
         },
         {
           "content": "<p>For layout changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving layouts to some storage api.</p>\n",
@@ -163,7 +163,7 @@
     "resizePreviewMode": {
       "description": [
         {
-          "content": "<p>Controls whether pointer dragging updates <code>Panel</code>s sizes immediately,\nor renders overlay separator previews until the pointer is released.</p>\n"
+          "content": "<p>Controls whether pointer dragging updates <code>Panel</code> sizes immediately,\nor renders overlay separator previews until the pointer is released.</p>\n"
         },
         {
           "content": "<p>Defaults to <code>&quot;panel&quot;</code> (immediate resizing); <code>&quot;separator&quot;</code> defers resizing until release.</p>\n"
@@ -179,13 +179,13 @@
     "resizeTargetMinimumSize": {
       "description": [
         {
-          "content": "<p>Minimum size of the resizable hit target area (either <code>Separator</code> or <code>Panel</code> edge)\nThis threshold ensures are large enough to avoid mis-clicks.</p>\n"
+          "content": "<p>Minimum size of the resizable hit target area (either <code>Separator</code> or <code>Panel</code> edge).\nThis threshold ensures targets are large enough to avoid mis-clicks.</p>\n"
         },
         {
           "content": "<ul>\n<li>Coarse inputs (typically a finger on a touchscreen) have reduced accuracy;\nto ensure accessibility and ease of use, hit targets should be larger to prevent mis-clicks.</li>\n<li>Fine inputs (typically a mouse) can be smaller</li>\n</ul>\n"
         },
         {
-          "content": "<p><a href=\"https://developer.apple.com/design/human-interface-guidelines/accessibility\">Apple interface guidelines</a> suggest <code>20pt</code> (<code>27px</code>) on desktops and <code>28pt</code> (<code>37px</code>) for touch devices\nIn practice this seems to be much larger than many of their own applications use though.</p>\n",
+          "content": "<p><a href=\"https://developer.apple.com/design/human-interface-guidelines/accessibility\">Apple interface guidelines</a> suggest <code>20pt</code> (<code>27px</code>) on desktops and <code>28pt</code> (<code>37px</code>) for touch devices.\nIn practice this seems to be much larger than many of their own applications use though.</p>\n",
           "intent": "primary"
         }
       ],

@@ -180,7 +180,7 @@ export function getImperativeItemMethods({
       const size = getItemSize();
 
       if (collapsible && size !== collapsedSize) {
-        // Store previous size in to restore if expand() is called
+        // Store previous size in order to restore it if expand() is called
         mutableValues.expandToSize = size;
 
         setItemSize(collapsedSize);

@@ -59,7 +59,7 @@ export function onDocumentPointerDown(event: PointerEvent) {
 
         // TRICKY
         // Calling setPointerCapture() here would help with detecting pointer "pointermove"/"pointerup" events that happen over iframes
-        // but it would also prevent "click" events from firing if the use releases without actually dragging
+        // but it would also prevent "click" events from firing if the user releases without actually dragging
         // Because of this, it's safer to wait until the first "pointermove" event to set capture
       }
     }

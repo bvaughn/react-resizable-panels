@@ -94,7 +94,7 @@ export function useDefaultLayout({
     }
   }, [defaultLayoutString]);
 
-  // If not v4 layout was found, check for legacy v3 layout format
+  // If no v4 layout was found, check for legacy v3 layout format
   const defaultLayoutLegacy = useMemo(() => {
     if (defaultLayoutModern) {
       return undefined;
@@ -164,7 +164,7 @@ export function useDefaultLayout({
     ]
   );
 
-  // TODO Deprecated; remove this in the future release
+  // TODO Deprecated; remove this in a future release
   const onLayoutChange = useCallback<NonNullable<OnGroupLayoutChange>>(
     (layout: Layout) => {
       clearPendingTimeout();

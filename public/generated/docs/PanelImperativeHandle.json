@@ -13,7 +13,7 @@
     {
       "description": [
         {
-          "content": "<p>Collapse the Panel to it's <code>collapsedSize</code>.</p>\n"
+          "content": "<p>Collapse the Panel to its <code>collapsedSize</code>.</p>\n"
         },
         {
           "content": "<p>This method will do nothing if the Panel is not <code>collapsible</code> or if it is already collapsed.</p>\n",
