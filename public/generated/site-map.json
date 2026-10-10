@@ -521,17 +521,17 @@
       {
         "id": "getTrackById",
         "title": "getTrackById",
-        "text": "getTrackById Imperative API for the column or row with the specified id (see GridTrackImperativeHandle).\n Tracks without an explicit id use their index (e.g. \"0\") as their id.\n An error will be thrown if the Grid does not contain a matching track.\n getTrackById: (\n axis: \"column\" | \"row\",\n id: string | number\n ) => GridTrackImperativeHandle;"
+        "text": "getTrackById Imperative API for the column or row with the specified id (see GridTrackImperativeHandle).\n Tracks without an explicit id use their index (e.g. \"0\") as their id.\n An error will be thrown if the Grid does not contain a matching track.\n \n axis \"column\" or \"row\"\n id Track id\n\n getTrackById: (\n axis: \"column\" | \"row\",\n id: string | number\n ) => GridTrackImperativeHandle;"
       },
       {
         "id": "getTrackByIndex",
         "title": "getTrackByIndex",
-        "text": "getTrackByIndex Imperative API for the column or row at the specified index (see GridTrackImperativeHandle).\n The index is resolved to a track id when this method is called; the returned API continues to refer to that id.\nTracks without an explicit id use their index as their id,\nso specify ids if the API needs to refer to the same track after tracks are added or removed before it.\n An error will be thrown if the index is out of range.\n getTrackByIndex: (\n axis: \"column\" | \"row\",\n index: number\n ) => GridTrackImperativeHandle;"
+        "text": "getTrackByIndex Imperative API for the column or row at the specified index (see GridTrackImperativeHandle).\n The index is resolved to a track id when this method is called; the returned API continues to refer to that id.\nTracks without an explicit id use their index as their id,\nso specify ids if the API needs to refer to the same track after tracks are added or removed before it.\n An error will be thrown if the index is out of range.\n \n axis \"column\" or \"row\"\n index Track index (starting at 0)\n\n getTrackByIndex: (\n axis: \"column\" | \"row\",\n index: number\n ) => GridTrackImperativeHandle;"
       },
       {
         "id": "setLayout",
         "title": "setLayout",
-        "text": "setLayout Set a new layout for one or both of the Grid's axes.\n setLayout: (layout: {\n columns?: { [columnId: string]: number } | undefined;\n rows?: { [rowId: string]: number } | undefined;\n }) => {\n columns: { [columnId: string]: number };\n rows: { [rowId: string]: number };\n };"
+        "text": "setLayout Set a new layout for one or both of the Grid's axes.\n \n layout Map of column and/or row ids to percentages (numbers between 0..100)\n\n setLayout: (layout: {\n columns?: { [columnId: string]: number } | undefined;\n rows?: { [rowId: string]: number } | undefined;\n }) => {\n columns: { [columnId: string]: number };\n rows: { [rowId: string]: number };\n };"
       }
     ],
     "path": "/imperative-api/grid",
@@ -564,7 +564,7 @@
       {
         "id": "resize",
         "title": "resize",
-        "text": "resize Update the track's size.\nSize can be in the following formats:\n\nPercentage of the axis (0..100)\nPixels\nRelative font units (em, rem)\nViewport relative units (vh, vw)\n\n Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with \"%\" (e.g. \"33%\")\nPixels may also be specified as strings ending with the unit \"px\".\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)\n resize: (size: number | string) => void;"
+        "text": "resize Update the track's size.\nSize can be in the following formats:\n\nPercentage of the axis (0..100)\nPixels\nRelative font units (em, rem)\nViewport relative units (vh, vw)\n\n Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with \"%\" (e.g. \"33%\")\nPixels may also be specified as strings ending with the unit \"px\".\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)\n \n size New track size\n\n resize: (size: number | string) => void;"
       }
     ],
     "path": "/imperative-api/grid-track",
@@ -582,7 +582,7 @@
       {
         "id": "setLayout",
         "title": "setLayout",
-        "text": "setLayout Set a new layout for the Group\n setLayout: (layout: { [panelId: string]: number }) => Layout;"
+        "text": "setLayout Set a new layout for the Group\n \n layout Map of Panel id to percentage (a number between 0..100)\n\n setLayout: (layout: { [panelId: string]: number }) => Layout;"
       }
     ],
     "path": "/imperative-api/group",
@@ -615,7 +615,7 @@
       {
         "id": "resize",
         "title": "resize",
-        "text": "resize Update the Panel's size.\nSize can be in the following formats:\n\nPercentage of the parent Group (0..100)\nPixels\nRelative font units (em, rem)\nViewport relative units (vh, vw)\n\n Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with \"%\" (e.g. \"33%\")\nPixels may also be specified as strings ending with the unit \"px\".\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)\n resize: (size: number | string) => void;"
+        "text": "resize Update the Panel's size.\nSize can be in the following formats:\n\nPercentage of the parent Group (0..100)\nPixels\nRelative font units (em, rem)\nViewport relative units (vh, vw)\n\n Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with \"%\" (e.g. \"33%\")\nPixels may also be specified as strings ending with the unit \"px\".\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)\n \n size New panel size\n\n resize: (size: number | string) => void;"
       }
     ],
     "path": "/imperative-api/panel",

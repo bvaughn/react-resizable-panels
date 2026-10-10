@@ -62,6 +62,9 @@
         {
           "content": "<p>Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with &quot;%&quot; (e.g. &quot;33%&quot;)\nPixels may also be specified as strings ending with the unit &quot;px&quot;.\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)</p>\n",
           "intent": "primary"
+        },
+        {
+          "content": "<ul>\n<li><code>size</code> New panel size</li>\n</ul>\n"
         }
       ],
       "html": "<div><span class=\"tok-labelName\">resize</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">size</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",

@@ -23,6 +23,9 @@
       "description": [
         {
           "content": "<p>Set a new layout for the Group</p>\n"
+        },
+        {
+          "content": "<ul>\n<li><code>layout</code> Map of Panel id to percentage (a number between 0..100)</li>\n</ul>\n"
         }
       ],
       "html": "<div><span class=\"tok-labelName\">setLayout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">layout</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-punctuation\">[</span><span class=\"tok-propertyName tok-definition\">panelId</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">]</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">number</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">Layout</span><span class=\"tok-punctuation\">;</span></div>",
