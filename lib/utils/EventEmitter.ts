@@ -1,3 +1,5 @@
+import type { CaughtError } from "./CaughtError";
+
 export type EventMap = {
   [key: string]: unknown;
 };
@@ -31,30 +33,30 @@ export class EventEmitter<Events extends EventMap> {
     const listeners = this.#listenerMap[type];
     if (listeners !== undefined) {
       if (listeners.length === 1) {
+        // There are no other listeners to protect, so an error can be thrown immediately
+        // (this also avoids cloning the listeners array in the common case)
         const listener = listeners[0];
         listener.call(null, data);
-      } else {
-        let didThrow = false;
-        let caughtError = null;
+        return;
+      }
 
-        // Clone the current listeners before calling
-        // in case calling triggers listeners to be added or removed
-        const clonedListeners = Array.from(listeners);
-        for (let i = 0; i < clonedListeners.length; i++) {
-          const listener = clonedListeners[i];
-          try {
-            listener.call(null, data);
-          } catch (error) {
-            if (caughtError === null) {
-              didThrow = true;
-              caughtError = error;
-            }
-          }
-        }
+      // Listeners may throw; defer errors so that every listener is still called
+      let caughtError: CaughtError | undefined;
 
-        if (didThrow) {
-          throw caughtError;
+      // Clone the current listeners before calling
+      // in case calling triggers listeners to be added or removed
+      const clonedListeners = Array.from(listeners);
+      for (let i = 0; i < clonedListeners.length; i++) {
+        const listener = clonedListeners[i];
+        try {
+          listener.call(null, data);
+        } catch (error) {
+          caughtError ??= { error };
         }
+      }
+
+      if (caughtError) {
+        throw caughtError.error;
       }
     }
   }

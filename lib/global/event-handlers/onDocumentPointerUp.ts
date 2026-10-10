@@ -7,11 +7,6 @@ export function onDocumentPointerUp(event: PointerEvent) {
     return;
   }
 
-  const matched = completeActivePointerResize(
-    event.currentTarget as Document,
-    event
-  );
-  if (matched) {
-    event.preventDefault();
-  }
+  // The event is prevented if it completes a drag (even if a layout change callback throws)
+  completeActivePointerResize(event.currentTarget as Document, event);
 }

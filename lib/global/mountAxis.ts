@@ -4,6 +4,7 @@ import {
   subscribeToInteractionState
 } from "./mutable-state/interactions";
 import { assert } from "../utils/assert";
+import type { CaughtError } from "../utils/CaughtError";
 import { calculateAvailableAxisSize } from "./dom/calculateAvailableAxisSize";
 import { calculateHitRegions } from "./dom/calculateHitRegions";
 import { calculateItemConstraints } from "./dom/calculateItemConstraints";
@@ -21,7 +22,9 @@ import { onWindowBlur } from "./event-handlers/onWindowBlur";
 import { onWindowPageHide } from "./event-handlers/onWindowPageHide";
 import {
   deleteMutableAxis,
+  endAxisChangeBatch,
   getMountedAxisState,
+  startAxisChangeBatch,
   updateMountedAxis
 } from "./mutable-state/axes";
 import type { SeparatorToItemsMap } from "./mutable-state/types";
@@ -54,77 +57,94 @@ export function mountAxis(axis: RegisteredResizeAxis) {
   // Add Panels with onResize callbacks to ResizeObserver
   // Add Group to ResizeObserver also in order to sync % based constraints
   const resizeObserver = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      const { borderBoxSize, target } = entry;
-      if (target === axis.element) {
-        if (isMounted) {
-          const axisSize = calculateAvailableAxisSize({ axis });
-          if (axisSize === 0) {
-            // Can't calculate anything meaningful if the group has a width/height of 0
-            // (This could indicate that it's within a hidden subtree)
-            return;
-          }
+    // Panel onResize and layout change callbacks may throw;
+    // defer errors so that every entry is still processed
+    let caughtError: CaughtError | undefined;
 
-          const axisState = getMountedAxisState(axis.id);
-          if (!axisState) {
-            // Not mounted yet
-            return;
-          }
+    startAxisChangeBatch();
+    try {
+      for (const entry of entries) {
+        const { borderBoxSize, target } = entry;
+        if (target === axis.element) {
+          if (isMounted) {
+            const axisSize = calculateAvailableAxisSize({ axis });
+            if (axisSize === 0) {
+              // Can't calculate anything meaningful if the group has a width/height of 0
+              // (This could indicate that it's within a hidden subtree)
+              break;
+            }
 
-          // Update non-percentage based constraints
-          const nextDerivedItemConstraints = calculateItemConstraints(axis);
+            const axisState = getMountedAxisState(axis.id);
+            if (!axisState) {
+              // Not mounted yet
+              break;
+            }
 
-          // Revalidate layout in case constraints have changed or group size changed
-          // Start from the requested layout so that constraints only temporarily clamp item sizes (see #720)
-          let requestedAxisSize = axisState.requestedAxisSize;
-          let requestedLayout = axisState.requestedLayout;
-          if (axisState.defaultLayoutDeferred) {
-            requestedAxisSize = axisSize;
-            requestedLayout = normalizeLayout({
-              itemIds: axis.items.map(({ id }) => id),
-              layout: getDefaultLayout({
-                axis,
-                itemConstraints: nextDerivedItemConstraints
-              })
+            // Update non-percentage based constraints
+            const nextDerivedItemConstraints = calculateItemConstraints(axis);
+
+            // Revalidate layout in case constraints have changed or group size changed
+            // Start from the requested layout so that constraints only temporarily clamp item sizes (see #720)
+            let requestedAxisSize = axisState.requestedAxisSize;
+            let requestedLayout = axisState.requestedLayout;
+            if (axisState.defaultLayoutDeferred) {
+              requestedAxisSize = axisSize;
+              requestedLayout = normalizeLayout({
+                itemIds: axis.items.map(({ id }) => id),
+                layout: getDefaultLayout({
+                  axis,
+                  itemConstraints: nextDerivedItemConstraints
+                })
+              });
+            }
+
+            const unsafeLayout = preserveFixedItemSizes({
+              axis,
+              nextAxisSize: axisSize,
+              prevAxisSize: requestedAxisSize,
+              prevLayout: requestedLayout
+            });
+            const nextLayout = validateAxisLayout({
+              layout: unsafeLayout,
+              itemConstraints: nextDerivedItemConstraints
+            });
+
+            if (
+              !axisState.defaultLayoutDeferred &&
+              layoutsEqual(axisState.layout, nextLayout) &&
+              itemConstraintsEqual(
+                axisState.derivedItemConstraints,
+                nextDerivedItemConstraints
+              ) &&
+              axisState.axisSize === axisSize
+            ) {
+              continue;
+            }
+
+            updateMountedAxis(axis, {
+              defaultLayoutDeferred: false,
+              derivedItemConstraints: nextDerivedItemConstraints,
+              axisSize,
+              layout: nextLayout,
+              requestedAxisSize,
+              requestedLayout,
+              separatorToItems: axisState.separatorToItems
             });
           }
-
-          const unsafeLayout = preserveFixedItemSizes({
-            axis,
-            nextAxisSize: axisSize,
-            prevAxisSize: requestedAxisSize,
-            prevLayout: requestedLayout
-          });
-          const nextLayout = validateAxisLayout({
-            layout: unsafeLayout,
-            itemConstraints: nextDerivedItemConstraints
-          });
-
-          if (
-            !axisState.defaultLayoutDeferred &&
-            layoutsEqual(axisState.layout, nextLayout) &&
-            itemConstraintsEqual(
-              axisState.derivedItemConstraints,
-              nextDerivedItemConstraints
-            ) &&
-            axisState.axisSize === axisSize
-          ) {
-            continue;
+        } else {
+          try {
+            notifyItemOnResize(axis, target as HTMLElement, borderBoxSize);
+          } catch (error) {
+            caughtError ??= { error };
           }
-
-          updateMountedAxis(axis, {
-            defaultLayoutDeferred: false,
-            derivedItemConstraints: nextDerivedItemConstraints,
-            axisSize,
-            layout: nextLayout,
-            requestedAxisSize,
-            requestedLayout,
-            separatorToItems: axisState.separatorToItems
-          });
         }
-      } else {
-        notifyItemOnResize(axis, target as HTMLElement, borderBoxSize);
       }
+    } finally {
+      endAxisChangeBatch();
+    }
+
+    if (caughtError) {
+      throw caughtError.error;
     }
   });
 

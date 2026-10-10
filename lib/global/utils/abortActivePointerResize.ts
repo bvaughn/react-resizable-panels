@@ -1,6 +1,9 @@
 import {
+  endAxisChangeBatch,
+  flushAxisChangeBatch,
   getMountedAxes,
   getMountedAxisState,
+  startAxisChangeBatch,
   updateMountedAxis
 } from "../mutable-state/axes";
 import {
@@ -32,41 +35,52 @@ export function abortActivePointerResize(
 
   const mountedAxes = getMountedAxes();
 
-  interactionState.previewLayoutMap.forEach((layout, axis) => {
-    const axisState = mountedAxes.get(axis);
-    if (
-      axis.resizePreviewMode === "separator" &&
-      axisState &&
-      !layoutsEqual(layout, axisState.layout)
-    ) {
-      updateMountedAxis(axis, {
-        ...axisState,
-        layout,
-        requestedAxisSize: axisState.axisSize,
-        requestedLayout: layout
-      });
-    }
-  });
-
-  updateInteractionState({
-    cursorFlags: 0,
-    state: "inactive"
-  });
-
-  // Dispatch one more "change" event after the interaction state has been reset.
-  // Groups use this as a signal to call onLayoutChanged.
-  // The gesture was started by the user, so this is still a user interaction.
-  interactionState.hitRegions.forEach((hitRegion) => {
-    // Skip if the group was re-registered mid-gesture, so the old hit region
-    // doesn't resurrect a stale entry in the mounted-groups map. See #729.
-    if (!mountedAxes.has(hitRegion.axis)) {
-      return;
-    }
-    const axisState = getMountedAxisState(hitRegion.axis.id, true);
-    updateMountedAxis(hitRegion.axis, axisState, {
-      isUserInteraction: true
+  // Layout change callbacks may throw;
+  // defer them so the interaction state is always reset and every group is still notified
+  startAxisChangeBatch();
+  try {
+    interactionState.previewLayoutMap.forEach((layout, axis) => {
+      const axisState = mountedAxes.get(axis);
+      if (
+        axis.resizePreviewMode === "separator" &&
+        axisState &&
+        !layoutsEqual(layout, axisState.layout)
+      ) {
+        updateMountedAxis(axis, {
+          ...axisState,
+          layout,
+          requestedAxisSize: axisState.axisSize,
+          requestedLayout: layout
+        });
+      }
     });
-  });
+
+    // Groups only call onLayoutChanged once the interaction has ended,
+    // so changes made during the interaction must be observed before it is reset
+    flushAxisChangeBatch();
+
+    updateInteractionState({
+      cursorFlags: 0,
+      state: "inactive"
+    });
+
+    // Dispatch one more "change" event after the interaction state has been reset.
+    // Groups use this as a signal to call onLayoutChanged.
+    // The gesture was started by the user, so this is still a user interaction.
+    interactionState.hitRegions.forEach((hitRegion) => {
+      // Skip if the group was re-registered mid-gesture, so the old hit region
+      // doesn't resurrect a stale entry in the mounted-groups map. See #729.
+      if (!mountedAxes.has(hitRegion.axis)) {
+        return;
+      }
+      const axisState = getMountedAxisState(hitRegion.axis.id, true);
+      updateMountedAxis(hitRegion.axis, axisState, {
+        isUserInteraction: true
+      });
+    });
+  } finally {
+    endAxisChangeBatch();
+  }
 
   return true;
 }
