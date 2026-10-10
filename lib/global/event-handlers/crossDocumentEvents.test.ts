@@ -15,6 +15,7 @@ import { onDocumentPointerCancel } from "./onDocumentPointerCancel";
 import { onDocumentPointerDown } from "./onDocumentPointerDown";
 import { onDocumentPointerLeave } from "./onDocumentPointerLeave";
 import { onDocumentPointerMove } from "./onDocumentPointerMove";
+import { onDocumentPointerOut } from "./onDocumentPointerOut";
 import { onDocumentPointerUp } from "./onDocumentPointerUp";
 import { onWindowBlur } from "./onWindowBlur";
 import { onWindowPageHide } from "./onWindowPageHide";
@@ -343,6 +344,35 @@ describe("pointer events from a different document", () => {
       );
       expect(getInteractionState().state).toBe("active");
       expect(getFirstPanelSize(group)).toBe(50);
+    });
+  });
+
+  describe("pointerout to an iframe", () => {
+    function pointerOut(currentTarget: Document) {
+      onDocumentPointerOut({
+        currentTarget,
+        relatedTarget: document.createElement("iframe")
+      } as unknown as PointerEvent);
+    }
+
+    test("clears hover state from the same document", () => {
+      setup();
+
+      onDocumentPointerMove(mockEvent(document, 100, { buttons: 0 }));
+      expect(getInteractionState().state).toBe("hover");
+
+      pointerOut(document);
+      expect(getInteractionState().state).toBe("inactive");
+    });
+
+    test("does not clear hover state from another document", () => {
+      const { otherDocument } = setup();
+
+      onDocumentPointerMove(mockEvent(document, 100, { buttons: 0 }));
+      expect(getInteractionState().state).toBe("hover");
+
+      pointerOut(otherDocument);
+      expect(getInteractionState().state).toBe("hover");
     });
   });
 });
