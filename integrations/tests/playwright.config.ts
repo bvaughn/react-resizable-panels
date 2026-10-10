@@ -22,6 +22,9 @@ const DEVICES = [
 ];
 
 export default defineConfig({
+  fullyParallel: true,
+  // Tests mostly wait on the browser, so use more workers than the CI default (50% of cores)
+  workers: process.env.CI ? 4 : undefined,
   projects: DEVICES.map(({ name, use }) => ({
     name,
     timeout: 10_000,

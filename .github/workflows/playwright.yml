@@ -1,5 +1,9 @@
 name: "Playwright Tests"
-on: [pull_request]
+on:
+  pull_request:
+  # Also run on main so the browser cache is saved in a scope PR branches can restore from
+  push:
+    branches: [main]
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
@@ -12,14 +16,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --recursive
 
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(pnpm -C integrations/tests exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+
       - name: Cache Playwright browser binaries
         id: playwright-cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright  # Default Linux path
-          key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
 
       - name: Install Playwright browsers and dependencies (on cache miss)
         if: steps.playwright-cache.outputs.cache-hit != 'true'

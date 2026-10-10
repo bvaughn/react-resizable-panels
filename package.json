@@ -32,7 +32,7 @@
     "compile:examples": "tsx ./scripts/compile-examples",
     "compile:search-index": "tsx ./scripts/compile-search-index",
     "compress:og-image": "tsx ./scripts/compress-og-image",
-    "e2e:install": "pnpm -C integrations/tests exec playwright install --with-deps",
+    "e2e:install": "pnpm -C integrations/tests exec playwright install --with-deps chromium",
     "e2e:test": "pnpm -C integrations/tests run test",
     "e2e:test:main": "pnpm -C integrations/tests run test --project=chromium",
     "e2e:test:popup": "pnpm -C integrations/tests run test --project=chromium:popup",
