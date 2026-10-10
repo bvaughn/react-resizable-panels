@@ -24,6 +24,7 @@
     "dev:integrations:next": "pnpm -C integrations/next/ run dev",
     "dev:integrations:vike": "pnpm -C integrations/vike/ run dev",
     "dev:integrations:vite": "pnpm -C integrations/vite/ run dev",
+    "integrations:build": "pnpm --filter \"./integrations/{next,vike,vite}\" run build",
     "build": "pnpm run /^build:.*/",
     "build:docs": "cross-env TARGET=docs vite build",
     "build:lib": "cross-env TARGET=lib vite build",

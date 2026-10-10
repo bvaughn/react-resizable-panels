@@ -33,8 +33,10 @@ jobs:
 
       - name: Build library
         run: pnpm prerelease
+      - name: Build integrations
+        run: pnpm integrations:build
       - name: Run Playwright tests
-        run: pnpm dev:integrations & pnpm e2e:test
+        run: pnpm e2e:test
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

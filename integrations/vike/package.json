@@ -3,6 +3,7 @@
     "dev": "vike dev --port 3011",
     "build": "vike build",
     "preview": "vike build && vike preview",
+    "start": "vike preview --port 3011",
     "tsc": "tsc -b"
   },
   "dependencies": {

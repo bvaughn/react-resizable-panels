@@ -24,3 +24,6 @@ integrations/tests/test-results
 *.njsproj
 *.sln
 *.sw?
+
+integrations/*/dist
+*.tsbuildinfo
