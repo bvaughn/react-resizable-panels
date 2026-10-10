@@ -8,6 +8,7 @@ import {
   getInteractionState,
   updateInteractionState
 } from "../mutable-state/interactions";
+import { isActivePointerEvent } from "./isActivePointerEvent";
 import { layoutsEqual } from "./layoutsEqual";
 
 /**
@@ -18,9 +19,15 @@ import { layoutsEqual } from "./layoutsEqual";
  * those events either have no coordinates or report a position unrelated to the drag.
  * The last previewed (or live) layout is committed instead.
  */
-export function abortActivePointerResize(document: Document) {
+export function abortActivePointerResize(
+  document: Document,
+  pointerId?: number
+) {
   const interactionState = getInteractionState();
-  if (interactionState.state !== "active") {
+  if (
+    interactionState.state !== "active" ||
+    !isActivePointerEvent(interactionState, document, pointerId)
+  ) {
     return false;
   }
 

@@ -57,6 +57,8 @@ describe("abortActivePointerResize", () => {
       hitRegions,
       initialLayoutMap,
       pointerDownAtPoint,
+      ownerDocument: document,
+      pointerId: 1,
       previewLayoutMap: new Map(initialLayoutMap),
       previews:
         group.resizePreviewMode === "separator"

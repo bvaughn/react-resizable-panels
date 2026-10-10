@@ -31,22 +31,6 @@ describe("isViableHitTarget", () => {
     ).toBe(true);
   });
 
-  test("ignores targets in a different document (e.g. a popup window)", () => {
-    const groupElement = document.createElement("div");
-    const otherDocument = document.implementation.createHTMLDocument();
-    const target = otherDocument.createElement("div");
-    otherDocument.body.appendChild(target);
-    document.body.appendChild(groupElement);
-
-    expect(
-      isViableHitTarget({
-        axisElement: groupElement,
-        hitRegion,
-        pointerEventTarget: target
-      })
-    ).toBe(false);
-  });
-
   test("ignores targets inside of a modal dialog that is inside of the group", () => {
     const groupElement = document.createElement("div");
     const dialog = document.createElement("dialog");

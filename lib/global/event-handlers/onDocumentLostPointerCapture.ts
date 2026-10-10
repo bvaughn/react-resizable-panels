@@ -22,5 +22,5 @@ export function onDocumentLostPointerCapture(event: PointerEvent) {
     return;
   }
 
-  abortActivePointerResize(event.currentTarget as Document);
+  abortActivePointerResize(event.currentTarget as Document, event.pointerId);
 }

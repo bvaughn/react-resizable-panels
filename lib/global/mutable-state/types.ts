@@ -15,6 +15,7 @@ export type InteractionInactive = {
 export type InteractionHover = {
   cursorFlags: 0;
   hitRegions: HitRegion[];
+  ownerDocument: Document;
   state: "hover";
 };
 
@@ -33,7 +34,9 @@ export type InteractionActive = {
   didPointerMove: boolean;
   hitRegions: HitRegion[];
   initialLayoutMap: Map<RegisteredResizeAxis, Layout>;
+  ownerDocument: Document;
   pointerDownAtPoint: Point;
+  pointerId: number;
   previewLayoutMap: Map<RegisteredResizeAxis, Layout>;
   previews: ResizePreview[];
   state: "active";

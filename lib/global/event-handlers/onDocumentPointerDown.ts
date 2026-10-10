@@ -1,7 +1,11 @@
 import { calculateResizePreviews } from "../utils/calculateResizePreviews";
 import { getMountedAxes } from "../mutable-state/axes";
-import { updateInteractionState } from "../mutable-state/interactions";
+import {
+  getInteractionState,
+  updateInteractionState
+} from "../mutable-state/interactions";
 import type { Layout, RegisteredResizeAxis } from "../types";
+import { abortActivePointerResize } from "../utils/abortActivePointerResize";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
 
 export function onDocumentPointerDown(event: PointerEvent) {
@@ -11,9 +15,29 @@ export function onDocumentPointerDown(event: PointerEvent) {
     return;
   }
 
+  const interactionState = getInteractionState();
+  if (interactionState.state === "active") {
+    if (event.pointerId === interactionState.pointerId) {
+      // The same pointer can't be pressed twice, so its release was missed (e.g. it happened in another document)
+      // End that drag, but don't start a new one;
+      // committing its layout may move the separator out from under the pointer
+      abortActivePointerResize(
+        interactionState.ownerDocument,
+        interactionState.pointerId
+      );
+    }
+
+    // Otherwise another pointer is still dragging; let it finish rather than replacing (and orphaning) its drag
+    return;
+  }
+
   const mountedAxes = getMountedAxes();
 
-  const hitRegions = findMatchingHitRegions(event, mountedAxes);
+  const hitRegions = findMatchingHitRegions(
+    event,
+    mountedAxes,
+    event.currentTarget as Document
+  );
   if (hitRegions.length === 0) {
     return;
   }
@@ -56,7 +80,9 @@ export function onDocumentPointerDown(event: PointerEvent) {
     didPointerMove: false,
     hitRegions,
     initialLayoutMap,
+    ownerDocument: event.currentTarget as Document,
     pointerDownAtPoint: { x: event.clientX, y: event.clientY },
+    pointerId: event.pointerId,
     previewLayoutMap: new Map(initialLayoutMap),
     previews,
     state: "active"

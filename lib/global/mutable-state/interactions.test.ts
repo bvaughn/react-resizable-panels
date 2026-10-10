@@ -41,6 +41,8 @@ test("removing a group preserves the other group in a shared drag", () => {
     hitRegions,
     initialLayoutMap,
     pointerDownAtPoint: { x: 100, y: 100 },
+    ownerDocument: document,
+    pointerId: 1,
     previewLayoutMap: new Map(initialLayoutMap),
     previews,
     state: "active"

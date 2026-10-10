@@ -9,6 +9,7 @@ import {
   getInteractionState,
   updateInteractionState
 } from "../mutable-state/interactions.ts";
+import { isActivePointerEvent } from "./isActivePointerEvent";
 
 export function completeActivePointerResize(
   document: Document,
@@ -17,6 +18,7 @@ export function completeActivePointerResize(
     clientY: number;
     movementX: number;
     movementY: number;
+    pointerId?: number;
   }
 ) {
   const interactionState = getInteractionState();
@@ -26,6 +28,10 @@ export function completeActivePointerResize(
 
   switch (interactionState.state) {
     case "active": {
+      if (!isActivePointerEvent(interactionState, document, event.pointerId)) {
+        break;
+      }
+
       updateActiveHitRegions({
         commit: true,
         document,

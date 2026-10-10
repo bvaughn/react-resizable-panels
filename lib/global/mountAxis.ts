@@ -15,6 +15,7 @@ import { onDocumentPointerMove } from "./event-handlers/onDocumentPointerMove";
 import { onDocumentPointerOut } from "./event-handlers/onDocumentPointerOut";
 import { onDocumentPointerUp } from "./event-handlers/onDocumentPointerUp";
 import { onWindowBlur } from "./event-handlers/onWindowBlur";
+import { onWindowPageHide } from "./event-handlers/onWindowPageHide";
 import {
   deleteMutableAxis,
   getMountedAxisState,
@@ -213,6 +214,7 @@ export function mountAxis(axis: RegisteredResizeAxis) {
     ownerDocument.addEventListener("pointerout", onDocumentPointerOut);
     ownerDocument.addEventListener("pointerup", onDocumentPointerUp, true);
     ownerWindow?.addEventListener("blur", onWindowBlur);
+    ownerWindow?.addEventListener("pagehide", onWindowPageHide);
   }
 
   return function unmountAxis() {
@@ -264,6 +266,7 @@ export function mountAxis(axis: RegisteredResizeAxis) {
       ownerDocument.removeEventListener("pointerout", onDocumentPointerOut);
       ownerDocument.removeEventListener("pointerup", onDocumentPointerUp, true);
       ownerWindow?.removeEventListener("blur", onWindowBlur);
+      ownerWindow?.removeEventListener("pagehide", onWindowPageHide);
     }
 
     resizeObserver.disconnect();

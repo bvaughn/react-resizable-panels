@@ -49,6 +49,8 @@ describe("updateActiveHitRegions preview bounds", () => {
       hitRegions,
       initialLayoutMap,
       pointerDownAtPoint,
+      ownerDocument: document,
+      pointerId: 1,
       previewLayoutMap: new Map(initialLayoutMap),
       previews: calculateResizePreviews(group, hitRegions),
       state: "active"
@@ -123,6 +125,8 @@ describe("updateActiveHitRegions preview bounds", () => {
             hitRegions,
             initialLayoutMap,
             pointerDownAtPoint,
+            ownerDocument: document,
+            pointerId: 1,
             previewLayoutMap: new Map(initialLayoutMap),
             previews: calculateResizePreviews(group, hitRegions)
           });

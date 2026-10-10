@@ -34,7 +34,16 @@ export function updateCursorStyle(ownerDocument: Document) {
     }
   }
 
-  const interactionState = getInteractionState();
+  let interactionState = getInteractionState();
+
+  // Interaction state is shared between documents (e.g. a popup window);
+  // only show a resize cursor in the document that contains the interacting groups
+  if (
+    interactionState.state !== "inactive" &&
+    interactionState.ownerDocument !== ownerDocument
+  ) {
+    interactionState = { cursorFlags: 0, state: "inactive" };
+  }
 
   switch (interactionState.state) {
     case "active":

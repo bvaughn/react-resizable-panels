@@ -6,8 +6,16 @@ import { mockPointerEvent } from "../test/mockPointerEvent";
 import { findMatchingHitRegions } from "./findMatchingHitRegions";
 
 describe("findMatchingHitRegions", () => {
-  function serialize(event: PointerEvent, mountedGroups: MountedAxes) {
-    const hitRegions = findMatchingHitRegions(event, mountedGroups);
+  function serialize(
+    event: PointerEvent,
+    mountedGroups: MountedAxes,
+    ownerDocument: Document = document
+  ) {
+    const hitRegions = findMatchingHitRegions(
+      event,
+      mountedGroups,
+      ownerDocument
+    );
 
     return JSON.stringify(
       hitRegions.map((region) => ({
@@ -106,6 +114,23 @@ describe("findMatchingHitRegions", () => {
         }
       ]"
     `);
+  });
+
+  test("should skip groups in a different document (e.g. a popup window)", () => {
+    const group = mockGroup(new DOMRect(0, 0, 100, 50));
+    group.addPanel(new DOMRect(0, 0, 50, 50), "left");
+    group.addPanel(new DOMRect(50, 0, 50, 50), "right");
+    mountAxis(group);
+
+    const otherDocument = document.implementation.createHTMLDocument();
+
+    expect(
+      serialize(
+        mockPointerEvent({ clientX: 50 }),
+        getMountedAxes(),
+        otherDocument
+      )
+    ).toMatchInlineSnapshot(`"[]"`);
   });
 
   test("should skip disabled groups", () => {
