@@ -1,5 +1,8 @@
 name: "TypeScript"
-on: [pull_request]
+on:
+  pull_request:
+  push:
+    branches: [main]
 jobs:
   typescript:
     runs-on: ubuntu-latest
