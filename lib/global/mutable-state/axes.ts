@@ -1,4 +1,5 @@
 import { EventEmitter } from "../../utils/EventEmitter";
+import type { CaughtError } from "../../utils/CaughtError";
 import type {
   Layout,
   RegisteredResizeAxis,
@@ -48,6 +49,55 @@ const eventEmitter = new EventEmitter<{
   axisChange: AxisChangeEvent;
   axesChange: AxesChangeEvent;
 }>();
+
+// Change events dispatched while a batch is open are queued rather than emitted,
+// so that listeners (which call user callbacks) can't interrupt a multi-axis update part way through
+let batchDepth = 0;
+const batchedEvents: AxisChangeEvent[] = [];
+let batchedError: CaughtError | undefined;
+
+/**
+ * Queues axis change events until the matching endAxisChangeBatch() call.
+ * Every call must be paired with endAxisChangeBatch() (in a finally block).
+ */
+export function startAxisChangeBatch() {
+  batchDepth++;
+}
+
+/**
+ * Emits queued axis change events (e.g. before interaction state changes in a way listeners would observe).
+ * Errors thrown by listeners are deferred until the outermost batch ends.
+ */
+export function flushAxisChangeBatch() {
+  // Listeners may update axes, which appends more events while iterating
+  for (let i = 0; i < batchedEvents.length; i++) {
+    try {
+      eventEmitter.emit("axisChange", batchedEvents[i]);
+    } catch (error) {
+      batchedError ??= { error };
+    }
+  }
+  batchedEvents.length = 0;
+}
+
+/**
+ * Closes a batch opened by startAxisChangeBatch().
+ * When the outermost batch ends, queued events are emitted and the first error thrown by a listener (if any) is re-thrown.
+ */
+export function endAxisChangeBatch() {
+  if (batchDepth === 1) {
+    // Flush while the batch is still open so that updates made by listeners are queued (and their errors deferred)
+    flushAxisChangeBatch();
+  }
+
+  batchDepth--;
+
+  if (batchDepth === 0 && batchedError) {
+    const { error } = batchedError;
+    batchedError = undefined;
+    throw error;
+  }
+}
 
 export function deleteMutableAxis(axis: RegisteredResizeAxis) {
   map = new Map(map);
@@ -116,10 +166,16 @@ export function updateMountedAxis(
   map = new Map(map);
   map.set(axis, next);
 
-  eventEmitter.emit("axisChange", {
+  const event: AxisChangeEvent = {
     axis,
     isUserInteraction: meta?.isUserInteraction === true,
     prev,
     next
-  });
+  };
+
+  if (batchDepth > 0) {
+    batchedEvents.push(event);
+  } else {
+    eventEmitter.emit("axisChange", event);
+  }
 }

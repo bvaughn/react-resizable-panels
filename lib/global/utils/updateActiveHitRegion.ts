@@ -7,7 +7,12 @@ import {
   CURSOR_FLAGS_VERTICAL
 } from "../../constants";
 import type { Point } from "../../types";
-import { updateMountedAxis, type MountedAxes } from "../mutable-state/axes";
+import {
+  endAxisChangeBatch,
+  startAxisChangeBatch,
+  updateMountedAxis,
+  type MountedAxes
+} from "../mutable-state/axes";
 import {
   getInteractionState,
   updateCursorFlags
@@ -16,15 +21,7 @@ import type { HitRegion, Layout, RegisteredResizeAxis } from "../types";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { layoutsEqual } from "./layoutsEqual";
 
-export function updateActiveHitRegions({
-  commit,
-  event,
-  hitRegions,
-  initialLayoutMap,
-  mountedAxes,
-  pointerDownAtPoint,
-  prevCursorFlags
-}: {
+type Options = {
   commit: boolean;
   event: {
     clientX: number;
@@ -37,7 +34,28 @@ export function updateActiveHitRegions({
   mountedAxes: MountedAxes;
   pointerDownAtPoint?: Point;
   prevCursorFlags: number;
-}) {
+};
+
+export function updateActiveHitRegions(options: Options) {
+  // Layout change callbacks may throw;
+  // defer them until every group and the interaction state have been updated
+  startAxisChangeBatch();
+  try {
+    updateActiveHitRegionsImpl(options);
+  } finally {
+    endAxisChangeBatch();
+  }
+}
+
+function updateActiveHitRegionsImpl({
+  commit,
+  event,
+  hitRegions,
+  initialLayoutMap,
+  mountedAxes,
+  pointerDownAtPoint,
+  prevCursorFlags
+}: Options) {
   let nextCursorFlags = 0;
   const interaction = getInteractionState();
   let previews = interaction.state === "active" ? interaction.previews : [];

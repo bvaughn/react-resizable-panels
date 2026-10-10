@@ -30,8 +30,8 @@ import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
 import { useStableObject } from "../../hooks/useStableObject";
 import type { SeparatorOverlayProps } from "../separator/types";
-import { isInDocumentOrder } from "./isInDocumentOrder";
 import { GroupContext } from "./GroupContext";
+import { isInDocumentOrder } from "./isInDocumentOrder";
 import { ResizePreview } from "./ResizePreview";
 import { sortByDocumentPosition } from "./sortByDocumentPosition";
 import { sortByElementOffset } from "./sortByElementOffset";
@@ -328,9 +328,21 @@ export function Group({
     } = getMountedAxisState(group.id, true);
 
     if (!defaultLayoutDeferred && derivedPanelConstraints.length > 0) {
-      onLayoutChangeStable(layout);
-      // Initial mount is not a user interaction (#716).
-      onLayoutChangedStable(layout, false, requestedLayout);
+      try {
+        // Either handler may throw; onLayoutChanged should still be called if onLayoutChange throws
+        try {
+          onLayoutChangeStable(layout);
+        } finally {
+          // Initial mount is not a user interaction (#716).
+          onLayoutChangedStable(layout, false, requestedLayout);
+        }
+      } catch (error) {
+        // An effect that throws can't return a cleanup function, so unmount the group before re-throwing
+        registeredGroupRef.current = null;
+        unmountGroup();
+
+        throw error;
+      }
     }
 
     const removeChangeEventListener = subscribeToMountedAxis(id, (event) => {
@@ -361,9 +373,17 @@ export function Group({
       const isCompleted =
         interactionState.state !== "active" ||
         !interactionState.hitRegions.some((region) => region.axis === group);
-      onLayoutChangeStable(layout);
-      if (isCompleted) {
-        onLayoutChangedStable(layout, event.isUserInteraction, requestedLayout);
+      // Either handler may throw; onLayoutChanged should still be called if onLayoutChange throws
+      try {
+        onLayoutChangeStable(layout);
+      } finally {
+        if (isCompleted) {
+          onLayoutChangedStable(
+            layout,
+            event.isUserInteraction,
+            requestedLayout
+          );
+        }
       }
     });
 

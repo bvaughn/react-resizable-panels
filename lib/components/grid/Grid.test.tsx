@@ -2,6 +2,7 @@ import { act, fireEvent, render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRef, type ReactElement } from "react";
 import { describe, expect, test, vi } from "vitest";
+import { getMountedAxes } from "../../global/mutable-state/axes";
 import { setElementBoundsFunction } from "../../utils/test/mockBoundingClientRect";
 import { Group } from "../group/Group";
 import type { LayoutChangedMeta } from "../group/types";
@@ -1300,5 +1301,55 @@ describe("Grid (before mount)", () => {
     expect(html).toContain(
       "grid-template-columns:minmax(0, 30fr) auto minmax(0, 70fr)"
     );
+  });
+});
+
+describe("Grid layout change callbacks that throw", () => {
+  test("onLayoutChanged is still called if onLayoutChange throws", () => {
+    const onLayoutChanged = vi.fn();
+    const { gridRef } = renderTwoByTwoGrid({
+      onLayoutChange: (layout) => {
+        if (layout.columns["0"] !== 50) {
+          throw Error("Expected error");
+        }
+      },
+      onLayoutChanged
+    });
+    onLayoutChanged.mockClear();
+
+    expect(() =>
+      act(() => {
+        gridRef.current!.setLayout({ columns: { "0": 30, "1": 70 } });
+      })
+    ).toThrow("Expected error");
+
+    expect(onLayoutChanged).toHaveBeenCalledOnce();
+    expect(onLayoutChanged.mock.calls[0][0].columns).toEqual({
+      "0": 30,
+      "1": 70
+    });
+  });
+
+  test("axes are unmounted if onLayoutChange throws during mount", () => {
+    const onLayoutChanged = vi.fn();
+
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    try {
+      expect(() =>
+        renderTwoByTwoGrid({
+          onLayoutChange: () => {
+            throw Error("Expected error");
+          },
+          onLayoutChanged
+        })
+      ).toThrow("Expected error");
+    } finally {
+      consoleError.mockRestore();
+    }
+
+    expect(onLayoutChanged).toHaveBeenCalled();
+    expect(getMountedAxes().size).toBe(0);
   });
 });

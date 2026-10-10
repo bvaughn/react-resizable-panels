@@ -478,9 +478,25 @@ export function Grid({
     {
       const layouts = getGridLayouts();
       if (layouts) {
-        onLayoutChangeStable(layouts.layout);
-        // Initial mount is not a user interaction (#716).
-        onLayoutChangedStable(layouts.layout, false, layouts.requestedLayout);
+        try {
+          // Either handler may throw; onLayoutChanged should still be called if onLayoutChange throws
+          try {
+            onLayoutChangeStable(layouts.layout);
+          } finally {
+            // Initial mount is not a user interaction (#716).
+            onLayoutChangedStable(
+              layouts.layout,
+              false,
+              layouts.requestedLayout
+            );
+          }
+        } catch (error) {
+          // An effect that throws can't return a cleanup function, so unmount the axes before re-throwing
+          registeredAxesRef.current = [];
+          unmountAxes.forEach((unmount) => unmount());
+
+          throw error;
+        }
       }
     }
 
@@ -514,13 +530,17 @@ export function Grid({
               resizeAxes.includes(region.axis)
             );
 
-          onLayoutChangeStable(gridLayouts.layout);
-          if (isCompleted) {
-            onLayoutChangedStable(
-              gridLayouts.layout,
-              event.isUserInteraction,
-              gridLayouts.requestedLayout
-            );
+          // Either handler may throw; onLayoutChanged should still be called if onLayoutChange throws
+          try {
+            onLayoutChangeStable(gridLayouts.layout);
+          } finally {
+            if (isCompleted) {
+              onLayoutChangedStable(
+                gridLayouts.layout,
+                event.isUserInteraction,
+                gridLayouts.requestedLayout
+              );
+            }
           }
         }
       })
