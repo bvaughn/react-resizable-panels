@@ -215,6 +215,7 @@ describe("separator previews", () => {
       },
       ownerDocument: document,
       pointerId: 1,
+      pointerType: "mouse",
       previews: [preview, indirect, unrelated]
     };
 

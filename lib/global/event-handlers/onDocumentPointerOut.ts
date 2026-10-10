@@ -1,4 +1,3 @@
-import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import {
   getInteractionState,
   updateInteractionState
@@ -17,7 +16,6 @@ export function onDocumentPointerOut(event: PointerEvent) {
           cursorFlags: 0,
           state: "inactive"
         });
-        updateCursorStyle(interactionState.ownerDocument);
       }
     }
   }

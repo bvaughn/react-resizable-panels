@@ -11,15 +11,12 @@ export function onDocumentPointerLeave(event: PointerEvent) {
   switch (interactionState.state) {
     case "active": {
       // Ignore other pointers, and pointers leaving other documents (e.g. a popup window)
-      if (
-        !isActivePointerEvent(interactionState, ownerDocument, event.pointerId)
-      ) {
+      if (!isActivePointerEvent(interactionState, ownerDocument, event)) {
         return;
       }
 
       updateActiveHitRegions({
         commit: false,
-        document: ownerDocument,
         event,
         hitRegions: interactionState.hitRegions,
         initialLayoutMap: interactionState.initialLayoutMap,

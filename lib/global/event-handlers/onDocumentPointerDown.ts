@@ -7,6 +7,7 @@ import {
 import type { Layout, RegisteredResizeAxis } from "../types";
 import { abortActivePointerResize } from "../utils/abortActivePointerResize";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
+import { isSamePointer } from "../utils/isActivePointerEvent";
 
 export function onDocumentPointerDown(event: PointerEvent) {
   if (event.defaultPrevented) {
@@ -17,13 +18,13 @@ export function onDocumentPointerDown(event: PointerEvent) {
 
   const interactionState = getInteractionState();
   if (interactionState.state === "active") {
-    if (event.pointerId === interactionState.pointerId) {
+    if (isSamePointer(interactionState, event)) {
       // The same pointer can't be pressed twice, so its release was missed (e.g. it happened in another document)
       // End that drag, but don't start a new one;
       // committing its layout may move the separator out from under the pointer
       abortActivePointerResize(
         interactionState.ownerDocument,
-        interactionState.pointerId
+        interactionState
       );
     }
 
@@ -83,6 +84,7 @@ export function onDocumentPointerDown(event: PointerEvent) {
     ownerDocument: event.currentTarget as Document,
     pointerDownAtPoint: { x: event.clientX, y: event.clientY },
     pointerId: event.pointerId,
+    pointerType: event.pointerType,
     previewLayoutMap: new Map(initialLayoutMap),
     previews,
     state: "active"

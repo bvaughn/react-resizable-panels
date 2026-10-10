@@ -1,4 +1,3 @@
-import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import { getMountedAxes } from "../mutable-state/axes";
 import {
   getInteractionState,
@@ -22,9 +21,7 @@ export function onDocumentPointerMove(event: PointerEvent) {
     case "active": {
       // Ignore other pointers, and pointers in other documents (e.g. a popup window);
       // their coordinates and buttons are unrelated to the active drag
-      if (
-        !isActivePointerEvent(interactionState, ownerDocument, event.pointerId)
-      ) {
+      if (!isActivePointerEvent(interactionState, ownerDocument, event)) {
         return;
       }
 
@@ -36,7 +33,7 @@ export function onDocumentPointerMove(event: PointerEvent) {
       ) {
         // This event is a later hover, not the release position.
         // Commit the last preview without incorporating movement after the button was released.
-        abortActivePointerResize(ownerDocument, event.pointerId);
+        abortActivePointerResize(ownerDocument, event);
 
         return;
       }
@@ -55,7 +52,6 @@ export function onDocumentPointerMove(event: PointerEvent) {
 
       updateActiveHitRegions({
         commit: false,
-        document: ownerDocument,
         event,
         hitRegions: interactionState.hitRegions,
         initialLayoutMap: interactionState.initialLayoutMap,
@@ -89,16 +85,6 @@ export function onDocumentPointerMove(event: PointerEvent) {
         });
       }
 
-      updateCursorStyle(ownerDocument);
-
-      // Interaction state is shared between documents,
-      // so also update the cursor in the document that set the previous hover state
-      if (
-        interactionState.state === "hover" &&
-        interactionState.ownerDocument !== ownerDocument
-      ) {
-        updateCursorStyle(interactionState.ownerDocument);
-      }
       break;
     }
   }

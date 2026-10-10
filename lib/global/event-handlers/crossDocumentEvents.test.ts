@@ -55,7 +55,11 @@ describe("pointer events from a different document", () => {
     return { group, otherDocument };
   }
 
-  function startDrag(group: MockGroup, deltaX: number) {
+  function startDrag(
+    group: MockGroup,
+    deltaX: number,
+    pointerType: string = "mouse"
+  ) {
     const hitRegions = calculateHitRegions({ axis: group });
     const initialLayoutMap = new Map([
       [group, getMountedAxisState(group.id, true).layout]
@@ -70,6 +74,7 @@ describe("pointer events from a different document", () => {
       ownerDocument: document,
       pointerDownAtPoint,
       pointerId: 1,
+      pointerType,
       previewLayoutMap: new Map(initialLayoutMap),
       previews:
         group.resizePreviewMode === "separator"
@@ -80,7 +85,6 @@ describe("pointer events from a different document", () => {
 
     updateActiveHitRegions({
       commit: false,
-      document,
       event: {
         clientX: 100 + deltaX,
         clientY: 50,
@@ -104,8 +108,9 @@ describe("pointer events from a different document", () => {
     clientX: number,
     {
       buttons = 1,
-      pointerId = 1
-    }: { buttons?: number; pointerId?: number } = {}
+      pointerId = 1,
+      pointerType = "mouse"
+    }: { buttons?: number; pointerId?: number; pointerType?: string } = {}
   ) {
     return {
       button: 0,
@@ -117,7 +122,7 @@ describe("pointer events from a different document", () => {
       movementX: 10,
       movementY: 0,
       pointerId,
-      pointerType: "mouse",
+      pointerType,
       preventDefault: () => {},
       target: currentTarget.body
     } as unknown as PointerEvent;
@@ -233,6 +238,7 @@ describe("pointer events from a different document", () => {
     onDocumentPointerDown(mockEvent(document, 100, { pointerId: 2 }));
     expect(getInteractionState()).toMatchObject({
       pointerId: 1,
+      pointerType: "mouse",
       state: "active"
     });
     expect(getFirstPanelSize(group)).toBe(50);
@@ -278,5 +284,65 @@ describe("pointer events from a different document", () => {
     } as unknown as PageTransitionEvent);
     expect(getInteractionState().state).toBe("active");
     expect(getFirstPanelSize(group)).toBe(50);
+  });
+
+  describe("pens", () => {
+    // A pen may be assigned a new pointerId each time it comes into range
+
+    test("pointermove with no buttons pressed from a pen with a new pointerId ends a stale pen drag", () => {
+      const { group } = setup("separator");
+
+      startDrag(group, 20, "pen");
+
+      onDocumentPointerMove(
+        mockEvent(document, 180, {
+          buttons: 0,
+          pointerId: 2,
+          pointerType: "pen"
+        })
+      );
+      expect(getInteractionState().state).toBe("inactive");
+      expect(getFirstPanelSize(group)).toBe(60);
+    });
+
+    test("pointerdown from a pen with a new pointerId ends a stale pen drag", () => {
+      const { group } = setup("separator");
+
+      startDrag(group, 20, "pen");
+
+      onDocumentPointerDown(
+        mockEvent(document, 100, { pointerId: 2, pointerType: "pen" })
+      );
+      expect(getInteractionState().state).toBe("inactive");
+      expect(getFirstPanelSize(group)).toBe(60);
+    });
+
+    test("a mouse does not affect a pen drag", () => {
+      const { group } = setup("separator");
+
+      startDrag(group, 20, "pen");
+
+      onDocumentPointerMove(
+        mockEvent(document, 180, {
+          buttons: 0,
+          pointerId: 2,
+          pointerType: "mouse"
+        })
+      );
+      expect(getInteractionState().state).toBe("active");
+      expect(getFirstPanelSize(group)).toBe(50);
+    });
+
+    test("touches with different pointerIds are different pointers", () => {
+      const { group } = setup("separator");
+
+      startDrag(group, 20, "touch");
+
+      onDocumentPointerUp(
+        mockEvent(document, 180, { pointerId: 2, pointerType: "touch" })
+      );
+      expect(getInteractionState().state).toBe("active");
+      expect(getFirstPanelSize(group)).toBe(50);
+    });
   });
 });

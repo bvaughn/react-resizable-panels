@@ -7,7 +7,6 @@ import {
   CURSOR_FLAGS_VERTICAL
 } from "../../constants";
 import type { Point } from "../../types";
-import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import { updateMountedAxis, type MountedAxes } from "../mutable-state/axes";
 import {
   getInteractionState,
@@ -19,7 +18,6 @@ import { layoutsEqual } from "./layoutsEqual";
 
 export function updateActiveHitRegions({
   commit,
-  document,
   event,
   hitRegions,
   initialLayoutMap,
@@ -28,7 +26,6 @@ export function updateActiveHitRegions({
   prevCursorFlags
 }: {
   commit: boolean;
-  document: Document;
   event: {
     clientX: number;
     clientY: number;
@@ -186,5 +183,4 @@ export function updateActiveHitRegions({
       event.clientY !== interaction.pointerDownAtPoint.y);
 
   updateCursorFlags(cursorFlags, previews, previewLayoutMap, didPointerMove);
-  updateCursorStyle(document);
 }

@@ -37,6 +37,7 @@ export type InteractionActive = {
   ownerDocument: Document;
   pointerDownAtPoint: Point;
   pointerId: number;
+  pointerType: string;
   previewLayoutMap: Map<RegisteredResizeAxis, Layout>;
   previews: ResizePreview[];
   state: "active";

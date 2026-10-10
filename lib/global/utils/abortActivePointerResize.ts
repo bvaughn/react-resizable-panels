@@ -1,4 +1,3 @@
-import { updateCursorStyle } from "../cursor/updateCursorStyle";
 import {
   getMountedAxes,
   getMountedAxisState,
@@ -21,12 +20,12 @@ import { layoutsEqual } from "./layoutsEqual";
  */
 export function abortActivePointerResize(
   document: Document,
-  pointerId?: number
+  pointer?: { pointerId: number; pointerType: string }
 ) {
   const interactionState = getInteractionState();
   if (
     interactionState.state !== "active" ||
-    !isActivePointerEvent(interactionState, document, pointerId)
+    !isActivePointerEvent(interactionState, document, pointer)
   ) {
     return false;
   }
@@ -68,8 +67,6 @@ export function abortActivePointerResize(
       isUserInteraction: true
     });
   });
-
-  updateCursorStyle(document);
 
   return true;
 }
