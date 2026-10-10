@@ -44,7 +44,7 @@ export default function PersistentLayoutsRoute() {
         Panels require unique <code>id</code> props to restore saved layouts.
       </Callout>
       <div>
-        The example above works well with client rendered application. Click
+        The example above works well with client-rendered applications. Click
         below for more guidance about server rendering.
       </div>
       <ul className="pl-8">

@@ -114,7 +114,7 @@ Use this prop to disable that behavior for Panels and Separators in this group.<
       <td><p>Exposes the following imperative API:</p>
 <ul>
 <li><code>getLayout(): Layout</code></li>
-<li><code>setLayout(layout: Layout): void</code></li>
+<li><code>setLayout(layout: Layout): Layout</code></li>
 </ul>
 <p>ℹ️ The <code>useGroupRef</code> and <code>useGroupCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>
 </td>
@@ -128,7 +128,7 @@ For most cases, it is recommended to use the <code>onLayoutChanged</code> callba
     </tr>
     <tr>
       <td>onLayoutChanged</td>
-      <td><p>Called after the Group&#39;s layout has  been changed.</p>
+      <td><p>Called after the Group&#39;s layout has been changed.</p>
 <p>ℹ️ For layout changes caused by pointer events, this method is not called until the pointer has been released.
 This method is recommended when saving layouts to some storage api.</p>
 <p>ℹ️ The second argument contains meta information about the layout change.
@@ -141,7 +141,7 @@ prefer it when persisting layouts.</p>
     </tr>
     <tr>
       <td>resizePreviewMode</td>
-      <td><p>Controls whether pointer dragging updates <code>Panel</code>s sizes immediately,
+      <td><p>Controls whether pointer dragging updates <code>Panel</code> sizes immediately,
 or renders overlay separator previews until the pointer is released.</p>
 <p>Defaults to <code>&quot;panel&quot;</code> (immediate resizing); <code>&quot;separator&quot;</code> defers resizing until release.</p>
 <p>Customize previews using the <code>SeparatorOverlay</code> component.</p>
@@ -149,14 +149,14 @@ or renders overlay separator previews until the pointer is released.</p>
     </tr>
     <tr>
       <td>resizeTargetMinimumSize</td>
-      <td><p>Minimum size of the resizable hit target area (either <code>Separator</code> or <code>Panel</code> edge)
-This threshold ensures are large enough to avoid mis-clicks.</p>
+      <td><p>Minimum size of the resizable hit target area (either <code>Separator</code> or <code>Panel</code> edge).
+This threshold ensures targets are large enough to avoid mis-clicks.</p>
 <ul>
 <li>Coarse inputs (typically a finger on a touchscreen) have reduced accuracy;
 to ensure accessibility and ease of use, hit targets should be larger to prevent mis-clicks.</li>
 <li>Fine inputs (typically a mouse) can be smaller</li>
 </ul>
-<p>ℹ️ <a href="https://developer.apple.com/design/human-interface-guidelines/accessibility">Apple interface guidelines</a> suggest <code>20pt</code> (<code>27px</code>) on desktops and <code>28pt</code> (<code>37px</code>) for touch devices
+<p>ℹ️ <a href="https://developer.apple.com/design/human-interface-guidelines/accessibility">Apple interface guidelines</a> suggest <code>20pt</code> (<code>27px</code>) on desktops and <code>28pt</code> (<code>37px</code>) for touch devices.
 In practice this seems to be much larger than many of their own applications use though.</p>
 </td>
     </tr>
@@ -247,7 +247,7 @@ Falls back to <code>useId</code> when not provided.</p>
 or past its <code>collapsedSize</code> to expand.
 Defaults to half the distance between <code>collapsedSize</code> and <code>minSize</code>.</p>
 <p>For example if a panel declares <code>collapsedSize=&quot;5%&quot;</code>, <code>collapsedThreshold=&quot;5%&quot;</code>, and <code>minSize=&quot;25%&quot;</code>,
-it will collapse when resized below 20% and expands when resized above 10%.</p>
+it will collapse when resized below 20% and expand when resized above 10%.</p>
 <p>ℹ️ Interpretation rules:</p>
 <ul>
 <li>Numbers are interpreted as pixels (e.g. <code>minSize={200}</code> is 200 pixels)</li>
@@ -259,7 +259,7 @@ it will collapse when resized below 20% and expands when resized above 10%.</p>
     <tr>
       <td>collapsible</td>
       <td><p>This panel can be collapsed.</p>
-<p>ℹ️ A collapsible panel will collapse when it&#39;s size is less than of the specified <code>minSize</code></p>
+<p>ℹ️ A collapsible panel will collapse when its size is less than the specified <code>minSize</code></p>
 </td>
     </tr>
     <tr>
@@ -333,9 +333,9 @@ Defaults to <code>preserve-relative-size</code>.</p>
 <ul>
 <li><code>collapse(): void</code></li>
 <li><code>expand(): void</code></li>
-<li><code>getSize(): number</code></li>
+<li><code>getSize(): PanelSize</code></li>
 <li><code>isCollapsed(): boolean</code></li>
-<li><code>resize(size: number): void</code></li>
+<li><code>resize(size: number | string): void</code></li>
 </ul>
 <p>ℹ️ The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>
 </td>
@@ -564,7 +564,7 @@ This method is recommended when saving layouts to some storage api.</p>
     </tr>
     <tr>
       <td>resizeTargetMinimumSize</td>
-      <td><p>Minimum size of the resizable hit target area (either a <code>Gridline</code> or a <code>Cell</code> edge)
+      <td><p>Minimum size of the resizable hit target area (either a <code>Gridline</code> or a <code>Cell</code> edge).
 This threshold ensures targets are large enough to avoid mis-clicks.</p>
 <p>ℹ️ Refer to the <code>Group</code> prop of the same name for more information.</p>
 </td>

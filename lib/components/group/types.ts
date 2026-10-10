@@ -133,7 +133,7 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
   /**
    * Exposes the following imperative API:
    * - `getLayout(): Layout`
-   * - `setLayout(layout: Layout): void`
+   * - `setLayout(layout: Layout): Layout`
    *
    * ℹ️ The `useGroupRef` and `useGroupCallbackRef` hooks are exported for convenience use in TypeScript projects.
    */
@@ -156,7 +156,7 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
   onLayoutChange?: (layout: Layout) => void | undefined;
 
   /**
-   * Called after the Group's layout has  been changed.
+   * Called after the Group's layout has been changed.
    *
    * ℹ️ For layout changes caused by pointer events, this method is not called until the pointer has been released.
    * This method is recommended when saving layouts to some storage api.
@@ -171,7 +171,7 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
   onLayoutChanged?: (layout: Layout, meta: LayoutChangedMeta) => void;
 
   /**
-   * Controls whether pointer dragging updates `Panel`s sizes immediately,
+   * Controls whether pointer dragging updates `Panel` sizes immediately,
    * or renders overlay separator previews until the pointer is released.
    *
    * Defaults to `"panel"` (immediate resizing); `"separator"` defers resizing until release.
@@ -181,14 +181,14 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
   resizePreviewMode?: ResizePreviewMode | undefined;
 
   /**
-   * Minimum size of the resizable hit target area (either `Separator` or `Panel` edge)
-   * This threshold ensures are large enough to avoid mis-clicks.
+   * Minimum size of the resizable hit target area (either `Separator` or `Panel` edge).
+   * This threshold ensures targets are large enough to avoid mis-clicks.
    *
    * - Coarse inputs (typically a finger on a touchscreen) have reduced accuracy;
    * to ensure accessibility and ease of use, hit targets should be larger to prevent mis-clicks.
    * - Fine inputs (typically a mouse) can be smaller
    *
-   * ℹ️ [Apple interface guidelines](https://developer.apple.com/design/human-interface-guidelines/accessibility) suggest `20pt` (`27px`) on desktops and `28pt` (`37px`) for touch devices
+   * ℹ️ [Apple interface guidelines](https://developer.apple.com/design/human-interface-guidelines/accessibility) suggest `20pt` (`27px`) on desktops and `28pt` (`37px`) for touch devices.
    * In practice this seems to be much larger than many of their own applications use though.
    */
   resizeTargetMinimumSize?: {

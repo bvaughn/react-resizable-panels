@@ -10,8 +10,8 @@ import { Group, Panel } from "react-resizable-panels";
       <Panel>top</Panel>
       <Panel>
         <Group orientation="horizontal">
-        <Panel>left</Panel>
-        <Panel>right</Panel>
+          <Panel>left</Panel>
+          <Panel>right</Panel>
         </Group>
       </Panel>
     </Group>

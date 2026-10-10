@@ -10,8 +10,8 @@ export default function GroupResizeBehaviorRoute() {
       <Header section="Flex" title="Group resize behavior" />
       <div>
         Resizing a group typically affects the size of panels within the group.
-        The <code>groupResizeBehavior</code> prop can be used override this
-        behavior and freeze specific panels (in terms of their pixels sizes)
+        The <code>groupResizeBehavior</code> prop can be used to override this
+        behavior and freeze specific panels (in terms of their pixel sizes)
         while the group is resized.
       </div>
       <div>

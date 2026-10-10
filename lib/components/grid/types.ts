@@ -235,7 +235,7 @@ export type GridProps = HTMLAttributes<HTMLDivElement> & {
     | undefined;
 
   /**
-   * Minimum size of the resizable hit target area (either a `Gridline` or a `Cell` edge)
+   * Minimum size of the resizable hit target area (either a `Gridline` or a `Cell` edge).
    * This threshold ensures targets are large enough to avoid mis-clicks.
    *
    * ℹ️ Refer to the `Group` prop of the same name for more information.

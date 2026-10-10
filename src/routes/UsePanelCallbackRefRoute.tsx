@@ -14,7 +14,7 @@ export default function UsePanelRefRoute() {
         <ExternalLink href="https://react.dev/reference/react-dom/components/common#ref-callback">
           ref callback function
         </ExternalLink>{" "}
-        and value tuple. .
+        and value tuple.
       </div>
       <Code html={html} />
     </Box>

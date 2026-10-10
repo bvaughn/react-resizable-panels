@@ -242,7 +242,7 @@ export function adjustLayoutByDelta({
     }
   }
 
-  // If we were unable to resize any of the panels panels, return the previous state.
+  // If we were unable to resize any of the panels, return the previous state.
   // This will essentially bailout and ignore e.g. drags past a panel's boundaries
   if (isArrayEqual(prevLayout, nextLayout)) {
     return prevLayoutProp;

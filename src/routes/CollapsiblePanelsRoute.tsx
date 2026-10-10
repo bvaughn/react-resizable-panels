@@ -48,7 +48,8 @@ export default function CollapsiblePanelsRoute() {
       </Group>
       <div>This enables building UIs like VS Code's "Folders" side panel.</div>
       <Callout intent="primary">
-        A panel's collapse threshold is half its minimum size.
+        By default, a panel's collapse threshold is halfway between its
+        collapsed size and its minimum size.
       </Callout>
       <div>
         Collapsible panels can also be collapsed by default by setting their{" "}
@@ -88,7 +89,7 @@ export default function CollapsiblePanelsRoute() {
         <Separator />
         <Panel>
           The panel on the left will collapse when resized below 30% and expand
-          when resized above 10%
+          when resized above 10%.
         </Panel>
       </Group>
     </Box>

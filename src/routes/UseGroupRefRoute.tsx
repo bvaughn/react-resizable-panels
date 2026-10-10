@@ -19,8 +19,8 @@ export default function UseGroupRefRoute() {
       </div>
       <Code html={html} />
       <Callout intent="warning">
-        This component is useful for situations where you only need a local (to
-        your component) reference to the{" "}
+        This hook is useful for situations where you only need a local (to your
+        component) reference to the{" "}
         <Link to="/imperative-api/group">imperative Group API</Link>. If you
         need to share the ref with another component or hook, use the{" "}
         <Link to="/hooks/use-group-callback-ref">callback ref hook</Link>{" "}
