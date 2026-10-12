@@ -212,7 +212,7 @@ export type GridProps = HTMLAttributes<HTMLDivElement> & {
    * Uniquely identifies this grid within an application.
    * Falls back to `useId` when not provided.
    *
-   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes.
+   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes; (an explicit `data-testid` prop will take precedence).
    */
   id?: string | number | undefined;
 
@@ -288,7 +288,7 @@ export type CellProps = HTMLAttributes<HTMLDivElement> & {
    * Uniquely identifies this cell within the parent grid.
    * Falls back to `useId` when not provided.
    *
-   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes.
+   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes; (an explicit `data-testid` prop will take precedence).
    */
   id?: string | number | undefined;
 

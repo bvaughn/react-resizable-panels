@@ -1263,6 +1263,81 @@ describe("Grid", () => {
       expect(getByTestId("inner")).toBeInTheDocument();
     });
   });
+
+  describe("HTML attributes", () => {
+    test("should expose explicit id and testid", () => {
+      const { container } = render(
+        <Grid columns={1} id="grid" rows={1}>
+          <Cell column={0} id="cell" row={0} />
+        </Grid>
+      );
+
+      const grid = container.querySelector("[data-grid]") as HTMLElement;
+      expect(grid.getAttribute("data-testid")).toBe("grid");
+      expect(grid.getAttribute("id")).toBe("grid");
+
+      const cell = container.querySelector("[data-cell]") as HTMLElement;
+      expect(cell.getAttribute("data-testid")).toBe("cell");
+      expect(cell.getAttribute("id")).toBe("cell");
+    });
+
+    test("should not expose a generated id as testid", () => {
+      const { container } = render(
+        <Grid columns={2} rows={1}>
+          <Cell column={0} row={0} />
+          <Cell column={1} row={0} />
+          <Gridline type="column" column={1} />
+        </Grid>
+      );
+
+      const grid = container.querySelector("[data-grid]") as HTMLElement;
+      expect(grid.hasAttribute("data-testid")).toBe(false);
+      expect(grid.hasAttribute("id")).toBe(true);
+
+      const cell = container.querySelector("[data-cell]") as HTMLElement;
+      expect(cell.hasAttribute("data-testid")).toBe(false);
+      expect(cell.hasAttribute("id")).toBe(true);
+
+      const gridline = container.querySelector(
+        "[data-separator]"
+      ) as HTMLElement;
+      expect(gridline.hasAttribute("data-testid")).toBe(false);
+      expect(gridline.hasAttribute("id")).toBe(true);
+    });
+
+    test("should prefer an explicit testid over the id", () => {
+      const ui = (id?: string) => (
+        <Grid
+          columns={1}
+          data-testid="grid-testid"
+          id={id && `grid-${id}`}
+          rows={1}
+        >
+          <Cell
+            column={0}
+            data-testid="cell-testid"
+            id={id && `cell-${id}`}
+            row={0}
+          />
+        </Grid>
+      );
+
+      const { container, rerender } = render(ui("id"));
+
+      const grid = container.querySelector("[data-grid]") as HTMLElement;
+      const cell = container.querySelector("[data-cell]") as HTMLElement;
+
+      expect(grid.getAttribute("data-testid")).toBe("grid-testid");
+      expect(grid.getAttribute("id")).toBe("grid-id");
+      expect(cell.getAttribute("data-testid")).toBe("cell-testid");
+      expect(cell.getAttribute("id")).toBe("cell-id");
+
+      rerender(ui());
+
+      expect(grid.getAttribute("data-testid")).toBe("grid-testid");
+      expect(cell.getAttribute("data-testid")).toBe("cell-testid");
+    });
+  });
 });
 
 describe("Grid (before mount)", () => {

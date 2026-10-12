@@ -71,7 +71,7 @@ None
       <td>id</td>
       <td><p>Uniquely identifies this group within an application.
 Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes.</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>
 </td>
     </tr>
     <tr>
@@ -227,7 +227,7 @@ None
       <td><p>Uniquely identifies this panel within the parent group.
 Falls back to <code>useId</code> when not provided.</p>
 <p>ℹ️ This prop is used to associate persisted group layouts with the original panel.</p>
-<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes.</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>
 </td>
     </tr>
     <tr>
@@ -392,7 +392,7 @@ None
       <td>id</td>
       <td><p>Uniquely identifies the separator within the parent group.
 Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes.</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>
 </td>
     </tr>
     <tr>
@@ -499,7 +499,7 @@ Grid elements always include the following attributes:
       <td>id</td>
       <td><p>Uniquely identifies this grid within an application.
 Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes.</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>
 </td>
     </tr>
     <tr>
@@ -639,7 +639,7 @@ Cell elements always include the following attributes:
       <td>id</td>
       <td><p>Uniquely identifies this cell within the parent grid.
 Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes.</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>
 </td>
     </tr>
     <tr>

@@ -1717,6 +1717,32 @@ describe("Group", () => {
       expect(group.getAttribute("id")).toBe("group");
     });
 
+    test("should not expose a generated id as testid", () => {
+      const { container } = render(<Group />);
+
+      const group = container.querySelector("[data-group]");
+      assert(group);
+
+      expect(group.hasAttribute("data-testid")).toBe(false);
+      expect(group.hasAttribute("id")).toBe(true);
+    });
+
+    test("should prefer an explicit testid over the id", () => {
+      const { container, rerender } = render(
+        <Group data-testid="testid" id="group" />
+      );
+
+      const group = container.querySelector("[data-group]");
+      assert(group);
+
+      expect(group.getAttribute("data-testid")).toBe("testid");
+      expect(group.getAttribute("id")).toBe("group");
+
+      rerender(<Group data-testid="testid" />);
+
+      expect(group.getAttribute("data-testid")).toBe("testid");
+    });
+
     test("should pass through ...rest attributes", () => {
       const { container } = render(<Group data-foo="abc" data-bar="123" />);
 

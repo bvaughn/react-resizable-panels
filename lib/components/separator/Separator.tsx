@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "../../hooks/useId";
+import { getTestId } from "../../utils/getTestId";
 import { useGroupContext } from "../group/useGroupContext";
 import { ResizeSeparator } from "../shared/ResizeSeparator";
 import type { SeparatorProps } from "./types";
@@ -51,6 +52,7 @@ export function Separator({
       axisId={groupId}
       axisOrientation={orientation}
       className={className}
+      data-testid={getTestId(rest, idProp)}
       disableCursor={disableCursor}
       disabled={disabled}
       disableDoubleClick={disableDoubleClick}

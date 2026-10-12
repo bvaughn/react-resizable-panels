@@ -40,6 +40,7 @@ export function ResizeSeparator({
   axisOrientation,
   children,
   className,
+  "data-testid": dataTestId,
   disableCursor,
   disabled,
   disableDoubleClick,
@@ -65,6 +66,7 @@ export function ResizeSeparator({
 
   children: ReactNode | undefined;
   className: string | undefined;
+  "data-testid"?: string | undefined;
   disableCursor: boolean;
   disabled: boolean | undefined;
   disableDoubleClick: boolean | undefined;
@@ -89,6 +91,7 @@ export function ResizeSeparator({
   styleDefaults?: CSSProperties | undefined;
 
   tabIndex?: number | undefined;
+
   updateSeparatorProps: (
     id: string,
     props: {
@@ -263,7 +266,7 @@ export function ResizeSeparator({
       children={children}
       className={className}
       data-separator={dataSeparator}
-      data-testid={id}
+      data-testid={dataTestId}
       id={id}
       onBlur={() => setIsFocused(false)}
       onFocus={() => setIsFocused(true)}

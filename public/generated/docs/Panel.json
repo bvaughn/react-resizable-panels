@@ -53,7 +53,7 @@
           "intent": "primary"
         },
         {
-          "content": "<p>This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes.</p>\n",
+          "content": "<p>This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>\n",
           "intent": "primary"
         }
       ],
