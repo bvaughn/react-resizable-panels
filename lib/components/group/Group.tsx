@@ -29,6 +29,7 @@ import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect
 import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
 import { useStableObject } from "../../hooks/useStableObject";
+import { getTestId } from "../../utils/getTestId";
 import type { SeparatorOverlayProps } from "../separator/types";
 import { GroupContext } from "./GroupContext";
 import { isInDocumentOrder } from "./isInDocumentOrder";
@@ -431,7 +432,7 @@ export function Group({
         {...rest}
         className={className}
         data-group
-        data-testid={id}
+        data-testid={getTestId(rest, idProp)}
         id={id}
         ref={mergedRef}
         style={{

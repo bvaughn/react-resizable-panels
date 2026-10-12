@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useId } from "../../hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../hooks/useMergedRefs";
+import { getTestId } from "../../utils/getTestId";
 import { getTrackGridPlacement } from "./gridPlacement";
 import type { CellProps } from "./types";
 import { useGridContext } from "./useGridContext";
@@ -61,7 +62,7 @@ export function Cell({
       {...rest}
       className={className}
       data-cell
-      data-testid={id}
+      data-testid={getTestId(rest, idProp)}
       id={id}
       ref={mergedRef}
       style={{

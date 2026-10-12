@@ -225,6 +225,69 @@ describe("Separator", () => {
       expect(screen.getByRole("separator")).toHaveAttribute("id", "separator");
     });
 
+    test("should not expose a generated id as testid", () => {
+      render(
+        <Group>
+          <Panel />
+          <Separator />
+          <Panel />
+        </Group>
+      );
+
+      expect(screen.getByRole("separator")).not.toHaveAttribute("data-testid");
+      expect(screen.getByRole("separator")).toHaveAttribute("id");
+    });
+
+    test("should prefer an explicit testid over the id", () => {
+      const { rerender } = render(
+        <Group>
+          <Panel />
+          <Separator data-testid="testid" id="separator" />
+          <Panel />
+        </Group>
+      );
+
+      expect(screen.getByRole("separator")).toHaveAttribute(
+        "data-testid",
+        "testid"
+      );
+      expect(screen.getByRole("separator")).toHaveAttribute("id", "separator");
+
+      rerender(
+        <Group>
+          <Panel />
+          <Separator data-testid="testid" />
+          <Panel />
+        </Group>
+      );
+
+      expect(screen.getByRole("separator")).toHaveAttribute(
+        "data-testid",
+        "testid"
+      );
+    });
+
+    test("should not let ...rest attributes override managed attributes", () => {
+      render(
+        <Group>
+          <Panel id="left" />
+          <Separator
+            aria-controls="foo"
+            aria-orientation="horizontal"
+            aria-valuenow={1}
+            data-separator="foo"
+          />
+          <Panel />
+        </Group>
+      );
+
+      const separator = screen.getByRole("separator");
+      expect(separator).toHaveAttribute("aria-controls", "left");
+      expect(separator).toHaveAttribute("aria-orientation", "vertical");
+      expect(separator).toHaveAttribute("aria-valuenow", "50");
+      expect(separator).toHaveAttribute("data-separator", "inactive");
+    });
+
     test("should pass through ...rest attributes", () => {
       render(
         <Group>

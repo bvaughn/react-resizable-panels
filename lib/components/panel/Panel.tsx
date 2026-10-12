@@ -13,6 +13,8 @@ import { useIsomorphicLayoutEffect } from "../../hooks/useIsomorphicLayoutEffect
 import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
 import { useStableObject } from "../../hooks/useStableObject";
+import { getTestId } from "../../utils/getTestId";
+import { isExplicitId } from "../../utils/isExplicitId";
 import { useGroupContext } from "../group/useGroupContext";
 import type { PanelProps, PanelSize } from "./types";
 import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
@@ -60,7 +62,7 @@ export function Panel({
   style,
   ...rest
 }: PanelProps) {
-  const idIsStable = !!idProp;
+  const idIsStable = isExplicitId(idProp);
 
   const id = useId(idProp);
 
@@ -174,7 +176,7 @@ export function Panel({
       {...rest}
       data-disabled={disabled || undefined}
       data-panel
-      data-testid={id}
+      data-testid={getTestId(rest, idProp)}
       id={id}
       ref={mergedRef}
       style={{

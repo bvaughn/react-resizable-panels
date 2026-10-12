@@ -38,6 +38,7 @@ import { useMergedRefs } from "../../hooks/useMergedRefs";
 import { useStableCallback } from "../../hooks/useStableCallback";
 import { useStableObject } from "../../hooks/useStableObject";
 import { assert } from "../../utils/assert";
+import { getTestId } from "../../utils/getTestId";
 import { GroupContext } from "../group/GroupContext";
 import { GridContext } from "./GridContext";
 import { Gridline } from "./Gridline";
@@ -697,7 +698,7 @@ export function Grid({
         {...rest}
         className={className}
         data-grid
-        data-testid={id}
+        data-testid={getTestId(rest, idProp)}
         id={id}
         ref={mergedRef}
         style={{

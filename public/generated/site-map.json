@@ -158,7 +158,7 @@
       {
         "id": "id",
         "title": "id",
-        "text": "id?: string | number Uniquely identifies this cell within the parent grid.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes."
+        "text": "id?: string | number Uniquely identifies this cell within the parent grid.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "rowSpan",
@@ -226,7 +226,7 @@
       {
         "id": "id",
         "title": "id",
-        "text": "id?: string | number Uniquely identifies this grid within an application.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes."
+        "text": "id?: string | number Uniquely identifies this grid within an application.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "onLayoutChange",
@@ -352,7 +352,7 @@
       {
         "id": "id",
         "title": "id",
-        "text": "id?: string | number Uniquely identifies this group within an application.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes."
+        "text": "id?: string | number Uniquely identifies this group within an application.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "onLayoutChange",
@@ -435,7 +435,7 @@
       {
         "id": "id",
         "title": "id",
-        "text": "id?: string | number Uniquely identifies this panel within the parent group.\nFalls back to useId when not provided.\n This prop is used to associate persisted group layouts with the original panel.\n This value will also be assigned to the id and data-testid attributes."
+        "text": "id?: string | number Uniquely identifies this panel within the parent group.\nFalls back to useId when not provided.\n This prop is used to associate persisted group layouts with the original panel.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "maxSize",
@@ -493,7 +493,7 @@
       {
         "id": "id",
         "title": "id",
-        "text": "id?: string | number Uniquely identifies the separator within the parent group.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes."
+        "text": "id?: string | number Uniquely identifies the separator within the parent group.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "preview",
