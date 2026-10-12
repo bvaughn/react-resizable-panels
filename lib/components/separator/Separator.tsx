@@ -20,7 +20,7 @@ const REQUIRED_STYLE = { flexGrow: 0, flexShrink: 0 } as const;
  * <div data-separator data-testid="separator-id-prop" id="separator-id-prop" role="separator">
  * ```
  *
- * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+ * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing. It is rendered only from an explicit `id`; one minted by `useId` is not stable enough to target. A `data-testid` passed as a prop replaces it.
  *
  * ℹ️ In addition to the attributes shown above, separator also renders all required [WAI-ARIA properties](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/separator_role#associated_wai-aria_roles_states_and_properties).
  */
@@ -35,6 +35,7 @@ export function Separator({
   style,
   ...rest
 }: SeparatorProps) {
+  const idIsStable = !!idProp;
   const id = useId(idProp);
 
   const {
@@ -61,6 +62,7 @@ export function Separator({
       requiredStyle={REQUIRED_STYLE}
       style={style}
       styleDefaults={STYLE_DEFAULTS}
+      testId={idIsStable ? id : undefined}
       updateSeparatorProps={updateSeparatorProps}
     >
       {children}

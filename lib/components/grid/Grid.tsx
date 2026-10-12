@@ -104,6 +104,7 @@ export function Grid({
   style,
   ...rest
 }: GridProps) {
+  const idIsStable = !!idProp;
   const id = useId(idProp);
 
   const getResizeAxisId = useCallback(
@@ -694,11 +695,11 @@ export function Grid({
   return (
     <GridContext.Provider value={context}>
       <div
-        {...rest}
         className={className}
         data-grid
-        data-testid={id}
+        data-testid={idIsStable ? id : undefined}
         id={id}
+        {...rest}
         ref={mergedRef}
         style={{
           height: "100%",

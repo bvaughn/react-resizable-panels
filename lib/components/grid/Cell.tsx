@@ -34,6 +34,7 @@ export function Cell({
   style,
   ...rest
 }: CellProps) {
+  const idIsStable = !!idProp;
   const id = useId(idProp);
 
   // Invalid placements are logged by the Grid (see getPlacementErrors)
@@ -58,11 +59,11 @@ export function Cell({
 
   return (
     <div
-      {...rest}
       className={className}
       data-cell
-      data-testid={id}
+      data-testid={idIsStable ? id : undefined}
       id={id}
+      {...rest}
       ref={mergedRef}
       style={{
         overflow: "auto",

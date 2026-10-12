@@ -37,7 +37,7 @@ export type SeparatorProps = BaseSeparatorAttributes & {
    * Uniquely identifies the separator within the parent group.
    * Falls back to `useId` when not provided.
    *
-   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes.
+   * ℹ️ This value will also be assigned to the `id` attribute, and to `data-testid` when it is provided (a `data-testid` prop replaces it).
    */
   id?: string | number | undefined;
 

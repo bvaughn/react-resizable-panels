@@ -288,8 +288,32 @@ describe("Panel", () => {
 
         const panel = container.querySelector("[data-panel]") as HTMLElement;
 
-        expect(panel.hasAttribute("data-testid")).toBe(true);
         expect(panel.hasAttribute("id")).toBe(true);
+      });
+
+      test("should not assign a test id it minted itself", () => {
+        const { container } = render(
+          <Group>
+            <Panel />
+          </Group>
+        );
+
+        const panel = container.querySelector("[data-panel]") as HTMLElement;
+
+        expect(panel.hasAttribute("data-testid")).toBe(false);
+      });
+
+      test("should let a data-testid prop replace the id", () => {
+        const { container } = render(
+          <Group>
+            <Panel data-testid="pane" id="panel" />
+          </Group>
+        );
+
+        const panel = container.querySelector("[data-panel]") as HTMLElement;
+
+        expect(panel.getAttribute("data-testid")).toBe("pane");
+        expect(panel.getAttribute("id")).toBe("panel");
       });
     });
   });

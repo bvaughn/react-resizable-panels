@@ -38,7 +38,7 @@ import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
  * <div data-panel data-testid="panel-id-prop" id="panel-id-prop">
  * ```
  *
- * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+ * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing. It is rendered only from an explicit `id`; one minted by `useId` is not stable enough to target. A `data-testid` passed as a prop replaces it.
  *
  * ⚠️ Panel elements must be direct DOM children of their parent Group elements.
  */
@@ -171,11 +171,11 @@ export function Panel({
 
   return (
     <div
-      {...rest}
       data-disabled={disabled || undefined}
       data-panel
-      data-testid={id}
+      data-testid={idIsStable ? id : undefined}
       id={id}
+      {...rest}
       ref={mergedRef}
       style={{
         ...PROHIBITED_CSS_PROPERTIES,

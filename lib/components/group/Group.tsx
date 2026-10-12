@@ -49,7 +49,7 @@ import { useResizePreviews } from "./useResizePreviews";
  * <div data-group data-testid="group-id-prop" id="group-id-prop">
  * ```
  *
- * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+ * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing. It is rendered only from an explicit `id`; one minted by `useId` is not stable enough to target. A `data-testid` passed as a prop replaces it.
  */
 export function Group({
   children,
@@ -102,6 +102,7 @@ export function Group({
     }
   );
 
+  const idIsStable = !!idProp;
   const id = useId(idProp);
 
   const [overlay, setOverlay] = useState<SeparatorOverlayProps>();
@@ -428,11 +429,11 @@ export function Group({
   return (
     <GroupContext.Provider value={context}>
       <div
-        {...rest}
         className={className}
         data-group
-        data-testid={id}
+        data-testid={idIsStable ? id : undefined}
         id={id}
+        {...rest}
         ref={mergedRef}
         style={{
           height: "100%",

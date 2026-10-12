@@ -45,6 +45,7 @@ export function ResizeSeparator({
   disableDoubleClick,
   elementRef: elementRefProp,
   id,
+  testId,
   isSharedHitRegion,
   preview,
   registerSeparator,
@@ -70,6 +71,8 @@ export function ResizeSeparator({
   disableDoubleClick: boolean | undefined;
   elementRef: Ref<HTMLDivElement> | undefined;
   id: string;
+  /** The `data-testid` to render, if any; an id minted by `useId` is not a usable one */
+  testId?: string | undefined;
 
   /**
    * Hit regions that resize the same items as this separator (e.g. other separators along the same Grid boundary);
@@ -253,7 +256,6 @@ export function ResizeSeparator({
 
   return (
     <div
-      {...attributes}
       aria-controls={aria.valueControls}
       aria-disabled={disabled || undefined}
       aria-orientation={orientation}
@@ -263,8 +265,9 @@ export function ResizeSeparator({
       children={children}
       className={className}
       data-separator={dataSeparator}
-      data-testid={id}
+      data-testid={testId}
       id={id}
+      {...attributes}
       onBlur={() => setIsFocused(false)}
       onFocus={() => setIsFocused(true)}
       ref={mergedRef}
