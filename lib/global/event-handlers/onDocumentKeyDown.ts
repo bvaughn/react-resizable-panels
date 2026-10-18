@@ -105,9 +105,9 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
 
       // Cycle through window panes.
 
-      const separatorElements = axis.separators.map(
-        (separator) => separator.element
-      );
+      const separatorElements = axis.separators
+        .filter((separator) => !separator.disabled)
+        .map((separator) => separator.element);
 
       const index = Array.from(separatorElements).findIndex(
         (current) => current === event.currentTarget
