@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.14.6
+
+- Fix `F6` and `Shift+F6` keyboard navigation trying to focus disabled separators. Disabled separators are now skipped. - [#767](https://github.com/bvaughn/react-resizable-panels/pull/767)
+
 ## 4.14.5
 
 - `Group`, `Panel`, `Separator`, `Grid`, and `Cell` only render an explicit `id` (or `data-testid`) as `data-testid` - [#766](https://github.com/bvaughn/react-resizable-panels/pull/766)
