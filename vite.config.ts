@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { visualizer } from "rollup-plugin-visualizer";
 import preserveDirectives from "rollup-preserve-directives";
+import { getDevServerConfig } from "react-lib-tools/scripts/dev-server.js";
 import { defineConfig, type UserConfig } from "vite";
 import dts from "vite-plugin-dts";
 import svgr from "vite-plugin-svgr";
@@ -63,8 +64,8 @@ const websiteConfig: UserConfig = {
 // Allow iPhone to connect to the DEV site using a local IP
 if (process.env.NODE_ENV === "development") {
   websiteConfig.server = {
-    host: true,
-    port: 3000
+    ...getDevServerConfig(),
+    host: true
   };
 }
 
