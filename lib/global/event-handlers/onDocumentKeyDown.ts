@@ -2,6 +2,7 @@ import { assert } from "../../utils/assert";
 import { getMountedAxisState } from "../mutable-state/axes";
 import { adjustLayoutForSeparator } from "../utils/adjustLayoutForSeparator";
 import { findSeparatorAxis } from "../utils/findSeparatorAxis";
+import { getEnabledSeparators } from "../utils/getEnabledSeparators";
 
 export function onDocumentKeyDown(event: KeyboardEvent) {
   if (event.defaultPrevented) {
@@ -105,14 +106,14 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
 
       // Cycle through window panes.
 
-      const separatorElements = axis.separators
-        .filter((separator) => !separator.disabled)
-        .map((separator) => separator.element);
+      const separatorElements = getEnabledSeparators(axis).map(
+        (separator) => separator.element
+      );
 
-      const index = Array.from(separatorElements).findIndex(
+      const index = separatorElements.findIndex(
         (current) => current === event.currentTarget
       );
-      assert(index !== null, "Index not found");
+      assert(index !== -1, "Index not found");
 
       const nextIndex = event.shiftKey
         ? index > 0
