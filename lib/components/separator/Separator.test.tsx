@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRef } from "react";
 import type { GroupImperativeHandle } from "../group/types";
@@ -11,6 +11,84 @@ import { Panel } from "../panel/Panel";
 import { Separator } from "./Separator";
 
 describe("Separator", () => {
+  describe("F6 navigation", () => {
+    const ui = (middleDisabled: boolean) => (
+      <>
+        <Group>
+          <Panel />
+          <Separator id="first" />
+          <Panel />
+          <Separator id="middle" disabled={middleDisabled} />
+          <Panel />
+          <Separator id="last" />
+          <Panel />
+        </Group>
+        <Group>
+          <Panel />
+          <Separator id="other-group" />
+          <Panel />
+        </Group>
+      </>
+    );
+
+    test.each([false, true])(
+      "skips disabled separators and wraps (reverse: %s)",
+      (shiftKey) => {
+        render(ui(true));
+        const first = screen.getByTestId("first");
+        const last = screen.getByTestId("last");
+        const start = shiftKey ? last : first;
+        const next = shiftKey ? first : last;
+        act(() => start.focus());
+        fireEvent.keyDown(start, { key: "F6", shiftKey });
+        expect(next).toHaveFocus();
+        fireEvent.keyDown(next, { key: "F6", shiftKey });
+        expect(start).toHaveFocus();
+      }
+    );
+
+    test("keeps focus on the sole enabled separator", () => {
+      render(
+        <Group>
+          <Panel />
+          <Separator id="enabled" />
+          <Panel />
+          <Separator disabled />
+          <Panel />
+        </Group>
+      );
+      const enabled = screen.getByTestId("enabled");
+      act(() => enabled.focus());
+      fireEvent.keyDown(enabled, { key: "F6" });
+      expect(enabled).toHaveFocus();
+      fireEvent.keyDown(enabled, { key: "F6", shiftKey: true });
+      expect(enabled).toHaveFocus();
+    });
+
+    test("follows changes to the disabled prop", () => {
+      const { rerender } = render(ui(false));
+      const first = screen.getByTestId("first");
+      act(() => first.focus());
+      fireEvent.keyDown(first, { key: "F6" });
+      expect(screen.getByTestId("middle")).toHaveFocus();
+      rerender(ui(true));
+      const middle = screen.getByTestId("middle");
+      expect(middle).toHaveFocus();
+      const event = new KeyboardEvent("keydown", {
+        key: "F6",
+        shiftKey: true,
+        bubbles: true,
+        cancelable: true
+      });
+      fireEvent(middle, event);
+      expect(event.defaultPrevented).toBe(false);
+      expect(middle).toHaveFocus();
+      act(() => first.focus());
+      fireEvent.keyDown(first, { key: "F6" });
+      expect(screen.getByTestId("last")).toHaveFocus();
+    });
+  });
+
   describe.each(["horizontal", "vertical"] as const)(
     "zero-sized %s group",
     (orientation) => {
