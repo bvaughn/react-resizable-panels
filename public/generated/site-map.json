@@ -5,21 +5,37 @@
     "title": "Getting started with react-resizable-panels"
   },
   {
-    "path": "/versions",
-    "text": "Click below to view documentation for past releases. 4.x documentation source code 3.x documentation source code 2.x documentation source code 1.x source code",
-    "title": "Previous releases"
+    "headings": [
+      {
+        "id": "invalid-panel-layout",
+        "title": "Why do I see an \"invalid panel layout\" error?",
+        "text": "Why do I see an \"invalid panel layout\" error? This error means that a Group layout (or the sum total of Panel default sizes) does not add up to 100%. If the layout you've specified does add up to 100, the most likely remaining cause is that you've specified sizes as pixels rather than percentages as per this note from the Panel docs: Numeric values are assumed to be pixels. Strings without explicit units are assumed to be percentages (0%..100%)."
+      },
+      {
+        "id": "vertical-group-height",
+        "title": "Why is a vertical group not visible?",
+        "text": "Why is a vertical group not visible? By default, Group elements specify a default style height:100%. However according to the w3 spec: The percentage is calculated with respect to the height of the generated box's containing block. If the height of the containing block is not specified explicitly (i.e., it depends on content height), and this element is not absolutely positioned, the value computes to \"auto\". Put another way, fixing this requires setting an explicit height either on the Group itself or on its parent HTMLElement. // an inline style will override the default\nrender(<Group style={{ height: 100 }} {...rest} />);\n \n// an !important CSS rule will also override it\nrender(<Group className=\"h-100!\" {...rest} />);\n \n// a min-height CSS rule will accomplish the same result\nrender(<Group className=\"min-h-100\" {...rest} />); Note that because the default height is an inline style, it can only be overridden by another inline style or an !important CSS rule."
+      },
+      {
+        "id": "local-storage-undefined",
+        "title": "ReferenceError: localStorage is not defined",
+        "text": "ReferenceError: localStorage is not defined The useDefaultLayout hook saves layouts to localStorage by default. This does not work for server-rendered applications though, since localStorage is only defined on the client. Refer to the server rendering or server components docs for examples of how to save layouts on the server."
+      },
+      {
+        "id": "conditionally-render-panel",
+        "title": "How can I conditionally render a Panel based on screen size?",
+        "text": "How can I conditionally render a Panel based on screen size? The recommended way is to use the ResizeObserver API, either through a hook like useResizeObserver or a component like react-virtualized-auto-sizer. const { ref, width = 0 } = useResizeObserver();\n \n<div ref={ref}>\n <Group>\n <Panel minSize=\"25%\">...</Panel>\n {width >= 500 && (\n <>\n <Separator />\n <Panel defaultSize=\"35%\">...</Panel>\n </>\n )}\n </Group>\n</div> Putting the defaultSize on the conditional Panel is the easiest way to avoid invalid layout constraints in this type of scenario."
+      }
+    ],
+    "path": "/common-questions",
+    "text": "",
+    "title": "Common questions"
   },
   {
-    "path": "/examples/the-basics",
-    "section": "Flex",
-    "text": "The simplest resizable panel configuration is two panels within a group. import { Group, Panel } from \"react-resizable-panels\";\n \n<Group>\n <Panel>left</Panel>\n <Panel>right</Panel>\n</Group> Panel groups use a flexbox layout with a default orientation of horizontal but the orientation prop can be used to specify a vertical layout. <Group className=\"min-h-30\" orientation=\"vertical\">\n <Panel>top</Panel>\n <Panel>bottom</Panel>\n</Group> Vertical groups may benefit from an explicit height or min-height (read more). Panels can be resized by clicking on their borders but explicit separators can be rendered to improve UX. Separators provide another benefit: double-clicking on one resets a panel to its default size. <Group>\n <Panel defaultSize=\"50%\">left</Panel>\n <Separator />\n <Panel>right</Panel>\n</Group> Separators improve keyboard accessibility by providing a tab-focusable window splitter element.",
-    "title": "The basics"
-  },
-  {
-    "path": "/examples/min-max-sizes",
-    "section": "Flex",
-    "text": "Panels can be configured with minimum/maximum allowed sizes. Size can be specified using the following CSS units: Pixels Percentages Font sizes (em, rem) Viewport sizes (vh, vw) For example, the left panel below only allows itself to be resized between 100-200 pixels. <Group>\n <Panel minSize={100} maxSize={200}>left</Panel>\n <Separator />\n <Panel>right</Panel>\n</Group> As another example, this panel group will not allow any individual panel to be smaller than 10% of the group's width. <Group>\n <Panel minSize=\"10%\">left</Panel>\n <Separator />\n <Panel minSize=\"10%\">middle</Panel>\n <Separator />\n <Panel minSize=\"10%\">right</Panel>\n</Group> When specifying sizes, remember: Numbers are evaluated as pixels. Strings are evaluated as percentages (0..100%) unless otherwise specified. You can always include the unit, even for pixels (e.g. minSize=\"100px\") or percentages (e.g. minSize=\"10%\")",
-    "title": "Min/max sizes"
+    "path": "/examples/collapsible-grid-cells",
+    "section": "Grids",
+    "text": "As with panels, a grid's cells can be configured to be collapsible past a certain threshold. <Grid\n columns={[\n { collapsedSize: 25, collapsible: true, minSize: 100 },\n { collapsedSize: 25, collapsible: true, minSize: 100 }\n ]}\n rows={[\n { collapsible: true, minSize: 50 },\n { collapsible: true, minSize: 50 }\n ]}\n>\n <Cell row={0} column={0}>A</Cell>\n <Cell row={0} column={1}>B</Cell>\n <Cell row={1} column={0}>C</Cell>\n <Cell row={1} column={1}>D</Cell>\n</Grid> A B C D As the example above shows, cells can collapse all the way or to a smaller fixed size. Gridlines are optional as well.",
+    "title": "Collapsible grid cells"
   },
   {
     "path": "/examples/collapsible-panels",
@@ -28,46 +44,16 @@
     "title": "Collapsible panels"
   },
   {
-    "path": "/examples/persistent-layout",
-    "section": "Flex",
-    "text": "Panel groups can be configured to save and restore layouts between page visits with the useDefaultLayout hook. Resize the panels below and then reload the page to see an example. const { defaultLayout, onLayoutChanged } = useDefaultLayout({\n id: \"unique-layout-id\",\n storage: localStorage\n});\n \n<Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged}>\n <Panel id=\"left\" minSize={50}>left</Panel>\n <Separator />\n <Panel id=\"center\" minSize={50}>center</Panel>\n <Separator />\n <Panel id=\"right\" minSize={50}>right</Panel>\n</Group> Panels require unique id props to restore saved layouts. The example above works well with client-rendered applications. Click below for more guidance about server rendering. Persistent layouts with conditional panels Persistent layouts with server rendering Persistent layouts with server components",
-    "title": "Persistent layouts"
-  },
-  {
-    "path": "/examples/persistent-layout/conditional-panels",
-    "section": "Flex",
-    "text": "For Groups that contain conditionally rendered Panels, it can be useful to save multiple layouts (one for each set of Panels). To enable this, pass the additional panelIds prop as shown below. const { defaultLayout, onLayoutChanged } = useDefaultLayout({\n id: \"unique-layout-id\",\n // This set of ids must match the Panels rendered during mount,\n // or the default layout will not be restored\n panelIds: showLeftPanel ? [\"left\", \"right\"] : [\"right\"],\n storage: localStorage\n});\n \n<Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged}>\n {showLeftPanel && (\n <>\n <Panel id=\"left\">left</Panel>\n <Separator />\n </>\n )}\n <Panel id=\"right\">right</Panel>\n</Group>",
-    "title": "Persistent layouts with conditional panels"
-  },
-  {
-    "path": "/examples/persistent-layout/server-rendering",
-    "section": "Flex",
-    "text": "Because localStorage is unavailable on the server, a custom storage configuration is needed to avoid layout shift when server rendering. Building on the previous example, a Cookie based storage might look like this: import { type LayoutStorage } from \"react-resizable-panels\";\n \nconst cookieStorage: LayoutStorage = {\n getItem(key: string) {\n const cookies = document.cookie.split(\";\");\n for (const cookie of cookies) {\n const [name, value] = cookie.trim().split(\"=\");\n if (name === key) {\n return value;\n }\n }\n return null;\n },\n setItem(key: string, value: string) {\n document.cookie = `${key}=${value}; path=/;`;\n }\n};\n \nuseDefaultLayout({\n id: \"unique-layout-id\",\n storage: cookieStorage\n}); If async storage is needed, use Suspense to load saved layouts. Do not conditionally use localStorage as it will cause errors during hydration and may leave CSS styles in an invalid state. See issue #714 for more information. The example above includes path=/ so that saved layouts can be shared between paths; see Using HTTP cookies for more.",
-    "title": "Persistent layouts with server rendering"
-  },
-  {
-    "path": "/examples/persistent-layout/server-components",
-    "section": "Flex",
-    "text": "When using server components with a framework like Next.js, a slightly different approach is required: export default async function Page() {\n const api = await cookies();\n const defaultLayoutString = api.get(groupId)?.value;\n const defaultLayout = defaultLayoutString\n ? (JSON.parse(defaultLayoutString) as Layout)\n : undefined;\n \n return <ClientComponent defaultLayout={defaultLayout} groupId={groupId} />;\n} (\"use client\");\n \nexport default function ClientComponent({\n defaultLayout,\n groupId\n}: {\n defaultLayout: Layout | undefined;\n groupId: string;\n}) {\n return (\n <Group\n defaultLayout={defaultLayout}\n id={groupId}\n onLayoutChanged={(layout) => {\n document.cookie = `${groupId}=${JSON.stringify(layout)}; path=/;`;\n }}\n >\n <Panel id=\"left\" minSize={25}>\n left\n </Panel>\n <Panel id=\"right\" minSize={25}>\n right\n </Panel>\n </Group>\n );\n} The example above includes path=/ so that saved layouts can be shared between paths; see Using HTTP cookies for more.",
-    "title": "Persistent layouts with server components"
-  },
-  {
-    "path": "/examples/nested-groups",
-    "section": "Flex",
-    "text": "Panel groups can be nested. In this configuration, multiple groups can be resized at the same time by clicking near panel intersections. <Group orientation=\"horizontal\">\n <Panel>left</Panel>\n <Panel>\n <Group orientation=\"vertical\">\n <Panel>top</Panel>\n <Panel>\n <Group orientation=\"horizontal\">\n <Panel>left</Panel>\n <Panel>right</Panel>\n </Group>\n </Panel>\n </Group>\n </Panel>\n <Panel>right</Panel>\n</Group> If your nested panels form a grid (e.g. each row has the same columns), consider using the Grid component instead.",
-    "title": "Nested groups"
-  },
-  {
     "path": "/examples/conditional-panels",
     "section": "Flex",
     "text": "Panels can be conditionally rendered. hide left panel hide right panel <Group>\n {hideLeftPanel || (\n <>\n <Panel id=\"left\">left panel</Panel>\n <Separator />\n </>\n )}\n <Panel id=\"center\">center panel</Panel>\n {hideRightPanel || (\n <>\n <Separator />\n <Panel id=\"right\">right panel</Panel>\n </>\n )}\n</Group> Conditional panels should also specify ids to help match previous, saved layouts. It is recommended to use usePanelCallbackRef rather than usePanelRef when attaching a ref to a conditionally-rendered panel. See issue #717 for more information.",
     "title": "Conditional panels"
   },
   {
-    "path": "/examples/fixed-size-panels",
+    "path": "/examples/custom-css-styles",
     "section": "Flex",
-    "text": "You can also render non-interactive elements inside of a group if you need fixed-size content. <Group>\n <Panel>left</Panel>\n <Separator />\n <Panel>right</Panel>\n <div>Fixed sized element</div>\n</Group> Non-interactive elements can also be rendered between panels. <Group>\n <Panel>left</Panel>\n <Separator />\n <div>Fixed sized element</div>\n <Separator />\n <Panel>right</Panel>\n</Group> As with other types of groups, separators are optional (but recommended). <Group>\n <Panel>left</Panel>\n <div>Fixed sized element</div>\n <Panel>right</Panel>\n</Group>",
-    "title": "Fixed size panels"
+    "text": "className and style props can be used to customize styles, but there are a few limitations to remember: Certain style properties cannot be overridden; (refer to component documentation for a list of specific styles) Panel styles are applied to a nested HTMLDivElement to prevent interfering with the Flex layout When styling a Separator, use the data-separator attribute rather than :hover or :active pseudo-classes. This attribute is updated when the pointer is near enough to a separator element to be interactive, even if it is not directly on top of the element. <div data-separator=\"disabled\" />\n<div data-separator=\"inactive\" />\n<div data-separator=\"hover\" />\n<div data-separator=\"active\" />\n<div data-separator=\"focus\" /> An example using Tailwind CSS might look something like this. <Separator\n className=\"\n bg-slate-600\n [&[data-separator='hover']]:bg-slate-500\n [&[data-separator='active']]:bg-slate-400\n [&[data-separator='focus']]:bg-sky-400\n \"\n/> If you want to differentiate between keyboard-initiated focus and pointer-initiated focus, you can use the :focus and :focus-visible CSS pseudo-classes instead. <Separator\n className=\"\n bg-slate-600\n [&[data-separator='hover']]:bg-slate-500\n [&[data-separator='active']]:bg-slate-400\n focus-visible:bg-sky-400!\n \"\n/>",
+    "title": "Custom CSS styles"
   },
   {
     "path": "/examples/disabled-panels",
@@ -76,28 +62,10 @@
     "title": "Disabling interactions"
   },
   {
-    "path": "/examples/panel-resize-behavior",
+    "path": "/examples/fixed-size-panels",
     "section": "Flex",
-    "text": "Dragging a resize separator causes panels to re-render with updated sizes. In most cases, this is what you want, but if re-rendering the contents of a panel is too slow, the resizePreviewMode prop can be used to defer the re-render until the resize is finished. <Group resizePreviewMode=\"separator\">\n <Panel minSize=\"10%\">left</Panel>\n <Separator />\n <Panel minSize=\"10%\">right</Panel>\n</Group> In place of a panel update, an overlay separator will be rendered instead, as shown in the group below. By default, this overlay separator is just a partially transparent copy of the separator element being dragged. The SeparatorOverlay component allows users to customize the overlay. <Group resizePreviewMode=\"separator\">\n <Panel minSize=\"10%\">left</Panel>\n <Separator />\n <Panel minSize=\"10%\">center</Panel>\n <Separator />\n <Panel minSize=\"10%\">right</Panel>\n \n <SeparatorOverlay\n className=\"w-2 bg-sky-500 data-[separator-overlay=inactive]:bg-sky-700 opacity-80\"\n />\n</Group> Resize preview mode works even for groups with implicit separators. <Group resizePreviewMode=\"separator\">\n <Panel minSize=\"10%\">left</Panel>\n <Panel minSize=\"10%\">center</Panel>\n <Panel minSize=\"10%\">right</Panel>\n \n <SeparatorOverlay\n className=\"w-2 bg-sky-500 data-[separator-overlay=inactive]:bg-sky-700 opacity-80\"\n />\n</Group> The data-separator-overlay attribute can be used to differentiate between a separator that's being actively dragged and one that's being moved as a result of min/max size constraints.",
-    "title": "Panel resize behavior"
-  },
-  {
-    "path": "/examples/group-resize-behavior",
-    "section": "Flex",
-    "text": "Resizing a group typically affects the size of panels within the group. The groupResizeBehavior prop can be used to override this behavior and freeze specific panels (in terms of their pixel sizes) while the group is resized. For an example of this, resize the browser window while keeping an eye on the left panel below. <Group>\n <Panel groupResizeBehavior=\"preserve-pixel-size\">\n left\n </Panel>\n <Separator />\n <Panel>main</Panel>\n</Group> Minor pixel changes in the panel above are due to precision/rounding. Groups are required to contain at least one panel without groupResizeBehavior=\"preserve-pixel-size\".",
-    "title": "Group resize behavior"
-  },
-  {
-    "path": "/examples/overflow",
-    "section": "Flex",
-    "text": "Groups and Panels set the overflow styles shown below: <!-- ⚛️ Group -->\n<div data-group style=\"overflow: hidden\">\n \n <!-- ⚛️ Panel -->\n <div data-panel style=\"overflow: visible\">\n <div style=\"overflow: auto\">\n \n <!-- The stuff you render goes here -->\n </div>\n </div>\n</div> This combination of styles ensures overflow content is scrollable without unexpectedly stretching the size of the group. To enable Panels to have overflowing visual styles (like shadows or outlines) you need to change the group overflow style to \"visible\": // Option 1: Override with className (must be !important)\n<Group className=\"overflow-visible!\" /> // Option 2: Override with inline style\n<Group style={{ overflow: \"visible\" }} /> If you change the overflow style, it is recommended that you also specify an explicit width/height on the group. For example, this group of panels demonstrates a drop-shadow style. <Panel className=\"shadow-md shadow-fuchsia-600\">\n left\n</Panel> And this group demonstrates a focus outline style. <Panel className=\"focus-within:z-10 focus-within:outline-2 outline-solid\">\n <input placeholder=\"left input\" />\n</Panel> The panel sets a higher z-index on focus-within to avoid clipping issues. Styles that affect the outer panel element (e.g. shadows, outlines) work without any customizations. Things like tooltips or popovers that are rendered inside of the panel will be clipped by the overflow:auto style. Because of this it's recommended to use portals for these. However you can override the default style as shown below. <Panel className=\"overflow-visible!\">\n <Tooltip content=\"This is the left panel\">\n left\n </Tooltip>\n</Panel> All of the above styles also apply to the separator component. <Separator className=\"focus-within:z-10 focus-within:outline-2 outline-solid\" /> You could also use the data-separator='focus' selector.",
-    "title": "Overflow"
-  },
-  {
-    "path": "/examples/custom-css-styles",
-    "section": "Flex",
-    "text": "className and style props can be used to customize styles, but there are a few limitations to remember: Certain style properties cannot be overridden; (refer to component documentation for a list of specific styles) Panel styles are applied to a nested HTMLDivElement to prevent interfering with the Flex layout When styling a Separator, use the data-separator attribute rather than :hover or :active pseudo-classes. This attribute is updated when the pointer is near enough to a separator element to be interactive, even if it is not directly on top of the element. <div data-separator=\"disabled\" />\n<div data-separator=\"inactive\" />\n<div data-separator=\"hover\" />\n<div data-separator=\"active\" />\n<div data-separator=\"focus\" /> An example using Tailwind CSS might look something like this. <Separator\n className=\"\n bg-slate-600\n [&[data-separator='hover']]:bg-slate-500\n [&[data-separator='active']]:bg-slate-400\n [&[data-separator='focus']]:bg-sky-400\n \"\n/> If you want to differentiate between keyboard-initiated focus and pointer-initiated focus, you can use the :focus and :focus-visible CSS pseudo-classes instead. <Separator\n className=\"\n bg-slate-600\n [&[data-separator='hover']]:bg-slate-500\n [&[data-separator='active']]:bg-slate-400\n focus-visible:bg-sky-400!\n \"\n/>",
-    "title": "Custom CSS styles"
+    "text": "You can also render non-interactive elements inside of a group if you need fixed-size content. <Group>\n <Panel>left</Panel>\n <Separator />\n <Panel>right</Panel>\n <div>Fixed sized element</div>\n</Group> Non-interactive elements can also be rendered between panels. <Group>\n <Panel>left</Panel>\n <Separator />\n <div>Fixed sized element</div>\n <Separator />\n <Panel>right</Panel>\n</Group> As with other types of groups, separators are optional (but recommended). <Group>\n <Panel>left</Panel>\n <div>Fixed sized element</div>\n <Panel>right</Panel>\n</Group>",
+    "title": "Fixed size panels"
   },
   {
     "path": "/examples/grid-basics",
@@ -118,10 +86,243 @@
     "title": "Gridlines"
   },
   {
-    "path": "/examples/collapsible-grid-cells",
-    "section": "Grids",
-    "text": "As with panels, a grid's cells can be configured to be collapsible past a certain threshold. <Grid\n columns={[\n { collapsedSize: 25, collapsible: true, minSize: 100 },\n { collapsedSize: 25, collapsible: true, minSize: 100 }\n ]}\n rows={[\n { collapsible: true, minSize: 50 },\n { collapsible: true, minSize: 50 }\n ]}\n>\n <Cell row={0} column={0}>A</Cell>\n <Cell row={0} column={1}>B</Cell>\n <Cell row={1} column={0}>C</Cell>\n <Cell row={1} column={1}>D</Cell>\n</Grid> A B C D As the example above shows, cells can collapse all the way or to a smaller fixed size. Gridlines are optional as well.",
-    "title": "Collapsible grid cells"
+    "path": "/examples/group-resize-behavior",
+    "section": "Flex",
+    "text": "Resizing a group typically affects the size of panels within the group. The groupResizeBehavior prop can be used to override this behavior and freeze specific panels (in terms of their pixel sizes) while the group is resized. For an example of this, resize the browser window while keeping an eye on the left panel below. <Group>\n <Panel groupResizeBehavior=\"preserve-pixel-size\">\n left\n </Panel>\n <Separator />\n <Panel>main</Panel>\n</Group> Minor pixel changes in the panel above are due to precision/rounding. Groups are required to contain at least one panel without groupResizeBehavior=\"preserve-pixel-size\".",
+    "title": "Group resize behavior"
+  },
+  {
+    "path": "/examples/min-max-sizes",
+    "section": "Flex",
+    "text": "Panels can be configured with minimum/maximum allowed sizes. Size can be specified using the following CSS units: Pixels Percentages Font sizes (em, rem) Viewport sizes (vh, vw) For example, the left panel below only allows itself to be resized between 100-200 pixels. <Group>\n <Panel minSize={100} maxSize={200}>left</Panel>\n <Separator />\n <Panel>right</Panel>\n</Group> As another example, this panel group will not allow any individual panel to be smaller than 10% of the group's width. <Group>\n <Panel minSize=\"10%\">left</Panel>\n <Separator />\n <Panel minSize=\"10%\">middle</Panel>\n <Separator />\n <Panel minSize=\"10%\">right</Panel>\n</Group> When specifying sizes, remember: Numbers are evaluated as pixels. Strings are evaluated as percentages (0..100%) unless otherwise specified. You can always include the unit, even for pixels (e.g. minSize=\"100px\") or percentages (e.g. minSize=\"10%\")",
+    "title": "Min/max sizes"
+  },
+  {
+    "path": "/examples/nested-groups",
+    "section": "Flex",
+    "text": "Panel groups can be nested. In this configuration, multiple groups can be resized at the same time by clicking near panel intersections. <Group orientation=\"horizontal\">\n <Panel>left</Panel>\n <Panel>\n <Group orientation=\"vertical\">\n <Panel>top</Panel>\n <Panel>\n <Group orientation=\"horizontal\">\n <Panel>left</Panel>\n <Panel>right</Panel>\n </Group>\n </Panel>\n </Group>\n </Panel>\n <Panel>right</Panel>\n</Group> If your nested panels form a grid (e.g. each row has the same columns), consider using the Grid component instead.",
+    "title": "Nested groups"
+  },
+  {
+    "path": "/examples/overflow",
+    "section": "Flex",
+    "text": "Groups and Panels set the overflow styles shown below: <!-- ⚛️ Group -->\n<div data-group style=\"overflow: hidden\">\n \n <!-- ⚛️ Panel -->\n <div data-panel style=\"overflow: visible\">\n <div style=\"overflow: auto\">\n \n <!-- The stuff you render goes here -->\n </div>\n </div>\n</div> This combination of styles ensures overflow content is scrollable without unexpectedly stretching the size of the group. To enable Panels to have overflowing visual styles (like shadows or outlines) you need to change the group overflow style to \"visible\": // Option 1: Override with className (must be !important)\n<Group className=\"overflow-visible!\" /> // Option 2: Override with inline style\n<Group style={{ overflow: \"visible\" }} /> If you change the overflow style, it is recommended that you also specify an explicit width/height on the group. For example, this group of panels demonstrates a drop-shadow style. <Panel className=\"shadow-md shadow-fuchsia-600\">\n left\n</Panel> And this group demonstrates a focus outline style. <Panel className=\"focus-within:z-10 focus-within:outline-2 outline-solid\">\n <input placeholder=\"left input\" />\n</Panel> The panel sets a higher z-index on focus-within to avoid clipping issues. Styles that affect the outer panel element (e.g. shadows, outlines) work without any customizations. Things like tooltips or popovers that are rendered inside of the panel will be clipped by the overflow:auto style. Because of this it's recommended to use portals for these. However you can override the default style as shown below. <Panel className=\"overflow-visible!\">\n <Tooltip content=\"This is the left panel\">\n left\n </Tooltip>\n</Panel> All of the above styles also apply to the separator component. <Separator className=\"focus-within:z-10 focus-within:outline-2 outline-solid\" /> You could also use the data-separator='focus' selector.",
+    "title": "Overflow"
+  },
+  {
+    "path": "/examples/panel-resize-behavior",
+    "section": "Flex",
+    "text": "Dragging a resize separator causes panels to re-render with updated sizes. In most cases, this is what you want, but if re-rendering the contents of a panel is too slow, the resizePreviewMode prop can be used to defer the re-render until the resize is finished. <Group resizePreviewMode=\"separator\">\n <Panel minSize=\"10%\">left</Panel>\n <Separator />\n <Panel minSize=\"10%\">right</Panel>\n</Group> In place of a panel update, an overlay separator will be rendered instead, as shown in the group below. By default, this overlay separator is just a partially transparent copy of the separator element being dragged. The SeparatorOverlay component allows users to customize the overlay. <Group resizePreviewMode=\"separator\">\n <Panel minSize=\"10%\">left</Panel>\n <Separator />\n <Panel minSize=\"10%\">center</Panel>\n <Separator />\n <Panel minSize=\"10%\">right</Panel>\n \n <SeparatorOverlay\n className=\"w-2 bg-sky-500 data-[separator-overlay=inactive]:bg-sky-700 opacity-80\"\n />\n</Group> Resize preview mode works even for groups with implicit separators. <Group resizePreviewMode=\"separator\">\n <Panel minSize=\"10%\">left</Panel>\n <Panel minSize=\"10%\">center</Panel>\n <Panel minSize=\"10%\">right</Panel>\n \n <SeparatorOverlay\n className=\"w-2 bg-sky-500 data-[separator-overlay=inactive]:bg-sky-700 opacity-80\"\n />\n</Group> The data-separator-overlay attribute can be used to differentiate between a separator that's being actively dragged and one that's being moved as a result of min/max size constraints.",
+    "title": "Panel resize behavior"
+  },
+  {
+    "path": "/examples/persistent-layout",
+    "section": "Flex",
+    "text": "Panel groups can be configured to save and restore layouts between page visits with the useDefaultLayout hook. Resize the panels below and then reload the page to see an example. const { defaultLayout, onLayoutChanged } = useDefaultLayout({\n id: \"unique-layout-id\",\n storage: localStorage\n});\n \n<Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged}>\n <Panel id=\"left\" minSize={50}>left</Panel>\n <Separator />\n <Panel id=\"center\" minSize={50}>center</Panel>\n <Separator />\n <Panel id=\"right\" minSize={50}>right</Panel>\n</Group> Panels require unique id props to restore saved layouts. The example above works well with client-rendered applications. Click below for more guidance about server rendering. Persistent layouts with conditional panels Persistent layouts with server rendering Persistent layouts with server components",
+    "title": "Persistent layouts"
+  },
+  {
+    "path": "/examples/persistent-layout/conditional-panels",
+    "section": "Flex",
+    "text": "For Groups that contain conditionally rendered Panels, it can be useful to save multiple layouts (one for each set of Panels). To enable this, pass the additional panelIds prop as shown below. const { defaultLayout, onLayoutChanged } = useDefaultLayout({\n id: \"unique-layout-id\",\n // This set of ids must match the Panels rendered during mount,\n // or the default layout will not be restored\n panelIds: showLeftPanel ? [\"left\", \"right\"] : [\"right\"],\n storage: localStorage\n});\n \n<Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged}>\n {showLeftPanel && (\n <>\n <Panel id=\"left\">left</Panel>\n <Separator />\n </>\n )}\n <Panel id=\"right\">right</Panel>\n</Group>",
+    "title": "Persistent layouts with conditional panels"
+  },
+  {
+    "path": "/examples/persistent-layout/server-components",
+    "section": "Flex",
+    "text": "When using server components with a framework like Next.js, a slightly different approach is required: export default async function Page() {\n const api = await cookies();\n const defaultLayoutString = api.get(groupId)?.value;\n const defaultLayout = defaultLayoutString\n ? (JSON.parse(defaultLayoutString) as Layout)\n : undefined;\n \n return <ClientComponent defaultLayout={defaultLayout} groupId={groupId} />;\n} (\"use client\");\n \nexport default function ClientComponent({\n defaultLayout,\n groupId\n}: {\n defaultLayout: Layout | undefined;\n groupId: string;\n}) {\n return (\n <Group\n defaultLayout={defaultLayout}\n id={groupId}\n onLayoutChanged={(layout) => {\n document.cookie = `${groupId}=${JSON.stringify(layout)}; path=/;`;\n }}\n >\n <Panel id=\"left\" minSize={25}>\n left\n </Panel>\n <Panel id=\"right\" minSize={25}>\n right\n </Panel>\n </Group>\n );\n} The example above includes path=/ so that saved layouts can be shared between paths; see Using HTTP cookies for more.",
+    "title": "Persistent layouts with server components"
+  },
+  {
+    "path": "/examples/persistent-layout/server-rendering",
+    "section": "Flex",
+    "text": "Because localStorage is unavailable on the server, a custom storage configuration is needed to avoid layout shift when server rendering. Building on the previous example, a Cookie based storage might look like this: import { type LayoutStorage } from \"react-resizable-panels\";\n \nconst cookieStorage: LayoutStorage = {\n getItem(key: string) {\n const cookies = document.cookie.split(\";\");\n for (const cookie of cookies) {\n const [name, value] = cookie.trim().split(\"=\");\n if (name === key) {\n return value;\n }\n }\n return null;\n },\n setItem(key: string, value: string) {\n document.cookie = `${key}=${value}; path=/;`;\n }\n};\n \nuseDefaultLayout({\n id: \"unique-layout-id\",\n storage: cookieStorage\n}); If async storage is needed, use Suspense to load saved layouts. Do not conditionally use localStorage as it will cause errors during hydration and may leave CSS styles in an invalid state. See issue #714 for more information. The example above includes path=/ so that saved layouts can be shared between paths; see Using HTTP cookies for more.",
+    "title": "Persistent layouts with server rendering"
+  },
+  {
+    "path": "/examples/the-basics",
+    "section": "Flex",
+    "text": "The simplest resizable panel configuration is two panels within a group. import { Group, Panel } from \"react-resizable-panels\";\n \n<Group>\n <Panel>left</Panel>\n <Panel>right</Panel>\n</Group> Panel groups use a flexbox layout with a default orientation of horizontal but the orientation prop can be used to specify a vertical layout. <Group className=\"min-h-30\" orientation=\"vertical\">\n <Panel>top</Panel>\n <Panel>bottom</Panel>\n</Group> Vertical groups may benefit from an explicit height or min-height (read more). Panels can be resized by clicking on their borders but explicit separators can be rendered to improve UX. Separators provide another benefit: double-clicking on one resets a panel to its default size. <Group>\n <Panel defaultSize=\"50%\">left</Panel>\n <Separator />\n <Panel>right</Panel>\n</Group> Separators improve keyboard accessibility by providing a tab-focusable window splitter element.",
+    "title": "The basics"
+  },
+  {
+    "headings": [
+      {
+        "id": "parameters",
+        "title": "Parameters",
+        "text": "Parameters id : string Uniquely identifies a specific grid/layout. onlySaveAfterUserInteractions ?: boolean Only auto-save layouts that were directly caused by user input (e.g. keyboard or mouse events). Ignore layout changes resulting from imperative API calls or window resize events. storage ?: LayoutStorage = localStorage Storage API; responsible for reading and writing saved layouts."
+      }
+    ],
+    "path": "/hooks/use-default-grid-layout",
+    "section": "Hooks",
+    "text": "The useDefaultGridLayout hook saves and restores grid layouts (both columns and rows) between page loads. It can be configured to store values using localStorage, sessionStorage, cookies, or any other persistence layer that makes sense for your application. import { useDefaultGridLayout } from \"react-resizable-panels\";\n \nconst { defaultLayout, onLayoutChanged } = useDefaultGridLayout({\n id: \"unique-layout-id\"\n});\n \n<Grid defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged} {...rest} /> It works the same way as the useDefaultLayout hook does for groups; refer to the persistent layouts section for more examples of how to best use it in your client or server-rendered application. A saved layout is ignored for an axis if its track ids don't match the Grid's (e.g. after a column has been added or removed).",
+    "title": "useDefaultGridLayout"
+  },
+  {
+    "headings": [
+      {
+        "id": "parameters",
+        "title": "Parameters",
+        "text": "Parameters debounceSaveMs ?: number = 100 Debounce save operation by the specified number of milliseconds; defaults to 100ms This parameter corresponds to the deprecated onLayoutChange callback. Code using the new onLayoutChanged callback (shown above) does not need to be debounced. id : string Uniquely identifies a specific group/layout. onlySaveAfterUserInteractions ?: boolean Only auto-save layouts that were directly caused by user input (e.g. keyboard or mouse events). Ignore layout changes resulting from imperative API calls or window resize events. panelIds ?: string[] | undefined Groups that contain conditionally-rendered Panels should use this parameter to determine which layout is retrieved on mount. This prevents layout shift for server-rendered apps. Ids must match during mount to avoid layout shift. storage ?: LayoutStorage = localStorage Storage API; responsible for reading and writing saved layouts."
+      }
+    ],
+    "path": "/hooks/use-default-layout",
+    "section": "Hooks",
+    "text": "The useDefaultLayout hook saves and restores group layouts between page loads. It can be configured to store values using localStorage, sessionStorage, cookies, or any other persistence layer that makes sense for your application. import { useDefaultLayout } from \"react-resizable-panels\";\n \nconst { defaultLayout, onLayoutChanged } = useDefaultLayout({\n id: \"unique-layout-id\"\n});\n \n<Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged} {...rest} /> Refer to the persistent layouts section for more examples of how to best use the hook in your client or server-rendered application.",
+    "title": "useDefaultLayout"
+  },
+  {
+    "path": "/hooks/use-grid-callback-ref",
+    "section": "Hooks",
+    "text": "And the useGridCallbackRef hook returns a ref callback function and value tuple. import { Grid, useGridCallbackRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n // gridRef can safely be shared with other components, context, and hooks\n // It can also be used as a dependency to effects\n const [gridRef, setGridRef] = useGridCallbackRef();\n \n return <Grid gridRef={setGridRef} {...rest} />;\n}",
+    "title": "useGridCallbackRef"
+  },
+  {
+    "path": "/hooks/use-grid-ref",
+    "section": "Hooks",
+    "text": "The useGridRef hook returns a mutable ref object. import { Grid, useGridRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n const ref = useGridRef();\n \n return <Grid gridRef={ref} {...rest} />;\n} This hook is useful for situations where you only need a local (to your component) reference to the imperative Grid API. If you need to share the ref with another component or hook, use the callback ref hook instead.",
+    "title": "useGridRef"
+  },
+  {
+    "path": "/hooks/use-group-callback-ref",
+    "section": "Hooks",
+    "text": "And the useGroupCallbackRef hook returns a ref callback function and value tuple. import { Group, useGroupCallbackRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n // groupRef can safely be shared with other components, context, and hooks\n // It can also be used as a dependency to effects\n const [groupRef, setGroupRef] = useGroupCallbackRef();\n \n return <Group groupRef={setGroupRef} {...rest} />;\n}",
+    "title": "useGroupCallbackRef"
+  },
+  {
+    "path": "/hooks/use-group-ref",
+    "section": "Hooks",
+    "text": "The useGroupRef hook returns a mutable ref object. import { Group, useGroupRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n const ref = useGroupRef();\n \n return <Group groupRef={ref} {...rest} />;\n} This hook is useful for situations where you only need a local (to your component) reference to the imperative Group API. If you need to share the ref with another component or hook, use the callback ref hook instead.",
+    "title": "useGroupRef"
+  },
+  {
+    "path": "/hooks/use-panel-callback-ref",
+    "section": "Hooks",
+    "text": "And the usePanelCallbackRef hook returns a ref callback function and value tuple. import { Group, Panel, usePanelCallbackRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n // panelRef can safely be shared with other components, context, and hooks\n // It can also be used as a dependency to effects\n const [panelRef, setPanelRef] = usePanelCallbackRef();\n \n return (\n <Group>\n <Panel panelRef={setPanelRef} {...rest} />\n {/* Other panels... */}\n </Group>\n );\n}",
+    "title": "usePanelCallbackRef"
+  },
+  {
+    "path": "/hooks/use-panel-ref",
+    "section": "Hooks",
+    "text": "The usePanelRef hook returns a mutable ref object. import { Group, Panel, usePanelRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n const ref = usePanelRef();\n \n return (\n <Group>\n <Panel panelRef={ref} {...rest} />\n {/* Other panels... */}\n </Group>\n );\n} This hook is useful for situations where you only need a local (to your component) reference to the imperative Panel API. If you need to share the ref with another component or hook, use the callback ref hook instead.",
+    "title": "usePanelRef"
+  },
+  {
+    "headings": [
+      {
+        "id": "getLayout",
+        "title": "getLayout",
+        "text": "getLayout Get the Grid's current layout: maps of column and row ids to percentages (0..100)\n getLayout: () => {\n columns: { [columnId: string]: number };\n rows: { [rowId: string]: number };\n };"
+      },
+      {
+        "id": "getTrackById",
+        "title": "getTrackById",
+        "text": "getTrackById Imperative API for the column or row with the specified id (see GridTrackImperativeHandle).\n Tracks without an explicit id use their index (e.g. \"0\") as their id.\n An error will be thrown if the Grid does not contain a matching track.\n \n axis \"column\" or \"row\"\n id Track id\n\n getTrackById: (\n axis: \"column\" | \"row\",\n id: string | number\n ) => GridTrackImperativeHandle;"
+      },
+      {
+        "id": "getTrackByIndex",
+        "title": "getTrackByIndex",
+        "text": "getTrackByIndex Imperative API for the column or row at the specified index (see GridTrackImperativeHandle).\n The index is resolved to a track id when this method is called; the returned API continues to refer to that id.\nTracks without an explicit id use their index as their id,\nso specify ids if the API needs to refer to the same track after tracks are added or removed before it.\n An error will be thrown if the index is out of range.\n \n axis \"column\" or \"row\"\n index Track index (starting at 0)\n\n getTrackByIndex: (\n axis: \"column\" | \"row\",\n index: number\n ) => GridTrackImperativeHandle;"
+      },
+      {
+        "id": "setLayout",
+        "title": "setLayout",
+        "text": "setLayout Set a new layout for one or both of the Grid's axes.\n \n layout Map of column and/or row ids to percentages (numbers between 0..100)\n\n setLayout: (layout: {\n columns?: { [columnId: string]: number } | undefined;\n rows?: { [rowId: string]: number } | undefined;\n }) => {\n columns: { [columnId: string]: number };\n rows: { [rowId: string]: number };\n };"
+      }
+    ],
+    "path": "/imperative-api/grid",
+    "section": "Imperative API",
+    "text": "Imperative Grid API.\n The useGridRef and useGridCallbackRef hooks are exported for convenience use in TypeScript projects.",
+    "title": "GridImperativeHandle"
+  },
+  {
+    "headings": [
+      {
+        "id": "collapse",
+        "title": "collapse",
+        "text": "collapse Collapse the track to its collapsedSize.\n This method will do nothing if the track is not collapsible or if it is already collapsed.\n collapse: () => void;"
+      },
+      {
+        "id": "expand",
+        "title": "expand",
+        "text": "expand Expand a collapsed track to its most recent size.\n This method will do nothing if the track is not currently collapsed.\n expand: () => void;"
+      },
+      {
+        "id": "getSize",
+        "title": "getSize",
+        "text": "getSize Get the current size of the track in pixels as well as a percentage of its axis (0..100).\n getSize: () => {\n asPercentage: number;\n inPixels: number;\n };"
+      },
+      {
+        "id": "isCollapsed",
+        "title": "isCollapsed",
+        "text": "isCollapsed The track is currently collapsed.\n isCollapsed: () => boolean;"
+      },
+      {
+        "id": "resize",
+        "title": "resize",
+        "text": "resize Update the track's size.\nSize can be in the following formats:\n\nPercentage of the axis (0..100)\nPixels\nRelative font units (em, rem)\nViewport relative units (vh, vw)\n\n Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with \"%\" (e.g. \"33%\")\nPixels may also be specified as strings ending with the unit \"px\".\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)\n \n size New track size\n\n resize: (size: number | string) => void;"
+      }
+    ],
+    "path": "/imperative-api/grid-track",
+    "section": "Imperative API",
+    "text": "Imperative API for an individual Grid track (column or row); returned by GridImperativeHandle.getTrackById and GridImperativeHandle.getTrackByIndex.\n Sizes are relative to the space available to the track's axis\n(e.g. the width of the Grid, minus gaps and gridlines, for a column).",
+    "title": "GridTrackImperativeHandle"
+  },
+  {
+    "headings": [
+      {
+        "id": "getLayout",
+        "title": "getLayout",
+        "text": "getLayout Get the Group's current layout as a map of Panel id to percentage (0..100)\n getLayout: () => { [panelId: string]: number };"
+      },
+      {
+        "id": "setLayout",
+        "title": "setLayout",
+        "text": "setLayout Set a new layout for the Group\n \n layout Map of Panel id to percentage (a number between 0..100)\n\n setLayout: (layout: { [panelId: string]: number }) => Layout;"
+      }
+    ],
+    "path": "/imperative-api/group",
+    "section": "Imperative API",
+    "text": "Imperative Group API.\n The useGroupRef and useGroupCallbackRef hooks are exported for convenience use in TypeScript projects.",
+    "title": "GroupImperativeHandle"
+  },
+  {
+    "headings": [
+      {
+        "id": "collapse",
+        "title": "collapse",
+        "text": "collapse Collapse the Panel to its collapsedSize.\n This method will do nothing if the Panel is not collapsible or if it is already collapsed.\n collapse: () => void;"
+      },
+      {
+        "id": "expand",
+        "title": "expand",
+        "text": "expand Expand a collapsed Panel to its most recent size.\n This method will do nothing if the Panel is not currently collapsed.\n expand: () => void;"
+      },
+      {
+        "id": "getSize",
+        "title": "getSize",
+        "text": "getSize Get the current size of the Panel in pixels as well as a percentage of the parent group (0..100).\n getSize: () => {\n asPercentage: number;\n inPixels: number;\n };"
+      },
+      {
+        "id": "isCollapsed",
+        "title": "isCollapsed",
+        "text": "isCollapsed The Panel is currently collapsed.\n isCollapsed: () => boolean;"
+      },
+      {
+        "id": "resize",
+        "title": "resize",
+        "text": "resize Update the Panel's size.\nSize can be in the following formats:\n\nPercentage of the parent Group (0..100)\nPixels\nRelative font units (em, rem)\nViewport relative units (vh, vw)\n\n Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with \"%\" (e.g. \"33%\")\nPixels may also be specified as strings ending with the unit \"px\".\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)\n \n size New panel size\n\n resize: (size: number | string) => void;"
+      }
+    ],
+    "path": "/imperative-api/panel",
+    "section": "Imperative API",
+    "text": "Imperative Panel API\n The usePanelRef and usePanelCallbackRef hooks are exported for convenience use in TypeScript projects.",
+    "title": "PanelImperativeHandle"
+  },
+  {
+    "path": "/platform-requirements",
+    "text": "This library requires React version 18 or newer. It also uses the ResizeObserver (or polyfill) to convert layout constraints into relative percentages.",
+    "title": "Requirements"
   },
   {
     "headings": [
@@ -512,214 +713,13 @@
     "title": "Separator component props"
   },
   {
-    "headings": [
-      {
-        "id": "getLayout",
-        "title": "getLayout",
-        "text": "getLayout Get the Grid's current layout: maps of column and row ids to percentages (0..100)\n getLayout: () => {\n columns: { [columnId: string]: number };\n rows: { [rowId: string]: number };\n };"
-      },
-      {
-        "id": "getTrackById",
-        "title": "getTrackById",
-        "text": "getTrackById Imperative API for the column or row with the specified id (see GridTrackImperativeHandle).\n Tracks without an explicit id use their index (e.g. \"0\") as their id.\n An error will be thrown if the Grid does not contain a matching track.\n \n axis \"column\" or \"row\"\n id Track id\n\n getTrackById: (\n axis: \"column\" | \"row\",\n id: string | number\n ) => GridTrackImperativeHandle;"
-      },
-      {
-        "id": "getTrackByIndex",
-        "title": "getTrackByIndex",
-        "text": "getTrackByIndex Imperative API for the column or row at the specified index (see GridTrackImperativeHandle).\n The index is resolved to a track id when this method is called; the returned API continues to refer to that id.\nTracks without an explicit id use their index as their id,\nso specify ids if the API needs to refer to the same track after tracks are added or removed before it.\n An error will be thrown if the index is out of range.\n \n axis \"column\" or \"row\"\n index Track index (starting at 0)\n\n getTrackByIndex: (\n axis: \"column\" | \"row\",\n index: number\n ) => GridTrackImperativeHandle;"
-      },
-      {
-        "id": "setLayout",
-        "title": "setLayout",
-        "text": "setLayout Set a new layout for one or both of the Grid's axes.\n \n layout Map of column and/or row ids to percentages (numbers between 0..100)\n\n setLayout: (layout: {\n columns?: { [columnId: string]: number } | undefined;\n rows?: { [rowId: string]: number } | undefined;\n }) => {\n columns: { [columnId: string]: number };\n rows: { [rowId: string]: number };\n };"
-      }
-    ],
-    "path": "/imperative-api/grid",
-    "section": "Imperative API",
-    "text": "Imperative Grid API.\n The useGridRef and useGridCallbackRef hooks are exported for convenience use in TypeScript projects.",
-    "title": "GridImperativeHandle"
-  },
-  {
-    "headings": [
-      {
-        "id": "collapse",
-        "title": "collapse",
-        "text": "collapse Collapse the track to its collapsedSize.\n This method will do nothing if the track is not collapsible or if it is already collapsed.\n collapse: () => void;"
-      },
-      {
-        "id": "expand",
-        "title": "expand",
-        "text": "expand Expand a collapsed track to its most recent size.\n This method will do nothing if the track is not currently collapsed.\n expand: () => void;"
-      },
-      {
-        "id": "getSize",
-        "title": "getSize",
-        "text": "getSize Get the current size of the track in pixels as well as a percentage of its axis (0..100).\n getSize: () => {\n asPercentage: number;\n inPixels: number;\n };"
-      },
-      {
-        "id": "isCollapsed",
-        "title": "isCollapsed",
-        "text": "isCollapsed The track is currently collapsed.\n isCollapsed: () => boolean;"
-      },
-      {
-        "id": "resize",
-        "title": "resize",
-        "text": "resize Update the track's size.\nSize can be in the following formats:\n\nPercentage of the axis (0..100)\nPixels\nRelative font units (em, rem)\nViewport relative units (vh, vw)\n\n Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with \"%\" (e.g. \"33%\")\nPixels may also be specified as strings ending with the unit \"px\".\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)\n \n size New track size\n\n resize: (size: number | string) => void;"
-      }
-    ],
-    "path": "/imperative-api/grid-track",
-    "section": "Imperative API",
-    "text": "Imperative API for an individual Grid track (column or row); returned by GridImperativeHandle.getTrackById and GridImperativeHandle.getTrackByIndex.\n Sizes are relative to the space available to the track's axis\n(e.g. the width of the Grid, minus gaps and gridlines, for a column).",
-    "title": "GridTrackImperativeHandle"
-  },
-  {
-    "headings": [
-      {
-        "id": "getLayout",
-        "title": "getLayout",
-        "text": "getLayout Get the Group's current layout as a map of Panel id to percentage (0..100)\n getLayout: () => { [panelId: string]: number };"
-      },
-      {
-        "id": "setLayout",
-        "title": "setLayout",
-        "text": "setLayout Set a new layout for the Group\n \n layout Map of Panel id to percentage (a number between 0..100)\n\n setLayout: (layout: { [panelId: string]: number }) => Layout;"
-      }
-    ],
-    "path": "/imperative-api/group",
-    "section": "Imperative API",
-    "text": "Imperative Group API.\n The useGroupRef and useGroupCallbackRef hooks are exported for convenience use in TypeScript projects.",
-    "title": "GroupImperativeHandle"
-  },
-  {
-    "headings": [
-      {
-        "id": "collapse",
-        "title": "collapse",
-        "text": "collapse Collapse the Panel to its collapsedSize.\n This method will do nothing if the Panel is not collapsible or if it is already collapsed.\n collapse: () => void;"
-      },
-      {
-        "id": "expand",
-        "title": "expand",
-        "text": "expand Expand a collapsed Panel to its most recent size.\n This method will do nothing if the Panel is not currently collapsed.\n expand: () => void;"
-      },
-      {
-        "id": "getSize",
-        "title": "getSize",
-        "text": "getSize Get the current size of the Panel in pixels as well as a percentage of the parent group (0..100).\n getSize: () => {\n asPercentage: number;\n inPixels: number;\n };"
-      },
-      {
-        "id": "isCollapsed",
-        "title": "isCollapsed",
-        "text": "isCollapsed The Panel is currently collapsed.\n isCollapsed: () => boolean;"
-      },
-      {
-        "id": "resize",
-        "title": "resize",
-        "text": "resize Update the Panel's size.\nSize can be in the following formats:\n\nPercentage of the parent Group (0..100)\nPixels\nRelative font units (em, rem)\nViewport relative units (vh, vw)\n\n Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with \"%\" (e.g. \"33%\")\nPixels may also be specified as strings ending with the unit \"px\".\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)\n \n size New panel size\n\n resize: (size: number | string) => void;"
-      }
-    ],
-    "path": "/imperative-api/panel",
-    "section": "Imperative API",
-    "text": "Imperative Panel API\n The usePanelRef and usePanelCallbackRef hooks are exported for convenience use in TypeScript projects.",
-    "title": "PanelImperativeHandle"
-  },
-  {
-    "headings": [
-      {
-        "id": "parameters",
-        "title": "Parameters",
-        "text": "Parameters debounceSaveMs ?: number = 100 Debounce save operation by the specified number of milliseconds; defaults to 100ms This parameter corresponds to the deprecated onLayoutChange callback. Code using the new onLayoutChanged callback (shown above) does not need to be debounced. id : string Uniquely identifies a specific group/layout. onlySaveAfterUserInteractions ?: boolean Only auto-save layouts that were directly caused by user input (e.g. keyboard or mouse events). Ignore layout changes resulting from imperative API calls or window resize events. panelIds ?: string[] | undefined Groups that contain conditionally-rendered Panels should use this parameter to determine which layout is retrieved on mount. This prevents layout shift for server-rendered apps. Ids must match during mount to avoid layout shift. storage ?: LayoutStorage = localStorage Storage API; responsible for reading and writing saved layouts."
-      }
-    ],
-    "path": "/hooks/use-default-layout",
-    "section": "Hooks",
-    "text": "The useDefaultLayout hook saves and restores group layouts between page loads. It can be configured to store values using localStorage, sessionStorage, cookies, or any other persistence layer that makes sense for your application. import { useDefaultLayout } from \"react-resizable-panels\";\n \nconst { defaultLayout, onLayoutChanged } = useDefaultLayout({\n id: \"unique-layout-id\"\n});\n \n<Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged} {...rest} /> Refer to the persistent layouts section for more examples of how to best use the hook in your client or server-rendered application.",
-    "title": "useDefaultLayout"
-  },
-  {
-    "headings": [
-      {
-        "id": "parameters",
-        "title": "Parameters",
-        "text": "Parameters id : string Uniquely identifies a specific grid/layout. onlySaveAfterUserInteractions ?: boolean Only auto-save layouts that were directly caused by user input (e.g. keyboard or mouse events). Ignore layout changes resulting from imperative API calls or window resize events. storage ?: LayoutStorage = localStorage Storage API; responsible for reading and writing saved layouts."
-      }
-    ],
-    "path": "/hooks/use-default-grid-layout",
-    "section": "Hooks",
-    "text": "The useDefaultGridLayout hook saves and restores grid layouts (both columns and rows) between page loads. It can be configured to store values using localStorage, sessionStorage, cookies, or any other persistence layer that makes sense for your application. import { useDefaultGridLayout } from \"react-resizable-panels\";\n \nconst { defaultLayout, onLayoutChanged } = useDefaultGridLayout({\n id: \"unique-layout-id\"\n});\n \n<Grid defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged} {...rest} /> It works the same way as the useDefaultLayout hook does for groups; refer to the persistent layouts section for more examples of how to best use it in your client or server-rendered application. A saved layout is ignored for an axis if its track ids don't match the Grid's (e.g. after a column has been added or removed).",
-    "title": "useDefaultGridLayout"
-  },
-  {
-    "path": "/hooks/use-grid-ref",
-    "section": "Hooks",
-    "text": "The useGridRef hook returns a mutable ref object. import { Grid, useGridRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n const ref = useGridRef();\n \n return <Grid gridRef={ref} {...rest} />;\n} This hook is useful for situations where you only need a local (to your component) reference to the imperative Grid API. If you need to share the ref with another component or hook, use the callback ref hook instead.",
-    "title": "useGridRef"
-  },
-  {
-    "path": "/hooks/use-grid-callback-ref",
-    "section": "Hooks",
-    "text": "And the useGridCallbackRef hook returns a ref callback function and value tuple. import { Grid, useGridCallbackRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n // gridRef can safely be shared with other components, context, and hooks\n // It can also be used as a dependency to effects\n const [gridRef, setGridRef] = useGridCallbackRef();\n \n return <Grid gridRef={setGridRef} {...rest} />;\n}",
-    "title": "useGridCallbackRef"
-  },
-  {
-    "path": "/hooks/use-group-ref",
-    "section": "Hooks",
-    "text": "The useGroupRef hook returns a mutable ref object. import { Group, useGroupRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n const ref = useGroupRef();\n \n return <Group groupRef={ref} {...rest} />;\n} This hook is useful for situations where you only need a local (to your component) reference to the imperative Group API. If you need to share the ref with another component or hook, use the callback ref hook instead.",
-    "title": "useGroupRef"
-  },
-  {
-    "path": "/hooks/use-group-callback-ref",
-    "section": "Hooks",
-    "text": "And the useGroupCallbackRef hook returns a ref callback function and value tuple. import { Group, useGroupCallbackRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n // groupRef can safely be shared with other components, context, and hooks\n // It can also be used as a dependency to effects\n const [groupRef, setGroupRef] = useGroupCallbackRef();\n \n return <Group groupRef={setGroupRef} {...rest} />;\n}",
-    "title": "useGroupCallbackRef"
-  },
-  {
-    "path": "/hooks/use-panel-ref",
-    "section": "Hooks",
-    "text": "The usePanelRef hook returns a mutable ref object. import { Group, Panel, usePanelRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n const ref = usePanelRef();\n \n return (\n <Group>\n <Panel panelRef={ref} {...rest} />\n {/* Other panels... */}\n </Group>\n );\n} This hook is useful for situations where you only need a local (to your component) reference to the imperative Panel API. If you need to share the ref with another component or hook, use the callback ref hook instead.",
-    "title": "usePanelRef"
-  },
-  {
-    "path": "/hooks/use-panel-callback-ref",
-    "section": "Hooks",
-    "text": "And the usePanelCallbackRef hook returns a ref callback function and value tuple. import { Group, Panel, usePanelCallbackRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n // panelRef can safely be shared with other components, context, and hooks\n // It can also be used as a dependency to effects\n const [panelRef, setPanelRef] = usePanelCallbackRef();\n \n return (\n <Group>\n <Panel panelRef={setPanelRef} {...rest} />\n {/* Other panels... */}\n </Group>\n );\n}",
-    "title": "usePanelCallbackRef"
-  },
-  {
-    "path": "/platform-requirements",
-    "text": "This library requires React version 18 or newer. It also uses the ResizeObserver (or polyfill) to convert layout constraints into relative percentages.",
-    "title": "Requirements"
-  },
-  {
-    "headings": [
-      {
-        "id": "invalid-panel-layout",
-        "title": "Why do I see an \"invalid panel layout\" error?",
-        "text": "Why do I see an \"invalid panel layout\" error? This error means that a Group layout (or the sum total of Panel default sizes) does not add up to 100%. If the layout you've specified does add up to 100, the most likely remaining cause is that you've specified sizes as pixels rather than percentages as per this note from the Panel docs: Numeric values are assumed to be pixels. Strings without explicit units are assumed to be percentages (0%..100%)."
-      },
-      {
-        "id": "vertical-group-height",
-        "title": "Why is a vertical group not visible?",
-        "text": "Why is a vertical group not visible? By default, Group elements specify a default style height:100%. However according to the w3 spec: The percentage is calculated with respect to the height of the generated box's containing block. If the height of the containing block is not specified explicitly (i.e., it depends on content height), and this element is not absolutely positioned, the value computes to \"auto\". Put another way, fixing this requires setting an explicit height either on the Group itself or on its parent HTMLElement. // an inline style will override the default\nrender(<Group style={{ height: 100 }} {...rest} />);\n \n// an !important CSS rule will also override it\nrender(<Group className=\"h-100!\" {...rest} />);\n \n// a min-height CSS rule will accomplish the same result\nrender(<Group className=\"min-h-100\" {...rest} />); Note that because the default height is an inline style, it can only be overridden by another inline style or an !important CSS rule."
-      },
-      {
-        "id": "local-storage-undefined",
-        "title": "ReferenceError: localStorage is not defined",
-        "text": "ReferenceError: localStorage is not defined The useDefaultLayout hook saves layouts to localStorage by default. This does not work for server-rendered applications though, since localStorage is only defined on the client. Refer to the server rendering or server components docs for examples of how to save layouts on the server."
-      },
-      {
-        "id": "conditionally-render-panel",
-        "title": "How can I conditionally render a Panel based on screen size?",
-        "text": "How can I conditionally render a Panel based on screen size? The recommended way is to use the ResizeObserver API, either through a hook like useResizeObserver or a component like react-virtualized-auto-sizer. const { ref, width = 0 } = useResizeObserver();\n \n<div ref={ref}>\n <Group>\n <Panel minSize=\"25%\">...</Panel>\n {width >= 500 && (\n <>\n <Separator />\n <Panel defaultSize=\"35%\">...</Panel>\n </>\n )}\n </Group>\n</div> Putting the defaultSize on the conditional Panel is the easiest way to avoid invalid layout constraints in this type of scenario."
-      }
-    ],
-    "path": "/common-questions",
-    "text": "",
-    "title": "Common questions"
-  },
-  {
     "path": "/support",
     "text": "GitHub is the easiest place to look for help, but it's probably not the fastest. This project is maintained by a single developer so there is limited bandwidth for answering questions. I recommend asking questions on Stack Overflow or Reddit to start with. Both sites have active communities who often respond quickly. If you don't find an answer there you can try opening a GitHub issue- but please take a moment first to see if your question has has already been answered before opening a new one.",
     "title": "Support"
+  },
+  {
+    "path": "/versions",
+    "text": "Click below to view documentation for past releases. 4.x documentation source code 3.x documentation source code 2.x documentation source code 1.x source code",
+    "title": "Previous releases"
   }
 ]
