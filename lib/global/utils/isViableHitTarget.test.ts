@@ -31,6 +31,22 @@ describe("isViableHitTarget", () => {
     ).toBe(true);
   });
 
+  test("allows targets that have been removed from the DOM", () => {
+    const groupElement = document.createElement("div");
+    const target = document.createElement("div");
+    document.body.appendChild(groupElement);
+    document.body.appendChild(target);
+    target.remove();
+
+    expect(
+      isViableHitTarget({
+        axisElement: groupElement,
+        hitRegion,
+        pointerEventTarget: target
+      })
+    ).toBe(true);
+  });
+
   test("ignores targets inside of a modal dialog that is inside of the group", () => {
     const groupElement = document.createElement("div");
     const dialog = document.createElement("dialog");
