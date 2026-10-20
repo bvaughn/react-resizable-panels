@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.14.7
+
+- Improve mount performance for groups with many panels by skipping redundant constraint recalculations and subscriber notifications when a `Panel`'s `disabled` prop has not changed. - [#768](https://github.com/bvaughn/react-resizable-panels/pull/768)
+
 ## 4.14.6
 
 - Fix `F6` and `Shift+F6` keyboard navigation trying to focus disabled separators. Disabled separators are now skipped. - [#767](https://github.com/bvaughn/react-resizable-panels/pull/767)
