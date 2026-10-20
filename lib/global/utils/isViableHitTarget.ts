@@ -41,6 +41,12 @@ export function isViableHitTarget({
     return true;
   }
 
+  if (!pointerEventTarget.isConnected || !axisElement.isConnected) {
+    // The target may have been removed from the DOM while the event was being dispatched;
+    // a detached element can't be above the separator (and stacking order can't be compared without a common ancestor)
+    return true;
+  }
+
   if (compare(pointerEventTarget, axisElement) > 0) {
     // If the pointer target is above the separator, check for overlap
     // If they are near each other, but not overlapping, then the separator is still a viable target
