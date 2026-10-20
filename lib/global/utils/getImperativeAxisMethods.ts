@@ -2,6 +2,7 @@ import type { GroupImperativeHandle } from "../../components/group/types";
 import { getMountedAxes, updateMountedAxis } from "../mutable-state/axes";
 import type { Layout } from "../types";
 import { layoutsEqual } from "./layoutsEqual";
+import { syncAxisStateToCurrentSize } from "./syncAxisStateToCurrentSize";
 import { validateAxisLayout } from "./validateAxisLayout";
 
 export function getImperativeAxisMethods({
@@ -34,14 +35,18 @@ export function getImperativeAxisMethods({
       return layout;
     },
     setLayout(unsafeLayout: Layout) {
+      const { axis, ...axisState } = find();
+
+      // The axis may have been resized since its ResizeObserver last ran,
+      // in which case its pixel based constraints are stale (see #770)
+      const synced = syncAxisStateToCurrentSize({ axis, axisState });
+      const state = synced?.state ?? axisState;
       const {
         defaultLayoutDeferred,
         derivedItemConstraints,
-        axis,
         axisSize,
-        layout: prevLayout,
-        separatorToItems
-      } = find();
+        layout: prevLayout
+      } = state;
 
       const nextLayout = validateAxisLayout({
         layout: unsafeLayout,
@@ -57,15 +62,12 @@ export function getImperativeAxisMethods({
         return prevLayout;
       }
 
-      if (!layoutsEqual(prevLayout, nextLayout)) {
+      if (synced?.changed || !layoutsEqual(prevLayout, nextLayout)) {
         updateMountedAxis(axis, {
-          defaultLayoutDeferred,
-          derivedItemConstraints,
-          axisSize,
+          ...state,
           layout: nextLayout,
           requestedAxisSize: axisSize,
-          requestedLayout: nextLayout,
-          separatorToItems
+          requestedLayout: nextLayout
         });
       }
 

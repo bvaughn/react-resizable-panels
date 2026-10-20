@@ -7,7 +7,7 @@ import type {
 } from "../types";
 import type { SeparatorToItemsMap } from "./types";
 
-type State = {
+export type MountedAxisState = {
   defaultLayoutDeferred: boolean;
   derivedItemConstraints: ResizeItemConstraints[];
   axisSize: number;
@@ -28,7 +28,7 @@ type State = {
   separatorToItems: SeparatorToItemsMap;
 };
 
-export type MountedAxes = Map<RegisteredResizeAxis, State>;
+export type MountedAxes = Map<RegisteredResizeAxis, MountedAxisState>;
 
 let map: MountedAxes = new Map();
 
@@ -37,8 +37,8 @@ type AxisChangeEvent = {
   // True if the change was triggered by a pointer or keyboard event handler
   // False for other types of resize (constraint recompute, default-size change, imperative API, etc.).
   isUserInteraction: boolean;
-  next: State;
-  prev: State | undefined;
+  next: MountedAxisState;
+  prev: MountedAxisState | undefined;
 };
 type AxesChangeEvent = {
   next: MountedAxes;
@@ -125,8 +125,13 @@ export function getRegisteredAxis(axisId: string, assert?: boolean) {
   return undefined;
 }
 
-export function getMountedAxisState(axisId: string): State | undefined;
-export function getMountedAxisState(axisId: string, assert: true): State;
+export function getMountedAxisState(
+  axisId: string
+): MountedAxisState | undefined;
+export function getMountedAxisState(
+  axisId: string,
+  assert: true
+): MountedAxisState;
 export function getMountedAxisState(axisId: string, assert?: boolean) {
   for (const [axis, mountedAxis] of map) {
     if (axis.id === axisId) {
@@ -158,7 +163,7 @@ export function subscribeToMountedAxis(
 
 export function updateMountedAxis(
   axis: RegisteredResizeAxis,
-  next: State,
+  next: MountedAxisState,
   meta?: { isUserInteraction?: boolean }
 ) {
   const prev = map.get(axis);

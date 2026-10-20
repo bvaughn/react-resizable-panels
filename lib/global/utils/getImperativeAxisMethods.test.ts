@@ -7,6 +7,11 @@ import {
   vi,
   type Mock
 } from "vitest";
+import { setElementBounds } from "../../utils/test/mockBoundingClientRect";
+import {
+  disableResizeObserverForCurrentTest,
+  enableResizeObserverForCurrentTest
+} from "../../utils/test/mockResizeObserver";
 import { mountAxis } from "../mountAxis";
 import { subscribeToMountedAxis } from "../mutable-state/axes";
 import { mockGroup } from "../test/mockGroup";
@@ -180,6 +185,42 @@ describe("getImperativeAxisMethods", () => {
           "group-2": 70,
         }
       `);
+    });
+
+    test("validates against the current group size if the group resized before its ResizeObserver ran (#770)", () => {
+      const group = mockGroup(new DOMRect(0, 0, 1000, 50), {
+        id: "group",
+        orientation: "horizontal"
+      });
+      group.addPanel(new DOMRect(0, 0, 200, 50), "left", { minSize: "200px" });
+      group.addPanel(new DOMRect(200, 0, 800, 50), "right");
+
+      unmountGroup = mountAxis(group);
+      removeChangeListener = subscribeToMountedAxis("group", onGroupChange);
+
+      // Grow the group without notifying its ResizeObserver
+      disableResizeObserverForCurrentTest();
+      const [left, right] = group.items;
+      setElementBounds(left.element, new DOMRect(0, 0, 200, 50));
+      setElementBounds(right.element, new DOMRect(200, 0, 1800, 50));
+
+      // 10% satisfies the 200px minimum at 2000px (200px), but would not at 1000px (100px)
+      const api = getImperativeAxisMethods({ axisId: "group" });
+      expect(api.setLayout({ "group-left": 10, "group-right": 90 })).toEqual({
+        "group-left": 10,
+        "group-right": 90
+      });
+      expect(onGroupChange).toHaveBeenCalledTimes(1);
+
+      // The ResizeObserver should not change the layout once it runs
+      enableResizeObserverForCurrentTest();
+      setElementBounds(group.element, new DOMRect(0, 0, 2000, 50));
+
+      expect(onGroupChange).toHaveBeenCalledTimes(1);
+      expect(api.getLayout()).toEqual({
+        "group-left": 10,
+        "group-right": 90
+      });
     });
   });
 });

@@ -3,10 +3,13 @@ import type { RegisteredResizeAxis, ResizeItemConstraints } from "../types";
 import { formatLayoutNumber } from "../utils/formatLayoutNumber";
 import { calculateAvailableAxisSize } from "./calculateAvailableAxisSize";
 
-export function calculateItemConstraints(axis: RegisteredResizeAxis) {
+export function calculateItemConstraints(
+  axis: RegisteredResizeAxis,
+  // Callers that have already measured the axis can pass its size to avoid measuring it again
+  axisSize: number = calculateAvailableAxisSize({ axis })
+) {
   const { items } = axis;
 
-  const axisSize = calculateAvailableAxisSize({ axis });
   if (axisSize === 0) {
     // Can't calculate anything meaningful if the group has a width/height of 0
     // (This could indicate that it's within a hidden subtree)
