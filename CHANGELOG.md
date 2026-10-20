@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fix "Stacking order can only be calculated for elements with a common ancestor" error thrown by the document `pointermove` handler when the event target is removed from the DOM during dispatch. Detached targets are now treated as viable hit targets. - [#771](https://github.com/bvaughn/react-resizable-panels/pull/771)
+- Fix `Group` and `Grid` `setLayout()` and `Panel` `resize()`, `collapse()`, and `expand()` validating against pixel-based constraints for the previous group size when called before the group's `ResizeObserver` ran (e.g. from an application's own `ResizeObserver`). - [#770](https://github.com/bvaughn/react-resizable-panels/issues/770)
 
 ## 4.14.7
 

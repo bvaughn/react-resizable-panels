@@ -30,11 +30,9 @@ import {
 import type { SeparatorToItemsMap } from "./mutable-state/types";
 import type { RegisteredResizeAxis } from "./types";
 import { getDefaultLayout } from "./utils/getDefaultLayout";
-import { layoutsEqual } from "./utils/layoutsEqual";
 import { normalizeLayout } from "./utils/normalizeLayout";
 import { notifyItemOnResize } from "./utils/notifyItemOnResize";
-import { itemConstraintsEqual } from "./utils/itemConstraintsEqual";
-import { preserveFixedItemSizes } from "./utils/preserveFixedItemSizes";
+import { syncAxisStateToCurrentSize } from "./utils/syncAxisStateToCurrentSize";
 import { validateAxisLayout } from "./utils/validateAxisLayout";
 
 const ownerDocumentReferenceCounts = new Map<Document, number>();
@@ -67,69 +65,23 @@ export function mountAxis(axis: RegisteredResizeAxis) {
         const { borderBoxSize, target } = entry;
         if (target === axis.element) {
           if (isMounted) {
-            const axisSize = calculateAvailableAxisSize({ axis });
-            if (axisSize === 0) {
-              // Can't calculate anything meaningful if the group has a width/height of 0
-              // (This could indicate that it's within a hidden subtree)
-              break;
-            }
-
             const axisState = getMountedAxisState(axis.id);
             if (!axisState) {
               // Not mounted yet
               break;
             }
 
-            // Update non-percentage based constraints
-            const nextDerivedItemConstraints = calculateItemConstraints(axis);
-
-            // Revalidate layout in case constraints have changed or group size changed
-            // Start from the requested layout so that constraints only temporarily clamp item sizes (see #720)
-            let requestedAxisSize = axisState.requestedAxisSize;
-            let requestedLayout = axisState.requestedLayout;
-            if (axisState.defaultLayoutDeferred) {
-              requestedAxisSize = axisSize;
-              requestedLayout = normalizeLayout({
-                itemIds: axis.items.map(({ id }) => id),
-                layout: getDefaultLayout({
-                  axis,
-                  itemConstraints: nextDerivedItemConstraints
-                })
-              });
+            const synced = syncAxisStateToCurrentSize({ axis, axisState });
+            if (!synced) {
+              // Can't calculate anything meaningful if the group has a width/height of 0
+              break;
             }
 
-            const unsafeLayout = preserveFixedItemSizes({
-              axis,
-              nextAxisSize: axisSize,
-              prevAxisSize: requestedAxisSize,
-              prevLayout: requestedLayout
-            });
-            const nextLayout = validateAxisLayout({
-              layout: unsafeLayout,
-              itemConstraints: nextDerivedItemConstraints
-            });
-
-            if (
-              !axisState.defaultLayoutDeferred &&
-              layoutsEqual(axisState.layout, nextLayout) &&
-              itemConstraintsEqual(
-                axisState.derivedItemConstraints,
-                nextDerivedItemConstraints
-              ) &&
-              axisState.axisSize === axisSize
-            ) {
+            if (!synced.changed) {
               continue;
             }
 
-            updateMountedAxis(axis, {
-              defaultLayoutDeferred: false,
-              derivedItemConstraints: nextDerivedItemConstraints,
-              axisSize,
-              layout: nextLayout,
-              requestedAxisSize,
-              requestedLayout,
-              separatorToItems: axisState.separatorToItems
-            });
+            updateMountedAxis(axis, synced.state);
           }
         } else {
           try {
@@ -166,7 +118,7 @@ export function mountAxis(axis: RegisteredResizeAxis) {
   const axisSize = calculateAvailableAxisSize({ axis });
 
   // Calculate initial layout for the new Panel configuration
-  const derivedItemConstraints = calculateItemConstraints(axis);
+  const derivedItemConstraints = calculateItemConstraints(axis, axisSize);
   const defaultLayoutUnsafe = getDefaultLayout({
     axis,
     itemConstraints: derivedItemConstraints

@@ -4,6 +4,10 @@ import { createRef, type ReactElement } from "react";
 import { describe, expect, test, vi } from "vitest";
 import { getMountedAxes } from "../../global/mutable-state/axes";
 import { setElementBoundsFunction } from "../../utils/test/mockBoundingClientRect";
+import {
+  disableResizeObserverForCurrentTest,
+  enableResizeObserverForCurrentTest
+} from "../../utils/test/mockResizeObserver";
 import { Group } from "../group/Group";
 import type { LayoutChangedMeta } from "../group/types";
 import { Panel } from "../panel/Panel";
@@ -488,6 +492,53 @@ describe("Grid", () => {
       expect(grid.style.gridTemplateColumns).toBe(
         "minmax(0, 30fr) minmax(0, 70fr)"
       );
+    });
+
+    test("setLayout validates against the current grid size if the grid resized before its ResizeObserver ran (#770)", () => {
+      const onLayoutChange = vi.fn();
+      const { gridRef } = renderTwoByTwoGrid({
+        columns: [{ minSize: "40px" }, {}],
+        onLayoutChange
+      });
+
+      act(() => {
+        mockGridLayout({ gridRef, width: 200 });
+      });
+      act(() => {
+        gridRef.current!.setLayout({ columns: { "0": 25, "1": 75 } });
+      });
+
+      // Shrinking the grid temporarily clamps the first column to its 40px minimum
+      act(() => {
+        mockGridLayout({ gridRef, width: 100 });
+      });
+      expect(gridRef.current!.getLayout().columns).toEqual({
+        "0": 40,
+        "1": 60
+      });
+
+      // Grow the grid without notifying its ResizeObserver
+      disableResizeObserverForCurrentTest();
+      mockGridLayout({ gridRef, width: 200 });
+      onLayoutChange.mockClear();
+
+      // 30% satisfies the 40px minimum at 200px (60px), but would not at 100px (30px)
+      act(() => {
+        gridRef.current!.setLayout({ columns: { "0": 30, "1": 70 } });
+      });
+
+      // The ResizeObserver should not change the layout once it runs
+      enableResizeObserverForCurrentTest();
+      act(() => {
+        mockGridLayout({ gridRef, width: 200 });
+      });
+
+      // The layout change should be reported once (not once for the new grid size and again for the new layout)
+      expect(onLayoutChange).toHaveBeenCalledTimes(1);
+      expect(gridRef.current!.getLayout()).toEqual({
+        columns: { "0": 30, "1": 70 },
+        rows: { "0": 50, "1": 50 }
+      });
     });
 
     test("track methods", () => {

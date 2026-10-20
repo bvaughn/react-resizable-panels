@@ -8,6 +8,10 @@ export function disableResizeObserverForCurrentTest() {
   disabled = true;
 }
 
+export function enableResizeObserverForCurrentTest() {
+  disabled = false;
+}
+
 export function simulateUnsupportedEnvironmentForTest() {
   // @ts-expect-error Simulate API being unsupported
   window.ResizeObserver = null;

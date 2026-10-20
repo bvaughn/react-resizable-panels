@@ -12,6 +12,11 @@ import {
   mockGetComputedStyle,
   setDefaultElementStyle
 } from "../../utils/test/mockGetComputedStyle";
+import { setElementBounds } from "../../utils/test/mockBoundingClientRect";
+import {
+  disableResizeObserverForCurrentTest,
+  enableResizeObserverForCurrentTest
+} from "../../utils/test/mockResizeObserver";
 import { mountAxis } from "../mountAxis";
 import { subscribeToMountedAxis } from "../mutable-state/axes";
 import { mockGroup } from "../test/mockGroup";
@@ -439,6 +444,118 @@ describe("getImperativeItemMethods", () => {
           expect(onLayoutChange).toHaveBeenCalledTimes(1);
           expect(onLayoutChange).toHaveBeenCalledWith([30, 50, 20]);
         });
+      });
+    });
+
+    describe("group resized before its ResizeObserver ran (#770)", () => {
+      function initWithStaleSize() {
+        const group = mockGroup(new DOMRect(0, 0, 1000, 50), {
+          id: "group",
+          orientation: "horizontal"
+        });
+        group.addPanel(new DOMRect(0, 0, 500, 50), "left", {
+          collapsedSize: "50px",
+          collapsible: true,
+          minSize: "200px"
+        });
+        group.addPanel(new DOMRect(500, 0, 500, 50), "right");
+
+        unmountGroup = mountAxis(group);
+        removeChangeListener = subscribeToMountedAxis("group", ({ next }) => {
+          onLayoutChange(Object.values(next.layout));
+        });
+
+        // Grow the group without notifying its ResizeObserver
+        disableResizeObserverForCurrentTest();
+        const [left, right] = group.items;
+        setElementBounds(left.element, new DOMRect(0, 0, 1000, 50));
+        setElementBounds(right.element, new DOMRect(1000, 0, 1000, 50));
+
+        return {
+          flushResizeObserver: () => {
+            enableResizeObserverForCurrentTest();
+            setElementBounds(group.element, new DOMRect(0, 0, 2000, 50));
+          },
+          panelApi: getImperativeItemMethods({
+            axisId: "group",
+            itemId: "group-left"
+          })
+        };
+      }
+
+      test("resize validates against the current group size", () => {
+        const { flushResizeObserver, panelApi } = initWithStaleSize();
+
+        // 200px is 10% of 2000px, which would be below the 200px minimum at 1000px (20%)
+        panelApi.resize("200px");
+        flushResizeObserver();
+
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenLastCalledWith([10, 90]);
+      });
+
+      test("collapse uses the collapsed size for the current group size", () => {
+        const { flushResizeObserver, panelApi } = initWithStaleSize();
+
+        panelApi.collapse();
+        flushResizeObserver();
+
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenLastCalledWith([2.5, 97.5]);
+      });
+
+      test("expand uses the collapsed size for the current group size", () => {
+        const { flushResizeObserver, panelApi } = initWithStaleSize();
+
+        panelApi.collapse();
+        onLayoutChange.mockClear();
+
+        panelApi.expand();
+        flushResizeObserver();
+
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenLastCalledWith([50, 50]);
+      });
+
+      test("resize starts from the layout for the current group size", () => {
+        const group = mockGroup(new DOMRect(0, 0, 1000, 50), {
+          id: "group",
+          orientation: "horizontal"
+        });
+        group.addPanel(new DOMRect(0, 0, 300, 50), "left", {
+          defaultSize: "300px",
+          groupResizeBehavior: "preserve-pixel-size"
+        });
+        group.addPanel(new DOMRect(300, 0, 400, 50), "center", {
+          defaultSize: "400px"
+        });
+        group.addPanel(new DOMRect(700, 0, 300, 50), "right", {
+          defaultSize: "300px"
+        });
+
+        unmountGroup = mountAxis(group);
+        removeChangeListener = subscribeToMountedAxis("group", ({ next }) => {
+          onLayoutChange(Object.values(next.layout));
+        });
+
+        // Grow the group without notifying its ResizeObserver
+        disableResizeObserverForCurrentTest();
+        const [left, center, right] = group.items;
+        setElementBounds(left.element, new DOMRect(0, 0, 300, 50));
+        setElementBounds(center.element, new DOMRect(300, 0, 970, 50));
+        setElementBounds(right.element, new DOMRect(1270, 0, 730, 50));
+
+        // The left panel should keep its pixel size (300px of 2000px)
+        getImperativeItemMethods({
+          axisId: "group",
+          itemId: "group-center"
+        }).resize("1000px");
+
+        enableResizeObserverForCurrentTest();
+        setElementBounds(group.element, new DOMRect(0, 0, 2000, 50));
+
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenLastCalledWith([15, 50, 35]);
       });
     });
   });

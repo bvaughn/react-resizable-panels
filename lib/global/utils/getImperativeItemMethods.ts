@@ -1,5 +1,4 @@
 import type { PanelImperativeHandle } from "../../components/panel/types";
-import { calculateAvailableAxisSize } from "../dom/calculateAvailableAxisSize";
 import { getMountedAxes, updateMountedAxis } from "../mutable-state/axes";
 import { sizeStyleToPixels } from "../styles/sizeStyleToPixels";
 import type {
@@ -11,6 +10,7 @@ import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { formatLayoutNumber } from "./formatLayoutNumber";
 import { layoutNumbersEqual } from "./layoutNumbersEqual";
 import { layoutsEqual } from "./layoutsEqual";
+import { syncAxisStateToCurrentSize } from "./syncAxisStateToCurrentSize";
 import { validateAxisLayout } from "./validateAxisLayout";
 
 export function getImperativeItemMethods({
@@ -22,25 +22,9 @@ export function getImperativeItemMethods({
 }): PanelImperativeHandle {
   const find = () => {
     const mountedAxes = getMountedAxes();
-    for (const [
-      axis,
-      {
-        defaultLayoutDeferred,
-        derivedItemConstraints,
-        layout,
-        axisSize,
-        separatorToItems
-      }
-    ] of mountedAxes) {
+    for (const [axis, value] of mountedAxes) {
       if (axis.id === axisId) {
-        return {
-          defaultLayoutDeferred,
-          derivedItemConstraints,
-          axis,
-          axisSize,
-          layout,
-          separatorToItems
-        };
+        return { axis, ...value };
       }
     }
 
@@ -56,6 +40,34 @@ export function getImperativeItemMethods({
     }
 
     throw Error(`Panel constraints not found for Panel ${itemId}`);
+  };
+
+  // The axis may have been resized since its ResizeObserver last ran,
+  // in which case its pixel based constraints (and layout) are stale (see #770)
+  const findSynced = () => {
+    const { axis, ...axisState } = find();
+    const synced = syncAxisStateToCurrentSize({ axis, axisState });
+    const state = synced?.state ?? axisState;
+
+    const itemConstraints = state.derivedItemConstraints.find(
+      (current) => current.itemId === itemId
+    );
+    if (itemConstraints === undefined) {
+      throw Error(`Panel constraints not found for Panel ${itemId}`);
+    }
+
+    const itemSize = state.layout[itemId];
+    if (itemSize === undefined) {
+      throw Error(`Layout not found for Panel ${itemId}`);
+    }
+
+    return {
+      axis,
+      changed: synced?.changed === true,
+      itemConstraints,
+      itemSize,
+      state
+    };
   };
 
   const getItem = () => {
@@ -96,7 +108,7 @@ export function getImperativeItemMethods({
     prevLayout: Layout;
     derivedItemConstraints: ResizeItemConstraints[];
   }): Layout => {
-    const prevSize = getItemSize();
+    const prevSize = prevLayout[itemId];
 
     const index = items.findIndex((current) => current.id === itemId);
     const isFirstItem = index === 0;
@@ -134,20 +146,15 @@ export function getImperativeItemMethods({
     });
   };
 
-  const setItemSize = (nextSize: number) => {
-    const prevSize = getItemSize();
+  const setItemSize = (
+    nextSize: number,
+    { axis, changed, itemSize: prevSize, state }: ReturnType<typeof findSynced>
+  ) => {
     if (nextSize === prevSize) {
       return;
     }
 
-    const {
-      defaultLayoutDeferred,
-      derivedItemConstraints,
-      axis,
-      axisSize,
-      layout: prevLayout,
-      separatorToItems
-    } = find();
+    const { derivedItemConstraints, axisSize, layout: prevLayout } = state;
 
     const unsafeLayout = computeLayout({
       nextSize,
@@ -160,36 +167,35 @@ export function getImperativeItemMethods({
       layout: unsafeLayout,
       itemConstraints: derivedItemConstraints
     });
-    if (!layoutsEqual(prevLayout, nextLayout)) {
+    if (changed || !layoutsEqual(prevLayout, nextLayout)) {
       updateMountedAxis(axis, {
-        defaultLayoutDeferred,
-        derivedItemConstraints,
-        axisSize,
+        ...state,
         layout: nextLayout,
         requestedAxisSize: axisSize,
-        requestedLayout: nextLayout,
-        separatorToItems
+        requestedLayout: nextLayout
       });
     }
   };
 
   return {
     collapse: () => {
-      const { collapsible, collapsedSize } = getItemConstraints();
+      const synced = findSynced();
+      const { collapsible, collapsedSize } = synced.itemConstraints;
       const { mutableValues } = getItem();
-      const size = getItemSize();
+      const size = synced.itemSize;
 
       if (collapsible && size !== collapsedSize) {
         // Store previous size in order to restore it if expand() is called
         mutableValues.expandToSize = size;
 
-        setItemSize(collapsedSize);
+        setItemSize(collapsedSize, synced);
       }
     },
     expand: () => {
-      const { collapsible, collapsedSize, minSize } = getItemConstraints();
+      const synced = findSynced();
+      const { collapsible, collapsedSize, minSize } = synced.itemConstraints;
       const { mutableValues } = getItem();
-      const size = getItemSize();
+      const size = synced.itemSize;
 
       if (collapsible && size === collapsedSize) {
         // Restore pre-collapse size, fallback to minSize
@@ -200,7 +206,7 @@ export function getImperativeItemMethods({
           nextSize = 1;
         }
 
-        setItemSize(nextSize);
+        setItemSize(nextSize, synced);
       }
     },
     getSize: () => {
@@ -226,9 +232,9 @@ export function getImperativeItemMethods({
       return collapsible && layoutNumbersEqual(collapsedSize, size);
     },
     resize: (size: number | string) => {
-      const { axis } = find();
+      const synced = findSynced();
+      const { axisSize } = synced.state;
       const { element } = getItem();
-      const axisSize = calculateAvailableAxisSize({ axis });
 
       const asPixels = sizeStyleToPixels({
         axisSize,
@@ -238,7 +244,7 @@ export function getImperativeItemMethods({
 
       const asPercentage = formatLayoutNumber((asPixels / axisSize) * 100);
 
-      setItemSize(asPercentage);
+      setItemSize(asPercentage, synced);
     }
   } satisfies PanelImperativeHandle;
 }
