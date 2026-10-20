@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix "Stacking order can only be calculated for elements with a common ancestor" error thrown by the document `pointermove` handler when the event target is removed from the DOM during dispatch. Detached targets are now treated as viable hit targets. - [#771](https://github.com/bvaughn/react-resizable-panels/pull/771)
+
 ## 4.14.7
 
 - Improve mount performance for groups with many panels by skipping redundant constraint recalculations and subscriber notifications when a `Panel`'s `disabled` prop has not changed. - [#768](https://github.com/bvaughn/react-resizable-panels/pull/768)
