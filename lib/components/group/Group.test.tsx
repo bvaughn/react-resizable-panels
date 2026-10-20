@@ -25,6 +25,37 @@ import type { GroupImperativeHandle, Layout } from "./types";
 import { useGroupRef } from "./useGroupRef";
 
 describe("Group", () => {
+  test.each([undefined, false, true])(
+    "mount notifications do not grow with the number of panels when disabled is %s",
+    (disabled) => {
+      setDefaultElementBounds(new DOMRect(0, 0, 100, 100));
+
+      function countMountNotifications(panelCount: number) {
+        const onChange = vi.fn();
+        const removeListener = subscribeToMountedAxis("group", onChange);
+        const { unmount } = render(
+          <Group id="group">
+            {Array.from({ length: panelCount }, (_, index) => (
+              <Fragment key={index}>
+                {index > 0 && <Separator />}
+                <Panel disabled={disabled} id={`panel-${index}`} />
+              </Fragment>
+            ))}
+          </Group>
+        );
+        const count = onChange.mock.calls.length;
+        removeListener();
+        unmount();
+        return count;
+      }
+
+      const smallGroup = countMountNotifications(2);
+      const largeGroup = countMountNotifications(100);
+      expect(smallGroup).toBeGreaterThan(0);
+      expect(largeGroup).toBe(smallGroup);
+    }
+  );
+
   test.each(["keyboard", "pointer", "imperative"])(
     "resizes panels with numeric IDs in physical order using %s",
     async (trigger) => {

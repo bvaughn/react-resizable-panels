@@ -218,9 +218,10 @@ export function Group({
         const panel = inMemoryValues.panels.find(
           (current) => current.id === panelId
         );
-        if (panel) {
-          panel.constraintProps.disabled = disabled;
+        if (!panel || panel.constraintProps.disabled === disabled) {
+          return;
         }
+        panel.constraintProps.disabled = disabled;
 
         const group = getRegisteredAxis(id);
         const groupState = getMountedAxisState(id);
