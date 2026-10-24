@@ -12,9 +12,10 @@ export default function AccordionRoute() {
         <code>collapsedSize</code> can be used to build an accordion, like the
         sections in VS Code's explorer. Each section collapses down to the
         height of its header, so the header stays visible and can be clicked to
-        expand it again. Clicking a header calls the panel's{" "}
-        <Link to="/imperative-api/panel">collapse or expand</Link> method;
-        expanding a section takes space from the nearest open sections.
+        expand it again. Each header uses the{" "}
+        <Link to="/hooks/use-parent-panel">useParentPanel</Link> hook to
+        collapse or expand the panel it's rendered in; expanding a section takes
+        space from the nearest open sections.
       </div>
       <Code html={html} />
       <Callout>

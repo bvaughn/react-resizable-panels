@@ -34,7 +34,7 @@
   {
     "path": "/examples/accordion",
     "section": "Flex",
-    "text": "Collapsible panels with a collapsedSize can be used to build an accordion, like the sections in VS Code's explorer. Each section collapses down to the height of its header, so the header stays visible and can be clicked to expand it again. Clicking a header calls the panel's collapse or expand method; expanding a section takes space from the nearest open sections. function Section({ children, title }: PropsWithChildren<{ title: string }>) {\n const ref = usePanelRef();\n \n const toggle = () => {\n if (ref.current?.isCollapsed()) {\n ref.current.expand();\n } else {\n ref.current?.collapse();\n }\n };\n \n return (\n // Collapsed sections shrink down to the height of their header\n <Panel collapsedSize={28} collapsible minSize={70} panelRef={ref}>\n <button onClick={toggle} style={{ height: 28 }}>\n {title}\n </button>\n {children}\n </Panel>\n );\n}\n \nfunction Accordion() {\n return (\n <Group orientation=\"vertical\">\n <Section title=\"Open editors\">...</Section>\n <Section title=\"Folders\">...</Section>\n <Section title=\"Outline\">...</Section>\n </Group>\n );\n} The demo below also keeps at least one section open, and uses each panel's onResize callback to keep its header in sync when sections are resized by dragging. Click a header below to collapse or expand its section, or drag between sections to resize them.",
+    "text": "Collapsible panels with a collapsedSize can be used to build an accordion, like the sections in VS Code's explorer. Each section collapses down to the height of its header, so the header stays visible and can be clicked to expand it again. Each header uses the useParentPanel hook to collapse or expand the panel it's rendered in; expanding a section takes space from the nearest open sections. function Accordion() {\n return (\n <Group orientation=\"vertical\">\n <Section title=\"Open editors\">...</Section>\n <Section title=\"Folders\">...</Section>\n <Section title=\"Outline\">...</Section>\n </Group>\n );\n}\n \nfunction Section({ children, title }: PropsWithChildren<{ title: string }>) {\n return (\n <Panel collapsedSize={28} collapsible minSize={70}>\n <SectionHeader title={title} />\n {children}\n </Panel>\n );\n}\n \nfunction SectionHeader({ title }: { title: string }) {\n const panel = useParentPanel();\n \n const toggle = () => {\n if (panel?.isCollapsed()) {\n panel.expand();\n } else {\n panel?.collapse();\n }\n };\n \n return (\n <button onClick={toggle} style={{ height: 28 }}>\n {title}\n </button>\n );\n} The demo below also keeps at least one section open, and uses each panel's onResize callback to keep its header in sync when sections are resized by dragging. Click a header below to collapse or expand its section, or drag between sections to resize them.",
     "title": "Accordion"
   },
   {
@@ -212,6 +212,45 @@
     "section": "Hooks",
     "text": "The usePanelRef hook returns a mutable ref object. import { useState } from \"react\";\nimport { Group, Panel, Separator, usePanelRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n const ref = usePanelRef();\n const [isCollapsed, setIsCollapsed] = useState(false);\n \n const toggle = () => {\n const panel = ref.current;\n if (panel?.isCollapsed()) {\n panel.expand();\n } else {\n panel?.collapse();\n }\n };\n \n return (\n <Group>\n <Panel\n collapsible\n minSize=\"10%\"\n onResize={(size) => setIsCollapsed(size.inPixels === 0)}\n panelRef={ref}\n >\n left\n </Panel>\n <button onClick={toggle}>{isCollapsed ? \"»\" : \"«\"}</button>\n <Separator />\n <Panel>right</Panel>\n </Group>\n );\n} This hook is useful for situations where you only need a local (to your component) reference to the imperative Panel API. If you need to share the ref with another component or hook, use the callback ref hook instead.",
     "title": "usePanelRef"
+  },
+  {
+    "headings": [
+      {
+        "id": "return-value",
+        "title": "Return value",
+        "text": "Return value useParentGrid : () => ParentGrid | null The Grid's id and its imperative API (getLayout, getTrackById, getTrackByIndex, and setLayout)."
+      }
+    ],
+    "path": "/hooks/use-parent-grid",
+    "section": "Hooks",
+    "text": "The useParentGrid hook returns the nearest Grid, including its imperative API. Components rendered within a Grid can use it to control that Grid without passing refs or props down to them. For example, a button rendered within a Cell can resize one of the Grid's columns: import { useParentGrid } from \"react-resizable-panels\";\n \nfunction CellToolbar() {\n const grid = useParentGrid();\n \n return (\n <button onClick={() => grid?.getTrackByIndex(\"column\", 0).resize(\"75%\")}>\n widen first column\n </button>\n );\n}\n \n<Cell column={0} row={0}><CellToolbar /></Cell> Returns null if the component isn't rendered within a Grid. The returned value doesn't change when the Grid's layout changes, so this hook doesn't cause components to re-render.",
+    "title": "useParentGrid"
+  },
+  {
+    "headings": [
+      {
+        "id": "return-value",
+        "title": "Return value",
+        "text": "Return value useParentGroup : () => ParentGroup | null The Group's id and orientation, and its imperative API (getLayout and setLayout). Within a Cell, this returns the nearest Group outside of the Grid (if there is one)."
+      }
+    ],
+    "path": "/hooks/use-parent-group",
+    "section": "Hooks",
+    "text": "The useParentGroup hook returns the nearest Group, including its imperative API. Components rendered within a Group can use it to control that Group without passing refs or props down to them. For example, a button rendered within a Panel can reset the layout of its Group: import { useParentGroup } from \"react-resizable-panels\";\n \nfunction ResetButton() {\n const group = useParentGroup();\n \n return (\n <button onClick={() => group?.setLayout({ left: 50, right: 50 })}>\n reset layout\n </button>\n );\n}\n \n<Panel id=\"left\"><ResetButton /></Panel> Returns null if the component isn't rendered within a Group. The returned value doesn't change when the Group's layout changes, so this hook doesn't cause components to re-render.",
+    "title": "useParentGroup"
+  },
+  {
+    "headings": [
+      {
+        "id": "return-value",
+        "title": "Return value",
+        "text": "Return value useParentPanel : () => ParentPanel | null The Panel's id, the groupId of the Group that contains it, and its imperative API (collapse, expand, getSize, isCollapsed, and resize)."
+      }
+    ],
+    "path": "/hooks/use-parent-panel",
+    "section": "Hooks",
+    "text": "The useParentPanel hook returns the nearest Panel, including its imperative API. Components rendered within a Panel can use it to control that Panel without passing refs or props down to them. For example, a button rendered within a Panel can collapse it: import { useParentPanel } from \"react-resizable-panels\";\n \nfunction CollapseButton() {\n const panel = useParentPanel();\n \n return <button onClick={() => panel?.collapse()}>collapse</button>;\n}\n \n<Panel collapsible><CollapseButton /></Panel> Returns null if the component isn't rendered within a Panel. The returned value doesn't change when the Panel is resized, so this hook doesn't cause components to re-render.",
+    "title": "useParentPanel"
   },
   {
     "headings": [

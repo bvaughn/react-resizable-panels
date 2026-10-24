@@ -4,13 +4,16 @@ export { Gridline } from "./components/grid/Gridline";
 export { useDefaultGridLayout } from "./components/grid/useDefaultGridLayout";
 export { useGridCallbackRef } from "./components/grid/useGridCallbackRef";
 export { useGridRef } from "./components/grid/useGridRef";
+export { useParentGrid } from "./components/grid/useParentGrid";
 export { Group } from "./components/group/Group";
 export { useDefaultLayout } from "./components/group/useDefaultLayout";
 export { useGroupCallbackRef } from "./components/group/useGroupCallbackRef";
 export { useGroupRef } from "./components/group/useGroupRef";
+export { useParentGroup } from "./components/group/useParentGroup";
 export { Panel } from "./components/panel/Panel";
 export { usePanelCallbackRef } from "./components/panel/usePanelCallbackRef";
 export { usePanelRef } from "./components/panel/usePanelRef";
+export { useParentPanel } from "./components/panel/useParentPanel";
 export { Separator } from "./components/separator/Separator";
 export { SeparatorOverlay } from "./components/separator/SeparatorOverlay";
 
@@ -24,7 +27,8 @@ export type {
   GridlineProps,
   GridProps,
   GridTrackImperativeHandle,
-  GridTrackProps
+  GridTrackProps,
+  ParentGrid
 } from "./components/grid/types";
 
 export type {
@@ -34,7 +38,8 @@ export type {
   LayoutChangedMeta,
   LayoutStorage,
   OnGroupLayoutChange,
-  Orientation
+  Orientation,
+  ParentGroup
 } from "./components/group/types";
 
 export type {
@@ -42,6 +47,7 @@ export type {
   PanelImperativeHandle,
   PanelProps,
   PanelSize,
+  ParentPanel,
   SizeUnit
 } from "./components/panel/types";
 

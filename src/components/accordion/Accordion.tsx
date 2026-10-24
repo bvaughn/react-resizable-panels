@@ -1,7 +1,7 @@
 import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/16/solid";
 import { type PropsWithChildren, type ReactNode, useState } from "react";
 import { cn } from "react-lib-tools";
-import { Panel, usePanelRef } from "react-resizable-panels";
+import { Panel, useParentPanel } from "react-resizable-panels";
 import { Group } from "../styled-panels/Group";
 
 // Collapsed sections shrink down to the height of their header
@@ -101,19 +101,7 @@ function AccordionSection({
   onOpenChange: (isOpen: boolean) => void;
   title: string;
 }>) {
-  const ref = usePanelRef();
   const [isOpen, setIsOpen] = useState(!defaultCollapsed);
-
-  const toggle = () => {
-    const panel = ref.current;
-    if (panel?.isCollapsed()) {
-      panel.expand();
-    } else if (canCollapse) {
-      panel?.collapse();
-    }
-  };
-
-  const Icon = isOpen ? ChevronDownIcon : ChevronRightIcon;
 
   return (
     <Panel
@@ -129,21 +117,50 @@ function AccordionSection({
         setIsOpen(nextIsOpen);
         onOpenChange(nextIsOpen);
       }}
-      panelRef={ref}
     >
-      <button
-        aria-expanded={isOpen}
-        className={cn(
-          "shrink-0 flex flex-row items-center gap-1 px-1 text-xs uppercase tracking-wide bg-white/10 text-white/60 cursor-pointer hover:text-white"
-        )}
-        onClick={toggle}
-        style={{ height: HEADER_HEIGHT }}
-      >
-        <Icon className="w-4 h-4 shrink-0" />
-        <span className="truncate">{title}</span>
-      </button>
+      <AccordionHeader
+        canCollapse={canCollapse}
+        isOpen={isOpen}
+        title={title}
+      />
       <div className="grow min-h-0 py-1 overflow-auto">{children}</div>
     </Panel>
+  );
+}
+
+function AccordionHeader({
+  canCollapse,
+  isOpen,
+  title
+}: {
+  canCollapse: boolean;
+  isOpen: boolean;
+  title: string;
+}) {
+  const panel = useParentPanel();
+
+  const toggle = () => {
+    if (panel?.isCollapsed()) {
+      panel.expand();
+    } else if (canCollapse) {
+      panel?.collapse();
+    }
+  };
+
+  const Icon = isOpen ? ChevronDownIcon : ChevronRightIcon;
+
+  return (
+    <button
+      aria-expanded={isOpen}
+      className={cn(
+        "shrink-0 flex flex-row items-center gap-1 px-1 text-xs uppercase tracking-wide bg-white/10 text-white/60 cursor-pointer hover:text-white"
+      )}
+      onClick={toggle}
+      style={{ height: HEADER_HEIGHT }}
+    >
+      <Icon className="w-4 h-4 shrink-0" />
+      <span className="truncate">{title}</span>
+    </button>
   );
 }
 

@@ -1,29 +1,7 @@
 import type { PropsWithChildren } from "react";
-import { Group, Panel, usePanelRef } from "react-resizable-panels";
+import { Group, Panel, useParentPanel } from "react-resizable-panels";
 
 // <begin>
-
-function Section({ children, title }: PropsWithChildren<{ title: string }>) {
-  const ref = usePanelRef();
-
-  const toggle = () => {
-    if (ref.current?.isCollapsed()) {
-      ref.current.expand();
-    } else {
-      ref.current?.collapse();
-    }
-  };
-
-  return (
-    // Collapsed sections shrink down to the height of their header
-    <Panel collapsedSize={28} collapsible minSize={70} panelRef={ref}>
-      <button onClick={toggle} style={{ height: 28 }}>
-        {title}
-      </button>
-      {children}
-    </Panel>
-  );
-}
 
 function Accordion() {
   return (
@@ -32,6 +10,33 @@ function Accordion() {
       <Section title="Folders">...</Section>
       <Section title="Outline">...</Section>
     </Group>
+  );
+}
+
+function Section({ children, title }: PropsWithChildren<{ title: string }>) {
+  return (
+    <Panel collapsedSize={28} collapsible minSize={70}>
+      <SectionHeader title={title} />
+      {children}
+    </Panel>
+  );
+}
+
+function SectionHeader({ title }: { title: string }) {
+  const panel = useParentPanel();
+
+  const toggle = () => {
+    if (panel?.isCollapsed()) {
+      panel.expand();
+    } else {
+      panel?.collapse();
+    }
+  };
+
+  return (
+    <button onClick={toggle} style={{ height: 28 }}>
+      {title}
+    </button>
   );
 }
 
