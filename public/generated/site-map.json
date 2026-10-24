@@ -32,6 +32,12 @@
     "title": "Common questions"
   },
   {
+    "path": "/examples/accordion",
+    "section": "Flex",
+    "text": "Collapsible panels with a collapsedSize can be used to build an accordion, like the sections in VS Code's explorer. Each section collapses down to the height of its header, so the header stays visible and can be clicked to expand it again. Clicking a header calls the panel's collapse or expand method; expanding a section takes space from the nearest open sections. function Section({ children, title }: PropsWithChildren<{ title: string }>) {\n const ref = usePanelRef();\n \n const toggle = () => {\n if (ref.current?.isCollapsed()) {\n ref.current.expand();\n } else {\n ref.current?.collapse();\n }\n };\n \n return (\n // Collapsed sections shrink down to the height of their header\n <Panel collapsedSize={28} collapsible minSize={70} panelRef={ref}>\n <button onClick={toggle} style={{ height: 28 }}>\n {title}\n </button>\n {children}\n </Panel>\n );\n}\n \nfunction Accordion() {\n return (\n <Group orientation=\"vertical\">\n <Section title=\"Open editors\">...</Section>\n <Section title=\"Folders\">...</Section>\n <Section title=\"Outline\">...</Section>\n </Group>\n );\n} The demo below also keeps at least one section open, and uses each panel's onResize callback to keep its header in sync when sections are resized by dragging. Click a header below to collapse or expand its section, or drag between sections to resize them.",
+    "title": "Accordion"
+  },
+  {
     "path": "/examples/collapsible-grid-cells",
     "section": "Grids",
     "text": "As with panels, a grid's columns and rows can be configured to collapse when they're resized below their minimum size. This works well for things like dashboards, where a sidebar can collapse down to just its icons and secondary content can be hidden entirely. Try dragging the gridlines below. Overview Reports Customers Settings Revenue $48.2K +12% vs last month Active users 2,431 +4% vs last month Response time 320 ms +18 ms vs last month Recent activity MC Maya Chen upgraded to the Team plan 2m ago JP Jordan Patel exported the Q3 report 18m ago PR Priya Raman invited 3 teammates 1h ago SO Sam Okafor updated billing details 3h ago <Grid\n columns={[\n // The sidebar collapses down to its icons\n { collapsedSize: 44, collapsible: true, defaultSize: 160, minSize: 120 },\n { minSize: \"50%\" }\n ]}\n rows={[\n { minSize: 100 },\n // The activity feed collapses all the way\n { collapsible: true, minSize: 80 }\n ]}\n>\n <Cell row={0} column={0} rowSpan={2}><Sidebar /></Cell>\n <Cell row={0} column={1}><Stats /></Cell>\n <Cell row={1} column={1}><Activity /></Cell>\n \n <Gridline type=\"column\" column={1} />\n <Gridline type=\"row\" row={1} column={1} />\n</Grid> In the example above, the sidebar column collapses to a width of 44 pixels (its collapsedSize), which leaves room for its icons, and the activity row collapses all the way. The row gridline only spans the second column because the sidebar spans both rows.",
@@ -245,7 +251,7 @@
       {
         "id": "expand",
         "title": "expand",
-        "text": "expand Expand a collapsed track to its most recent size.\n This method will do nothing if the track is not currently collapsed.\n expand: () => void;"
+        "text": "expand Expand a collapsed track to its most recent size.\n If restoring that size would require collapsing another track, the track expands to the largest size that fits instead (as long as that is at least its minSize).\n This method will do nothing if the track is not currently collapsed.\n expand: () => void;"
       },
       {
         "id": "getSize",
@@ -296,7 +302,7 @@
       {
         "id": "expand",
         "title": "expand",
-        "text": "expand Expand a collapsed Panel to its most recent size.\n This method will do nothing if the Panel is not currently collapsed.\n expand: () => void;"
+        "text": "expand Expand a collapsed Panel to its most recent size.\n If restoring that size would require collapsing another Panel, the Panel expands to the largest size that fits instead (as long as that is at least its minSize).\n This method will do nothing if the Panel is not currently collapsed.\n expand: () => void;"
       },
       {
         "id": "getSize",

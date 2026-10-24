@@ -7,11 +7,13 @@ import type {
   ResizeItemConstraints
 } from "../types";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
+import { compareLayoutNumbers } from "./compareLayoutNumbers";
 import { formatLayoutNumber } from "./formatLayoutNumber";
 import { layoutNumbersEqual } from "./layoutNumbersEqual";
 import { layoutsEqual } from "./layoutsEqual";
 import { syncAxisStateToCurrentSize } from "./syncAxisStateToCurrentSize";
 import { validateAxisLayout } from "./validateAxisLayout";
+import { validateItemSize } from "./validateItemSize";
 
 export function getImperativeItemMethods({
   axisId,
@@ -98,11 +100,13 @@ export function getImperativeItemMethods({
    *    panel keeps the remainder so it stays the largest.
    */
   const computeLayout = ({
+    allowPartialSize = false,
     nextSize,
     items,
     prevLayout,
     derivedItemConstraints
   }: {
+    allowPartialSize?: boolean;
     nextSize: number;
     items: RegisteredResizeItem[];
     prevLayout: Layout;
@@ -136,19 +140,158 @@ export function getImperativeItemMethods({
       };
     }
 
-    return adjustLayoutByDelta({
-      delta: isLastItem ? prevSize - nextSize : nextSize - prevSize,
-      initialLayout: prevLayout,
-      itemConstraints: derivedItemConstraints,
-      pivotIndices: isLastItem ? [index - 1, index] : [index, index + 1],
-      prevLayout,
-      trigger: "imperative-api"
+    // First try to make the change without collapsing or expanding any other panel:
+    // take space from (or give it to) the nearest panels that can absorb it, never past their min (or max) size,
+    // starting with the panels after this one
+    const itemConstraints = derivedItemConstraints[index];
+    const targetSize = validateItemSize({
+      overrideDisabledItems: true,
+      itemConstraints,
+      prevSize,
+      size: nextSize
     });
+    const fittedLayout = { ...prevLayout };
+    let remainingDelta = targetSize - prevSize;
+    for (const step of isFirstItem ? [1] : isLastItem ? [-1] : [1, -1]) {
+      for (
+        let current = index + step;
+        current >= 0 &&
+        current < items.length &&
+        !layoutNumbersEqual(remainingDelta, 0);
+        current += step
+      ) {
+        const constraints = derivedItemConstraints[current];
+        const size = fittedLayout[constraints.itemId];
+        if (
+          isItemCollapsed(constraints, fittedLayout) ||
+          (remainingDelta > 0
+            ? compareLayoutNumbers(size, constraints.minSize) <= 0
+            : compareLayoutNumbers(size, constraints.maxSize) >= 0)
+        ) {
+          continue;
+        }
+
+        const nextOtherSize =
+          remainingDelta > 0
+            ? Math.max(constraints.minSize, size - remainingDelta)
+            : Math.min(constraints.maxSize, size - remainingDelta);
+        remainingDelta -= size - nextOtherSize;
+        fittedLayout[constraints.itemId] = formatLayoutNumber(nextOtherSize);
+      }
+    }
+    fittedLayout[itemId] = formatLayoutNumber(targetSize - remainingDelta);
+
+    if (
+      layoutNumbersEqual(remainingDelta, 0) ||
+      (allowPartialSize &&
+        compareLayoutNumbers(fittedLayout[itemId], itemConstraints.minSize) >=
+          0)
+    ) {
+      return fittedLayout;
+    }
+
+    // Otherwise fall back to a change that may collapse or expand other panels
+
+    // Grow (or shrink) this panel by taking space from (or giving it to) the panels after it,
+    // or the panels before it, cascading away from this panel
+    const adjustAgainst = (
+      side: "after" | "before",
+      layout: Layout,
+      sizeDelta: number
+    ) => {
+      // Pair this panel with the nearest panel on that side that can absorb the change:
+      // one that isn't collapsed (collapsed panels can't give up space and shouldn't be expanded by it)
+      // and isn't already at its min size (when taking space) or max size (when giving space).
+      // Otherwise fall back to the nearest panel that isn't collapsed, or the adjacent panel.
+      const step = side === "after" ? 1 : -1;
+      const findPartnerIndex = (
+        predicate: (constraints: ResizeItemConstraints) => boolean
+      ) => {
+        for (
+          let current = index + step;
+          current >= 0 && current < items.length;
+          current += step
+        ) {
+          const constraints = derivedItemConstraints[current];
+          if (!isItemCollapsed(constraints, layout) && predicate(constraints)) {
+            return current;
+          }
+        }
+      };
+      const partnerIndex =
+        findPartnerIndex(({ itemId: otherItemId, maxSize, minSize }) =>
+          sizeDelta > 0
+            ? compareLayoutNumbers(layout[otherItemId], minSize) > 0
+            : compareLayoutNumbers(layout[otherItemId], maxSize) < 0
+        ) ??
+        findPartnerIndex(() => true) ??
+        index + step;
+
+      return adjustLayoutByDelta({
+        delta: side === "after" ? sizeDelta : -sizeDelta,
+        initialLayout: layout,
+        itemConstraints: derivedItemConstraints,
+        pivotIndices:
+          side === "after" ? [index, partnerIndex] : [partnerIndex, index],
+        prevLayout: layout,
+        trigger: "imperative-api"
+      });
+    };
+
+    if (isFirstItem || isLastItem) {
+      return adjustAgainst(
+        isLastItem ? "before" : "after",
+        prevLayout,
+        nextSize - prevSize
+      );
+    }
+
+    // Panels in the middle can use space from either side;
+    // if the first side can't make up the full difference (e.g. its panels are collapsed or at their min size),
+    // the remainder comes from the other side
+    const adjustAgainstBothSides = (first: "after" | "before") => {
+      const layout = adjustAgainst(first, prevLayout, nextSize - prevSize);
+      const remainingDelta = nextSize - layout[itemId];
+
+      return layoutNumbersEqual(remainingDelta, 0)
+        ? layout
+        : adjustAgainst(
+            first === "after" ? "before" : "after",
+            layout,
+            remainingDelta
+          );
+    };
+
+    // Prefer the panels after this one, unless that would collapse or expand one of them and the other side wouldn't
+    const layout = adjustAgainstBothSides("after");
+    if (
+      changesOtherCollapsedState({
+        itemConstraints: derivedItemConstraints,
+        itemId,
+        nextLayout: layout,
+        prevLayout
+      })
+    ) {
+      const alternateLayout = adjustAgainstBothSides("before");
+      if (
+        !changesOtherCollapsedState({
+          itemConstraints: derivedItemConstraints,
+          itemId,
+          nextLayout: alternateLayout,
+          prevLayout
+        })
+      ) {
+        return alternateLayout;
+      }
+    }
+
+    return layout;
   };
 
   const setItemSize = (
     nextSize: number,
-    { axis, changed, itemSize: prevSize, state }: ReturnType<typeof findSynced>
+    { axis, changed, itemSize: prevSize, state }: ReturnType<typeof findSynced>,
+    { allowPartialSize = false }: { allowPartialSize?: boolean } = {}
   ) => {
     if (nextSize === prevSize) {
       return;
@@ -157,6 +300,7 @@ export function getImperativeItemMethods({
     const { derivedItemConstraints, axisSize, layout: prevLayout } = state;
 
     const unsafeLayout = computeLayout({
+      allowPartialSize,
       nextSize,
       items: axis.items,
       prevLayout,
@@ -206,7 +350,9 @@ export function getImperativeItemMethods({
           nextSize = 1;
         }
 
-        setItemSize(nextSize, synced);
+        // If restoring the pre-collapse size would require collapsing another panel,
+        // expand to the largest size that fits (as long as it's at least the min size)
+        setItemSize(nextSize, synced, { allowPartialSize: true });
       }
     },
     getSize: () => {
@@ -247,4 +393,31 @@ export function getImperativeItemMethods({
       setItemSize(asPercentage, synced);
     }
   } satisfies PanelImperativeHandle;
+}
+
+function isItemCollapsed(
+  { collapsedSize, collapsible, itemId }: ResizeItemConstraints,
+  layout: Layout
+) {
+  return collapsible && layoutNumbersEqual(layout[itemId], collapsedSize);
+}
+
+// Whether a layout change collapses or expands a panel other than the one being resized
+function changesOtherCollapsedState({
+  itemConstraints,
+  itemId,
+  nextLayout,
+  prevLayout
+}: {
+  itemConstraints: ResizeItemConstraints[];
+  itemId: string;
+  nextLayout: Layout;
+  prevLayout: Layout;
+}) {
+  return itemConstraints.some(
+    (constraints) =>
+      constraints.itemId !== itemId &&
+      isItemCollapsed(constraints, prevLayout) !==
+        isItemCollapsed(constraints, nextLayout)
+  );
 }

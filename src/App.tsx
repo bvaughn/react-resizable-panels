@@ -54,6 +54,7 @@ const nav: NavConfig<Path | DefaultPath> = [
       { path: "/examples/the-basics", title: "The basics" },
       { path: "/examples/min-max-sizes", title: "Min/max sizes" },
       { path: "/examples/collapsible-panels", title: "Collapsible panels" },
+      { path: "/examples/accordion", title: "Accordion" },
       {
         path: "/examples/persistent-layout",
         title: "Persistent layouts",
