@@ -1,6 +1,5 @@
 import { Box, Callout, Header } from "react-lib-tools";
-import { AccordionGroup } from "../components/accordion/AccordionGroup";
-import { AccordionPanel } from "../components/accordion/AccordionPanel";
+import { Accordion } from "../components/accordion/Accordion";
 import { VSCode } from "../components/vs-code/VSCode";
 
 export default function TestRoute() {
@@ -12,11 +11,7 @@ export default function TestRoute() {
       </Callout>
       <div />
       <Header title="Accordion demo" />
-      <AccordionGroup>
-        <AccordionPanel index={1}>This is the first panel.</AccordionPanel>
-        <AccordionPanel index={2}>This is the second panel.</AccordionPanel>
-        <AccordionPanel index={3}>This is the third panel.</AccordionPanel>
-      </AccordionGroup>
+      <Accordion />
       <div />
       <Header title="VS Code demo" />
       <VSCode />

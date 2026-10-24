@@ -32,8 +32,8 @@ export function VSCodeSidebarButton({
     <Tooltip content={title}>
       <button
         className={cn(
-          "shrink-0 w-8 h-8 p-1 cursor-pointer",
-          isActive ? "text-white" : "text-slate-500 hover:text-white"
+          "shrink-0 w-8 h-8 p-1 rounded cursor-pointer",
+          isActive ? "text-white bg-white/10" : "text-white/60 hover:text-white"
         )}
         onClick={() => {
           if (activeTab === tab) {

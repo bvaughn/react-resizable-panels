@@ -4,8 +4,14 @@ import { html as ResizePreviewModeHTML } from "../../public/generated/examples/R
 import { html as ResizePreviewWithImplicitSeparatorHTML } from "../../public/generated/examples/ResizePreviewWithImplicitSeparator.json";
 import { html as ResizePreviewWithSeparatorOverlayHTML } from "../../public/generated/examples/ResizePreviewWithSeparatorOverlay.json";
 import { Link } from "../components/Link";
+import {
+  DemoPanel,
+  RequestDetails,
+  RequestHeaders,
+  RequestLog,
+  RequestLogDemo
+} from "../components/request-log/RequestLog";
 import { Group } from "../components/styled-panels/Group";
-import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
 
 export default function PanelResizeBehaviorRoute() {
@@ -21,17 +27,10 @@ export default function PanelResizeBehaviorRoute() {
       <Code html={ResizePreviewModeHTML} />
       <div>
         In place of a panel update, an overlay separator will be rendered
-        instead, as shown in the group below.
+        instead. In the group below, the panels (and their sizes) only update
+        once the separator is released.
       </div>
-      <Group resizePreviewMode="separator">
-        <Panel minSize="10%" showSizeAsPercentage>
-          left
-        </Panel>
-        <Separator />
-        <Panel minSize="10%" showSizeAsPercentage>
-          right
-        </Panel>
-      </Group>
+      <RequestLogDemo />
       <div>
         By default, this overlay separator is just a partially transparent copy
         of the separator element being dragged. The{" "}
@@ -39,35 +38,35 @@ export default function PanelResizeBehaviorRoute() {
         overlay.
       </div>
       <Code html={ResizePreviewWithSeparatorOverlayHTML} />
-      <Group resizePreviewMode="separator">
-        <Panel minSize="10%" showSizeAsPercentage>
-          left
-        </Panel>
+      <Group className="h-72!" resizePreviewMode="separator">
+        <DemoPanel minSize="20%" title="Requests">
+          <RequestLog />
+        </DemoPanel>
         <Separator className="[&[data-separator='active']]:bg-slate-600" />
-        <Panel minSize="10%" maxSize="50%" showSizeAsPercentage>
-          center
-        </Panel>
+        <DemoPanel maxSize="50%" minSize="20%" title="Response">
+          <RequestDetails />
+        </DemoPanel>
         <Separator className="[&[data-separator='active']]:bg-slate-600" />
-        <Panel minSize="10%" showSizeAsPercentage>
-          right
-        </Panel>
-        <SeparatorOverlay className="w-2 rounded rounded-xs bg-sky-500 data-[separator-overlay=inactive]:bg-sky-700 opacity-80" />
+        <DemoPanel minSize="20%" title="Headers">
+          <RequestHeaders />
+        </DemoPanel>
+        <SeparatorOverlay className="w-2 rounded rounded-xs bg-violet-400 data-[separator-overlay=inactive]:bg-violet-700 opacity-80" />
       </Group>
       <div>
         Resize preview mode works even for groups with implicit separators.
       </div>
       <Code html={ResizePreviewWithImplicitSeparatorHTML} />
-      <Group resizePreviewMode="separator">
-        <Panel minSize="10%" showSizeAsPercentage>
-          left
-        </Panel>
-        <Panel minSize="10%" maxSize="50%" showSizeAsPercentage>
-          center
-        </Panel>
-        <Panel minSize="10%" showSizeAsPercentage>
-          right
-        </Panel>
-        <SeparatorOverlay className="w-1 bg-sky-500 data-[separator-overlay=inactive]:bg-sky-700 opacity-80" />
+      <Group className="h-72!" resizePreviewMode="separator">
+        <DemoPanel minSize="20%" title="Requests">
+          <RequestLog />
+        </DemoPanel>
+        <DemoPanel maxSize="50%" minSize="20%" title="Response">
+          <RequestDetails />
+        </DemoPanel>
+        <DemoPanel minSize="20%" title="Headers">
+          <RequestHeaders />
+        </DemoPanel>
+        <SeparatorOverlay className="w-1 bg-violet-400 data-[separator-overlay=inactive]:bg-violet-700 opacity-80" />
       </Group>
       <Callout>
         The <code>data-separator-overlay</code> attribute can be used to

@@ -11,4 +11,12 @@
   --color-focus-1: var(--color-sky-300);
   --color-focus-2: var(--color-sky-400);
   --color-focus-3: var(--color-sky-600);
+
+  /*
+   * Opaque separator/gridline colors (white at 20%, 35%, and 50% over the page background);
+   * translucent colors would look brighter where row and column gridlines overlap
+   */
+  --color-separator: #3f3846;
+  --color-separator-hover: #635d69;
+  --color-separator-active: #87838c;
 }

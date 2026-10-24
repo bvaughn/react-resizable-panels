@@ -6,6 +6,7 @@ import {
   type PanelImperativeHandle
 } from "react-resizable-panels";
 import { VSCodeContext } from "./VSCodeContext";
+import { VSCodeSidePanelContent } from "./VSCodeSidePanelContent";
 
 export function VSCodeCollapsibleSidePanel({
   onResize,
@@ -18,17 +19,20 @@ export function VSCodeCollapsibleSidePanel({
 
   return (
     <Panel
-      className="bg-slate-900 p-2 border-l border-l-[2px] border-black"
+      className="bg-white/8 rounded-md"
       collapsible
-      defaultSize={200}
+      defaultSize="25%"
       maxSize={300}
       minSize={100}
       onResize={onResize}
       panelRef={panelRef}
     >
-      <Box direction="column" gap={2}>
-        <div className="text-lg capitalize">{activeTab}</div>
-        <div>Side panel content goes here</div>
+      {/* Padding is applied here (rather than to the Panel) so that nothing shows when it collapses */}
+      <Box className="p-2" direction="column" gap={2}>
+        <div className="text-xs uppercase tracking-wide text-white/60 truncate">
+          {activeTab}
+        </div>
+        <VSCodeSidePanelContent tab={activeTab} />
       </Box>
     </Panel>
   );

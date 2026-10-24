@@ -22,7 +22,7 @@ export function Separator({
     <SeparatorExternal
       className={cn(
         "rounded-xs flex items-center justify-center",
-        "bg-white/20 [&[data-separator='disabled']]:opacity-50 [&[data-separator='hover']]:bg-white/35 [&[data-separator='active']]:bg-white/50",
+        "bg-separator [&[data-separator='disabled']]:opacity-50 [&[data-separator='hover']]:bg-separator-hover [&[data-separator='active']]:bg-separator-active",
         "text-black/50 [&[data-separator='hover']]:text-black/70 [&[data-separator='active']]:text-black/70",
         useFocusPseudoClasses
           ? "focus-visible:bg-sky-400!"
