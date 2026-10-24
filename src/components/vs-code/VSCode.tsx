@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
-import { Group, usePanelCallbackRef } from "react-resizable-panels";
+import { usePanelCallbackRef } from "react-resizable-panels";
+import { Group } from "../styled-panels/Group";
+import { Separator } from "../styled-panels/Separator";
 import { VSCodeCollapsibleSidePanel } from "./VSCodeCollapsibleSidePanel";
 import type { Tab } from "./VSCodeContext";
 import { VSCodeContext } from "./VSCodeContext";
 import { VSCodePrimaryContentPanel } from "./VSCodePrimaryContentPanel";
-import { VSCodeSeparator } from "./VSCodeSeparator";
 import { VSCodeSidebar } from "./VSCodeSidebar";
 
 export function VSCode() {
@@ -39,7 +40,7 @@ export function VSCode() {
 
   return (
     <VSCodeContext value={context}>
-      <Group className="rounded h-50!">
+      <Group className="h-72!">
         <VSCodeSidebar />
         <VSCodeCollapsibleSidePanel
           onResize={(size) => {
@@ -55,7 +56,11 @@ export function VSCode() {
           }}
           panelRef={setPanelRef}
         />
-        <VSCodeSeparator />
+        <Separator
+          // A collapsed panel has no width, but the gaps on either side of it remain;
+          // pull the separator back by one gap so they don't double up
+          className={state.sidebarCollapsed ? "-ml-2 sm:-ml-1" : undefined}
+        />
         <VSCodePrimaryContentPanel />
       </Group>
     </VSCodeContext>

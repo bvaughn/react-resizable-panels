@@ -1,4 +1,4 @@
-import { Box, ComponentProps, type ComponentMetadata } from "react-lib-tools";
+import { Box, type ComponentMetadata, ComponentProps } from "react-lib-tools";
 import json from "../../public/generated/docs/Cell.json";
 
 export default function CellPropsRoute() {

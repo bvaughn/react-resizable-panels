@@ -2,9 +2,9 @@ import {
   AppRoot,
   Callout,
   Code,
-  ExternalLink,
   type CommonQuestion,
   type DefaultPath,
+  ExternalLink,
   type NavConfig
 } from "react-lib-tools";
 import { repository } from "../package.json";
@@ -12,10 +12,8 @@ import Logo from "../public/favicon.svg?react";
 import { html as ConditionallyRenderPanel } from "../public/generated/examples/ConditionallyRenderPanel.json";
 import { html as GroupExplicitHeightHTML } from "../public/generated/examples/GroupExplicitHeight.json";
 import { Link } from "./components/Link";
-import { Group } from "./components/styled-panels/Group";
-import { Panel } from "./components/styled-panels/Panel";
-import { Separator } from "./components/styled-panels/Separator";
-import { routes, type Path } from "./routes";
+import { VSCode } from "./components/vs-code/VSCode";
+import { type Path, routes } from "./routes";
 
 export default function App() {
   return (
@@ -29,15 +27,7 @@ export default function App() {
             This library is a set of React components that can be used to build
             resizable layouts like the one below:
           </div>
-          <Group>
-            <Panel className="p-1" minSize={100}>
-              This panel is resizable
-            </Panel>
-            <Separator />
-            <Panel className="p-1" minSize={100}>
-              This one is too
-            </Panel>
-          </Group>
+          <VSCode />
           <div>
             There are many types of layouts, covered in the{" "}
             <Link to="/examples/the-basics">examples</Link> section of the docs.

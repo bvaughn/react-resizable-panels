@@ -6,7 +6,7 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 <Group>
   <Panel>left</Panel>
   <Separator />
-  <div>Fixed sized element</div>
+  <div className="w-45">Fixed sized element</div>
   <Separator />
   <Panel>right</Panel>
 </Group>

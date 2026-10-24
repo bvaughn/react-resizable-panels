@@ -1,18 +1,34 @@
-import type { ComponentProps } from "react";
-
-declare const rest: ComponentProps<typeof Panel>;
-
 // <begin>
 
-import { Group, Panel, usePanelRef } from "react-resizable-panels";
+import { useState } from "react";
+import { Group, Panel, Separator, usePanelRef } from "react-resizable-panels";
 
 function ExampleComponent() {
   const ref = usePanelRef();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const toggle = () => {
+    const panel = ref.current;
+    if (panel?.isCollapsed()) {
+      panel.expand();
+    } else {
+      panel?.collapse();
+    }
+  };
 
   return (
     <Group>
-      <Panel panelRef={ref} {...rest} />
-      {/* Other panels... */}
+      <Panel
+        collapsible
+        minSize="10%"
+        onResize={(size) => setIsCollapsed(size.inPixels === 0)}
+        panelRef={ref}
+      >
+        left
+      </Panel>
+      <button onClick={toggle}>{isCollapsed ? "»" : "«"}</button>
+      <Separator />
+      <Panel>right</Panel>
     </Group>
   );
 }

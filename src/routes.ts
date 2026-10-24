@@ -1,4 +1,4 @@
-import { lazy, type ComponentType, type LazyExoticComponent } from "react";
+import { type ComponentType, lazy, type LazyExoticComponent } from "react";
 
 export type Route = LazyExoticComponent<ComponentType<unknown>>;
 

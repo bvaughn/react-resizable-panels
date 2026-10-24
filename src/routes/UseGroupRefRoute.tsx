@@ -1,8 +1,12 @@
 import { Box, Callout, Code, ExternalLink, Header } from "react-lib-tools";
+import { useGroupRef } from "react-resizable-panels";
 import { html } from "../../public/generated/examples/useGroupRef.json";
+import { GroupMaximizeDemo } from "../components/demos/GroupMaximizeDemo";
 import { Link } from "../components/Link";
 
 export default function UseGroupRefRoute() {
+  const ref = useGroupRef();
+
   return (
     <Box direction="column" gap={4}>
       <Header
@@ -18,6 +22,11 @@ export default function UseGroupRefRoute() {
         .
       </div>
       <Code html={html} />
+      <Callout>
+        The example code above has been simplified to highlight usage of the
+        ref.
+      </Callout>
+      <GroupMaximizeDemo getGroup={() => ref.current} groupRef={ref} />
       <Callout intent="warning">
         This hook is useful for situations where you only need a local (to your
         component) reference to the{" "}

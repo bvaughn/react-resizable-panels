@@ -1,8 +1,12 @@
 import { Box, Callout, Code, ExternalLink, Header } from "react-lib-tools";
+import { useGridRef } from "react-resizable-panels";
 import { html } from "../../public/generated/examples/useGridRef.json";
+import { GridMaximizeDemo } from "../components/demos/GridMaximizeDemo";
 import { Link } from "../components/Link";
 
 export default function UseGridRefRoute() {
+  const ref = useGridRef();
+
   return (
     <Box direction="column" gap={4}>
       <Header
@@ -18,6 +22,11 @@ export default function UseGridRefRoute() {
         .
       </div>
       <Code html={html} />
+      <Callout>
+        The example code above has been simplified to highlight usage of the
+        ref.
+      </Callout>
+      <GridMaximizeDemo getGrid={() => ref.current} gridRef={ref} />
       <Callout intent="warning">
         This hook is useful for situations where you only need a local (to your
         component) reference to the{" "}

@@ -1,16 +1,17 @@
 import { useState } from "react";
+import { cn } from "react-lib-tools";
 import {
   Panel as PanelExternal,
-  type PanelSize,
-  type PanelProps
+  type PanelProps,
+  type PanelSize
 } from "react-resizable-panels";
 import { PanelText } from "./PanelText";
-import { cn } from "react-lib-tools";
 
 export function Panel({
   children,
   className = "",
   disabled,
+  onResize,
   showSizeAsPercentage,
   showSizeInPixels,
   ...rest
@@ -34,7 +35,16 @@ export function Panel({
       )}
       disabled={disabled}
       {...rest}
-      onResize={listenForResize ? setSize : undefined}
+      onResize={
+        listenForResize || onResize
+          ? (size, id, prevSize) => {
+              if (listenForResize) {
+                setSize(size);
+              }
+              onResize?.(size, id, prevSize);
+            }
+          : undefined
+      }
     >
       <PanelText>
         {children}

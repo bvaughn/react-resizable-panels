@@ -1,6 +1,7 @@
 import { Box, Callout, Code, Header, SectionHeader } from "react-lib-tools";
 import { html } from "../../public/generated/examples/UseDefaultLayout.json";
 import { Link } from "../components/Link";
+import { Param } from "../components/Param";
 
 export default function UseDefaultLayoutRoute() {
   return (
@@ -26,12 +27,7 @@ export default function UseDefaultLayoutRoute() {
       </div>
       <SectionHeader>Parameters</SectionHeader>
       <dl className="flex flex-col gap-2">
-        <dd className="text-lg font-mono">
-          <span className="tok-propertyName">debounceSaveMs</span>
-          <span className="tok-punctuation">?:</span> number{" "}
-          <span className="tok-punctuation">=</span> 100
-        </dd>
-        <dt className="mb-2 flex flex-col gap-4">
+        <Param defaultValue="100" name="debounceSaveMs" optional type="number">
           <p>
             Debounce save operation by the specified number of milliseconds;
             defaults to 100ms
@@ -42,28 +38,16 @@ export default function UseDefaultLayoutRoute() {
             <code>onLayoutChanged</code> callback (shown above) does not need to
             be debounced.
           </Callout>
-        </dt>
-        <dd className="text-lg font-mono">
-          <span className="tok-propertyName">id</span>
-          <span className="tok-punctuation">:</span> string
-        </dd>
-        <dt className="mb-2">Uniquely identifies a specific group/layout.</dt>
-        <dd className="text-lg font-mono">
-          <span className="tok-propertyName">
-            onlySaveAfterUserInteractions
-          </span>
-          <span className="tok-punctuation">?:</span> boolean
-        </dd>
-        <dt className="mb-2">
+        </Param>
+        <Param name="id" type="string">
+          Uniquely identifies a specific group/layout.
+        </Param>
+        <Param name="onlySaveAfterUserInteractions" optional type="boolean">
           Only auto-save layouts that were directly caused by user input (e.g.
           keyboard or mouse events). Ignore layout changes resulting from
           imperative API calls or window resize events.
-        </dt>
-        <dd className="text-lg font-mono">
-          <span className="tok-propertyName">panelIds</span>
-          <span className="tok-punctuation">?:</span> string[] | undefined
-        </dd>
-        <dt className="mb-2 flex flex-col gap-4">
+        </Param>
+        <Param name="panelIds" optional type="string[] | undefined">
           <p>
             Groups that contain conditionally-rendered Panels should use this
             parameter to determine which layout is retrieved on mount.
@@ -72,16 +56,15 @@ export default function UseDefaultLayoutRoute() {
             This prevents layout shift for server-rendered apps. Ids must match
             during mount to avoid layout shift.
           </Callout>
-        </dt>
-        <dd className="text-lg font-mono">
-          <span className="tok-propertyName">storage</span>
-          <span className="tok-punctuation">?:</span>{" "}
-          <span className="tok-typeName">LayoutStorage</span>{" "}
-          <span className="tok-punctuation">=</span> localStorage
-        </dd>
-        <dt className="mb-2">
+        </Param>
+        <Param
+          defaultValue="localStorage"
+          name="storage"
+          optional
+          type={<span className="tok-typeName">LayoutStorage</span>}
+        >
           Storage API; responsible for reading and writing saved layouts.
-        </dt>
+        </Param>
       </dl>
     </Box>
   );

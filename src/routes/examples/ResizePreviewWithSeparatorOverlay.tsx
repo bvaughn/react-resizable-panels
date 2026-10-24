@@ -5,17 +5,27 @@ import {
   SeparatorOverlay
 } from "react-resizable-panels";
 
+declare function RequestDetails(): null;
+declare function RequestHeaders(): null;
+declare function RequestLog(): null;
+
 // <begin>
 
 /* prettier-ignore */
 <Group resizePreviewMode="separator">
-  <Panel minSize="10%">left</Panel>
+  <Panel minSize="20%">
+    <RequestLog />
+  </Panel>
   <Separator />
-  <Panel minSize="10%">center</Panel>
+  <Panel minSize="20%" maxSize="50%">
+    <RequestDetails />
+  </Panel>
   <Separator />
-  <Panel minSize="10%">right</Panel>
+  <Panel minSize="20%">
+    <RequestHeaders />
+  </Panel>
 
   <SeparatorOverlay
-    className="w-2 bg-sky-500 data-[separator-overlay=inactive]:bg-sky-700 opacity-80"
+    className="w-2 bg-violet-400 data-[separator-overlay=inactive]:bg-violet-700 opacity-80"
   />
 </Group>

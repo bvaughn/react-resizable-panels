@@ -36,7 +36,7 @@ export default function CustomStylesRoute() {
       <Code html={CustomStylesExampleHTML} />
       <Group>
         <Panel>left</Panel>
-        <Separator />
+        <Separator className="bg-slate-600 [&[data-separator='hover']]:bg-slate-500 [&[data-separator='active']]:bg-slate-400 [&[data-separator='focus']]:bg-sky-400" />
         <Panel defaultSize="50%">right</Panel>
       </Group>
       <div>
@@ -47,7 +47,10 @@ export default function CustomStylesRoute() {
       <Code html={SeparatorCustomStylesFocusVisibleHTML} />
       <Group>
         <Panel>left</Panel>
-        <Separator useFocusPseudoClasses />
+        <Separator
+          className="bg-slate-600 [&[data-separator='hover']]:bg-slate-500 [&[data-separator='active']]:bg-slate-400"
+          useFocusPseudoClasses
+        />
         <Panel defaultSize="50%">right</Panel>
       </Group>
     </Box>

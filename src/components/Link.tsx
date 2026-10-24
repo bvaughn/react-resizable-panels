@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from "react";
-import { Link as ExternalLink, type DefaultPath } from "react-lib-tools";
+import { type DefaultPath, Link as ExternalLink } from "react-lib-tools";
 import type { Path } from "../routes";
 
 export function Link({

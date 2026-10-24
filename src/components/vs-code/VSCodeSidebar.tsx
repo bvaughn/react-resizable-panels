@@ -8,7 +8,12 @@ import { VSCodeSidebarButton } from "./VSCodeSidebarButton";
 
 export function VSCodeSidebar() {
   return (
-    <Box className="p-1 rounded-tl bg-slate-800" direction="column" gap={2}>
+    // Hidden on small screens to leave more room for the panels
+    <Box
+      className="hidden sm:flex p-1 rounded-md bg-white/8"
+      direction="column"
+      gap={1}
+    >
       <VSCodeSidebarButton Icon={FolderIcon} tab="folders" title="Folders" />
       <VSCodeSidebarButton
         Icon={MagnifyingGlassIcon}

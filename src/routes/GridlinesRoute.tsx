@@ -1,8 +1,8 @@
 import { Box, Code, Header } from "react-lib-tools";
 import { html as GridlinesHTML } from "../../public/generated/examples/Gridlines.json";
 import { html as GridlinesAdvancedHTML } from "../../public/generated/examples/GridlinesAdvanced.json";
-import { Grid } from "../components/styled-panels/Grid";
 import { Cell } from "../components/styled-panels/Cell";
+import { Grid } from "../components/styled-panels/Grid";
 import { Gridline } from "../components/styled-panels/Gridline";
 
 export default function GridlinesRoute() {
@@ -27,6 +27,7 @@ export default function GridlinesRoute() {
       <div>Where they intersect, dragging resizes both.</div>
       <Code html={GridlinesHTML} />
       <Grid
+        showSizes
         className="h-60!"
         columns={[{ minSize: 25 }, { minSize: 25 }, { minSize: 25 }]}
         rows={[{ minSize: 25 }, { minSize: 25 }]}
@@ -62,6 +63,7 @@ export default function GridlinesRoute() {
       </div>
       <Code html={GridlinesAdvancedHTML} />
       <Grid
+        showSizes
         className="h-100!"
         columns={[{ minSize: 25 }, { minSize: 25 }, { minSize: 25 }]}
         rows={[{ minSize: 25 }, { minSize: 25 }]}

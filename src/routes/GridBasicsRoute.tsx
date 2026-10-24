@@ -15,7 +15,7 @@ export default function GridBasicsRoute() {
         boundary resizes both at once.
       </div>
       <Code html={LayoutHTML} />
-      <Grid className="h-60!" columns={2} rows={2}>
+      <Grid showSizes className="h-60!" columns={2} rows={2}>
         <Cell row={0} column={0}>
           A
         </Cell>
@@ -35,7 +35,7 @@ export default function GridBasicsRoute() {
         that spans across it, although it can still be resized elsewhere.
       </div>
       <Code html={SpansHTML} />
-      <Grid className="h-60!" columns={3} rows={3}>
+      <Grid showSizes className="h-60!" columns={3} rows={3}>
         <Cell row={0} column={0} columnSpan={3}>
           header
         </Cell>
