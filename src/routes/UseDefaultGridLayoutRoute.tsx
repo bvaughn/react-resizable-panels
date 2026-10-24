@@ -1,7 +1,14 @@
-import { Box, Callout, Code, Header, SectionHeader } from "react-lib-tools";
+import {
+  Box,
+  Callout,
+  Code,
+  Header,
+  HookSignature,
+  HookSignatureItem,
+  SectionHeader
+} from "react-lib-tools";
 import { html } from "../../public/generated/examples/UseDefaultGridLayout.json";
 import { Link } from "../components/Link";
-import { Param } from "../components/Param";
 
 export default function UseDefaultGridLayoutRoute() {
   return (
@@ -32,24 +39,28 @@ export default function UseDefaultGridLayoutRoute() {
         Grid's (e.g. after a column has been added or removed).
       </Callout>
       <SectionHeader>Parameters</SectionHeader>
-      <dl className="flex flex-col gap-2">
-        <Param name="id" type="string">
+      <HookSignature>
+        <HookSignatureItem name="id" type="string">
           Uniquely identifies a specific grid/layout.
-        </Param>
-        <Param name="onlySaveAfterUserInteractions" optional type="boolean">
+        </HookSignatureItem>
+        <HookSignatureItem
+          name="onlySaveAfterUserInteractions"
+          optional
+          type="boolean"
+        >
           Only auto-save layouts that were directly caused by user input (e.g.
           keyboard or mouse events). Ignore layout changes resulting from
           imperative API calls or window resize events.
-        </Param>
-        <Param
+        </HookSignatureItem>
+        <HookSignatureItem
           defaultValue="localStorage"
           name="storage"
           optional
           type={<span className="tok-typeName">LayoutStorage</span>}
         >
           Storage API; responsible for reading and writing saved layouts.
-        </Param>
-      </dl>
+        </HookSignatureItem>
+      </HookSignature>
     </Box>
   );
 }

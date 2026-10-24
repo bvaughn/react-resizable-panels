@@ -1,7 +1,14 @@
-import { Box, Callout, Code, Header, SectionHeader } from "react-lib-tools";
+import {
+  Box,
+  Callout,
+  Code,
+  Header,
+  HookSignature,
+  HookSignatureItem,
+  SectionHeader
+} from "react-lib-tools";
 import { html } from "../../public/generated/examples/UseDefaultLayout.json";
 import { Link } from "../components/Link";
-import { Param } from "../components/Param";
 
 export default function UseDefaultLayoutRoute() {
   return (
@@ -26,8 +33,13 @@ export default function UseDefaultLayoutRoute() {
         server-rendered application.
       </div>
       <SectionHeader>Parameters</SectionHeader>
-      <dl className="flex flex-col gap-2">
-        <Param defaultValue="100" name="debounceSaveMs" optional type="number">
+      <HookSignature>
+        <HookSignatureItem
+          defaultValue="100"
+          name="debounceSaveMs"
+          optional
+          type="number"
+        >
           <p>
             Debounce save operation by the specified number of milliseconds;
             defaults to 100ms
@@ -38,16 +50,20 @@ export default function UseDefaultLayoutRoute() {
             <code>onLayoutChanged</code> callback (shown above) does not need to
             be debounced.
           </Callout>
-        </Param>
-        <Param name="id" type="string">
+        </HookSignatureItem>
+        <HookSignatureItem name="id" type="string">
           Uniquely identifies a specific group/layout.
-        </Param>
-        <Param name="onlySaveAfterUserInteractions" optional type="boolean">
+        </HookSignatureItem>
+        <HookSignatureItem
+          name="onlySaveAfterUserInteractions"
+          optional
+          type="boolean"
+        >
           Only auto-save layouts that were directly caused by user input (e.g.
           keyboard or mouse events). Ignore layout changes resulting from
           imperative API calls or window resize events.
-        </Param>
-        <Param name="panelIds" optional type="string[] | undefined">
+        </HookSignatureItem>
+        <HookSignatureItem name="panelIds" optional type="string[] | undefined">
           <p>
             Groups that contain conditionally-rendered Panels should use this
             parameter to determine which layout is retrieved on mount.
@@ -56,16 +72,16 @@ export default function UseDefaultLayoutRoute() {
             This prevents layout shift for server-rendered apps. Ids must match
             during mount to avoid layout shift.
           </Callout>
-        </Param>
-        <Param
+        </HookSignatureItem>
+        <HookSignatureItem
           defaultValue="localStorage"
           name="storage"
           optional
           type={<span className="tok-typeName">LayoutStorage</span>}
         >
           Storage API; responsible for reading and writing saved layouts.
-        </Param>
-      </dl>
+        </HookSignatureItem>
+      </HookSignature>
     </Box>
   );
 }
