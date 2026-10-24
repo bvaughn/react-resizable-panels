@@ -27,6 +27,7 @@ export default function GridlinesRoute() {
       <div>Where they intersect, dragging resizes both.</div>
       <Code html={GridlinesHTML} />
       <Grid
+        showSizes
         className="h-60!"
         columns={[{ minSize: 25 }, { minSize: 25 }, { minSize: 25 }]}
         rows={[{ minSize: 25 }, { minSize: 25 }]}
@@ -62,6 +63,7 @@ export default function GridlinesRoute() {
       </div>
       <Code html={GridlinesAdvancedHTML} />
       <Grid
+        showSizes
         className="h-100!"
         columns={[{ minSize: 25 }, { minSize: 25 }, { minSize: 25 }]}
         rows={[{ minSize: 25 }, { minSize: 25 }]}

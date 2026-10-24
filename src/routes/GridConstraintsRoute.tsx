@@ -14,6 +14,7 @@ export default function GridConstraintsRoute() {
       </div>
       <Code html={ConstraintsHTML} />
       <Grid
+        showSizes
         className="h-60!"
         columns={[{ defaultSize: "25%", minSize: "10%" }, { minSize: "25%" }]}
         rows={[{ defaultSize: "25%", minSize: "25%" }, { minSize: "25%" }]}

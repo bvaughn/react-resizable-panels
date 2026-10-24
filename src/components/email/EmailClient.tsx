@@ -65,24 +65,31 @@ export function EmailClient() {
       </Panel>
       <Panel minSize={200}>
         <Group orientation="vertical">
-          <Panel className={PANEL_CLASS_NAME} defaultSize="40%" minSize={60}>
+          <Panel
+            className={cn(PANEL_CLASS_NAME, "@container")}
+            defaultSize="40%"
+            minSize={60}
+          >
             {folderMessages.map((message) => (
+              // Narrow panels show each message on two lines (sender and time, then subject)
               <button
                 className={cn(
-                  "w-full flex flex-row items-center gap-2 px-2 py-1 text-sm text-left cursor-pointer",
+                  "w-full flex flex-col @min-[24rem]:flex-row @min-[24rem]:items-center gap-x-2 px-2 py-1 text-sm text-left cursor-pointer",
                   message.id === selectedId ? "bg-white/10" : "hover:bg-white/5"
                 )}
                 key={message.id}
                 onClick={() => setSelectedId(message.id)}
               >
-                <span className="w-28 shrink-0 truncate font-semibold">
-                  {message.from}
+                <span className="flex flex-row items-center gap-2 @min-[24rem]:contents">
+                  <span className="grow @min-[24rem]:grow-0 @min-[24rem]:w-28 shrink-0 truncate font-semibold">
+                    {message.from}
+                  </span>
+                  <span className="shrink-0 text-xs text-white/60 @min-[24rem]:order-last">
+                    {message.time}
+                  </span>
                 </span>
                 <span className="grow truncate text-white/80">
                   {message.subject}
-                </span>
-                <span className="shrink-0 text-xs text-white/60">
-                  {message.time}
                 </span>
               </button>
             ))}
