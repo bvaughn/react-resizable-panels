@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.15.0
+
+- Add `useParentGroup`, `useParentPanel`, and `useParentGrid` hooks. Components rendered within a `Group`, `Panel`, or `Grid` can use them to access the nearest one (including its imperative API) without passing refs down; they return `null` outside of a matching component. Within a `Cell`, `useParentGroup` returns the nearest `Group` outside of the `Grid`. - [#775](https://github.com/bvaughn/react-resizable-panels/pull/775)
+- Imperative `Panel` and `GridTrack` `resize()`, `collapse()`, and `expand()` calls (and double-clicking a separator to reset a panel's size) now take space from, or give it to, the nearest panels that can absorb it, on either side of the panel being resized. Previously only the panels on one side were used, starting with the adjacent panel, so these calls could silently do nothing (e.g. when the next panel was collapsed) or unexpectedly collapse or expand other panels. Changes that don't collapse or expand other panels are now preferred. - [#774](https://github.com/bvaughn/react-resizable-panels/pull/774)
+- `expand()` still restores a panel's most recent size, but if that would require collapsing another panel, it now expands to the largest size that fits instead (as long as that's at least its `minSize`). - [#774](https://github.com/bvaughn/react-resizable-panels/pull/774)
+- Fix releasing the pointer after dragging the boundary between panels that don't have a `Separator` "clicking" the element under the pointer (e.g. a button in a panel header). - [#774](https://github.com/bvaughn/react-resizable-panels/pull/774)
+
 ## 4.14.8
 
 - Fix "Stacking order can only be calculated for elements with a common ancestor" error thrown by the document `pointermove` handler when the event target is removed from the DOM during dispatch. Detached targets are now treated as viable hit targets. - [#771](https://github.com/bvaughn/react-resizable-panels/pull/771)
