@@ -3,6 +3,7 @@ import { type ComponentType, lazy, type LazyExoticComponent } from "react";
 export type Route = LazyExoticComponent<ComponentType<unknown>>;
 
 export const routes = {
+  "/examples/accordion": lazy(() => import("./routes/AccordionRoute")),
   "/examples/collapsible-grid-cells": lazy(
     () => import("./routes/CollapsibleGridCellsRoute")
   ),

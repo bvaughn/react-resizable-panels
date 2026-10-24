@@ -171,6 +171,33 @@ describe("getImperativeItemMethods", () => {
         expect(onLayoutChange).not.toHaveBeenCalled();
       });
 
+      test("gives space to panels before it rather than expanding a collapsed panel after it", () => {
+        const { panelApis } = init([
+          { collapsedSize: 5, collapsible: true, defaultSize: 50, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 40, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 5, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 5, minSize: 20 }
+        ]);
+
+        panelApis[1].collapse();
+        expect(panelApis[2].isCollapsed()).toBe(true);
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenCalledWith([85, 5, 5, 5]);
+      });
+
+      test("gives space to the nearest panel that isn't collapsed", () => {
+        const { panelApis } = init([
+          { collapsedSize: 5, collapsible: true, defaultSize: 5, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 60, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 5, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 30, minSize: 20 }
+        ]);
+
+        panelApis[1].collapse();
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenCalledWith([5, 5, 5, 85]);
+      });
+
       test("does nothing if panel is already collapsed", () => {
         const { panelApis } = init([
           {
@@ -284,6 +311,96 @@ describe("getImperativeItemMethods", () => {
         expect(onLayoutChange).toHaveBeenCalledTimes(1);
         expect(onLayoutChange).toHaveBeenCalledWith([10, 90]);
       });
+
+      test("takes space from panels before it rather than collapsing a panel after it", () => {
+        const { panelApis } = init([
+          { defaultSize: 40, minSize: 20 },
+          { defaultSize: 35, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 5, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 20, minSize: 20 }
+        ]);
+
+        panelApis[2].expand();
+        expect(panelApis[3].isCollapsed()).toBe(false);
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenCalledWith([40, 20, 20, 20]);
+      });
+
+      test("restores the previous size by shrinking several panels to their min size, rather than collapsing one", () => {
+        const { panelApis } = init([
+          { defaultSize: 20, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 40, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 20, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 20, minSize: 20 }
+        ]);
+
+        panelApis[1].collapse();
+        expect(onLayoutChange).toHaveBeenLastCalledWith([20, 5, 55, 20]);
+
+        panelApis[3].resize("35%");
+        expect(onLayoutChange).toHaveBeenLastCalledWith([20, 5, 40, 35]);
+
+        panelApis[1].expand();
+        expect(panelApis[2].isCollapsed()).toBe(false);
+        expect(panelApis[3].isCollapsed()).toBe(false);
+        expect(onLayoutChange).toHaveBeenLastCalledWith([20, 40, 20, 20]);
+      });
+
+      test("expands to the largest size that fits if restoring the previous size would collapse another panel", () => {
+        const { panelApis } = init([
+          { defaultSize: 10, minSize: 10 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 60, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 5, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 25, minSize: 20 }
+        ]);
+
+        panelApis[1].collapse();
+        expect(onLayoutChange).toHaveBeenLastCalledWith([10, 5, 5, 80]);
+
+        panelApis[2].expand();
+        expect(onLayoutChange).toHaveBeenLastCalledWith([10, 5, 20, 65]);
+
+        // Restoring the previous size (60%) would require collapsing another panel; 50% is the most that fits
+        panelApis[1].expand();
+        expect(panelApis[2].isCollapsed()).toBe(false);
+        expect(panelApis[3].isCollapsed()).toBe(false);
+        expect(onLayoutChange).toHaveBeenLastCalledWith([10, 50, 20, 20]);
+      });
+
+      test("takes space from the nearest panel that can give it, rather than collapsing a panel at its min size", () => {
+        const { panelApis } = init([
+          { collapsedSize: 5, collapsible: true, defaultSize: 20, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 40, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 20, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 20, minSize: 20 }
+        ]);
+
+        panelApis[1].collapse();
+        expect(onLayoutChange).toHaveBeenLastCalledWith([20, 5, 55, 20]);
+
+        panelApis[3].resize("55%");
+        expect(onLayoutChange).toHaveBeenLastCalledWith([20, 5, 20, 55]);
+
+        // The next panel is at its min size, so space comes from the one after it
+        panelApis[1].expand();
+        expect(panelApis[2].isCollapsed()).toBe(false);
+        expect(onLayoutChange).toHaveBeenLastCalledWith([20, 40, 20, 20]);
+      });
+
+      test("takes space from panels before it if the panels after it are collapsed", () => {
+        const { panelApis } = init([
+          { defaultSize: 45 },
+          { defaultSize: 45 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 5, minSize: 20 },
+          { collapsedSize: 5, collapsible: true, defaultSize: 5, minSize: 20 }
+        ]);
+
+        panelApis[2].expand();
+        expect(panelApis[2].isCollapsed()).toBe(false);
+        expect(panelApis[3].isCollapsed()).toBe(true);
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenCalledWith([45, 30, 20, 5]);
+      });
     });
 
     describe("getSize", () => {
@@ -396,6 +513,45 @@ describe("getImperativeItemMethods", () => {
 
         expect(onLayoutChange).toHaveBeenCalledTimes(1);
         expect(onLayoutChange).toHaveBeenCalledWith([10, 90]);
+      });
+
+      test("takes space from panels before it if the panels after it can't shrink", () => {
+        const { panelApis } = init([
+          { defaultSize: 40 },
+          { defaultSize: 40 },
+          { defaultSize: 10 },
+          { defaultSize: 10, minSize: 10 }
+        ]);
+
+        panelApis[2].resize("30%");
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenCalledWith([40, 20, 30, 10]);
+      });
+
+      test("takes the remaining space from panels before it if the panels after it can only partially shrink", () => {
+        const { panelApis } = init([
+          { defaultSize: 40 },
+          { defaultSize: 40 },
+          { defaultSize: 10 },
+          { defaultSize: 10, minSize: 5 }
+        ]);
+
+        panelApis[2].resize("30%");
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenCalledWith([40, 25, 30, 5]);
+      });
+
+      test("gives space to panels before it if the panels after it can't grow", () => {
+        const { panelApis } = init([
+          { defaultSize: 40 },
+          { defaultSize: 40 },
+          { defaultSize: 10 },
+          { defaultSize: 10, maxSize: 10 }
+        ]);
+
+        panelApis[2].resize("5%");
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+        expect(onLayoutChange).toHaveBeenCalledWith([40, 45, 5, 10]);
       });
 
       test("allows disabled panel to be resized", () => {

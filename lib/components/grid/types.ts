@@ -54,6 +54,8 @@ export interface GridTrackImperativeHandle {
   /**
    * Expand a collapsed track to its most recent size.
    *
+   * ℹ️ If restoring that size would require collapsing another track, the track expands to the largest size that fits instead (as long as that is at least its `minSize`).
+   *
    * ⚠️ This method will do nothing if the track is not currently collapsed.
    */
   expand: () => void;

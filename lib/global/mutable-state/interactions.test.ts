@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { calculateHitRegions } from "../dom/calculateHitRegions";
 import { mockGroup } from "../test/mockGroup";
 import { calculateResizePreviews } from "../utils/calculateResizePreviews";
@@ -67,4 +67,88 @@ test("removing a group preserves the other group in a shared drag", () => {
 
   removeAxisFromInteraction(groups[1]);
   expect(getInteractionState().state).toBe("inactive");
+});
+
+describe("click events after a pointer drag", () => {
+  let button: HTMLButtonElement | undefined;
+
+  afterEach(() => {
+    button?.remove();
+    button = undefined;
+    vi.useRealTimers();
+  });
+
+  // Boundaries between Panels without Separators don't capture the pointer,
+  // so releasing it over an element where the drag began would otherwise "click" that element
+  function dragAndRelease({ didPointerMove }: { didPointerMove: boolean }) {
+    const group = mockGroup(new DOMRect(0, 0, 200, 100));
+    group.addPanel(new DOMRect(0, 0, 100, 100));
+    group.addPanel(new DOMRect(100, 0, 100, 100));
+    const hitRegions = calculateHitRegions({ axis: group });
+    const initialLayoutMap = new Map([
+      [group, { [group.items[0].id]: 50, [group.items[1].id]: 50 }]
+    ]);
+
+    updateInteractionState({
+      cursorFlags: 0,
+      didPointerMove,
+      hitRegions,
+      initialLayoutMap,
+      ownerDocument: document,
+      pointerDownAtPoint: { x: 100, y: 50 },
+      pointerId: 1,
+      pointerType: "mouse",
+      previewLayoutMap: new Map(initialLayoutMap),
+      previews: [],
+      state: "active"
+    });
+    updateInteractionState({ cursorFlags: 0, state: "inactive" });
+  }
+
+  function renderButton() {
+    const onClick = vi.fn();
+    button = document.createElement("button");
+    button.addEventListener("click", onClick);
+    document.body.appendChild(button);
+    return onClick;
+  }
+
+  test("suppresses the click that follows a drag", () => {
+    const onClick = renderButton();
+
+    dragAndRelease({ didPointerMove: true });
+    button!.click();
+
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  test("only suppresses one click", () => {
+    const onClick = renderButton();
+
+    dragAndRelease({ didPointerMove: true });
+    button!.click();
+    button!.click();
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  test("does not suppress a later click if none followed the drag", () => {
+    vi.useFakeTimers();
+    const onClick = renderButton();
+
+    dragAndRelease({ didPointerMove: true });
+    vi.runAllTimers();
+    button!.click();
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  test("does not suppress the click if the pointer did not move", () => {
+    const onClick = renderButton();
+
+    dragAndRelease({ didPointerMove: false });
+    button!.click();
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
 });

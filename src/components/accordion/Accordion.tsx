@@ -1,12 +1,7 @@
 import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/16/solid";
-import {
-  type PropsWithChildren,
-  type ReactNode,
-  useRef,
-  useState
-} from "react";
+import { type PropsWithChildren, type ReactNode, useState } from "react";
 import { cn } from "react-lib-tools";
-import { Panel, useGroupRef } from "react-resizable-panels";
+import { Panel, usePanelRef } from "react-resizable-panels";
 import { Group } from "../styled-panels/Group";
 
 // Collapsed sections shrink down to the height of their header
@@ -60,83 +55,95 @@ const SECTIONS: { content: ReactNode; id: string; title: string }[] = [
   }
 ];
 
+const DEFAULT_OPEN_IDS = ["editors", "folders", "outline"];
+
 export function Accordion() {
-  const elementRef = useRef<HTMLDivElement>(null);
-  const ref = useGroupRef();
-  const [openIds, setOpenIds] = useState(["editors", "folders", "outline"]);
-
-  const toggle = (id: string) => {
-    const ids = openIds.includes(id)
-      ? openIds.filter((openId) => openId !== id)
-      : [...openIds, id];
-
-    // Keep at least one section open
-    if (ids.length === 0) {
-      return;
-    }
-
-    // Collapsed sections shrink to their headers; open sections share the rest evenly
-    const height = elementRef.current?.offsetHeight ?? 0;
-    const headerSize = height > 0 ? (HEADER_HEIGHT / height) * 100 : 0;
-    const openSize =
-      (100 - headerSize * (SECTIONS.length - ids.length)) / ids.length;
-
-    ref.current?.setLayout(
-      Object.fromEntries(
-        SECTIONS.map(({ id }) => [id, ids.includes(id) ? openSize : headerSize])
-      )
-    );
-  };
+  const [openIds, setOpenIds] = useState(DEFAULT_OPEN_IDS);
 
   return (
-    <Group
-      className="h-96!"
-      elementRef={elementRef}
-      groupRef={ref}
-      orientation="vertical"
-    >
-      {SECTIONS.map(({ content, id, title }) => {
-        const isOpen = openIds.includes(id);
-        const Icon = isOpen ? ChevronDownIcon : ChevronRightIcon;
-
-        return (
-          <Panel
-            className="flex flex-col bg-white/8 rounded-md"
-            collapsedSize={HEADER_HEIGHT}
-            collapsible
-            defaultSize={isOpen ? undefined : HEADER_HEIGHT}
-            id={id}
-            key={id}
-            minSize={HEADER_HEIGHT * 2.5}
-            onResize={(size) => {
-              // Also tracks sections that are collapsed or expanded by dragging
-              const nextIsOpen = size.inPixels > HEADER_HEIGHT;
-              setOpenIds((prev) =>
-                prev.includes(id) === nextIsOpen
-                  ? prev
-                  : nextIsOpen
-                    ? [...prev, id]
-                    : prev.filter((openId) => openId !== id)
-              );
-            }}
-          >
-            <button
-              aria-expanded={isOpen}
-              className={cn(
-                "shrink-0 flex flex-row items-center gap-1 px-1 text-xs uppercase tracking-wide text-white/60 cursor-pointer hover:text-white",
-                isOpen && "border-b border-white/10"
-              )}
-              onClick={() => toggle(id)}
-              style={{ height: HEADER_HEIGHT }}
-            >
-              <Icon className="w-4 h-4 shrink-0" />
-              <span className="truncate">{title}</span>
-            </button>
-            <div className="grow min-h-0 py-1 overflow-auto">{content}</div>
-          </Panel>
-        );
-      })}
+    <Group className="h-96!" orientation="vertical">
+      {SECTIONS.map(({ content, id, title }) => (
+        <AccordionSection
+          // Keep at least one section open
+          canCollapse={openIds.length > 1}
+          defaultCollapsed={!DEFAULT_OPEN_IDS.includes(id)}
+          id={id}
+          key={id}
+          onOpenChange={(isOpen) =>
+            setOpenIds((prev) =>
+              prev.includes(id) === isOpen
+                ? prev
+                : isOpen
+                  ? [...prev, id]
+                  : prev.filter((openId) => openId !== id)
+            )
+          }
+          title={title}
+        >
+          {content}
+        </AccordionSection>
+      ))}
     </Group>
+  );
+}
+
+function AccordionSection({
+  canCollapse,
+  children,
+  defaultCollapsed,
+  id,
+  onOpenChange,
+  title
+}: PropsWithChildren<{
+  canCollapse: boolean;
+  defaultCollapsed: boolean;
+  id: string;
+  onOpenChange: (isOpen: boolean) => void;
+  title: string;
+}>) {
+  const ref = usePanelRef();
+  const [isOpen, setIsOpen] = useState(!defaultCollapsed);
+
+  const toggle = () => {
+    const panel = ref.current;
+    if (panel?.isCollapsed()) {
+      panel.expand();
+    } else if (canCollapse) {
+      panel?.collapse();
+    }
+  };
+
+  const Icon = isOpen ? ChevronDownIcon : ChevronRightIcon;
+
+  return (
+    <Panel
+      className="flex flex-col bg-white/8 rounded-md"
+      collapsedSize={HEADER_HEIGHT}
+      collapsible
+      defaultSize={defaultCollapsed ? HEADER_HEIGHT : undefined}
+      id={id}
+      minSize={HEADER_HEIGHT * 2.5}
+      onResize={(size) => {
+        // Also tracks sections that are collapsed or expanded by dragging
+        const nextIsOpen = size.inPixels > HEADER_HEIGHT;
+        setIsOpen(nextIsOpen);
+        onOpenChange(nextIsOpen);
+      }}
+      panelRef={ref}
+    >
+      <button
+        aria-expanded={isOpen}
+        className={cn(
+          "shrink-0 flex flex-row items-center gap-1 px-1 text-xs uppercase tracking-wide bg-white/10 text-white/60 cursor-pointer hover:text-white"
+        )}
+        onClick={toggle}
+        style={{ height: HEADER_HEIGHT }}
+      >
+        <Icon className="w-4 h-4 shrink-0" />
+        <span className="truncate">{title}</span>
+      </button>
+      <div className="grow min-h-0 py-1 overflow-auto">{children}</div>
+    </Panel>
   );
 }
 

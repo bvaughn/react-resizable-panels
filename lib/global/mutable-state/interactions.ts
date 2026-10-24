@@ -1,5 +1,6 @@
 import { EventEmitter } from "../../utils/EventEmitter";
 import type { RegisteredResizeAxis, RegisteredSeparator } from "../types";
+import { suppressNextClick } from "../utils/suppressNextClick";
 import type {
   InteractionActive,
   InteractionState,
@@ -76,6 +77,10 @@ export function updateInteractionState(next: InteractionState) {
         separator.element.blur();
       }
     });
+
+    // Releasing the pointer after a drag shouldn't "click" the element under it;
+    // Separators capture the pointer (which prevents this), but boundaries between Panels without Separators don't
+    suppressNextClick(prev.ownerDocument);
   }
 
   eventEmitter.emit("change", {
