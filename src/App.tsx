@@ -128,7 +128,10 @@ const nav: NavConfig<Path | DefaultPath> = [
       { path: "/hooks/use-group-ref", title: "useGroupRef" },
       { path: "/hooks/use-group-callback-ref", title: "useGroupCallbackRef" },
       { path: "/hooks/use-panel-ref", title: "usePanelRef" },
-      { path: "/hooks/use-panel-callback-ref", title: "usePanelCallbackRef" }
+      { path: "/hooks/use-panel-callback-ref", title: "usePanelCallbackRef" },
+      { path: "/hooks/use-parent-grid", title: "useParentGrid" },
+      { path: "/hooks/use-parent-group", title: "useParentGroup" },
+      { path: "/hooks/use-parent-panel", title: "useParentPanel" }
     ]
   },
   { path: "/platform-requirements", title: "Requirements" },

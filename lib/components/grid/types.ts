@@ -461,3 +461,13 @@ export type GridContextType = {
     }
   ) => void;
 };
+
+/**
+ * The nearest ancestor Grid (returned by `useParentGrid`), including its imperative API.
+ */
+export type ParentGrid = GridImperativeHandle & {
+  /**
+   * Id of the Grid.
+   */
+  id: string;
+};

@@ -21,4 +21,6 @@ export function useGroupImperativeHandle(
       getImperativeAxisMethods({ axisId: groupId })
     );
   });
+
+  return imperativeGroupRef;
 }

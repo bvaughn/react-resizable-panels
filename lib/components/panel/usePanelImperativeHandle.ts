@@ -30,4 +30,6 @@ export function usePanelImperativeHandle(
       getImperativeItemMethods({ axisId: groupId, itemId: panelId })
     );
   });
+
+  return imperativePanelRef;
 }

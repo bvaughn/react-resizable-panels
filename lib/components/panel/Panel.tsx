@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useMemo,
   useRef,
   useSyncExternalStore,
   type CSSProperties
@@ -16,7 +17,8 @@ import { useStableObject } from "../../hooks/useStableObject";
 import { getTestId } from "../../utils/getTestId";
 import { isExplicitId } from "../../utils/isExplicitId";
 import { useGroupContext } from "../group/useGroupContext";
-import type { PanelProps, PanelSize } from "./types";
+import { ParentPanelContext } from "./ParentPanelContext";
+import type { PanelProps, PanelSize, ParentPanel } from "./types";
 import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
 
 /**
@@ -141,7 +143,21 @@ export function Panel({
     updatePanelProps(id, { disabled });
   }, [disabled, id, updatePanelProps]);
 
-  usePanelImperativeHandle(id, panelRef);
+  const imperativePanelRef = usePanelImperativeHandle(id, panelRef);
+
+  // Methods are delegated (rather than copied) because the imperative handle is populated during a layout effect
+  const parentPanel = useMemo<ParentPanel>(
+    () => ({
+      collapse: () => imperativePanelRef.current.collapse(),
+      expand: () => imperativePanelRef.current.expand(),
+      getSize: () => imperativePanelRef.current.getSize(),
+      groupId,
+      id,
+      isCollapsed: () => imperativePanelRef.current.isCollapsed(),
+      resize: (size) => imperativePanelRef.current.resize(size)
+    }),
+    [groupId, id, imperativePanelRef]
+  );
 
   // useSyncExternalStore does not support a custom equality check
   // stringify avoids re-rendering when the style value hasn't changed
@@ -207,7 +223,9 @@ export function Panel({
           touchAction: orientation === "horizontal" ? "pan-y" : "pan-x"
         }}
       >
-        {children}
+        <ParentPanelContext.Provider value={parentPanel}>
+          {children}
+        </ParentPanelContext.Provider>
       </div>
     </div>
   );

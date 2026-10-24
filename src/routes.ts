@@ -69,6 +69,9 @@ export const routes = {
     () => import("./routes/UsePanelCallbackRefRoute")
   ),
   "/hooks/use-panel-ref": lazy(() => import("./routes/UsePanelRefRoute")),
+  "/hooks/use-parent-grid": lazy(() => import("./routes/UseParentGridRoute")),
+  "/hooks/use-parent-group": lazy(() => import("./routes/UseParentGroupRoute")),
+  "/hooks/use-parent-panel": lazy(() => import("./routes/UseParentPanelRoute")),
   "/imperative-api/grid": lazy(
     () => import("./routes/GridImperativeHandleRoute")
   ),

@@ -36,7 +36,8 @@ import { isInDocumentOrder } from "./isInDocumentOrder";
 import { ResizePreview } from "./ResizePreview";
 import { sortByDocumentPosition } from "./sortByDocumentPosition";
 import { sortByElementOffset } from "./sortByElementOffset";
-import type { GroupProps, Layout } from "./types";
+import { ParentGroupContext } from "./ParentGroupContext";
+import type { GroupProps, Layout, ParentGroup } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
 import { useResizePreviews } from "./useResizePreviews";
 
@@ -134,7 +135,18 @@ export function Group({
 
   const mergedRef = useMergedRefs(elementRef, elementRefProp);
 
-  useGroupImperativeHandle(id, groupRef);
+  const imperativeGroupRef = useGroupImperativeHandle(id, groupRef);
+
+  // Methods are delegated (rather than copied) because the imperative handle is populated during a layout effect
+  const parentGroup = useMemo<ParentGroup>(
+    () => ({
+      getLayout: () => imperativeGroupRef.current.getLayout(),
+      id,
+      orientation,
+      setLayout: (layout) => imperativeGroupRef.current.setLayout(layout)
+    }),
+    [id, imperativeGroupRef, orientation]
+  );
 
   // TRICKY Don't read for state; it will always lag behind by one tick
   const getPanelStyles = useStableCallback(
@@ -428,43 +440,46 @@ export function Group({
   });
 
   return (
-    <GroupContext.Provider value={context}>
-      <div
-        {...rest}
-        className={className}
-        data-group
-        data-testid={getTestId(rest, idProp)}
-        id={id}
-        ref={mergedRef}
-        style={{
-          height: "100%",
-          width: "100%",
-          overflow: "hidden",
-          position: resizePreviewMode === "separator" ? "relative" : undefined,
+    <ParentGroupContext.Provider value={parentGroup}>
+      <GroupContext.Provider value={context}>
+        <div
+          {...rest}
+          className={className}
+          data-group
+          data-testid={getTestId(rest, idProp)}
+          id={id}
+          ref={mergedRef}
+          style={{
+            height: "100%",
+            width: "100%",
+            overflow: "hidden",
+            position:
+              resizePreviewMode === "separator" ? "relative" : undefined,
 
-          ...style,
+            ...style,
 
-          display: "flex",
-          flexDirection: orientation === "horizontal" ? "row" : "column",
-          flexWrap: "nowrap",
+            display: "flex",
+            flexDirection: orientation === "horizontal" ? "row" : "column",
+            flexWrap: "nowrap",
 
-          // Inform the browser that the library is handling touch events for this element
-          // but still allow users to scroll content within panels in the non-resizing direction
-          // NOTE This is not an inherited style
-          // See github.com/bvaughn/react-resizable-panels/issues/662
-          touchAction: orientation === "horizontal" ? "pan-y" : "pan-x"
-        }}
-      >
-        {children}
-        {previews.map((preview) => (
-          <ResizePreview
-            key={preview.key}
-            overlay={overlay}
-            preview={preview}
-          />
-        ))}
-      </div>
-    </GroupContext.Provider>
+            // Inform the browser that the library is handling touch events for this element
+            // but still allow users to scroll content within panels in the non-resizing direction
+            // NOTE This is not an inherited style
+            // See github.com/bvaughn/react-resizable-panels/issues/662
+            touchAction: orientation === "horizontal" ? "pan-y" : "pan-x"
+          }}
+        >
+          {children}
+          {previews.map((preview) => (
+            <ResizePreview
+              key={preview.key}
+              overlay={overlay}
+              preview={preview}
+            />
+          ))}
+        </div>
+      </GroupContext.Provider>
+    </ParentGroupContext.Provider>
   );
 }
 

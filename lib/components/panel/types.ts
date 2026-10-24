@@ -237,3 +237,18 @@ export type PanelConstraintProps = Pick<
   | "maxSize"
   | "minSize"
 >;
+
+/**
+ * The nearest ancestor Panel (returned by `useParentPanel`), including its imperative API.
+ */
+export type ParentPanel = PanelImperativeHandle & {
+  /**
+   * Id of the Group that contains the Panel.
+   */
+  groupId: string;
+
+  /**
+   * Id of the Panel.
+   */
+  id: string;
+};

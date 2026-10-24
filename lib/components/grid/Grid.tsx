@@ -41,6 +41,7 @@ import { assert } from "../../utils/assert";
 import { getTestId } from "../../utils/getTestId";
 import { GroupContext } from "../group/GroupContext";
 import { GridContext } from "./GridContext";
+import { ParentGridContext } from "./ParentGridContext";
 import { Gridline } from "./Gridline";
 import { isValidGridlineIndex } from "./gridPlacement";
 import type {
@@ -52,6 +53,7 @@ import type {
   GridSeparatorPlacement,
   GridTrackImperativeHandle,
   GridTrackProps,
+  ParentGrid,
   RegisteredCell
 } from "./types";
 
@@ -577,7 +579,7 @@ export function Grid({
     });
   });
 
-  useImperativeHandle(gridRef, (): GridImperativeHandle => {
+  const imperativeHandle = useMemo((): GridImperativeHandle => {
     const getLayout = (): GridLayout => {
       const [columnAxisId, rowAxisId] = AXES.map(getResizeAxisId);
       if (!getRegisteredAxis(columnAxisId) || !getRegisteredAxis(rowAxisId)) {
@@ -658,6 +660,26 @@ export function Grid({
     };
   }, [columnTracks, getResizeAxisId, id, rowTracks]);
 
+  useImperativeHandle(gridRef, () => imperativeHandle, [imperativeHandle]);
+
+  // Methods are delegated (rather than copied) so the context value doesn't change when the tracks do
+  const imperativeHandleRef = useRef(imperativeHandle);
+  useIsomorphicLayoutEffect(() => {
+    imperativeHandleRef.current = imperativeHandle;
+  });
+  const parentGrid = useMemo<ParentGrid>(
+    () => ({
+      getLayout: () => imperativeHandleRef.current.getLayout(),
+      getTrackById: (axis, trackId) =>
+        imperativeHandleRef.current.getTrackById(axis, trackId),
+      getTrackByIndex: (axis, index) =>
+        imperativeHandleRef.current.getTrackByIndex(axis, index),
+      id,
+      setLayout: (layout) => imperativeHandleRef.current.setLayout(layout)
+    }),
+    [id]
+  );
+
   // The grid template is the only thing that needs to be re-rendered when the layout changes
   const readTemplate = () =>
     AXES.map((axis) => {
@@ -718,7 +740,11 @@ export function Grid({
         }}
       >
         {/* Cells should not inherit context from a parent Group (if this Grid is nested within one) */}
-        <GroupContext.Provider value={null}>{children}</GroupContext.Provider>
+        <GroupContext.Provider value={null}>
+          <ParentGridContext.Provider value={parentGrid}>
+            {children}
+          </ParentGridContext.Provider>
+        </GroupContext.Provider>
       </div>
     </GridContext.Provider>
   );

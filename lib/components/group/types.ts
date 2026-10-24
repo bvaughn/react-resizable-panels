@@ -211,3 +211,18 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
 
 export type OnGroupLayoutChange = GroupProps["onLayoutChange"];
 export type OnGroupLayoutChanged = GroupProps["onLayoutChanged"];
+
+/**
+ * The nearest ancestor Group (returned by `useParentGroup`), including its imperative API.
+ */
+export type ParentGroup = GroupImperativeHandle & {
+  /**
+   * Id of the Group.
+   */
+  id: string;
+
+  /**
+   * Orientation of the Group.
+   */
+  orientation: Orientation;
+};
