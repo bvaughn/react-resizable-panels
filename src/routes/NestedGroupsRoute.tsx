@@ -1,10 +1,10 @@
 import { Box, Callout, Code, Header } from "react-lib-tools";
 import { Panel } from "react-resizable-panels";
 import { html as ExampleHTML } from "../../public/generated/examples/NestedGroups.json";
+import { Link } from "../components/Link";
 import { Group } from "../components/styled-panels/Group";
 import { Panel as PreStyledPanel } from "../components/styled-panels/Panel";
 import { PanelText } from "../components/styled-panels/PanelText";
-import { Link } from "../components/Link";
 
 export default function NestedGroupsRoute() {
   return (

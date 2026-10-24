@@ -1,4 +1,4 @@
-import { Box, Code, Header, Link } from "react-lib-tools";
+import { Box, Callout, Code, Header, Link } from "react-lib-tools";
 import { html as CollapsibleGridCellsHTML } from "../../public/generated/examples/CollapsibleGridCells.json";
 import { Cell } from "../components/styled-panels/Cell";
 import { Grid } from "../components/styled-panels/Grid";
@@ -38,10 +38,12 @@ export default function CollapsibleGridCellsRoute() {
         </Cell>
         <Gridline type="column" column={1} />
       </Grid>
-      <div>
-        As the example above shows, cells can collapse all the way or to a
-        smaller fixed size. Gridlines are optional as well.
-      </div>
+      <Callout>
+        In the example above, the columns collapse to a width of 25 pixels
+        (their <code>collapsedSize</code>) and the rows collapse all the way.
+        Only the column boundary has a gridline; the row boundary can still be
+        resized by dragging the space between cells.
+      </Callout>
     </Box>
   );
 }

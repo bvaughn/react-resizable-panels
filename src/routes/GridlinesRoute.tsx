@@ -1,8 +1,8 @@
 import { Box, Code, Header } from "react-lib-tools";
 import { html as GridlinesHTML } from "../../public/generated/examples/Gridlines.json";
 import { html as GridlinesAdvancedHTML } from "../../public/generated/examples/GridlinesAdvanced.json";
-import { Grid } from "../components/styled-panels/Grid";
 import { Cell } from "../components/styled-panels/Cell";
+import { Grid } from "../components/styled-panels/Grid";
 import { Gridline } from "../components/styled-panels/Gridline";
 
 export default function GridlinesRoute() {

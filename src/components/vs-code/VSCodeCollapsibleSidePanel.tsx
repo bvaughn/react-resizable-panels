@@ -1,11 +1,11 @@
-import { useContext, type Ref } from "react";
+import { type Ref, useContext } from "react";
+import { Box } from "react-lib-tools";
 import {
-  Panel,
   type OnPanelResize,
+  Panel,
   type PanelImperativeHandle
 } from "react-resizable-panels";
 import { VSCodeContext } from "./VSCodeContext";
-import { Box } from "react-lib-tools";
 
 export function VSCodeCollapsibleSidePanel({
   onResize,

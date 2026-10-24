@@ -2,10 +2,10 @@ import { Box, Callout, Code, ExternalLink, Header } from "react-lib-tools";
 import { html as HorizontalHTML } from "../../public/generated/examples/LayoutBasicsHorizontal.json";
 import { html as SeparatorHTML } from "../../public/generated/examples/LayoutBasicsSeparator.json";
 import { html as VerticalHTML } from "../../public/generated/examples/LayoutBasicsVertical.json";
+import { Link } from "../components/Link";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
-import { Link } from "../components/Link";
 
 export default function LayoutBasicsRoute() {
   return (
@@ -45,12 +45,12 @@ export default function LayoutBasicsRoute() {
         separators can be rendered to improve UX. Separators provide another
         benefit: double-clicking on one resets a panel to its default size.
       </div>
+      <Code html={SeparatorHTML} />
       <Group>
         <Panel defaultSize="50%">left</Panel>
         <Separator orientation="horizontal" />
         <Panel>right</Panel>
       </Group>
-      <Code html={SeparatorHTML} />
       <Callout intent="primary">
         Separators improve keyboard accessibility by providing a tab-focusable{" "}
         <ExternalLink href="https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/">

@@ -1,11 +1,11 @@
 import {
-  useContext,
   type ForwardRefExoticComponent,
   type RefAttributes,
-  type SVGProps
+  type SVGProps,
+  useContext
 } from "react";
 import { cn, Tooltip } from "react-lib-tools";
-import { VSCodeContext, type Tab } from "./VSCodeContext";
+import { type Tab, VSCodeContext } from "./VSCodeContext";
 
 type Icon = ForwardRefExoticComponent<
   Omit<SVGProps<SVGSVGElement>, "ref"> & {

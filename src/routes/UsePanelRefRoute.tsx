@@ -1,8 +1,12 @@
 import { Box, Callout, Code, ExternalLink, Header } from "react-lib-tools";
+import { usePanelRef } from "react-resizable-panels";
 import { html } from "../../public/generated/examples/usePanelRef.json";
+import { PanelCollapseDemo } from "../components/demos/PanelCollapseDemo";
 import { Link } from "../components/Link";
 
 export default function UsePanelRefRoute() {
+  const ref = usePanelRef();
+
   return (
     <Box direction="column" gap={4}>
       <Header
@@ -18,6 +22,7 @@ export default function UsePanelRefRoute() {
         .
       </div>
       <Code html={html} />
+      <PanelCollapseDemo getPanel={() => ref.current} panelRef={ref} />
       <Callout intent="warning">
         This hook is useful for situations where you only need a local (to your
         component) reference to the{" "}

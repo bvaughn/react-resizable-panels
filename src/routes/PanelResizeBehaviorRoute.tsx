@@ -3,10 +3,10 @@ import { SeparatorOverlay } from "react-resizable-panels";
 import { html as ResizePreviewModeHTML } from "../../public/generated/examples/ResizePreviewMode.json";
 import { html as ResizePreviewWithImplicitSeparatorHTML } from "../../public/generated/examples/ResizePreviewWithImplicitSeparator.json";
 import { html as ResizePreviewWithSeparatorOverlayHTML } from "../../public/generated/examples/ResizePreviewWithSeparatorOverlay.json";
+import { Link } from "../components/Link";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
-import { Link } from "../components/Link";
 
 export default function PanelResizeBehaviorRoute() {
   return (

@@ -1,8 +1,8 @@
 import { Box, Callout, Code, Header } from "react-lib-tools";
+import { html as ExampleCollapseThresholdHTML } from "../../public/generated/examples/CollapseThreshold.json";
 import { html as ExampleHTML } from "../../public/generated/examples/CollapsiblePanels.json";
 import { html as ExampleCollapsedByDefaultHTML } from "../../public/generated/examples/CollapsiblePanelsCollapsedByDefault.json";
 import { html as ExampleWithCollapsedSizeHTML } from "../../public/generated/examples/CollapsiblePanelsCollapsedSize.json";
-import { html as ExampleCollapseThresholdHTML } from "../../public/generated/examples/CollapseThreshold.json";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
@@ -47,10 +47,6 @@ export default function CollapsiblePanelsRoute() {
         <Panel>The panel on the left collapses to a width of 35 pixels.</Panel>
       </Group>
       <div>This enables building UIs like VS Code's "Folders" side panel.</div>
-      <Callout intent="primary">
-        By default, a panel's collapse threshold is halfway between its
-        collapsed size and its minimum size.
-      </Callout>
       <div>
         Collapsible panels can also be collapsed by default by setting their{" "}
         <code>defaultSize</code> to 0 (pixels or percent).

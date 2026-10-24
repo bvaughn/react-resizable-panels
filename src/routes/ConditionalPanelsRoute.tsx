@@ -1,54 +1,71 @@
+import {
+  ChevronDoubleLeftIcon,
+  ChevronDoubleRightIcon
+} from "@heroicons/react/20/solid";
 import { useState } from "react";
 import { Box, Callout, Code, ExternalLink, Header } from "react-lib-tools";
 import { html as SeparatorsExampleHTML } from "../../public/generated/examples/ConditionalSeparators.json";
+import { DemoButton } from "../components/DemoButton";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
 
 export default function ConditionalPanelsRoute() {
   const [hideLeftPanel, setHideLeftPanel] = useState(false);
-  const [hideRight, setHideRight] = useState(false);
+  const [hideRightPanel, setHideRightPanel] = useState(false);
 
   return (
     <Box direction="column" gap={4}>
       <Header section="Flex" title="Conditional panels" />
       <div>Panels can be conditionally rendered.</div>
-      <Box direction="row" gap={4} justify="center">
-        <button
-          className="bg-sky-700 hover:bg-sky-600 py-1 px-2 rounded cursor-pointer"
-          onClick={() => setHideRight(!hideRight)}
-        >
-          {hideRight ? "show left panel" : "hide left panel"}
-        </button>
-        <button
-          className="bg-sky-700 hover:bg-sky-600 py-1 px-2 rounded cursor-pointer"
-          onClick={() => setHideLeftPanel(!hideLeftPanel)}
-        >
-          {hideLeftPanel ? "show right panel" : "hide right panel"}
-        </button>
-      </Box>
+      <Code html={SeparatorsExampleHTML} />
       <Group>
-        {hideRight || (
+        {hideLeftPanel ? (
+          <DemoButton
+            onClick={() => setHideLeftPanel(false)}
+            title="Show left panel"
+          >
+            <ChevronDoubleRightIcon className="w-4 h-4" />
+          </DemoButton>
+        ) : (
           <>
             <Panel id="left" minSize={50}>
               left
             </Panel>
+            <DemoButton
+              onClick={() => setHideLeftPanel(true)}
+              title="Hide left panel"
+            >
+              <ChevronDoubleLeftIcon className="w-4 h-4" />
+            </DemoButton>
             <Separator />
           </>
         )}
         <Panel id="center" minSize={100}>
           center
         </Panel>
-        {hideLeftPanel || (
+        {hideRightPanel ? (
+          <DemoButton
+            onClick={() => setHideRightPanel(false)}
+            title="Show right panel"
+          >
+            <ChevronDoubleLeftIcon className="w-4 h-4" />
+          </DemoButton>
+        ) : (
           <>
             <Separator />
+            <DemoButton
+              onClick={() => setHideRightPanel(true)}
+              title="Hide right panel"
+            >
+              <ChevronDoubleRightIcon className="w-4 h-4" />
+            </DemoButton>
             <Panel id="right" minSize={50}>
               right
             </Panel>
           </>
         )}
       </Group>
-      <Code html={SeparatorsExampleHTML} />
       <Callout intent="warning">
         Conditional panels should also specify ids to help match previous, saved
         layouts.

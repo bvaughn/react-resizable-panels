@@ -1,4 +1,4 @@
-import { useState, type PropsWithChildren } from "react";
+import { type PropsWithChildren, useState } from "react";
 import { Panel } from "react-resizable-panels";
 
 export function AccordionPanel({

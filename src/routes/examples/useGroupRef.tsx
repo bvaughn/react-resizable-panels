@@ -1,15 +1,23 @@
-import type { ComponentProps } from "react";
-
-declare const rest: ComponentProps<typeof Group>;
-
 // <begin>
 
-import { Group, useGroupRef } from "react-resizable-panels";
+import { Group, Panel, Separator, useGroupRef } from "react-resizable-panels";
 
 function ExampleComponent() {
   const ref = useGroupRef();
 
-  return <Group groupRef={ref} {...rest} />;
+  const maximizeLeftPanel = () => {
+    ref.current?.setLayout({ left: 75, right: 25 });
+  };
+
+  return (
+    <Group groupRef={ref}>
+      <Panel id="left">
+        <button onClick={maximizeLeftPanel}>maximize</button>
+      </Panel>
+      <Separator />
+      <Panel id="right">...</Panel>
+    </Group>
+  );
 }
 
 // <end>

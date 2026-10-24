@@ -2,9 +2,9 @@ import {
   AppRoot,
   Callout,
   Code,
-  ExternalLink,
   type CommonQuestion,
   type DefaultPath,
+  ExternalLink,
   type NavConfig
 } from "react-lib-tools";
 import { repository } from "../package.json";
@@ -15,7 +15,7 @@ import { Link } from "./components/Link";
 import { Group } from "./components/styled-panels/Group";
 import { Panel } from "./components/styled-panels/Panel";
 import { Separator } from "./components/styled-panels/Separator";
-import { routes, type Path } from "./routes";
+import { type Path, routes } from "./routes";
 
 export default function App() {
   return (
