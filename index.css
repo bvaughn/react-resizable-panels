@@ -20,3 +20,15 @@
   --color-separator-hover: #635d69;
   --color-separator-active: #87838c;
 }
+
+/* The colors above are chosen for the dark theme */
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-common-question-header: var(--color-fuchsia-700);
+
+    /* Ink (slate-900) at 20%, 35%, and 50% over white */
+    --color-separator: #cfd1d4;
+    --color-separator-hover: #abaeb4;
+    --color-separator-active: #878b94;
+  }
+}

@@ -22,7 +22,7 @@ const FOLDERS: {
   { Icon: DocumentIcon, folder: "drafts", title: "Drafts" }
 ];
 
-const PANEL_CLASS_NAME = "bg-white/8 rounded-md";
+const PANEL_CLASS_NAME = "bg-ink/8 rounded-md";
 
 export function EmailClient() {
   const [folder, setFolder] = useState<Folder>("inbox");
@@ -45,8 +45,8 @@ export function EmailClient() {
               className={cn(
                 "flex flex-row items-center gap-2 px-2 py-1 rounded text-sm text-left cursor-pointer",
                 folder === value
-                  ? "bg-white/10 text-white"
-                  : "text-white/80 hover:bg-white/5"
+                  ? "bg-ink/10 text-ink"
+                  : "text-ink/80 hover:bg-ink/5"
               )}
               key={value}
               onClick={() => {
@@ -56,7 +56,7 @@ export function EmailClient() {
             >
               <Icon className="w-4 h-4 shrink-0" />
               <span className="truncate grow">{title}</span>
-              <span className="text-xs text-white/60">
+              <span className="text-xs text-ink/60">
                 {getMessages(value).length}
               </span>
             </button>
@@ -75,7 +75,7 @@ export function EmailClient() {
               <button
                 className={cn(
                   "w-full flex flex-col @min-[24rem]:flex-row @min-[24rem]:items-center gap-x-2 px-2 py-1 text-sm text-left cursor-pointer",
-                  message.id === selectedId ? "bg-white/10" : "hover:bg-white/5"
+                  message.id === selectedId ? "bg-ink/10" : "hover:bg-ink/5"
                 )}
                 key={message.id}
                 onClick={() => setSelectedId(message.id)}
@@ -84,11 +84,11 @@ export function EmailClient() {
                   <span className="grow @min-[24rem]:grow-0 @min-[24rem]:w-28 shrink-0 truncate font-semibold">
                     {message.from}
                   </span>
-                  <span className="shrink-0 text-xs text-white/60 @min-[24rem]:order-last">
+                  <span className="shrink-0 text-xs text-ink/60 @min-[24rem]:order-last">
                     {message.time}
                   </span>
                 </span>
-                <span className="grow truncate text-white/80">
+                <span className="grow truncate text-ink/80">
                   {message.subject}
                 </span>
               </button>
@@ -101,18 +101,18 @@ export function EmailClient() {
                 <div className="flex flex-row items-center gap-2">
                   <Avatar name={selected.from} />
                   <div className="grow truncate">{selected.from}</div>
-                  <div className="shrink-0 text-xs text-white/60">
+                  <div className="shrink-0 text-xs text-ink/60">
                     {selected.time}
                   </div>
                 </div>
                 {selected.body.map((paragraph, index) => (
-                  <p className="text-sm text-white/80" key={index}>
+                  <p className="text-sm text-ink/80" key={index}>
                     {paragraph}
                   </p>
                 ))}
               </div>
             ) : (
-              <div className="h-full flex items-center justify-center text-white/60">
+              <div className="h-full flex items-center justify-center text-ink/60">
                 No message selected
               </div>
             )}

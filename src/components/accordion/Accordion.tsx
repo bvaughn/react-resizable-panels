@@ -105,7 +105,7 @@ function AccordionSection({
 
   return (
     <Panel
-      className="flex flex-col bg-white/8 rounded-md"
+      className="flex flex-col bg-ink/8 rounded-md"
       collapsedSize={HEADER_HEIGHT}
       collapsible
       defaultSize={defaultCollapsed ? HEADER_HEIGHT : undefined}
@@ -153,7 +153,7 @@ function AccordionHeader({
     <button
       aria-expanded={isOpen}
       className={cn(
-        "shrink-0 flex flex-row items-center gap-1 px-1 text-xs uppercase tracking-wide bg-white/10 text-white/60 cursor-pointer hover:text-white"
+        "shrink-0 flex flex-row items-center gap-1 px-1 text-xs uppercase tracking-wide bg-ink/10 text-ink/60 cursor-pointer hover:text-ink"
       )}
       onClick={toggle}
       style={{ height: HEADER_HEIGHT }}
@@ -170,7 +170,7 @@ function Item({
 }: PropsWithChildren<{ indent?: boolean }>) {
   return (
     <div
-      className="px-2 py-0.5 text-sm text-white/80 truncate"
+      className="px-2 py-0.5 text-sm text-ink/80 truncate"
       style={{ paddingLeft: indent ? "1.75rem" : "1.25rem" }}
     >
       {children}

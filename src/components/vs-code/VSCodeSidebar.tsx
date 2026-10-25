@@ -10,7 +10,7 @@ export function VSCodeSidebar() {
   return (
     // Hidden on small screens to leave more room for the panels
     <Box
-      className="hidden sm:flex p-1 rounded-md bg-white/8"
+      className="hidden sm:flex p-1 rounded-md bg-ink/8"
       direction="column"
       gap={1}
     >

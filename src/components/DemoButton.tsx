@@ -15,7 +15,7 @@ export function DemoButton({
     <button
       aria-label={title}
       className={cn(
-        "bg-sky-700 hover:bg-sky-600 py-1 px-2 rounded cursor-pointer",
+        "bg-sky-700 hover:bg-sky-600 text-white py-1 px-2 rounded cursor-pointer",
         className
       )}
       onClick={onClick}

@@ -50,13 +50,13 @@ export default function OverflowRoute() {
       <Code html={PanelDropShadowHTML} />
       <Group className="overflow-visible!">
         <Panel
-          className="bg-fuchsia-600 shadow-md shadow-fuchsia-600/50"
+          className="bg-fuchsia-600 shadow-md shadow-fuchsia-600/50 text-white"
           minSize={100}
         >
           left
         </Panel>
         <Panel
-          className="bg-violet-600 shadow-md shadow-violet-600/50"
+          className="bg-violet-600 shadow-md shadow-violet-600/50 text-white"
           minSize={100}
         >
           right

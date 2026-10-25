@@ -13,7 +13,7 @@ import { Avatar } from "../email/Avatar";
 import { Grid } from "../styled-panels/Grid";
 import { Gridline } from "../styled-panels/Gridline";
 
-const CELL_CLASS_NAME = "bg-white/8 rounded-md";
+const CELL_CLASS_NAME = "bg-ink/8 rounded-md";
 
 const NAV: {
   Icon: ComponentType<SVGProps<SVGSVGElement>>;
@@ -91,7 +91,7 @@ export function Dashboard() {
             <div
               className={cn(
                 "flex flex-row items-center justify-center gap-2 px-2.5 py-1.5 rounded text-sm whitespace-nowrap overflow-hidden",
-                index === 0 ? "bg-white/10 text-white" : "text-white/80"
+                index === 0 ? "bg-ink/10 text-ink" : "text-ink/80"
               )}
               key={title}
               title={title}
@@ -125,7 +125,7 @@ export function Dashboard() {
       <Cell className={CELL_CLASS_NAME} column={1} row={1}>
         {/* Padding is applied here (rather than to the Cell) so that nothing shows when it collapses */}
         <div className="flex flex-col gap-2 p-2">
-          <div className="text-xs uppercase tracking-wide text-white/60">
+          <div className="text-xs uppercase tracking-wide text-ink/60">
             Recent activity
           </div>
           {ACTIVITY.map(({ name, text, time }) => (
@@ -133,9 +133,9 @@ export function Dashboard() {
               <Avatar name={name} />
               <div className="grow truncate text-sm">
                 <span className="font-semibold">{name}</span>{" "}
-                <span className="text-white/80">{text}</span>
+                <span className="text-ink/80">{text}</span>
               </div>
-              <div className="shrink-0 text-xs text-white/60">{time}</div>
+              <div className="shrink-0 text-xs text-ink/60">{time}</div>
             </div>
           ))}
         </div>
@@ -169,13 +169,15 @@ function StatTile({
   const Icon = direction === "up" ? ArrowUpIcon : ArrowDownIcon;
 
   return (
-    <div className="grow basis-28 flex flex-col gap-1 rounded-md bg-black/20 px-3 py-2">
-      <div className="text-xs text-white/60 truncate">{label}</div>
+    <div className="grow basis-28 flex flex-col gap-1 rounded-md bg-black/5 dark:bg-black/20 px-3 py-2">
+      <div className="text-xs text-ink/60 truncate">{label}</div>
       <div className="text-xl font-semibold">{value}</div>
       <div
         className={cn(
           "flex flex-row items-center gap-1 text-xs truncate",
-          isGood ? "text-emerald-400" : "text-rose-400"
+          isGood
+            ? "text-emerald-700 dark:text-emerald-400"
+            : "text-rose-700 dark:text-rose-400"
         )}
       >
         <Icon className="w-3 h-3 shrink-0" />

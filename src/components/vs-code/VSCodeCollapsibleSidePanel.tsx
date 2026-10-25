@@ -19,7 +19,7 @@ export function VSCodeCollapsibleSidePanel({
 
   return (
     <Panel
-      className="bg-white/8 rounded-md"
+      className="bg-ink/8 rounded-md"
       collapsible
       defaultSize="25%"
       maxSize={300}
@@ -29,7 +29,7 @@ export function VSCodeCollapsibleSidePanel({
     >
       {/* Padding is applied here (rather than to the Panel) so that nothing shows when it collapses */}
       <Box className="p-2" direction="column" gap={2}>
-        <div className="text-xs uppercase tracking-wide text-white/60 truncate">
+        <div className="text-xs uppercase tracking-wide text-ink/60 truncate">
           {activeTab}
         </div>
         <VSCodeSidePanelContent tab={activeTab} />

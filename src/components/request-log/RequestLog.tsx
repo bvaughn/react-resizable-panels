@@ -57,15 +57,15 @@ export function DemoPanel({
 
   return (
     <Panel
-      className="@container bg-white/8 rounded-md flex flex-col"
+      className="@container bg-ink/8 rounded-md flex flex-col"
       maxSize={maxSize}
       minSize={minSize}
       onResize={(size) => setPercentage(size.asPercentage)}
     >
       {/* Narrow panels stack the title above the size */}
-      <div className="shrink-0 flex flex-col @min-[9rem]:flex-row @min-[9rem]:items-center justify-between gap-x-2 px-2 py-1 border-b border-white/10">
+      <div className="shrink-0 flex flex-col @min-[9rem]:flex-row @min-[9rem]:items-center justify-between gap-x-2 px-2 py-1 border-b border-ink/10">
         <div className="truncate">{title}</div>
-        <div className="text-white/60 text-xs">{Math.round(percentage)}%</div>
+        <div className="text-ink/60 text-xs">{Math.round(percentage)}%</div>
       </div>
       <div className="grow min-h-0 overflow-auto">{children}</div>
     </Panel>
@@ -79,7 +79,7 @@ const WIDE_ONLY = "hidden @min-[15rem]:table-cell";
 export function RequestLog() {
   return (
     <table className="w-full text-sm">
-      <thead className="text-white/60 text-xs text-left">
+      <thead className="text-ink/60 text-xs text-left">
         <tr>
           <th className={cn("px-2 py-1 font-normal", WIDE_ONLY)}>Method</th>
           <th className="px-2 py-1 font-normal">Path</th>
@@ -93,10 +93,10 @@ export function RequestLog() {
       </thead>
       <tbody>
         {ROWS.map(({ duration, id, method, path, status }) => (
-          <tr className="border-t border-white/5" key={id}>
+          <tr className="border-t border-ink/5" key={id}>
             <td
               className={cn(
-                "px-2 py-0.5 text-white/60 text-xs whitespace-nowrap",
+                "px-2 py-0.5 text-ink/60 text-xs whitespace-nowrap",
                 WIDE_ONLY
               )}
             >
@@ -109,17 +109,17 @@ export function RequestLog() {
                 "px-2 py-0.5 text-right whitespace-nowrap",
                 NOT_NARROW,
                 status >= 500
-                  ? "text-rose-400"
+                  ? "text-rose-700 dark:text-rose-400"
                   : status >= 400
-                    ? "text-amber-400"
-                    : "text-white/60"
+                    ? "text-amber-700 dark:text-amber-400"
+                    : "text-ink/60"
               )}
             >
               {status}
             </td>
             <td
               className={cn(
-                "px-2 py-0.5 text-right text-white/60 tabular-nums whitespace-nowrap",
+                "px-2 py-0.5 text-right text-ink/60 tabular-nums whitespace-nowrap",
                 WIDE_ONLY
               )}
             >
@@ -135,7 +135,7 @@ export function RequestLog() {
 export function RequestDetails() {
   return (
     <pre className="p-2 text-xs font-mono">
-      <span className="text-white/60">GET {ROWS[0].path}</span>
+      <span className="text-ink/60">GET {ROWS[0].path}</span>
       {"\n\n"}
       {JSON.stringify(
         {
@@ -170,10 +170,10 @@ export function RequestHeaders() {
     <div className="flex flex-col text-sm">
       {HEADERS.map(([name, value]) => (
         <div
-          className="px-2 py-0.5 border-t border-white/5 first:border-t-0"
+          className="px-2 py-0.5 border-t border-ink/5 first:border-t-0"
           key={name}
         >
-          <div className="text-white/60 text-xs truncate">{name}</div>
+          <div className="text-ink/60 text-xs truncate">{name}</div>
           <div className="truncate">{value}</div>
         </div>
       ))}

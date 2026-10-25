@@ -12,11 +12,11 @@ export function Cell({
   const sizes = useContext(GridSizesContext);
 
   return (
-    <CellExternal className={cn("bg-white/8 rounded-md", className)} {...rest}>
+    <CellExternal className={cn("bg-ink/8 rounded-md", className)} {...rest}>
       <PanelText>
         {children}
         {sizes && (
-          <div className="text-white/60 text-xs text-center">
+          <div className="text-ink/60 text-xs text-center">
             {sumSpan(sizes.columns, rest.column, rest.columnSpan)}% ×{" "}
             {sumSpan(sizes.rows, rest.row, rest.rowSpan)}%
           </div>

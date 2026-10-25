@@ -33,7 +33,7 @@ export function VSCodeSidebarButton({
       <button
         className={cn(
           "shrink-0 w-8 h-8 p-1 rounded cursor-pointer",
-          isActive ? "text-white bg-white/10" : "text-white/60 hover:text-white"
+          isActive ? "text-ink bg-ink/10" : "text-ink/60 hover:text-ink"
         )}
         onClick={() => {
           if (activeTab === tab) {
