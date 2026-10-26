@@ -1,4 +1,4 @@
-import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/16/solid";
+import { ChevronLeftIcon } from "@heroicons/react/16/solid";
 import { type PropsWithChildren, type ReactNode, useState } from "react";
 import { cn } from "react-lib-tools";
 import { Panel, useParentPanel } from "react-resizable-panels";
@@ -123,7 +123,9 @@ function AccordionSection({
         isOpen={isOpen}
         title={title}
       />
-      <div className="grow min-h-0 py-1 overflow-auto">{children}</div>
+      {isOpen && (
+        <div className="grow min-h-0 py-1 overflow-auto">{children}</div>
+      )}
     </Panel>
   );
 }
@@ -147,19 +149,22 @@ function AccordionHeader({
     }
   };
 
-  const Icon = isOpen ? ChevronDownIcon : ChevronRightIcon;
-
   return (
     <button
       aria-expanded={isOpen}
       className={cn(
-        "shrink-0 flex flex-row items-center gap-1 px-1 text-xs uppercase tracking-wide bg-ink/10 text-ink/60 cursor-pointer hover:text-ink"
+        "shrink-0 flex flex-row items-center gap-1 px-2 text-xs uppercase tracking-wide bg-ink/10 text-ink/60 cursor-pointer transition-colors! duration-250! hover:text-ink"
       )}
       onClick={toggle}
       style={{ height: HEADER_HEIGHT }}
     >
-      <Icon className="w-4 h-4 shrink-0" />
-      <span className="truncate">{title}</span>
+      <span className="grow truncate text-left">{title}</span>
+      <ChevronLeftIcon
+        className={cn(
+          "w-4 h-4 shrink-0 transition-transform! duration-150",
+          isOpen && "-rotate-90"
+        )}
+      />
     </button>
   );
 }
