@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.15.1
+
+- Declare `@types/react` as an optional peer dependency. Under strict package linkers (e.g. pnpm with a global virtual store, Yarn PnP, or Bun isolated installs), TypeScript could fail to resolve it from this package, silently typing props built on React types as `any`. - [#776](https://github.com/bvaughn/react-resizable-panels/pull/776)
+
 ## 4.15.0
 
 - Add `useParentGroup`, `useParentPanel`, and `useParentGrid` hooks. Components rendered within a `Group`, `Panel`, or `Grid` can use them to access the nearest one (including its imperative API) without passing refs down; they return `null` outside of a matching component. Within a `Cell`, `useParentGroup` returns the nearest `Group` outside of the `Grid`. - [#775](https://github.com/bvaughn/react-resizable-panels/pull/775)
