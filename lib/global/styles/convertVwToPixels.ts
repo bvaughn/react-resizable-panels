@@ -1,3 +1,5 @@
-export function convertVwToPixels(value: number) {
-  return (value / 100) * window.innerWidth;
+export function convertVwToPixels(element: Element, value: number) {
+  const ownerWindow = element.ownerDocument.defaultView ?? window;
+
+  return (value / 100) * ownerWindow.innerWidth;
 }

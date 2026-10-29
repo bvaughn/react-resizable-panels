@@ -35,11 +35,11 @@ export function sizeStyleToPixels({
       break;
     }
     case "vh": {
-      pixels = convertVhToPixels(size);
+      pixels = convertVhToPixels(itemElement, size);
       break;
     }
     case "vw": {
-      pixels = convertVwToPixels(size);
+      pixels = convertVwToPixels(itemElement, size);
       break;
     }
   }
