@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, onTestFinished, test } from "vitest";
 import {
   setDefaultElementStyle,
   setElementStyle
@@ -239,5 +239,35 @@ describe("sizeStyleToPixels", () => {
         })
       ).toBe(0);
     });
+  });
+
+  test("vh and vw units use the item's own window", () => {
+    window.innerHeight = 800;
+    window.innerWidth = 1200;
+
+    const iframe = document.createElement("iframe");
+    document.body.appendChild(iframe);
+    onTestFinished(() => iframe.remove());
+
+    const ownerWindow = iframe.contentWindow!;
+    Object.defineProperty(ownerWindow, "innerHeight", { value: 400 });
+    Object.defineProperty(ownerWindow, "innerWidth", { value: 600 });
+    const itemElement = ownerWindow.document.createElement("div");
+
+    expect(
+      sizeStyleToPixels({
+        axisSize: 1600,
+        itemElement,
+        styleProp: "50vh"
+      })
+    ).toBe(200);
+
+    expect(
+      sizeStyleToPixels({
+        axisSize: 1600,
+        itemElement,
+        styleProp: "50vw"
+      })
+    ).toBe(300);
   });
 });

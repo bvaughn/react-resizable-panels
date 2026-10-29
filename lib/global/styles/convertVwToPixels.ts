@@ -1,3 +1,5 @@
-export function convertVwToPixels(value: number) {
-  return (value / 100) * window.innerWidth;
+import { getOwnerWindow } from "../../utils/getOwnerWindow";
+
+export function convertVwToPixels(element: Element, value: number) {
+  return (value / 100) * getOwnerWindow(element).innerWidth;
 }

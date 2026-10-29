@@ -1,5 +1,7 @@
+import { getOwnerWindow } from "../../utils/getOwnerWindow";
+
 export function convertEmToPixels(element: Element, value: number) {
-  const style = getComputedStyle(element);
+  const style = getOwnerWindow(element).getComputedStyle(element);
   const fontSize = parseFloat(style.fontSize);
 
   return value * fontSize;

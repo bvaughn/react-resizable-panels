@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.15.2
+
+- Fix `vh`, `vw`, and `em` panel sizes (e.g. `defaultSize="25vw"`) being resolved against the global `window` instead of the panel's own window, so a `Group` rendered into another window (e.g. a `window.open` popout via a portal, or an iframe) was sized against the opener's viewport. - [#777](https://github.com/bvaughn/react-resizable-panels/pull/777)
+
 ## 4.15.1
 
 - Declare `@types/react` as an optional peer dependency. Under strict package linkers (e.g. pnpm with a global virtual store, Yarn PnP, or Bun isolated installs), TypeScript could fail to resolve it from this package, silently typing props built on React types as `any`. - [#776](https://github.com/bvaughn/react-resizable-panels/pull/776)
