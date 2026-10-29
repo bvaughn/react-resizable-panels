@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, onTestFinished, test } from "vitest";
 import {
   setDefaultElementStyle,
   setElementStyle
@@ -247,6 +247,8 @@ describe("sizeStyleToPixels", () => {
 
     const iframe = document.createElement("iframe");
     document.body.appendChild(iframe);
+    onTestFinished(() => iframe.remove());
+
     const ownerWindow = iframe.contentWindow!;
     Object.defineProperty(ownerWindow, "innerHeight", { value: 400 });
     Object.defineProperty(ownerWindow, "innerWidth", { value: 600 });
@@ -267,7 +269,5 @@ describe("sizeStyleToPixels", () => {
         styleProp: "50vw"
       })
     ).toBe(300);
-
-    iframe.remove();
   });
 });
