@@ -374,5 +374,27 @@ describe("pointer events from a different document", () => {
       pointerOut(otherDocument);
       expect(getInteractionState().state).toBe("hover");
     });
+
+    test("clears hover state in another window when the pointer moves onto that window's iframe", () => {
+      // A group in a popup window (or iframe) has its own window, with its own HTMLIFrameElement
+      const frame = document.createElement("iframe");
+      document.body.appendChild(frame);
+      const popupDocument = frame.contentDocument!;
+
+      updateInteractionState({
+        cursorFlags: 0,
+        hitRegions: [],
+        ownerDocument: popupDocument,
+        state: "hover"
+      });
+
+      onDocumentPointerOut({
+        currentTarget: popupDocument,
+        relatedTarget: popupDocument.createElement("iframe")
+      } as unknown as PointerEvent);
+      expect(getInteractionState().state).toBe("inactive");
+
+      frame.remove();
+    });
   });
 });

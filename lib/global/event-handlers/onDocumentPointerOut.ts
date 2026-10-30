@@ -1,3 +1,4 @@
+import { isHTMLElement } from "../../shared/utils/isHTMLElement";
 import {
   getInteractionState,
   updateInteractionState
@@ -8,7 +9,9 @@ export function onDocumentPointerOut(event: PointerEvent) {
   // This can leave the `data-separator` attribute in an invalid state ("hover") which in turn might break styles
   // The easiest fix for this case is to reset the interaction state in this specific circumstance
   // See issues/645
-  if (event.relatedTarget instanceof HTMLIFrameElement) {
+  // Check the tag rather than "instanceof HTMLIFrameElement", which is false for iframes in other windows (e.g. a popup)
+  const relatedTarget = event.relatedTarget;
+  if (isHTMLElement(relatedTarget) && relatedTarget.nodeName === "IFRAME") {
     const interactionState = getInteractionState();
     switch (interactionState.state) {
       case "hover": {
