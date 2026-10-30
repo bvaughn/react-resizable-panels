@@ -41,19 +41,7 @@ import type { GroupProps, Layout, ParentGroup } from "./types";
 import { useGroupImperativeHandle } from "./useGroupImperativeHandle";
 import { useResizePreviews } from "./useResizePreviews";
 
-/**
- * A Group wraps a set of resizable Panel components.
- * Group content can be resized _horizontally_ or _vertically_.
- *
- * Group elements always include the following attributes:
- *
- * ```html
- * <div data-group data-testid="group-id-prop" id="group-id-prop">
- * ```
- *
- * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
- */
-export function Group({
+function GroupComponent({
   children,
   className,
   defaultLayout,
@@ -483,5 +471,18 @@ export function Group({
   );
 }
 
-// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/displayName
-Group.displayName = "Group";
+/**
+ * A Group wraps a set of resizable Panel components.
+ * Group content can be resized _horizontally_ or _vertically_.
+ *
+ * Group elements always include the following attributes:
+ *
+ * ```html
+ * <div data-group data-testid="group-id-prop" id="group-id-prop">
+ * ```
+ *
+ * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+ */
+export const Group = /* @__PURE__ */ Object.assign(GroupComponent, {
+  displayName: "Group"
+});

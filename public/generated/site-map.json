@@ -487,7 +487,7 @@
       {
         "id": "resizeTargetMinimumSize",
         "title": "resizeTargetMinimumSize",
-        "text": "resizeTargetMinimumSize?: { coarse: number; fine: number; } = {\n coarse: 20,\n fine: 10\n } Minimum size of the resizable hit target area (either a Gridline or a Cell edge).\nThis threshold ensures targets are large enough to avoid mis-clicks.\n Refer to the Group prop of the same name for more information."
+        "text": "resizeTargetMinimumSize?: { coarse: number; fine: number; } = { coarse: 20, fine: 10 } Minimum size of the resizable hit target area (either a Gridline or a Cell edge).\nThis threshold ensures targets are large enough to avoid mis-clicks.\n Refer to the Group prop of the same name for more information."
       },
       {
         "id": "style",
@@ -623,7 +623,7 @@
       {
         "id": "resizeTargetMinimumSize",
         "title": "resizeTargetMinimumSize",
-        "text": "resizeTargetMinimumSize?: { coarse: number; fine: number; } = {\n coarse: 20,\n fine: 10\n } Minimum size of the resizable hit target area (either Separator or Panel edge).\nThis threshold ensures targets are large enough to avoid mis-clicks.\n \nCoarse inputs (typically a finger on a touchscreen) have reduced accuracy;\nto ensure accessibility and ease of use, hit targets should be larger to prevent mis-clicks.\nFine inputs (typically a mouse) can be smaller\n\n Apple interface guidelines suggest 20pt (27px) on desktops and 28pt (37px) for touch devices.\nIn practice this seems to be much larger than many of their own applications use though."
+        "text": "resizeTargetMinimumSize?: { coarse: number; fine: number; } = { coarse: 20, fine: 10 } Minimum size of the resizable hit target area (either Separator or Panel edge).\nThis threshold ensures targets are large enough to avoid mis-clicks.\n \nCoarse inputs (typically a finger on a touchscreen) have reduced accuracy;\nto ensure accessibility and ease of use, hit targets should be larger to prevent mis-clicks.\nFine inputs (typically a mouse) can be smaller\n\n Apple interface guidelines suggest 20pt (27px) on desktops and 28pt (37px) for touch devices.\nIn practice this seems to be much larger than many of their own applications use though."
       },
       {
         "id": "style",

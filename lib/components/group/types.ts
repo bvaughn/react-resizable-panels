@@ -177,6 +177,8 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    * Defaults to `"panel"` (immediate resizing); `"separator"` defers resizing until release.
    *
    * Customize previews using the `SeparatorOverlay` component.
+   *
+   * @default "panel"
    */
   resizePreviewMode?: ResizePreviewMode | undefined;
 
@@ -190,6 +192,8 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    *
    * ℹ️ [Apple interface guidelines](https://developer.apple.com/design/human-interface-guidelines/accessibility) suggest `20pt` (`27px`) on desktops and `28pt` (`37px`) for touch devices.
    * In practice this seems to be much larger than many of their own applications use though.
+   *
+   * @default { coarse: 20, fine: 10 }
    */
   resizeTargetMinimumSize?: {
     coarse: number;
@@ -198,6 +202,8 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
 
   /**
    * Specifies the resizable orientation ("horizontal" or "vertical"); defaults to "horizontal"
+   *
+   * @default "horizontal"
    */
   orientation?: "horizontal" | "vertical" | undefined;
 

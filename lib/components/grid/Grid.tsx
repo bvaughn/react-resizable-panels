@@ -68,26 +68,7 @@ const AXES: GridAxis[] = ["column", "row"];
 
 const EMPTY_GRID_LAYOUT: GridLayout = { columns: {}, rows: {} };
 
-/**
- * A Grid arranges resizable Cells in two dimensions.
- * Columns can be resized horizontally and rows can be resized vertically;
- * dragging the point where a column boundary and a row boundary intersect resizes both.
- *
- * Size constraints (e.g. min/max size, collapsible) are specified per track (column or row),
- * using the same format as Panel props.
- *
- * Cells can span multiple columns and/or rows.
- * Track boundaries cannot be resized alongside of a cell that spans across them.
- *
- * Grid elements always include the following attributes:
- *
- * ```html
- * <div data-grid data-testid="grid-id-prop" id="grid-id-prop">
- * ```
- *
- * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
- */
-export function Grid({
+function GridComponent({
   children,
   className,
   columns,
@@ -750,8 +731,28 @@ export function Grid({
   );
 }
 
-// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/displayName
-Grid.displayName = "Grid";
+/**
+ * A Grid arranges resizable Cells in two dimensions.
+ * Columns can be resized horizontally and rows can be resized vertically;
+ * dragging the point where a column boundary and a row boundary intersect resizes both.
+ *
+ * Size constraints (e.g. min/max size, collapsible) are specified per track (column or row),
+ * using the same format as Panel props.
+ *
+ * Cells can span multiple columns and/or rows.
+ * Track boundaries cannot be resized alongside of a cell that spans across them.
+ *
+ * Grid elements always include the following attributes:
+ *
+ * ```html
+ * <div data-grid data-testid="grid-id-prop" id="grid-id-prop">
+ * ```
+ *
+ * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+ */
+export const Grid = /* @__PURE__ */ Object.assign(GridComponent, {
+  displayName: "Grid"
+});
 
 function useNormalizedTracks(
   tracks: number | GridTrackProps[],

@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.15.3
+
+- Fix unused components not being removed by some bundlers (e.g. esbuild), so an application that only imports `Group` no longer includes `Grid`. Components now set their `displayName` within a pure-annotated expression, and `package.json` declares `"sideEffects": false`. - [#779](https://github.com/bvaughn/react-resizable-panels/pull/779)
+
 ## 4.15.2
 
 - Fix `vh`, `vw`, and `em` panel sizes (e.g. `defaultSize="25vw"`) being resolved against the global `window` instead of the panel's own window, so a `Group` rendered into another window (e.g. a `window.open` popout via a portal, or an iframe) was sized against the opener's viewport. - [#777](https://github.com/bvaughn/react-resizable-panels/pull/777)

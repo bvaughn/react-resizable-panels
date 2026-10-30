@@ -80,6 +80,8 @@ export type PanelProps = BasePanelAttributes & {
 
   /**
    * Panel size when collapsed; defaults to 0%.
+   *
+   * @default "0%"
    */
   collapsedSize?: number | string | undefined;
 
@@ -102,6 +104,8 @@ export type PanelProps = BasePanelAttributes & {
    * This panel can be collapsed.
    *
    * ℹ️ A collapsible panel will collapse when its size is less than the specified `minSize`
+   *
+   * @default false
    */
   collapsible?: boolean | undefined;
 
@@ -138,6 +142,8 @@ export type PanelProps = BasePanelAttributes & {
    * ℹ️ Panel min/max size constraints may impact this behavior.
    *
    * ⚠️ A Group must contain at least one Panel with `preserve-relative-size` resize behavior.
+   *
+   * @default "preserve-relative-size"
    */
   groupResizeBehavior?:
     | "preserve-relative-size"
@@ -161,6 +167,8 @@ export type PanelProps = BasePanelAttributes & {
    * - Numbers are interpreted as pixels (e.g. `maxSize={200}` is 200 pixels)
    * - Strings without explicit units are interpreted as percentage (e.g. `maxSize="50"` is 50 percent)
    * - Use explicit units (e.g. "px", "%", "em", "rem", "vh", or "vw") to change interpretation
+   *
+   * @default "100%"
    */
   maxSize?: number | string | undefined;
 
@@ -171,6 +179,8 @@ export type PanelProps = BasePanelAttributes & {
    * - Numbers are interpreted as pixels (e.g. `minSize={200}` is 200 pixels)
    * - Strings without explicit units are interpreted as percentage (e.g. `minSize="50"` is 50 percent)
    * - Use explicit units (e.g. "px", "%", "em", "rem", "vh", or "vw") to change interpretation
+   *
+   * @default "0%"
    */
   minSize?: number | string | undefined;
 
