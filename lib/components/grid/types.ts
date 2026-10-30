@@ -241,6 +241,8 @@ export type GridProps = HTMLAttributes<HTMLDivElement> & {
    * This threshold ensures targets are large enough to avoid mis-clicks.
    *
    * ℹ️ Refer to the `Group` prop of the same name for more information.
+   *
+   * @default { coarse: 20, fine: 10 }
    */
   resizeTargetMinimumSize?: {
     coarse: number;
@@ -278,6 +280,8 @@ export type CellProps = HTMLAttributes<HTMLDivElement> & {
 
   /**
    * Number of columns this cell spans; defaults to 1.
+   *
+   * @default 1
    */
   columnSpan?: number | undefined;
 
@@ -301,6 +305,8 @@ export type CellProps = HTMLAttributes<HTMLDivElement> & {
 
   /**
    * Number of rows this cell spans; defaults to 1.
+   *
+   * @default 1
    */
   rowSpan?: number | undefined;
 

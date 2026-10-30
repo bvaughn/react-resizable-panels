@@ -21,32 +21,7 @@ import { ParentPanelContext } from "./ParentPanelContext";
 import type { PanelProps, PanelSize, ParentPanel } from "./types";
 import { usePanelImperativeHandle } from "./usePanelImperativeHandle";
 
-/**
- * A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.
- *
- * Panel size props can be in the following formats:
- * - Percentage of the parent Group (0..100)
- * - Pixels
- * - Relative font units (em, rem)
- * - Viewport relative units (vh, vw)
- *
- * ℹ️ Numeric values are assumed to be pixels.
- * Strings without explicit units are assumed to be percentages (0%..100%).
- * Percentages may also be specified as strings ending with "%" (e.g. "33%")
- * Pixels may also be specified as strings ending with the unit "px".
- * Other units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)
- *
- * Panel elements always include the following attributes:
- *
- * ```html
- * <div data-panel data-testid="panel-id-prop" id="panel-id-prop">
- * ```
- *
- * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
- *
- * ⚠️ Panel elements must be direct DOM children of their parent Group elements.
- */
-export function Panel({
+function PanelComponent({
   children,
   className,
   collapsedSize = "0%",
@@ -231,8 +206,34 @@ export function Panel({
   );
 }
 
-// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/displayName
-Panel.displayName = "Panel";
+/**
+ * A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.
+ *
+ * Panel size props can be in the following formats:
+ * - Percentage of the parent Group (0..100)
+ * - Pixels
+ * - Relative font units (em, rem)
+ * - Viewport relative units (vh, vw)
+ *
+ * ℹ️ Numeric values are assumed to be pixels.
+ * Strings without explicit units are assumed to be percentages (0%..100%).
+ * Percentages may also be specified as strings ending with "%" (e.g. "33%")
+ * Pixels may also be specified as strings ending with the unit "px".
+ * Other units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)
+ *
+ * Panel elements always include the following attributes:
+ *
+ * ```html
+ * <div data-panel data-testid="panel-id-prop" id="panel-id-prop">
+ * ```
+ *
+ * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+ *
+ * ⚠️ Panel elements must be direct DOM children of their parent Group elements.
+ */
+export const Panel = /* @__PURE__ */ Object.assign(PanelComponent, {
+  displayName: "Panel"
+});
 
 const PROHIBITED_CSS_PROPERTIES: CSSProperties = {
   minHeight: 0,

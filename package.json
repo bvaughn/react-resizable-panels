@@ -15,6 +15,7 @@
   "main": "dist/react-resizable-panels.cjs",
   "module": "dist/react-resizable-panels.js",
   "types": "dist/react-resizable-panels.d.ts",
+  "sideEffects": false,
   "files": [
     "dist"
   ],

@@ -3,6 +3,38 @@
 import { GridTrackSeparator } from "./GridTrackSeparator";
 import type { GridlineProps } from "./types";
 
+function GridlineComponent(props: GridlineProps) {
+  const { children, className, disabled, elementRef, style } = props;
+
+  return props.type === "column" ? (
+    <GridTrackSeparator
+      axis="column"
+      className={className}
+      crossSpan={props.rowSpan}
+      crossStart={props.row ?? 0}
+      disabled={disabled}
+      elementRef={elementRef}
+      index={props.column}
+      style={style}
+    >
+      {children}
+    </GridTrackSeparator>
+  ) : (
+    <GridTrackSeparator
+      axis="row"
+      className={className}
+      crossSpan={props.columnSpan}
+      crossStart={props.column ?? 0}
+      disabled={disabled}
+      elementRef={elementRef}
+      index={props.row}
+      style={style}
+    >
+      {children}
+    </GridTrackSeparator>
+  );
+}
+
 /**
  * Resizes the columns (or rows) of a Grid.
  *
@@ -48,37 +80,6 @@ import type { GridlineProps } from "./types";
  *
  * ℹ️ Gridlines rendered by another component (rather than directly within the Grid) aren't detected until they mount, so server-rendered layouts may shift slightly during hydration.
  */
-export function Gridline(props: GridlineProps) {
-  const { children, className, disabled, elementRef, style } = props;
-
-  return props.type === "column" ? (
-    <GridTrackSeparator
-      axis="column"
-      className={className}
-      crossSpan={props.rowSpan}
-      crossStart={props.row ?? 0}
-      disabled={disabled}
-      elementRef={elementRef}
-      index={props.column}
-      style={style}
-    >
-      {children}
-    </GridTrackSeparator>
-  ) : (
-    <GridTrackSeparator
-      axis="row"
-      className={className}
-      crossSpan={props.columnSpan}
-      crossStart={props.column ?? 0}
-      disabled={disabled}
-      elementRef={elementRef}
-      index={props.row}
-      style={style}
-    >
-      {children}
-    </GridTrackSeparator>
-  );
-}
-
-// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/displayName
-Gridline.displayName = "Gridline";
+export const Gridline = /* @__PURE__ */ Object.assign(GridlineComponent, {
+  displayName: "Gridline"
+});
