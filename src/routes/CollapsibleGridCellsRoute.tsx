@@ -5,7 +5,7 @@ import { Dashboard } from "../components/dashboard/Dashboard";
 export default function CollapsibleGridCellsRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Grids" title="Collapsible grid cells" />
+      <Header section="Grid" title="Collapsible cells" />
       <div>
         As with <Link to="/examples/collapsible-panels">panels</Link>, a grid's
         columns and rows can be configured to collapse when they're resized

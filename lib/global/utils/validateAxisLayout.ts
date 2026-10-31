@@ -1,4 +1,4 @@
-import { assert } from "../../utils/assert";
+import { assert } from "../../shared/utils/assert";
 import type { Layout, ResizeItemConstraints } from "../types";
 import { layoutNumbersEqual } from "./layoutNumbersEqual";
 import { validateItemSize } from "./validateItemSize";

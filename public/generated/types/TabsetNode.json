@@ -1,0 +1,150 @@
+{
+  "description": [
+    {
+      "content": "<p>A set of tabs, only one of which is shown at a time.</p>\n"
+    }
+  ],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>Distinguishes tabsets from splits.</p>\n"
+        }
+      ],
+      "name": "type",
+      "optional": false,
+      "type": "\"tabset\""
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Uniquely identifies the tabset within the workspace.</p>\n"
+        },
+        {
+          "content": "<p>Optional in the <code>defaultModel</code> prop and the <code>setModel</code> method; tabsets without ids are assigned ids based on their position (e.g. &quot;tabset-0-1&quot;).\nTabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) are assigned generated ids.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "id",
+      "optional": false,
+      "type": "string"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Size of the tabset within its parent split.</p>\n"
+        },
+        {
+          "content": "<p>Interpretation rules:</p>\n<ul>\n<li>Numbers are percentages of the parent split (e.g. <code>size: 25</code> is 25 percent)</li>\n<li>Strings may specify other units (e.g. <code>size: &quot;250px&quot;</code>); strings without units are percentages</li>\n<li>Siblings without a size share the remaining space evenly</li>\n</ul>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>String sizes are only initial sizes: they're converted to percentages when the user resizes the split,\nand (like percentages) they scale with the workspace when it's resized.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "name": "size",
+      "optional": true,
+      "type": "number | string | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Minimum width of the tabset's content area (not including its header).\nOverrides the Workspace's <code>tabsetMinWidth</code> prop.</p>\n"
+        },
+        {
+          "content": "<p>Interpretation rules:</p>\n<ul>\n<li>Strings must specify a unit: &quot;px&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot; (e.g. <code>minWidth: &quot;200px&quot;</code>)</li>\n<li>Percentages (and strings without units) are not allowed</li>\n</ul>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "minWidth",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Minimum height of the tabset's content area (not including its header).\nOverrides the Workspace's <code>tabsetMinHeight</code> prop.</p>\n"
+        },
+        {
+          "content": "<p>Interpretation rules:</p>\n<ul>\n<li>Strings must specify a unit: &quot;px&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot; (e.g. <code>minHeight: &quot;200px&quot;</code>)</li>\n<li>Percentages (and strings without units) are not allowed</li>\n</ul>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "minHeight",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Where the tabset's tabs are placed relative to its content.\nOverrides the Workspace's <code>tabPlacement</code> prop.</p>\n"
+        },
+        {
+          "content": "<p>See the Workspace's <code>tabPlacement</code> prop for how placement affects tabsets.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Tabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) use the Workspace's <code>tabPlacement</code> prop.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "tabPlacement",
+      "optional": true,
+      "type": "\"bottom\" | \"left\" | \"right\" | \"top\" | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The tabset isn't removed when its last tab is closed or dragged away;\nit stays (showing the Workspace's <code>renderEmptyTabset</code> content) until it is closed (see <code>closeTabset</code>).</p>\n"
+        },
+        {
+          "content": "<p>By default, tabsets without tabs are removed (other than the root tabset of an empty workspace).</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Tabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) don't keep this flag.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "keepWhenEmpty",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Id of the selected tab.</p>\n"
+        }
+      ],
+      "name": "selectedId",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Application data for the tabset.</p>\n"
+        },
+        {
+          "content": "<p>Tabsets created by the workspace start without data.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "data",
+      "optional": true,
+      "type": "TabsetData | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Tabs in the tabset, in the order they are shown.</p>\n"
+        }
+      ],
+      "name": "tabs",
+      "optional": false,
+      "type": "TabNode<TabData>[]"
+    }
+  ],
+  "name": "TabsetNode"
+}

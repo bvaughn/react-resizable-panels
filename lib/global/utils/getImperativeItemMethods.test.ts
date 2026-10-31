@@ -7,16 +7,16 @@ import {
   vi,
   type Mock
 } from "vitest";
-import type { PanelImperativeHandle } from "../../components/panel/types";
+import type { PanelImperativeHandle } from "../../flex/types";
 import {
   mockGetComputedStyle,
   setDefaultElementStyle
-} from "../../utils/test/mockGetComputedStyle";
-import { setElementBounds } from "../../utils/test/mockBoundingClientRect";
+} from "../../shared/utils/test/mockGetComputedStyle";
+import { setElementBounds } from "../../shared/utils/test/mockBoundingClientRect";
 import {
   disableResizeObserverForCurrentTest,
   enableResizeObserverForCurrentTest
-} from "../../utils/test/mockResizeObserver";
+} from "../../shared/utils/test/mockResizeObserver";
 import { mountAxis } from "../mountAxis";
 import { subscribeToMountedAxis } from "../mutable-state/axes";
 import { mockGroup } from "../test/mockGroup";

@@ -4,7 +4,7 @@ import type {
   OnPanelResize,
   PanelConstraintProps,
   PanelSize
-} from "../components/panel/types";
+} from "../flex/types";
 
 /**
  * Types shared by the resize machinery (layout math, pointer and keyboard interactions, cursors, etc.)

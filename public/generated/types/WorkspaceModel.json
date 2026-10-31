@@ -1,0 +1,44 @@
+{
+  "description": [
+    {
+      "content": "<p>Serializable description of a workspace's layout.</p>\n"
+    }
+  ],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>Format version; allows the workspace to migrate models saved by older versions.</p>\n"
+        }
+      ],
+      "name": "version",
+      "optional": false,
+      "type": "1"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Root of the layout tree: a split or a tabset.</p>\n"
+        },
+        {
+          "content": "<p>An empty workspace is a tabset with no tabs.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "root",
+      "optional": false,
+      "type": "WorkspaceNode<TabData, TabsetData>"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Id of the tabset that is maximized, if any.</p>\n"
+        }
+      ],
+      "name": "maximizedTabsetId",
+      "optional": true,
+      "type": "string | undefined"
+    }
+  ],
+  "name": "WorkspaceModel"
+}

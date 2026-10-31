@@ -1,4 +1,4 @@
-import { isHTMLElement } from "../../utils/isHTMLElement";
+import { isHTMLElement } from "../../shared/utils/isHTMLElement";
 import { compare } from "../../vendor/stacking-order";
 import { doRectsIntersect } from "./doRectsIntersect";
 import { isModal } from "./isModal";

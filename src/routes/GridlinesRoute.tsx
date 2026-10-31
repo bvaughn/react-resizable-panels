@@ -8,7 +8,7 @@ import { Gridline } from "../components/styled-panels/Gridline";
 export default function GridlinesRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Grids" title="Gridlines" />
+      <Header section="Grid" title="Gridlines" />
       <div>
         Like <code>Separator</code>s within a <code>Group</code>,{" "}
         <code>Gridline</code>s are optional but recommended because they make

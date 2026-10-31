@@ -6,7 +6,7 @@ import { Grid } from "../components/styled-panels/Grid";
 export default function GridConstraintsRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Grids" title="Min/max sizes" />
+      <Header section="Grid" title="Min/max sizes" />
       <div>
         Columns and rows support the same size constraints as panels, although
         they are declared on the grid rather than on individual cells because

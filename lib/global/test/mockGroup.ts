@@ -1,6 +1,6 @@
 import { vi } from "vitest";
-import type { PanelConstraintProps } from "../../components/panel/types";
-import { setElementBounds } from "../../utils/test/mockBoundingClientRect";
+import type { PanelConstraintProps } from "../../flex/types";
+import { setElementBounds } from "../../shared/utils/test/mockBoundingClientRect";
 import type {
   Orientation,
   RegisteredResizeAxis,

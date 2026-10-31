@@ -10,7 +10,7 @@ export default function UseGroupCallbackRefRoute() {
     <Box direction="column" gap={4}>
       <Header
         section="Hooks"
-        sourceCodePath="lib/components/group/useGroupCallbackRef.ts"
+        sourceCodePath="lib/flex/hooks/useGroupCallbackRef.ts"
         title="useGroupCallbackRef"
       />
       <div>

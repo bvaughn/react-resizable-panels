@@ -1,5 +1,5 @@
-import { sortByElementOffset } from "../../components/group/sortByElementOffset";
-import { isHTMLElement } from "../../utils/isHTMLElement";
+import { sortByElementOffset } from "../../flex/utils/sortByElementOffset";
+import { isHTMLElement } from "../../shared/utils/isHTMLElement";
 import type {
   HitRegion,
   RegisteredResizeAxis,

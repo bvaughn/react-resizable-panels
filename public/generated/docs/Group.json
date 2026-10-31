@@ -15,7 +15,7 @@
       "intent": "primary"
     }
   ],
-  "filePath": "lib/components/group/Group.tsx",
+  "filePath": "lib/flex/components/Group.tsx",
   "name": "Group",
   "props": {
     "className": {

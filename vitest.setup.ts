@@ -6,15 +6,15 @@ import { resetMockGroupIdCounter } from "./lib/global/test/mockGroup";
 import {
   mockBoundingClientRect,
   unmockBoundingClientRect
-} from "./lib/utils/test/mockBoundingClientRect";
+} from "./lib/shared/utils/test/mockBoundingClientRect";
 import {
   mockGetComputedStyle,
   unmockGetComputedStyle
-} from "./lib/utils/test/mockGetComputedStyle";
+} from "./lib/shared/utils/test/mockGetComputedStyle";
 import {
   mockResizeObserver,
   unmockResizeObserver
-} from "./lib/utils/test/mockResizeObserver";
+} from "./lib/shared/utils/test/mockResizeObserver";
 
 const PROTOTYPE_PROPS = [
   "clientHeight",

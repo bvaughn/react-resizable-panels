@@ -21,7 +21,7 @@
       "intent": "primary"
     }
   ],
-  "filePath": "lib/components/grid/Grid.tsx",
+  "filePath": "lib/grid/components/Grid.tsx",
   "name": "Grid",
   "props": {
     "className": {

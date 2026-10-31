@@ -1,0 +1,37 @@
+[data-tab][data-tab-selected] {
+  background: white;
+}
+
+/* Line showing where a dragged tab will be inserted */
+[data-tab][data-drop-before]::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: dodgerblue;
+}
+
+/* Tabs on the left or right */
+[data-tab-list][data-orientation="vertical"] {
+  flex-direction: column;
+}
+
+/* Set while the tab list is scrolled away from its start or end */
+[data-tab-list][data-overflow-end] {
+  mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+}
+
+/* Where a dragged tab will be dropped; data-region is "top", "right", "bottom", "left", or "center" */
+[data-tab-panels] > [data-drop-indicator] {
+  background: rgb(30 144 255 / 25%);
+}
+
+/* Follows the pointer while a tab is dragged */
+[data-drag-preview] {
+  translate: -50% -100%;
+}
+
+/* A maximized tabset covers the rest of the workspace */
+[data-tabset][data-tabset-maximized] {
+  background: white;
+}
