@@ -1,3 +1,4 @@
+import { isDevelopment } from "../../shared/utils/isDevelopment";
 import { warnOnce } from "../../shared/utils/warnOnce";
 import { copyAndAssignIds } from "./copyAndAssignIds";
 import { getAllTabsets } from "./getAllTabsets";
@@ -33,7 +34,9 @@ export function normalizeModel<TabData, TabsetData>(
       type: "tabset"
     } satisfies TabsetNode<TabData, TabsetData>);
 
-  warnAboutDuplicateIds(root);
+  if (isDevelopment()) {
+    warnAboutDuplicateIds(root);
+  }
 
   const next: WorkspaceModel<TabData, TabsetData> = { root, version: 1 };
   if (

@@ -32,7 +32,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     updateModel
   } = useWorkspaceContext("Tab");
   const { tabPlacement, tabset: slotTabset } = useTabsetContext("Tab");
-  const orientation = useContext(TabListContext);
+  const { isOverflowing, orientation } = useContext(TabListContext);
 
   const elementRef = useRef<HTMLElement | null>(null);
   const setElement = useCallback((element: HTMLElement | null) => {
@@ -46,6 +46,17 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
   const isSelected = tabset.selectedId === tab.id;
   const isCloseDisabled = disabled || !!tab.disableClose;
   const isDragDisabled = disabled || !!tab.disableDrag;
+
+  // Tabs handle touch drags themselves, except that a list that overflows can be scrolled by swiping along it
+  // (in which case a tab is dragged by first moving across the list)
+  let touchAction = styles?.tab?.touchAction;
+  if (!isDragDisabled) {
+    if (isOverflowing) {
+      touchAction = orientation === "horizontal" ? "pan-x" : "pan-y";
+    } else {
+      touchAction = "none";
+    }
+  }
 
   const isDropTargetList =
     dropTarget !== undefined &&
@@ -75,13 +86,13 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
       !isDragDisabled &&
       // Environments without touch-action support (e.g. jsdom) can't be checked
       "touchAction" in element.style &&
-      element.style.touchAction !== "none"
+      element.style.touchAction !== touchAction
     ) {
       warnOnce(
         "The element returned by renderTab replaced props.style (rather than merging it, e.g. style={{ ...props.style, padding: 4 }}); tabs can't be dragged by touch without its touch-action"
       );
     }
-  }, [isDragDisabled]);
+  }, [isDragDisabled, touchAction]);
 
   const { panelId, tabElementId } = getTabHost(tab.id);
 
@@ -187,8 +198,9 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     style: {
       ...styles?.tab,
 
-      // Tabs handle touch drags themselves (and suppress the long-press menu on iOS)
-      touchAction: isDragDisabled ? styles?.tab?.touchAction : "none",
+      touchAction,
+
+      // Suppress the long-press menu on iOS, which would interrupt touch drags
       WebkitTouchCallout: "none"
     },
     // Only the selected tab is in the page's tab order; arrow keys move focus between tabs

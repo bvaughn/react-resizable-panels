@@ -80,9 +80,18 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
       let total = 0;
       for (const child of groupElement.children) {
         if (isSeparator(child)) {
-          const rect = child.getBoundingClientRect();
-          total +=
-            split.orientation === "horizontal" ? rect.width : rect.height;
+          // Measured in layout pixels, since minimum sizes are applied in layout pixels (see TabsetSlot);
+          // other elements (e.g. SVG) have no layout size, so their client size is used instead
+          if (child instanceof ownerWindow.HTMLElement) {
+            total +=
+              split.orientation === "horizontal"
+                ? child.offsetWidth
+                : child.offsetHeight;
+          } else {
+            const rect = child.getBoundingClientRect();
+            total +=
+              split.orientation === "horizontal" ? rect.width : rect.height;
+          }
         }
       }
 

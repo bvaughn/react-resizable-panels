@@ -16,5 +16,15 @@ export function getClientScale(element: HTMLElement, orientation: Orientation) {
   const rect = element.getBoundingClientRect();
   const clientSize = orientation === "horizontal" ? rect.width : rect.height;
 
-  return clientSize > 0 ? clientSize / layoutSize : 1;
+  if (clientSize <= 0) {
+    return 1;
+  }
+
+  // Layout sizes are rounded to integers (but client sizes aren't), so differences of less than a pixel are treated as unscaled
+  // (a relative tolerance would mistake rounding for scaling on small elements)
+  if (Math.abs(clientSize - layoutSize) < 1) {
+    return 1;
+  }
+
+  return clientSize / layoutSize;
 }

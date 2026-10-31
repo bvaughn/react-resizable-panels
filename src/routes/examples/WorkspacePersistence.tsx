@@ -10,8 +10,12 @@ declare const initialModel: WorkspaceModel<TabData>;
 const STORAGE_KEY = "my-app:workspace";
 
 function loadModel(): WorkspaceModel<TabData> | undefined {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  return stored ? JSON.parse(stored) : undefined;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : undefined;
+  } catch {
+    // Fall back to the initial model (e.g. if the saved model is corrupt)
+  }
 }
 
 function saveModel(model: WorkspaceModel<TabData>) {

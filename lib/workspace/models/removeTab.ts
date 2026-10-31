@@ -2,6 +2,10 @@ import type { TabsetNode } from "../types";
 
 export function removeTab(tabset: TabsetNode, tabId: string) {
   const index = tabset.tabs.findIndex(({ id }) => id === tabId);
+  if (index < 0) {
+    return;
+  }
+
   tabset.tabs.splice(index, 1);
 
   if (tabset.selectedId === tabId) {

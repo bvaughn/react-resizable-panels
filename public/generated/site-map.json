@@ -207,7 +207,7 @@
   {
     "path": "/examples/workspace/persistent-layout",
     "section": "Workspace",
-    "text": "A workspace's model is serializable, so it can be saved and restored. Save it from the onModelChanged callback, and restore it with the defaultModel prop: Rearrange the workspace below, then reload the page to see the layout restored. Reset layout onModelChanged is called after each change: when a tab is moved, selected, added, or closed, when a tabset is maximized or restored, and when a resize ends (not while the pointer is still moving). Its second argument describes the change. Saved models include each tab's data, so it should be serializable. Models include a version, so that models saved by older versions of the library can be migrated. To restore a layout after the workspace has mounted (e.g. a \"reset layout\" button), use the imperative setModel method. Content that isn't part of the model (e.g. the text in a notes tab) isn't saved; tabs can save it in their data with the updateTab method. The example above works well with client-rendered applications. For server-rendered applications, see server rendering.",
+    "text": "A workspace's model is serializable, so it can be saved and restored. Save it from the onModelChanged callback, and restore it with the defaultModel prop: Rearrange the workspace below, then reload the page to see the layout restored. Reset layout onModelChanged is called after each change: when a tab is moved, selected, added, or closed, when a tabset is maximized or restored, and when a resize ends (not while the pointer is still moving). Its second argument describes the change. Saved models include each tab's data, so it should be serializable. Models include a version, so that models saved by older versions of the library can be migrated. A malformed model (e.g. one that was saved incorrectly) is replaced with an empty workspace, rather than throwing; in development, a warning is logged. To restore a layout after the workspace has mounted (e.g. a \"reset layout\" button), use the imperative setModel method. Content that isn't part of the model (e.g. the text in a notes tab) isn't saved; tabs can save it in their data with the updateTab method. The example above works well with client-rendered applications. For server-rendered applications, see server rendering.",
     "title": "Persistent layouts"
   },
   {
@@ -243,7 +243,7 @@
   {
     "path": "/examples/workspace/tab-content",
     "section": "Workspace",
-    "text": "Components within a tab can use the useParentTab hook to close or select the tab, and useParentTabState to re-render when it's selected or shown. The useParentTabset and useParentTabsetState hooks do the same for the tabset, and useParentWorkspace returns the workspace's imperative API. By default, the content of tabs that aren't selected stays mounted. The hiddenTabBehavior prop can unmount it instead (e.g. for memory-intensive content), or render it within a hidden React Activity so that its effects are unmounted. It can also be a function, to choose per tab. Activity requires React 19.2 or newer; with older versions, \"activity\" behaves like \"keep-mounted\". Tabs are rendered using portals so that moving a tab won't cause a remount. Because of this, tab content is not server rendered by default. See server rendering to opt into server rendering.",
+    "text": "Components within a tab can use the useParentTab hook to close or select the tab, and useParentTabState to re-render when it's selected or shown. The useParentTabset and useParentTabsetState hooks do the same for the tabset, and useParentWorkspace returns the workspace's imperative API. By default, the content of tabs that aren't selected stays mounted. The hiddenTabBehavior prop can unmount it instead (e.g. for memory-intensive content), or render it within a hidden React Activity so that its effects are unmounted. It can also be a function, to choose per tab. Activity requires React 19.2 or newer; with older versions, \"activity\" behaves like \"keep-mounted\". Moving a tab preserves its content's React state, but its elements are moved within the document, which resets some browser state: iframes are reloaded, playing media is paused, and focused elements are blurred. Tabs are rendered using portals so that moving a tab won't cause a remount. Because of this, tab content is not server rendered by default. See server rendering to opt into server rendering.",
     "title": "Tab content"
   },
   {
@@ -1050,7 +1050,7 @@
       {
         "id": "renderTabContent",
         "title": "renderTabContent",
-        "text": "Content of a tab."
+        "text": "Content of a tab.\n Content is only re-rendered when its tab changes or this function does;\na function created while rendering (e.g. an inline arrow function) re-renders the content of every tab whenever the Workspace's parent re-renders,\nso it should be memoized (e.g. with useCallback) when tab content is expensive to render."
       },
       {
         "id": "className",
@@ -1080,7 +1080,7 @@
       {
         "id": "hiddenTabBehavior",
         "title": "hiddenTabBehavior",
-        "text": "What happens to the content of tabs that are not selected.\nCan be a function to choose per tab (e.g. based on its data).\n \n \"keep-mounted\": content stays mounted (and its effects keep running)\n \"activity\": content stays mounted but is rendered within a hidden React <Activity> boundary, so its effects are unmounted;\nrequires React 19.2 (falls back to \"keep-mounted\" otherwise)\n \"unmount\": content is unmounted\n\n Moving a tab never remounts its content."
+        "text": "What happens to the content of tabs that are not selected.\nCan be a function to choose per tab (e.g. based on its data).\n \n \"keep-mounted\": content stays mounted (and its effects keep running)\n \"activity\": content stays mounted but is rendered within a hidden React <Activity> boundary, so its effects are unmounted;\nrequires React 19.2 (falls back to \"keep-mounted\" otherwise)\n \"unmount\": content is unmounted\n\n Moving a tab never remounts its content.\n Its React state is preserved, but its elements are moved within the document, which resets some browser state:\niframes are reloaded, playing media is paused, and focused elements are blurred."
       },
       {
         "id": "id",
@@ -1160,7 +1160,7 @@
     ],
     "path": "/props/workspace",
     "section": "Props",
-    "text": "A Workspace arranges tabsets that users can rearrange by dragging tabs:\nbetween tabsets, within a tabset's list of tabs, or onto the edge of a tabset to split it.\nTabsets can be resized and maximized.\n The layout is described by a serializable model (see WorkspaceModel).\nWorkspaces are uncontrolled: provide an initial model with the defaultModel prop, save changes from the onModelChanged callback,\nand make changes using the imperative API (see WorkspaceImperativeHandle).\n Tab content is not remounted when a tab is moved.\n Workspace elements always include the following attributes:\n Test id can be used to narrow selection when unit testing.",
+    "text": "A Workspace arranges tabsets that users can rearrange by dragging tabs:\nbetween tabsets, within a tabset's list of tabs, or onto the edge of a tabset to split it.\nTabsets can be resized and maximized.\n The layout is described by a serializable model (see WorkspaceModel).\nWorkspaces are uncontrolled: provide an initial model with the defaultModel prop, save changes from the onModelChanged callback,\nand make changes using the imperative API (see WorkspaceImperativeHandle).\n Tab content is not remounted when a tab is moved.\nIts elements are moved within the document, though, which resets some browser state (e.g. iframes are reloaded).\n Workspace elements always include the following attributes:\n Test id can be used to narrow selection when unit testing.",
     "title": "Workspace component props"
   },
   {

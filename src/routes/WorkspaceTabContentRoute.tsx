@@ -43,6 +43,11 @@ export default function WorkspaceTabContentRoute() {
         <code>"activity"</code> behaves like <code>"keep-mounted"</code>.
       </Callout>
       <Callout intent="warning">
+        Moving a tab preserves its content's React state, but its elements are
+        moved within the document, which resets some browser state: iframes are
+        reloaded, playing media is paused, and focused elements are blurred.
+      </Callout>
+      <Callout intent="warning">
         Tabs are rendered using portals so that moving a tab won't cause a
         remount. Because of this, tab content is not server rendered by default.
         See{" "}

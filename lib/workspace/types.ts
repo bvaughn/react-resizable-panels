@@ -655,6 +655,9 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    *
    * ℹ️ Moving a tab never remounts its content.
    *
+   * ⚠️ Its React state is preserved, but its elements are moved within the document, which resets some browser state:
+   * iframes are reloaded, playing media is paused, and focused elements are blurred.
+   *
    * @default "keep-mounted"
    */
   hiddenTabBehavior?:
@@ -733,6 +736,10 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
 
   /**
    * Content of a tab.
+   *
+   * ℹ️ Content is only re-rendered when its tab changes or this function does;
+   * a function created while rendering (e.g. an inline arrow function) re-renders the content of every tab whenever the Workspace's parent re-renders,
+   * so it should be memoized (e.g. with `useCallback`) when tab content is expensive to render.
    */
   renderTabContent: (tab: TabNode<TabData>) => ReactNode;
 

@@ -830,6 +830,7 @@ Workspaces are uncontrolled: provide an initial model with the `defaultModel` pr
 and make changes using the imperative API (see `WorkspaceImperativeHandle`).
 
 ℹ️ Tab content is not remounted when a tab is moved.
+Its elements are moved within the document, though, which resets some browser state (e.g. iframes are reloaded).
 
 Workspace elements always include the following attributes:
 
@@ -862,6 +863,9 @@ Workspace elements always include the following attributes:
     <tr>
       <td>renderTabContent</td>
       <td><p>Content of a tab.</p>
+<p>ℹ️ Content is only re-rendered when its tab changes or this function does;
+a function created while rendering (e.g. an inline arrow function) re-renders the content of every tab whenever the Workspace&#39;s parent re-renders,
+so it should be memoized (e.g. with <code>useCallback</code>) when tab content is expensive to render.</p>
 </td>
     </tr>
   </tbody>
@@ -948,6 +952,8 @@ requires React 19.2 (falls back to <code>&quot;keep-mounted&quot;</code> otherwi
 <li><code>&quot;unmount&quot;</code>: content is unmounted</li>
 </ul>
 <p>ℹ️ Moving a tab never remounts its content.</p>
+<p>⚠️ Its React state is preserved, but its elements are moved within the document, which resets some browser state:
+iframes are reloaded, playing media is paused, and focused elements are blurred.</p>
 </td>
     </tr>
     <tr>

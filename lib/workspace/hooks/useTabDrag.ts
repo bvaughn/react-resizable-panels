@@ -127,7 +127,7 @@ export function useTabDrag({
         ownerDocument.removeEventListener("pointermove", onPointerMove);
         ownerDocument.removeEventListener("pointerup", onPointerUp);
         ownerDocument.removeEventListener("pointercancel", onPointerCancel);
-        ownerDocument.removeEventListener("keydown", onKeyDown);
+        ownerDocument.removeEventListener("keydown", onKeyDown, true);
         ownerWindow?.removeEventListener("blur", onWindowBlur);
 
         if (isDragging) {
@@ -172,6 +172,12 @@ export function useTabDrag({
 
       const onKeyDown = (keyEvent: KeyboardEvent) => {
         if (keyEvent.key === "Escape") {
+          // Canceling a drag shouldn't also be handled elsewhere (e.g. by closing a dialog the workspace is in)
+          if (isDragging) {
+            keyEvent.preventDefault();
+            keyEvent.stopPropagation();
+          }
+
           stop(false, { isPointerDown: true });
         }
       };
@@ -186,7 +192,8 @@ export function useTabDrag({
       ownerDocument.addEventListener("pointermove", onPointerMove);
       ownerDocument.addEventListener("pointerup", onPointerUp);
       ownerDocument.addEventListener("pointercancel", onPointerCancel);
-      ownerDocument.addEventListener("keydown", onKeyDown);
+      // Listen during the capture phase, so that Escape can be handled before other listeners (see onKeyDown)
+      ownerDocument.addEventListener("keydown", onKeyDown, true);
       ownerWindow?.addEventListener("blur", onWindowBlur);
     },
     [getModel, getRootElement, isDropDisabled, onDrop]

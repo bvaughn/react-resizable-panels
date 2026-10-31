@@ -1,38 +1,36 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { ParentTabContext } from "../contexts/ParentTabContext";
-import { WorkspaceContext } from "../contexts/WorkspaceContext";
 import type { ParentTabState } from "../types";
+import { useWorkspaceStoreSelector } from "./useWorkspaceStoreSelector";
 
 /**
  * Returns the state of the nearest ancestor tab (or null if the component is not rendered within a tab (see `renderTab`) or the content of a tab).
  *
- * ℹ️ Components that use this hook re-render when the tab's state changes.
+ * ℹ️ Components that use this hook only re-render when the tab's state changes.
  */
 export function useParentTabState(): ParentTabState | null {
-  const workspace = useContext(WorkspaceContext);
   const parentTab = useContext(ParentTabContext);
+  const tabId = parentTab?.id;
 
-  const tabset =
-    workspace && parentTab
-      ? workspace.modelIndex.tabsetsByTabId.get(parentTab.id)
-      : undefined;
-  const tab = tabset?.tabs.find(({ id }) => id === parentTab?.id);
+  return useWorkspaceStoreSelector(({ disabled, model, modelIndex }) => {
+    const tabset =
+      tabId !== undefined ? modelIndex.tabsetsByTabId.get(tabId) : undefined;
+    const tab = tabset?.tabs.find(({ id }) => id === tabId);
+    if (!tabset || !tab) {
+      return null;
+    }
 
-  const disabled = !!workspace?.disabled;
-  const isCloseDisabled = disabled || !!tab?.disableClose;
-  const isDragDisabled = disabled || !!tab?.disableDrag;
-  const isSelected = tab !== undefined && tabset?.selectedId === tab.id;
-  const maximizedTabsetId = workspace?.model.maximizedTabsetId;
-  const isVisible =
-    isSelected &&
-    (maximizedTabsetId === undefined || maximizedTabsetId === tabset?.id);
-  const tabsetId = tabset?.id;
+    const isSelected = tabset.selectedId === tab.id;
+    const maximizedTabsetId = model.maximizedTabsetId;
 
-  return useMemo(
-    () =>
-      tabsetId !== undefined
-        ? { isCloseDisabled, isDragDisabled, isSelected, isVisible, tabsetId }
-        : null,
-    [isCloseDisabled, isDragDisabled, isSelected, isVisible, tabsetId]
-  );
+    return {
+      isCloseDisabled: disabled || !!tab.disableClose,
+      isDragDisabled: disabled || !!tab.disableDrag,
+      isSelected,
+      isVisible:
+        isSelected &&
+        (maximizedTabsetId === undefined || maximizedTabsetId === tabset.id),
+      tabsetId: tabset.id
+    };
+  });
 }

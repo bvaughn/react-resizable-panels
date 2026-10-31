@@ -1,3 +1,4 @@
+import { warnOnce } from "../../shared/utils/warnOnce";
 import { copyModel } from "./copyModel";
 import { findTab } from "./findTab";
 import { findTabset } from "./findTabset";
@@ -24,7 +25,16 @@ export function addTab<TabData, TabsetData>(
   }
 
   const next = copyModel(model);
-  const tabset = findTabset(next, tabsetId) ?? getAllTabsets(next.root)[0];
+  let tabset = findTabset(next, tabsetId);
+  if (!tabset) {
+    if (tabsetId !== undefined) {
+      warnOnce(
+        `Tabset "${tabsetId}" not found in workspace model; adding tab to the first tabset instead`
+      );
+    }
+
+    tabset = getAllTabsets(next.root)[0];
+  }
 
   const position =
     index === undefined

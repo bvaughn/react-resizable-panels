@@ -39,6 +39,11 @@ export default function WorkspacePersistenceRoute() {
           versions of the library can be migrated.
         </li>
         <li>
+          A malformed model (e.g. one that was saved incorrectly) is replaced
+          with an empty workspace, rather than throwing; in development, a
+          warning is logged.
+        </li>
+        <li>
           To restore a layout after the workspace has mounted (e.g. a "reset
           layout" button), use the{" "}
           <Link to="/imperative-api/workspace">imperative</Link>{" "}

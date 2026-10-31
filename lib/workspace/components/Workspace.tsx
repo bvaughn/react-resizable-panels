@@ -28,7 +28,12 @@ import {
   type UpdateModel,
   type WorkspaceContextType
 } from "../contexts/WorkspaceContext";
+import { WorkspaceStoreContext } from "../contexts/WorkspaceStoreContext";
 import { calculateMinimumSizes } from "../utils/calculateMinimumSizes";
+import {
+  createWorkspaceStore,
+  type WorkspaceState
+} from "../utils/createWorkspaceStore";
 import { minimumSizeToPixels } from "../utils/minimumSizeToPixels";
 import { addTab } from "../models/addTab";
 import { closeTab } from "../models/closeTab";
@@ -37,6 +42,7 @@ import { findTab } from "../models/findTab";
 import { findTabset } from "../models/findTabset";
 import { findTabsetContainingTab } from "../models/findTabsetContainingTab";
 import { getAllTabs } from "../models/getAllTabs";
+import { getValidModelInput } from "../models/getValidModelInput";
 import { indexModel } from "../models/indexModel";
 import { maximizeTabset } from "../models/maximizeTabset";
 import { moveTab } from "../models/moveTab";
@@ -106,7 +112,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
   // The model is typed generically only at the public boundary
   const [model, setModel] = useState<WorkspaceModel>(() =>
-    normalizeModel(defaultModel as WorkspaceModelInput)
+    normalizeModel(getValidModelInput(defaultModel as WorkspaceModelInput))
   );
   const modelRef = useRef(model);
 
@@ -176,7 +182,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       selectTab: (tabId) =>
         updateModel("select", false, (prev) => selectTab(prev, tabId)),
       setModel: (value) => {
-        const next = normalizeModel(value);
+        const next = normalizeModel(getValidModelInput(value));
         updateModel("set-model", false, () => next);
         setSplitGeneration((prev) => prev + 1);
 
@@ -259,6 +265,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
   // Tab content is rendered (via portals) into these elements, which are moved between tabsets;
   // this lets a tab be moved without remounting its content
+  // (although moving elements resets some browser state, e.g. iframes are reloaded)
   // (they're bare wrappers, shown with "display: contents"; TabContent renders the tab panel element within them)
   const [tabHosts] = useState(() => new Map<string, TabHost>());
   const tabHostCountRef = useRef(0);
@@ -535,6 +542,18 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     ]
   );
 
+  // Hooks like useParentTabState read this state from a store, so that they don't re-render whenever the context changes
+  const workspaceState = useMemo<WorkspaceState>(
+    () => ({ activeTabsetId, disabled, model, modelIndex }),
+    [activeTabsetId, disabled, model, modelIndex]
+  );
+  const [store] = useState(() => createWorkspaceStore(workspaceState));
+  // Set while rendering so that children rendered in this pass don't read stale state (see createWorkspaceStore)
+  store.setState(workspaceState);
+  useIsomorphicLayoutEffect(() => {
+    store.notify();
+  }, [store, workspaceState]);
+
   const maximizedTabset = findTabset(model, model.maximizedTabsetId);
 
   // While a tabset is maximized, the rest of the layout is covered (and shouldn't be focusable)
@@ -547,63 +566,65 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
   return (
     <ParentWorkspaceContext.Provider value={parentWorkspace}>
-      <WorkspaceContext.Provider value={context}>
-        <div
-          {...rest}
-          className={className}
-          data-testid={getTestId(rest, idProp)}
-          data-workspace
-          id={id}
-          ref={mergedRef}
-          style={{ position: "relative", ...style }}
-        >
+      <WorkspaceStoreContext.Provider value={store}>
+        <WorkspaceContext.Provider value={context}>
           <div
-            data-workspace-layout
-            ref={layoutRef}
-            style={{ height: "100%", width: "100%" }}
+            {...rest}
+            className={className}
+            data-testid={getTestId(rest, idProp)}
+            data-workspace
+            id={id}
+            ref={mergedRef}
+            style={{ position: "relative", ...style }}
           >
-            <NodeView node={model.root} />
-          </div>
-          {maximizedTabset && (
             <div
-              data-workspace-maximized
-              style={{ inset: 0, position: "absolute", zIndex: 1 }}
+              data-workspace-layout
+              ref={layoutRef}
+              style={{ height: "100%", width: "100%" }}
             >
-              <TabsetSlot isMaximizedOverlay tabset={maximizedTabset} />
+              <NodeView node={model.root} />
             </div>
-          )}
-          {dragTab && (
-            <DragPreview
-              className={classNames?.dragPreview}
-              elementRef={previewElementRef}
-              pointRef={previewPointRef}
-              style={styles?.dragPreview}
-            >
-              {renderDragPreview
-                ? renderDragPreview(dragTab as TabNode<TabData>)
-                : (dragTab.title ?? dragTab.id)}
-            </DragPreview>
-          )}
-        </div>
-        {!isHydrating &&
-          tabs.map((tab) => {
-            const element = getTabHost(tab.id).element;
+            {maximizedTabset && (
+              <div
+                data-workspace-maximized
+                style={{ inset: 0, position: "absolute", zIndex: 1 }}
+              >
+                <TabsetSlot isMaximizedOverlay tabset={maximizedTabset} />
+              </div>
+            )}
+            {dragTab && (
+              <DragPreview
+                className={classNames?.dragPreview}
+                elementRef={previewElementRef}
+                pointRef={previewPointRef}
+                style={styles?.dragPreview}
+              >
+                {renderDragPreview
+                  ? renderDragPreview(dragTab as TabNode<TabData>)
+                  : (dragTab.title ?? dragTab.id)}
+              </DragPreview>
+            )}
+          </div>
+          {!isHydrating &&
+            tabs.map((tab) => {
+              const element = getTabHost(tab.id).element;
 
-            return element
-              ? createPortal(
-                  <TabContent
-                    hiddenTabBehavior={getHiddenTabBehavior(tab)}
-                    renderTabContent={
-                      renderTabContent as (tab: TabNode) => ReactNode
-                    }
-                    tab={tab}
-                  />,
-                  element,
-                  tab.id
-                )
-              : null;
-          })}
-      </WorkspaceContext.Provider>
+              return element
+                ? createPortal(
+                    <TabContent
+                      hiddenTabBehavior={getHiddenTabBehavior(tab)}
+                      renderTabContent={
+                        renderTabContent as (tab: TabNode) => ReactNode
+                      }
+                      tab={tab}
+                    />,
+                    element,
+                    tab.id
+                  )
+                : null;
+            })}
+        </WorkspaceContext.Provider>
+      </WorkspaceStoreContext.Provider>
     </ParentWorkspaceContext.Provider>
   );
 }
@@ -618,6 +639,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
  * and make changes using the imperative API (see `WorkspaceImperativeHandle`).
  *
  * ℹ️ Tab content is not remounted when a tab is moved.
+ * Its elements are moved within the document, though, which resets some browser state (e.g. iframes are reloaded).
  *
  * Workspace elements always include the following attributes:
  *

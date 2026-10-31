@@ -57,13 +57,19 @@ export function getDropTarget({
 
   const tabPanels = getOwnElement(tabsetElement, "[data-tab-panels]");
   if (tabPanels?.contains(element)) {
+    const isOwnTabset = tabset.tabs.some(({ id }) => id === tabId);
+
     // Splitting a tabset with its only tab would leave the layout unchanged (unless the tabset is kept when empty)
     const canSplit =
-      !!tabset.keepWhenEmpty ||
-      !(tabset.tabs.length === 1 && tabset.tabs[0].id === tabId);
+      !!tabset.keepWhenEmpty || !(tabset.tabs.length === 1 && isOwnTabset);
     const region = canSplit
       ? getDropRegion(tabPanels.getBoundingClientRect(), clientX, clientY)
       : "center";
+
+    // Dropping a tab onto the center of its own tabset would only move it to the end of the list
+    if (region === "center" && isOwnTabset) {
+      return undefined;
+    }
 
     return { region, tabsetId: tabset.id };
   }

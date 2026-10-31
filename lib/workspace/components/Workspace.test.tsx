@@ -9,6 +9,7 @@ import { useParentPanel } from "../../flex/hooks/useParentPanel";
 import { TabCloseButton } from "./TabCloseButton";
 import type {
   ParentTab,
+  ParentTabState,
   SplitNode,
   TabNode,
   WorkspaceImperativeHandle,
@@ -81,6 +82,18 @@ function getTab(name: string) {
   return screen.getByRole("tab", { name: new RegExp(`^${name}`) });
 }
 
+// Renders a component that uses useParentTabState, and counts its renders
+function createTabStateCounter() {
+  let renderCount = 0;
+  function TabState() {
+    useParentTabState();
+    renderCount++;
+    return null;
+  }
+
+  return { TabState, getRenderCount: () => renderCount };
+}
+
 function isShown(element: HTMLElement) {
   return (
     // Tab panels are rendered within host elements, which are hidden when their tab isn't selected
@@ -122,6 +135,49 @@ describe("Workspace", () => {
       expect(panel).toHaveAttribute("role", "tabpanel");
       expect(getTab("One")).toHaveAttribute("aria-controls", panel.id);
       expect(panel).toHaveAttribute("aria-labelledby", getTab("One").id);
+    });
+
+    test("replaces a malformed model with an empty workspace", () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      try {
+        const { container, workspaceRef } = renderWorkspace({
+          defaultModel: JSON.parse('{"root":{"type":"tabset"},"version":1}')
+        });
+
+        expect(container.querySelectorAll("[data-tabset]")).toHaveLength(1);
+        expect(screen.queryAllByRole("tab")).toHaveLength(0);
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining("Invalid workspace model")
+        );
+
+        // setModel is also protected
+        act(() => {
+          workspaceRef.current!.setModel(
+            null as unknown as WorkspaceModel<TabData>
+          );
+        });
+        expect(container.querySelectorAll("[data-tabset]")).toHaveLength(1);
+      } finally {
+        warn.mockRestore();
+      }
+    });
+
+    test("replaces a model with a malformed tab title with an empty workspace", () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      try {
+        renderWorkspace({
+          defaultModel: JSON.parse(
+            '{"root":{"type":"tabset","tabs":[{"id":"a","title":{}}]},"version":1}'
+          )
+        });
+
+        expect(screen.queryAllByRole("tab")).toHaveLength(0);
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining("Invalid workspace model")
+        );
+      } finally {
+        warn.mockRestore();
+      }
     });
 
     test("does not call onModelChanged on mount", () => {
@@ -996,6 +1052,45 @@ describe("Workspace", () => {
       expect(states).toHaveLength(2);
     });
 
+    test("useParentTabState returns the state of a new tab on its first render", () => {
+      const states: (ParentTabState | null)[] = [];
+      function TabState() {
+        states.push(useParentTabState());
+        return null;
+      }
+
+      const { workspaceRef } = renderWorkspace({
+        renderTabContent: (tab) => (tab.id === "4" ? <TabState /> : null)
+      });
+
+      act(() => {
+        workspaceRef.current!.addTab(tab("4"));
+      });
+
+      expect(states.length).toBeGreaterThan(0);
+      expect(states[0]).not.toBeNull();
+    });
+
+    test("useParentTabState only re-renders when the tab's state changes", () => {
+      const { TabState, getRenderCount } = createTabStateCounter();
+
+      const { workspaceRef } = renderWorkspace({
+        renderTabContent: (tab) => (tab.id === "1" ? <TabState /> : null)
+      });
+      const initialRenderCount = getRenderCount();
+
+      // Changes to other tabsets don't affect this tab
+      act(() => {
+        workspaceRef.current!.updateTab("3", { title: "Three" });
+      });
+      expect(getRenderCount()).toBe(initialRenderCount);
+
+      act(() => {
+        workspaceRef.current!.selectTab("2");
+      });
+      expect(getRenderCount()).toBe(initialRenderCount + 1);
+    });
+
     test("closing from tab content is not a user interaction", () => {
       function CloseButton() {
         const parentTab = useParentTab();
@@ -1191,6 +1286,51 @@ describe("Workspace", () => {
 
       await drag(getTab("2"), getPanels(container, "right"));
       expect(onModelChanged).not.toHaveBeenCalled();
+    });
+
+    test("dropping a tab onto the center of its own tabset does nothing", async () => {
+      const { container, onModelChanged } = renderWorkspace();
+
+      await drag(getTab("One"), getPanels(container, "left"));
+
+      expect(onModelChanged).not.toHaveBeenCalled();
+      expect(
+        Array.from(
+          container.querySelectorAll('[data-tabset-id="left"] [data-tab]')
+        )
+      ).toEqual([getTab("One"), getTab("2")]);
+    });
+
+    test("Escape cancels a drag without reaching other listeners", async () => {
+      const { container, onModelChanged } = renderWorkspace();
+      const onKeyDown = vi.fn();
+      document.addEventListener("keydown", onKeyDown);
+      try {
+        const user = await startDrag(container, getTab("2"));
+        await user.keyboard("{Escape}");
+        await user.pointer({
+          keys: "[/MouseLeft]",
+          target: getPanels(container, "right")
+        });
+
+        expect(onKeyDown).not.toHaveBeenCalled();
+        expect(onModelChanged).not.toHaveBeenCalled();
+      } finally {
+        document.removeEventListener("keydown", onKeyDown);
+      }
+    });
+
+    test("components using useParentTabState don't re-render while dragging", async () => {
+      const { TabState, getRenderCount } = createTabStateCounter();
+
+      const { container } = renderWorkspace({
+        renderTabContent: (tab) => (tab.id === "1" ? <TabState /> : null)
+      });
+      const initialRenderCount = getRenderCount();
+
+      await startDrag(container, getTab("2"));
+      expect(container.querySelector("[data-drag-preview]")).not.toBeNull();
+      expect(getRenderCount()).toBe(initialRenderCount);
     });
   });
 });

@@ -1,34 +1,29 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { ParentTabsetContext } from "../contexts/ParentTabsetContext";
-import { WorkspaceContext } from "../contexts/WorkspaceContext";
 import type { ParentTabsetState } from "../types";
+import { useWorkspaceStoreSelector } from "./useWorkspaceStoreSelector";
 
 /**
  * Returns the state of the nearest ancestor tabset (or null if the component is not rendered within a tabset or the content of a tab).
  *
- * ℹ️ Components that use this hook re-render when the tabset's state changes.
+ * ℹ️ Components that use this hook only re-render when the tabset's state changes.
  */
 export function useParentTabsetState(): ParentTabsetState | null {
-  const workspace = useContext(WorkspaceContext);
   const parentTabset = useContext(ParentTabsetContext);
+  const tabsetId = parentTabset?.id;
 
-  const tabset =
-    workspace && parentTabset
-      ? workspace.modelIndex.tabsetsById.get(parentTabset.id)
-      : undefined;
+  return useWorkspaceStoreSelector(({ activeTabsetId, model, modelIndex }) => {
+    const tabset =
+      tabsetId !== undefined ? modelIndex.tabsetsById.get(tabsetId) : undefined;
+    if (!tabset) {
+      return null;
+    }
 
-  const isActive =
-    tabset !== undefined && workspace?.activeTabsetId === tabset.id;
-  const isMaximized =
-    tabset !== undefined && workspace?.model.maximizedTabsetId === tabset.id;
-  const isRoot = tabset !== undefined && workspace?.model.root.id === tabset.id;
-  const selectedTabId = tabset?.selectedId;
-
-  // Tabset objects are replaced whenever the model changes, so only whether there is one is a dependency
-  const hasTabset = tabset !== undefined;
-
-  return useMemo(
-    () => (hasTabset ? { isActive, isMaximized, isRoot, selectedTabId } : null),
-    [hasTabset, isActive, isMaximized, isRoot, selectedTabId]
-  );
+    return {
+      isActive: activeTabsetId === tabset.id,
+      isMaximized: model.maximizedTabsetId === tabset.id,
+      isRoot: model.root.id === tabset.id,
+      selectedTabId: tabset.selectedId
+    };
+  });
 }
