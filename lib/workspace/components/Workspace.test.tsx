@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRef, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { resetWarnOnceForTest } from "../../shared/utils/warnOnce";
 import { Group } from "../../flex/components/Group";
@@ -108,6 +109,37 @@ describe("Workspace", () => {
   });
 
   describe("rendering", () => {
+    test("renders tab content with the workspace's own window (e.g. a popup)", () => {
+      const frame = document.createElement("iframe");
+      document.body.appendChild(frame);
+
+      try {
+        const popupDocument = frame.contentDocument!;
+        const popupWindow = popupDocument.defaultView!;
+        popupWindow.ResizeObserver = window.ResizeObserver;
+
+        const { unmount } = render(
+          createPortal(
+            <Workspace<TabData>
+              defaultModel={createModel()}
+              renderTabContent={(tab) => <Content tab={tab} />}
+            />,
+            popupDocument.body
+          )
+        );
+
+        // Elements moved from another window's document keep that window's prototypes
+        const content = popupDocument.querySelector(
+          '[data-testid="content-1"]'
+        );
+        expect(content).toBeInstanceOf(popupWindow.HTMLElement);
+
+        unmount();
+      } finally {
+        frame.remove();
+      }
+    });
+
     test("renders tabsets, tabs, and content", () => {
       const { container } = renderWorkspace();
 

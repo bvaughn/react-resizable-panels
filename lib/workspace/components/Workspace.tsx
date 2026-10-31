@@ -263,12 +263,21 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     [handle, handles, id]
   );
 
+  const [rootElement, setRootElement] = useState<HTMLDivElement | null>(null);
+  const rootElementRef = useRef<HTMLDivElement | null>(null);
+  const mergedRef = useMergedRefs(
+    rootElementRef,
+    setRootElement,
+    elementRefProp
+  );
+
   // Tab content is rendered (via portals) into these elements, which are moved between tabsets;
   // this lets a tab be moved without remounting its content
   // (although moving elements resets some browser state, e.g. iframes are reloaded)
   // (they're bare wrappers, shown with "display: contents"; TabContent renders the tab panel element within them)
   const [tabHosts] = useState(() => new Map<string, TabHost>());
   const tabHostCountRef = useRef(0);
+  const ownerDocument = rootElement?.ownerDocument;
 
   const getTabHost = useCallback(
     (tabId: string) => {
@@ -283,13 +292,15 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         tabHosts.set(tabId, host);
       }
 
-      if (!host.element && typeof document !== "undefined") {
-        host.element = document.createElement("div");
+      // Hosts are created by the workspace's own document (e.g. a popup window's) so that tab content belongs to that window;
+      // elements created by another document can be moved into it, but they keep that document's prototypes (e.g. HTMLElement)
+      if (!host.element && ownerDocument) {
+        host.element = ownerDocument.createElement("div");
       }
 
       return host;
     },
-    [id, tabHosts]
+    [id, ownerDocument, tabHosts]
   );
 
   const tabs = getAllTabs(model.root);
@@ -335,14 +346,6 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         ? serverRenderTabContent(tab as TabNode<TabData>)
         : serverRenderTabContent,
     [serverRenderTabContent]
-  );
-
-  const [rootElement, setRootElement] = useState<HTMLDivElement | null>(null);
-  const rootElementRef = useRef<HTMLDivElement | null>(null);
-  const mergedRef = useMergedRefs(
-    rootElementRef,
-    setRootElement,
-    elementRefProp
   );
 
   // Minimum sizes include each tabset's "chrome" (e.g. tabs) and each split's separators, which are measured after rendering
