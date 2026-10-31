@@ -379,6 +379,7 @@ describe("pointer events from a different document", () => {
       // A group in a popup window (or iframe) has its own window, with its own HTMLIFrameElement
       const frame = document.createElement("iframe");
       document.body.appendChild(frame);
+      cleanup = () => frame.remove();
       const popupDocument = frame.contentDocument!;
 
       updateInteractionState({
@@ -393,8 +394,6 @@ describe("pointer events from a different document", () => {
         relatedTarget: popupDocument.createElement("iframe")
       } as unknown as PointerEvent);
       expect(getInteractionState().state).toBe("inactive");
-
-      frame.remove();
     });
   });
 });

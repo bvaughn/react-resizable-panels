@@ -11,7 +11,7 @@ export function onDocumentPointerOut(event: PointerEvent) {
   // See issues/645
   // Check the tag rather than "instanceof HTMLIFrameElement", which is false for iframes in other windows (e.g. a popup)
   const relatedTarget = event.relatedTarget;
-  if (isHTMLElement(relatedTarget) && relatedTarget.nodeName === "IFRAME") {
+  if (isHTMLElement(relatedTarget) && relatedTarget.localName === "iframe") {
     const interactionState = getInteractionState();
     switch (interactionState.state) {
       case "hover": {
