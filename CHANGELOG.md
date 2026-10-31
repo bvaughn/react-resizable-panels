@@ -8,6 +8,7 @@
   - Content within a workspace can use the `useParentWorkspace`, `useParentTabset`, `useParentTabsetState`, `useParentTab`, and `useParentTabState` hooks.
   - The content of tabs that aren't selected can stay mounted (default), be unmounted, or be rendered within a hidden React `<Activity>` (`hiddenTabBehavior`), and selected tabs' content can opt into server rendering (`serverRenderTabContent`).
   - Supports mouse, touch, and keyboard interaction.
+- Fix separators (and grid gridlines) moving farther or less far than the pointer when an ancestor has CSS `zoom` or a scale transform (e.g. twice as far within `zoom: 2`). Pointer movements are now converted from screen pixels to layout pixels before resizing.
 
 ## 4.15.3
 

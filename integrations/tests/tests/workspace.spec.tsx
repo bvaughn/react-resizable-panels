@@ -62,12 +62,35 @@ async function getLastChange(page: Page) {
   return changes[changes.length - 1];
 }
 
-async function drag(page: Page, from: Locator, to: { x: number; y: number }) {
-  const box = (await from.boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+async function drag(
+  page: Page,
+  from: Locator | { x: number; y: number },
+  to: { x: number; y: number }
+) {
+  const start =
+    "x" in from
+      ? from
+      : await from.boundingBox().then((box) => ({
+          x: box!.x + box!.width / 2,
+          y: box!.y + box!.height / 2
+        }));
+
+  await page.mouse.move(start.x, start.y);
   await page.mouse.down();
   await page.mouse.move(to.x, to.y, { steps: 10 });
   await page.mouse.up();
+}
+
+// Tabs are dragged by their labels: the center of a tab can be on its close button
+// (depending on font metrics), and pressing a button within a tab doesn't drag it
+async function dragTab(page: Page, tab: Locator, to: { x: number; y: number }) {
+  const box = (await tab.boundingBox())!;
+  const closeButton = await tab.getByRole("button").boundingBox();
+
+  // Midway between the tab's start and its close button (or its center, if it doesn't have one)
+  const x = closeButton ? (box.x + closeButton.x) / 2 : box.x + box.width / 2;
+
+  await drag(page, { x, y: box.y + box.height / 2 }, to);
 }
 
 async function getPanelsPoint(
@@ -100,7 +123,7 @@ test.describe("Workspace", () => {
     await page.getByTestId("content-a").click();
     await expect(page.getByTestId("content-a")).toHaveText("a: 1");
 
-    await drag(
+    await dragTab(
       page,
       getTab(page, "a"),
       await getPanelsPoint(getTabset(page, "right"), "center")
@@ -126,7 +149,7 @@ test.describe("Workspace", () => {
 
     await page.getByTestId("content-a").click();
 
-    await drag(
+    await dragTab(
       page,
       getTab(page, "a"),
       await getPanelsPoint(getTabset(page, "right"), "bottom")
@@ -165,7 +188,7 @@ test.describe("Workspace", () => {
     expect(await getLeftPercentage()).toBeCloseTo(40, 0);
 
     // Split the right tabset (left 40, right 30, new 30), then close the new tabset's only tab
-    await drag(
+    await dragTab(
       page,
       getTab(page, "a"),
       await getPanelsPoint(getTabset(page, "right"), "right")
@@ -185,7 +208,7 @@ test.describe("Workspace", () => {
     const page = await goToUrl(mainPage, workspace());
 
     const b = (await getTab(page, "b").boundingBox())!;
-    await drag(page, getTab(page, "a"), {
+    await dragTab(page, getTab(page, "a"), {
       x: b.x + b.width - 2,
       y: b.y + b.height / 2
     });

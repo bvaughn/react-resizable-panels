@@ -9,6 +9,7 @@ import type {
 import { findClosestRect } from "../utils/findClosestRect";
 import { expandHitTarget } from "../utils/expandHitTarget";
 import { calculateAvailableAxisSize } from "./calculateAvailableAxisSize";
+import { getClientScale } from "./getClientScale";
 
 /**
  * Determines hit regions for a Group; a hit region is either:
@@ -184,7 +185,9 @@ export function calculateHitRegions({
                 currentItemIndex > lastEnabledItemIndex;
 
               if (includeDisabled || (!disabledSeparator && !skip)) {
-                axisSize ??= calculateAvailableAxisSize({ axis });
+                axisSize ??=
+                  calculateAvailableAxisSize({ axis }) *
+                  getClientScale(axis.element, axis.orientation);
 
                 hitRegions.push({
                   axis,

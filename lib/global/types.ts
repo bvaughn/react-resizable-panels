@@ -77,6 +77,9 @@ export type RegisteredSeparator = {
 
 export type HitRegion = {
   axis: RegisteredResizeAxis;
+
+  // Size of the axis in pointer (client) coordinates, used to convert pointer movements to percentages;
+  // this differs from its layout size when an ancestor has CSS zoom or a scale transform
   axisSize: number;
   items: [item: RegisteredResizeItem, item: RegisteredResizeItem];
   rect: DOMRect;

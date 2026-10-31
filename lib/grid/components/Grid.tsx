@@ -23,6 +23,7 @@ import type {
   RegisteredResizeItem,
   RegisteredSeparator
 } from "../../global/types";
+import { getClientScale } from "../../global/dom/getClientScale";
 import { getImperativeAxisMethods } from "../../global/utils/getImperativeAxisMethods";
 import { getImperativeItemMethods } from "../../global/utils/getImperativeItemMethods";
 import { recordAxisLayoutChange } from "../../global/utils/recordAxisLayoutChange";
@@ -400,7 +401,9 @@ function GridComponent({
               crossTrackCount: crossTracks.length,
               expandHitTargets,
               resizeAxis,
-              axisSize: measure().availableSize,
+              axisSize:
+                measure().availableSize *
+                getClientScale(resizeAxis.element, resizeAxis.orientation),
               includeDisabled,
               separatorPlacements: inMemoryValues.separators
             }),
