@@ -4,7 +4,7 @@ import type {
   OnPanelResize,
   PanelConstraintProps,
   PanelSize
-} from "../components/panel/types";
+} from "../flex/types";
 
 /**
  * Types shared by the resize machinery (layout math, pointer and keyboard interactions, cursors, etc.)
@@ -77,6 +77,9 @@ export type RegisteredSeparator = {
 
 export type HitRegion = {
   axis: RegisteredResizeAxis;
+
+  // Size of the axis in pointer (client) coordinates, used to convert pointer movements to percentages;
+  // this differs from its layout size when an ancestor has CSS zoom or a scale transform
   axisSize: number;
   items: [item: RegisteredResizeItem, item: RegisteredResizeItem];
   rect: DOMRect;

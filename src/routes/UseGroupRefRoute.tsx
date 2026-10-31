@@ -11,7 +11,7 @@ export default function UseGroupRefRoute() {
     <Box direction="column" gap={4}>
       <Header
         section="Hooks"
-        sourceCodePath="lib/components/group/useGroupRef.ts"
+        sourceCodePath="lib/flex/hooks/useGroupRef.ts"
         title="useGroupRef"
       />
       <div>

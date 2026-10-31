@@ -1,4 +1,4 @@
-import type { PanelImperativeHandle } from "../../components/panel/types";
+import type { PanelImperativeHandle } from "../../flex/types";
 import { getMountedAxes, updateMountedAxis } from "../mutable-state/axes";
 import { sizeStyleToPixels } from "../styles/sizeStyleToPixels";
 import type {

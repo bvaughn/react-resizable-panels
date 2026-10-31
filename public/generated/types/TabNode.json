@@ -1,0 +1,76 @@
+{
+  "description": [
+    {
+      "content": "<p>A tab within a tabset.</p>\n"
+    }
+  ],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>Uniquely identifies the tab within the workspace.</p>\n"
+        },
+        {
+          "content": "<p>Tab ids are chosen by the application, since they usually identify something real (e.g. a file path).</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "id",
+      "optional": false,
+      "type": "string"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Label used wherever the workspace generates text for the tab:\nthe default tab rendering, the default drag preview, and the <code>TabCloseButton</code> label.\nFalls back to the tab's <code>id</code>.</p>\n"
+        }
+      ],
+      "name": "title",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Application data for the tab.</p>\n"
+        },
+        {
+          "content": "<p>This value should be serializable (e.g. JSON) if the workspace model will be saved.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "data",
+      "optional": false,
+      "type": "TabData"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The user cannot close this tab.</p>\n"
+        },
+        {
+          "content": "<p>The tab can still be closed using the imperative API.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "disableClose",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The user cannot drag this tab.</p>\n"
+        },
+        {
+          "content": "<p>The tab can still be selected, and other tabs can still be dropped around it.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "disableDrag",
+      "optional": true,
+      "type": "boolean | undefined"
+    }
+  ],
+  "name": "TabNode"
+}

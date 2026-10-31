@@ -10,7 +10,7 @@ export default function UseGridCallbackRefRoute() {
     <Box direction="column" gap={4}>
       <Header
         section="Hooks"
-        sourceCodePath="lib/components/grid/useGridCallbackRef.ts"
+        sourceCodePath="lib/grid/hooks/useGridCallbackRef.ts"
         title="useGridCallbackRef"
       />
       <div>

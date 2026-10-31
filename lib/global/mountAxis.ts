@@ -3,8 +3,8 @@ import {
   removeAxisFromInteraction,
   subscribeToInteractionState
 } from "./mutable-state/interactions";
-import { assert } from "../utils/assert";
-import type { CaughtError } from "../utils/CaughtError";
+import { assert } from "../shared/utils/assert";
+import type { CaughtError } from "../shared/utils/CaughtError";
 import { calculateAvailableAxisSize } from "./dom/calculateAvailableAxisSize";
 import { calculateHitRegions } from "./dom/calculateHitRegions";
 import { calculateItemConstraints } from "./dom/calculateItemConstraints";

@@ -1,0 +1,28 @@
+{
+  "description": [
+    {
+      "content": "<p>Closes the tab it is rendered within; render it within the element returned by the Workspace's <code>renderTab</code> prop:</p>\n"
+    },
+    {
+      "code": true,
+      "content": "<div><span class=\"tok-variableName\">renderTab</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName\">tab</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName\">props</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"tok-punctuation\">...</span><span class=\"tok-variableName\">props</span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">&#62;</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-punctuation\">{</span><span class=\"tok-variableName\">tab</span><span class=\"tok-operator\">.</span><span class=\"tok-propertyName\">title</span><span class=\"tok-punctuation\">}</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">TabCloseButton</span><span class=\"\"> </span><span class=\"tok-punctuation\">/&#62;</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">&#60;/</span><span class=\"tok-typeName\">div</span><span class=\"tok-punctuation\">&#62;</span><span class=\"\"></span></div>\n<div><span class=\"\"></span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">}</span></div>"
+    },
+    {
+      "content": "<p>The button renders nothing if closing is disabled (by the tab's <code>disableClose</code> flag or the Workspace's <code>disabled</code> prop).\nIts default <code>aria-label</code> is &quot;Close&quot; followed by the tab's title (or id).</p>\n"
+    },
+    {
+      "content": "<p>To keep the tab open (e.g. to confirm unsaved changes first), call <code>event.preventDefault()</code> in an <code>onClick</code> handler:</p>\n"
+    },
+    {
+      "code": true,
+      "content": "<div><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">TabCloseButton</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-propertyName\">onClick</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">event</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-keyword\">if</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName\">hasUnsavedChanges</span><span class=\"\"> </span><span class=\"tok-operator\">&#38;&#38;</span><span class=\"\"> </span><span class=\"tok-operator\">!</span><span class=\"tok-variableName\">confirm</span><span class=\"tok-punctuation\">(</span><span class=\"tok-string\">\"Discard unsaved changes?\"</span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-variableName\">event</span><span class=\"tok-operator\">.</span><span class=\"tok-propertyName\">preventDefault</span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-punctuation\">}</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">}</span><span class=\"\"></span></div>\n<div><span class=\"\"></span><span class=\"tok-punctuation\">/&#62;</span></div>"
+    },
+    {
+      "content": "<p>This button is not focusable by default (<code>tabIndex={-1}</code>), since tabs shouldn't contain focusable content;\nkeyboard users can close the focused tab with Delete or Backspace.</p>\n",
+      "intent": "primary"
+    }
+  ],
+  "filePath": "lib/workspace/components/TabCloseButton.tsx",
+  "name": "TabCloseButton",
+  "props": {}
+}

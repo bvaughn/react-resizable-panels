@@ -8,7 +8,7 @@
       "intent": "primary"
     }
   ],
-  "filePath": "lib/components/grid/types.ts",
+  "filePath": "lib/grid/types.ts",
   "methods": [
     {
       "description": [

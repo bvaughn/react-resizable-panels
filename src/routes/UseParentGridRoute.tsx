@@ -15,7 +15,7 @@ export default function UseParentGridRoute() {
     <Box direction="column" gap={4}>
       <Header
         section="Hooks"
-        sourceCodePath="lib/components/grid/useParentGrid.ts"
+        sourceCodePath="lib/grid/hooks/useParentGrid.ts"
         title="useParentGrid"
       />
       <div>
@@ -23,16 +23,15 @@ export default function UseParentGridRoute() {
         its <Link to="/imperative-api/grid">imperative API</Link>. Components
         rendered within a Grid can use it to control that Grid without passing
         refs or props down to them. For example, a button rendered within a Cell
-        can resize one of the Grid&apos;s columns:
+        can resize one of the Grid's columns:
       </div>
       <Code html={html} />
       <Callout intent="primary">
-        Returns <code>null</code> if the component isn&apos;t rendered within a
-        Grid.
+        Returns <code>null</code> if the component isn't rendered within a Grid.
       </Callout>
       <Callout intent="primary">
-        The returned value doesn&apos;t change when the Grid&apos;s layout
-        changes, so this hook doesn&apos;t cause components to re-render.
+        The returned value doesn't change when the Grid's layout changes, so
+        this hook doesn't cause components to re-render.
       </Callout>
       <SectionHeader>Return value</SectionHeader>
       <HookSignature>
@@ -45,7 +44,7 @@ export default function UseParentGridRoute() {
           }
         >
           <p>
-            The Grid&apos;s <code>id</code> and its imperative API (
+            The Grid's <code>id</code> and its imperative API (
             <code>getLayout</code>, <code>getTrackById</code>,{" "}
             <code>getTrackByIndex</code>, and <code>setLayout</code>).
           </p>

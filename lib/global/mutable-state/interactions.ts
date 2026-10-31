@@ -1,4 +1,4 @@
-import { EventEmitter } from "../../utils/EventEmitter";
+import { EventEmitter } from "../../shared/utils/EventEmitter";
 import type { RegisteredResizeAxis, RegisteredSeparator } from "../types";
 import { suppressNextClick } from "../utils/suppressNextClick";
 import type {

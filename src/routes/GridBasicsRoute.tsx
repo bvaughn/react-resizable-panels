@@ -7,7 +7,7 @@ import { Grid } from "../components/styled-panels/Grid";
 export default function GridBasicsRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Grids" title="The basics" />
+      <Header section="Grid" title="The basics" />
       <div>
         The <code>Grid</code> component arranges resizable <code>Cell</code>s in
         two dimensions. Columns are resized horizontally and rows are resized

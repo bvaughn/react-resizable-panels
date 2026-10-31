@@ -1,4 +1,4 @@
-import { assert } from "../../utils/assert";
+import { assert } from "../../shared/utils/assert";
 import { getMountedAxisState } from "../mutable-state/axes";
 import { adjustLayoutForSeparator } from "../utils/adjustLayoutForSeparator";
 import { findSeparatorAxis } from "../utils/findSeparatorAxis";

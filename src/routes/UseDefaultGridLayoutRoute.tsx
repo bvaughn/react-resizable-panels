@@ -15,7 +15,7 @@ export default function UseDefaultGridLayoutRoute() {
     <Box direction="column" gap={4}>
       <Header
         section="Hooks"
-        sourceCodePath="lib/components/grid/useDefaultGridLayout.ts"
+        sourceCodePath="lib/grid/hooks/useDefaultGridLayout.ts"
         title="useDefaultGridLayout"
       />
       <div>

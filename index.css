@@ -21,6 +21,19 @@
   --color-separator-active: #87838c;
 }
 
+/*
+ * Workspace demo: elements of tabsets with tabs on the left or right
+ * (every element within a tabset has a data-tab-placement attribute), and the content of their tabs
+ */
+@custom-variant tabs-vertical {
+  &:is([data-tab-placement="left"], [data-tab-placement="right"]) {
+    @slot;
+  }
+  [data-tab]:is([data-tab-placement="left"], [data-tab-placement="right"]) & {
+    @slot;
+  }
+}
+
 /* The colors above are chosen for the dark theme */
 @media (prefers-color-scheme: light) {
   :root {

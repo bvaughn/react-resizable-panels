@@ -29,10 +29,13 @@ export default function App() {
           </div>
           <VSCode />
           <div>
-            There are many types of layouts, covered in the{" "}
-            <Link to="/examples/the-basics">examples</Link> section of the docs.
-            Check out the <Link to="/support">support</Link> page if you have
-            questions.
+            There are three kinds of layouts:{" "}
+            <Link to="/examples/the-basics">flex</Link> layouts of panels in a
+            row or column, <Link to="/examples/grid-basics">grids</Link> of
+            cells that resize in two dimensions, and{" "}
+            <Link to="/examples/workspace">workspaces</Link> of tabsets that
+            users can rearrange by dragging tabs. Check out the{" "}
+            <Link to="/support">support</Link> page if you have questions.
           </div>
         </>
       }
@@ -51,87 +54,197 @@ const nav: NavConfig<Path | DefaultPath> = [
   {
     title: "Flex",
     links: [
-      { path: "/examples/the-basics", title: "The basics" },
-      { path: "/examples/min-max-sizes", title: "Min/max sizes" },
-      { path: "/examples/collapsible-panels", title: "Collapsible panels" },
-      { path: "/examples/accordion", title: "Accordion" },
       {
-        path: "/examples/persistent-layout",
-        title: "Persistent layouts",
-        children: [
+        title: "Guides",
+        links: [
+          { path: "/examples/the-basics", title: "The basics" },
+          { path: "/examples/min-max-sizes", title: "Min/max sizes" },
+          { path: "/examples/collapsible-panels", title: "Collapsible panels" },
+          { path: "/examples/accordion", title: "Accordion" },
           {
-            path: "/examples/persistent-layout/conditional-panels",
-            title: "Conditional panels"
+            path: "/examples/persistent-layout",
+            title: "Persistent layouts",
+            children: [
+              {
+                path: "/examples/persistent-layout/conditional-panels",
+                title: "Conditional panels"
+              },
+              {
+                path: "/examples/persistent-layout/server-rendering",
+                title: "Server rendering"
+              },
+              {
+                path: "/examples/persistent-layout/server-components",
+                title: "Server components"
+              }
+            ]
+          },
+          { path: "/examples/nested-groups", title: "Nested groups" },
+          { path: "/examples/conditional-panels", title: "Conditional panels" },
+          { path: "/examples/fixed-size-panels", title: "Fixed size panels" },
+          { path: "/examples/disabled-panels", title: "Disabled panels" },
+          {
+            path: "/examples/panel-resize-behavior",
+            title: "Panel resize behavior"
           },
           {
-            path: "/examples/persistent-layout/server-rendering",
-            title: "Server rendering"
+            path: "/examples/group-resize-behavior",
+            title: "Group resize behavior"
+          },
+          { path: "/examples/overflow", title: "Overflow" },
+          { path: "/examples/custom-css-styles", title: "Styling" }
+        ]
+      },
+      {
+        title: "Components",
+        links: [
+          { path: "/props/group", title: "Group" },
+          { path: "/props/panel", title: "Panel" },
+          { path: "/props/separator", title: "Separator" }
+        ]
+      },
+      {
+        title: "Hooks",
+        links: [
+          { path: "/hooks/use-default-layout", title: "useDefaultLayout" },
+          { path: "/hooks/use-group-ref", title: "useGroupRef" },
+          {
+            path: "/hooks/use-group-callback-ref",
+            title: "useGroupCallbackRef"
+          },
+          { path: "/hooks/use-panel-ref", title: "usePanelRef" },
+          {
+            path: "/hooks/use-panel-callback-ref",
+            title: "usePanelCallbackRef"
+          },
+          { path: "/hooks/use-parent-group", title: "useParentGroup" },
+          { path: "/hooks/use-parent-panel", title: "useParentPanel" }
+        ]
+      },
+      {
+        title: "Imperative API",
+        links: [
+          { path: "/imperative-api/group", title: "Group API" },
+          { path: "/imperative-api/panel", title: "Panel API" }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Grid",
+    links: [
+      {
+        title: "Guides",
+        links: [
+          { path: "/examples/grid-basics", title: "The basics" },
+          { path: "/examples/grid-constraints", title: "Min/max sizes" },
+          { path: "/examples/gridlines", title: "Gridlines" },
+          {
+            path: "/examples/collapsible-grid-cells",
+            title: "Collapsible cells"
           },
           {
-            path: "/examples/persistent-layout/server-components",
-            title: "Server components"
+            path: "/examples/grid-persistent-layout",
+            title: "Persistent layouts"
           }
         ]
       },
-      { path: "/examples/nested-groups", title: "Nested groups" },
-      { path: "/examples/conditional-panels", title: "Conditional panels" },
-      { path: "/examples/fixed-size-panels", title: "Fixed size panels" },
-      { path: "/examples/disabled-panels", title: "Disabled panels" },
       {
-        path: "/examples/panel-resize-behavior",
-        title: "Panel resize behavior"
+        title: "Components",
+        links: [
+          { path: "/props/grid", title: "Grid" },
+          { path: "/props/cell", title: "Cell" },
+          { path: "/props/gridline", title: "Gridline" }
+        ]
       },
       {
-        path: "/examples/group-resize-behavior",
-        title: "Group resize behavior"
+        title: "Hooks",
+        links: [
+          {
+            path: "/hooks/use-default-grid-layout",
+            title: "useDefaultGridLayout"
+          },
+          { path: "/hooks/use-grid-ref", title: "useGridRef" },
+          { path: "/hooks/use-grid-callback-ref", title: "useGridCallbackRef" },
+          { path: "/hooks/use-parent-grid", title: "useParentGrid" }
+        ]
       },
-      { path: "/examples/overflow", title: "Overflow" },
-      { path: "/examples/custom-css-styles", title: "Custom CSS styles" }
+      {
+        title: "Imperative API",
+        links: [
+          { path: "/imperative-api/grid", title: "Grid API" },
+          { path: "/imperative-api/grid-track", title: "GridTrack API" }
+        ]
+      }
     ]
   },
   {
-    title: "Grids",
+    title: "Workspace",
     links: [
-      { path: "/examples/grid-basics", title: "The basics" },
-      { path: "/examples/grid-constraints", title: "Min/max sizes" },
-      { path: "/examples/gridlines", title: "Gridlines" },
-      { path: "/examples/collapsible-grid-cells", title: "Collapsible cells" }
-    ]
-  },
-  {
-    title: "Props",
-    links: [
-      { path: "/props/cell", title: "Cell" },
-      { path: "/props/grid", title: "Grid" },
-      { path: "/props/gridline", title: "Gridline" },
-      { path: "/props/group", title: "Group" },
-      { path: "/props/panel", title: "Panel" },
-      { path: "/props/separator", title: "Separator" }
-    ]
-  },
-  {
-    title: "Imperative APIs",
-    links: [
-      { path: "/imperative-api/grid", title: "Grid" },
-      { path: "/imperative-api/grid-track", title: "GridTrack" },
-      { path: "/imperative-api/group", title: "Group" },
-      { path: "/imperative-api/panel", title: "Panel" }
-    ]
-  },
-  {
-    title: "Hooks",
-    links: [
-      { path: "/hooks/use-default-layout", title: "useDefaultLayout" },
-      { path: "/hooks/use-default-grid-layout", title: "useDefaultGridLayout" },
-      { path: "/hooks/use-grid-ref", title: "useGridRef" },
-      { path: "/hooks/use-grid-callback-ref", title: "useGridCallbackRef" },
-      { path: "/hooks/use-group-ref", title: "useGroupRef" },
-      { path: "/hooks/use-group-callback-ref", title: "useGroupCallbackRef" },
-      { path: "/hooks/use-panel-ref", title: "usePanelRef" },
-      { path: "/hooks/use-panel-callback-ref", title: "usePanelCallbackRef" },
-      { path: "/hooks/use-parent-grid", title: "useParentGrid" },
-      { path: "/hooks/use-parent-group", title: "useParentGroup" },
-      { path: "/hooks/use-parent-panel", title: "useParentPanel" }
+      {
+        title: "Guides",
+        links: [
+          { path: "/examples/workspace", title: "The basics" },
+          { path: "/examples/workspace/tab-content", title: "Tab content" },
+          {
+            path: "/examples/workspace/managing-tabs",
+            title: "Managing tabs"
+          },
+          { path: "/examples/workspace/restrictions", title: "Restrictions" },
+          {
+            path: "/examples/workspace/persistent-layout",
+            title: "Persistent layouts"
+          },
+          {
+            path: "/examples/workspace/server-rendering",
+            title: "Server rendering"
+          },
+          { path: "/examples/workspace/tab-placement", title: "Tab placement" },
+          {
+            path: "/examples/workspace/custom-tabsets",
+            title: "Custom tabsets"
+          },
+          { path: "/examples/workspace/styling", title: "Styling" }
+        ]
+      },
+      {
+        title: "Components",
+        links: [
+          { path: "/props/workspace", title: "Workspace" },
+          { path: "/props/tab-close-button", title: "TabCloseButton" }
+        ]
+      },
+      {
+        title: "Hooks",
+        links: [
+          { path: "/hooks/use-workspace-ref", title: "useWorkspaceRef" },
+          {
+            path: "/hooks/use-workspace-callback-ref",
+            title: "useWorkspaceCallbackRef"
+          },
+          { path: "/hooks/use-parent-workspace", title: "useParentWorkspace" },
+          { path: "/hooks/use-parent-tabset", title: "useParentTabset" },
+          {
+            path: "/hooks/use-parent-tabset-state",
+            title: "useParentTabsetState"
+          },
+          { path: "/hooks/use-parent-tab", title: "useParentTab" },
+          { path: "/hooks/use-parent-tab-state", title: "useParentTabState" }
+        ]
+      },
+      {
+        title: "Imperative API",
+        links: [{ path: "/imperative-api/workspace", title: "Workspace API" }]
+      },
+      {
+        title: "Model",
+        links: [
+          { path: "/model/workspace-model", title: "WorkspaceModel" },
+          { path: "/model/split-node", title: "SplitNode" },
+          { path: "/model/tabset-node", title: "TabsetNode" },
+          { path: "/model/tab-node", title: "TabNode" }
+        ]
+      }
     ]
   },
   { path: "/platform-requirements", title: "Requirements" },

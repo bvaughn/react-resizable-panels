@@ -1,4 +1,4 @@
-import type { GroupImperativeHandle } from "../../components/group/types";
+import type { GroupImperativeHandle } from "../../flex/types";
 import { getMountedAxes, updateMountedAxis } from "../mutable-state/axes";
 import type { Layout } from "../types";
 import { layoutsEqual } from "./layoutsEqual";

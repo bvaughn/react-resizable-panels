@@ -1,6 +1,6 @@
 <img src="https://react-resizable-panels.vercel.app/og.png" alt="react-resizable-panels logo" width="400" height="210" />
 
-`react-resizable-panels`: React components for resizable panel groups/layouts.
+`react-resizable-panels`: React components for resizable layouts: panel groups, grids, and workspaces of tabsets that users can rearrange by dragging tabs.
 
 ## Support
 
@@ -817,3 +817,297 @@ multiple gridlines can be rendered along the same boundary (e.g. before and afte
 </table>
 
 <!-- Gridline:optional-props:end -->
+
+### Workspace
+
+<!-- Workspace:description:begin -->
+A Workspace arranges tabsets that users can rearrange by dragging tabs:
+between tabsets, within a tabset's list of tabs, or onto the edge of a tabset to split it.
+Tabsets can be resized and maximized.
+
+The layout is described by a serializable model (see `WorkspaceModel`).
+Workspaces are uncontrolled: provide an initial model with the `defaultModel` prop, save changes from the `onModelChanged` callback,
+and make changes using the imperative API (see `WorkspaceImperativeHandle`).
+
+ℹ️ Tab content is not remounted when a tab is moved.
+
+Workspace elements always include the following attributes:
+
+```html
+<div data-workspace data-testid="workspace-id-prop" id="workspace-id-prop">
+```
+
+ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+<!-- Workspace:description:end -->
+
+#### Required props
+
+<!-- Workspace:required-props:begin -->
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>defaultModel</td>
+      <td><p>Initial layout of the workspace.</p>
+<p>ℹ️ Splits and tabsets may omit their ids; they&#39;re assigned ids based on their position (see <code>WorkspaceModelInput</code>).</p>
+<p>ℹ️ This value is only used when the Workspace mounts; use the imperative <code>setModel</code> method to replace it later.</p>
+</td>
+    </tr>
+    <tr>
+      <td>renderTabContent</td>
+      <td><p>Content of a tab.</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Workspace:required-props:end -->
+
+#### Optional props
+
+<!-- Workspace:optional-props:begin -->
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>className</td>
+      <td><p>CSS class name.</p>
+</td>
+    </tr>
+    <tr>
+      <td>id</td>
+      <td><p>Uniquely identifies this workspace within an application.
+Falls back to <code>useId</code> when not provided.</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>
+</td>
+    </tr>
+    <tr>
+      <td>style</td>
+      <td><p>CSS properties.</p>
+</td>
+    </tr>
+    <tr>
+      <td>classNames</td>
+      <td><p>CSS class names for the elements the workspace renders within its root element:</p>
+<ul>
+<li><code>tabset</code>: root element of a tabset (<code>data-tabset</code>)</li>
+<li><code>header</code>: contains a tabset&#39;s tab list and toolbar (<code>data-tabset-header</code>)</li>
+<li><code>tabList</code>: contains a tabset&#39;s tabs (<code>data-tab-list</code>)</li>
+<li><code>tab</code>: passed to <code>renderTab</code> with the rest of a tab&#39;s props (<code>data-tab</code>)</li>
+<li><code>toolbar</code>: contains the content returned by <code>renderTabsetToolbar</code> (<code>data-tabset-toolbar</code>)</li>
+<li><code>tabPanels</code>: contains a tabset&#39;s tab content (<code>data-tab-panels</code>)</li>
+<li><code>tabContent</code>: the element each tab&#39;s content is rendered into (<code>data-tab-content</code>)</li>
+<li><code>dropIndicator</code>: shows where a dragged tab will be dropped within a tabset&#39;s panels (<code>data-drop-indicator</code>)</li>
+<li><code>dragPreview</code>: follows the pointer while a tab is dragged (<code>data-drag-preview</code>)</li>
+</ul>
+<p>ℹ️ Elements expose their state as data attributes (e.g. <code>data-tab-selected</code>), which can be used for styling.
+Elements within a tabset also have a <code>data-tab-placement</code> attribute (see <code>tabPlacement</code>).</p>
+<p>ℹ️ Like the render props, this object is part of what tabsets re-render for;
+in large workspaces, define it outside of the component (or memoize it) rather than inline.</p>
+</td>
+    </tr>
+    <tr>
+      <td>disabled</td>
+      <td><p>Locks the arrangement: tabs cannot be resized, dragged, dropped, or closed by the user.
+Selecting tabs and maximizing tabsets still work.</p>
+<p>ℹ️ This prop overrides the <code>disableClose</code> and <code>disableDrag</code> flags of individual tabs.</p>
+</td>
+    </tr>
+    <tr>
+      <td>disableDrop</td>
+      <td><p>Prevents tabs from being dropped onto some (or all) targets.</p>
+<p>Functions are called when the target under the pointer changes;
+returning <code>true</code> rejects the target.</p>
+</td>
+    </tr>
+    <tr>
+      <td>elementRef</td>
+      <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
+</td>
+    </tr>
+    <tr>
+      <td>hiddenTabBehavior</td>
+      <td><p>What happens to the content of tabs that are not selected.
+Can be a function to choose per tab (e.g. based on its data).</p>
+<ul>
+<li><code>&quot;keep-mounted&quot;</code>: content stays mounted (and its effects keep running)</li>
+<li><code>&quot;activity&quot;</code>: content stays mounted but is rendered within a hidden React <code>&lt;Activity&gt;</code> boundary, so its effects are unmounted;
+requires React 19.2 (falls back to <code>&quot;keep-mounted&quot;</code> otherwise)</li>
+<li><code>&quot;unmount&quot;</code>: content is unmounted</li>
+</ul>
+<p>ℹ️ Moving a tab never remounts its content.</p>
+</td>
+    </tr>
+    <tr>
+      <td>onModelChanged</td>
+      <td><p>Called after the model has changed (e.g. a tab was moved, selected, or closed, or a tabset was resized).</p>
+<p>ℹ️ For changes caused by pointer events, this method is not called until the pointer has been released.
+This method is recommended when saving models to some storage api.</p>
+</td>
+    </tr>
+    <tr>
+      <td>renderDragPreview</td>
+      <td><p>Content of the element that follows the pointer while a tab is being dragged.
+Defaults to the tab&#39;s title (or id).</p>
+</td>
+    </tr>
+    <tr>
+      <td>renderEmptyTabset</td>
+      <td><p>Content shown in the panels of a tabset that has no tabs (e.g. &quot;Drag a tab here&quot;):
+the root tabset of an empty workspace, or a tabset with the <code>keepWhenEmpty</code> flag.</p>
+</td>
+    </tr>
+    <tr>
+      <td>renderSeparator</td>
+      <td><p>Separator rendered between the children of a split.
+Should return a <code>Separator</code> (or <code>null</code> for no separator); defaults to an unstyled <code>Separator</code>.</p>
+</td>
+    </tr>
+    <tr>
+      <td>renderTab</td>
+      <td><p>Renders a tab (within its tabset&#39;s tab list).
+Spread <code>props</code> onto the returned element:
+they make it a tab (its role and ARIA attributes, keyboard and pointer handling, and data attributes),
+and attach a <code>ref</code> that dragging and keyboard focus depend on.</p>
+<pre><code class="language-tsx">renderTab={(tab, props) =&gt; (
+  &lt;div {...props}&gt;
+    {tab.title}
+    &lt;TabCloseButton /&gt;
+  &lt;/div&gt;
+)}
+</code></pre>
+<p>Individual props can be overridden or wrapped, e.g. to confirm before the Delete key closes a tab
+(call <code>props.onKeyDown</code> for other keys).</p>
+<p>⚠️ Merge <code>className</code> and <code>style</code> rather than replacing them (e.g. <code>style={{ ...props.style, padding: 4 }}</code>):
+they include the <code>tab</code> entries of the <code>classNames</code> and <code>styles</code> props, and <code>style</code> includes the <code>touch-action</code> that touch dragging depends on.</p>
+<p>ℹ️ Pointer and keyboard events from interactive descendants (<code>button</code> elements, <code>role=&quot;button&quot;</code>, or elements with a <code>data-tab-ignore</code> attribute) are ignored,
+so clicking a button within a tab doesn&#39;t select or drag it.</p>
+<p>ℹ️ When this prop is not provided, tabs show their title (or id) followed by a <code>TabCloseButton</code>.</p>
+</td>
+    </tr>
+    <tr>
+      <td>renderTabsetToolbar</td>
+      <td><p>Content shown after a tabset&#39;s tab list (e.g. buttons to add a tab or maximize the tabset).</p>
+<p>ℹ️ The <code>useParentTabset</code> and <code>useParentTabsetState</code> hooks can be used within this content.</p>
+</td>
+    </tr>
+    <tr>
+      <td>resizePreviewMode</td>
+      <td><p>Controls whether pointer dragging updates sizes immediately,
+or renders overlay separator previews until the pointer is released.</p>
+</td>
+    </tr>
+    <tr>
+      <td>serverRenderTabContent</td>
+      <td><p>Render the content of selected tabs on the server.
+Can be a function to choose per tab (e.g. based on its data).</p>
+<p>Tab content is rendered through portals (so that moving a tab doesn&#39;t remount it), which React can&#39;t render on the server.
+Content opted into server rendering is rendered inline instead, then moved into a portal once hydration has finished.</p>
+<p>⚠️ That move remounts the content once (e.g. resetting its state and re-running its effects),
+so this is best suited to content that is cheap to mount and benefits from being in the server-rendered HTML.</p>
+<p>ℹ️ This prop has no effect for workspaces that are not server rendered.</p>
+</td>
+    </tr>
+    <tr>
+      <td>styles</td>
+      <td><p>CSS properties for the elements the workspace renders within its root element (see <code>classNames</code>).</p>
+</td>
+    </tr>
+    <tr>
+      <td>tabPlacement</td>
+      <td><p>Where tabs are placed relative to tab content.</p>
+<p>Tabs placed on the left or right are stacked (&quot;vertical&quot;):
+this determines how a dropped tab&#39;s position is found and which arrow keys move focus between tabs.</p>
+<p>ℹ️ Elements within a tabset have a <code>data-tab-placement</code> attribute, which can be used for styling (e.g. rotating tabs on the left or right).</p>
+<p>ℹ️ Tabsets can override this with the <code>tabPlacement</code> field of their model node.</p>
+</td>
+    </tr>
+    <tr>
+      <td>tabsetMinHeight</td>
+      <td><p>Minimum height of each tabset&#39;s content area (not including its header).</p>
+<p>ℹ️ Tabsets can override this with the <code>minHeight</code> field of their model node.</p>
+<p>ℹ️ Interpretation rules:</p>
+<ul>
+<li>Strings must specify a unit: &quot;px&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot; (e.g. <code>tabsetMinHeight: &quot;200px&quot;</code>)</li>
+<li>Percentages (and strings without units) are not allowed</li>
+</ul>
+</td>
+    </tr>
+    <tr>
+      <td>tabsetMinWidth</td>
+      <td><p>Minimum width of each tabset&#39;s content area (not including its header).</p>
+<p>ℹ️ Tabsets can override this with the <code>minWidth</code> field of their model node.</p>
+<p>ℹ️ Interpretation rules:</p>
+<ul>
+<li>Strings must specify a unit: &quot;px&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot; (e.g. <code>tabsetMinWidth: &quot;200px&quot;</code>)</li>
+<li>Percentages (and strings without units) are not allowed</li>
+</ul>
+</td>
+    </tr>
+    <tr>
+      <td>workspaceRef</td>
+      <td><p>Exposes the imperative API (see <code>WorkspaceImperativeHandle</code>).</p>
+<p>ℹ️ The <code>useWorkspaceRef</code> and <code>useWorkspaceCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Workspace:optional-props:end -->
+
+### TabCloseButton
+
+<!-- TabCloseButton:description:begin -->
+Closes the tab it is rendered within; render it within the element returned by the Workspace's `renderTab` prop:
+
+```tsx
+renderTab={(tab, props) => (
+  <div {...props}>
+    {tab.title}
+    <TabCloseButton />
+  </div>
+)}
+```
+
+The button renders nothing if closing is disabled (by the tab's `disableClose` flag or the Workspace's `disabled` prop).
+Its default `aria-label` is "Close" followed by the tab's title (or id).
+
+To keep the tab open (e.g. to confirm unsaved changes first), call `event.preventDefault()` in an `onClick` handler:
+
+```tsx
+<TabCloseButton
+  onClick={(event) => {
+    if (hasUnsavedChanges && !confirm("Discard unsaved changes?")) {
+      event.preventDefault();
+    }
+  }}
+/>
+```
+
+ℹ️ This button is not focusable by default (`tabIndex={-1}`), since tabs shouldn't contain focusable content;
+keyboard users can close the focused tab with Delete or Backspace.
+<!-- TabCloseButton:description:end -->
+
+#### Required props
+
+<!-- TabCloseButton:required-props:begin -->
+None
+<!-- TabCloseButton:required-props:end -->
+
+#### Optional props
+
+<!-- TabCloseButton:optional-props:begin -->
+None
+<!-- TabCloseButton:optional-props:end -->

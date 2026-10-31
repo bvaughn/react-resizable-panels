@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.16.0
+
+- Add `Workspace` component, for layouts of tabsets that users can rearrange by dragging tabs: between tabsets, within a tabset's list of tabs, or onto the edge of a tabset to split it. Tabsets can also be resized and maximized. The layout is described by a serializable model, and tab content is not remounted when a tab is moved.
+  - Tabsets can be customized with the `renderTab`, `renderTabsetToolbar`, and `renderEmptyTabset` props (and the `TabCloseButton` component), and styled with the `classNames` and `styles` props.
+  - Workspaces are uncontrolled (like `Group`); the `useWorkspaceRef` and `useWorkspaceCallbackRef` hooks return its imperative API.
+  - Content within a workspace can use the `useParentWorkspace`, `useParentTabset`, `useParentTabsetState`, `useParentTab`, and `useParentTabState` hooks.
+  - The content of tabs that aren't selected can stay mounted (default), be unmounted, or be rendered within a hidden React `<Activity>` (`hiddenTabBehavior`), and selected tabs' content can opt into server rendering (`serverRenderTabContent`).
+  - Supports mouse, touch, and keyboard interaction.
+- Fix separators (and grid gridlines) moving farther or less far than the pointer when an ancestor has CSS `zoom` or a scale transform (e.g. twice as far within `zoom: 2`). Pointer movements are now converted from screen pixels to layout pixels before resizing.
+
 ## 4.15.3
 
 - Fix unused components not being removed by some bundlers (e.g. esbuild), so an application that only imports `Group` no longer includes `Grid`. Components now set their `displayName` within a pure-annotated expression, and `package.json` declares `"sideEffects": false`. - [#779](https://github.com/bvaughn/react-resizable-panels/pull/779)
@@ -233,11 +243,11 @@
 
 - Fix cursors in Safari by falling back to alternate CSS cursor styles: - [#624](https://github.com/bvaughn/react-resizable-panels/pull/624)
 
-| Safari | Chrome, Firefox |
-| :--- | :--- |
-| `grab` | `move` |
-| `col-resize` | `ew-resize` |
-| `row-resize` | `ns-resize` |
+| Safari       | Chrome, Firefox |
+| :----------- | :-------------- |
+| `grab`       | `move`          |
+| `col-resize` | `ew-resize`     |
+| `row-resize` | `ns-resize`     |
 
 ## 4.5.0
 
@@ -339,8 +349,8 @@ The `useDefaultLayout` hook has also been updated to use this callback (though i
 useDefaultLayout({
   debounceSaveMs: 0,
   groupId: "test-group-id",
-  storage: localStorage,
-})
+  storage: localStorage
+});
 ```
 
 > [!NOTE]
@@ -424,6 +434,7 @@ onResize={(nextSize, id, prevSize) => {
   }
 }}
 ```
+
 </dd>
 </dl>
 
@@ -435,20 +446,28 @@ onResize={(nextSize, id, prevSize) => {
 import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 
 <PanelGroup direction="horizontal">
-  <Panel defaultSize={30} minSize={20}>left</Panel>
+  <Panel defaultSize={30} minSize={20}>
+    left
+  </Panel>
   <PanelResizeHandle />
-  <Panel defaultSize={30} minSize={20}>right</Panel>
-</PanelGroup>
+  <Panel defaultSize={30} minSize={20}>
+    right
+  </Panel>
+</PanelGroup>;
 
 // Version 4
 
 import { Group, Panel, Separator } from "react-resizable-panels";
 
 <Group orientation="horizontal">
-  <Panel defaultSize="30%" minSize="20%">left</Panel>
+  <Panel defaultSize="30%" minSize="20%">
+    left
+  </Panel>
   <Separator />
-  <Panel defaultSize="30%" minSize="20%">right</Panel>
-</Group>
+  <Panel defaultSize="30%" minSize="20%">
+    right
+  </Panel>
+</Group>;
 ```
 
 ### Persistent layouts using localStorage
@@ -462,11 +481,16 @@ import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
   <Panel>left</Panel>
   <PanelResizeHandle />
   <Panel>right</Panel>
-</PanelGroup>
+</PanelGroup>;
 
 // Version 4
 
-import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panels";
+import {
+  Group,
+  Panel,
+  Separator,
+  useDefaultLayout
+} from "react-resizable-panels";
 
 const { defaultLayout, onLayoutChange } = useDefaultLayout({
   groupId: "unique-group-id",
@@ -477,7 +501,7 @@ const { defaultLayout, onLayoutChange } = useDefaultLayout({
   <Panel>left</Panel>
   <Separator />
   <Panel>right</Panel>
-</Group>
+</Group>;
 ```
 
 > [!NOTE]
@@ -491,20 +515,26 @@ const { defaultLayout, onLayoutChange } = useDefaultLayout({
 import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 
 <PanelGroup autoSaveId="unique-group-id" direction="horizontal">
-   {showLeftPanel && (
-     <>
-       <Panel id="left" order={1}>left</Panel>
-       <PanelResizeHandle />
-     </>
-   )}
-   <Panel id="center" order={2}>center</Panel>
-   {showRightPanel && (
-     <>
-       <PanelResizeHandle />
-       <Panel id="right" order={3}>right</Panel>
-     </>
-   )}
-</PanelGroup>
+  {showLeftPanel && (
+    <>
+      <Panel id="left" order={1}>
+        left
+      </Panel>
+      <PanelResizeHandle />
+    </>
+  )}
+  <Panel id="center" order={2}>
+    center
+  </Panel>
+  {showRightPanel && (
+    <>
+      <PanelResizeHandle />
+      <Panel id="right" order={3}>
+        right
+      </Panel>
+    </>
+  )}
+</PanelGroup>;
 
 // Version 4
 
@@ -524,7 +554,7 @@ import { Group, Panel, Separator } from "react-resizable-panels";
       <Panel id="right">right</Panel>
     </>
   )}
-</Group>
+</Group>;
 ```
 
 ### Imperative APIs
@@ -533,7 +563,10 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 // Version 3
 
 import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
-import type { ImperativePanelGroupHandle, ImperativePanelHandle } from "react-resizable-panels";
+import type {
+  ImperativePanelGroupHandle,
+  ImperativePanelHandle
+} from "react-resizable-panels";
 
 const panelRef = useRef<ImperativePanelHandle>(null);
 const panelGroupRef = useRef<ImperativePanelGroupHandle>(null);
@@ -542,11 +575,17 @@ const panelGroupRef = useRef<ImperativePanelGroupHandle>(null);
   <Panel ref={panelRef}>left</Panel>
   <PanelResizeHandle />
   <Panel>right</Panel>
-</PanelGroup>
+</PanelGroup>;
 
 // Version 4
 
-import { Group, Panel, Separator, useGroupRef, usePanelRef } from "react-resizable-panels";
+import {
+  Group,
+  Panel,
+  Separator,
+  useGroupRef,
+  usePanelRef
+} from "react-resizable-panels";
 
 const groupRef = useGroupRef();
 const panelRef = usePanelRef();
@@ -555,7 +594,7 @@ const panelRef = usePanelRef();
   <Panel panelRef={panelRef}>left</Panel>
   <Separator />
   <Panel>right</Panel>
-</Group>
+</Group>;
 ```
 
 ### Disabling custom cursors
@@ -571,7 +610,7 @@ disableGlobalCursorStyles();
 
 import { Group, Panel, Separator } from "react-resizable-panels";
 
-<Group disableCursor />
+<Group disableCursor />;
 ```
 
 ## 3.0.6

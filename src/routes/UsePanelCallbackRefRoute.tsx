@@ -10,7 +10,7 @@ export default function UsePanelCallbackRefRoute() {
     <Box direction="column" gap={4}>
       <Header
         section="Hooks"
-        sourceCodePath="lib/components/panel/usePanelCallbackRef.ts"
+        sourceCodePath="lib/flex/hooks/usePanelCallbackRef.ts"
         title="usePanelCallbackRef"
       />
       <div>

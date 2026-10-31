@@ -19,7 +19,7 @@
       "intent": "warning"
     }
   ],
-  "filePath": "lib/components/grid/Cell.tsx",
+  "filePath": "lib/grid/components/Cell.tsx",
   "name": "Cell",
   "props": {
     "className": {

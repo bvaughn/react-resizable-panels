@@ -55,7 +55,7 @@
       "intent": "primary"
     }
   ],
-  "filePath": "lib/components/grid/Gridline.tsx",
+  "filePath": "lib/grid/components/Gridline.tsx",
   "name": "Gridline",
   "props": {
     "children": {

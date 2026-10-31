@@ -12,6 +12,7 @@ import type { DisplayModeToggleProps } from "../../../src/components/DisplayMode
 import type { PopupWindowProps } from "../../../src/components/PopupWindow";
 import type { ClickableProps } from "../../../src/components/Clickable";
 import type { IFrameProps } from "../../components/IFrame";
+import type { TestWorkspaceProps } from "../../components/Workspace";
 
 type EncodedElementWithChildren<Props extends object = object> = Omit<
   Props,
@@ -83,6 +84,11 @@ export interface EncodedSeparatorElement {
   type: "Separator";
 }
 
+export interface EncodedWorkspaceElement {
+  props: TestWorkspaceProps;
+  type: "Workspace";
+}
+
 export type TextProps = {
   children: string;
   className?: string | undefined;
@@ -106,4 +112,5 @@ export type EncodedElement =
   | EncodedPanelElement
   | EncodedPopupWindowElement
   | EncodedSeparatorElement
-  | EncodedTextElement;
+  | EncodedTextElement
+  | EncodedWorkspaceElement;

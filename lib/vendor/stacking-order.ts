@@ -2,8 +2,8 @@
 // - github.com/Rich-Harris/stacking-order/issues/3
 // - github.com/Rich-Harris/stacking-order/issues/6
 
-import { assert } from "../utils/assert";
-import { isShadowRoot } from "../utils/isShadowRoot";
+import { assert } from "../shared/utils/assert";
+import { isShadowRoot } from "../shared/utils/isShadowRoot";
 
 /**
  * Determine which of two nodes appears in front of the other —

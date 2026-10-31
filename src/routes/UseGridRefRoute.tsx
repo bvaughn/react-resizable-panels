@@ -11,7 +11,7 @@ export default function UseGridRefRoute() {
     <Box direction="column" gap={4}>
       <Header
         section="Hooks"
-        sourceCodePath="lib/components/grid/useGridRef.ts"
+        sourceCodePath="lib/grid/hooks/useGridRef.ts"
         title="useGridRef"
       />
       <div>

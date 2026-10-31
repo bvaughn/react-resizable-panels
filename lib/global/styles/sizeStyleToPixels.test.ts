@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, onTestFinished, test } from "vitest";
 import {
   setDefaultElementStyle,
   setElementStyle
-} from "../../utils/test/mockGetComputedStyle";
+} from "../../shared/utils/test/mockGetComputedStyle";
 import { sizeStyleToPixels } from "./sizeStyleToPixels";
 
 describe("sizeStyleToPixels", () => {
