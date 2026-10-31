@@ -15,7 +15,7 @@ export default function UseDefaultLayoutRoute() {
     <Box direction="column" gap={4}>
       <Header
         section="Hooks"
-        sourceCodePath="lib/components/group/useDefaultLayout.ts"
+        sourceCodePath="lib/flex/hooks/useDefaultLayout.ts"
         title="useDefaultLayout"
       />
       <div>

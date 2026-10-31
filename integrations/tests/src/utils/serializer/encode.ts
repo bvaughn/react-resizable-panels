@@ -6,12 +6,14 @@ import {
   Group,
   Panel,
   Separator,
+  Workspace,
   type CellProps,
   type GridProps,
   type GridlineProps,
   type GroupProps,
   type PanelProps,
-  type SeparatorProps
+  type SeparatorProps,
+  type WorkspaceProps
 } from "react-resizable-panels";
 import {
   Clickable,
@@ -45,6 +47,7 @@ import type {
   EncodedPopupWindowElement,
   EncodedSeparatorElement,
   EncodedTextElement,
+  EncodedWorkspaceElement,
   TextProps
 } from "./types";
 import { IFrame, type IFrameProps } from "../../components/IFrame";
@@ -75,6 +78,10 @@ function encodeChildren(children: ReactElement<unknown>[]): EncodedElement[] {
       }
       case Grid: {
         elements.push(encodeGrid(current as ReactElement<GridProps>));
+        break;
+      }
+      case Workspace: {
+        elements.push(encodeWorkspace(current as ReactElement<WorkspaceProps>));
         break;
       }
       case Clickable: {
@@ -323,5 +330,21 @@ function encodeTextChild(element: ReactElement<TextProps>): EncodedTextElement {
       className: element.props.className
     },
     type: "Text"
+  };
+}
+
+function encodeWorkspace(
+  element: ReactElement<WorkspaceProps>
+): EncodedWorkspaceElement {
+  // Functions can't be serialized; the test Workspace provides its own render functions
+  const props = Object.fromEntries(
+    Object.entries(element.props).filter(
+      ([, value]) => typeof value !== "function"
+    )
+  ) as EncodedWorkspaceElement["props"];
+
+  return {
+    props,
+    type: "Workspace"
   };
 }

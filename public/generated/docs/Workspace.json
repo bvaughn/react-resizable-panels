@@ -1,0 +1,370 @@
+{
+  "description": [
+    {
+      "content": "<p>A Workspace arranges tabsets that users can rearrange by dragging tabs:\nbetween tabsets, within a tabset's list of tabs, or onto the edge of a tabset to split it.\nTabsets can be resized and maximized.</p>\n"
+    },
+    {
+      "content": "<p>The layout is described by a serializable model (see <code>WorkspaceModel</code>).\nWorkspaces are uncontrolled: provide an initial model with the <code>defaultModel</code> prop, save changes from the <code>onModelChanged</code> callback,\nand make changes using the imperative API (see <code>WorkspaceImperativeHandle</code>).</p>\n"
+    },
+    {
+      "content": "<p>Tab content is not remounted when a tab is moved.\nIts elements are moved within the document, though, which resets some browser state (e.g. iframes are reloaded).</p>\n",
+      "intent": "primary"
+    },
+    {
+      "content": "<p>Workspace elements always include the following attributes:</p>\n"
+    },
+    {
+      "code": true,
+      "content": "<div><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-workspace</span><span class=\"\"> </span><span class=\"tok-propertyName\">data-testid</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"workspace-id-prop\"</span><span class=\"\"> </span><span class=\"tok-propertyName\">id</span><span class=\"tok-operator\">=</span><span class=\"tok-string\">\"workspace-id-prop\"</span><span class=\"tok-punctuation\">&#62;</span></div>"
+    },
+    {
+      "content": "<p><a href=\"https://testing-library.com/docs/queries/bytestid/\">Test id</a> can be used to narrow selection when unit testing.</p>\n",
+      "intent": "primary"
+    }
+  ],
+  "filePath": "lib/workspace/components/Workspace.tsx",
+  "name": "Workspace",
+  "props": {
+    "className": {
+      "description": [
+        {
+          "content": "<p>CSS class name.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
+      "name": "className",
+      "required": false
+    },
+    "id": {
+      "description": [
+        {
+          "content": "<p>Uniquely identifies this workspace within an application.\nFalls back to <code>useId</code> when not provided.</p>\n"
+        },
+        {
+          "content": "<p>This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">id</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span></div>",
+      "name": "id",
+      "required": false
+    },
+    "style": {
+      "description": [
+        {
+          "content": "<p>CSS properties.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">CSSProperties</span></div>",
+      "name": "style",
+      "required": false
+    },
+    "classNames": {
+      "description": [
+        {
+          "content": "<p>CSS class names for the elements the workspace renders within its root element:</p>\n<ul>\n<li><code>tabset</code>: root element of a tabset (<code>data-tabset</code>)</li>\n<li><code>header</code>: contains a tabset's tab list and toolbar (<code>data-tabset-header</code>)</li>\n<li><code>tabList</code>: contains a tabset's tabs (<code>data-tab-list</code>)</li>\n<li><code>tab</code>: passed to <code>renderTab</code> with the rest of a tab's props (<code>data-tab</code>)</li>\n<li><code>toolbar</code>: contains the content returned by <code>renderTabsetToolbar</code> (<code>data-tabset-toolbar</code>)</li>\n<li><code>tabPanels</code>: contains a tabset's tab content (<code>data-tab-panels</code>)</li>\n<li><code>tabContent</code>: the element each tab's content is rendered into (<code>data-tab-content</code>)</li>\n<li><code>dropIndicator</code>: shows where a dragged tab will be dropped within a tabset's panels (<code>data-drop-indicator</code>)</li>\n<li><code>dragPreview</code>: follows the pointer while a tab is dragged (<code>data-drag-preview</code>)</li>\n</ul>\n"
+        },
+        {
+          "content": "<p>Elements expose their state as data attributes (e.g. <code>data-tab-selected</code>), which can be used for styling.\nElements within a tabset also have a <code>data-tab-placement</code> attribute (see <code>tabPlacement</code>).</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Like the render props, this object is part of what tabsets re-render for;\nin large workspaces, define it outside of the component (or memoize it) rather than inline.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">classNames</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">WorkspaceClassNames</span></div>",
+      "name": "classNames",
+      "required": false
+    },
+    "defaultModel": {
+      "description": [
+        {
+          "content": "<p>Initial layout of the workspace.</p>\n"
+        },
+        {
+          "content": "<p>Splits and tabsets may omit their ids; they're assigned ids based on their position (see <code>WorkspaceModelInput</code>).</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>This value is only used when the Workspace mounts; use the imperative <code>setModel</code> method to replace it later.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\"><span class=\"tok-propertyName\">defaultModel</span></span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">WorkspaceModelInput</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span></div>",
+      "name": "defaultModel",
+      "required": true
+    },
+    "disabled": {
+      "description": [
+        {
+          "content": "<p>Locks the arrangement: tabs cannot be resized, dragged, dropped, or closed by the user.\nSelecting tabs and maximizing tabsets still work.</p>\n"
+        },
+        {
+          "content": "<p>This prop overrides the <code>disableClose</code> and <code>disableDrag</code> flags of individual tabs.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disabled</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
+      "name": "disabled",
+      "required": false
+    },
+    "disableDrop": {
+      "description": [
+        {
+          "content": "<p>Prevents tabs from being dropped onto some (or all) targets.</p>\n"
+        },
+        {
+          "content": "<p>Functions are called when the target under the pointer changes;\nreturning <code>true</code> rejects the target.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disableDrop</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">args</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">DisableDropArgs</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "disableDrop",
+      "required": false
+    },
+    "elementRef": {
+      "description": [
+        {
+          "content": "<p>Ref attached to the root <code>HTMLDivElement</code>.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">elementRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">HTMLDivElement</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-keyword\">null</span><span class=\"\">&#62;</span></div>",
+      "name": "elementRef",
+      "required": false
+    },
+    "hiddenTabBehavior": {
+      "description": [
+        {
+          "content": "<p>What happens to the content of tabs that are not selected.\nCan be a function to choose per tab (e.g. based on its data).</p>\n"
+        },
+        {
+          "content": "<ul>\n<li><code>&quot;keep-mounted&quot;</code>: content stays mounted (and its effects keep running)</li>\n<li><code>&quot;activity&quot;</code>: content stays mounted but is rendered within a hidden React <code>&lt;Activity&gt;</code> boundary, so its effects are unmounted;\nrequires React 19.2 (falls back to <code>&quot;keep-mounted&quot;</code> otherwise)</li>\n<li><code>&quot;unmount&quot;</code>: content is unmounted</li>\n</ul>\n"
+        },
+        {
+          "content": "<p>Moving a tab never remounts its content.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Its React state is preserved, but its elements are moved within the document, which resets some browser state:\niframes are reloaded, playing media is paused, and focused elements are blurred.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">hiddenTabBehavior</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">HiddenTabBehavior</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">HiddenTabBehavior</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"keep-mounted\"</span></div>",
+      "name": "hiddenTabBehavior",
+      "required": false
+    },
+    "onModelChanged": {
+      "description": [
+        {
+          "content": "<p>Called after the model has changed (e.g. a tab was moved, selected, or closed, or a tabset was resized).</p>\n"
+        },
+        {
+          "content": "<p>For changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving models to some storage api.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onModelChanged</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">model</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">WorkspaceModel</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">meta</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">WorkspaceChangedMeta</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span></div>",
+      "name": "onModelChanged",
+      "required": false
+    },
+    "renderDragPreview": {
+      "description": [
+        {
+          "content": "<p>Content of the element that follows the pointer while a tab is being dragged.\nDefaults to the tab's title (or id).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">renderDragPreview</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "renderDragPreview",
+      "required": false
+    },
+    "renderEmptyTabset": {
+      "description": [
+        {
+          "content": "<p>Content shown in the panels of a tabset that has no tabs (e.g. &quot;Drag a tab here&quot;):\nthe root tabset of an empty workspace, or a tabset with the <code>keepWhenEmpty</code> flag.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">renderEmptyTabset</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tabset</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "renderEmptyTabset",
+      "required": false
+    },
+    "renderSeparator": {
+      "description": [
+        {
+          "content": "<p>Separator rendered between the children of a split.\nShould return a <code>Separator</code> (or <code>null</code> for no separator); defaults to an unstyled <code>Separator</code>.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">renderSeparator</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">orientation</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">Orientation</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "renderSeparator",
+      "required": false
+    },
+    "renderTab": {
+      "description": [
+        {
+          "content": "<p>Renders a tab (within its tabset's tab list).\nSpread <code>props</code> onto the returned element:\nthey make it a tab (its role and ARIA attributes, keyboard and pointer handling, and data attributes),\nand attach a <code>ref</code> that dragging and keyboard focus depend on.</p>\n"
+        },
+        {
+          "code": true,
+          "content": "<div><span class=\"tok-variableName\">renderTab</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName\">tab</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName\">props</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">div</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"tok-punctuation\">...</span><span class=\"tok-variableName\">props</span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">&#62;</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-punctuation\">{</span><span class=\"tok-variableName\">tab</span><span class=\"tok-operator\">.</span><span class=\"tok-propertyName\">title</span><span class=\"tok-punctuation\">}</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">TabCloseButton</span><span class=\"\"> </span><span class=\"tok-punctuation\">/&#62;</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">&#60;/</span><span class=\"tok-typeName\">div</span><span class=\"tok-punctuation\">&#62;</span><span class=\"\"></span></div>\n<div><span class=\"\"></span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">}</span></div>"
+        },
+        {
+          "content": "<p>Individual props can be overridden or wrapped, e.g. to confirm before the Delete key closes a tab\n(call <code>props.onKeyDown</code> for other keys).</p>\n"
+        },
+        {
+          "content": "<p>Merge <code>className</code> and <code>style</code> rather than replacing them (e.g. <code>style={{ ...props.style, padding: 4 }}</code>):\nthey include the <code>tab</code> entries of the <code>classNames</code> and <code>styles</code> props, and <code>style</code> includes the <code>touch-action</code> that touch dragging depends on.</p>\n",
+          "intent": "warning"
+        },
+        {
+          "content": "<p>Pointer and keyboard events from interactive descendants (<code>button</code> elements, <code>role=&quot;button&quot;</code>, or elements with a <code>data-tab-ignore</code> attribute) are ignored,\nso clicking a button within a tab doesn't select or drag it.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>When this prop is not provided, tabs show their title (or id) followed by a <code>TabCloseButton</code>.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">renderTab</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">props</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabRenderProps</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "renderTab",
+      "required": false
+    },
+    "renderTabContent": {
+      "description": [
+        {
+          "content": "<p>Content of a tab.</p>\n"
+        },
+        {
+          "content": "<p>Content is only re-rendered when its tab changes or this function does;\na function created while rendering (e.g. an inline arrow function) re-renders the content of every tab whenever the Workspace's parent re-renders,\nso it should be memoized (e.g. with <code>useCallback</code>) when tab content is expensive to render.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\"><span class=\"tok-propertyName\">renderTabContent</span></span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span></div>",
+      "name": "renderTabContent",
+      "required": true
+    },
+    "renderTabsetToolbar": {
+      "description": [
+        {
+          "content": "<p>Content shown after a tabset's tab list (e.g. buttons to add a tab or maximize the tabset).</p>\n"
+        },
+        {
+          "content": "<p>The <code>useParentTabset</code> and <code>useParentTabsetState</code> hooks can be used within this content.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">renderTabsetToolbar</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tabset</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "renderTabsetToolbar",
+      "required": false
+    },
+    "resizePreviewMode": {
+      "description": [
+        {
+          "content": "<p>Controls whether pointer dragging updates sizes immediately,\nor renders overlay separator previews until the pointer is released.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">resizePreviewMode</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ResizePreviewMode</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"panel\"</span></div>",
+      "name": "resizePreviewMode",
+      "required": false
+    },
+    "serverRenderTabContent": {
+      "description": [
+        {
+          "content": "<p>Render the content of selected tabs on the server.\nCan be a function to choose per tab (e.g. based on its data).</p>\n"
+        },
+        {
+          "content": "<p>Tab content is rendered through portals (so that moving a tab doesn't remount it), which React can't render on the server.\nContent opted into server rendering is rendered inline instead, then moved into a portal once hydration has finished.</p>\n"
+        },
+        {
+          "content": "<p>That move remounts the content once (e.g. resetting its state and re-running its effects),\nso this is best suited to content that is cheap to mount and benefits from being in the server-rendered HTML.</p>\n",
+          "intent": "warning"
+        },
+        {
+          "content": "<p>This prop has no effect for workspaces that are not server rendered.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">serverRenderTabContent</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-bool\">false</span></div>",
+      "name": "serverRenderTabContent",
+      "required": false
+    },
+    "styles": {
+      "description": [
+        {
+          "content": "<p>CSS properties for the elements the workspace renders within its root element (see <code>classNames</code>).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">styles</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">WorkspaceStyles</span></div>",
+      "name": "styles",
+      "required": false
+    },
+    "tabPlacement": {
+      "description": [
+        {
+          "content": "<p>Where tabs are placed relative to tab content.</p>\n"
+        },
+        {
+          "content": "<p>Tabs placed on the left or right are stacked (&quot;vertical&quot;):\nthis determines how a dropped tab's position is found and which arrow keys move focus between tabs.</p>\n"
+        },
+        {
+          "content": "<p>Elements within a tabset have a <code>data-tab-placement</code> attribute, which can be used for styling (e.g. rotating tabs on the left or right).</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Tabsets can override this with the <code>tabPlacement</code> field of their model node.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">tabPlacement</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"bottom\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"left\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"right\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"top\"</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"top\"</span></div>",
+      "name": "tabPlacement",
+      "required": false
+    },
+    "tabsetMinHeight": {
+      "description": [
+        {
+          "content": "<p>Minimum height of each tabset's content area (not including its header).</p>\n"
+        },
+        {
+          "content": "<p>Tabsets can override this with the <code>minHeight</code> field of their model node.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Interpretation rules:</p>\n<ul>\n<li>Strings must specify a unit: &quot;px&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot; (e.g. <code>tabsetMinHeight: &quot;200px&quot;</code>)</li>\n<li>Percentages (and strings without units) are not allowed</li>\n</ul>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">tabsetMinHeight</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
+      "name": "tabsetMinHeight",
+      "required": false
+    },
+    "tabsetMinWidth": {
+      "description": [
+        {
+          "content": "<p>Minimum width of each tabset's content area (not including its header).</p>\n"
+        },
+        {
+          "content": "<p>Tabsets can override this with the <code>minWidth</code> field of their model node.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Interpretation rules:</p>\n<ul>\n<li>Strings must specify a unit: &quot;px&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot; (e.g. <code>tabsetMinWidth: &quot;200px&quot;</code>)</li>\n<li>Percentages (and strings without units) are not allowed</li>\n</ul>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">tabsetMinWidth</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
+      "name": "tabsetMinWidth",
+      "required": false
+    },
+    "workspaceRef": {
+      "description": [
+        {
+          "content": "<p>Exposes the imperative API (see <code>WorkspaceImperativeHandle</code>).</p>\n"
+        },
+        {
+          "content": "<p>The <code>useWorkspaceRef</code> and <code>useWorkspaceCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">workspaceRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">WorkspaceImperativeHandle</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62; </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-keyword\">null</span><span class=\"\">&#62;</span></div>",
+      "name": "workspaceRef",
+      "required": false
+    }
+  }
+}

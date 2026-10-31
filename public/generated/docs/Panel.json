@@ -26,7 +26,7 @@
       "intent": "warning"
     }
   ],
-  "filePath": "lib/components/panel/Panel.tsx",
+  "filePath": "lib/flex/components/Panel.tsx",
   "name": "Panel",
   "props": {
     "className": {

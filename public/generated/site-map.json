@@ -1,7 +1,7 @@
 [
   {
     "path": "/",
-    "text": "This library is a set of React components that can be used to build resizable layouts like the one below: There are many types of layouts, covered in the examples section of the docs. Check out the support page if you have questions. Installation Begin by installing the library from NPM: npm install react-resizable-panels TypeScript definitions are included within the published dist folder. Support Here are some ways to support this project: Become a GitHub sponsor Buy me a coffee",
+    "text": "This library is a set of React components that can be used to build resizable layouts like the one below: There are three kinds of layouts: flex layouts of panels in a row or column, grids of cells that resize in two dimensions, and workspaces of tabsets that users can rearrange by dragging tabs. Check out the support page if you have questions. Installation Begin by installing the library from NPM: TypeScript definitions are included within the published dist folder. Support Here are some ways to support this project: Become a GitHub sponsor Buy me a coffee",
     "title": "Getting started with react-resizable-panels"
   },
   {
@@ -14,7 +14,7 @@
       {
         "id": "vertical-group-height",
         "title": "Why is a vertical group not visible?",
-        "text": "Why is a vertical group not visible? By default, Group elements specify a default style height:100%. However according to the w3 spec: The percentage is calculated with respect to the height of the generated box's containing block. If the height of the containing block is not specified explicitly (i.e., it depends on content height), and this element is not absolutely positioned, the value computes to \"auto\". Put another way, fixing this requires setting an explicit height either on the Group itself or on its parent HTMLElement. // an inline style will override the default\nrender(<Group style={{ height: 100 }} {...rest} />);\n \n// an !important CSS rule will also override it\nrender(<Group className=\"h-100!\" {...rest} />);\n \n// a min-height CSS rule will accomplish the same result\nrender(<Group className=\"min-h-100\" {...rest} />); Note that because the default height is an inline style, it can only be overridden by another inline style or an !important CSS rule."
+        "text": "Why is a vertical group not visible? By default, Group elements specify a default style height:100%. However according to the w3 spec: The percentage is calculated with respect to the height of the generated box's containing block. If the height of the containing block is not specified explicitly (i.e., it depends on content height), and this element is not absolutely positioned, the value computes to \"auto\". Put another way, fixing this requires setting an explicit height either on the Group itself or on its parent HTMLElement. Note that because the default height is an inline style, it can only be overridden by another inline style or an !important CSS rule."
       },
       {
         "id": "local-storage-undefined",
@@ -24,7 +24,7 @@
       {
         "id": "conditionally-render-panel",
         "title": "How can I conditionally render a Panel based on screen size?",
-        "text": "How can I conditionally render a Panel based on screen size? The recommended way is to use the ResizeObserver API, either through a hook like useResizeObserver or a component like react-virtualized-auto-sizer. const { ref, width = 0 } = useResizeObserver();\n \n<div ref={ref}>\n <Group>\n <Panel minSize=\"25%\">...</Panel>\n {width >= 500 && (\n <>\n <Separator />\n <Panel defaultSize=\"35%\">...</Panel>\n </>\n )}\n </Group>\n</div> Putting the defaultSize on the conditional Panel is the easiest way to avoid invalid layout constraints in this type of scenario."
+        "text": "How can I conditionally render a Panel based on screen size? The recommended way is to use the ResizeObserver API, either through a hook like useResizeObserver or a component like react-virtualized-auto-sizer. Putting the defaultSize on the conditional Panel is the easiest way to avoid invalid layout constraints in this type of scenario."
       }
     ],
     "path": "/common-questions",
@@ -34,122 +34,230 @@
   {
     "path": "/examples/accordion",
     "section": "Flex",
-    "text": "Collapsible panels with a collapsedSize can be used to build an accordion, like the sections in VS Code's explorer. Each section collapses down to the height of its header, so the header stays visible and can be clicked to expand it again. Each header uses the useParentPanel hook to collapse or expand the panel it's rendered in; expanding a section takes space from the nearest open sections. function Accordion() {\n return (\n <Group orientation=\"vertical\">\n <Section title=\"Open editors\">...</Section>\n <Section title=\"Folders\">...</Section>\n <Section title=\"Outline\">...</Section>\n </Group>\n );\n}\n \nfunction Section({ children, title }: PropsWithChildren<{ title: string }>) {\n return (\n <Panel collapsedSize={28} collapsible minSize={70}>\n <SectionHeader title={title} />\n {children}\n </Panel>\n );\n}\n \nfunction SectionHeader({ title }: { title: string }) {\n const panel = useParentPanel();\n \n const toggle = () => {\n if (panel?.isCollapsed()) {\n panel.expand();\n } else {\n panel?.collapse();\n }\n };\n \n return (\n <button onClick={toggle} style={{ height: 28 }}>\n {title}\n </button>\n );\n} The demo below also keeps at least one section open, and uses each panel's onResize callback to keep its header in sync when sections are resized by dragging. Click a header below to collapse or expand its section, or drag between sections to resize them.",
+    "text": "Collapsible panels with a collapsedSize can be used to build an accordion, like the sections in VS Code's explorer. Each section collapses down to the height of its header, so the header stays visible and can be clicked to expand it again. Each header uses the useParentPanel hook to collapse or expand the panel it's rendered in; expanding a section takes space from the nearest open sections. The demo below also keeps at least one section open, and uses each panel's onResize callback to keep its header in sync when sections are resized by dragging. Click a header below to collapse or expand its section, or drag between sections to resize them.",
     "title": "Accordion"
   },
   {
     "path": "/examples/collapsible-grid-cells",
-    "section": "Grids",
-    "text": "As with panels, a grid's columns and rows can be configured to collapse when they're resized below their minimum size. This works well for things like dashboards, where a sidebar can collapse down to just its icons and secondary content can be hidden entirely. Try dragging the gridlines below. Overview Reports Customers Settings Revenue $48.2K +12% vs last month Active users 2,431 +4% vs last month Response time 320 ms +18 ms vs last month Recent activity MC Maya Chen upgraded to the Team plan 2m ago JP Jordan Patel exported the Q3 report 18m ago PR Priya Raman invited 3 teammates 1h ago SO Sam Okafor updated billing details 3h ago <Grid\n columns={[\n // The sidebar collapses down to its icons\n { collapsedSize: 44, collapsible: true, defaultSize: 160, minSize: 120 },\n { minSize: \"50%\" }\n ]}\n rows={[\n { minSize: 100 },\n // The activity feed collapses all the way\n { collapsible: true, minSize: 80 }\n ]}\n>\n <Cell row={0} column={0} rowSpan={2}><Sidebar /></Cell>\n <Cell row={0} column={1}><Stats /></Cell>\n <Cell row={1} column={1}><Activity /></Cell>\n \n <Gridline type=\"column\" column={1} />\n <Gridline type=\"row\" row={1} column={1} />\n</Grid> In the example above, the sidebar column collapses to a width of 44 pixels (its collapsedSize), which leaves room for its icons, and the activity row collapses all the way. The row gridline only spans the second column because the sidebar spans both rows.",
-    "title": "Collapsible grid cells"
+    "section": "Grid",
+    "text": "As with panels, a grid's columns and rows can be configured to collapse when they're resized below their minimum size. This works well for things like dashboards, where a sidebar can collapse down to just its icons and secondary content can be hidden entirely. Try dragging the gridlines below. Overview Reports Customers Settings Revenue $48.2K +12% vs last month Active users 2,431 +4% vs last month Response time 320 ms +18 ms vs last month Recent activity MC Maya Chen upgraded to the Team plan 2m ago JP Jordan Patel exported the Q3 report 18m ago PR Priya Raman invited 3 teammates 1h ago SO Sam Okafor updated billing details 3h ago In the example above, the sidebar column collapses to a width of 44 pixels (its collapsedSize), which leaves room for its icons, and the activity row collapses all the way. The row gridline only spans the second column because the sidebar spans both rows.",
+    "title": "Collapsible cells"
   },
   {
     "path": "/examples/collapsible-panels",
     "section": "Flex",
-    "text": "Panels can be configured to collapse when they're resized below their minimum size. This enables building UIs like VS Code's side panel. Try dragging the separator to collapse the side panel. Panels are made collapsible using the collapsible and minSize properties. <Group>\n <Panel collapsible minSize={100} />\n <Separator />\n <Panel />\n</Group> Although it isn't required, it's recommended that you also render a Separator for panels that can be collapsed fully. This separator gives users something to click to re-open a panel after it's been collapsed. The collapsedSize property can also be provided to prevent a panel from disappearing fully when collapsed. <Group>\n <Panel collapsible collapsedSize={35} minSize={100} />\n <Separator />\n <Panel />\n</Group> Collapsible panels can also be collapsed by default by setting their defaultSize to 0 (pixels or percent). <Group>\n <Panel collapsible defaultSize=\"0%\" minSize=\"10%\" />\n <Separator />\n <Panel />\n</Group> By default, panels will collapse (or expand) when resized beyond the midpoint of their collapsed and minimum sizes. (For example, a panel with a collapsed size of 0 and a minimum size of 20% will collapse when resized below 10%.) The collapsedThreshold prop can be used to customize this behavior. <Group>\n <Panel\n collapsedSize=\"5%\"\n collapsible\n collapsedThreshold=\"5%\"\n minSize=\"35%\"\n />\n <Separator />\n <Panel />\n</Group>",
+    "text": "Panels can be configured to collapse when they're resized below their minimum size. This enables building UIs like VS Code's side panel. Try dragging the separator to collapse the side panel. Panels are made collapsible using the collapsible and minSize properties. Although it isn't required, it's recommended that you also render a Separator for panels that can be collapsed fully. This separator gives users something to click to re-open a panel after it's been collapsed. The collapsedSize property can also be provided to prevent a panel from disappearing fully when collapsed. Collapsible panels can also be collapsed by default by setting their defaultSize to 0 (pixels or percent). By default, panels will collapse (or expand) when resized beyond the midpoint of their collapsed and minimum sizes. (For example, a panel with a collapsed size of 0 and a minimum size of 20% will collapse when resized below 10%.) The collapsedThreshold prop can be used to customize this behavior.",
     "title": "Collapsible panels"
   },
   {
     "path": "/examples/conditional-panels",
     "section": "Flex",
-    "text": "Panels can be conditionally rendered. <Group>\n {hideLeftPanel || (\n <>\n <Panel id=\"left\">left panel</Panel>\n <Separator />\n </>\n )}\n <Panel id=\"center\">center panel</Panel>\n {hideRightPanel || (\n <>\n <Separator />\n <Panel id=\"right\">right panel</Panel>\n </>\n )}\n</Group> Conditional panels should also specify ids to help match previous, saved layouts. It is recommended to use usePanelCallbackRef rather than usePanelRef when attaching a ref to a conditionally-rendered panel. See issue #717 for more information.",
+    "text": "Panels can be conditionally rendered. Conditional panels should also specify ids to help match previous, saved layouts. It is recommended to use usePanelCallbackRef rather than usePanelRef when attaching a ref to a conditionally-rendered panel. See issue #717 for more information.",
     "title": "Conditional panels"
   },
   {
     "path": "/examples/custom-css-styles",
     "section": "Flex",
-    "text": "className and style props can be used to customize styles, but there are a few limitations to remember: Certain style properties cannot be overridden; (refer to component documentation for a list of specific styles) Panel styles are applied to a nested HTMLDivElement to prevent interfering with the Flex layout When styling a Separator, use the data-separator attribute rather than :hover or :active pseudo-classes. This attribute is updated when the pointer is near enough to a separator element to be interactive, even if it is not directly on top of the element. <div data-separator=\"disabled\" />\n<div data-separator=\"inactive\" />\n<div data-separator=\"hover\" />\n<div data-separator=\"active\" />\n<div data-separator=\"focus\" /> An example using Tailwind CSS might look something like this. <Separator\n className=\"\n bg-slate-600\n [&[data-separator='hover']]:bg-slate-500\n [&[data-separator='active']]:bg-slate-400\n [&[data-separator='focus']]:bg-sky-400\n \"\n/> If you want to differentiate between keyboard-initiated focus and pointer-initiated focus, you can use the :focus and :focus-visible CSS pseudo-classes instead. <Separator\n className=\"\n bg-slate-600\n [&[data-separator='hover']]:bg-slate-500\n [&[data-separator='active']]:bg-slate-400\n focus-visible:bg-sky-400!\n \"\n/>",
-    "title": "Custom CSS styles"
+    "text": "className and style props can be used to customize styles, but there are a few limitations to remember: Certain style properties cannot be overridden; (refer to component documentation for a list of specific styles) Panel styles are applied to a nested HTMLDivElement to prevent interfering with the Flex layout When styling a Separator, use the data-separator attribute rather than :hover or :active pseudo-classes. This attribute is updated when the pointer is near enough to a separator element to be interactive, even if it is not directly on top of the element. An example using Tailwind CSS might look something like this. If you want to differentiate between keyboard-initiated focus and pointer-initiated focus, you can use the :focus and :focus-visible CSS pseudo-classes instead.",
+    "title": "Styling"
   },
   {
     "path": "/examples/disabled-panels",
     "section": "Flex",
-    "text": "Panel and Separator components can be disabled to disable or limit resize behavior. Below are a few examples of how this can be used to implement different types of UIs. In groups with only two panels, disabling a separator is sufficient to completely prevent resizing. <Group>\n <Panel>left</Panel>\n <Separator disabled />\n <Panel>right</Panel>\n</Group> The same applies to disabling one or both panels when there is no explicit separator element. Note this is functionally the same as disabling the entire Group component. <Group>\n <Panel disabled>left</Panel>\n <Panel disabled>right</Panel>\n</Group> In groups with three or more panels, disabling a separator does not completely prevent a panel from being resized. In the example below, resizing the center panel can indirectly cause the left panel to be resized as well. Disabling a panel prevents it from being resized, though its separator can still be used to resize other panels. <Group>\n <Panel>left</Panel>\n <Separator />\n <Panel disabled>center (disabled)</Panel>\n <Separator />\n <Panel>right</Panel>\n</Group> When there is no separator, a disabled panel's edges can also be used to resize other panels. You can also disable both a panel and its separator to completely prevent them from being resized or interacted with in any way. <Group>\n <Panel disabled>left (disabled)</Panel>\n <Separator disabled />\n <Panel>center</Panel>\n <Separator />\n <Panel>right</Panel>\n</Group> Note that a disabled Panel can still be resized using the imperative API.",
+    "text": "Panel and Separator components can be disabled to disable or limit resize behavior. Below are a few examples of how this can be used to implement different types of UIs. In groups with only two panels, disabling a separator is sufficient to completely prevent resizing. The same applies to disabling one or both panels when there is no explicit separator element. Note this is functionally the same as disabling the entire Group component. In groups with three or more panels, disabling a separator does not completely prevent a panel from being resized. In the example below, resizing the center panel can indirectly cause the left panel to be resized as well. Disabling a panel prevents it from being resized, though its separator can still be used to resize other panels. When there is no separator, a disabled panel's edges can also be used to resize other panels. You can also disable both a panel and its separator to completely prevent them from being resized or interacted with in any way. Note that a disabled Panel can still be resized using the imperative API.",
     "title": "Disabled panels"
   },
   {
     "path": "/examples/fixed-size-panels",
     "section": "Flex",
-    "text": "You can also render non-interactive elements inside of a group if you need fixed-size content. <Group>\n <Panel>left</Panel>\n <Separator />\n <Panel>right</Panel>\n <div className=\"w-45\">Fixed sized element</div>\n</Group> Non-interactive elements can also be rendered between panels. <Group>\n <Panel>left</Panel>\n <Separator />\n <div className=\"w-45\">Fixed sized element</div>\n <Separator />\n <Panel>right</Panel>\n</Group> As with other types of groups, separators are optional (but recommended). <Group>\n <Panel>left</Panel>\n <div className=\"w-45\">Fixed sized element</div>\n <Panel>right</Panel>\n</Group>",
+    "text": "You can also render non-interactive elements inside of a group if you need fixed-size content. Non-interactive elements can also be rendered between panels. As with other types of groups, separators are optional (but recommended).",
     "title": "Fixed size panels"
   },
   {
     "path": "/examples/grid-basics",
-    "section": "Grids",
-    "text": "The Grid component arranges resizable Cells in two dimensions. Columns are resized horizontally and rows are resized vertically. Dragging the point where a column boundary meets a row boundary resizes both at once. <Grid columns={2} rows={2}>\n <Cell row={0} column={0}>A</Cell>\n <Cell row={0} column={1}>B</Cell>\n <Cell row={1} column={0}>C</Cell>\n <Cell row={1} column={1}>D</Cell>\n</Grid> A50% × 50% B50% × 50% C50% × 50% D50% × 50% Cells can span multiple columns (columnSpan) and/or rows (rowSpan). A boundary cannot be resized alongside of a cell that spans across it, although it can still be resized elsewhere. <Grid columns={3} rows={3}>\n <Cell row={0} column={0} columnSpan={3}>header</Cell>\n <Cell row={1} column={0} rowSpan={2}>sidebar</Cell>\n <Cell row={1} column={1}>A</Cell>\n <Cell row={1} column={2}>B</Cell>\n <Cell row={2} column={1} columnSpan={2}>footer</Cell>\n</Grid> header100% × 33% sidebar33% × 67% A33% × 33% B33% × 33% footer67% × 33%",
+    "section": "Grid",
+    "text": "The Grid component arranges resizable Cells in two dimensions. Columns are resized horizontally and rows are resized vertically. Dragging the point where a column boundary meets a row boundary resizes both at once. A50% × 50% B50% × 50% C50% × 50% D50% × 50% Cells can span multiple columns (columnSpan) and/or rows (rowSpan). A boundary cannot be resized alongside of a cell that spans across it, although it can still be resized elsewhere. header100% × 33% sidebar33% × 67% A33% × 33% B33% × 33% footer67% × 33%",
     "title": "The basics"
   },
   {
     "path": "/examples/grid-constraints",
-    "section": "Grids",
-    "text": "Columns and rows support the same size constraints as panels, although they are declared on the grid rather than on individual cells because cells can span multiple rows or columns. <Grid\n columns={[{ defaultSize: \"25%\", minSize: \"10%\" }, { minSize: \"25%\" }]}\n rows={[{ defaultSize: \"25%\", minSize: \"25%\" }, { minSize: \"25%\" }]}\n>\n <Cell row={0} column={0} rowSpan={2}>\n left\n </Cell>\n <Cell row={0} column={1}>\n top\n </Cell>\n <Cell row={1} column={1}>\n bottom\n </Cell>\n</Grid>; left25% × 100% top75% × 25% bottom75% × 75% As with panels, sizes can be specified using the following CSS units: Pixels Percentages Font sizes (em, rem) Viewport sizes (vh, vw)",
+    "section": "Grid",
+    "text": "Columns and rows support the same size constraints as panels, although they are declared on the grid rather than on individual cells because cells can span multiple rows or columns. left25% × 100% top75% × 25% bottom75% × 75% As with panels, sizes can be specified using the following CSS units: Pixels Percentages Font sizes (em, rem) Viewport sizes (vh, vw)",
     "title": "Min/max sizes"
   },
   {
+    "path": "/examples/grid-persistent-layout",
+    "section": "Grid",
+    "text": "Grids can be configured to save and restore layouts (the sizes of their columns and rows) between page visits with the useDefaultGridLayout hook. Resize the grid below and then reload the page to see an example. A50% × 50% B50% × 50% C50% × 50% D50% × 50% A saved layout is ignored for an axis if its track ids don't match the Grid's (e.g. after a column has been added or removed). The hook works the same way as useDefaultLayout does for groups, so the same guidance applies to server rendering (e.g. saving layouts in a cookie instead of localStorage).",
+    "title": "Persistent layouts"
+  },
+  {
     "path": "/examples/gridlines",
-    "section": "Grids",
-    "text": "Like Separators within a Group, Gridlines are optional but recommended because they make the grid accessible to keyboard users. A <Gridline type=\"column\" /> resizes the columns on either side of it and spans all rows A <Gridline type=\"row\" /> resizes the rows on either side of it and spans all columns Where they intersect, dragging resizes both. <Grid\n columns={[{ minSize: 25 }, { minSize: 25 }, { minSize: 25 }]}\n rows={[{ minSize: 25 }, { minSize: 25 }]}\n>\n <Cell row={0} column={0}>A</Cell>\n <Cell row={0} column={1}>B</Cell>\n <Cell row={0} column={2}>C</Cell>\n <Cell row={1} column={0}>D</Cell>\n <Cell row={1} column={1}>E</Cell>\n <Cell row={1} column={2}>F</Cell>\n \n <Gridline type=\"column\" column={1} />\n <Gridline type=\"column\" column={2} />\n \n <Gridline type=\"row\" row={1} />\n</Grid> A33% × 50% B33% × 50% C33% × 50% D33% × 50% E33% × 50% F33% × 50% By default, gridlines span to fill the available width/height. If a grid contains cells that span multiple rows or columns though, you may need to render multiple gridlines. <Grid\n columns={[{ minSize: 25 }, { minSize: 25 }, { minSize: 25 }]}\n rows={[{ minSize: 25 }, { minSize: 25 }]}\n>\n <Cell row={0} column={0}>A</Cell>\n <Cell row={1} column={0}>B</Cell>\n <Cell row={0} column={1} rowSpan={2}>C</Cell>\n <Cell row={0} column={2}>D</Cell>\n <Cell row={1} column={2}>E</Cell>\n \n <Gridline type=\"column\" column={1} />\n <Gridline type=\"column\" column={2} />\n \n <Gridline type=\"row\" row={1} column={0} columnSpan={1} />\n <Gridline type=\"row\" row={1} column={2} columnSpan={1} />\n</Grid> A33% × 50% B33% × 50% C33% × 100% D33% × 50% E33% × 50% Once a boundary contains a gridline, it can only be resized using gridlines; the parts of the boundary that aren't alongside of a gridline can't be dragged.",
+    "section": "Grid",
+    "text": "Like Separators within a Group, Gridlines are optional but recommended because they make the grid accessible to keyboard users. A <Gridline type=\"column\" /> resizes the columns on either side of it and spans all rows A <Gridline type=\"row\" /> resizes the rows on either side of it and spans all columns Where they intersect, dragging resizes both. A33% × 50% B33% × 50% C33% × 50% D33% × 50% E33% × 50% F33% × 50% By default, gridlines span to fill the available width/height. If a grid contains cells that span multiple rows or columns though, you may need to render multiple gridlines. A33% × 50% B33% × 50% C33% × 100% D33% × 50% E33% × 50% Once a boundary contains a gridline, it can only be resized using gridlines; the parts of the boundary that aren't alongside of a gridline can't be dragged.",
     "title": "Gridlines"
   },
   {
     "path": "/examples/group-resize-behavior",
     "section": "Flex",
-    "text": "Resizing a group typically affects the size of panels within the group. The groupResizeBehavior prop can be used to override this behavior and freeze specific panels (in terms of their pixel sizes) while the group is resized. For an example of this, resize the browser window while keeping an eye on the left panel below. <Group>\n <Panel groupResizeBehavior=\"preserve-pixel-size\">\n left\n </Panel>\n <Separator />\n <Panel>main</Panel>\n</Group> Minor pixel changes in the panel above are due to precision/rounding. Groups are required to contain at least one panel without groupResizeBehavior=\"preserve-pixel-size\".",
+    "text": "Resizing a group typically affects the size of panels within the group. The groupResizeBehavior prop can be used to override this behavior and freeze specific panels (in terms of their pixel sizes) while the group is resized. For an example of this, resize the browser window while keeping an eye on the left panel below. Minor pixel changes in the panel above are due to precision/rounding. Groups are required to contain at least one panel without groupResizeBehavior=\"preserve-pixel-size\".",
     "title": "Group resize behavior"
   },
   {
     "path": "/examples/min-max-sizes",
     "section": "Flex",
-    "text": "Panels can be configured with minimum/maximum allowed sizes. Size can be specified using the following CSS units: Pixels Percentages Font sizes (em, rem) Viewport sizes (vh, vw) For example, the left panel below only allows itself to be resized between 100-200 pixels. <Group>\n <Panel minSize={100} maxSize={200}>left</Panel>\n <Separator />\n <Panel>right</Panel>\n</Group> As another example, this panel group will not allow any individual panel to be smaller than 10% of the group's width. <Group>\n <Panel minSize=\"10%\">left</Panel>\n <Separator />\n <Panel minSize=\"10%\">middle</Panel>\n <Separator />\n <Panel minSize=\"10%\">right</Panel>\n</Group> When specifying sizes, remember: Numbers are evaluated as pixels. Strings are evaluated as percentages (0..100%) unless otherwise specified. You can always include the unit, even for pixels (e.g. minSize=\"100px\") or percentages (e.g. minSize=\"10%\")",
+    "text": "Panels can be configured with minimum/maximum allowed sizes. Size can be specified using the following CSS units: Pixels Percentages Font sizes (em, rem) Viewport sizes (vh, vw) For example, the left panel below only allows itself to be resized between 100-200 pixels. As another example, this panel group will not allow any individual panel to be smaller than 10% of the group's width. When specifying sizes, remember: Numbers are evaluated as pixels. Strings are evaluated as percentages (0..100%) unless otherwise specified. You can always include the unit, even for pixels (e.g. minSize=\"100px\") or percentages (e.g. minSize=\"10%\")",
     "title": "Min/max sizes"
   },
   {
     "path": "/examples/nested-groups",
     "section": "Flex",
-    "text": "Panel groups can be nested. In this configuration, multiple groups can be resized at the same time by clicking near panel intersections. <Group orientation=\"horizontal\">\n <Panel>\n <Folders />\n </Panel>\n <Panel>\n <Group orientation=\"vertical\">\n <Panel>\n <MessageList />\n </Panel>\n <Panel>\n <ReadingPane />\n </Panel>\n </Group>\n </Panel>\n</Group> For example, the email client below nests a vertical group (the message list and reading pane) inside of a horizontal one. Try dragging the point where all three panels meet. If your nested panels form a grid (e.g. each row has the same columns), consider using the Grid component instead.",
+    "text": "Panel groups can be nested. In this configuration, multiple groups can be resized at the same time by clicking near panel intersections. For example, the email client below nests a vertical group (the message list and reading pane) inside of a horizontal one. Try dragging the point where all three panels meet. If your nested panels form a grid (e.g. each row has the same columns), consider using the Grid component instead.",
     "title": "Nested groups"
   },
   {
     "path": "/examples/overflow",
     "section": "Flex",
-    "text": "Groups and Panels set the overflow styles shown below: <!-- ⚛️ Group -->\n<div data-group style=\"overflow: hidden\">\n \n <!-- ⚛️ Panel -->\n <div data-panel style=\"overflow: visible\">\n <div style=\"overflow: auto\">\n \n <!-- The stuff you render goes here -->\n </div>\n </div>\n</div> This combination of styles ensures overflow content is scrollable without unexpectedly stretching the size of the group. To enable Panels to have overflowing visual styles (like shadows or outlines) you need to change the group overflow style to \"visible\": // Option 1: Override with className (must be !important)\n<Group className=\"overflow-visible!\" /> // Option 2: Override with inline style\n<Group style={{ overflow: \"visible\" }} /> If you change the overflow style, it is recommended that you also specify an explicit width/height on the group. For example, this group of panels demonstrates a drop-shadow style. <Panel className=\"shadow-md shadow-fuchsia-600\">\n left\n</Panel> And this group demonstrates a focus outline style. <Panel className=\"focus-within:z-10 focus-within:outline-2 outline-solid\">\n <input placeholder=\"left input\" />\n</Panel> The panel sets a higher z-index on focus-within to avoid clipping issues. Styles that affect the outer panel element (e.g. shadows, outlines) work without any customizations. Things like tooltips or popovers that are rendered inside of the panel will be clipped by the overflow:auto style. Because of this it's recommended to use portals for these. However you can override the default style as shown below. <Panel className=\"overflow-visible!\">\n <Tooltip content=\"This is the left panel\">\n left\n </Tooltip>\n</Panel> All of the above styles also apply to the separator component. <Separator className=\"focus-within:z-10 focus-within:outline-2 outline-solid\" /> You could also use the data-separator='focus' selector.",
+    "text": "Groups and Panels set the overflow styles shown below: This combination of styles ensures overflow content is scrollable without unexpectedly stretching the size of the group. To enable Panels to have overflowing visual styles (like shadows or outlines) you need to change the group overflow style to \"visible\": If you change the overflow style, it is recommended that you also specify an explicit width/height on the group. For example, this group of panels demonstrates a drop-shadow style. And this group demonstrates a focus outline style. The panel sets a higher z-index on focus-within to avoid clipping issues. Styles that affect the outer panel element (e.g. shadows, outlines) work without any customizations. Things like tooltips or popovers that are rendered inside of the panel will be clipped by the overflow:auto style. Because of this it's recommended to use portals for these. However you can override the default style as shown below. All of the above styles also apply to the separator component. You could also use the data-separator='focus' selector.",
     "title": "Overflow"
   },
   {
     "path": "/examples/panel-resize-behavior",
     "section": "Flex",
-    "text": "Dragging a resize separator causes panels to re-render with updated sizes. In most cases, this is what you want, but if re-rendering the contents of a panel is too slow, the resizePreviewMode prop can be used to defer the re-render until the resize is finished. <Group resizePreviewMode=\"separator\">\n <Panel minSize=\"25%\">\n <RequestLog />\n </Panel>\n <Separator />\n <Panel minSize=\"25%\">\n <RequestDetails />\n </Panel>\n</Group> In place of a panel update, an overlay separator will be rendered instead. In the group below, the panels (and their sizes) only update once the separator is released. By default, this overlay separator is just a partially transparent copy of the separator element being dragged. The SeparatorOverlay component allows users to customize the overlay. <Group resizePreviewMode=\"separator\">\n <Panel minSize=\"20%\">\n <RequestLog />\n </Panel>\n <Separator />\n <Panel minSize=\"20%\" maxSize=\"50%\">\n <RequestDetails />\n </Panel>\n <Separator />\n <Panel minSize=\"20%\">\n <RequestHeaders />\n </Panel>\n \n <SeparatorOverlay\n className=\"w-2 bg-violet-400 data-[separator-overlay=inactive]:bg-violet-700 opacity-80\"\n />\n</Group> Resize preview mode works even for groups with implicit separators. <Group resizePreviewMode=\"separator\">\n <Panel minSize=\"20%\">\n <RequestLog />\n </Panel>\n <Panel minSize=\"20%\" maxSize=\"50%\">\n <RequestDetails />\n </Panel>\n <Panel minSize=\"20%\">\n <RequestHeaders />\n </Panel>\n \n <SeparatorOverlay\n className=\"w-1 bg-violet-400 data-[separator-overlay=inactive]:bg-violet-700 opacity-80\"\n />\n</Group> The data-separator-overlay attribute can be used to differentiate between a separator that's being actively dragged and one that's being moved as a result of min/max size constraints.",
+    "text": "Dragging a resize separator causes panels to re-render with updated sizes. In most cases, this is what you want, but if re-rendering the contents of a panel is too slow, the resizePreviewMode prop can be used to defer the re-render until the resize is finished. In place of a panel update, an overlay separator will be rendered instead. In the group below, the panels (and their sizes) only update once the separator is released. By default, this overlay separator is just a partially transparent copy of the separator element being dragged. The SeparatorOverlay component allows users to customize the overlay. Resize preview mode works even for groups with implicit separators. The data-separator-overlay attribute can be used to differentiate between a separator that's being actively dragged and one that's being moved as a result of min/max size constraints.",
     "title": "Panel resize behavior"
   },
   {
     "path": "/examples/persistent-layout",
     "section": "Flex",
-    "text": "Panel groups can be configured to save and restore layouts between page visits with the useDefaultLayout hook. Resize the panels below and then reload the page to see an example. const { defaultLayout, onLayoutChanged } = useDefaultLayout({\n id: \"unique-layout-id\",\n storage: localStorage\n});\n \n<Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged}>\n <Panel id=\"left\" minSize={50}>left</Panel>\n <Separator />\n <Panel id=\"center\" minSize={50}>center</Panel>\n <Separator />\n <Panel id=\"right\" minSize={50}>right</Panel>\n</Group> Panels require unique id props to restore saved layouts. The example above works well with client-rendered applications. Click below for more guidance about server rendering. Persistent layouts with conditional panels Persistent layouts with server rendering Persistent layouts with server components",
+    "text": "Panel groups can be configured to save and restore layouts between page visits with the useDefaultLayout hook. Resize the panels below and then reload the page to see an example. Panels require unique id props to restore saved layouts. The example above works well with client-rendered applications. Click below for more guidance about server rendering. Persistent layouts with conditional panels Persistent layouts with server rendering Persistent layouts with server components",
     "title": "Persistent layouts"
   },
   {
     "path": "/examples/persistent-layout/conditional-panels",
     "section": "Flex",
-    "text": "For Groups that contain conditionally rendered Panels, it can be useful to save multiple layouts (one for each set of Panels). To enable this, pass the additional panelIds prop as shown below. const { defaultLayout, onLayoutChanged } = useDefaultLayout({\n id: \"unique-layout-id\",\n // This set of ids must match the Panels rendered during mount,\n // or the default layout will not be restored\n panelIds: showLeftPanel ? [\"left\", \"right\"] : [\"right\"],\n storage: localStorage\n});\n \n<Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged}>\n {showLeftPanel && (\n <>\n <Panel id=\"left\">left</Panel>\n <Separator />\n </>\n )}\n <Panel id=\"right\">right</Panel>\n</Group> Resize the panels below, hide the left panel, and resize them again. Each set of panels remembers its own layout, including after the page is reloaded.",
+    "text": "For Groups that contain conditionally rendered Panels, it can be useful to save multiple layouts (one for each set of Panels). To enable this, pass the additional panelIds prop as shown below. Resize the panels below, hide the left panel, and resize them again. Each set of panels remembers its own layout, including after the page is reloaded.",
     "title": "Persistent layouts with conditional panels"
   },
   {
     "path": "/examples/persistent-layout/server-components",
     "section": "Flex",
-    "text": "When using server components with a framework like Next.js, a slightly different approach is required: export default async function Page() {\n const api = await cookies();\n const defaultLayoutString = api.get(groupId)?.value;\n const defaultLayout = defaultLayoutString\n ? (JSON.parse(defaultLayoutString) as Layout)\n : undefined;\n \n return <ClientComponent defaultLayout={defaultLayout} groupId={groupId} />;\n} (\"use client\");\n \nexport default function ClientComponent({\n defaultLayout,\n groupId\n}: {\n defaultLayout: Layout | undefined;\n groupId: string;\n}) {\n return (\n <Group\n defaultLayout={defaultLayout}\n id={groupId}\n onLayoutChanged={(layout) => {\n document.cookie = `${groupId}=${JSON.stringify(layout)}; path=/;`;\n }}\n >\n <Panel id=\"left\" minSize={25}>\n left\n </Panel>\n <Panel id=\"right\" minSize={25}>\n right\n </Panel>\n </Group>\n );\n} The example above includes path=/ so that saved layouts can be shared between paths; see Using HTTP cookies for more.",
+    "text": "When using server components with a framework like Next.js, a slightly different approach is required: The example above includes path=/ so that saved layouts can be shared between paths; see Using HTTP cookies for more.",
     "title": "Persistent layouts with server components"
   },
   {
     "path": "/examples/persistent-layout/server-rendering",
     "section": "Flex",
-    "text": "Because localStorage is unavailable on the server, a custom storage configuration is needed to avoid layout shift when server rendering. Building on the previous example, a Cookie based storage might look like this: import { type LayoutStorage } from \"react-resizable-panels\";\n \nconst cookieStorage: LayoutStorage = {\n getItem(key: string) {\n const cookies = document.cookie.split(\";\");\n for (const cookie of cookies) {\n const [name, value] = cookie.trim().split(\"=\");\n if (name === key) {\n return value;\n }\n }\n return null;\n },\n setItem(key: string, value: string) {\n document.cookie = `${key}=${value}; path=/;`;\n }\n};\n \nuseDefaultLayout({\n id: \"unique-layout-id\",\n storage: cookieStorage\n}); If async storage is needed, use Suspense to load saved layouts. Do not conditionally use localStorage as it will cause errors during hydration and may leave CSS styles in an invalid state. See issue #714 for more information. The example above includes path=/ so that saved layouts can be shared between paths; see Using HTTP cookies for more.",
+    "text": "Because localStorage is unavailable on the server, a custom storage configuration is needed to avoid layout shift when server rendering. Building on the previous example, a Cookie based storage might look like this: If async storage is needed, use Suspense to load saved layouts. Do not conditionally use localStorage as it will cause errors during hydration and may leave CSS styles in an invalid state. See issue #714 for more information. The example above includes path=/ so that saved layouts can be shared between paths; see Using HTTP cookies for more.",
     "title": "Persistent layouts with server rendering"
   },
   {
     "path": "/examples/the-basics",
     "section": "Flex",
-    "text": "The simplest resizable panel configuration is two panels within a group. import { Group, Panel } from \"react-resizable-panels\";\n \n<Group>\n <Panel>left</Panel>\n <Panel>right</Panel>\n</Group> Panel groups use a flexbox layout with a default orientation of horizontal but the orientation prop can be used to specify a vertical layout. <Group className=\"min-h-30\" orientation=\"vertical\">\n <Panel>top</Panel>\n <Panel>bottom</Panel>\n</Group> Vertical groups may benefit from an explicit height or min-height (read more). Panels can be resized by clicking on their borders but explicit separators can be rendered to improve UX. Separators provide another benefit: double-clicking on one resets a panel to its default size. <Group>\n <Panel defaultSize=\"50%\">left</Panel>\n <Separator />\n <Panel>right</Panel>\n</Group> Separators improve keyboard accessibility by providing a tab-focusable window splitter element.",
+    "text": "The simplest resizable panel configuration is two panels within a group. Panel groups use a flexbox layout with a default orientation of horizontal but the orientation prop can be used to specify a vertical layout. Vertical groups may benefit from an explicit height or min-height (read more). Panels can be resized by clicking on their borders but explicit separators can be rendered to improve UX. Separators provide another benefit: double-clicking on one resets a panel to its default size. Separators improve keyboard accessibility by providing a tab-focusable window splitter element.",
     "title": "The basics"
+  },
+  {
+    "headings": [
+      {
+        "id": "keyboard-and-accessibility",
+        "title": "Keyboard and accessibility",
+        "text": "Keyboard and accessibility Tabsets follow the ARIA tabs pattern: each tab list has role=\"tablist\", each tab has role=\"tab\", and each tab's content has role=\"tabpanel\", linked to its tab. Only one tab per list (normally the selected one) is in the page's tab order; within a list, focus moves with the arrow keys: ← and → (or ↑ and ↓ when tabs are placed on the left or right) move focus to the previous or next tab, wrapping at the ends Home and End move focus to the first or last tab Enter or Space selects the focused tab Delete or Backspace closes the focused tab (unless closing is disabled) and moves focus to its neighbor Tabs use manual activation: moving focus doesn't select a tab, so arrowing past a tab doesn't mount its content. Separators between tabsets can be resized with the keyboard like any other Separator ."
+      }
+    ],
+    "path": "/examples/workspace",
+    "section": "Workspace",
+    "text": "A Workspace arranges tabsets, like an IDE's editor groups. Users can rearrange them by dragging tabs between tabsets, within a tabset's list of tabs, or onto the edge of a tabset to split it. Tabsets can also be resized and maximized. Reset layout Tab content is never remounted when a tab is moved, so it keeps its state. Try incrementing the counter above and then dragging its tab somewhere else. Workspaces are uncontrolled. The layout is described by a serializable model and can be observed using the onModelChanged callback. Splits lay out their children side by side or stacked, and tabsets show one tab at a time. Sizes are percentages of the parent split; siblings without a size share the remaining space. Initial sizes can also be strings with units (e.g. \"250px\"), but they're converted to percentages when the user resizes the split, and they scale with the workspace when it's resized. This is the model for the workspace above: The tabsetMinWidth and tabsetMinHeight props above set a minimum size for the content of every tabset (not including its tabs); a tabset can override them with the minWidth and minHeight fields of its model node. Tabs can also be opened, selected, closed, and rearranged by the application (see managing tabs). Like the rest of the library, workspaces are unstyled; see custom tabsets and styling for how to render and style tabsets.",
+    "title": "The basics"
+  },
+  {
+    "path": "/examples/workspace/custom-tabsets",
+    "section": "Workspace",
+    "text": "By default, each tabset shows a list of tabs (with close buttons) above its content. The tabPlacement prop moves the list to another side, and these props customize what a tabset contains: renderTab renders each tab. renderTabsetToolbar renders content after the tabs (e.g. buttons to add a tab or maximize the tabset). renderEmptyTabset renders content in tabsets without tabs. renderTab receives the props that make an element a tab (its role and ARIA attributes, keyboard and pointer handling, data attributes, and a ref); spread them onto the element it returns. The TabCloseButton component closes the tab it's rendered within. Buttons (and other elements with role=\"button\" or a data-tab-ignore attribute) within a tab don't select or drag it. Props can be overridden or wrapped. For example, to confirm before closing a tab with unsaved changes (whether by its close button or the Delete key): Like the rest of the library, tabsets are unstyled; see styling.",
+    "title": "Custom tabsets"
+  },
+  {
+    "headings": [
+      {
+        "id": "adding-tabs-from-a-tabset",
+        "title": "Adding tabs from a tabset",
+        "text": "Adding tabs from a tabset Components within a tabset (e.g. a button rendered by renderTabsetToolbar) can add tabs to that tabset with the useParentTabset hook:"
+      },
+      {
+        "id": "updating-and-closing-tabs",
+        "title": "Updating and closing tabs",
+        "text": "Updating and closing tabs The updateTab method changes a tab's title, data, or flags, and closeTab closes it. Within a tab's content, the useParentTab hook returns the tab, so content can update or close its own tab: A tab's data is replaced rather than merged when it is updated. To confirm before the user closes a tab (e.g. one with unsaved changes), see custom tabsets."
+      },
+      {
+        "id": "empty-tabsets",
+        "title": "Empty tabsets",
+        "text": "Empty tabsets By default, a tabset is removed when its last tab is closed or dragged away. A tabset with the keepWhenEmpty flag stays instead (e.g. an editor area that should remain as a drop target), showing the Workspace's renderEmptyTabset content, until it's closed with the closeTabset method or the useParentTabset hook's close function: In the workspace below, the tabset on the right has the keepWhenEmpty flag. Close its tabs (or drag them into the tabset on the left) and it stays, as a place to drop them again. Each tabset's close button (×) removes it, along with any tabs it still has. Reset layout Closing a tabset also closes any tabs it contains. Like the rest of the imperative API, it isn't restricted by tabs' disableClose flags."
+      },
+      {
+        "id": "maximizing-tabsets",
+        "title": "Maximizing tabsets",
+        "text": "Maximizing tabsets A maximized tabset covers the rest of the workspace until it's restored. The maximizeTabset and restoreTabset methods do this from outside of the workspace, and the useParentTabset hook from within a tabset (e.g. a button in its toolbar): Which tabset is maximized is part of the model, so it's saved and restored with the rest of the layout. While a tabset is maximized, tabs can only be dragged within it. Changes made with the imperative API are reported by onModelChanged (with isUserInteraction set to false), so they're saved like any other change."
+      }
+    ],
+    "path": "/examples/workspace/managing-tabs",
+    "section": "Workspace",
+    "text": "Tabs are usually opened in response to something outside of the workspace (e.g. a file being selected in a tree). The imperative API's addTab method adds a tab to the active tabset (the one the user most recently interacted with) and selects it: If a tab with the same id is already open (anywhere in the workspace), it's selected instead, and addTab returns false. Options can add the tab to a specific tabset (tabsetId) or position (index), or without selecting it (select: false). Open Notes Open About Add content using the buttons above",
+    "title": "Managing tabs"
+  },
+  {
+    "path": "/examples/workspace/persistent-layout",
+    "section": "Workspace",
+    "text": "A workspace's model is serializable, so it can be saved and restored. Save it from the onModelChanged callback, and restore it with the defaultModel prop: Rearrange the workspace below, then reload the page to see the layout restored. Reset layout onModelChanged is called after each change: when a tab is moved, selected, added, or closed, when a tabset is maximized or restored, and when a resize ends (not while the pointer is still moving). Its second argument describes the change. Saved models include each tab's data, so it should be serializable. Models include a version, so that models saved by older versions of the library can be migrated. A malformed model (e.g. one that was saved incorrectly) is replaced with an empty workspace, rather than throwing; in development, a warning is logged. To restore a layout after the workspace has mounted (e.g. a \"reset layout\" button), use the imperative setModel method. Content that isn't part of the model (e.g. the text in a notes tab) isn't saved; tabs can save it in their data with the updateTab method. The example above works well with client-rendered applications. For server-rendered applications, see server rendering.",
+    "title": "Persistent layouts"
+  },
+  {
+    "path": "/examples/workspace/restrictions",
+    "section": "Workspace",
+    "text": "By default, users can close and drag any tab, and drop it anywhere. Restrictions are opt-in: A tab's disableClose and disableDrag flags prevent the user from closing or dragging it. Other tabs can still be dropped around it. The disableDrop prop rejects drop targets: either all of them, or the ones a function returns true for. The disabled prop locks the arrangement: tabs can't be resized, dragged, dropped, or closed (but they can still be selected, and tabsets maximized). For example, a tab can opt out of being closed or dragged, and a tabset's data can be used to decide whether it accepts drops: None of these restrict the imperative API; it can still be used to add, remove, or re-arrange tabs. In the workspace below, the \"Pinned\" tab can't be closed or dragged, and other tabs can't be dropped into its tabset. Lock workspace (disabled) Prevent closing tabs (disableClose)",
+    "title": "Restrictions"
+  },
+  {
+    "headings": [
+      {
+        "id": "tab-content",
+        "title": "Tab content",
+        "text": "Tab content Workspaces render their tabsets and tabs on the server. Tab content isn't server rendered by default, though: it's rendered through portals (so that moving a tab doesn't remount it), which React can't render on the server. Instead, it's rendered once hydration has finished. The serverRenderTabContent prop renders the content of selected tabs on the server. It can be true, or a function to choose per tab: Server-rendered content is rendered inline (within its tabset's tab panels) on the server and while hydrating, then moved into a portal. Moving the content into a portal remounts it once (e.g. resetting its state and re-running its effects), so this is best suited to content that is cheap to mount and benefits from being in the server-rendered HTML. This prop has no effect for workspaces that aren't server rendered."
+      },
+      {
+        "id": "saved-layouts",
+        "title": "Saved layouts",
+        "text": "Saved layouts A saved layout has to be available on the server too, so that the server and client render the same model. Saving it in localStorage doesn't work, since the server can't read it; a cookie (or other storage the server can read) does: Don't read localStorage while rendering (e.g. only when window is defined): the client would render a different layout than the server, causing hydration errors. Cookies are limited to about 4KB, which a workspace with many tabs (or a lot of tab data) can exceed. Larger models can be saved on the server (e.g. with the user's settings) and passed in the same way."
+      }
+    ],
+    "path": "/examples/workspace/server-rendering",
+    "section": "Workspace",
+    "text": "",
+    "title": "Server rendering"
+  },
+  {
+    "path": "/examples/workspace/styling",
+    "section": "Workspace",
+    "text": "Like the rest of the library, workspaces are unstyled. The classNames and styles props apply class names and inline styles to the elements a workspace renders: Tabsets re-render when these objects (or the render props) change, so in large workspaces define them outside of the component (or memoize them) rather than inline. Each element also has a data attribute (e.g. data-tab), and exposes its state as data attributes, which can be used for styling: Elements within a tabset have a data-tab-placement attribute (see tab placement). Separators between tabsets are rendered by the renderSeparator prop, which should return a Separator . The content of the element that follows the pointer while a tab is dragged can be customized with the renderDragPreview prop. A maximized tabset is rendered above the rest of the workspace, so it should have a background.",
+    "title": "Styling"
+  },
+  {
+    "path": "/examples/workspace/tab-content",
+    "section": "Workspace",
+    "text": "Components within a tab can use the useParentTab hook to close or select the tab, and useParentTabState to re-render when it's selected or shown. The useParentTabset and useParentTabsetState hooks do the same for the tabset, and useParentWorkspace returns the workspace's imperative API. By default, the content of tabs that aren't selected stays mounted. The hiddenTabBehavior prop can unmount it instead (e.g. for memory-intensive content), or render it within a hidden React Activity so that its effects are unmounted. It can also be a function, to choose per tab. Activity requires React 19.2 or newer; with older versions, \"activity\" behaves like \"keep-mounted\". Moving a tab preserves its content's React state, but its elements are moved within the document, which resets some browser state: iframes are reloaded, playing media is paused, and focused elements are blurred. Tabs are rendered using portals so that moving a tab won't cause a remount. Because of this, tab content is not server rendered by default. See server rendering to opt into server rendering.",
+    "title": "Tab content"
+  },
+  {
+    "headings": [
+      {
+        "id": "mixing-placements",
+        "title": "Mixing placements",
+        "text": "Mixing placements Tabsets can override the workspace's placement with the tabPlacement field of their model node: Tabsets created by dragging a tab to the edge of another tabset use the workspace's tabPlacement prop."
+      }
+    ],
+    "path": "/examples/workspace/tab-placement",
+    "section": "Workspace",
+    "text": "Tabs can be placed on any side of a tabset with the tabPlacement prop: Tabs placed on the left or right are stacked: dropped tabs are inserted based on their vertical position, and the up and down arrow keys move between tabs. top bottom left right Elements within a tabset have a data-tab-placement attribute, which can be used to style them for each placement (see styling). Tabs on the left or right don't have to be rotated; the demo above rotates them with the writing-mode CSS property, but a vertical list of unrotated tabs works too.",
+    "title": "Tab placement"
   },
   {
     "headings": [
@@ -161,7 +269,7 @@
     ],
     "path": "/hooks/use-default-grid-layout",
     "section": "Hooks",
-    "text": "The useDefaultGridLayout hook saves and restores grid layouts (both columns and rows) between page loads. It can be configured to store values using localStorage, sessionStorage, cookies, or any other persistence layer that makes sense for your application. import { useDefaultGridLayout } from \"react-resizable-panels\";\n \nconst { defaultLayout, onLayoutChanged } = useDefaultGridLayout({\n id: \"unique-layout-id\"\n});\n \n<Grid defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged} {...rest} /> It works the same way as the useDefaultLayout hook does for groups; refer to the persistent layouts section for more examples of how to best use it in your client or server-rendered application. A saved layout is ignored for an axis if its track ids don't match the Grid's (e.g. after a column has been added or removed).",
+    "text": "The useDefaultGridLayout hook saves and restores grid layouts (both columns and rows) between page loads. It can be configured to store values using localStorage, sessionStorage, cookies, or any other persistence layer that makes sense for your application. It works the same way as the useDefaultLayout hook does for groups; refer to the persistent layouts section for more examples of how to best use it in your client or server-rendered application. A saved layout is ignored for an axis if its track ids don't match the Grid's (e.g. after a column has been added or removed).",
     "title": "useDefaultGridLayout"
   },
   {
@@ -174,43 +282,43 @@
     ],
     "path": "/hooks/use-default-layout",
     "section": "Hooks",
-    "text": "The useDefaultLayout hook saves and restores group layouts between page loads. It can be configured to store values using localStorage, sessionStorage, cookies, or any other persistence layer that makes sense for your application. import { useDefaultLayout } from \"react-resizable-panels\";\n \nconst { defaultLayout, onLayoutChanged } = useDefaultLayout({\n id: \"unique-layout-id\"\n});\n \n<Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged} {...rest} /> Refer to the persistent layouts section for more examples of how to best use the hook in your client or server-rendered application.",
+    "text": "The useDefaultLayout hook saves and restores group layouts between page loads. It can be configured to store values using localStorage, sessionStorage, cookies, or any other persistence layer that makes sense for your application. Refer to the persistent layouts section for more examples of how to best use the hook in your client or server-rendered application.",
     "title": "useDefaultLayout"
   },
   {
     "path": "/hooks/use-grid-callback-ref",
     "section": "Hooks",
-    "text": "The useGridCallbackRef hook returns a ref callback function and value tuple. import {\n Cell,\n Grid,\n type GridImperativeHandle,\n useGridCallbackRef\n} from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n // gridRef can safely be shared with other components, context, and hooks\n // It can also be used as a dependency to effects\n const [gridRef, setGridRef] = useGridCallbackRef();\n \n return (\n <Grid\n columns={[{ id: \"left\" }, { id: \"right\" }]}\n gridRef={setGridRef}\n rows={[{ id: \"top\" }, { id: \"bottom\" }]}\n >\n <Cell row={0} column={0}>\n <MaximizeButton grid={gridRef} />\n </Cell>\n {/* Other cells... */}\n </Grid>\n );\n}\n \nfunction MaximizeButton({ grid }: { grid: GridImperativeHandle | null }) {\n const maximize = () => {\n grid?.getTrackById(\"column\", \"left\").resize(\"75%\");\n grid?.getTrackById(\"row\", \"top\").resize(\"75%\");\n };\n \n return <button onClick={maximize}>maximize</button>;\n} The example code above has been simplified to highlight usage of the ref. A B C D",
+    "text": "The useGridCallbackRef hook returns a ref callback function and value tuple. The example code above has been simplified to highlight usage of the ref. A B C D",
     "title": "useGridCallbackRef"
   },
   {
     "path": "/hooks/use-grid-ref",
     "section": "Hooks",
-    "text": "The useGridRef hook returns a mutable ref object. import { Cell, Grid, useGridRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n const ref = useGridRef();\n \n const maximizeTopLeftCell = () => {\n ref.current?.getTrackById(\"column\", \"left\").resize(\"75%\");\n ref.current?.getTrackById(\"row\", \"top\").resize(\"75%\");\n };\n \n return (\n <Grid\n columns={[{ id: \"left\" }, { id: \"right\" }]}\n gridRef={ref}\n rows={[{ id: \"top\" }, { id: \"bottom\" }]}\n >\n <Cell row={0} column={0}>\n <button onClick={maximizeTopLeftCell}>maximize</button>\n </Cell>\n {/* Other cells... */}\n </Grid>\n );\n} The example code above has been simplified to highlight usage of the ref. A B C D This hook is useful for situations where you only need a local (to your component) reference to the imperative Grid API. If you need to share the ref with another component or hook, use the callback ref hook instead.",
+    "text": "The useGridRef hook returns a mutable ref object. The example code above has been simplified to highlight usage of the ref. A B C D This hook is useful for situations where you only need a local (to your component) reference to the imperative Grid API. If you need to share the ref with another component or hook, use the callback ref hook instead.",
     "title": "useGridRef"
   },
   {
     "path": "/hooks/use-group-callback-ref",
     "section": "Hooks",
-    "text": "The useGroupCallbackRef hook returns a ref callback function and value tuple. import {\n Group,\n type GroupImperativeHandle,\n Panel,\n Separator,\n useGroupCallbackRef\n} from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n // groupRef can safely be shared with other components, context, and hooks\n // It can also be used as a dependency to effects\n const [groupRef, setGroupRef] = useGroupCallbackRef();\n \n return (\n <Group groupRef={setGroupRef}>\n <Panel id=\"left\">\n <MaximizeButton group={groupRef} />\n </Panel>\n <Separator />\n <Panel id=\"right\">...</Panel>\n </Group>\n );\n}\n \nfunction MaximizeButton({ group }: { group: GroupImperativeHandle | null }) {\n return (\n <button onClick={() => group?.setLayout({ left: 75, right: 25 })}>\n maximize\n </button>\n );\n} The example code above has been simplified to highlight usage of the ref.",
+    "text": "The useGroupCallbackRef hook returns a ref callback function and value tuple. The example code above has been simplified to highlight usage of the ref.",
     "title": "useGroupCallbackRef"
   },
   {
     "path": "/hooks/use-group-ref",
     "section": "Hooks",
-    "text": "The useGroupRef hook returns a mutable ref object. import { Group, Panel, Separator, useGroupRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n const ref = useGroupRef();\n \n const maximizeLeftPanel = () => {\n ref.current?.setLayout({ left: 75, right: 25 });\n };\n \n return (\n <Group groupRef={ref}>\n <Panel id=\"left\">\n <button onClick={maximizeLeftPanel}>maximize</button>\n </Panel>\n <Separator />\n <Panel id=\"right\">...</Panel>\n </Group>\n );\n} The example code above has been simplified to highlight usage of the ref. This hook is useful for situations where you only need a local (to your component) reference to the imperative Group API. If you need to share the ref with another component or hook, use the callback ref hook instead.",
+    "text": "The useGroupRef hook returns a mutable ref object. The example code above has been simplified to highlight usage of the ref. This hook is useful for situations where you only need a local (to your component) reference to the imperative Group API. If you need to share the ref with another component or hook, use the callback ref hook instead.",
     "title": "useGroupRef"
   },
   {
     "path": "/hooks/use-panel-callback-ref",
     "section": "Hooks",
-    "text": "The usePanelCallbackRef hook returns a ref callback function and value tuple. import {\n Group,\n Panel,\n type PanelImperativeHandle,\n Separator,\n usePanelCallbackRef\n} from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n // panelRef can safely be shared with other components, context, and hooks\n // It can also be used as a dependency to effects\n const [panelRef, setPanelRef] = usePanelCallbackRef();\n \n return (\n <Group>\n <Panel collapsible panelRef={setPanelRef}>\n left\n </Panel>\n <CollapseButton panel={panelRef} />\n <Separator />\n <Panel>right</Panel>\n </Group>\n );\n}\n \nfunction CollapseButton({ panel }: { panel: PanelImperativeHandle | null }) {\n return <button onClick={() => panel?.collapse()}>collapse</button>;\n} The example code above has been simplified to highlight usage of the ref.",
+    "text": "The usePanelCallbackRef hook returns a ref callback function and value tuple. The example code above has been simplified to highlight usage of the ref.",
     "title": "usePanelCallbackRef"
   },
   {
     "path": "/hooks/use-panel-ref",
     "section": "Hooks",
-    "text": "The usePanelRef hook returns a mutable ref object. import { useState } from \"react\";\nimport { Group, Panel, Separator, usePanelRef } from \"react-resizable-panels\";\n \nfunction ExampleComponent() {\n const ref = usePanelRef();\n const [isCollapsed, setIsCollapsed] = useState(false);\n \n const toggle = () => {\n const panel = ref.current;\n if (panel?.isCollapsed()) {\n panel.expand();\n } else {\n panel?.collapse();\n }\n };\n \n return (\n <Group>\n <Panel\n collapsible\n minSize=\"10%\"\n onResize={(size) => setIsCollapsed(size.inPixels === 0)}\n panelRef={ref}\n >\n left\n </Panel>\n <button onClick={toggle}>{isCollapsed ? \"»\" : \"«\"}</button>\n <Separator />\n <Panel>right</Panel>\n </Group>\n );\n} This hook is useful for situations where you only need a local (to your component) reference to the imperative Panel API. If you need to share the ref with another component or hook, use the callback ref hook instead.",
+    "text": "The usePanelRef hook returns a mutable ref object. This hook is useful for situations where you only need a local (to your component) reference to the imperative Panel API. If you need to share the ref with another component or hook, use the callback ref hook instead.",
     "title": "usePanelRef"
   },
   {
@@ -223,7 +331,7 @@
     ],
     "path": "/hooks/use-parent-grid",
     "section": "Hooks",
-    "text": "The useParentGrid hook returns the nearest Grid, including its imperative API. Components rendered within a Grid can use it to control that Grid without passing refs or props down to them. For example, a button rendered within a Cell can resize one of the Grid's columns: import { useParentGrid } from \"react-resizable-panels\";\n \nfunction CellToolbar() {\n const grid = useParentGrid();\n \n return (\n <button onClick={() => grid?.getTrackByIndex(\"column\", 0).resize(\"75%\")}>\n widen first column\n </button>\n );\n}\n \n<Cell column={0} row={0}><CellToolbar /></Cell> Returns null if the component isn't rendered within a Grid. The returned value doesn't change when the Grid's layout changes, so this hook doesn't cause components to re-render.",
+    "text": "The useParentGrid hook returns the nearest Grid, including its imperative API. Components rendered within a Grid can use it to control that Grid without passing refs or props down to them. For example, a button rendered within a Cell can resize one of the Grid's columns: Returns null if the component isn't rendered within a Grid. The returned value doesn't change when the Grid's layout changes, so this hook doesn't cause components to re-render.",
     "title": "useParentGrid"
   },
   {
@@ -236,7 +344,7 @@
     ],
     "path": "/hooks/use-parent-group",
     "section": "Hooks",
-    "text": "The useParentGroup hook returns the nearest Group, including its imperative API. Components rendered within a Group can use it to control that Group without passing refs or props down to them. For example, a button rendered within a Panel can reset the layout of its Group: import { useParentGroup } from \"react-resizable-panels\";\n \nfunction ResetButton() {\n const group = useParentGroup();\n \n return (\n <button onClick={() => group?.setLayout({ left: 50, right: 50 })}>\n reset layout\n </button>\n );\n}\n \n<Panel id=\"left\"><ResetButton /></Panel> Returns null if the component isn't rendered within a Group. The returned value doesn't change when the Group's layout changes, so this hook doesn't cause components to re-render.",
+    "text": "The useParentGroup hook returns the nearest Group, including its imperative API. Components rendered within a Group can use it to control that Group without passing refs or props down to them. For example, a button rendered within a Panel can reset the layout of its Group: Returns null if the component isn't rendered within a Group. The returned value doesn't change when the Group's layout changes, so this hook doesn't cause components to re-render.",
     "title": "useParentGroup"
   },
   {
@@ -249,30 +357,107 @@
     ],
     "path": "/hooks/use-parent-panel",
     "section": "Hooks",
-    "text": "The useParentPanel hook returns the nearest Panel, including its imperative API. Components rendered within a Panel can use it to control that Panel without passing refs or props down to them. For example, a button rendered within a Panel can collapse it: import { useParentPanel } from \"react-resizable-panels\";\n \nfunction CollapseButton() {\n const panel = useParentPanel();\n \n return <button onClick={() => panel?.collapse()}>collapse</button>;\n}\n \n<Panel collapsible><CollapseButton /></Panel> Returns null if the component isn't rendered within a Panel. The returned value doesn't change when the Panel is resized, so this hook doesn't cause components to re-render.",
+    "text": "The useParentPanel hook returns the nearest Panel, including its imperative API. Components rendered within a Panel can use it to control that Panel without passing refs or props down to them. For example, a button rendered within a Panel can collapse it: Returns null if the component isn't rendered within a Panel. The returned value doesn't change when the Panel is resized, so this hook doesn't cause components to re-render.",
     "title": "useParentPanel"
+  },
+  {
+    "headings": [
+      {
+        "id": "return-value",
+        "title": "Return value",
+        "text": "Return value useParentTab : () => ParentTab | null The tab's id, the workspaceId of the Workspace that contains it, and methods to control it (close, getTabsetId, isSelected, and select)."
+      }
+    ],
+    "path": "/hooks/use-parent-tab",
+    "section": "Hooks",
+    "text": "The useParentTab hook returns the nearest tab. Components rendered within a tab (by the Workspace's renderTab prop) or within a tab's content can use it to close or select the tab. For example, an editor can close its tab when its file is deleted: Returns null if the component isn't rendered within a tab. The returned value doesn't change for the life of the tab (even when it's moved), so it's safe to use as an effect dependency. Use useParentTabState for values that should cause components to re-render.",
+    "title": "useParentTab"
+  },
+  {
+    "headings": [
+      {
+        "id": "return-value",
+        "title": "Return value",
+        "text": "Return value useParentTabState : () => ParentTabState | null Whether the user can close or drag the tab (isCloseDisabled and isDragDisabled, which account for both the tab's flags and the Workspace's disabled prop), whether it's selected (isSelected) and visible (isVisible), and the id of the tabset that contains it (tabsetId)."
+      }
+    ],
+    "path": "/hooks/use-parent-tab-state",
+    "section": "Hooks",
+    "text": "The useParentTabState hook returns the state of the nearest tab. Components that use it re-render when that state changes. For example, an editor can focus itself whenever its tab is shown: Returns null if the component isn't rendered within a tab. A tab can be selected but not visible, if its tabset is covered by another, maximized tabset. Use isVisible to pause work while a tab can't be seen, and useParentTab to control the tab.",
+    "title": "useParentTabState"
+  },
+  {
+    "headings": [
+      {
+        "id": "return-value",
+        "title": "Return value",
+        "text": "Return value useParentTabset : () => ParentTabset | null The tabset's id, the workspaceId of the Workspace that contains it, and methods to control it (addTab, close, isMaximized, maximize, and restore)."
+      }
+    ],
+    "path": "/hooks/use-parent-tabset",
+    "section": "Hooks",
+    "text": "The useParentTabset hook returns the nearest tabset. Components rendered within a tabset (e.g. by the Workspace's renderTabsetToolbar prop) or within the content of one of its tabs can use it to add tabs to it or to maximize it. For example, a button in a tabset's toolbar can add a new tab to that tabset: Returns null if the component isn't rendered within a tabset. The returned value doesn't change for the life of the tabset, so it's safe to use as an effect dependency. Use useParentTabsetState for values that should cause components to re-render.",
+    "title": "useParentTabset"
+  },
+  {
+    "headings": [
+      {
+        "id": "return-value",
+        "title": "Return value",
+        "text": "Return value useParentTabsetState : () => ParentTabsetState | null Whether the user most recently interacted with the tabset (isActive), whether it's maximized (isMaximized), whether it's the root of the model and so the only tabset in the workspace (isRoot), and the id of its selected tab (selectedTabId)."
+      }
+    ],
+    "path": "/hooks/use-parent-tabset-state",
+    "section": "Hooks",
+    "text": "The useParentTabsetState hook returns the state of the nearest tabset. Components that use it re-render when that state changes. For example, a button can show whether its tabset is maximized: Returns null if the component isn't rendered within a tabset. Use useParentTabset to control the tabset.",
+    "title": "useParentTabsetState"
+  },
+  {
+    "headings": [
+      {
+        "id": "return-value",
+        "title": "Return value",
+        "text": "Return value useParentWorkspace : () => ParentWorkspace | null The Workspace's id and its imperative API (addTab, closeTab, getActiveTabsetId, getModel, maximizeTabset, moveTab, restoreTabset, selectTab, setModel, updateTab, and updateTabset)."
+      }
+    ],
+    "path": "/hooks/use-parent-workspace",
+    "section": "Hooks",
+    "text": "The useParentWorkspace hook returns the nearest Workspace, including its imperative API. Components rendered within a Workspace (including tab content) can use it to open, close, and arrange tabs without passing refs or props down to them. For example, a link within a tab can open a file in another tab: Returns null if the component isn't rendered within a Workspace. The returned value doesn't change when the Workspace's model changes, so this hook doesn't cause components to re-render.",
+    "title": "useParentWorkspace"
+  },
+  {
+    "path": "/hooks/use-workspace-callback-ref",
+    "section": "Hooks",
+    "text": "The useWorkspaceCallbackRef hook returns a ref callback function and value tuple. The value is the imperative Workspace API.",
+    "title": "useWorkspaceCallbackRef"
+  },
+  {
+    "path": "/hooks/use-workspace-ref",
+    "section": "Hooks",
+    "text": "The useWorkspaceRef hook returns a mutable ref object. This hook is useful for situations where you only need a local (to your component) reference to the imperative Workspace API. If you need to share the ref with another component or hook, use the callback ref hook instead.",
+    "title": "useWorkspaceRef"
   },
   {
     "headings": [
       {
         "id": "getLayout",
         "title": "getLayout",
-        "text": "getLayout Get the Grid's current layout: maps of column and row ids to percentages (0..100)\n getLayout: () => {\n columns: { [columnId: string]: number };\n rows: { [rowId: string]: number };\n };"
+        "text": "getLayout Get the Grid's current layout: maps of column and row ids to percentages (0..100)"
       },
       {
         "id": "getTrackById",
         "title": "getTrackById",
-        "text": "getTrackById Imperative API for the column or row with the specified id (see GridTrackImperativeHandle).\n Tracks without an explicit id use their index (e.g. \"0\") as their id.\n An error will be thrown if the Grid does not contain a matching track.\n \n axis \"column\" or \"row\"\n id Track id\n\n getTrackById: (\n axis: \"column\" | \"row\",\n id: string | number\n ) => GridTrackImperativeHandle;"
+        "text": "getTrackById Imperative API for the column or row with the specified id (see GridTrackImperativeHandle).\n Tracks without an explicit id use their index (e.g. \"0\") as their id.\n An error will be thrown if the Grid does not contain a matching track.\n \n axis \"column\" or \"row\"\n id Track id"
       },
       {
         "id": "getTrackByIndex",
         "title": "getTrackByIndex",
-        "text": "getTrackByIndex Imperative API for the column or row at the specified index (see GridTrackImperativeHandle).\n The index is resolved to a track id when this method is called; the returned API continues to refer to that id.\nTracks without an explicit id use their index as their id,\nso specify ids if the API needs to refer to the same track after tracks are added or removed before it.\n An error will be thrown if the index is out of range.\n \n axis \"column\" or \"row\"\n index Track index (starting at 0)\n\n getTrackByIndex: (\n axis: \"column\" | \"row\",\n index: number\n ) => GridTrackImperativeHandle;"
+        "text": "getTrackByIndex Imperative API for the column or row at the specified index (see GridTrackImperativeHandle).\n The index is resolved to a track id when this method is called; the returned API continues to refer to that id.\nTracks without an explicit id use their index as their id,\nso specify ids if the API needs to refer to the same track after tracks are added or removed before it.\n An error will be thrown if the index is out of range.\n \n axis \"column\" or \"row\"\n index Track index (starting at 0)"
       },
       {
         "id": "setLayout",
         "title": "setLayout",
-        "text": "setLayout Set a new layout for one or both of the Grid's axes.\n \n layout Map of column and/or row ids to percentages (numbers between 0..100)\n\n setLayout: (layout: {\n columns?: { [columnId: string]: number } | undefined;\n rows?: { [rowId: string]: number } | undefined;\n }) => {\n columns: { [columnId: string]: number };\n rows: { [rowId: string]: number };\n };"
+        "text": "setLayout Set a new layout for one or both of the Grid's axes.\n \n layout Map of column and/or row ids to percentages (numbers between 0..100)"
       }
     ],
     "path": "/imperative-api/grid",
@@ -285,27 +470,27 @@
       {
         "id": "collapse",
         "title": "collapse",
-        "text": "collapse Collapse the track to its collapsedSize.\n This method will do nothing if the track is not collapsible or if it is already collapsed.\n collapse: () => void;"
+        "text": "collapse Collapse the track to its collapsedSize.\n This method will do nothing if the track is not collapsible or if it is already collapsed."
       },
       {
         "id": "expand",
         "title": "expand",
-        "text": "expand Expand a collapsed track to its most recent size.\n If restoring that size would require collapsing another track, the track expands to the largest size that fits instead (as long as that is at least its minSize).\n This method will do nothing if the track is not currently collapsed.\n expand: () => void;"
+        "text": "expand Expand a collapsed track to its most recent size.\n If restoring that size would require collapsing another track, the track expands to the largest size that fits instead (as long as that is at least its minSize).\n This method will do nothing if the track is not currently collapsed."
       },
       {
         "id": "getSize",
         "title": "getSize",
-        "text": "getSize Get the current size of the track in pixels as well as a percentage of its axis (0..100).\n getSize: () => {\n asPercentage: number;\n inPixels: number;\n };"
+        "text": "getSize Get the current size of the track in pixels as well as a percentage of its axis (0..100)."
       },
       {
         "id": "isCollapsed",
         "title": "isCollapsed",
-        "text": "isCollapsed The track is currently collapsed.\n isCollapsed: () => boolean;"
+        "text": "isCollapsed The track is currently collapsed."
       },
       {
         "id": "resize",
         "title": "resize",
-        "text": "resize Update the track's size.\nSize can be in the following formats:\n\nPercentage of the axis (0..100)\nPixels\nRelative font units (em, rem)\nViewport relative units (vh, vw)\n\n Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with \"%\" (e.g. \"33%\")\nPixels may also be specified as strings ending with the unit \"px\".\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)\n \n size New track size\n\n resize: (size: number | string) => void;"
+        "text": "resize Update the track's size.\nSize can be in the following formats:\n\nPercentage of the axis (0..100)\nPixels\nRelative font units (em, rem)\nViewport relative units (vh, vw)\n\n Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with \"%\" (e.g. \"33%\")\nPixels may also be specified as strings ending with the unit \"px\".\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)\n \n size New track size"
       }
     ],
     "path": "/imperative-api/grid-track",
@@ -318,12 +503,12 @@
       {
         "id": "getLayout",
         "title": "getLayout",
-        "text": "getLayout Get the Group's current layout as a map of Panel id to percentage (0..100)\n getLayout: () => { [panelId: string]: number };"
+        "text": "getLayout Get the Group's current layout as a map of Panel id to percentage (0..100)"
       },
       {
         "id": "setLayout",
         "title": "setLayout",
-        "text": "setLayout Set a new layout for the Group\n \n layout Map of Panel id to percentage (a number between 0..100)\n\n setLayout: (layout: { [panelId: string]: number }) => Layout;"
+        "text": "setLayout Set a new layout for the Group\n \n layout Map of Panel id to percentage (a number between 0..100)"
       }
     ],
     "path": "/imperative-api/group",
@@ -336,27 +521,27 @@
       {
         "id": "collapse",
         "title": "collapse",
-        "text": "collapse Collapse the Panel to its collapsedSize.\n This method will do nothing if the Panel is not collapsible or if it is already collapsed.\n collapse: () => void;"
+        "text": "collapse Collapse the Panel to its collapsedSize.\n This method will do nothing if the Panel is not collapsible or if it is already collapsed."
       },
       {
         "id": "expand",
         "title": "expand",
-        "text": "expand Expand a collapsed Panel to its most recent size.\n If restoring that size would require collapsing another Panel, the Panel expands to the largest size that fits instead (as long as that is at least its minSize).\n This method will do nothing if the Panel is not currently collapsed.\n expand: () => void;"
+        "text": "expand Expand a collapsed Panel to its most recent size.\n If restoring that size would require collapsing another Panel, the Panel expands to the largest size that fits instead (as long as that is at least its minSize).\n This method will do nothing if the Panel is not currently collapsed."
       },
       {
         "id": "getSize",
         "title": "getSize",
-        "text": "getSize Get the current size of the Panel in pixels as well as a percentage of the parent group (0..100).\n getSize: () => {\n asPercentage: number;\n inPixels: number;\n };"
+        "text": "getSize Get the current size of the Panel in pixels as well as a percentage of the parent group (0..100)."
       },
       {
         "id": "isCollapsed",
         "title": "isCollapsed",
-        "text": "isCollapsed The Panel is currently collapsed.\n isCollapsed: () => boolean;"
+        "text": "isCollapsed The Panel is currently collapsed."
       },
       {
         "id": "resize",
         "title": "resize",
-        "text": "resize Update the Panel's size.\nSize can be in the following formats:\n\nPercentage of the parent Group (0..100)\nPixels\nRelative font units (em, rem)\nViewport relative units (vh, vw)\n\n Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with \"%\" (e.g. \"33%\")\nPixels may also be specified as strings ending with the unit \"px\".\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)\n \n size New panel size\n\n resize: (size: number | string) => void;"
+        "text": "resize Update the Panel's size.\nSize can be in the following formats:\n\nPercentage of the parent Group (0..100)\nPixels\nRelative font units (em, rem)\nViewport relative units (vh, vw)\n\n Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with \"%\" (e.g. \"33%\")\nPixels may also be specified as strings ending with the unit \"px\".\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)\n \n size New panel size"
       }
     ],
     "path": "/imperative-api/panel",
@@ -365,8 +550,100 @@
     "title": "PanelImperativeHandle"
   },
   {
+    "headings": [
+      {
+        "id": "addTab",
+        "title": "addTab",
+        "text": "addTab Add a tab to a tabset.\n If a tab with the same id already exists, it is selected instead (and its data is not changed).\n \n tab Tab to add\n options .tabsetId Tabset to add the tab to; defaults to the active tabset\n options .index Position within the tabset; defaults to the end\n options .select Select the new tab; defaults to true"
+      },
+      {
+        "id": "closeTab",
+        "title": "closeTab",
+        "text": "closeTab Close a tab."
+      },
+      {
+        "id": "closeTabset",
+        "title": "closeTabset",
+        "text": "closeTabset Close a tabset, along with any tabs it contains (e.g. to remove an empty tabset with the keepWhenEmpty flag).\n Like the rest of the imperative API, this isn't restricted by tabs' disableClose flags.\nIf the root tabset is closed, the workspace is left with an empty root tabset."
+      },
+      {
+        "id": "getActiveTabsetId",
+        "title": "getActiveTabsetId",
+        "text": "getActiveTabsetId Id of the tabset the user most recently interacted with (by pointer or focus)."
+      },
+      {
+        "id": "getModel",
+        "title": "getModel",
+        "text": "getModel Get the current model."
+      },
+      {
+        "id": "maximizeTabset",
+        "title": "maximizeTabset",
+        "text": "maximizeTabset Maximize a tabset, so that it covers the rest of the workspace.\n This has no effect on the only tabset in a workspace (the root), which already fills it.\nA maximized tabset is restored if it becomes the only one (e.g. after the other tabsets are closed)."
+      },
+      {
+        "id": "moveTab",
+        "title": "moveTab",
+        "text": "moveTab Move a tab to a position within a tabset's tab list, or to a region of a tabset's content area."
+      },
+      {
+        "id": "restoreTabset",
+        "title": "restoreTabset",
+        "text": "restoreTabset Restore the maximized tabset (if there is one)."
+      },
+      {
+        "id": "selectTab",
+        "title": "selectTab",
+        "text": "selectTab Select a tab within its tabset."
+      },
+      {
+        "id": "setModel",
+        "title": "setModel",
+        "text": "setModel Replace the model."
+      },
+      {
+        "id": "updateTab",
+        "title": "updateTab",
+        "text": "updateTab Update a tab; fields that are not specified are not changed.\n data is replaced rather than merged."
+      },
+      {
+        "id": "updateTabset",
+        "title": "updateTabset",
+        "text": "updateTabset Update a tabset; fields that are not specified are not changed.\n data is replaced rather than merged.\n Setting minHeight, minWidth, or tabPlacement to undefined removes the tabset's override,\nso the corresponding Workspace prop is used."
+      }
+    ],
+    "path": "/imperative-api/workspace",
+    "section": "Imperative API",
+    "text": "Imperative Workspace API.\nThe easiest way to interact with this API is to use the useWorkspaceRef and useWorkspaceCallbackRef hooks.\n These methods are not restricted by disabled, disableClose, disableDrag, or disableDrop.",
+    "title": "WorkspaceImperativeHandle"
+  },
+  {
+    "path": "/model/split-node",
+    "section": "Model",
+    "text": "Lays out its children side by side (horizontally) or stacked (vertically), with resizable separators between them.\n type : \"split\" Distinguishes splits from tabsets.\n id : string Uniquely identifies the split within the workspace.\n Optional in the defaultModel prop and the setModel method; splits without ids are assigned ids based on their position (e.g. \"split-root\").\n orientation : Orientation Children are laid out side by side (\"horizontal\") or stacked (\"vertical\").\n size ?: number | string | undefined Size of the split within its parent split.\n Interpretation rules:\n\nNumbers are percentages of the parent split (e.g. size: 25 is 25 percent)\nStrings may specify other units (e.g. size: \"250px\"); strings without units are percentages\nSiblings without a size share the remaining space evenly\n\n String sizes are only initial sizes: they're converted to percentages when the user resizes the split,\nand (like percentages) they scale with the workspace when it's resized.\n children : WorkspaceNode<TabData, TabsetData>[] Tabsets and nested splits, in the order they are shown.",
+    "title": "SplitNode"
+  },
+  {
+    "path": "/model/tab-node",
+    "section": "Model",
+    "text": "A tab within a tabset.\n id : string Uniquely identifies the tab within the workspace.\n Tab ids are chosen by the application, since they usually identify something real (e.g. a file path).\n title ?: string | undefined Label used wherever the workspace generates text for the tab:\nthe default tab rendering, the default drag preview, and the TabCloseButton label.\nFalls back to the tab's id.\n data : TabData Application data for the tab.\n This value should be serializable (e.g. JSON) if the workspace model will be saved.\n disableClose ?: boolean | undefined The user cannot close this tab.\n The tab can still be closed using the imperative API.\n disableDrag ?: boolean | undefined The user cannot drag this tab.\n The tab can still be selected, and other tabs can still be dropped around it.",
+    "title": "TabNode"
+  },
+  {
+    "path": "/model/tabset-node",
+    "section": "Model",
+    "text": "A set of tabs, only one of which is shown at a time.\n type : \"tabset\" Distinguishes tabsets from splits.\n id : string Uniquely identifies the tabset within the workspace.\n Optional in the defaultModel prop and the setModel method; tabsets without ids are assigned ids based on their position (e.g. \"tabset-0-1\").\nTabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) are assigned generated ids.\n size ?: number | string | undefined Size of the tabset within its parent split.\n Interpretation rules:\n\nNumbers are percentages of the parent split (e.g. size: 25 is 25 percent)\nStrings may specify other units (e.g. size: \"250px\"); strings without units are percentages\nSiblings without a size share the remaining space evenly\n\n String sizes are only initial sizes: they're converted to percentages when the user resizes the split,\nand (like percentages) they scale with the workspace when it's resized.\n minWidth ?: string | undefined Minimum width of the tabset's content area (not including its header).\nOverrides the Workspace's tabsetMinWidth prop.\n Interpretation rules:\n\nStrings must specify a unit: \"px\", \"em\", \"rem\", \"vh\", or \"vw\" (e.g. minWidth: \"200px\")\nPercentages (and strings without units) are not allowed\n\n minHeight ?: string | undefined Minimum height of the tabset's content area (not including its header).\nOverrides the Workspace's tabsetMinHeight prop.\n Interpretation rules:\n\nStrings must specify a unit: \"px\", \"em\", \"rem\", \"vh\", or \"vw\" (e.g. minHeight: \"200px\")\nPercentages (and strings without units) are not allowed\n\n tabPlacement ?: \"bottom\" | \"left\" | \"right\" | \"top\" | undefined Where the tabset's tabs are placed relative to its content.\nOverrides the Workspace's tabPlacement prop.\n See the Workspace's tabPlacement prop for how placement affects tabsets.\n Tabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) use the Workspace's tabPlacement prop.\n keepWhenEmpty ?: boolean | undefined The tabset isn't removed when its last tab is closed or dragged away;\nit stays (showing the Workspace's renderEmptyTabset content) until it is closed (see closeTabset).\n By default, tabsets without tabs are removed (other than the root tabset of an empty workspace).\n Tabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) don't keep this flag.\n selectedId ?: string | undefined Id of the selected tab.\n data ?: TabsetData | undefined Application data for the tabset.\n Tabsets created by the workspace start without data.\n tabs : TabNode<TabData>[] Tabs in the tabset, in the order they are shown.",
+    "title": "TabsetNode"
+  },
+  {
+    "path": "/model/workspace-model",
+    "section": "Model",
+    "text": "Serializable description of a workspace's layout.\n version : 1 Format version; allows the workspace to migrate models saved by older versions.\n root : WorkspaceNode<TabData, TabsetData> Root of the layout tree: a split or a tabset.\n An empty workspace is a tabset with no tabs.\n maximizedTabsetId ?: string | undefined Id of the tabset that is maximized, if any.",
+    "title": "WorkspaceModel"
+  },
+  {
     "path": "/platform-requirements",
-    "text": "This library requires React version 18 or newer. It also uses the ResizeObserver (or polyfill) to convert layout constraints into relative percentages.",
+    "text": "This library requires React version 18 or newer. It also uses the ResizeObserver (or polyfill) to convert layout constraints into relative percentages. The Workspace component's hiddenTabBehavior=\"activity\" option requires React version 19.2 or newer (for Activity); with older versions it behaves like the default (\"keep-mounted\").",
     "title": "Requirements"
   },
   {
@@ -374,52 +651,52 @@
       {
         "id": "column",
         "title": "column",
-        "text": "column: number Index of the (first) column this cell occupies."
+        "text": "Index of the (first) column this cell occupies."
       },
       {
         "id": "row",
         "title": "row",
-        "text": "row: number Index of the (first) row this cell occupies."
+        "text": "Index of the (first) row this cell occupies."
       },
       {
         "id": "children",
         "title": "children",
-        "text": "children?: ReactNode Cell contents."
+        "text": "Cell contents."
       },
       {
         "id": "className",
         "title": "className",
-        "text": "className?: string CSS class name."
+        "text": "CSS class name."
       },
       {
         "id": "columnSpan",
         "title": "columnSpan",
-        "text": "columnSpan?: number = 1 Number of columns this cell spans; defaults to 1."
+        "text": "Number of columns this cell spans; defaults to 1."
       },
       {
         "id": "elementRef",
         "title": "elementRef",
-        "text": "elementRef?: Ref<HTMLDivElement | null> Ref attached to the root HTMLDivElement."
+        "text": "Ref attached to the root HTMLDivElement."
       },
       {
         "id": "id",
         "title": "id",
-        "text": "id?: string | number Uniquely identifies this cell within the parent grid.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
+        "text": "Uniquely identifies this cell within the parent grid.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "rowSpan",
         "title": "rowSpan",
-        "text": "rowSpan?: number = 1 Number of rows this cell spans; defaults to 1."
+        "text": "Number of rows this cell spans; defaults to 1."
       },
       {
         "id": "style",
         "title": "style",
-        "text": "style?: CSSProperties CSS properties.\n Grid placement properties are managed by the Cell and cannot be overridden."
+        "text": "CSS properties.\n Grid placement properties are managed by the Cell and cannot be overridden."
       }
     ],
     "path": "/props/cell",
     "section": "Props",
-    "text": "A Cell occupies one or more tracks (columns and rows) within a Grid.\nCells are resized along with the tracks they occupy.\n Cell elements always include the following attributes:\n <div data-cell data-testid=\"cell-id-prop\" id=\"cell-id-prop\"> Test id can be used to narrow selection when unit testing.\n Cell elements must be direct DOM children of their parent Grid elements.",
+    "text": "A Cell occupies one or more tracks (columns and rows) within a Grid.\nCells are resized along with the tracks they occupy.\n Cell elements always include the following attributes:\n Test id can be used to narrow selection when unit testing.\n Cell elements must be direct DOM children of their parent Grid elements.",
     "title": "Cell component props"
   },
   {
@@ -427,77 +704,77 @@
       {
         "id": "columns",
         "title": "columns",
-        "text": "columns: number | GridTrackProps[] Grid columns; either the number of columns or an array of size constraints (one per column)."
+        "text": "Grid columns; either the number of columns or an array of size constraints (one per column)."
       },
       {
         "id": "rows",
         "title": "rows",
-        "text": "rows: number | GridTrackProps[] Grid rows; either the number of rows or an array of size constraints (one per row)."
+        "text": "Grid rows; either the number of rows or an array of size constraints (one per row)."
       },
       {
         "id": "children",
         "title": "children",
-        "text": "children?: ReactNode Cell and Gridline components that comprise this grid.\n Cell and Gridline elements must be direct DOM children of their parent Grid element."
+        "text": "Cell and Gridline components that comprise this grid.\n Cell and Gridline elements must be direct DOM children of their parent Grid element."
       },
       {
         "id": "className",
         "title": "className",
-        "text": "className?: string CSS class name."
+        "text": "CSS class name."
       },
       {
         "id": "defaultLayout",
         "title": "defaultLayout",
-        "text": "defaultLayout?: Partial<GridLayout> Default layout for either or both of the Grid's axes.\n This value allows layouts to be remembered between page reloads."
+        "text": "Default layout for either or both of the Grid's axes.\n This value allows layouts to be remembered between page reloads."
       },
       {
         "id": "disableCursor",
         "title": "disableCursor",
-        "text": "disableCursor?: boolean This library sets custom mouse cursor styles to indicate drag state.\nUse this prop to disable that behavior for this grid."
+        "text": "This library sets custom mouse cursor styles to indicate drag state.\nUse this prop to disable that behavior for this grid."
       },
       {
         "id": "disabled",
         "title": "disabled",
-        "text": "disabled?: boolean Disable resize functionality."
+        "text": "Disable resize functionality."
       },
       {
         "id": "elementRef",
         "title": "elementRef",
-        "text": "elementRef?: Ref<HTMLDivElement | null> Ref attached to the root HTMLDivElement."
+        "text": "Ref attached to the root HTMLDivElement."
       },
       {
         "id": "gridRef",
         "title": "gridRef",
-        "text": "gridRef?: Ref<GridImperativeHandle | null> Exposes the following imperative API:\n\n getLayout(): GridLayout \n getTrackById(axis: \"column\" | \"row\", id: string | number): GridTrackImperativeHandle \n getTrackByIndex(axis: \"column\" | \"row\", index: number): GridTrackImperativeHandle \n setLayout(layout: Partial<GridLayout>): GridLayout \n\n The useGridRef and useGridCallbackRef hooks are exported for convenience use in TypeScript projects."
+        "text": "Exposes the following imperative API:\n\n getLayout(): GridLayout \n getTrackById(axis: \"column\" | \"row\", id: string | number): GridTrackImperativeHandle \n getTrackByIndex(axis: \"column\" | \"row\", index: number): GridTrackImperativeHandle \n setLayout(layout: Partial<GridLayout>): GridLayout \n\n The useGridRef and useGridCallbackRef hooks are exported for convenience use in TypeScript projects."
       },
       {
         "id": "id",
         "title": "id",
-        "text": "id?: string | number Uniquely identifies this grid within an application.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
+        "text": "Uniquely identifies this grid within an application.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "onLayoutChange",
         "title": "onLayoutChange",
-        "text": "onLayoutChange?: ((layout: GridLayout) => void) Called when the Grid's layout is changing.\n For layout changes caused by pointer events, this method is called each time the pointer is moved.\nFor most cases, it is recommended to use the onLayoutChanged callback instead."
+        "text": "Called when the Grid's layout is changing.\n For layout changes caused by pointer events, this method is called each time the pointer is moved.\nFor most cases, it is recommended to use the onLayoutChanged callback instead."
       },
       {
         "id": "onLayoutChanged",
         "title": "onLayoutChanged",
-        "text": "onLayoutChanged?: ((layout: GridLayout, meta: LayoutChangedMeta<GridLayout>) => void) Called after the Grid's layout has been changed.\n For layout changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving layouts to some storage api."
+        "text": "Called after the Grid's layout has been changed.\n For layout changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving layouts to some storage api."
       },
       {
         "id": "resizeTargetMinimumSize",
         "title": "resizeTargetMinimumSize",
-        "text": "resizeTargetMinimumSize?: { coarse: number; fine: number; } = { coarse: 20, fine: 10 } Minimum size of the resizable hit target area (either a Gridline or a Cell edge).\nThis threshold ensures targets are large enough to avoid mis-clicks.\n Refer to the Group prop of the same name for more information."
+        "text": "Minimum size of the resizable hit target area (either a Gridline or a Cell edge).\nThis threshold ensures targets are large enough to avoid mis-clicks.\n Refer to the Group prop of the same name for more information."
       },
       {
         "id": "style",
         "title": "style",
-        "text": "style?: CSSProperties CSS properties.\n Grid template and display properties are managed by the Grid and cannot be overridden."
+        "text": "CSS properties.\n Grid template and display properties are managed by the Grid and cannot be overridden."
       }
     ],
     "path": "/props/grid",
     "section": "Props",
-    "text": "A Grid arranges resizable Cells in two dimensions.\nColumns can be resized horizontally and rows can be resized vertically;\ndragging the point where a column boundary and a row boundary intersect resizes both.\n Size constraints (e.g. min/max size, collapsible) are specified per track (column or row),\nusing the same format as Panel props.\n Cells can span multiple columns and/or rows.\nTrack boundaries cannot be resized alongside of a cell that spans across them.\n Grid elements always include the following attributes:\n <div data-grid data-testid=\"grid-id-prop\" id=\"grid-id-prop\"> Test id can be used to narrow selection when unit testing.",
+    "text": "A Grid arranges resizable Cells in two dimensions.\nColumns can be resized horizontally and rows can be resized vertically;\ndragging the point where a column boundary and a row boundary intersect resizes both.\n Size constraints (e.g. min/max size, collapsible) are specified per track (column or row),\nusing the same format as Panel props.\n Cells can span multiple columns and/or rows.\nTrack boundaries cannot be resized alongside of a cell that spans across them.\n Grid elements always include the following attributes:\n Test id can be used to narrow selection when unit testing.",
     "title": "Grid component props"
   },
   {
@@ -505,57 +782,57 @@
       {
         "id": "type",
         "title": "type",
-        "text": "type: \"column\" | \"row\" Column gridlines are vertical; they resize the columns on either side of them.\nRow gridlines are horizontal; they resize the rows on either side of them."
+        "text": "Column gridlines are vertical; they resize the columns on either side of them.\nRow gridlines are horizontal; they resize the rows on either side of them."
       },
       {
         "id": "children",
         "title": "children",
-        "text": "children?: ReactNode Gridline contents (e.g. a drag handle icon)."
+        "text": "Gridline contents (e.g. a drag handle icon)."
       },
       {
         "id": "className",
         "title": "className",
-        "text": "className?: string CSS class name.\n Use the data-separator attribute for custom hover and active styles"
+        "text": "CSS class name.\n Use the data-separator attribute for custom hover and active styles"
       },
       {
         "id": "column",
         "title": "column",
-        "text": "column?: number When type is \"column\", the gridline is rendered along the leading (left) edge of this column\n(between it and the previous column); must be greater than 0 and less than the number of columns.\nWhen type is \"row\", index of the first column the gridline is rendered alongside of; defaults to 0."
+        "text": "When type is \"column\", the gridline is rendered along the leading (left) edge of this column\n(between it and the previous column); must be greater than 0 and less than the number of columns.\nWhen type is \"row\", index of the first column the gridline is rendered alongside of; defaults to 0."
       },
       {
         "id": "columnSpan",
         "title": "columnSpan",
-        "text": "columnSpan?: number Number of columns a row gridline spans; defaults to all columns (starting from column).\n Gridlines can span a subset of columns in order to avoid cells that span across the boundary they sit on;\nmultiple gridlines can be rendered along the same boundary (e.g. before and after a spanning cell)."
+        "text": "Number of columns a row gridline spans; defaults to all columns (starting from column).\n Gridlines can span a subset of columns in order to avoid cells that span across the boundary they sit on;\nmultiple gridlines can be rendered along the same boundary (e.g. before and after a spanning cell)."
       },
       {
         "id": "disabled",
         "title": "disabled",
-        "text": "disabled?: boolean When disabled, the gridline cannot be used to resize its neighboring tracks.\n The tracks may still be resized indirectly (e.g. by an intersecting gridline or another boundary).\nTo prevent a track from being resized at all, it needs to also be disabled."
+        "text": "When disabled, the gridline cannot be used to resize its neighboring tracks.\n The tracks may still be resized indirectly (e.g. by an intersecting gridline or another boundary).\nTo prevent a track from being resized at all, it needs to also be disabled."
       },
       {
         "id": "elementRef",
         "title": "elementRef",
-        "text": "elementRef?: Ref<HTMLDivElement> Ref attached to the root HTMLDivElement."
+        "text": "Ref attached to the root HTMLDivElement."
       },
       {
         "id": "row",
         "title": "row",
-        "text": "row?: number When type is \"column\", index of the first row the gridline is rendered alongside of; defaults to 0.\nWhen type is \"row\", the gridline is rendered along the leading (top) edge of this row\n(between it and the previous row); must be greater than 0 and less than the number of rows."
+        "text": "When type is \"column\", index of the first row the gridline is rendered alongside of; defaults to 0.\nWhen type is \"row\", the gridline is rendered along the leading (top) edge of this row\n(between it and the previous row); must be greater than 0 and less than the number of rows."
       },
       {
         "id": "rowSpan",
         "title": "rowSpan",
-        "text": "rowSpan?: number Number of rows a column gridline spans; defaults to all rows (starting from row).\n Gridlines can span a subset of rows in order to avoid cells that span across the boundary they sit on;\nmultiple gridlines can be rendered along the same boundary (e.g. above and below a spanning cell)."
+        "text": "Number of rows a column gridline spans; defaults to all rows (starting from row).\n Gridlines can span a subset of rows in order to avoid cells that span across the boundary they sit on;\nmultiple gridlines can be rendered along the same boundary (e.g. above and below a spanning cell)."
       },
       {
         "id": "style",
         "title": "style",
-        "text": "style?: CSSProperties CSS properties.\n Grid placement properties are managed by the gridline and cannot be overridden."
+        "text": "CSS properties.\n Grid placement properties are managed by the gridline and cannot be overridden."
       }
     ],
     "path": "/props/gridline",
     "section": "Props",
-    "text": "Resizes the columns (or rows) of a Grid.\n For example:\n // Rendered between columns 0 and 1 and spans all rows\n<Gridline type=\"column\" column={1} /> // Rendered between rows 0 and 1 and spans all columns\n<Gridline type=\"row\" row={1} /> // Rendered between columns 0 and 1 alongside of row 2 only\n<Gridline type=\"column\" column={1} row={2} rowSpan={1} /> A gridline should not be rendered alongside of a Cell that spans across its boundary\n(this includes disabled gridlines; an error will be logged to the console);\nrender multiple gridlines along the same boundary instead (e.g. before and after the spanning Cell).\n Once a boundary contains a gridline, it can only be resized using gridlines;\nthe parts of the boundary that aren't alongside of a gridline can't be dragged.\n Where column and row gridlines intersect, dragging resizes both axes.\n Gridlines are not required but they are recommended as they improve keyboard accessibility.\n Gridline elements always include the following attributes:\n <div aria-orientation=\"vertical\" data-separator role=\"separator\"> Column gridlines are vertical (aria-orientation=\"vertical\") and row gridlines are horizontal (aria-orientation=\"horizontal\").\n In addition to the attributes shown above, gridlines also render all required WAI-ARIA properties.\n Gridline elements must be direct DOM children of their parent Grid elements.\n Gridlines rendered by another component (rather than directly within the Grid) aren't detected until they mount, so server-rendered layouts may shift slightly during hydration.",
+    "text": "Resizes the columns (or rows) of a Grid.\n For example:\n A gridline should not be rendered alongside of a Cell that spans across its boundary\n(this includes disabled gridlines; an error will be logged to the console);\nrender multiple gridlines along the same boundary instead (e.g. before and after the spanning Cell).\n Once a boundary contains a gridline, it can only be resized using gridlines;\nthe parts of the boundary that aren't alongside of a gridline can't be dragged.\n Where column and row gridlines intersect, dragging resizes both axes.\n Gridlines are not required but they are recommended as they improve keyboard accessibility.\n Gridline elements always include the following attributes:\n Column gridlines are vertical (aria-orientation=\"vertical\") and row gridlines are horizontal (aria-orientation=\"horizontal\").\n In addition to the attributes shown above, gridlines also render all required WAI-ARIA properties.\n Gridline elements must be direct DOM children of their parent Grid elements.\n Gridlines rendered by another component (rather than directly within the Grid) aren't detected until they mount, so server-rendered layouts may shift slightly during hydration.",
     "title": "Gridline component props"
   },
   {
@@ -563,77 +840,77 @@
       {
         "id": "children",
         "title": "children",
-        "text": "children?: ReactNode Panel and Separator components that comprise this group."
+        "text": "Panel and Separator components that comprise this group."
       },
       {
         "id": "className",
         "title": "className",
-        "text": "className?: string CSS class name."
+        "text": "CSS class name."
       },
       {
         "id": "defaultLayout",
         "title": "defaultLayout",
-        "text": "defaultLayout?: Layout Default layout for the Group.\n This value allows layouts to be remembered between page reloads.\n Slight layout shift may occur when server-rendering panels with percentage-based default sizes.\nRefer to the documentation for suggestions on how to minimize the impact of this."
+        "text": "Default layout for the Group.\n This value allows layouts to be remembered between page reloads.\n Slight layout shift may occur when server-rendering panels with percentage-based default sizes.\nRefer to the documentation for suggestions on how to minimize the impact of this."
       },
       {
         "id": "disableCursor",
         "title": "disableCursor",
-        "text": "disableCursor?: boolean This library sets custom mouse cursor styles to indicate drag state.\nUse this prop to disable that behavior for Panels and Separators in this group."
+        "text": "This library sets custom mouse cursor styles to indicate drag state.\nUse this prop to disable that behavior for Panels and Separators in this group."
       },
       {
         "id": "disabled",
         "title": "disabled",
-        "text": "disabled?: boolean Disable resize functionality."
+        "text": "Disable resize functionality."
       },
       {
         "id": "elementRef",
         "title": "elementRef",
-        "text": "elementRef?: Ref<HTMLDivElement | null> Ref attached to the root HTMLDivElement."
+        "text": "Ref attached to the root HTMLDivElement."
       },
       {
         "id": "groupRef",
         "title": "groupRef",
-        "text": "groupRef?: Ref<GroupImperativeHandle | null> Exposes the following imperative API:\n\n getLayout(): Layout \n setLayout(layout: Layout): Layout \n\n The useGroupRef and useGroupCallbackRef hooks are exported for convenience use in TypeScript projects."
+        "text": "Exposes the following imperative API:\n\n getLayout(): Layout \n setLayout(layout: Layout): Layout \n\n The useGroupRef and useGroupCallbackRef hooks are exported for convenience use in TypeScript projects."
       },
       {
         "id": "id",
         "title": "id",
-        "text": "id?: string | number Uniquely identifies this group within an application.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
+        "text": "Uniquely identifies this group within an application.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "onLayoutChange",
         "title": "onLayoutChange",
-        "text": "onLayoutChange?: (layout: Layout) => void Called when the Group's layout is changing.\n For layout changes caused by pointer events, this method is called each time the pointer is moved.\nFor most cases, it is recommended to use the onLayoutChanged callback instead."
+        "text": "Called when the Group's layout is changing.\n For layout changes caused by pointer events, this method is called each time the pointer is moved.\nFor most cases, it is recommended to use the onLayoutChanged callback instead."
       },
       {
         "id": "onLayoutChanged",
         "title": "onLayoutChanged",
-        "text": "onLayoutChanged?: (layout: Layout, meta: LayoutChangedMeta<Layout>) => void Called after the Group's layout has been changed.\n For layout changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving layouts to some storage api.\n The second argument contains meta information about the layout change.\nThe isUserInteraction attribute signals whether the resize was caused by direct user input.\nIt is true for resizes caused by pointer or keyboard input\nand false for other triggers (e.g. imperative API calls, initial mount, etc.)\nThe requestedLayout attribute is the layout before constraints were applied for the current Group size;\nprefer it when persisting layouts."
+        "text": "Called after the Group's layout has been changed.\n For layout changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving layouts to some storage api.\n The second argument contains meta information about the layout change.\nThe isUserInteraction attribute signals whether the resize was caused by direct user input.\nIt is true for resizes caused by pointer or keyboard input\nand false for other triggers (e.g. imperative API calls, initial mount, etc.)\nThe requestedLayout attribute is the layout before constraints were applied for the current Group size;\nprefer it when persisting layouts."
       },
       {
         "id": "orientation",
         "title": "orientation",
-        "text": "orientation?: \"horizontal\" | \"vertical\" = \"horizontal\" Specifies the resizable orientation (\"horizontal\" or \"vertical\"); defaults to \"horizontal\""
+        "text": "Specifies the resizable orientation (\"horizontal\" or \"vertical\"); defaults to \"horizontal\""
       },
       {
         "id": "resizePreviewMode",
         "title": "resizePreviewMode",
-        "text": "resizePreviewMode?: ResizePreviewMode = \"panel\" Controls whether pointer dragging updates Panel sizes immediately,\nor renders overlay separator previews until the pointer is released.\n Defaults to \"panel\" (immediate resizing); \"separator\" defers resizing until release.\n Customize previews using the SeparatorOverlay component."
+        "text": "Controls whether pointer dragging updates Panel sizes immediately,\nor renders overlay separator previews until the pointer is released.\n Defaults to \"panel\" (immediate resizing); \"separator\" defers resizing until release.\n Customize previews using the SeparatorOverlay component."
       },
       {
         "id": "resizeTargetMinimumSize",
         "title": "resizeTargetMinimumSize",
-        "text": "resizeTargetMinimumSize?: { coarse: number; fine: number; } = { coarse: 20, fine: 10 } Minimum size of the resizable hit target area (either Separator or Panel edge).\nThis threshold ensures targets are large enough to avoid mis-clicks.\n \nCoarse inputs (typically a finger on a touchscreen) have reduced accuracy;\nto ensure accessibility and ease of use, hit targets should be larger to prevent mis-clicks.\nFine inputs (typically a mouse) can be smaller\n\n Apple interface guidelines suggest 20pt (27px) on desktops and 28pt (37px) for touch devices.\nIn practice this seems to be much larger than many of their own applications use though."
+        "text": "Minimum size of the resizable hit target area (either Separator or Panel edge).\nThis threshold ensures targets are large enough to avoid mis-clicks.\n \nCoarse inputs (typically a finger on a touchscreen) have reduced accuracy;\nto ensure accessibility and ease of use, hit targets should be larger to prevent mis-clicks.\nFine inputs (typically a mouse) can be smaller\n\n Apple interface guidelines suggest 20pt (27px) on desktops and 28pt (37px) for touch devices.\nIn practice this seems to be much larger than many of their own applications use though."
       },
       {
         "id": "style",
         "title": "style",
-        "text": "style?: CSSProperties CSS properties.\n The default inline styles cannot be overridden, except for overflow ."
+        "text": "CSS properties.\n The default inline styles cannot be overridden, except for overflow ."
       }
     ],
     "path": "/props/group",
     "section": "Props",
-    "text": "A Group wraps a set of resizable Panel components.\nGroup content can be resized horizontally or vertically.\n Group elements always include the following attributes:\n <div data-group data-testid=\"group-id-prop\" id=\"group-id-prop\"> Test id can be used to narrow selection when unit testing.",
+    "text": "A Group wraps a set of resizable Panel components.\nGroup content can be resized horizontally or vertically.\n Group elements always include the following attributes:\n Test id can be used to narrow selection when unit testing.",
     "title": "Group component props"
   },
   {
@@ -641,77 +918,77 @@
       {
         "id": "className",
         "title": "className",
-        "text": "className?: string CSS class name.\n Class is applied to nested HTMLDivElement to avoid styles that interfere with Flex layout."
+        "text": "CSS class name.\n Class is applied to nested HTMLDivElement to avoid styles that interfere with Flex layout."
       },
       {
         "id": "collapsedSize",
         "title": "collapsedSize",
-        "text": "collapsedSize?: string | number = \"0%\" Panel size when collapsed; defaults to 0%."
+        "text": "Panel size when collapsed; defaults to 0%."
       },
       {
         "id": "collapsedThreshold",
         "title": "collapsedThreshold",
-        "text": "collapsedThreshold?: string | number Distance a collapsible panel must be resized past its minSize to collapse,\nor past its collapsedSize to expand.\nDefaults to half the distance between collapsedSize and minSize.\n For example if a panel declares collapsedSize=\"5%\", collapsedThreshold=\"5%\", and minSize=\"25%\",\nit will collapse when resized below 20% and expand when resized above 10%.\n Interpretation rules:\n\nNumbers are interpreted as pixels (e.g. minSize={200} is 200 pixels)\nStrings without explicit units are interpreted as percentage (e.g. minSize=\"50\" is 50 percent)\nUse explicit units (e.g. \"px\", \"%\", \"em\", \"rem\", \"vh\", or \"vw\") to change interpretation"
+        "text": "Distance a collapsible panel must be resized past its minSize to collapse,\nor past its collapsedSize to expand.\nDefaults to half the distance between collapsedSize and minSize.\n For example if a panel declares collapsedSize=\"5%\", collapsedThreshold=\"5%\", and minSize=\"25%\",\nit will collapse when resized below 20% and expand when resized above 10%.\n Interpretation rules:\n\nNumbers are interpreted as pixels (e.g. minSize={200} is 200 pixels)\nStrings without explicit units are interpreted as percentage (e.g. minSize=\"50\" is 50 percent)\nUse explicit units (e.g. \"px\", \"%\", \"em\", \"rem\", \"vh\", or \"vw\") to change interpretation"
       },
       {
         "id": "collapsible",
         "title": "collapsible",
-        "text": "collapsible?: boolean = false This panel can be collapsed.\n A collapsible panel will collapse when its size is less than the specified minSize"
+        "text": "This panel can be collapsed.\n A collapsible panel will collapse when its size is less than the specified minSize"
       },
       {
         "id": "defaultSize",
         "title": "defaultSize",
-        "text": "defaultSize?: string | number Default size of Panel within its parent group; default is auto-assigned based on the total number of Panels.\n Interpretation rules:\n\nNumbers are interpreted as pixels (e.g. defaultSize={200} is 200 pixels)\nStrings without explicit units are interpreted as percentage (e.g. defaultSize=\"50\" is 50 percent)\nUse explicit units (e.g. \"px\", \"%\", \"em\", \"rem\", \"vh\", or \"vw\") to change interpretation\n\n Percentage based sizes may cause slight layout shift when server-rendering.\nFor more information see the documentation."
+        "text": "Default size of Panel within its parent group; default is auto-assigned based on the total number of Panels.\n Interpretation rules:\n\nNumbers are interpreted as pixels (e.g. defaultSize={200} is 200 pixels)\nStrings without explicit units are interpreted as percentage (e.g. defaultSize=\"50\" is 50 percent)\nUse explicit units (e.g. \"px\", \"%\", \"em\", \"rem\", \"vh\", or \"vw\") to change interpretation\n\n Percentage based sizes may cause slight layout shift when server-rendering.\nFor more information see the documentation."
       },
       {
         "id": "disabled",
         "title": "disabled",
-        "text": "disabled?: boolean When disabled, a panel cannot be resized either directly or indirectly (by resizing another panel)."
+        "text": "When disabled, a panel cannot be resized either directly or indirectly (by resizing another panel)."
       },
       {
         "id": "elementRef",
         "title": "elementRef",
-        "text": "elementRef?: Ref<HTMLDivElement | null> Ref attached to the root HTMLDivElement."
+        "text": "Ref attached to the root HTMLDivElement."
       },
       {
         "id": "groupResizeBehavior",
         "title": "groupResizeBehavior",
-        "text": "groupResizeBehavior?: \"preserve-relative-size\" | \"preserve-pixel-size\" = \"preserve-relative-size\" How should this Panel behave if the parent Group is resized?\nDefaults to preserve-relative-size.\n \n preserve-relative-size: Retain the current relative size (as a percentage of the Group)\n preserve-pixel-size: Retain its current size (in pixels)\n\n Panel min/max size constraints may impact this behavior.\n A Group must contain at least one Panel with preserve-relative-size resize behavior."
+        "text": "How should this Panel behave if the parent Group is resized?\nDefaults to preserve-relative-size.\n \n preserve-relative-size: Retain the current relative size (as a percentage of the Group)\n preserve-pixel-size: Retain its current size (in pixels)\n\n Panel min/max size constraints may impact this behavior.\n A Group must contain at least one Panel with preserve-relative-size resize behavior."
       },
       {
         "id": "id",
         "title": "id",
-        "text": "id?: string | number Uniquely identifies this panel within the parent group.\nFalls back to useId when not provided.\n This prop is used to associate persisted group layouts with the original panel.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
+        "text": "Uniquely identifies this panel within the parent group.\nFalls back to useId when not provided.\n This prop is used to associate persisted group layouts with the original panel.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "maxSize",
         "title": "maxSize",
-        "text": "maxSize?: string | number = \"100%\" Maximum size of Panel within its parent group; defaults to \"100%\".\n Interpretation rules:\n\nNumbers are interpreted as pixels (e.g. maxSize={200} is 200 pixels)\nStrings without explicit units are interpreted as percentage (e.g. maxSize=\"50\" is 50 percent)\nUse explicit units (e.g. \"px\", \"%\", \"em\", \"rem\", \"vh\", or \"vw\") to change interpretation"
+        "text": "Maximum size of Panel within its parent group; defaults to \"100%\".\n Interpretation rules:\n\nNumbers are interpreted as pixels (e.g. maxSize={200} is 200 pixels)\nStrings without explicit units are interpreted as percentage (e.g. maxSize=\"50\" is 50 percent)\nUse explicit units (e.g. \"px\", \"%\", \"em\", \"rem\", \"vh\", or \"vw\") to change interpretation"
       },
       {
         "id": "minSize",
         "title": "minSize",
-        "text": "minSize?: string | number = \"0%\" Minimum size of Panel within its parent group; defaults to 0%.\n Interpretation rules:\n\nNumbers are interpreted as pixels (e.g. minSize={200} is 200 pixels)\nStrings without explicit units are interpreted as percentage (e.g. minSize=\"50\" is 50 percent)\nUse explicit units (e.g. \"px\", \"%\", \"em\", \"rem\", \"vh\", or \"vw\") to change interpretation"
+        "text": "Minimum size of Panel within its parent group; defaults to 0%.\n Interpretation rules:\n\nNumbers are interpreted as pixels (e.g. minSize={200} is 200 pixels)\nStrings without explicit units are interpreted as percentage (e.g. minSize=\"50\" is 50 percent)\nUse explicit units (e.g. \"px\", \"%\", \"em\", \"rem\", \"vh\", or \"vw\") to change interpretation"
       },
       {
         "id": "onResize",
         "title": "onResize",
-        "text": "onResize?: ((panelSize: PanelSize, id: string | number, prevPanelSize: PanelSize | undefined) => void) | undefined Called when panel sizes change.\n\n panelSize Panel size (both as a percentage of the parent Group and in pixels)\n id Panel id (if one was provided as a prop)\n prevPanelSize Previous panel size (will be undefined on mount)"
+        "text": "Called when panel sizes change.\n\n panelSize Panel size (both as a percentage of the parent Group and in pixels)\n id Panel id (if one was provided as a prop)\n prevPanelSize Previous panel size (will be undefined on mount)"
       },
       {
         "id": "panelRef",
         "title": "panelRef",
-        "text": "panelRef?: Ref<PanelImperativeHandle | null> Exposes the following imperative API:\n\n collapse(): void \n expand(): void \n getSize(): PanelSize \n isCollapsed(): boolean \n resize(size: number | string): void \n\n The usePanelRef and usePanelCallbackRef hooks are exported for convenience use in TypeScript projects."
+        "text": "Exposes the following imperative API:\n\n collapse(): void \n expand(): void \n getSize(): PanelSize \n isCollapsed(): boolean \n resize(size: number | string): void \n\n The usePanelRef and usePanelCallbackRef hooks are exported for convenience use in TypeScript projects."
       },
       {
         "id": "style",
         "title": "style",
-        "text": "style?: CSSProperties CSS properties.\n The default inline styles cannot be overridden, except for overflow ."
+        "text": "CSS properties.\n The default inline styles cannot be overridden, except for overflow ."
       }
     ],
     "path": "/props/panel",
     "section": "Props",
-    "text": "A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.\n Panel size props can be in the following formats:\n\nPercentage of the parent Group (0..100)\nPixels\nRelative font units (em, rem)\nViewport relative units (vh, vw)\n\n Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with \"%\" (e.g. \"33%\")\nPixels may also be specified as strings ending with the unit \"px\".\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)\n Panel elements always include the following attributes:\n <div data-panel data-testid=\"panel-id-prop\" id=\"panel-id-prop\"> Test id can be used to narrow selection when unit testing.\n Panel elements must be direct DOM children of their parent Group elements.",
+    "text": "A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.\n Panel size props can be in the following formats:\n\nPercentage of the parent Group (0..100)\nPixels\nRelative font units (em, rem)\nViewport relative units (vh, vw)\n\n Numeric values are assumed to be pixels.\nStrings without explicit units are assumed to be percentages (0%..100%).\nPercentages may also be specified as strings ending with \"%\" (e.g. \"33%\")\nPixels may also be specified as strings ending with the unit \"px\".\nOther units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)\n Panel elements always include the following attributes:\n Test id can be used to narrow selection when unit testing.\n Panel elements must be direct DOM children of their parent Group elements.",
     "title": "Panel component props"
   },
   {
@@ -719,43 +996,172 @@
       {
         "id": "className",
         "title": "className",
-        "text": "className?: string CSS class name.\n Use the data-separator attribute for custom hover and active styles\n The following properties cannot be overridden: flex-grow, flex-shrink"
+        "text": "CSS class name.\n Use the data-separator attribute for custom hover and active styles\n The following properties cannot be overridden: flex-grow, flex-shrink"
       },
       {
         "id": "disabled",
         "title": "disabled",
-        "text": "disabled?: boolean When disabled, the separator cannot be used to resize its neighboring panels.\n The panels may still be resized indirectly (while other panels are being resized).\nTo prevent a panel from being resized at all, it needs to also be disabled."
+        "text": "When disabled, the separator cannot be used to resize its neighboring panels.\n The panels may still be resized indirectly (while other panels are being resized).\nTo prevent a panel from being resized at all, it needs to also be disabled."
       },
       {
         "id": "disableDoubleClick",
         "title": "disableDoubleClick",
-        "text": "disableDoubleClick?: boolean When true, double-clicking this Separator will not reset its Panel to its default size."
+        "text": "When true, double-clicking this Separator will not reset its Panel to its default size."
       },
       {
         "id": "elementRef",
         "title": "elementRef",
-        "text": "elementRef?: Ref<HTMLDivElement> Ref attached to the root HTMLDivElement."
+        "text": "Ref attached to the root HTMLDivElement."
       },
       {
         "id": "id",
         "title": "id",
-        "text": "id?: string | number Uniquely identifies the separator within the parent group.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
+        "text": "Uniquely identifies the separator within the parent group.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "preview",
         "title": "preview",
-        "text": "preview?: ReactNode Overrides the Group default preview for this Separator when resizePreviewMode is \"separator\"."
+        "text": "Overrides the Group default preview for this Separator when resizePreviewMode is \"separator\"."
       },
       {
         "id": "style",
         "title": "style",
-        "text": "style?: CSSProperties CSS properties.\n Use the data-separator attribute for custom hover and active styles\n The following properties cannot be overridden: flex-grow, flex-shrink"
+        "text": "CSS properties.\n Use the data-separator attribute for custom hover and active styles\n The following properties cannot be overridden: flex-grow, flex-shrink"
       }
     ],
     "path": "/props/separator",
     "section": "Props",
-    "text": "Separators are not required but they are recommended as they improve keyboard accessibility.\n Separator elements must be direct DOM children of their parent Group elements.\n Separator elements always include the following attributes:\n <div data-separator data-testid=\"separator-id-prop\" id=\"separator-id-prop\" role=\"separator\"> Test id can be used to narrow selection when unit testing.\n In addition to the attributes shown above, separator also renders all required WAI-ARIA properties.",
+    "text": "Separators are not required but they are recommended as they improve keyboard accessibility.\n Separator elements must be direct DOM children of their parent Group elements.\n Separator elements always include the following attributes:\n Test id can be used to narrow selection when unit testing.\n In addition to the attributes shown above, separator also renders all required WAI-ARIA properties.",
     "title": "Separator component props"
+  },
+  {
+    "path": "/props/tab-close-button",
+    "section": "Props",
+    "text": "Closes the tab it is rendered within; render it within the element returned by the Workspace's renderTab prop:\n The button renders nothing if closing is disabled (by the tab's disableClose flag or the Workspace's disabled prop).\nIts default aria-label is \"Close\" followed by the tab's title (or id).\n To keep the tab open (e.g. to confirm unsaved changes first), call event.preventDefault() in an onClick handler:\n This button is not focusable by default (tabIndex={-1}), since tabs shouldn't contain focusable content;\nkeyboard users can close the focused tab with Delete or Backspace.",
+    "title": "TabCloseButton component props"
+  },
+  {
+    "headings": [
+      {
+        "id": "defaultModel",
+        "title": "defaultModel",
+        "text": "Initial layout of the workspace.\n Splits and tabsets may omit their ids; they're assigned ids based on their position (see WorkspaceModelInput).\n This value is only used when the Workspace mounts; use the imperative setModel method to replace it later."
+      },
+      {
+        "id": "renderTabContent",
+        "title": "renderTabContent",
+        "text": "Content of a tab.\n Content is only re-rendered when its tab changes or this function does;\na function created while rendering (e.g. an inline arrow function) re-renders the content of every tab whenever the Workspace's parent re-renders,\nso it should be memoized (e.g. with useCallback) when tab content is expensive to render."
+      },
+      {
+        "id": "className",
+        "title": "className",
+        "text": "CSS class name."
+      },
+      {
+        "id": "classNames",
+        "title": "classNames",
+        "text": "CSS class names for the elements the workspace renders within its root element:\n\n tabset: root element of a tabset (data-tabset)\n header: contains a tabset's tab list and toolbar (data-tabset-header)\n tabList: contains a tabset's tabs (data-tab-list)\n tab: passed to renderTab with the rest of a tab's props (data-tab)\n toolbar: contains the content returned by renderTabsetToolbar (data-tabset-toolbar)\n tabPanels: contains a tabset's tab content (data-tab-panels)\n tabContent: the element each tab's content is rendered into (data-tab-content)\n dropIndicator: shows where a dragged tab will be dropped within a tabset's panels (data-drop-indicator)\n dragPreview: follows the pointer while a tab is dragged (data-drag-preview)\n\n Elements expose their state as data attributes (e.g. data-tab-selected), which can be used for styling.\nElements within a tabset also have a data-tab-placement attribute (see tabPlacement).\n Like the render props, this object is part of what tabsets re-render for;\nin large workspaces, define it outside of the component (or memoize it) rather than inline."
+      },
+      {
+        "id": "disabled",
+        "title": "disabled",
+        "text": "Locks the arrangement: tabs cannot be resized, dragged, dropped, or closed by the user.\nSelecting tabs and maximizing tabsets still work.\n This prop overrides the disableClose and disableDrag flags of individual tabs."
+      },
+      {
+        "id": "disableDrop",
+        "title": "disableDrop",
+        "text": "Prevents tabs from being dropped onto some (or all) targets.\n Functions are called when the target under the pointer changes;\nreturning true rejects the target."
+      },
+      {
+        "id": "elementRef",
+        "title": "elementRef",
+        "text": "Ref attached to the root HTMLDivElement."
+      },
+      {
+        "id": "hiddenTabBehavior",
+        "title": "hiddenTabBehavior",
+        "text": "What happens to the content of tabs that are not selected.\nCan be a function to choose per tab (e.g. based on its data).\n \n \"keep-mounted\": content stays mounted (and its effects keep running)\n \"activity\": content stays mounted but is rendered within a hidden React <Activity> boundary, so its effects are unmounted;\nrequires React 19.2 (falls back to \"keep-mounted\" otherwise)\n \"unmount\": content is unmounted\n\n Moving a tab never remounts its content.\n Its React state is preserved, but its elements are moved within the document, which resets some browser state:\niframes are reloaded, playing media is paused, and focused elements are blurred."
+      },
+      {
+        "id": "id",
+        "title": "id",
+        "text": "Uniquely identifies this workspace within an application.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
+      },
+      {
+        "id": "onModelChanged",
+        "title": "onModelChanged",
+        "text": "Called after the model has changed (e.g. a tab was moved, selected, or closed, or a tabset was resized).\n For changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving models to some storage api."
+      },
+      {
+        "id": "renderDragPreview",
+        "title": "renderDragPreview",
+        "text": "Content of the element that follows the pointer while a tab is being dragged.\nDefaults to the tab's title (or id)."
+      },
+      {
+        "id": "renderEmptyTabset",
+        "title": "renderEmptyTabset",
+        "text": "Content shown in the panels of a tabset that has no tabs (e.g. \"Drag a tab here\"):\nthe root tabset of an empty workspace, or a tabset with the keepWhenEmpty flag."
+      },
+      {
+        "id": "renderSeparator",
+        "title": "renderSeparator",
+        "text": "Separator rendered between the children of a split.\nShould return a Separator (or null for no separator); defaults to an unstyled Separator."
+      },
+      {
+        "id": "renderTab",
+        "title": "renderTab",
+        "text": "Renders a tab (within its tabset's tab list).\nSpread props onto the returned element:\nthey make it a tab (its role and ARIA attributes, keyboard and pointer handling, and data attributes),\nand attach a ref that dragging and keyboard focus depend on.\n Individual props can be overridden or wrapped, e.g. to confirm before the Delete key closes a tab\n(call props.onKeyDown for other keys).\n Merge className and style rather than replacing them (e.g. style={{ ...props.style, padding: 4 }}):\nthey include the tab entries of the classNames and styles props, and style includes the touch-action that touch dragging depends on.\n Pointer and keyboard events from interactive descendants (button elements, role=\"button\", or elements with a data-tab-ignore attribute) are ignored,\nso clicking a button within a tab doesn't select or drag it.\n When this prop is not provided, tabs show their title (or id) followed by a TabCloseButton."
+      },
+      {
+        "id": "renderTabsetToolbar",
+        "title": "renderTabsetToolbar",
+        "text": "Content shown after a tabset's tab list (e.g. buttons to add a tab or maximize the tabset).\n The useParentTabset and useParentTabsetState hooks can be used within this content."
+      },
+      {
+        "id": "resizePreviewMode",
+        "title": "resizePreviewMode",
+        "text": "Controls whether pointer dragging updates sizes immediately,\nor renders overlay separator previews until the pointer is released."
+      },
+      {
+        "id": "serverRenderTabContent",
+        "title": "serverRenderTabContent",
+        "text": "Render the content of selected tabs on the server.\nCan be a function to choose per tab (e.g. based on its data).\n Tab content is rendered through portals (so that moving a tab doesn't remount it), which React can't render on the server.\nContent opted into server rendering is rendered inline instead, then moved into a portal once hydration has finished.\n That move remounts the content once (e.g. resetting its state and re-running its effects),\nso this is best suited to content that is cheap to mount and benefits from being in the server-rendered HTML.\n This prop has no effect for workspaces that are not server rendered."
+      },
+      {
+        "id": "style",
+        "title": "style",
+        "text": "CSS properties."
+      },
+      {
+        "id": "styles",
+        "title": "styles",
+        "text": "CSS properties for the elements the workspace renders within its root element (see classNames)."
+      },
+      {
+        "id": "tabPlacement",
+        "title": "tabPlacement",
+        "text": "Where tabs are placed relative to tab content.\n Tabs placed on the left or right are stacked (\"vertical\"):\nthis determines how a dropped tab's position is found and which arrow keys move focus between tabs.\n Elements within a tabset have a data-tab-placement attribute, which can be used for styling (e.g. rotating tabs on the left or right).\n Tabsets can override this with the tabPlacement field of their model node."
+      },
+      {
+        "id": "tabsetMinHeight",
+        "title": "tabsetMinHeight",
+        "text": "Minimum height of each tabset's content area (not including its header).\n Tabsets can override this with the minHeight field of their model node.\n Interpretation rules:\n\nStrings must specify a unit: \"px\", \"em\", \"rem\", \"vh\", or \"vw\" (e.g. tabsetMinHeight: \"200px\")\nPercentages (and strings without units) are not allowed"
+      },
+      {
+        "id": "tabsetMinWidth",
+        "title": "tabsetMinWidth",
+        "text": "Minimum width of each tabset's content area (not including its header).\n Tabsets can override this with the minWidth field of their model node.\n Interpretation rules:\n\nStrings must specify a unit: \"px\", \"em\", \"rem\", \"vh\", or \"vw\" (e.g. tabsetMinWidth: \"200px\")\nPercentages (and strings without units) are not allowed"
+      },
+      {
+        "id": "workspaceRef",
+        "title": "workspaceRef",
+        "text": "Exposes the imperative API (see WorkspaceImperativeHandle).\n The useWorkspaceRef and useWorkspaceCallbackRef hooks are exported for convenience use in TypeScript projects."
+      }
+    ],
+    "path": "/props/workspace",
+    "section": "Props",
+    "text": "A Workspace arranges tabsets that users can rearrange by dragging tabs:\nbetween tabsets, within a tabset's list of tabs, or onto the edge of a tabset to split it.\nTabsets can be resized and maximized.\n The layout is described by a serializable model (see WorkspaceModel).\nWorkspaces are uncontrolled: provide an initial model with the defaultModel prop, save changes from the onModelChanged callback,\nand make changes using the imperative API (see WorkspaceImperativeHandle).\n Tab content is not remounted when a tab is moved.\nIts elements are moved within the document, though, which resets some browser state (e.g. iframes are reloaded).\n Workspace elements always include the following attributes:\n Test id can be used to narrow selection when unit testing.",
+    "title": "Workspace component props"
   },
   {
     "path": "/support",

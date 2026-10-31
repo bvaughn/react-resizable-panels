@@ -1,5 +1,5 @@
-import { EventEmitter } from "../../utils/EventEmitter";
-import type { CaughtError } from "../../utils/CaughtError";
+import { EventEmitter } from "../../shared/utils/EventEmitter";
+import type { CaughtError } from "../../shared/utils/CaughtError";
 import type {
   Layout,
   RegisteredResizeAxis,

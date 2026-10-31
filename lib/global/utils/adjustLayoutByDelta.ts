@@ -1,8 +1,8 @@
-import { assert } from "../../utils/assert";
-import { isArrayEqual } from "../../utils/isArrayEqual";
+import { assert } from "../../shared/utils/assert";
+import { isArrayEqual } from "../../shared/utils/isArrayEqual";
 import type { Layout, ResizeItemConstraints } from "../types";
-import { compareLayoutNumbers } from "../utils/compareLayoutNumbers";
-import { layoutNumbersEqual } from "../utils/layoutNumbersEqual";
+import { compareLayoutNumbers } from "./compareLayoutNumbers";
+import { layoutNumbersEqual } from "./layoutNumbersEqual";
 import { validateItemSize } from "./validateItemSize";
 
 // All units must be in percentages; pixel values should be pre-converted

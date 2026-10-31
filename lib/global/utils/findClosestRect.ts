@@ -1,4 +1,4 @@
-import { assert } from "../../utils/assert";
+import { assert } from "../../shared/utils/assert";
 import type { Orientation } from "../types";
 import { getDistanceBetweenPointAndRect } from "./getDistanceBetweenPointAndRect";
 

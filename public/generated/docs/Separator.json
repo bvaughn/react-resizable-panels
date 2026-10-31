@@ -23,7 +23,7 @@
       "intent": "primary"
     }
   ],
-  "filePath": "lib/components/separator/Separator.tsx",
+  "filePath": "lib/flex/components/Separator.tsx",
   "name": "Separator",
   "props": {
     "className": {

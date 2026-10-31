@@ -7,11 +7,11 @@ import {
   vi,
   type Mock
 } from "vitest";
-import { setElementBounds } from "../../utils/test/mockBoundingClientRect";
+import { setElementBounds } from "../../shared/utils/test/mockBoundingClientRect";
 import {
   disableResizeObserverForCurrentTest,
   enableResizeObserverForCurrentTest
-} from "../../utils/test/mockResizeObserver";
+} from "../../shared/utils/test/mockResizeObserver";
 import { mountAxis } from "../mountAxis";
 import { subscribeToMountedAxis } from "../mutable-state/axes";
 import { mockGroup } from "../test/mockGroup";

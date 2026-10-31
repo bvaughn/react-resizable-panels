@@ -15,7 +15,7 @@ export default function UseParentPanelRoute() {
     <Box direction="column" gap={4}>
       <Header
         section="Hooks"
-        sourceCodePath="lib/components/panel/useParentPanel.ts"
+        sourceCodePath="lib/flex/hooks/useParentPanel.ts"
         title="useParentPanel"
       />
       <div>
@@ -27,12 +27,12 @@ export default function UseParentPanelRoute() {
       </div>
       <Code html={html} />
       <Callout intent="primary">
-        Returns <code>null</code> if the component isn&apos;t rendered within a
+        Returns <code>null</code> if the component isn't rendered within a
         Panel.
       </Callout>
       <Callout intent="primary">
-        The returned value doesn&apos;t change when the Panel is resized, so
-        this hook doesn&apos;t cause components to re-render.
+        The returned value doesn't change when the Panel is resized, so this
+        hook doesn't cause components to re-render.
       </Callout>
       <SectionHeader>Return value</SectionHeader>
       <HookSignature>
@@ -45,10 +45,10 @@ export default function UseParentPanelRoute() {
           }
         >
           <p>
-            The Panel&apos;s <code>id</code>, the <code>groupId</code> of the
-            Group that contains it, and its imperative API (
-            <code>collapse</code>, <code>expand</code>, <code>getSize</code>,{" "}
-            <code>isCollapsed</code>, and <code>resize</code>).
+            The Panel's <code>id</code>, the <code>groupId</code> of the Group
+            that contains it, and its imperative API (<code>collapse</code>,{" "}
+            <code>expand</code>, <code>getSize</code>, <code>isCollapsed</code>,
+            and <code>resize</code>).
           </p>
         </HookSignatureItem>
       </HookSignature>

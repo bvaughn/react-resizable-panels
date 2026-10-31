@@ -1,0 +1,26 @@
+import { useImperativeHandle, useRef, type Ref } from "react";
+import { IDENTITY_FUNCTION } from "../../constants";
+import { getImperativeAxisMethods } from "../../global/utils/getImperativeAxisMethods";
+import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
+import type { GroupImperativeHandle } from "../types";
+
+export function useGroupImperativeHandle(
+  groupId: string,
+  groupRef: Ref<GroupImperativeHandle> | undefined
+) {
+  const imperativeGroupRef = useRef<GroupImperativeHandle>({
+    getLayout: () => ({}),
+    setLayout: IDENTITY_FUNCTION
+  });
+
+  useImperativeHandle(groupRef, () => imperativeGroupRef.current, []);
+
+  useIsomorphicLayoutEffect(() => {
+    Object.assign(
+      imperativeGroupRef.current,
+      getImperativeAxisMethods({ axisId: groupId })
+    );
+  });
+
+  return imperativeGroupRef;
+}

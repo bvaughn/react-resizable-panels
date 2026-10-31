@@ -8,7 +8,7 @@
       "intent": "primary"
     }
   ],
-  "filePath": "lib/components/panel/types.ts",
+  "filePath": "lib/flex/types.ts",
   "methods": [
     {
       "description": [

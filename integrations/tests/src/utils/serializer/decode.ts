@@ -9,6 +9,7 @@ import type {
 } from "react-resizable-panels";
 import { Cell } from "../../components/Cell";
 import { Grid } from "../../components/Grid";
+import { Workspace } from "../../components/Workspace";
 import { Gridline } from "../../components/Gridline";
 import { Clickable } from "../../../src/components/Clickable";
 import { Container } from "../../../src/components/Container";
@@ -33,6 +34,7 @@ import type {
   EncodedPopupWindowElement,
   EncodedSeparatorElement,
   EncodedTextElement,
+  EncodedWorkspaceElement,
   TextProps
 } from "./types";
 import { IFrame } from "../../components/IFrame";
@@ -69,6 +71,10 @@ function decodeChildren(
       }
       case "Gridline": {
         elements.push(decodeGridline(current));
+        break;
+      }
+      case "Workspace": {
+        elements.push(decodeWorkspace(current));
         break;
       }
       case "Grid": {
@@ -265,6 +271,13 @@ function decodeSeparator(
 
 function decodeText(json: EncodedTextElement): ReactElement<TextProps> {
   return createElement("div", {
+    key: ++key,
+    ...json.props
+  });
+}
+
+function decodeWorkspace(json: EncodedWorkspaceElement) {
+  return createElement(Workspace, {
     key: ++key,
     ...json.props
   });

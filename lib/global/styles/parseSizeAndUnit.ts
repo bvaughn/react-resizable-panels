@@ -1,4 +1,4 @@
-import type { SizeUnit } from "../../components/panel/types";
+import type { SizeUnit } from "../../flex/types";
 
 export function parseSizeAndUnit(
   size: number | string

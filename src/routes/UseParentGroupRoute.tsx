@@ -15,7 +15,7 @@ export default function UseParentGroupRoute() {
     <Box direction="column" gap={4}>
       <Header
         section="Hooks"
-        sourceCodePath="lib/components/group/useParentGroup.ts"
+        sourceCodePath="lib/flex/hooks/useParentGroup.ts"
         title="useParentGroup"
       />
       <div>
@@ -27,12 +27,12 @@ export default function UseParentGroupRoute() {
       </div>
       <Code html={html} />
       <Callout intent="primary">
-        Returns <code>null</code> if the component isn&apos;t rendered within a
+        Returns <code>null</code> if the component isn't rendered within a
         Group.
       </Callout>
       <Callout intent="primary">
-        The returned value doesn&apos;t change when the Group&apos;s layout
-        changes, so this hook doesn&apos;t cause components to re-render.
+        The returned value doesn't change when the Group's layout changes, so
+        this hook doesn't cause components to re-render.
       </Callout>
       <SectionHeader>Return value</SectionHeader>
       <HookSignature>
@@ -45,9 +45,8 @@ export default function UseParentGroupRoute() {
           }
         >
           <p>
-            The Group&apos;s <code>id</code> and <code>orientation</code>, and
-            its imperative API (<code>getLayout</code> and{" "}
-            <code>setLayout</code>).
+            The Group's <code>id</code> and <code>orientation</code>, and its
+            imperative API (<code>getLayout</code> and <code>setLayout</code>).
           </p>
           <p>
             Within a Cell, this returns the nearest Group outside of the Grid

@@ -1,0 +1,72 @@
+{
+  "description": [
+    {
+      "content": "<p>Lays out its children side by side (horizontally) or stacked (vertically), with resizable separators between them.</p>\n"
+    }
+  ],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>Distinguishes splits from tabsets.</p>\n"
+        }
+      ],
+      "name": "type",
+      "optional": false,
+      "type": "\"split\""
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Uniquely identifies the split within the workspace.</p>\n"
+        },
+        {
+          "content": "<p>Optional in the <code>defaultModel</code> prop and the <code>setModel</code> method; splits without ids are assigned ids based on their position (e.g. &quot;split-root&quot;).</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "id",
+      "optional": false,
+      "type": "string"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Children are laid out side by side (&quot;horizontal&quot;) or stacked (&quot;vertical&quot;).</p>\n"
+        }
+      ],
+      "name": "orientation",
+      "optional": false,
+      "type": "Orientation"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Size of the split within its parent split.</p>\n"
+        },
+        {
+          "content": "<p>Interpretation rules:</p>\n<ul>\n<li>Numbers are percentages of the parent split (e.g. <code>size: 25</code> is 25 percent)</li>\n<li>Strings may specify other units (e.g. <code>size: &quot;250px&quot;</code>); strings without units are percentages</li>\n<li>Siblings without a size share the remaining space evenly</li>\n</ul>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>String sizes are only initial sizes: they're converted to percentages when the user resizes the split,\nand (like percentages) they scale with the workspace when it's resized.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "name": "size",
+      "optional": true,
+      "type": "number | string | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Tabsets and nested splits, in the order they are shown.</p>\n"
+        }
+      ],
+      "name": "children",
+      "optional": false,
+      "type": "WorkspaceNode<TabData, TabsetData>[]"
+    }
+  ],
+  "name": "SplitNode"
+}
