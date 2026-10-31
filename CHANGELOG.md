@@ -2,13 +2,15 @@
 
 ## 4.16.0
 
-- Add `Workspace` component, for layouts of tabsets that users can rearrange by dragging tabs: between tabsets, within a tabset's list of tabs, or onto the edge of a tabset to split it. Tabsets can also be resized and maximized. The layout is described by a serializable model, and tab content is not remounted when a tab is moved.
+- Add `Workspace` component, for layouts of tabsets that users can rearrange by dragging tabs: between tabsets, within a tabset's list of tabs, or onto the edge of a tabset to split it. Tabsets can also be resized and maximized. The layout is described by a serializable model, and tab content is not remounted when a tab is moved. - [#780](https://github.com/bvaughn/react-resizable-panels/pull/780)
   - Tabsets can be customized with the `renderTab`, `renderTabsetToolbar`, and `renderEmptyTabset` props (and the `TabCloseButton` component), and styled with the `classNames` and `styles` props.
   - Workspaces are uncontrolled (like `Group`); the `useWorkspaceRef` and `useWorkspaceCallbackRef` hooks return its imperative API.
   - Content within a workspace can use the `useParentWorkspace`, `useParentTabset`, `useParentTabsetState`, `useParentTab`, and `useParentTabState` hooks.
   - The content of tabs that aren't selected can stay mounted (default), be unmounted, or be rendered within a hidden React `<Activity>` (`hiddenTabBehavior`), and selected tabs' content can opt into server rendering (`serverRenderTabContent`).
   - Supports mouse, touch, and keyboard interaction.
-- Fix separators (and grid gridlines) moving farther or less far than the pointer when an ancestor has CSS `zoom` or a scale transform (e.g. twice as far within `zoom: 2`). Pointer movements are now converted from screen pixels to layout pixels before resizing.
+- Fix separators (and grid gridlines) moving farther or less far than the pointer when an ancestor has CSS `zoom` or a scale transform (e.g. twice as far within `zoom: 2`). Pointer movements are now converted from screen pixels to layout pixels before resizing. - [#780](https://github.com/bvaughn/react-resizable-panels/pull/780)
+- Fix separators staying in their "hover" state when the pointer moves onto an iframe within a `Group` rendered into another window (e.g. a popup). The iframe check no longer uses `instanceof HTMLIFrameElement`, which is false for iframes from another window. - [#778](https://github.com/bvaughn/react-resizable-panels/pull/778)
+- Fix the separator resize preview (`resizePreviewMode="separator"`) missing the separator's styles when its element was created by another window's document (e.g. by a popup's opener). - [#781](https://github.com/bvaughn/react-resizable-panels/pull/781)
 
 ## 4.15.3
 
