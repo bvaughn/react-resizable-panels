@@ -20,18 +20,15 @@ export function SeparatorClone({
     sources.forEach((source, index) => {
       const target = targets[index];
 
-      if (
-        target instanceof ownerWindow.HTMLElement ||
-        target instanceof ownerWindow.SVGElement
-      ) {
+      // HTML and SVG elements are detected by their inline styles rather than "instanceof",
+      // which is false for elements created by another window (e.g. a popup's opener), as are their clones
+      const { style } = target as Partial<ElementCSSInlineStyle>;
+      if (style) {
         const computed = ownerWindow.getComputedStyle(source);
 
         for (let index = 0; index < computed.length; index++) {
           const property = computed.item(index);
-          target.style.setProperty(
-            property,
-            computed.getPropertyValue(property)
-          );
+          style.setProperty(property, computed.getPropertyValue(property));
         }
       }
 

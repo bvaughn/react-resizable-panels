@@ -1,3 +1,4 @@
+import { isShadowRoot } from "../../shared/utils/isShadowRoot";
 import { findTabset } from "../models/findTabset";
 import type { TabDropTarget, WorkspaceModel } from "../types";
 import { getOwnElement } from "./getOwnElement";
@@ -17,7 +18,11 @@ export function getDropTarget({
   rootElement: HTMLElement;
   tabId: string;
 }): TabDropTarget | undefined {
-  const element = rootElement.ownerDocument.elementFromPoint(clientX, clientY);
+  // Hit test within the workspace's own root, since for a workspace in a shadow root the document only reports the shadow host
+  const root = rootElement.getRootNode();
+  const element = (
+    isShadowRoot(root) ? root : rootElement.ownerDocument
+  ).elementFromPoint(clientX, clientY);
   if (!element || !rootElement.contains(element)) {
     return undefined;
   }

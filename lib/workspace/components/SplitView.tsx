@@ -5,6 +5,7 @@ import { useGroupRef } from "../../flex/hooks/useGroupRef";
 import { getMountedAxisState } from "../../global/mutable-state/axes";
 import { calculateDefaultLayout } from "../../global/utils/calculateDefaultLayout";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
+import { isHTMLElement } from "../../shared/utils/isHTMLElement";
 import { useWorkspaceContext } from "../hooks/useWorkspaceContext";
 import { setSplitLayout } from "../models/setSplitLayout";
 import type { SplitNode } from "../types";
@@ -72,9 +73,9 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
       return;
     }
 
+    // Elements are detected without "instanceof", which is false for elements created by another window (e.g. a popup's opener)
     const isSeparator = (node: Node): node is Element =>
-      node instanceof ownerWindow.Element &&
-      node.hasAttribute("data-separator");
+      isHTMLElement(node) && node.hasAttribute("data-separator");
 
     const measure = () => {
       let total = 0;
@@ -82,11 +83,10 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
         if (isSeparator(child)) {
           // Measured in layout pixels, since minimum sizes are applied in layout pixels (see TabsetSlot);
           // other elements (e.g. SVG) have no layout size, so their client size is used instead
-          if (child instanceof ownerWindow.HTMLElement) {
+          if ("offsetWidth" in child) {
+            const { offsetHeight, offsetWidth } = child as HTMLElement;
             total +=
-              split.orientation === "horizontal"
-                ? child.offsetWidth
-                : child.offsetHeight;
+              split.orientation === "horizontal" ? offsetWidth : offsetHeight;
           } else {
             const rect = child.getBoundingClientRect();
             total +=

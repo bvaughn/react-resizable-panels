@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
+import { isHTMLElement } from "../../shared/utils/isHTMLElement";
 import type { Orientation } from "../../global/types";
 import { TabListContext } from "../contexts/TabListContext";
 import {
@@ -56,14 +57,15 @@ function TabListComponent({ children }: { children: ReactNode }) {
 
     const mutationObserver = window.MutationObserver
       ? new window.MutationObserver((records) => {
+          // Elements are detected without "instanceof", which is false for elements created by another window (e.g. a popup's opener)
           for (const record of records) {
             for (const node of record.addedNodes) {
-              if (node instanceof window.Element) {
+              if (isHTMLElement(node)) {
                 resizeObserver?.observe(node);
               }
             }
             for (const node of record.removedNodes) {
-              if (node instanceof window.Element) {
+              if (isHTMLElement(node)) {
                 resizeObserver?.unobserve(node);
               }
             }
