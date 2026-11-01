@@ -1111,7 +1111,7 @@
       {
         "id": "renderSeparator",
         "title": "renderSeparator",
-        "text": "Separator rendered between the children of a split.\nShould return a Separator (or null for no separator); defaults to an unstyled Separator."
+        "text": "Separator rendered between the children of a split.\nShould return a Separator (or null for no separator); defaults to an unstyled Separator.\n Without separators, tabsets can still be resized by dragging their edges (like Panels in a Group without separators),\nbut separators are recommended: they can be resized with the keyboard,\nand an edge's hit area can overlap the tabs beside it (pressing there resizes the tabset rather than dragging the tab)."
       },
       {
         "id": "renderTab",

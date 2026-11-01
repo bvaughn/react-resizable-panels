@@ -191,6 +191,10 @@
       "description": [
         {
           "content": "<p>Separator rendered between the children of a split.\nShould return a <code>Separator</code> (or <code>null</code> for no separator); defaults to an unstyled <code>Separator</code>.</p>\n"
+        },
+        {
+          "content": "<p>Without separators, tabsets can still be resized by dragging their edges (like Panels in a Group without separators),\nbut separators are recommended: they can be resized with the keyboard,\nand an edge's hit area can overlap the tabs beside it (pressing there resizes the tabset rather than dragging the tab).</p>\n",
+          "intent": "primary"
         }
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">renderSeparator</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">orientation</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">Orientation</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span><span class=\"tok-punctuation\">)</span></div>",

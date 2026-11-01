@@ -979,6 +979,9 @@ the root tabset of an empty workspace, or a tabset with the <code>keepWhenEmpty<
       <td>renderSeparator</td>
       <td><p>Separator rendered between the children of a split.
 Should return a <code>Separator</code> (or <code>null</code> for no separator); defaults to an unstyled <code>Separator</code>.</p>
+<p>ℹ️ Without separators, tabsets can still be resized by dragging their edges (like Panels in a Group without separators),
+but separators are recommended: they can be resized with the keyboard,
+and an edge&#39;s hit area can overlap the tabs beside it (pressing there resizes the tabset rather than dragging the tab).</p>
 </td>
     </tr>
     <tr>
