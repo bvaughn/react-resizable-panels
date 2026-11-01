@@ -5,6 +5,8 @@ import {
   useRef,
   useState
 } from "react";
+import { getInteractionState } from "../../global/mutable-state/interactions";
+import { isActivePointerEvent } from "../../global/utils/isActivePointerEvent";
 import { suppressNextClick } from "../../global/utils/suppressNextClick";
 import type {
   DragPoint,
@@ -51,6 +53,20 @@ export function useTabDrag({
     (tab: TabNode, event: ReactPointerEvent<HTMLElement>) => {
       const rootElement = getRootElement();
       if (!rootElement) {
+        return;
+      }
+
+      // Without separators, pressing near the edge of a tabset (e.g. on its tabs) may have started resizing it instead,
+      // since resizing handles "pointerdown" events first (during the capture phase); a press shouldn't do both
+      const interactionState = getInteractionState();
+      if (
+        interactionState.state === "active" &&
+        isActivePointerEvent(
+          interactionState,
+          event.currentTarget.ownerDocument,
+          event
+        )
+      ) {
         return;
       }
 

@@ -1,11 +1,4 @@
-import {
-  Box,
-  Callout,
-  Code,
-  ExternalLink,
-  Header,
-  SectionHeader
-} from "react-lib-tools";
+import { Box, Callout, Code, Header } from "react-lib-tools";
 import { html as BasicsHTML } from "../../public/generated/examples/WorkspaceBasics.json";
 import { html as ModelHTML } from "../../public/generated/examples/WorkspaceModel.json";
 import { WorkspaceDemo } from "../components/workspace/WorkspaceDemo";
@@ -21,7 +14,7 @@ export default function WorkspaceRoute() {
         tabset's list of tabs, or onto the edge of a tabset to split it. Tabsets
         can also be resized and maximized.
       </div>
-      <WorkspaceDemo />
+      <WorkspaceDemo defaultSeparators />
       <Callout intent="success">
         Tab content is never remounted when a tab is moved, so it keeps its
         state. Try incrementing the counter above and then dragging its tab
@@ -57,44 +50,14 @@ export default function WorkspaceRoute() {
         <Link to="/examples/workspace/styling">styling</Link> for how to render
         and style tabsets.
       </div>
-      <SectionHeader>Keyboard and accessibility</SectionHeader>
       <div>
-        Tabsets follow the{" "}
-        <ExternalLink href="https://www.w3.org/WAI/ARIA/apg/patterns/tabs/">
-          ARIA tabs pattern
-        </ExternalLink>
-        : each tab list has <code>role="tablist"</code>, each tab has{" "}
-        <code>role="tab"</code>, and each tab's content has{" "}
-        <code>role="tabpanel"</code>, linked to its tab. Only one tab per list
-        (normally the selected one) is in the page's tab order; within a list,
-        focus moves with the arrow keys:
+        The tabsets above are resized by dragging the space between them; see{" "}
+        <Link to="/examples/workspace/separators">
+          separators and accessibility
+        </Link>{" "}
+        for how to render visible separators, and how workspaces can be used
+        with the keyboard.
       </div>
-      <ul className="list-disc pl-6">
-        <li>
-          <kbd>←</kbd> and <kbd>→</kbd> (or <kbd>↑</kbd> and <kbd>↓</kbd> when
-          tabs are placed on the left or right) move focus to the previous or
-          next tab, wrapping at the ends
-        </li>
-        <li>
-          <kbd>Home</kbd> and <kbd>End</kbd> move focus to the first or last tab
-        </li>
-        <li>
-          <kbd>Enter</kbd> or <kbd>Space</kbd> selects the focused tab
-        </li>
-        <li>
-          <kbd>Delete</kbd> or <kbd>Backspace</kbd> closes the focused tab
-          (unless closing is disabled) and moves focus to its neighbor
-        </li>
-      </ul>
-      <Callout>
-        Tabs use manual activation: moving focus doesn't select a tab, so
-        arrowing past a tab doesn't mount its content. Separators between
-        tabsets can be resized with the keyboard like any other{" "}
-        <Link to="/props/separator">
-          <code>Separator</code>
-        </Link>
-        .
-      </Callout>
     </Box>
   );
 }
