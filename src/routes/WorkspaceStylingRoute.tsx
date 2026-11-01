@@ -30,6 +30,16 @@ export default function WorkspaceStylingRoute() {
           <Link to="/examples/workspace/tab-placement">tab placement</Link>).
         </li>
         <li>
+          Each split is a{" "}
+          <Link to="/props/group">
+            <code>Group</code>
+          </Link>{" "}
+          with <code>data-split</code> and <code>data-split-id</code>{" "}
+          attributes; its <code>gap</code> (set with the <code>split</code>{" "}
+          entry of <code>classNames</code> or <code>styles</code>) adds space
+          between tabsets, and counts toward their minimum sizes.
+        </li>
+        <li>
           Separators between tabsets are rendered by the{" "}
           <code>renderSeparator</code> prop, which should return a{" "}
           <Link to="/props/separator">

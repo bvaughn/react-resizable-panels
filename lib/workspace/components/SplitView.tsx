@@ -14,6 +14,7 @@ import { NodeView } from "./NodeView";
 
 function SplitViewComponent({ split }: { split: SplitNode }) {
   const {
+    classNames,
     disabled,
     id: workspaceId,
     minimumSizes,
@@ -21,6 +22,7 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
     reportSeparatorsSize,
     resizePreviewMode,
     splitGeneration,
+    styles,
     updateModel
   } = useWorkspaceContext("SplitView");
 
@@ -64,7 +66,7 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
     );
   }, [childIds, groupId, groupRef, layoutCheck, structureKey]);
 
-  // Separators count toward the split's minimum size;
+  // Separators (and gaps between the split's panels and separators, e.g. CSS "gap") count toward the split's minimum size;
   // they're observed, since they can change size (e.g. responsive styles) or be replaced (e.g. by a different renderSeparator)
   // without the split changing
   useIsomorphicLayoutEffect(() => {
@@ -79,8 +81,25 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
 
     const measure = () => {
       let total = 0;
+
+      // Gaps are only placed between the Group's panels and separators (e.g. not beside resize previews, which are positioned)
+      let itemCount = 0;
+      const computedStyle = ownerWindow.getComputedStyle(groupElement);
+      const gap =
+        parseFloat(
+          split.orientation === "horizontal"
+            ? computedStyle.columnGap
+            : computedStyle.rowGap
+        ) || 0;
+
       for (const child of groupElement.children) {
+        if (isHTMLElement(child) && child.hasAttribute("data-panel")) {
+          itemCount++;
+        }
+
         if (isSeparator(child)) {
+          itemCount++;
+
           // Measured in layout pixels, since minimum sizes are applied in layout pixels (see TabsetSlot);
           // other elements (e.g. SVG) have no layout size, so their client size is used instead
           if ("offsetWidth" in child) {
@@ -95,12 +114,16 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
         }
       }
 
+      total += gap * Math.max(0, itemCount - 1);
+
       reportSeparatorsSize(split.id, total);
     };
 
+    // The split itself is observed since responsive gaps generally change along with its size
     const resizeObserver = ownerWindow.ResizeObserver
       ? new ownerWindow.ResizeObserver(measure)
       : null;
+    resizeObserver?.observe(groupElement);
     for (const child of groupElement.children) {
       if (isSeparator(child)) {
         resizeObserver?.observe(child);
@@ -134,10 +157,20 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
       resizeObserver?.disconnect();
       mutationObserver?.disconnect();
     };
-  }, [groupElement, reportSeparatorsSize, split.id, split.orientation]);
+  }, [
+    classNames?.split,
+    groupElement,
+    reportSeparatorsSize,
+    split.id,
+    split.orientation,
+    styles?.split
+  ]);
 
   return (
     <Group
+      className={classNames?.split}
+      data-split=""
+      data-split-id={split.id}
       disabled={disabled}
       elementRef={setGroupElement}
       groupRef={groupRef}
@@ -153,6 +186,7 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
       }}
       orientation={split.orientation}
       resizePreviewMode={resizePreviewMode}
+      style={styles?.split}
     >
       {split.children.map((child, index) => {
         const minimumSize = minimumSizes.get(child.id);

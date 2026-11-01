@@ -842,6 +842,12 @@ export type WorkspaceClassNames = {
   dragPreview?: string | undefined;
   dropIndicator?: string | undefined;
   header?: string | undefined;
+  /**
+   * Each split (a Group with `data-split` and `data-split-id` attributes); for example, its `gap` adds space between tabsets.
+   *
+   * ℹ️ Gaps count toward the split's minimum size, like its separators.
+   */
+  split?: string | undefined;
   tab?: string | undefined;
   tabContent?: string | undefined;
   tabList?: string | undefined;
