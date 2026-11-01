@@ -2,7 +2,8 @@
 
 ## 4.16.1
 
-- Fix dragging a `Workspace` separator ending after moving a few pixels (most often when resizing tabsets stacked vertically, or tabsets with tabs on the left or right). The size of each tabset's header, which counts toward its minimum size, could change by a pixel as the tabset was resized, because it was measured as the difference of two rounded sizes; that re-registered the tabset's panel, which interrupted the drag. It is now measured from exact sizes.
+- Add a `split` entry to the `Workspace` `classNames` and `styles` props, for each split's `Group` (which now also has `data-split` and `data-split-id` attributes). Its CSS `gap` adds space between tabsets, and counts toward their minimum sizes like separators do. - [#783](https://github.com/bvaughn/react-resizable-panels/pull/783)
+- Fix dragging a `Workspace` separator ending after moving a few pixels (most often when resizing tabsets stacked vertically, or tabsets with tabs on the left or right). The size of each tabset's header, which counts toward its minimum size, could change by a pixel as the tabset was resized, because it was measured as the difference of two rounded sizes; that re-registered the tabset's panel, which interrupted the drag. It is now measured from exact sizes. - [#782](https://github.com/bvaughn/react-resizable-panels/pull/782)
 
 ## 4.16.0
 

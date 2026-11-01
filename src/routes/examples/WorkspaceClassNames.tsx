@@ -8,6 +8,7 @@ declare const initialModel: WorkspaceModel<{ path: string }>;
 /* prettier-ignore */
 <Workspace
   classNames={{
+    split: "split",
     tabset: "tabset",
     header: "tabset-header",
     tabList: "tab-list",
@@ -18,6 +19,7 @@ declare const initialModel: WorkspaceModel<{ path: string }>;
   defaultModel={initialModel}
   renderTabContent={(tab) => <Editor path={tab.data.path} />}
   styles={{
+    split: { gap: 4 },
     tabContent: { height: "100%", overflow: "auto" }
   }}
 />;

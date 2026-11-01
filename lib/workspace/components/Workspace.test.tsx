@@ -22,6 +22,7 @@ import { useParentTabset } from "../hooks/useParentTabset";
 import { useParentTabsetState } from "../hooks/useParentTabsetState";
 import { useParentTabState } from "../hooks/useParentTabState";
 import { useParentWorkspace } from "../hooks/useParentWorkspace";
+import { getRegisteredAxis } from "../../global/mutable-state/axes";
 import { Workspace } from "./Workspace";
 
 type TabData = { label: string };
@@ -461,6 +462,79 @@ describe("Workspace", () => {
         workspaceRef.current!.closeTabset("right");
       });
       expect(screen.getByTestId("is-root-left")).toHaveTextContent("true");
+    });
+
+    test("classNames and styles apply to splits", () => {
+      const { container } = renderWorkspace({
+        classNames: { split: "custom-split" },
+        styles: { split: { columnGap: "4px" } }
+      });
+
+      const split = container.querySelector<HTMLElement>("[data-split]")!;
+      expect(split).toHaveAttribute("data-split-id", "root");
+      expect(split).toHaveAttribute("data-group");
+      expect(split).toHaveClass("custom-split");
+      expect(split.style.columnGap).toBe("4px");
+    });
+
+    test("gaps between tabsets count toward minimum sizes", () => {
+      const defaultModel: WorkspaceModel<TabData> = {
+        root: {
+          children: [
+            { id: "a", tabs: [tab("1")], type: "tabset" },
+            {
+              children: [
+                { id: "b", tabs: [tab("2")], type: "tabset" },
+                {
+                  children: [
+                    { id: "c", tabs: [tab("3")], type: "tabset" },
+                    { id: "d", tabs: [tab("4")], type: "tabset" }
+                  ],
+                  id: "inner",
+                  orientation: "horizontal",
+                  type: "split"
+                }
+              ],
+              id: "middle",
+              orientation: "vertical",
+              type: "split"
+            }
+          ],
+          id: "root",
+          orientation: "horizontal",
+          type: "split"
+        },
+        version: 1
+      };
+      const getMiddleMinSize = () =>
+        getRegisteredAxis("workspace-root", true).items.find(
+          ({ id }) => id === "middle"
+        )?.constraintProps.minSize;
+
+      const { rerender } = render(
+        <Workspace<TabData>
+          defaultModel={defaultModel}
+          id="workspace"
+          renderTabContent={(tab) => <Content tab={tab} />}
+          tabsetMinWidth="100px"
+        />
+      );
+
+      // Two 100px tabsets, side by side
+      expect(getMiddleMinSize()).toBe(200);
+
+      rerender(
+        <Workspace<TabData>
+          defaultModel={defaultModel}
+          id="workspace"
+          renderTabContent={(tab) => <Content tab={tab} />}
+          styles={{ split: { columnGap: "10px" } }}
+          tabsetMinWidth="100px"
+        />
+      );
+
+      // Plus gaps on either side of the separator between them
+      expect(getMiddleMinSize()).toBe(220);
     });
 
     test("renderSeparator can return null for no separators", () => {

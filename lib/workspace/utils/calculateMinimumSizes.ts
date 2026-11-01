@@ -4,7 +4,7 @@ import type { MinimumSize, TabsetNode, WorkspaceNode } from "../types";
  * Calculates the minimum size (in pixels) of every node in the tree.
  *
  * A tabset's minimum is the minimum size of its content area plus its "chrome" (its header).
- * A split's minimum is the sum of its children's minimums (plus separators) in its own direction, and the largest of them in the other direction.
+ * A split's minimum is the sum of its children's minimums (plus separators and gaps) in its own direction, and the largest of them in the other direction.
  */
 export function calculateMinimumSizes(
   root: WorkspaceNode,
