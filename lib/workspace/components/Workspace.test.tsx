@@ -23,6 +23,7 @@ import { useParentTabsetState } from "../hooks/useParentTabsetState";
 import { useParentTabState } from "../hooks/useParentTabState";
 import { useParentWorkspace } from "../hooks/useParentWorkspace";
 import { getRegisteredAxis } from "../../global/mutable-state/axes";
+import { updateInteractionState } from "../../global/mutable-state/interactions";
 import { Workspace } from "./Workspace";
 
 type TabData = { label: string };
@@ -464,6 +465,32 @@ describe("Workspace", () => {
       expect(screen.getByTestId("is-root-left")).toHaveTextContent("true");
     });
 
+    test("element ids are unique within the page, even with the same model in two workspaces", () => {
+      const { container } = render(
+        <>
+          <Workspace<TabData>
+            defaultModel={createModel()}
+            renderTabContent={(tab) => <Content tab={tab} />}
+          />
+          <Workspace<TabData>
+            defaultModel={createModel()}
+            renderTabContent={(tab) => <Content tab={tab} />}
+          />
+        </>
+      );
+
+      const ids = Array.from(
+        container.querySelectorAll("[id]"),
+        ({ id }) => id
+      );
+      expect(new Set(ids).size).toBe(ids.length);
+
+      // Node ids (e.g. "root") aren't used as element ids, since they could match the page's own (e.g. <div id="root">)
+      for (const nodeId of ["root", "left", "right"]) {
+        expect(ids).not.toContain(nodeId);
+      }
+    });
+
     test("classNames and styles apply to splits", () => {
       const { container } = renderWorkspace({
         classNames: { split: "custom-split" },
@@ -508,7 +535,7 @@ describe("Workspace", () => {
       };
       const getMiddleMinSize = () =>
         getRegisteredAxis("workspace-root", true).items.find(
-          ({ id }) => id === "middle"
+          ({ id }) => id === "workspace:middle"
         )?.constraintProps.minSize;
 
       const { rerender } = render(
@@ -1231,14 +1258,16 @@ describe("Workspace", () => {
       delete document.elementFromPoint;
     });
 
+    // Pointers are pressed away from the origin: jsdom has no layout, so every edge between tabsets is at (0, 0),
+    // and pressing there would start resizing rather than dragging a tab
     async function drag(from: HTMLElement, to: HTMLElement) {
       await userEvent.pointer([
         {
-          coords: { clientX: 0, clientY: 0 },
+          coords: { clientX: 100, clientY: 100 },
           keys: "[MouseLeft>]",
           target: from
         },
-        { coords: { clientX: 50, clientY: 50 }, target: to },
+        { coords: { clientX: 150, clientY: 150 }, target: to },
         { keys: "[/MouseLeft]", target: to }
       ]);
     }
@@ -1265,6 +1294,41 @@ describe("Workspace", () => {
       });
     });
 
+    test("a press that starts resizing (e.g. at the edge of a tabset without separators) doesn't also drag a tab", async () => {
+      const { container, onModelChanged } = renderWorkspace({
+        renderSeparator: () => null
+      });
+
+      // Resizing handles "pointerdown" events first (during the capture phase); jsdom has no layout, so this simulates a press on an edge
+      const startResize = (event: PointerEvent) =>
+        updateInteractionState({
+          cursorFlags: 0,
+          didPointerMove: false,
+          hitRegions: [],
+          initialLayoutMap: new Map(),
+          ownerDocument: document,
+          pointerDownAtPoint: { x: event.clientX, y: event.clientY },
+          pointerId: event.pointerId,
+          pointerType: event.pointerType,
+          previewLayoutMap: new Map(),
+          previews: [],
+          state: "active"
+        });
+      document.addEventListener("pointerdown", startResize, true);
+
+      try {
+        await drag(getTab("2"), getPanels(container, "right"));
+      } finally {
+        document.removeEventListener("pointerdown", startResize, true);
+        updateInteractionState({ cursorFlags: 0, state: "inactive" });
+      }
+
+      expect(
+        container.querySelector('[data-tabset-id="left"]')
+      ).toContainElement(getTab("2"));
+      expect(onModelChanged).not.toHaveBeenCalled();
+    });
+
     test("disableDrop rejects targets", async () => {
       const disableDrop = vi.fn(() => true);
       const { container, onModelChanged } = renderWorkspace({ disableDrop });
@@ -1285,12 +1349,12 @@ describe("Workspace", () => {
       const user = userEvent.setup();
       await user.pointer([
         {
-          coords: { clientX: 0, clientY: 0 },
+          coords: { clientX: 100, clientY: 100 },
           keys: "[MouseLeft>]",
           target: tabElement
         },
         {
-          coords: { clientX: 50, clientY: 50 },
+          coords: { clientX: 150, clientY: 150 },
           target: getPanels(container, "right")
         }
       ]);
@@ -1352,12 +1416,12 @@ describe("Workspace", () => {
 
         await user.pointer([
           {
-            coords: { clientX: 0, clientY: 0 },
+            coords: { clientX: 100, clientY: 100 },
             keys: "[TouchA>]",
             target: getTab("One")
           },
           {
-            coords: { clientX: 50, clientY: 50 },
+            coords: { clientX: 150, clientY: 150 },
             pointerName: "TouchA",
             target: panels
           },

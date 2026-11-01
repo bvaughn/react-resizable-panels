@@ -701,6 +701,10 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
   /**
    * Separator rendered between the children of a split.
    * Should return a `Separator` (or `null` for no separator); defaults to an unstyled `Separator`.
+   *
+   * ℹ️ Without separators, tabsets can still be resized by dragging their edges (like Panels in a Group without separators),
+   * but separators are recommended: they can be resized with the keyboard,
+   * and an edge's hit area can overlap the tabs beside it (pressing there resizes the tabset rather than dragging the tab).
    */
   renderSeparator?: ((orientation: Orientation) => ReactNode) | undefined;
 

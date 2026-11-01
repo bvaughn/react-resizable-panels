@@ -44,8 +44,9 @@ export default function WorkspaceStylingRoute() {
           <code>renderSeparator</code> prop, which should return a{" "}
           <Link to="/props/separator">
             <code>Separator</code>
-          </Link>
-          .
+          </Link>{" "}
+          (or <code>null</code>, in which case tabsets can still be resized by
+          dragging their edges).
         </li>
         <li>
           The content of the element that follows the pointer while a tab is

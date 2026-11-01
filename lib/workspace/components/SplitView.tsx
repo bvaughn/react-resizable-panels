@@ -3,6 +3,7 @@ import { Panel } from "../../flex/components/Panel";
 import { Separator } from "../../flex/components/Separator";
 import { useGroupRef } from "../../flex/hooks/useGroupRef";
 import { getMountedAxisState } from "../../global/mutable-state/axes";
+import type { Layout } from "../../global/types";
 import { calculateDefaultLayout } from "../../global/utils/calculateDefaultLayout";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
 import { isHTMLElement } from "../../shared/utils/isHTMLElement";
@@ -26,13 +27,16 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
     updateModel
   } = useWorkspaceContext("SplitView");
 
-  // Group ids must be unique within the page (not just the workspace)
+  // Group and Panel ids are rendered as element ids, so they must be unique within the page (not just the workspace);
+  // Panel ids use a different separator so that they can't match the id of a nested split's Group
   const groupId = `${workspaceId}-${split.id}`;
+  const getPanelId = (nodeId: string) => `${workspaceId}:${nodeId}`;
   const groupRef = useGroupRef();
 
   const [groupElement, setGroupElement] = useState<HTMLDivElement | null>(null);
 
   const childIds = split.children.map(({ id }) => id).join();
+  const panelIds = split.children.map(({ id }) => getPanelId(id)).join();
 
   // The Group is uncontrolled, so the model's sizes are applied to it when its children change (or the model is replaced);
   // it isn't remounted, so that its descendants (e.g. tabsets) aren't either.
@@ -52,7 +56,7 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
       !axisState ||
       axisState.defaultLayoutDeferred ||
       axisState.derivedItemConstraints.map(({ itemId }) => itemId).join() !==
-        childIds
+        panelIds
     ) {
       // Not registered (or not visible) yet
       return;
@@ -64,7 +68,7 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
     groupRef.current?.setLayout(
       calculateDefaultLayout(axisState.derivedItemConstraints)
     );
-  }, [childIds, groupId, groupRef, layoutCheck, structureKey]);
+  }, [groupId, groupRef, layoutCheck, panelIds, structureKey]);
 
   // Separators (and gaps between the split's panels and separators, e.g. CSS "gap") count toward the split's minimum size;
   // they're observed, since they can change size (e.g. responsive styles) or be replaced (e.g. by a different renderSeparator)
@@ -177,8 +181,18 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
       id={groupId}
       onLayoutChanged={(layout, { isUserInteraction, requestedLayout }) => {
         if (isUserInteraction) {
+          // The Group's layout is keyed by Panel id; the model's is keyed by node id
+          const panelLayout = requestedLayout ?? layout;
+          const nodeLayout: Layout = {};
+          for (const { id } of split.children) {
+            const size = panelLayout[getPanelId(id)];
+            if (size !== undefined) {
+              nodeLayout[id] = size;
+            }
+          }
+
           updateModel("resize", true, (prev) =>
-            setSplitLayout(prev, split.id, requestedLayout ?? layout)
+            setSplitLayout(prev, split.id, nodeLayout)
           );
         } else if (appliedStructureKeyRef.current !== structureKey) {
           requestLayoutCheck((count) => count + 1);
@@ -207,7 +221,7 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
               defaultSize={
                 typeof child.size === "number" ? `${child.size}%` : child.size
               }
-              id={child.id}
+              id={getPanelId(child.id)}
               minSize={minSize ? minSize : undefined}
             >
               <NodeView node={child} />

@@ -64,6 +64,9 @@ export const routes = {
   "/examples/workspace/restrictions": lazy(
     () => import("./routes/WorkspaceRestrictionsRoute")
   ),
+  "/examples/workspace/separators": lazy(
+    () => import("./routes/WorkspaceSeparatorsRoute")
+  ),
   "/examples/workspace/server-rendering": lazy(
     () => import("./routes/WorkspaceServerRenderingRoute")
   ),

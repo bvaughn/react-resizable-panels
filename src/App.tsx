@@ -185,6 +185,10 @@ const nav: NavConfig<Path | DefaultPath> = [
         title: "Guides",
         links: [
           { path: "/examples/workspace", title: "The basics" },
+          {
+            path: "/examples/workspace/separators",
+            title: "Separators and accessibility"
+          },
           { path: "/examples/workspace/tab-content", title: "Tab content" },
           {
             path: "/examples/workspace/managing-tabs",

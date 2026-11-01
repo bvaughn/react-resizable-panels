@@ -61,10 +61,20 @@ function saveModel(storageKey: string, model: WorkspaceModel<DemoTab>) {
 }
 
 /**
- * The workspace on the basics page; its layout can be reset (but isn't saved).
+ * The workspaces on the basics page; their layouts can be reset (but aren't saved).
  */
-export function WorkspaceDemo() {
-  return <DemoWorkspace defaultModel={initialModel} showResetButton />;
+export function WorkspaceDemo({
+  defaultSeparators = false
+}: {
+  defaultSeparators?: boolean;
+}) {
+  return (
+    <DemoWorkspace
+      defaultModel={initialModel}
+      defaultSeparators={defaultSeparators}
+      showResetButton
+    />
+  );
 }
 
 /**
@@ -75,6 +85,7 @@ export function DemoWorkspace({
   canCloseTabset,
   className,
   defaultModel,
+  defaultSeparators = false,
   showResetButton = false,
   storageKey,
   tabPlacement = "top",
@@ -91,6 +102,8 @@ export function DemoWorkspace({
   canAddTabs?: (tabset: TabsetNode<DemoTab>) => boolean;
   canCloseTabset?: (tabset: TabsetNode<DemoTab>) => boolean;
   defaultModel: WorkspaceModel<DemoTab>;
+  // Use the Workspace's default (unstyled) separators, rather than the docs' styled ones
+  defaultSeparators?: boolean;
   showResetButton?: boolean;
   storageKey?: string;
   tabPlacement?: TabPlacement;
@@ -109,10 +122,12 @@ export function DemoWorkspace({
           "[&>[data-workspace-layout][inert]]:invisible",
           className
         )}
-        classNames={CLASS_NAMES}
+        classNames={
+          defaultSeparators ? CLASS_NAMES_DEFAULT_SEPARATORS : CLASS_NAMES
+        }
         defaultModel={savedModel ?? defaultModel}
         renderEmptyTabset={renderEmptyTabset}
-        renderSeparator={renderSeparator}
+        renderSeparator={defaultSeparators ? undefined : renderSeparator}
         renderTab={renderTab}
         renderTabContent={renderTabContent}
         renderTabsetToolbar={(tabset) => (
@@ -205,6 +220,13 @@ const CLASS_NAMES: WorkspaceClassNames = {
     "flex flex-col tabs-vertical:flex-row h-full w-full bg-ink/8 rounded-md overflow-hidden",
   toolbar:
     "flex tabs-vertical:flex-col tabs-vertical:items-center tabs-vertical:py-1"
+};
+
+// The default separators take up no space, so a gap on either side of one would look like two gaps;
+// half as much gap leaves the same space between tabsets as there is on either side of a visible separator
+const CLASS_NAMES_DEFAULT_SEPARATORS: WorkspaceClassNames = {
+  ...CLASS_NAMES,
+  split: "gap-1 sm:gap-0.5"
 };
 
 function renderEmptyTabset() {
@@ -325,13 +347,9 @@ function renderTabContent(tab: TabNode<DemoTab>) {
     case "nested":
       return (
         <Group className="h-full p-2">
-          <Panel id="left" minSize={40}>
-            left
-          </Panel>
+          <Panel minSize={40}>left</Panel>
           <StyledSeparator />
-          <Panel id="right" minSize={40}>
-            right
-          </Panel>
+          <Panel minSize={40}>right</Panel>
         </Group>
       );
     case "notes":

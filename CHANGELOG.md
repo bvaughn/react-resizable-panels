@@ -4,6 +4,8 @@
 
 - Add a `split` entry to the `Workspace` `classNames` and `styles` props, for each split's `Group` (which now also has `data-split` and `data-split-id` attributes). Its CSS `gap` adds space between tabsets, and counts toward their minimum sizes like separators do. - [#783](https://github.com/bvaughn/react-resizable-panels/pull/783)
 - Fix dragging a `Workspace` separator ending after moving a few pixels (most often when resizing tabsets stacked vertically, or tabsets with tabs on the left or right). The size of each tabset's header, which counts toward its minimum size, could change by a pixel as the tabset was resized, because it was measured as the difference of two rounded sizes; that re-registered the tabset's panel, which interrupted the drag. It is now measured from exact sizes. - [#782](https://github.com/bvaughn/react-resizable-panels/pull/782)
+- Fix `Workspace` tabsets and splits rendering their model node ids as element ids, which could match other elements on the page (e.g. a tabset with the id `"root"` matched an application's `<div id="root">`, and its styles) or the elements of another workspace with the same model. Their elements' ids are now unique within the page. - [#784](https://github.com/bvaughn/react-resizable-panels/pull/784)
+- Fix pressing a tab at the edge of a tabset, in a `Workspace` without separators, both resizing the tabset and dragging the tab. Resizing takes priority, as it does for other elements at the edges of panels. - [#784](https://github.com/bvaughn/react-resizable-panels/pull/784)
 
 ## 4.16.0
 
