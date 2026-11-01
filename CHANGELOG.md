@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.16.1
+
+- Fix dragging a `Workspace` separator ending after moving a few pixels (most often when resizing tabsets stacked vertically, or tabsets with tabs on the left or right). The size of each tabset's header, which counts toward its minimum size, could change by a pixel as the tabset was resized, because it was measured as the difference of two rounded sizes; that re-registered the tabset's panel, which interrupted the drag. It is now measured from exact sizes.
+
 ## 4.16.0
 
 - Add `Workspace` component, for layouts of tabsets that users can rearrange by dragging tabs: between tabsets, within a tabset's list of tabs, or onto the edge of a tabset to split it. Tabsets can also be resized and maximized. The layout is described by a serializable model, and tab content is not remounted when a tab is moved. - [#780](https://github.com/bvaughn/react-resizable-panels/pull/780)

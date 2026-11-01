@@ -9,6 +9,7 @@ import { TabsetContext } from "../contexts/TabsetContext";
 import type { TabsetContextType } from "../contexts/TabsetContext";
 import { useWorkspaceContext } from "../hooks/useWorkspaceContext";
 import type { TabsetNode } from "../types";
+import { measureChromeSize } from "../utils/measureChromeSize";
 import { useMemo, useState } from "react";
 
 function TabsetSlotComponent({
@@ -36,19 +37,11 @@ function TabsetSlotComponent({
       return;
     }
 
-    // Measured in layout pixels (rather than with getBoundingClientRect) since minimum sizes are applied in layout pixels,
-    // which differ from client pixels when an ancestor has CSS zoom or a scale transform
     const measure = () => {
-      reportChromeSize(tabset.id, {
-        height: Math.max(
-          0,
-          tabsetElement.offsetHeight - panelsElement.offsetHeight
-        ),
-        width: Math.max(
-          0,
-          tabsetElement.offsetWidth - panelsElement.offsetWidth
-        )
-      });
+      reportChromeSize(
+        tabset.id,
+        measureChromeSize(tabsetElement, panelsElement)
+      );
     };
 
     measure();
