@@ -719,15 +719,20 @@ test.describe("Workspace", () => {
       );
       await expect.poll(() => getCollapsedIds(page)).toEqual(["a", "b"]);
 
-      // Dragging the separator beside "a" opens it again (taking the space from "c"), before the pointer is released
+      // Dragging the separator beside "a" opens it again (taking the space from "c"), before the pointer is released;
+      // only to just past its minimum size, so that "c" isn't squeezed to its collapsed size too
+      // (collapsed tabsets are as wide as their tabs, which depends on the platform's fonts)
       const separator = (await page
         .locator("[data-separator]")
         .first()
         .boundingBox())!;
+      const aLeft = (await getTabset(page, "a").boundingBox())!.x;
       const y = separator.y + separator.height / 2;
       await page.mouse.move(separator.x + separator.width / 2, y);
       await page.mouse.down();
-      await page.mouse.move(separator.x + 200, y, { steps: 10 });
+      await page.mouse.move(aLeft + 200 + separator.width / 2, y, {
+        steps: 10
+      });
       await expect(getTabset(page, "a")).not.toHaveAttribute(
         "data-tabset-collapsed"
       );
