@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.17.0
+
+- Add dragging whole tabsets within a `Workspace`. A tabset is dragged by the empty space in its header, or by a `TabsetDragHandle` (or any element with a `data-tabset-drag-handle` attribute) when it has one. Dropping a tabset onto the edge of another tabset moves it there; dropping it onto another tabset's center or tab list moves its tabs into that tabset. Tabsets with the `keepWhenEmpty` flag can only be moved, not merged. Tabsets can't be dragged when they have the new `disableDrag` flag or contain a tab that does. - [#785](https://github.com/bvaughn/react-resizable-panels/issues/785)
+  - The new `moveTabset` imperative method, `renderTabsetDragPreview` prop, and `isDragDisabled` value (returned by `useParentTabsetState`) support tabset dragging. A tabset being dragged has a `data-tabset-dragging` attribute, and the drag preview has a `data-drag-type` attribute (`"tab"` or `"tabset"`).
+  - `disableDrop` is called for each tab in a dragged tabset, with the target each tab would be dropped at, so existing restrictions apply to tabset drags too. The new `tabset` argument is set while a whole tabset is dragged.
+- Add collapsible tabsets to `Workspace`. A tabset with the new `collapsible` flag can be collapsed to just its header (e.g. a bottom panel, or a sidebar that collapses to a vertical strip of tabs), by dragging a separator past its minimum size (like a collapsible `Panel`) or with the new `collapseTabset` and `expandTabset` methods; clicking a tab in a collapsed tabset expands it. Whether a tabset is collapsed is saved in the model (`collapsed`), and its `size` is the size it expands to. - [#787](https://github.com/bvaughn/react-resizable-panels/issues/787)
+  - `useParentTabset` returns `collapse`, `expand`, and `isCollapsed` functions, and `useParentTabsetState` returns `isCollapsed` and `isCollapsible` values (e.g. for a collapse button in a tabset's toolbar). Elements within a collapsed tabset have a `data-tabset-collapsed` attribute.
+  - `onModelChanged` reports the new `"collapse"` and `"expand"` reasons.
+- Add the `Workspace` `tabRemovalSelectionBehavior` prop, which chooses the tab that's selected when the selected tab is closed (or dragged to another tabset): the tab after it (`"adjacent"`, the default), or the tabset's most recently selected tab (`"recent"`, like an IDE's editor groups). In `"recent"` mode, each tabset's recently selected tabs are saved in the model (`TabsetNode.recentTabIds`). - [#786](https://github.com/bvaughn/react-resizable-panels/issues/786)
+
+> [!WARNING]
+> The `tab` argument passed to `disableDrop` may now be `undefined`, when a tabset without tabs (one with the `keepWhenEmpty` flag) is dragged. Functions that read `tab` (e.g. `tab.data`) should check for this first.
+
 ## 4.16.1
 
 - Add a `split` entry to the `Workspace` `classNames` and `styles` props, for each split's `Group` (which now also has `data-split` and `data-split-id` attributes). Its CSS `gap` adds space between tabsets, and counts toward their minimum sizes like separators do. - [#783](https://github.com/bvaughn/react-resizable-panels/pull/783)

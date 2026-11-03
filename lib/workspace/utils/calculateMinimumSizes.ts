@@ -4,16 +4,21 @@ import type { MinimumSize, TabsetNode, WorkspaceNode } from "../types";
  * Calculates the minimum size (in pixels) of every node in the tree.
  *
  * A tabset's minimum is the minimum size of its content area plus its "chrome" (its header).
- * A split's minimum is the sum of its children's minimums (plus separators and gaps) in its own direction, and the largest of them in the other direction.
+ * A split's minimum is the sum of its children's minimums (plus separators and gaps) in its own direction, and the largest of them in the other direction;
+ * a collapsed tabset only counts its collapsed size (its header) in its split's direction.
+ *
+ * ℹ️ A collapsed tabset's own minimum is the minimum it expands to (which collapsible Panels use to decide when to collapse and expand).
  */
 export function calculateMinimumSizes(
   root: WorkspaceNode,
   {
     getChromeSize,
+    getCollapsedSize,
     getContentMinimumSize,
     getSeparatorsSize
   }: {
     getChromeSize: (tabsetId: string) => MinimumSize | undefined;
+    getCollapsedSize: (tabsetId: string) => number | undefined;
     getContentMinimumSize: (tabset: TabsetNode) => MinimumSize;
     getSeparatorsSize: (splitId: string) => number | undefined;
   }
@@ -32,7 +37,17 @@ export function calculateMinimumSizes(
         width: content.width + chrome.width
       };
     } else {
-      const children = node.children.map(visit);
+      const children = node.children.map((child) => {
+        const size = visit(child);
+        if (child.type !== "tabset" || !child.collapsed) {
+          return size;
+        }
+
+        const collapsedSize = getCollapsedSize(child.id) ?? 0;
+        return node.orientation === "horizontal"
+          ? { height: 0, width: collapsedSize }
+          : { height: collapsedSize, width: 0 };
+      });
       const separators = getSeparatorsSize(node.id) ?? 0;
 
       const sum = (key: keyof MinimumSize) =>

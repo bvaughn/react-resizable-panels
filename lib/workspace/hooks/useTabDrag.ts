@@ -10,19 +10,19 @@ import { isActivePointerEvent } from "../../global/utils/isActivePointerEvent";
 import { suppressNextClick } from "../../global/utils/suppressNextClick";
 import type {
   DragPoint,
+  DragSource,
   TabDropTarget,
-  TabNode,
   WorkspaceModel
 } from "../types";
 import { positionPreview } from "../utils/positionPreview";
 import { getDropTarget } from "../utils/getDropTarget";
 import { isSameDropTarget } from "../utils/isSameDropTarget";
 
-// Pointer movement (in pixels) before a press on a tab becomes a drag; shorter presses select the tab
+// Pointer movement (in pixels) before a press becomes a drag; shorter presses on a tab select it
 const DRAG_THRESHOLD = 5;
 
 /**
- * Drags tabs using pointer events (rather than HTML drag and drop) so that touch input is supported.
+ * Drags tabs (or whole tabsets) using pointer events (rather than HTML drag and drop) so that touch input is supported.
  *
  * Tabsets, tab lists, tabs, and tab panels identify themselves with data attributes, which are used for hit testing.
  */
@@ -34,10 +34,10 @@ export function useTabDrag({
 }: {
   getModel: () => WorkspaceModel;
   getRootElement: () => HTMLElement | null;
-  isDropDisabled: (tab: TabNode, target: TabDropTarget) => boolean;
-  onDrop: (tabId: string, target: TabDropTarget) => void;
+  isDropDisabled: (source: DragSource, target: TabDropTarget) => boolean;
+  onDrop: (source: DragSource, target: TabDropTarget) => void;
 }) {
-  const [dragTabId, setDragTabId] = useState<string | undefined>();
+  const [dragSource, setDragSource] = useState<DragSource | undefined>();
   const [dropTarget, setDropTarget] = useState<TabDropTarget | undefined>();
 
   // The drag preview follows the pointer; it's positioned directly to avoid re-rendering on every move
@@ -49,14 +49,14 @@ export function useTabDrag({
   const cancelDragRef = useRef<(() => void) | null>(null);
   useEffect(() => () => cancelDragRef.current?.(), []);
 
-  const startTabDrag = useCallback(
-    (tab: TabNode, event: ReactPointerEvent<HTMLElement>) => {
+  const startDrag = useCallback(
+    (source: DragSource, event: ReactPointerEvent<HTMLElement>) => {
       const rootElement = getRootElement();
       if (!rootElement) {
         return;
       }
 
-      // Without separators, pressing near the edge of a tabset (e.g. on its tabs) may have started resizing it instead,
+      // Without separators, pressing near the edge of a tabset (e.g. on its tabs or header) may have started resizing it instead,
       // since resizing handles "pointerdown" events first (during the capture phase); a press shouldn't do both
       const interactionState = getInteractionState();
       if (
@@ -73,12 +73,13 @@ export function useTabDrag({
       // End any drag in progress first (e.g. by another pointer), so that the styles saved below are the page's own
       cancelDragRef.current?.();
 
-      const tabElement = event.currentTarget;
-      const ownerDocument = tabElement.ownerDocument;
+      // The pressed tab (or tabset header)
+      const sourceElement = event.currentTarget;
+      const ownerDocument = sourceElement.ownerDocument;
       const { clientX: startX, clientY: startY, pointerId } = event;
 
-      // Route all events for this pointer to the tab, even over iframes or outside of the window
-      tabElement.setPointerCapture?.(pointerId);
+      // Route all events for this pointer to the pressed element, even over iframes or outside of the window
+      sourceElement.setPointerCapture?.(pointerId);
 
       let isDragging = false;
       let target: TabDropTarget | undefined = undefined;
@@ -87,13 +88,13 @@ export function useTabDrag({
       // Inline styles changed while dragging are restored afterward
       const prevStyles = {
         cursor: ownerDocument.documentElement.style.cursor,
-        tabCursor: tabElement.style.cursor,
+        sourceCursor: sourceElement.style.cursor,
         userSelect: ownerDocument.body.style.userSelect
       };
       const setCursor = (cursor: string | undefined) => {
         ownerDocument.documentElement.style.cursor =
           cursor ?? prevStyles.cursor;
-        tabElement.style.cursor = cursor ?? prevStyles.tabCursor;
+        sourceElement.style.cursor = cursor ?? prevStyles.sourceCursor;
       };
 
       const onPointerMove = (moveEvent: PointerEvent) => {
@@ -109,7 +110,7 @@ export function useTabDrag({
 
           isDragging = true;
           ownerDocument.body.style.userSelect = "none";
-          setDragTabId(tab.id);
+          setDragSource(source);
         }
 
         previewPointRef.current = { clientX, clientY };
@@ -120,13 +121,14 @@ export function useTabDrag({
           clientY,
           model: getModel(),
           rootElement,
-          tabId: tab.id
+          source
         });
         if (!isSameDropTarget(rawTarget, nextRawTarget)) {
           rawTarget = nextRawTarget;
 
           const isRejected =
-            nextRawTarget !== undefined && isDropDisabled(tab, nextRawTarget);
+            nextRawTarget !== undefined &&
+            isDropDisabled(source, nextRawTarget);
           target = isRejected ? undefined : nextRawTarget;
 
           setCursor(isRejected ? "not-allowed" : undefined);
@@ -149,10 +151,10 @@ export function useTabDrag({
         if (isDragging) {
           ownerDocument.body.style.userSelect = prevStyles.userSelect;
           setCursor(undefined);
-          setDragTabId(undefined);
+          setDragSource(undefined);
           setDropTarget(undefined);
 
-          // The drop selects the tab; a click shouldn't also be handled (e.g. after a canceled drag)
+          // A click shouldn't also be handled (e.g. selecting the tab after a canceled drag)
           if (isPointerDown) {
             // The click is dispatched when the pointer is released, so wait for that
             const onRelease = (releaseEvent: PointerEvent) => {
@@ -169,7 +171,7 @@ export function useTabDrag({
           }
 
           if (shouldDrop && target) {
-            onDrop(tab.id, target);
+            onDrop(source, target);
           }
         }
       };
@@ -215,11 +217,24 @@ export function useTabDrag({
     [getModel, getRootElement, isDropDisabled, onDrop]
   );
 
+  const startTabDrag = useCallback(
+    (tabId: string, event: ReactPointerEvent<HTMLElement>) =>
+      startDrag({ tabId, type: "tab" }, event),
+    [startDrag]
+  );
+
+  const startTabsetDrag = useCallback(
+    (tabsetId: string, event: ReactPointerEvent<HTMLElement>) =>
+      startDrag({ tabsetId, type: "tabset" }, event),
+    [startDrag]
+  );
+
   return {
-    dragTabId,
+    dragSource,
     dropTarget,
     previewElementRef,
     previewPointRef,
-    startTabDrag
+    startTabDrag,
+    startTabsetDrag
   };
 }

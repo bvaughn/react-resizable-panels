@@ -17,6 +17,7 @@ export { useParentPanel } from "./flex/hooks/useParentPanel";
 export { Separator } from "./flex/components/Separator";
 export { SeparatorOverlay } from "./flex/components/SeparatorOverlay";
 export { TabCloseButton } from "./workspace/components/TabCloseButton";
+export { TabsetDragHandle } from "./workspace/components/TabsetDragHandle";
 export { useParentTab } from "./workspace/hooks/useParentTab";
 export { useParentTabset } from "./workspace/hooks/useParentTabset";
 export { useParentTabsetState } from "./workspace/hooks/useParentTabsetState";
@@ -73,7 +74,9 @@ export type {
   TabDropRegion,
   TabDropTarget,
   TabNode,
+  TabRemovalSelectionBehavior,
   TabRenderProps,
+  TabsetDragHandleProps,
   TabsetNode,
   TabsetNodeInput,
   WorkspaceChangedMeta,

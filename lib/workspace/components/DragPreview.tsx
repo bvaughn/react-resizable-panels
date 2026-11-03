@@ -10,12 +10,14 @@ import {
 function DragPreviewComponent({
   children,
   className,
+  dragType,
   elementRef,
   pointRef,
   style
 }: {
   children: ReactNode;
   className: string | undefined;
+  dragType: "tab" | "tabset";
   elementRef: RefObject<HTMLElement | null>;
   pointRef: RefObject<{ clientX: number; clientY: number }>;
   style: CSSProperties | undefined;
@@ -35,6 +37,7 @@ function DragPreviewComponent({
     <div
       className={className}
       data-drag-preview
+      data-drag-type={dragType}
       ref={ref}
       style={{
         zIndex: 2,

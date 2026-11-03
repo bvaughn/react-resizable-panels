@@ -1,6 +1,8 @@
 import {
   ArrowsPointingInIcon,
   ArrowsPointingOutIcon,
+  Bars3Icon,
+  MinusIcon,
   PlusIcon,
   XMarkIcon
 } from "@heroicons/react/16/solid";
@@ -11,15 +13,16 @@ import {
   TabCloseButton,
   type TabNode,
   type TabRenderProps,
+  TabsetDragHandle,
   type TabsetNode,
   useParentTabset,
   useParentTabsetState,
+  useWorkspaceRef,
   Workspace,
   type WorkspaceClassNames,
   type WorkspaceImperativeHandle,
   type WorkspaceModel,
-  type WorkspaceProps,
-  useWorkspaceRef
+  type WorkspaceProps
 } from "react-resizable-panels";
 import { initialModel } from "../../routes/examples/WorkspaceModel";
 import { DemoButton } from "../DemoButton";
@@ -86,6 +89,7 @@ export function DemoWorkspace({
   className,
   defaultModel,
   defaultSeparators = false,
+  showDragHandles = false,
   showResetButton = false,
   storageKey,
   tabPlacement = "top",
@@ -98,12 +102,15 @@ export function DemoWorkspace({
   | "disableDrop"
   | "onModelChanged"
   | "renderEmptyTabset"
+  | "tabRemovalSelectionBehavior"
 > & {
   canAddTabs?: (tabset: TabsetNode<DemoTab>) => boolean;
   canCloseTabset?: (tabset: TabsetNode<DemoTab>) => boolean;
   defaultModel: WorkspaceModel<DemoTab>;
   // Use the Workspace's default (unstyled) separators, rather than the docs' styled ones
   defaultSeparators?: boolean;
+  // Tabsets are dragged by a handle in their toolbars, rather than by the empty space in their headers
+  showDragHandles?: boolean;
   showResetButton?: boolean;
   storageKey?: string;
   tabPlacement?: TabPlacement;
@@ -132,12 +139,16 @@ export function DemoWorkspace({
         renderTabContent={renderTabContent}
         renderTabsetToolbar={(tabset) => (
           <>
-            {/* Adding tabs isn't restricted by the workspace, so the demo hides the button itself */}
-            {!rest.disabled && (canAddTabs?.(tabset) ?? true) && (
-              <AddTabButton />
-            )}
-            <MaximizeButton />
-            {canCloseTabset?.(tabset) && <CloseTabsetButton />}
+            {showDragHandles && <DragHandle />}
+            <ExpandedOnly>
+              {/* Adding tabs isn't restricted by the workspace, so the demo hides the button itself */}
+              {!rest.disabled && (canAddTabs?.(tabset) ?? true) && (
+                <AddTabButton />
+              )}
+              <CollapseButton />
+              <MaximizeButton />
+              {canCloseTabset?.(tabset) && <CloseTabsetButton />}
+            </ExpandedOnly>
           </>
         )}
         tabPlacement={tabPlacement}
@@ -217,7 +228,7 @@ const CLASS_NAMES: WorkspaceClassNames = {
   ),
   tabPanels: "grow min-h-0 min-w-0",
   tabset:
-    "flex flex-col tabs-vertical:flex-row h-full w-full bg-ink/8 rounded-md overflow-hidden",
+    "flex flex-col tabs-vertical:flex-row h-full w-full bg-ink/8 rounded-md overflow-hidden data-[tabset-dragging]:opacity-50",
   toolbar:
     "flex tabs-vertical:flex-col tabs-vertical:items-center tabs-vertical:py-1"
 };
@@ -266,6 +277,42 @@ function AddTabButton() {
       title="Add tab"
     >
       <PlusIcon className="w-4 h-4" />
+    </TabsetButton>
+  );
+}
+
+// Hidden when the tabset can't be dragged (e.g. it's the only tabset in the workspace)
+function DragHandle() {
+  return (
+    <TabsetDragHandle
+      className="p-1 mx-0.5 rounded text-ink/60 hover:text-ink hover:bg-ink/10 cursor-grab data-[disabled]:hidden"
+      title="Drag tabset"
+    >
+      <Bars3Icon className="w-4 h-4" />
+    </TabsetDragHandle>
+  );
+}
+
+// Collapsed tabsets only show their tabs (clicking one expands the tabset);
+// a maximized tabset is shown expanded, even if it's collapsed
+function ExpandedOnly({ children }: PropsWithChildren) {
+  const state = useParentTabsetState();
+
+  return state?.isCollapsed && !state.isMaximized ? null : children;
+}
+
+// Only shown for tabsets that can be collapsed
+function CollapseButton() {
+  const tabset = useParentTabset();
+  const state = useParentTabsetState();
+
+  if (!state?.isCollapsible || state.isMaximized) {
+    return null;
+  }
+
+  return (
+    <TabsetButton onClick={() => tabset?.collapse()} title="Collapse tabset">
+      <MinusIcon className="w-4 h-4" />
     </TabsetButton>
   );
 }

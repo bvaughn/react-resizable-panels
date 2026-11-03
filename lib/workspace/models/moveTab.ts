@@ -1,5 +1,6 @@
 import { copyModel } from "./copyModel";
 import { createTabset } from "./createTabset";
+import { expandTabset } from "./expandTabset";
 import { findTabset } from "./findTabset";
 import { findTabsetContainingTab } from "./findTabsetContainingTab";
 import { normalizeModel } from "./normalizeModel";
@@ -42,6 +43,12 @@ export function moveTab<TabData, TabsetData>(
     removeTab(source, tabId);
     destination.tabs.splice(index, 0, tab);
     destination.selectedId = tab.id;
+
+    // A tab dropped in from another tabset is selected, so a collapsed tabset expands to show it (like when one of its tabs is clicked);
+    // reordering the tabs of a collapsed tabset leaves it collapsed
+    if (destination.collapsed && source !== destination) {
+      return expandTabset(normalizeModel(next), destination.id);
+    }
   } else {
     // Splitting a tabset with its only tab would leave the layout unchanged (unless the tabset is kept when empty)
     if (

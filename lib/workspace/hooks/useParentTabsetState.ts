@@ -1,6 +1,9 @@
 import { useContext } from "react";
 import { ParentTabsetContext } from "../contexts/ParentTabsetContext";
 import type { ParentTabsetState } from "../types";
+import { canCollapseTabset } from "../models/canCollapseTabset";
+import { isTabsetCollapsed } from "../utils/isTabsetCollapsed";
+import { isTabsetDragDisabled } from "../utils/isTabsetDragDisabled";
 import { useWorkspaceStoreSelector } from "./useWorkspaceStoreSelector";
 
 /**
@@ -12,18 +15,27 @@ export function useParentTabsetState(): ParentTabsetState | null {
   const parentTabset = useContext(ParentTabsetContext);
   const tabsetId = parentTabset?.id;
 
-  return useWorkspaceStoreSelector(({ activeTabsetId, model, modelIndex }) => {
-    const tabset =
-      tabsetId !== undefined ? modelIndex.tabsetsById.get(tabsetId) : undefined;
-    if (!tabset) {
-      return null;
-    }
+  return useWorkspaceStoreSelector(
+    ({ activeTabsetId, collapsePreview, disabled, model, modelIndex }) => {
+      const tabset =
+        tabsetId !== undefined
+          ? modelIndex.tabsetsById.get(tabsetId)
+          : undefined;
+      if (!tabset) {
+        return null;
+      }
 
-    return {
-      isActive: activeTabsetId === tabset.id,
-      isMaximized: model.maximizedTabsetId === tabset.id,
-      isRoot: model.root.id === tabset.id,
-      selectedTabId: tabset.selectedId
-    };
-  });
+      return {
+        isActive: activeTabsetId === tabset.id,
+        isCollapsed: isTabsetCollapsed(tabset, collapsePreview),
+        isCollapsible:
+          !!tabset.collapsed ||
+          canCollapseTabset(modelIndex.parentsById.get(tabset.id), tabset),
+        isDragDisabled: isTabsetDragDisabled(model, tabset, disabled),
+        isMaximized: model.maximizedTabsetId === tabset.id,
+        isRoot: model.root.id === tabset.id,
+        selectedTabId: tabset.selectedId
+      };
+    }
+  );
 }

@@ -42,8 +42,16 @@ export type TabHost = {
  */
 export type WorkspaceContextType = {
   activeTabsetId: string | undefined;
+
+  // Sizes (in pixels, along their splits) that collapsible tabsets collapse to
+  collapsedSizes: { [tabsetId: string]: number };
+
+  // Tabsets shown collapsed (or expanded) while a split is being resized (see isTabsetCollapsed)
+  collapsePreview: { [tabsetId: string]: boolean };
+
   disabled: boolean;
   dragTabId: string | undefined;
+  dragTabsetId: string | undefined;
   dropTarget: TabDropTarget | undefined;
   getHiddenTabBehavior: (tab: TabNode) => HiddenTabBehavior;
   getTabHandle: (tabId: string) => ParentTab;
@@ -73,13 +81,22 @@ export type WorkspaceContextType = {
   renderTabContent: (tab: TabNode) => ReactNode;
   renderTabsetToolbar: ((tabset: TabsetNode) => ReactNode) | undefined;
   reportChromeSize: (tabsetId: string, size: MinimumSize) => void;
+  // Previews of a split's tabsets (by id), or undefined for tabsets shown as the model has them
+  reportCollapsePreview: (previews: {
+    [tabsetId: string]: boolean | undefined;
+  }) => void;
+  reportCollapsedSize: (tabsetId: string, size: number) => void;
   reportSeparatorsSize: (splitId: string, size: number) => void;
   requestFocus: (tabId: string) => void;
   resizePreviewMode: ResizePreviewMode | undefined;
   setActiveTabsetId: (tabsetId: string) => void;
   shouldServerRenderTabContent: (tab: TabNode) => boolean;
   splitGeneration: number;
-  startTabDrag: (tab: TabNode, event: ReactPointerEvent<HTMLElement>) => void;
+  startTabDrag: (tabId: string, event: ReactPointerEvent<HTMLElement>) => void;
+  startTabsetDrag: (
+    tabsetId: string,
+    event: ReactPointerEvent<HTMLElement>
+  ) => void;
   styles: WorkspaceStyles | undefined;
   tabPlacement: "bottom" | "left" | "right" | "top";
   takeFocusRequest: (tabId: string) => boolean;

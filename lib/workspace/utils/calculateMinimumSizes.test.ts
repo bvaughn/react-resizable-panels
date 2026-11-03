@@ -26,6 +26,7 @@ describe("calculateMinimumSizes", () => {
   test("adds sizes along a split's direction and takes the largest across it", () => {
     const sizes = calculateMinimumSizes(root, {
       getChromeSize: () => undefined,
+      getCollapsedSize: () => undefined,
       getContentMinimumSize: (node) => ({
         height: minimumSizeToPixels(node.minHeight, null),
         width: minimumSizeToPixels(node.minWidth, null)
@@ -41,6 +42,7 @@ describe("calculateMinimumSizes", () => {
   test("includes chrome and separators", () => {
     const sizes = calculateMinimumSizes(root, {
       getChromeSize: () => ({ height: 20, width: 0 }),
+      getCollapsedSize: () => undefined,
       getContentMinimumSize: (node) => ({
         height: minimumSizeToPixels(node.minHeight, null),
         width: minimumSizeToPixels(node.minWidth, null)
@@ -53,5 +55,38 @@ describe("calculateMinimumSizes", () => {
     expect(sizes.get("inner")).toEqual({ height: 114, width: 200 });
     // Two children (100, 200) and a separator
     expect(sizes.get("root")).toEqual({ height: 114, width: 304 });
+  });
+
+  test("collapsed tabsets only count their collapsed sizes toward their splits", () => {
+    const collapsedRoot: WorkspaceNode = {
+      children: [
+        { id: "a", minHeight: "100px", tabs: [], type: "tabset" },
+        {
+          collapsed: true,
+          collapsible: true,
+          id: "b",
+          minHeight: "100px",
+          tabs: [],
+          type: "tabset"
+        }
+      ],
+      id: "root",
+      orientation: "vertical",
+      type: "split"
+    };
+
+    const sizes = calculateMinimumSizes(collapsedRoot, {
+      getChromeSize: () => ({ height: 20, width: 0 }),
+      getCollapsedSize: () => 24,
+      getContentMinimumSize: (node) => ({
+        height: minimumSizeToPixels(node.minHeight, null),
+        width: 0
+      }),
+      getSeparatorsSize: () => 0
+    });
+
+    // A collapsed tabset's own minimum is the minimum it expands to
+    expect(sizes.get("b")).toEqual({ height: 120, width: 0 });
+    expect(sizes.get("root")).toEqual({ height: 144, width: 0 });
   });
 });

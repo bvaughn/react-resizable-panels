@@ -54,8 +54,126 @@ describe("getDropTarget", () => {
         clientY: 0,
         model,
         rootElement,
-        tabId: "2"
+        source: { tabId: "2", type: "tab" }
       })
     ).toEqual({ index: 0, tabsetId: "tabset" });
+  });
+});
+
+describe("getDropTarget for tabsets", () => {
+  let cleanup: (() => void) | undefined;
+
+  afterEach(() => {
+    cleanup?.();
+    cleanup = undefined;
+  });
+
+  function setup({ keepWhenEmpty = false } = {}) {
+    const model: WorkspaceModel = {
+      root: {
+        children: [
+          {
+            id: "a",
+            keepWhenEmpty,
+            selectedId: "1",
+            tabs: [{ data: undefined, id: "1" }],
+            type: "tabset"
+          },
+          {
+            id: "b",
+            selectedId: "2",
+            tabs: [{ data: undefined, id: "2" }],
+            type: "tabset"
+          }
+        ],
+        id: "root",
+        orientation: "horizontal",
+        type: "split"
+      },
+      version: 1
+    };
+
+    const container = document.createElement("div");
+    container.innerHTML = `
+      <div data-workspace>
+        <div data-tabset-id="a">
+          <div data-tab-list></div>
+          <div data-tab-panels></div>
+        </div>
+        <div data-tabset-id="b">
+          <div data-tab-list></div>
+          <div data-tab-panels></div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(container);
+
+    const rootElement =
+      container.querySelector<HTMLElement>("[data-workspace]")!;
+    for (const panels of container.querySelectorAll("[data-tab-panels]")) {
+      panels.getBoundingClientRect = () =>
+        ({ height: 100, left: 0, top: 0, width: 100 }) as DOMRect;
+    }
+
+    let elementAtPoint: Element | null = null;
+    Object.assign(document, { elementFromPoint: () => elementAtPoint });
+    cleanup = () => {
+      container.remove();
+      // @ts-expect-error Not implemented by jsdom
+      delete document.elementFromPoint;
+    };
+
+    const getTarget = (
+      tabsetId: string,
+      part: "panels" | "list",
+      clientX = 50
+    ) => {
+      elementAtPoint = container.querySelector(
+        `[data-tabset-id="${tabsetId}"] [data-tab-${part}]`
+      );
+
+      return getDropTarget({
+        clientX,
+        clientY: 50,
+        model,
+        rootElement,
+        source: { tabsetId: "a", type: "tabset" }
+      });
+    };
+
+    return { getTarget };
+  }
+
+  test("targets the regions and tab lists of other tabsets", () => {
+    const { getTarget } = setup();
+
+    expect(getTarget("b", "panels", 5)).toEqual({
+      region: "left",
+      tabsetId: "b"
+    });
+    expect(getTarget("b", "panels")).toEqual({
+      region: "center",
+      tabsetId: "b"
+    });
+    expect(getTarget("b", "list")).toEqual({ index: 0, tabsetId: "b" });
+  });
+
+  test("doesn't target the dragged tabset", () => {
+    const { getTarget } = setup();
+
+    expect(getTarget("a", "panels", 5)).toBeUndefined();
+    expect(getTarget("a", "panels")).toBeUndefined();
+    expect(getTarget("a", "list")).toBeUndefined();
+  });
+
+  test("only targets the edges of other tabsets when the dragged tabset is kept when empty", () => {
+    const { getTarget } = setup({ keepWhenEmpty: true });
+
+    expect(getTarget("b", "panels", 5)).toEqual({
+      region: "left",
+      tabsetId: "b"
+    });
+    expect(getTarget("b", "panels")).toBeUndefined();
+    expect(getTarget("b", "list")).toBeUndefined();
   });
 });

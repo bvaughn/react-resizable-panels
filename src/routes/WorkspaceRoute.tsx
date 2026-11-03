@@ -44,11 +44,13 @@ export default function WorkspaceRoute() {
       <div>
         Tabs can also be opened, selected, closed, and rearranged by the
         application (see{" "}
-        <Link to="/examples/workspace/managing-tabs">managing tabs</Link>). Like
-        the rest of the library, workspaces are unstyled; see{" "}
-        <Link to="/examples/workspace/custom-tabsets">custom tabsets</Link> and{" "}
-        <Link to="/examples/workspace/styling">styling</Link> for how to render
-        and style tabsets.
+        <Link to="/examples/workspace/managing-tabs">managing tabs</Link> and{" "}
+        <Link to="/examples/workspace/managing-tabsets">managing tabsets</Link>
+        ). Like the rest of the library, workspaces are unstyled; see{" "}
+        <Link to="/examples/workspace/custom-tabsets">
+          custom tabsets
+        </Link> and <Link to="/examples/workspace/styling">styling</Link> for
+        how to render and style tabsets.
       </div>
       <div>
         The tabsets above are resized by dragging the space between them; see{" "}

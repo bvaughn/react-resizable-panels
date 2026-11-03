@@ -31,7 +31,7 @@ function TabPanelsComponent() {
     shouldServerRenderTabContent,
     styles
   } = useWorkspaceContext("TabPanels");
-  const { setPanelsElement, tabPlacement, tabset } =
+  const { isCollapsed, setPanelsElement, tabPlacement, tabset } =
     useTabsetContext("TabPanels");
 
   const elementRef = useRef<HTMLDivElement | null>(null);
@@ -73,8 +73,14 @@ function TabPanelsComponent() {
       className={classNames?.tabPanels}
       data-tab-panels
       data-tab-placement={tabPlacement}
+      data-tabset-collapsed={isCollapsed || undefined}
       ref={mergedRef}
-      style={{ position: "relative", ...styles?.tabPanels }}
+      // A collapsed tabset only shows its header; its content stays mounted
+      style={{
+        position: "relative",
+        ...styles?.tabPanels,
+        ...(isCollapsed && { display: "none" })
+      }}
     >
       {tabset.tabs.length === 0 && renderEmptyTabset?.(tabset)}
       {inlineTab && (

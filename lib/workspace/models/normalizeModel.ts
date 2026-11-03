@@ -13,6 +13,8 @@ import type { TabsetNode, WorkspaceModel, WorkspaceModelInput } from "../types";
  * - Merges splits into parent splits with the same orientation
  * - Scales sizes so they add up to 100 (when all siblings have percentage sizes)
  * - Fixes selections of tabs that no longer exist
+ * - Expands tabsets that can't be collapsed (the root tabset, tabsets that aren't collapsible, and the last child of a split whose children are all collapsed)
+ * - Forgets recently selected tabs that no longer exist (see updateRecentTabIds)
  * - Clears the maximized tabset if it no longer exists (or is the only tabset)
  */
 export function normalizeModel<TabData, TabsetData>(
@@ -33,6 +35,11 @@ export function normalizeModel<TabData, TabsetData>(
       tabs: [],
       type: "tabset"
     } satisfies TabsetNode<TabData, TabsetData>);
+
+  // The root tabset fills the workspace, so it can't be collapsed
+  if (root.type === "tabset") {
+    delete root.collapsed;
+  }
 
   if (isDevelopment()) {
     warnAboutDuplicateIds(root);

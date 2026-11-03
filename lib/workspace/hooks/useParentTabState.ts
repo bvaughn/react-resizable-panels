@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { ParentTabContext } from "../contexts/ParentTabContext";
 import type { ParentTabState } from "../types";
+import { isTabsetCollapsed } from "../utils/isTabsetCollapsed";
 import { useWorkspaceStoreSelector } from "./useWorkspaceStoreSelector";
 
 /**
@@ -12,25 +13,30 @@ export function useParentTabState(): ParentTabState | null {
   const parentTab = useContext(ParentTabContext);
   const tabId = parentTab?.id;
 
-  return useWorkspaceStoreSelector(({ disabled, model, modelIndex }) => {
-    const tabset =
-      tabId !== undefined ? modelIndex.tabsetsByTabId.get(tabId) : undefined;
-    const tab = tabset?.tabs.find(({ id }) => id === tabId);
-    if (!tabset || !tab) {
-      return null;
+  return useWorkspaceStoreSelector(
+    ({ collapsePreview, disabled, model, modelIndex }) => {
+      const tabset =
+        tabId !== undefined ? modelIndex.tabsetsByTabId.get(tabId) : undefined;
+      const tab = tabset?.tabs.find(({ id }) => id === tabId);
+      if (!tabset || !tab) {
+        return null;
+      }
+
+      const isSelected = tabset.selectedId === tab.id;
+      const maximizedTabsetId = model.maximizedTabsetId;
+
+      return {
+        isCloseDisabled: disabled || !!tab.disableClose,
+        isDragDisabled: disabled || !!tab.disableDrag,
+        isSelected,
+        // A maximized tabset is shown expanded, even if it's collapsed
+        isVisible:
+          isSelected &&
+          (maximizedTabsetId === undefined
+            ? !isTabsetCollapsed(tabset, collapsePreview)
+            : maximizedTabsetId === tabset.id),
+        tabsetId: tabset.id
+      };
     }
-
-    const isSelected = tabset.selectedId === tab.id;
-    const maximizedTabsetId = model.maximizedTabsetId;
-
-    return {
-      isCloseDisabled: disabled || !!tab.disableClose,
-      isDragDisabled: disabled || !!tab.disableDrag,
-      isSelected,
-      isVisible:
-        isSelected &&
-        (maximizedTabsetId === undefined || maximizedTabsetId === tabset.id),
-      tabsetId: tabset.id
-    };
-  });
+  );
 }
