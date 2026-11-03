@@ -2,7 +2,7 @@
 
 ## 4.17.1
 
-- The default `Workspace` tabset drag preview now shows the number of other tabs being dragged after the selected tab's preview (e.g. "One (+2)"). Tabsets with one tab still show just its preview, and `renderTabsetDragPreview` still replaces the default.
+- The default `Workspace` tabset drag preview now shows the number of other tabs being dragged after the selected tab's preview (e.g. "One (+2)"). Tabsets with one tab still show just its preview, and `renderTabsetDragPreview` still replaces the default. - [#789](https://github.com/bvaughn/react-resizable-panels/pull/789)
 
 ## 4.17.0
 
