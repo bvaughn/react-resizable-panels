@@ -772,10 +772,14 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   const dragTab = dragTabId ? findTab(model, dragTabId) : undefined;
   const dragTabset = dragTabsetId ? findTabset(model, dragTabsetId) : undefined;
 
-  const renderTabPreview = (tab: TabNode) =>
-    renderDragPreview
-      ? renderDragPreview(tab as TabNode<TabData>)
-      : (tab.title ?? tab.id);
+  // The default preview also shows how many other tabs are being dragged along with the tab (when its tabset is dragged)
+  const renderTabPreview = (tab: TabNode, otherTabCount = 0) => {
+    if (renderDragPreview) {
+      return renderDragPreview(tab as TabNode<TabData>);
+    }
+    const title = tab.title ?? tab.id;
+    return otherTabCount > 0 ? `${title} (+${otherTabCount})` : title;
+  };
 
   let dragPreview: ReactNode = null;
   if (dragTab) {
@@ -789,7 +793,9 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       const selectedTab = dragTabset.tabs.find(
         ({ id }) => id === dragTabset.selectedId
       );
-      dragPreview = selectedTab ? renderTabPreview(selectedTab) : dragTabset.id;
+      dragPreview = selectedTab
+        ? renderTabPreview(selectedTab, dragTabset.tabs.length - 1)
+        : dragTabset.id;
     }
   }
 

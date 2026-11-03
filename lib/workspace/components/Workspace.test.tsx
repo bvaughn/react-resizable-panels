@@ -2156,7 +2156,7 @@ describe("Workspace", () => {
         expect(onModelChanged).not.toHaveBeenCalled();
       });
 
-      test("a dragged tabset is marked, and its preview shows its selected tab by default", async () => {
+      test("a dragged tabset is marked, and its preview shows its selected tab and the number of other tabs by default", async () => {
         const { container } = renderWorkspace();
 
         await startDrag(container, getHeader(container, "left"));
@@ -2166,7 +2166,29 @@ describe("Workspace", () => {
         ).toHaveAttribute("data-tabset-dragging");
         const preview = container.querySelector("[data-drag-preview]");
         expect(preview).toHaveAttribute("data-drag-type", "tabset");
-        expect(preview).toHaveTextContent("One");
+        expect(preview?.textContent).toBe("One (+1)");
+      });
+
+      test("the default preview of a dragged tabset with one tab has no count", async () => {
+        const { container } = renderWorkspace();
+
+        await startDrag(container, getHeader(container, "right"));
+
+        expect(
+          container.querySelector("[data-drag-preview]")?.textContent
+        ).toBe("3");
+      });
+
+      test("renderDragPreview customizes the preview of a dragged tabset's selected tab, without a count", async () => {
+        const { container } = renderWorkspace({
+          renderDragPreview: (tab) => `Custom ${tab.title}`
+        });
+
+        await startDrag(container, getHeader(container, "left"));
+
+        expect(
+          container.querySelector("[data-drag-preview]")?.textContent
+        ).toBe("Custom One");
       });
 
       test("renderTabsetDragPreview customizes the preview", async () => {

@@ -905,7 +905,7 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
 
   /**
    * Content of the element that follows the pointer while a whole tabset is being dragged.
-   * Defaults to the preview of its selected tab (see `renderDragPreview`), or the tabset's id if it has no tabs.
+   * Defaults to the title (or id) of its selected tab followed by the number of other tabs being dragged (e.g. "One (+2)"), or the selected tab's `renderDragPreview` when that prop is set, or the tabset's id if it has no tabs.
    *
    * ℹ️ The element has a `data-drag-type` attribute: `"tabset"` while a tabset is dragged, and `"tab"` while a tab is.
    */
