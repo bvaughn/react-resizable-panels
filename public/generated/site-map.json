@@ -168,7 +168,7 @@
       {
         "id": "toolbars-that-run-out-of-room",
         "title": "Toolbars that run out of room",
-        "text": "Toolbars that run out of room A tabset's tab list fills the space its tabs and toolbar don't use, so a toolbar can't tell how much room it has by measuring itself. The useTabListFreeSpace hook returns the space in the tab list that its tabs don't use (negative once they overflow). A toolbar can use that space in addition to its own, e.g. to move items into a \"…\" menu once they no longer fit: Resize the tabsets below (or add tabs) to see their toolbars' items move into and out of their menus. Reset layout The hook (like the --tab-list-free-space custom property on the tab list) is updated before the browser paints, so moved items are never shown in the wrong place. To read it outside of a tabset (e.g. a toolbar rendered elsewhere and portaled into the tabset), use the getTabListFreeSpace and subscribeToTabListFreeSpace methods of the imperative API; listeners are called synchronously, before the browser paints. Like the rest of the library, tabsets are unstyled; see styling."
+        "text": "Toolbars that run out of room A tabset's tab list fills the space its tabs and toolbar don't use, so a toolbar can't tell how much room it has by measuring itself. The useTabListFreeSpace hook returns the space in the tab list that its tabs don't use (negative once they overflow). A toolbar can use that space in addition to its own, e.g. to move items into a \"…\" menu once they no longer fit: Place items only when the free space changes. Each value is measured with the toolbar as it's shown at the time, so it pairs with the toolbar's current size. Placing items again after the toolbar changes (but before the free space is measured again) counts the change twice, and the toolbar can keep switching between two layouts. Resize the tabsets below (or add tabs) to see their toolbars' items move into and out of their menus. Reset layout The hook (like the --tab-list-free-space custom property on the tab list) is updated before the browser paints, so moved items are never shown in the wrong place. To read it outside of a tabset (e.g. a toolbar rendered elsewhere and portaled into the tabset), use the getTabListFreeSpace and subscribeToTabListFreeSpace methods of the imperative API; listeners are called synchronously, before the browser paints. Like the rest of the library, tabsets are unstyled; see styling."
       }
     ],
     "path": "/examples/workspace/custom-tabsets",
@@ -242,7 +242,7 @@
     ],
     "path": "/examples/workspace/persistent-layout",
     "section": "Workspace",
-    "text": "A workspace's model is serializable, so it can be saved and restored. Save it from the onModelChanged callback, and restore it with the defaultModel prop: Rearrange the workspace below, then reload the page to see the layout restored. Reset layout onModelChanged is called after each change: when a tab is moved, selected, added, or closed, when a tabset is maximized or restored, and when a resize ends (not while the pointer is still moving). Its second argument describes the change. Saved models include each tab's data, so it should be serializable. Models include a version, so that models saved by older versions of the library can be migrated. A malformed model (e.g. one that was saved incorrectly) is replaced with an empty workspace, rather than throwing; in development, a warning is logged. To fall back to a different layout instead, check the model with normalizeWorkspaceModel (see below). To restore a layout after the workspace has mounted (e.g. a \"reset layout\" button), use the imperative setModel method. Content that isn't part of the model (e.g. the text in a notes tab) isn't saved; tabs can save it in their data with the updateTab method. The example above works well with client-rendered applications. For server-rendered applications, see server rendering.",
+    "text": "A workspace's model is serializable, so it can be saved and restored. Save it from the onModelChanged callback, and restore it with the defaultModel prop: Rearrange the workspace below, then reload the page to see the layout restored. Reset layout onModelChanged is called after each change: when a tab is moved, selected, added, or closed, when a tabset is maximized or restored, and when a resize ends (not while the pointer is still moving). Its second argument describes the change. The workspace also reports changes it makes itself (e.g. resizing tabsets to fit their minimum sizes when the window is made narrower), which can happen on every frame while the workspace is resized, so saving may need to be debounced. Saved models include each tab's data, so it should be serializable. Models include a version, so that models saved by older versions of the library can be migrated. A malformed model (e.g. one that was saved incorrectly) is replaced with an empty workspace, rather than throwing; in development, a warning is logged. To fall back to a different layout instead, check the model with normalizeWorkspaceModel (see below). To restore a layout after the workspace has mounted (e.g. a \"reset layout\" button), use the imperative setModel method. Content that isn't part of the model (e.g. the text in a notes tab) isn't saved; tabs can save it in their data with the updateTab method. The example above works well with client-rendered applications. For server-rendered applications, see server rendering.",
     "title": "Persistent layouts"
   },
   {
@@ -478,12 +478,12 @@
       {
         "id": "return-value",
         "title": "Return value",
-        "text": "Return value useTabListFreeSpace : () => number | undefined The space (in pixels) that the tabs don't use, measured along the tab list (its width, or its height if its tabs are placed on the left or right). It's negative once the tabs overflow, by the amount they overflow. The tab list's --tab-list-free-space custom property has the same value."
+        "text": "Return value useTabListFreeSpace : () => number | undefined The space (in pixels) that the tabs don't use, measured along the tab list (its width, or its height if its tabs are placed on the left or right). It's negative once the tabs overflow, by the amount they overflow. The tab list's --tab-list-free-space custom property has the same value. Each value is measured with the toolbar as it's shown at the time; a toolbar that responds to the free space should do so when it changes (rather than again after the toolbar itself changes, which would count that change twice)."
       }
     ],
     "path": "/hooks/use-tab-list-free-space",
     "section": "Hooks",
-    "text": "The useTabListFreeSpace hook returns the space in the nearest tabset's tab list that its tabs don't use. Components that use it re-render when it changes (e.g. when the tabset is resized, or tabs are added or removed), before the browser paints. For example, a toolbar can move items into a \"…\" menu once they no longer fit (see custom tabsets for a demo): Returns undefined if the component isn't rendered within a tabset (or the tab list hasn't been measured yet, e.g. while server rendering). To read the free space outside of a tabset (e.g. from a toolbar that's rendered elsewhere and portaled into the tabset), use the getTabListFreeSpace and subscribeToTabListFreeSpace methods of the imperative API.",
+    "text": "The useTabListFreeSpace hook returns the space in the nearest tabset's tab list that its tabs don't use. Components that use it re-render when it changes (e.g. when the tabset is resized, or tabs are added or removed), before the browser paints. For example, a toolbar can move items into a \"…\" menu once they no longer fit (see custom tabsets for a demo): Returns undefined if the component isn't rendered within a tabset (or the tab list hasn't been measured yet, e.g. while server rendering, or before the component re-renders right after the tabset is first rendered; that re-render happens before the browser paints). To read the free space outside of a tabset (e.g. from a toolbar that's rendered elsewhere and portaled into the tabset), use the getTabListFreeSpace and subscribeToTabListFreeSpace methods of the imperative API.",
     "title": "useTabListFreeSpace"
   },
   {
@@ -635,7 +635,7 @@
       {
         "id": "expandTabset",
         "title": "expandTabset",
-        "text": "expandTabset Expand a collapsed tabset to its previous size."
+        "text": "expandTabset Expand a collapsed tabset to its previous size.\n If the tabset (or one of the tabsets beside it) would be smaller than its minimum size, the workspace resizes them to fit;\nonModelChanged reports the expansion (as \"expand\"), and then the resize (as \"resize\", with isUserInteraction: false),\nbefore the browser paints."
       },
       {
         "id": "getActiveTabsetId",
@@ -1182,7 +1182,7 @@
       {
         "id": "onModelChanged",
         "title": "onModelChanged",
-        "text": "Called after the model has changed (e.g. a tab was moved, selected, or closed, or a tabset was resized).\n For changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving models to some storage api."
+        "text": "Called after the model has changed (e.g. a tab was moved, selected, or closed, or a tabset was resized).\n For changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving models to some storage api.\n The workspace also updates the model when it resizes (or collapses) tabsets itself to fit their minimum or maximum sizes\n(reported with isUserInteraction: false; see WorkspaceChangedMeta); while the workspace is being resized (e.g. the window is made narrower),\nthis can happen on every frame, so saving each change may need to be debounced."
       },
       {
         "id": "renderDragPreview",
