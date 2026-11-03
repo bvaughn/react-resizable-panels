@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.17.1
+
+- The default `Workspace` tabset drag preview now shows the number of other tabs being dragged after the selected tab's preview (e.g. "One (+2)"). Tabsets with one tab still show just its preview, and `renderTabsetDragPreview` still replaces the default.
+
 ## 4.17.0
 
 - Add dragging whole tabsets within a `Workspace`. A tabset is dragged by the empty space in its header, or by a `TabsetDragHandle` (or any element with a `data-tabset-drag-handle` attribute) when it has one. Dropping a tabset onto the edge of another tabset moves it there; dropping it onto another tabset's center or tab list moves its tabs into that tabset. Tabsets with the `keepWhenEmpty` flag can only be moved, not merged. Tabsets can't be dragged when they have the new `disableDrag` flag or contain a tab that does. - [#785](https://github.com/bvaughn/react-resizable-panels/issues/785)

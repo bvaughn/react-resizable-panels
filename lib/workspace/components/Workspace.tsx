@@ -727,7 +727,20 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       const selectedTab = dragTabset.tabs.find(
         ({ id }) => id === dragTabset.selectedId
       );
-      dragPreview = selectedTab ? renderTabPreview(selectedTab) : dragTabset.id;
+      if (selectedTab) {
+        // Show how many other tabs are being dragged along with the selected one
+        const otherTabCount = dragTabset.tabs.length - 1;
+        dragPreview =
+          otherTabCount > 0 ? (
+            <>
+              {renderTabPreview(selectedTab)} (+{otherTabCount})
+            </>
+          ) : (
+            renderTabPreview(selectedTab)
+          );
+      } else {
+        dragPreview = dragTabset.id;
+      }
     }
   }
 

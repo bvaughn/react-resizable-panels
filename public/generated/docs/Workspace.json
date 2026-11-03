@@ -184,7 +184,7 @@
     "renderTabsetDragPreview": {
       "description": [
         {
-          "content": "<p>Content of the element that follows the pointer while a whole tabset is being dragged.\nDefaults to the preview of its selected tab (see <code>renderDragPreview</code>), or the tabset's id if it has no tabs.</p>\n"
+          "content": "<p>Content of the element that follows the pointer while a whole tabset is being dragged.\nDefaults to the preview of its selected tab (see <code>renderDragPreview</code>) followed by the number of other tabs being dragged (e.g. &quot;One (+2)&quot;), or the tabset's id if it has no tabs.</p>\n"
         },
         {
           "content": "<p>The element has a <code>data-drag-type</code> attribute: <code>&quot;tabset&quot;</code> while a tabset is dragged, and <code>&quot;tab&quot;</code> while a tab is.</p>\n",

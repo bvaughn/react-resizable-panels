@@ -1165,7 +1165,7 @@
       {
         "id": "renderTabsetDragPreview",
         "title": "renderTabsetDragPreview",
-        "text": "Content of the element that follows the pointer while a whole tabset is being dragged.\nDefaults to the preview of its selected tab (see renderDragPreview), or the tabset's id if it has no tabs.\n The element has a data-drag-type attribute: \"tabset\" while a tabset is dragged, and \"tab\" while a tab is."
+        "text": "Content of the element that follows the pointer while a whole tabset is being dragged.\nDefaults to the preview of its selected tab (see renderDragPreview) followed by the number of other tabs being dragged (e.g. \"One (+2)\"), or the tabset's id if it has no tabs.\n The element has a data-drag-type attribute: \"tabset\" while a tabset is dragged, and \"tab\" while a tab is."
       },
       {
         "id": "renderTabsetToolbar",

@@ -975,7 +975,7 @@ Defaults to the tab&#39;s title (or id).</p>
     <tr>
       <td>renderTabsetDragPreview</td>
       <td><p>Content of the element that follows the pointer while a whole tabset is being dragged.
-Defaults to the preview of its selected tab (see <code>renderDragPreview</code>), or the tabset&#39;s id if it has no tabs.</p>
+Defaults to the preview of its selected tab (see <code>renderDragPreview</code>) followed by the number of other tabs being dragged (e.g. &quot;One (+2)&quot;), or the tabset&#39;s id if it has no tabs.</p>
 <p>ℹ️ The element has a <code>data-drag-type</code> attribute: <code>&quot;tabset&quot;</code> while a tabset is dragged, and <code>&quot;tab&quot;</code> while a tab is.</p>
 </td>
     </tr>
