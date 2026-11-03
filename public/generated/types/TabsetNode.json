@@ -78,6 +78,42 @@
     {
       "description": [
         {
+          "content": "<p>Maximum width of the tabset's content area (not including its header).</p>\n"
+        },
+        {
+          "content": "<p>Interpretation rules:</p>\n<ul>\n<li>Strings must specify a unit: &quot;px&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot; (e.g. <code>maxWidth: &quot;400px&quot;</code>)</li>\n<li>Percentages (and strings without units) are not allowed</li>\n<li>If the tabset's minimum width is larger, the minimum is used</li>\n</ul>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>A maximum only applies if something else can take up the rest of the space, e.g. another tabset in the same split without a maximum width;\notherwise it's ignored (e.g. if every tabset in a split has a maximum, or the tabset fills the workspace).</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "name": "maxWidth",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Maximum height of the tabset's content area (not including its header).</p>\n"
+        },
+        {
+          "content": "<p>Interpretation rules:</p>\n<ul>\n<li>Strings must specify a unit: &quot;px&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot; (e.g. <code>maxHeight: &quot;400px&quot;</code>)</li>\n<li>Percentages (and strings without units) are not allowed</li>\n<li>If the tabset's minimum height is larger, the minimum is used</li>\n</ul>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>A maximum only applies if something else can take up the rest of the space, e.g. another tabset in the same split without a maximum height;\notherwise it's ignored (e.g. if every tabset in a split has a maximum, or the tabset fills the workspace).</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "name": "maxHeight",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "description": [
+        {
           "content": "<p>Where the tabset's tabs are placed relative to its content.\nOverrides the Workspace's <code>tabPlacement</code> prop.</p>\n"
         },
         {

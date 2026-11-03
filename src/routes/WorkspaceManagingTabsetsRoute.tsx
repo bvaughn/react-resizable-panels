@@ -4,10 +4,12 @@ import { html as CollapseButtonHTML } from "../../public/generated/examples/Work
 import { html as CollapsibleModelHTML } from "../../public/generated/examples/WorkspaceCollapsibleModel.json";
 import { html as KeepWhenEmptyHTML } from "../../public/generated/examples/WorkspaceKeepWhenEmpty.json";
 import { html as MaximizeTabsetHTML } from "../../public/generated/examples/WorkspaceMaximizeTabset.json";
+import { html as MaxSizeModelHTML } from "../../public/generated/examples/WorkspaceMaxSizeModel.json";
 import { html as TabsetDragHandleHTML } from "../../public/generated/examples/WorkspaceTabsetDragHandle.json";
 import { Link } from "../components/Link";
 import { DemoWorkspace } from "../components/workspace/WorkspaceDemo";
 import { collapsibleModel } from "./examples/WorkspaceCollapsibleModel";
+import { maxSizeModel } from "./examples/WorkspaceMaxSizeModel";
 import { initialModel, type TabData } from "./examples/WorkspaceModel";
 
 // The editor area stays when its last tab is closed (see "Empty tabsets")
@@ -109,6 +111,32 @@ export default function WorkspaceManagingTabsetsRoute() {
         The <code>moveTabset</code> method moves a tabset from outside of the
         workspace (e.g. a "Move to bottom" menu item); it accepts the same
         targets as <code>moveTab</code>.
+      </Callout>
+      <SectionHeader>Limiting tabset sizes</SectionHeader>
+      <div>
+        The <code>maxWidth</code> and <code>maxHeight</code> fields of a tabset
+        limit how large it can be resized, e.g. a sidebar that can only grow so
+        wide. Like <code>minWidth</code> and <code>minHeight</code>, they apply
+        to the tabset's content area (not including its tabs), and must use
+        absolute units (e.g. <code>"300px"</code> or <code>"20rem"</code>):
+      </div>
+      <Code html={MaxSizeModelHTML} />
+      <div>
+        The sidebar below can be resized between 150 and 300 pixels wide, but
+        its tab can't be dragged or closed.
+      </div>
+      <DemoWorkspace
+        className="h-80"
+        defaultModel={maxSizeModel}
+        defaultSeparators
+        showResetButton
+      />
+      <Callout>
+        A split always fills its space, so a maximum only applies if something
+        else can take up the rest of it, e.g. another tabset in the same split
+        without a maximum. Maximums are ignored (with a warning in development)
+        if every tabset in a split has one, or if the tabset fills the
+        workspace.
       </Callout>
       <SectionHeader>Collapsing tabsets</SectionHeader>
       <div>

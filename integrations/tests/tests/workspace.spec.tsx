@@ -9,13 +9,15 @@ import { SEPARATOR_SIZE } from "../src/components/Workspace";
 import { goToUrl } from "../src/utils/goToUrl";
 
 function createModel({
+  leftMaxWidth,
   leftMinWidth
-}: { leftMinWidth?: string } = {}): WorkspaceModel {
+}: { leftMaxWidth?: string; leftMinWidth?: string } = {}): WorkspaceModel {
   return {
     root: {
       children: [
         {
           id: "left",
+          maxWidth: leftMaxWidth,
           minWidth: leftMinWidth,
           tabs: [
             { data: null, id: "a" },
@@ -364,6 +366,399 @@ test.describe("Workspace", () => {
 
     const left = (await getTabset(page, "left").boundingBox())!;
     expect(left.width).toBe(300);
+  });
+
+  test("enforces maximum content sizes", async ({ page: mainPage }) => {
+    const page = await goToUrl(
+      mainPage,
+      workspace(createModel({ leftMaxWidth: "300px" }))
+    );
+
+    // The tabsets start at half of the workspace each, which is more than the maximum
+    const left = getTabset(page, "left");
+    await expect.poll(async () => (await left.boundingBox())!.width).toBe(300);
+
+    const separator = page.locator("[data-separator]");
+    let box = (await separator.boundingBox())!;
+    await drag(page, separator, { x: box.x + 200, y: box.y + box.height / 2 });
+    expect((await left.boundingBox())!.width).toBe(300);
+
+    box = (await separator.boundingBox())!;
+    await drag(page, separator, {
+      x: box.x + box.width / 2 - 100,
+      y: box.y + box.height / 2
+    });
+    expect((await left.boundingBox())!.width).toBe(200);
+  });
+
+  test("reports the free space in tab lists, and renders it before the browser paints", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Workspace
+        defaultModel={createModel()}
+        renderTabContent={() => null}
+        // A test-only prop (see the test app's Workspace)
+        {...({ showTabListFreeSpace: true } as object)}
+      />
+    );
+
+    const tabList = getTabset(page, "left").locator("[data-tab-list]");
+    const freeSpace = page.getByTestId("free-space-left");
+
+    // The list's width, less the space between the start of its first tab and the end of its last one
+    const expected = await tabList.evaluate((list) => {
+      const rects = Array.from(list.children).map((child) =>
+        child.getBoundingClientRect()
+      );
+      const start = Math.min(...rects.map(({ left }) => left));
+      const end = Math.max(...rects.map(({ right }) => right));
+      return Math.round(list.getBoundingClientRect().width - (end - start));
+    });
+    expect(expected).toBeGreaterThan(0);
+    await expect(freeSpace).toHaveText(String(expected));
+    await expect(tabList).toHaveCSS("--tab-list-free-space", `${expected}px`);
+
+    // An observer created after the Workspace's is called after it in the same frame (before the browser paints),
+    // so the value the toolbar renders has to match the one that was just measured
+    const records = await page
+      .locator("[data-workspace]")
+      .evaluate(async (workspace: HTMLElement) => {
+        const window = workspace.ownerDocument.defaultView!;
+        const list = workspace.querySelector<HTMLElement>(
+          '[data-tabset-id="left"] [data-tab-list]'
+        )!;
+        const label = workspace.querySelector(
+          '[data-testid="free-space-left"]'
+        )!;
+        const nextFrame = () =>
+          new Promise((resolve) => window.requestAnimationFrame(resolve));
+
+        const records: { measured: string; rendered: string | null }[] = [];
+        const observer = new window.ResizeObserver(() =>
+          records.push({
+            measured: list.style.getPropertyValue("--tab-list-free-space"),
+            rendered: label.textContent
+          })
+        );
+        observer.observe(list);
+        await nextFrame();
+        records.length = 0;
+
+        // Wide enough for the tabs, and then too narrow for them
+        for (const width of [608, 208]) {
+          workspace.style.width = `${width}px`;
+          await nextFrame();
+          await nextFrame();
+        }
+        observer.disconnect();
+
+        return records;
+      });
+
+    expect(records.length).toBeGreaterThanOrEqual(2);
+    for (const { measured, rendered } of records) {
+      expect(`${rendered}px`).toBe(measured);
+    }
+
+    // Once the tabs overflow, it's negative: the amount they overflow by
+    const overflow = await tabList.evaluate(
+      (list) => list.scrollWidth - list.getBoundingClientRect().width
+    );
+    expect(overflow).toBeGreaterThan(0);
+    await expect(freeSpace).toHaveText(String(-Math.round(overflow)));
+  });
+
+  test("measures the free space again when a toolbar responds to it, without ResizeObserver errors", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Workspace
+        defaultModel={createModel()}
+        renderTabContent={() => null}
+        // A test-only prop (see the test app's Workspace)
+        {...({ showTabListFreeSpace: "responsive" } as object)}
+      />
+    );
+    await expect(page.getByTestId("free-space-left")).not.toHaveText(
+      "undefined"
+    );
+
+    // The toolbar shrinks when there's little free space, which changes the free space again (in the same frame);
+    // this guards against regressions in that path (it passes with the list observed directly too, so it doesn't reproduce a known bug)
+    const errors = await page
+      .locator("[data-workspace]")
+      .evaluate(async (workspace: HTMLElement) => {
+        const window = workspace.ownerDocument.defaultView!;
+        const errors: string[] = [];
+        const onError = (event: ErrorEvent) => errors.push(event.message);
+        window.addEventListener("error", onError);
+
+        const nextFrame = () =>
+          new Promise((resolve) => window.requestAnimationFrame(resolve));
+        for (let width = 808; width >= 208; width -= 40) {
+          workspace.style.width = `${width}px`;
+          await nextFrame();
+        }
+        for (let width = 208; width <= 808; width += 40) {
+          workspace.style.width = `${width}px`;
+          await nextFrame();
+        }
+        workspace.style.width = "208px";
+        await nextFrame();
+        await nextFrame();
+
+        window.removeEventListener("error", onError);
+        return errors;
+      });
+    expect(errors).toEqual([]);
+
+    // The toolbar's value matches the tab list's layout after it shrank
+    const tabList = getTabset(page, "left").locator("[data-tab-list]");
+    const overflow = await tabList.evaluate(
+      (list) => list.scrollWidth - list.getBoundingClientRect().width
+    );
+    await expect(page.getByTestId("free-space-left")).toHaveText(
+      String(-Math.round(overflow))
+    );
+  });
+
+  test.describe("model sizes that don't fit the workspace", () => {
+    // Sizes as if saved from a wider workspace, in which "a" and "b" were at least their minimum widths
+    function createSavedModel(): WorkspaceModel {
+      return {
+        root: {
+          children: [
+            {
+              collapsible: true,
+              id: "a",
+              minWidth: "192px",
+              size: 13.8,
+              tabs: [{ data: null, id: "a" }],
+              type: "tabset"
+            },
+            {
+              collapsible: true,
+              id: "b",
+              minWidth: "288px",
+              size: 14.95,
+              tabs: [{ data: null, id: "b" }],
+              type: "tabset"
+            },
+            {
+              collapsible: true,
+              id: "c",
+              size: 71.25,
+              tabs: [{ data: null, id: "c" }],
+              type: "tabset"
+            }
+          ],
+          id: "root",
+          orientation: "horizontal",
+          type: "split"
+        },
+        version: 1
+      };
+    }
+
+    test("grows tabsets to their minimum sizes (rather than collapsing them), and updates the model", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, workspace(createSavedModel()));
+
+      const a = getTabset(page, "a");
+      const b = getTabset(page, "b");
+      await expect(a).not.toHaveAttribute("data-tabset-collapsed");
+      await expect(b).not.toHaveAttribute("data-tabset-collapsed");
+      expect(Math.round((await a.boundingBox())!.width)).toBe(192);
+      expect(Math.round((await b.boundingBox())!.width)).toBe(288);
+
+      const change = await getLastChange(page);
+      expect(change.meta).toEqual({
+        isUserInteraction: false,
+        reason: "resize"
+      });
+
+      // The model's sizes match the layout
+      const workspaceWidth = 808 - SEPARATOR_SIZE * 2;
+      const [modelA, modelB] = (change.model.root as SplitNode).children;
+      expect(((modelA.size as number) * workspaceWidth) / 100).toBeCloseTo(
+        192,
+        0
+      );
+      expect(((modelB.size as number) * workspaceWidth) / 100).toBeCloseTo(
+        288,
+        0
+      );
+    });
+
+    test("reports changes to several splits' layouts as one change", async ({
+      page: mainPage
+    }) => {
+      // Two rows, each saved with sizes below its tabsets' minimums
+      const row = (id: string): SplitNode => ({
+        children: [
+          {
+            id: `${id}-a`,
+            minWidth: "300px",
+            size: 20,
+            tabs: [],
+            keepWhenEmpty: true,
+            type: "tabset"
+          },
+          {
+            id: `${id}-b`,
+            size: 80,
+            tabs: [],
+            keepWhenEmpty: true,
+            type: "tabset"
+          }
+        ],
+        id,
+        orientation: "horizontal",
+        type: "split"
+      });
+      const page = await goToUrl(
+        mainPage,
+        workspace({
+          root: {
+            children: [row("top"), row("bottom")],
+            id: "root",
+            orientation: "vertical",
+            type: "split"
+          },
+          version: 1
+        })
+      );
+
+      await expect
+        .poll(async () =>
+          Math.round((await getTabset(page, "bottom-a").boundingBox())!.width)
+        )
+        .toBe(300);
+      expect(
+        Math.round((await getTabset(page, "top-a").boundingBox())!.width)
+      ).toBe(300);
+
+      const changes = JSON.parse(
+        (await page.getByTestId("workspace-changes").textContent()) ?? "[]"
+      );
+      expect(changes).toHaveLength(1);
+      expect(changes[0].meta).toEqual({
+        isUserInteraction: false,
+        reason: "resize"
+      });
+    });
+
+    test("expands tabsets to at least their minimum sizes, without shrinking other tabsets below theirs", async ({
+      page: mainPage
+    }) => {
+      // Like the saved model above, but "a" and "b" start collapsed; all three minimums fit in the workspace
+      const page = await goToUrl(
+        mainPage,
+        workspace({
+          root: {
+            children: [
+              {
+                collapsed: true,
+                collapsible: true,
+                id: "a",
+                minWidth: "205px",
+                size: 15.48,
+                tabs: [{ data: null, id: "a" }],
+                type: "tabset"
+              },
+              {
+                collapsed: true,
+                collapsible: true,
+                id: "b",
+                minWidth: "282px",
+                size: 29.33,
+                tabs: [{ data: null, id: "b" }],
+                type: "tabset"
+              },
+              {
+                id: "c",
+                minWidth: "205px",
+                tabs: [{ data: null, id: "c" }],
+                type: "tabset"
+              }
+            ],
+            id: "root",
+            orientation: "horizontal",
+            type: "split"
+          },
+          version: 1
+        })
+      );
+
+      const a = getTabset(page, "a");
+      const b = getTabset(page, "b");
+      await clickTab(page, getTab(page, "a"));
+      await expect(a).not.toHaveAttribute("data-tabset-collapsed");
+      await clickTab(page, getTab(page, "b"));
+      await expect(b).not.toHaveAttribute("data-tabset-collapsed");
+
+      // Neither "a" nor "c" is shrunk below its minimum (or collapsed) to make room for "b"
+      await expect(a).not.toHaveAttribute("data-tabset-collapsed");
+      expect(Math.round((await a.boundingBox())!.width)).toBeGreaterThanOrEqual(
+        205
+      );
+      expect(Math.round((await b.boundingBox())!.width)).toBeGreaterThanOrEqual(
+        282
+      );
+      expect(
+        Math.round((await getTabset(page, "c").boundingBox())!.width)
+      ).toBeGreaterThanOrEqual(205);
+
+      // The model agrees with the layout
+      const workspaceWidth = 808 - SEPARATOR_SIZE * 2;
+      const { model } = await getLastChange(page);
+      for (const child of (model.root as SplitNode).children) {
+        expect((child as TabsetNode).collapsed).toBeUndefined();
+        const width = (await getTabset(page, child.id!).boundingBox())!.width;
+        expect(((child.size as number) * workspaceWidth) / 100).toBeCloseTo(
+          width,
+          0
+        );
+      }
+    });
+
+    test("updates the model when the workspace is too small for every tabset's minimum size", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(
+        mainPage,
+        <Workspace
+          defaultModel={createSavedModel()}
+          renderTabContent={() => null}
+          style={{ width: 408 }}
+        />
+      );
+
+      // The Group collapses tabsets to make room; the model (and the tabsets' attributes, which come from it) agrees
+      await expect
+        .poll(async () => {
+          const model = (await getLastChange(page))?.model;
+          return (model?.root as SplitNode | undefined)?.children
+            .filter((child) => (child as TabsetNode).collapsed)
+            .map(({ id }) => id);
+        })
+        .not.toEqual([]);
+
+      const model = (await getLastChange(page)).model as WorkspaceModel;
+      for (const child of (model.root as SplitNode).children) {
+        const tabset = getTabset(page, child.id!);
+        if ((child as TabsetNode).collapsed) {
+          await expect(tabset).toHaveAttribute("data-tabset-collapsed", "true");
+        } else {
+          await expect(tabset).not.toHaveAttribute("data-tabset-collapsed");
+        }
+      }
+      expect((await getLastChange(page)).meta.isUserInteraction).toBe(false);
+    });
   });
 
   test("closes a tab from the keyboard and focuses its neighbor", async ({

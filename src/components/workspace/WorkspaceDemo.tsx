@@ -102,6 +102,7 @@ export function DemoWorkspace({
   | "disableDrop"
   | "onModelChanged"
   | "renderEmptyTabset"
+  | "renderTabsetToolbar"
   | "tabRemovalSelectionBehavior"
 > & {
   canAddTabs?: (tabset: TabsetNode<DemoTab>) => boolean;

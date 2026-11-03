@@ -39,7 +39,12 @@ export default function WorkspaceRoute() {
         The <code>tabsetMinWidth</code> and <code>tabsetMinHeight</code> props
         above set a minimum size for the content of every tabset (not including
         its tabs); a tabset can override them with the <code>minWidth</code> and{" "}
-        <code>minHeight</code> fields of its model node.
+        <code>minHeight</code> fields of its model node. Tabsets can also have
+        maximum sizes (see{" "}
+        <Link to="/examples/workspace/managing-tabsets">
+          limiting tabset sizes
+        </Link>
+        ).
       </div>
       <div>
         Tabs can also be opened, selected, closed, and rearranged by the

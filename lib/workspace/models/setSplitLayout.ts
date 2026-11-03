@@ -5,14 +5,21 @@ import { normalizeModel } from "./normalizeModel";
 import type { WorkspaceModel } from "../types";
 
 // Applies a split's layout (e.g. after the user resizes it);
-// a resize can also collapse or expand tabsets (when collapsedIds is provided), like collapsible Panels
+// a resize can also collapse or expand tabsets (when collapsedIds is provided), like collapsible Panels.
+// The layout must have a size for each of the split's children (and no others); otherwise it was measured for a different model
+// (e.g. one that has since been replaced with setModel), and isn't applied.
 export function setSplitLayout<TabData, TabsetData>(
   model: WorkspaceModel<TabData, TabsetData>,
   splitId: string,
   layout: Layout,
   collapsedIds?: Set<string>
 ): WorkspaceModel<TabData, TabsetData> {
-  if (!findSplit(model.root, splitId)) {
+  const target = findSplit(model.root, splitId);
+  if (
+    !target ||
+    target.children.length !== Object.keys(layout).length ||
+    target.children.some(({ id }) => layout[id] === undefined)
+  ) {
     return model;
   }
 

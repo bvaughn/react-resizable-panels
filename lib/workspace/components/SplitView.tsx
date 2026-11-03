@@ -8,11 +8,14 @@ import {
 } from "../../global/mutable-state/axes";
 import { getInteractionState } from "../../global/mutable-state/interactions";
 import type { Layout } from "../../global/types";
+import { layoutNumbersEqual } from "../../global/utils/layoutNumbersEqual";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
 import { useStableCallback } from "../../shared/hooks/useStableCallback";
 import { isHTMLElement } from "../../shared/utils/isHTMLElement";
 import { useWorkspaceContext } from "../hooks/useWorkspaceContext";
 import { canCollapseTabset } from "../models/canCollapseTabset";
+import { getSplitLayoutSignature } from "../models/getSplitLayoutSignature";
+import { setMeasuredSplitLayout } from "../models/setMeasuredSplitLayout";
 import { setSplitLayout } from "../models/setSplitLayout";
 import type { SplitNode } from "../types";
 import { calculateSplitLayout } from "../utils/calculateSplitLayout";
@@ -26,7 +29,9 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
     collapsedSizes,
     disabled,
     id: workspaceId,
+    maximumSizes,
     minimumSizes,
+    queueLayoutUpdate,
     renderSeparator,
     reportCollapsePreview,
     reportSeparatorsSize,
@@ -64,10 +69,39 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
   const structureKey = `${splitGeneration}:${split.orientation}:${childIds}:${collapsedKey}`;
 
   // Collapsed sizes are converted to percentages by the Group, which change when it's resized,
-  // so they're part of the applied key (applied again so that collapsed tabsets stay the size of their headers)
-  const appliedKeyRef = useRef(`${structureKey}|`);
+  // so they're part of the applied key (applied again so that collapsed tabsets stay the size of their headers);
+  // the model's sizes are always applied once the Group is registered, since the Group's own default layout doesn't apply minimum sizes the same way (see calculateSplitLayout)
+  const appliedKeyRef = useRef<string | null>(null);
   // Re-renders (running the effect below) after the Group reports a layout
   const [, requestLayoutCheck] = useState(0);
+
+  // The key of the model's layout, once the Group's Panels match the model's children (see the layout effect below)
+  const getAppliedKey = () => {
+    const axisState = getMountedAxisState(groupId);
+    if (
+      !axisState ||
+      axisState.defaultLayoutDeferred ||
+      axisState.derivedItemConstraints.map(({ itemId }) => itemId).join() !==
+        panelIds
+    ) {
+      return null;
+    }
+
+    return `${structureKey}|${axisState.derivedItemConstraints
+      .filter(({ itemId }) => collapsedPanelIds.has(itemId))
+      .map(({ collapsedSize }) => collapsedSize)
+      .join()}`;
+  };
+
+  // The model's sizes, keyed by Panel id
+  const getPanelSizes = () => {
+    const sizes: { [panelId: string]: number | string | undefined } = {};
+    for (const child of split.children) {
+      sizes[getPanelId(child.id)] = child.size;
+    }
+
+    return sizes;
+  };
 
   // The children (by node id) that a layout collapses: collapsible Panels at their collapsed sizes
   const getCollapsedIds = (layout: Layout) => {
@@ -133,39 +167,73 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
     });
   }, [groupId, hasCollapsible, updateCollapsePreview]);
 
+  // The Group can change the layout itself, e.g. collapsing a tabset (or growing it to its minimum size) when the workspace is made narrower,
+  // or when the model's sizes can't be applied as they are (see calculateSplitLayout); the model is updated to match.
+  // Only called once the model's layout has been applied (see appliedKeyRef); before that, the Group's layout is its own default rather than the model's.
+  // The update is queued (see queueLayoutUpdate), and isn't applied if the split has changed by then (see setMeasuredSplitLayout).
+  const updateModelToMatchLayout = (layout: Layout) => {
+    const collapsedIds = getCollapsedIds(layout);
+    const modelLayout = calculateSplitLayout(
+      getMountedAxisState(groupId)!.derivedItemConstraints,
+      collapsedPanelIds,
+      getPanelSizes(),
+      { applyMinAndMaxSizes: false }
+    );
+    const isChanged = split.children.some((child) => {
+      const panelId = getPanelId(child.id);
+      return (
+        (child.type === "tabset" &&
+          collapsedIds.has(child.id) !== !!child.collapsed) ||
+        !layoutNumbersEqual(layout[panelId], modelLayout[panelId], 0.01)
+      );
+    });
+    if (isChanged) {
+      const nodeLayout: Layout = {};
+      for (const { id } of split.children) {
+        nodeLayout[id] = layout[getPanelId(id)];
+      }
+
+      const signature = getSplitLayoutSignature(split);
+      queueLayoutUpdate(
+        split.id,
+        getResizeReason(split.children, collapsedIds),
+        (prev) =>
+          setMeasuredSplitLayout(
+            prev,
+            split.id,
+            signature,
+            nodeLayout,
+            collapsedIds
+          )
+      );
+    }
+  };
+
   // Runs after every render, since the Group's constraints (e.g. its Panels' collapsed sizes) aren't part of its rendered state
   useIsomorphicLayoutEffect(() => {
-    const axisState = getMountedAxisState(groupId);
-    if (
-      !axisState ||
-      axisState.defaultLayoutDeferred ||
-      axisState.derivedItemConstraints.map(({ itemId }) => itemId).join() !==
-        panelIds
-    ) {
+    const appliedKey = getAppliedKey();
+    if (appliedKey === null) {
       // Not registered (or not visible) yet
       return;
-    }
-
-    const constraints = axisState.derivedItemConstraints;
-    const appliedKey = `${structureKey}|${constraints
-      .filter(({ itemId }) => collapsedPanelIds.has(itemId))
-      .map(({ collapsedSize }) => collapsedSize)
-      .join()}`;
-    if (appliedKeyRef.current === appliedKey) {
+    } else if (appliedKeyRef.current === appliedKey) {
       return;
     }
 
     appliedKeyRef.current = appliedKey;
 
     // Sizes come from the model; constraints have collapsed sizes (and sizes with other units) converted to percentages
-    const sizes: { [panelId: string]: number | string | undefined } = {};
-    for (const child of split.children) {
-      sizes[getPanelId(child.id)] = child.size;
-    }
-
     groupRef.current?.setLayout(
-      calculateSplitLayout(constraints, collapsedPanelIds, sizes)
+      calculateSplitLayout(
+        getMountedAxisState(groupId)!.derivedItemConstraints,
+        collapsedPanelIds,
+        getPanelSizes()
+      )
     );
+
+    // The Group only reports layouts that differ from the previous one it reported,
+    // so if it had already changed the layout itself (e.g. growing a tabset to its minimum size), the model is compared with it here
+    // (layouts it does report are compared again, but updates are batched; see queueLayoutUpdate)
+    updateModelToMatchLayout(getMountedAxisState(groupId)!.layout);
   });
 
   // Separators (and gaps between the split's panels and separators, e.g. CSS "gap") count toward the split's minimum size;
@@ -295,11 +363,13 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
           updateModel(reason, true, (prev) =>
             setSplitLayout(prev, split.id, nodeLayout, collapsedIds)
           );
-        } else if (
-          collapsedPanelIds.size > 0 ||
-          !appliedKeyRef.current.startsWith(`${structureKey}|`)
-        ) {
-          requestLayoutCheck((count) => count + 1);
+        } else {
+          const appliedKey = getAppliedKey();
+          if (appliedKey !== null && appliedKeyRef.current === appliedKey) {
+            updateModelToMatchLayout(layout);
+          } else {
+            requestLayoutCheck((count) => count + 1);
+          }
         }
       }}
       orientation={split.orientation}
@@ -312,6 +382,12 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
           split.orientation === "horizontal"
             ? minimumSize?.width
             : minimumSize?.height;
+        // Infinity if there's no maximum (or it can't be applied); minimums take precedence (like CSS)
+        const maximumSize = maximumSizes.get(child.id);
+        const maxSize =
+          split.orientation === "horizontal"
+            ? maximumSize?.width
+            : maximumSize?.height;
 
         return (
           <Fragment key={child.id}>
@@ -335,6 +411,11 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
                 typeof child.size === "number" ? `${child.size}%` : child.size
               }
               id={getPanelId(child.id)}
+              maxSize={
+                maxSize !== undefined && Number.isFinite(maxSize)
+                  ? `${Math.max(maxSize, minSize ?? 0)}px`
+                  : undefined
+              }
               minSize={minSize ? minSize : undefined}
             >
               <NodeView node={child} />

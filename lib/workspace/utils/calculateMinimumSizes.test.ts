@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { calculateMinimumSizes } from "./calculateMinimumSizes";
-import { minimumSizeToPixels } from "./minimumSizeToPixels";
+import { sizeToPixels } from "./sizeToPixels";
 import type { TabsetNode, WorkspaceNode } from "../types";
 
 function tabset(id: string, minWidth?: string, minHeight?: string): TabsetNode {
@@ -28,8 +28,8 @@ describe("calculateMinimumSizes", () => {
       getChromeSize: () => undefined,
       getCollapsedSize: () => undefined,
       getContentMinimumSize: (node) => ({
-        height: minimumSizeToPixels(node.minHeight, null),
-        width: minimumSizeToPixels(node.minWidth, null)
+        height: sizeToPixels(node.minHeight, null) ?? 0,
+        width: sizeToPixels(node.minWidth, null) ?? 0
       }),
       getSeparatorsSize: () => undefined
     });
@@ -44,8 +44,8 @@ describe("calculateMinimumSizes", () => {
       getChromeSize: () => ({ height: 20, width: 0 }),
       getCollapsedSize: () => undefined,
       getContentMinimumSize: (node) => ({
-        height: minimumSizeToPixels(node.minHeight, null),
-        width: minimumSizeToPixels(node.minWidth, null)
+        height: sizeToPixels(node.minHeight, null) ?? 0,
+        width: sizeToPixels(node.minWidth, null) ?? 0
       }),
       getSeparatorsSize: () => 4
     });
@@ -79,7 +79,7 @@ describe("calculateMinimumSizes", () => {
       getChromeSize: () => ({ height: 20, width: 0 }),
       getCollapsedSize: () => 24,
       getContentMinimumSize: (node) => ({
-        height: minimumSizeToPixels(node.minHeight, null),
+        height: sizeToPixels(node.minHeight, null) ?? 0,
         width: 0
       }),
       getSeparatorsSize: () => 0

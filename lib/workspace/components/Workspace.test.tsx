@@ -26,6 +26,7 @@ import { useParentTabset } from "../hooks/useParentTabset";
 import { useParentTabsetState } from "../hooks/useParentTabsetState";
 import { useParentTabState } from "../hooks/useParentTabState";
 import { useParentWorkspace } from "../hooks/useParentWorkspace";
+import { useTabListFreeSpace } from "../hooks/useTabListFreeSpace";
 import { getRegisteredAxis } from "../../global/mutable-state/axes";
 import { updateInteractionState } from "../../global/mutable-state/interactions";
 import { Workspace } from "./Workspace";
@@ -1529,6 +1530,96 @@ describe("Workspace", () => {
         isUserInteraction: false,
         reason: "close"
       });
+    });
+  });
+
+  describe("tab list free space", () => {
+    // jsdom doesn't lay out elements; tab lists are 300px wide, and their tabs aren't laid out (so they take no space)
+    beforeEach(() => {
+      const getBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
+      vi.spyOn(
+        HTMLElement.prototype,
+        "getBoundingClientRect"
+      ).mockImplementation(function (this: HTMLElement) {
+        return this.hasAttribute("data-tab-list")
+          ? DOMRect.fromRect({ height: 30, width: 300, x: 0, y: 0 })
+          : getBoundingClientRect.call(this);
+      });
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    test("is reported by the imperative API, a custom property, and useTabListFreeSpace", () => {
+      function FreeSpace() {
+        const tabset = useParentTabset();
+        return (
+          <div data-testid={`free-space-${tabset?.id}`}>
+            {String(useTabListFreeSpace())}
+          </div>
+        );
+      }
+
+      const { container, workspaceRef } = renderWorkspace({
+        renderTabsetToolbar: () => <FreeSpace />
+      });
+
+      expect(workspaceRef.current!.getTabListFreeSpace("left")).toBe(300);
+      expect(workspaceRef.current!.getTabListFreeSpace("missing")).toBe(
+        undefined
+      );
+      expect(
+        container
+          .querySelector<HTMLElement>(
+            '[data-tabset-id="left"] [data-tab-list]'
+          )!
+          .style.getPropertyValue("--tab-list-free-space")
+      ).toBe("300px");
+      expect(screen.getByTestId("free-space-left")).toHaveTextContent("300");
+    });
+
+    test("useTabListFreeSpace returns undefined outside of a tabset", () => {
+      function FreeSpace() {
+        return (
+          <div data-testid="free-space">{String(useTabListFreeSpace())}</div>
+        );
+      }
+
+      render(<FreeSpace />);
+      expect(screen.getByTestId("free-space")).toHaveTextContent("undefined");
+    });
+
+    test("notifies subscribers when it changes, and when the tabset is removed", async () => {
+      const { workspaceRef } = renderWorkspace();
+      const listener = vi.fn();
+      const unsubscribe = workspaceRef.current!.subscribeToTabListFreeSpace(
+        "right",
+        listener
+      );
+
+      // Maximizing (and restoring) a tabset moves its tab list, but its free space doesn't change
+      act(() => {
+        workspaceRef.current!.maximizeTabset("right");
+      });
+      await act(async () => {});
+      act(() => {
+        workspaceRef.current!.restoreTabset();
+      });
+      await act(async () => {});
+      expect(listener).not.toHaveBeenCalled();
+
+      act(() => {
+        workspaceRef.current!.closeTabset("right");
+      });
+      await act(async () => {});
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenLastCalledWith(undefined);
+      expect(workspaceRef.current!.getTabListFreeSpace("right")).toBe(
+        undefined
+      );
+
+      unsubscribe();
     });
   });
 

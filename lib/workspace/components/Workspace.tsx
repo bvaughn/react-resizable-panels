@@ -30,12 +30,14 @@ import {
   type WorkspaceContextType
 } from "../contexts/WorkspaceContext";
 import { WorkspaceStoreContext } from "../contexts/WorkspaceStoreContext";
+import { calculateMaximumSizes } from "../utils/calculateMaximumSizes";
 import { calculateMinimumSizes } from "../utils/calculateMinimumSizes";
+import { createLayoutUpdateQueue } from "../utils/createLayoutUpdateQueue";
+import { createTabListFreeSpaceStore } from "../utils/createTabListFreeSpaceStore";
 import {
   createWorkspaceStore,
   type WorkspaceState
 } from "../utils/createWorkspaceStore";
-import { minimumSizeToPixels } from "../utils/minimumSizeToPixels";
 import { addTab } from "../models/addTab";
 import { closeTab } from "../models/closeTab";
 import { closeTabset } from "../models/closeTabset";
@@ -68,6 +70,7 @@ import type {
   TabNode,
   TabRenderProps,
   TabsetNode,
+  WorkspaceChangeReason,
   WorkspaceImperativeHandle,
   WorkspaceModel,
   WorkspaceModelInput,
@@ -77,6 +80,7 @@ import { useTabDrag } from "../hooks/useTabDrag";
 import { NodeView } from "./NodeView";
 import { TabsetSlot } from "./TabsetSlot";
 import { pruneRemovedNodes } from "../utils/pruneRemovedNodes";
+import { sizeToPixels } from "../utils/sizeToPixels";
 import { subscribeToNothing } from "../../shared/utils/subscribeToNothing";
 import { DragPreview } from "./DragPreview";
 
@@ -169,6 +173,34 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     [getTabRemovalSelectionBehavior, onModelChangedStable]
   );
 
+  // Whether the Workspace is mounted when queued layouts are reported (see createLayoutUpdateQueue)
+  const isMountedRef = useRef(false);
+  useIsomorphicLayoutEffect(() => {
+    isMountedRef.current = true;
+
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  // Layouts the Groups change themselves (e.g. when the workspace is made narrower than its tabsets' minimum sizes) are written back to the model
+  const applyLayoutUpdate = useStableCallback(
+    (
+      reason: WorkspaceChangeReason,
+      update: (prev: WorkspaceModel) => WorkspaceModel
+    ) => updateModel(reason, false, update)
+  );
+  const [{ queue: queueLayoutUpdate }] = useState(() =>
+    createLayoutUpdateQueue({
+      apply: applyLayoutUpdate,
+      getModel: () => modelRef.current as WorkspaceModel,
+      isActive: () => isMountedRef.current
+    })
+  );
+
+  // Tab lists report their free space here (rather than in React state), so that it can be read synchronously, e.g. from outside the Workspace
+  const [tabListFreeSpaceStore] = useState(createTabListFreeSpaceStore);
+
   const handle = useMemo<WorkspaceImperativeHandle>(() => {
     const getActiveTabsetId = () => {
       const tabsetId = activeTabsetIdRef.current;
@@ -198,6 +230,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         updateModel("expand", false, (prev) => expandTabset(prev, tabsetId)),
       getActiveTabsetId,
       getModel: () => modelRef.current,
+      getTabListFreeSpace: (tabsetId) => tabListFreeSpaceStore.get(tabsetId),
       maximizeTabset: (tabsetId) =>
         updateModel("maximize", false, (prev) =>
           maximizeTabset(prev, tabsetId)
@@ -219,6 +252,8 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
         return modelRef.current;
       },
+      subscribeToTabListFreeSpace: (tabsetId, listener) =>
+        tabListFreeSpaceStore.subscribe(tabsetId, listener),
       updateTab: (tabId, changes) =>
         updateModel("update", false, (prev) => updateTab(prev, tabId, changes)),
       updateTabset: (tabsetId, changes) =>
@@ -226,7 +261,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
           updateTabset(prev, tabsetId, changes)
         )
     };
-  }, [updateModel]);
+  }, [tabListFreeSpaceStore, updateModel]);
 
   useImperativeHandle(
     workspaceRef as Ref<WorkspaceImperativeHandle> | undefined,
@@ -499,14 +534,16 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         getChromeSize: (tabsetId) => chromeSizes[tabsetId],
         getCollapsedSize: (tabsetId) => collapsedSizes[tabsetId],
         getContentMinimumSize: (tabset: TabsetNode) => ({
-          height: minimumSizeToPixels(
-            tabset.minHeight ?? tabsetMinHeight,
-            unitsReference?.element ?? null
-          ),
-          width: minimumSizeToPixels(
-            tabset.minWidth ?? tabsetMinWidth,
-            unitsReference?.element ?? null
-          )
+          height:
+            sizeToPixels(
+              tabset.minHeight ?? tabsetMinHeight,
+              unitsReference?.element ?? null
+            ) ?? 0,
+          width:
+            sizeToPixels(
+              tabset.minWidth ?? tabsetMinWidth,
+              unitsReference?.element ?? null
+            ) ?? 0
         }),
         getSeparatorsSize: (splitId) => separatorsSizes[splitId]
       }),
@@ -519,6 +556,25 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       tabsetMinWidth,
       unitsReference
     ]
+  );
+
+  // Maximums that can't be converted yet (e.g. "em" before the workspace has rendered) aren't applied until they can be
+  const maximumSizes = useMemo(
+    () =>
+      calculateMaximumSizes(model.root, {
+        getChromeSize: (tabsetId) => chromeSizes[tabsetId],
+        getCollapsedSize: (tabsetId) => collapsedSizes[tabsetId],
+        getContentMaximumSize: (tabset: TabsetNode) => ({
+          height:
+            sizeToPixels(tabset.maxHeight, unitsReference?.element ?? null) ??
+            Infinity,
+          width:
+            sizeToPixels(tabset.maxWidth, unitsReference?.element ?? null) ??
+            Infinity
+        }),
+        getSeparatorsSize: (splitId) => separatorsSizes[splitId]
+      }),
+    [chromeSizes, collapsedSizes, model.root, separatorsSizes, unitsReference]
   );
 
   const isDropDisabled = useStableCallback(
@@ -613,6 +669,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       getTabsetHandle,
       id,
       isHydrating,
+      maximumSizes,
       minimumSizes,
       model,
       modelIndex,
@@ -629,6 +686,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       renderTabsetToolbar: renderTabsetToolbar as
         | ((tabset: TabsetNode) => ReactNode)
         | undefined,
+      queueLayoutUpdate,
       reportChromeSize,
       reportCollapsePreview,
       reportCollapsedSize,
@@ -641,6 +699,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       startTabDrag,
       startTabsetDrag,
       styles,
+      tabListFreeSpaceStore,
       tabPlacement,
       takeFocusRequest,
       updateModel
@@ -659,6 +718,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       getTabsetHandle,
       id,
       isHydrating,
+      maximumSizes,
       minimumSizes,
       model,
       modelIndex,
@@ -669,6 +729,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       renderTab,
       renderTabContent,
       renderTabsetToolbar,
+      queueLayoutUpdate,
       reportChromeSize,
       reportCollapsePreview,
       reportCollapsedSize,
@@ -681,6 +742,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       startTabDrag,
       startTabsetDrag,
       styles,
+      tabListFreeSpaceStore,
       tabPlacement,
       takeFocusRequest,
       updateModel

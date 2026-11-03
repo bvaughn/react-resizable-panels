@@ -971,6 +971,30 @@ describe("workspace model", () => {
     });
   });
 
+  test("setSplitLayout ignores layouts measured for other children (e.g. before the model was replaced)", () => {
+    const collapsed = model(
+      split("root", "horizontal", [
+        tabset("a", ["1"], 30),
+        tabset("b", ["2"], 70),
+        { ...tabset("c", ["3"], 20), collapsed: true, collapsible: true }
+      ])
+    );
+
+    // Measured for two of the split's children
+    expect(setSplitLayout(collapsed, "root", { a: 30, b: 70 }, new Set())).toBe(
+      collapsed
+    );
+    // Measured for different children
+    expect(
+      setSplitLayout(collapsed, "root", { a: 30, b: 60, d: 10 }, new Set())
+    ).toBe(collapsed);
+
+    // "c" stays collapsed
+    expect(
+      ((collapsed.root as SplitNode).children[2] as TabsetNode).collapsed
+    ).toBe(true);
+  });
+
   test("maximizeTabset and restoreTabset", () => {
     const maximized = maximizeTabset(twoTabsets, "a");
     expect(maximized.maximizedTabsetId).toBe("a");

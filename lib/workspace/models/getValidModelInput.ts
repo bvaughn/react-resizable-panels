@@ -1,4 +1,5 @@
 import { warnOnce } from "../../shared/utils/warnOnce";
+import { isValidModelInput } from "./isValidModelInput";
 import type { WorkspaceModelInput } from "../types";
 
 /**
@@ -12,51 +13,11 @@ import type { WorkspaceModelInput } from "../types";
 export function getValidModelInput<TabData, TabsetData>(
   value: WorkspaceModelInput<TabData, TabsetData>
 ): WorkspaceModelInput<TabData, TabsetData> {
-  if (isObject(value) && isValidNode(value.root)) {
+  if (isValidModelInput(value)) {
     return value;
   }
 
   warnOnce("Invalid workspace model; using an empty workspace instead");
 
   return { root: { tabs: [], type: "tabset" }, version: 1 };
-}
-
-function isObject(value: unknown): value is { [key: string]: unknown } {
-  return typeof value === "object" && value !== null;
-}
-
-function isOptionalString(value: unknown) {
-  return value === undefined || typeof value === "string";
-}
-
-function isValidNode(node: unknown): boolean {
-  if (!isObject(node) || !isOptionalString(node.id)) {
-    return false;
-  }
-
-  switch (node.type) {
-    case "split": {
-      return (
-        (node.orientation === "horizontal" ||
-          node.orientation === "vertical") &&
-        Array.isArray(node.children) &&
-        node.children.every(isValidNode)
-      );
-    }
-    case "tabset": {
-      return (
-        Array.isArray(node.tabs) &&
-        node.tabs.every(
-          (tab) =>
-            isObject(tab) &&
-            typeof tab.id === "string" &&
-            // Titles are rendered (e.g. by the default tab), so other values would throw
-            isOptionalString(tab.title)
-        )
-      );
-    }
-    default: {
-      return false;
-    }
-  }
 }

@@ -7,8 +7,10 @@ import type { Orientation, ResizePreviewMode } from "../../global/types";
 import type { ParentGroup, ParentPanel } from "../../flex/types";
 import type { ParentGrid } from "../../grid/types";
 import type { ModelIndex } from "../models/indexModel";
+import type { TabListFreeSpaceStore } from "../utils/createTabListFreeSpaceStore";
 import type {
   HiddenTabBehavior,
+  MaximumSize,
   MinimumSize,
   ParentTab,
   ParentTabset,
@@ -62,6 +64,7 @@ export type WorkspaceContextType = {
   // True while server rendering and hydrating (when portals can't be rendered)
   isHydrating: boolean;
 
+  maximumSizes: Map<string, MaximumSize>;
   minimumSizes: Map<string, MinimumSize>;
   model: WorkspaceModel;
   modelIndex: ModelIndex;
@@ -80,6 +83,13 @@ export type WorkspaceContextType = {
   renderTab: ((tab: TabNode, props: TabRenderProps) => ReactNode) | undefined;
   renderTabContent: (tab: TabNode) => ReactNode;
   renderTabsetToolbar: ((tabset: TabsetNode) => ReactNode) | undefined;
+  // Writes a layout the Workspace's Groups changed themselves back to the model (see SplitView);
+  // batched with other splits' layouts (replacing the split's previous layout, if it hasn't been written yet)
+  queueLayoutUpdate: (
+    splitId: string,
+    reason: WorkspaceChangeReason,
+    update: (prev: WorkspaceModel) => WorkspaceModel
+  ) => void;
   reportChromeSize: (tabsetId: string, size: MinimumSize) => void;
   // Previews of a split's tabsets (by id), or undefined for tabsets shown as the model has them
   reportCollapsePreview: (previews: {
@@ -98,6 +108,7 @@ export type WorkspaceContextType = {
     event: ReactPointerEvent<HTMLElement>
   ) => void;
   styles: WorkspaceStyles | undefined;
+  tabListFreeSpaceStore: TabListFreeSpaceStore;
   tabPlacement: "bottom" | "left" | "right" | "top";
   takeFocusRequest: (tabId: string) => boolean;
   updateModel: UpdateModel;

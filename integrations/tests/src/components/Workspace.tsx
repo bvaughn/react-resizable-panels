@@ -7,7 +7,8 @@ import {
   type TabNode,
   type WorkspaceChangedMeta,
   type WorkspaceModel,
-  type WorkspaceProps
+  type WorkspaceProps,
+  useTabListFreeSpace
 } from "react-resizable-panels";
 
 // Props that can be serialized for tests (render functions are provided by this component)
@@ -26,6 +27,9 @@ export type TestWorkspaceProps = Omit<
   | "workspaceRef"
 > & {
   hiddenTabBehavior?: "activity" | "keep-mounted" | "unmount" | undefined;
+  // Renders a toolbar that shows each tabset's tab list free space (and makes tab lists fill their headers);
+  // a "responsive" toolbar shrinks when there's little free space (like a toolbar that moves items into an overflow menu)
+  showTabListFreeSpace?: boolean | "responsive" | undefined;
 };
 
 // Geometry is specified with inline styles (rather than CSS classes) so that tests can make exact assertions:
@@ -33,7 +37,14 @@ export type TestWorkspaceProps = Omit<
 export const SEPARATOR_SIZE = 8;
 export const TAB_LIST_HEIGHT = 30;
 
-export function Workspace({ style, ...rest }: TestWorkspaceProps) {
+export const FREE_SPACE_TOOLBAR_WIDTH = 60;
+const NARROW_TOOLBAR_WIDTH = 20;
+
+export function Workspace({
+  showTabListFreeSpace,
+  style,
+  ...rest
+}: TestWorkspaceProps) {
   const [changes, setChanges] = useState<
     { meta: WorkspaceChangedMeta; model: WorkspaceModel }[]
   >([]);
@@ -53,6 +64,16 @@ export function Workspace({ style, ...rest }: TestWorkspaceProps) {
           />
         )}
         renderTabContent={(tab) => <TabContent tab={tab} />}
+        renderTabsetToolbar={
+          showTabListFreeSpace
+            ? (tabset) => (
+                <FreeSpace
+                  isResponsive={showTabListFreeSpace === "responsive"}
+                  tabsetId={tabset.id}
+                />
+              )
+            : undefined
+        }
         style={{ height: 400, width: 808, ...style }}
         styles={{
           header: { display: "flex", flex: `0 0 ${TAB_LIST_HEIGHT}px` },
@@ -62,7 +83,14 @@ export function Workspace({ style, ...rest }: TestWorkspaceProps) {
             gap: 4,
             padding: "0 10px"
           },
-          tabList: { display: "flex" },
+          tabList: showTabListFreeSpace
+            ? {
+                display: "flex",
+                flex: "1 1 0",
+                minWidth: 0,
+                overflow: "hidden"
+              }
+            : { display: "flex" },
           tabPanels: { flex: "1 1 0", minHeight: 0 },
           tabset: {
             background: "#020617",
@@ -92,5 +120,47 @@ function TabContent({ tab }: { tab: TabNode }) {
     >
       {tab.id}: {count}
     </button>
+  );
+}
+
+// Fixed size, so that rendering a new value doesn't resize the tab list (and change its free space again)
+function FreeSpace({
+  isResponsive,
+  tabsetId
+}: {
+  isResponsive: boolean;
+  tabsetId: string;
+}) {
+  const freeSpace = useTabListFreeSpace();
+  // The toolbar can use the free space plus the size it had when the free space was measured (see the docs' overflow toolbar)
+  const [placement, setPlacement] = useState({
+    freeSpace: undefined as number | undefined,
+    isNarrow: false
+  });
+  if (
+    isResponsive &&
+    freeSpace !== undefined &&
+    freeSpace !== placement.freeSpace
+  ) {
+    const width = placement.isNarrow
+      ? NARROW_TOOLBAR_WIDTH
+      : FREE_SPACE_TOOLBAR_WIDTH;
+    setPlacement({
+      freeSpace,
+      isNarrow: freeSpace + width < FREE_SPACE_TOOLBAR_WIDTH
+    });
+  }
+  const { isNarrow } = placement;
+
+  return (
+    <div
+      data-testid={`free-space-${tabsetId}`}
+      style={{
+        overflow: "hidden",
+        width: isNarrow ? NARROW_TOOLBAR_WIDTH : FREE_SPACE_TOOLBAR_WIDTH
+      }}
+    >
+      {String(freeSpace)}
+    </div>
   );
 }

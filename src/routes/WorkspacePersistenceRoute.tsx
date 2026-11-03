@@ -1,5 +1,6 @@
-import { Box, Callout, Code, Header } from "react-lib-tools";
+import { Box, Callout, Code, Header, SectionHeader } from "react-lib-tools";
 import { html } from "../../public/generated/examples/WorkspacePersistence.json";
+import { html as NormalizeModelHTML } from "../../public/generated/examples/WorkspaceNormalizeModel.json";
 import { DemoWorkspace } from "../components/workspace/WorkspaceDemo";
 import { Link } from "../components/Link";
 import { initialModel } from "./examples/WorkspaceModel";
@@ -28,7 +29,11 @@ export default function WorkspacePersistenceRoute() {
           <code>onModelChanged</code> is called after each change: when a tab is
           moved, selected, added, or closed, when a tabset is maximized or
           restored, and when a resize ends (not while the pointer is still
-          moving). Its second argument describes the change.
+          moving). Its second argument describes the change. The workspace also
+          reports changes it makes itself (e.g. resizing tabsets to fit their
+          minimum sizes when the window is made narrower), which can happen on
+          every frame while the workspace is resized, so saving may need to be
+          debounced.
         </li>
         <li>
           Saved models include each tab's <code>data</code>, so it should be
@@ -41,7 +46,8 @@ export default function WorkspacePersistenceRoute() {
         <li>
           A malformed model (e.g. one that was saved incorrectly) is replaced
           with an empty workspace, rather than throwing; in development, a
-          warning is logged.
+          warning is logged. To fall back to a different layout instead, check
+          the model with <code>normalizeWorkspaceModel</code> (see below).
         </li>
         <li>
           To restore a layout after the workspace has mounted (e.g. a "reset
@@ -59,6 +65,25 @@ export default function WorkspacePersistenceRoute() {
         The example above works well with client-rendered applications. For
         server-rendered applications, see{" "}
         <Link to="/examples/workspace/server-rendering">server rendering</Link>.
+      </div>
+      <SectionHeader>
+        Restoring layouts saved by older versions of an app
+      </SectionHeader>
+      <div>
+        A saved layout may refer to tabs that the app no longer has (e.g. a tab
+        that was renamed or removed), or have stale copies of tabs that still
+        exist (e.g. an old title). The <code>normalizeWorkspaceModel</code>{" "}
+        function checks a saved model and tidies it the same way the workspace
+        does (e.g. removing tabsets left empty, and fixing the selected tab).
+        Its <code>mapTab</code> option can replace each saved tab with the app's
+        current version, or remove it by returning <code>null</code>:
+      </div>
+      <Code html={NormalizeModelHTML} />
+      <div>
+        It returns <code>null</code> if the saved value isn't a model, so the
+        app can fall back to its own default layout (rather than an empty
+        workspace). The result can also be checked for anything the app requires
+        (e.g. a tab that should always be open) before it's used.
       </div>
     </Box>
   );

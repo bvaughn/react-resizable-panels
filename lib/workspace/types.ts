@@ -99,6 +99,32 @@ export type TabsetNode<TabData = unknown, TabsetData = unknown> = {
   minHeight?: string | undefined;
 
   /**
+   * Maximum width of the tabset's content area (not including its header).
+   *
+   * ℹ️ Interpretation rules:
+   * - Strings must specify a unit: "px", "em", "rem", "vh", or "vw" (e.g. `maxWidth: "400px"`)
+   * - Percentages (and strings without units) are not allowed
+   * - If the tabset's minimum width is larger, the minimum is used
+   *
+   * ⚠️ A maximum only applies if something else can take up the rest of the space, e.g. another tabset in the same split without a maximum width;
+   * otherwise it's ignored (e.g. if every tabset in a split has a maximum, or the tabset fills the workspace).
+   */
+  maxWidth?: string | undefined;
+
+  /**
+   * Maximum height of the tabset's content area (not including its header).
+   *
+   * ℹ️ Interpretation rules:
+   * - Strings must specify a unit: "px", "em", "rem", "vh", or "vw" (e.g. `maxHeight: "400px"`)
+   * - Percentages (and strings without units) are not allowed
+   * - If the tabset's minimum height is larger, the minimum is used
+   *
+   * ⚠️ A maximum only applies if something else can take up the rest of the space, e.g. another tabset in the same split without a maximum height;
+   * otherwise it's ignored (e.g. if every tabset in a split has a maximum, or the tabset fills the workspace).
+   */
+  maxHeight?: string | undefined;
+
+  /**
    * Where the tabset's tabs are placed relative to its content.
    * Overrides the Workspace's `tabPlacement` prop.
    *
@@ -311,7 +337,10 @@ export type WorkspaceChangeReason =
 export type WorkspaceChangedMeta = {
   /**
    * `true` when the change was caused by the user (e.g. dragging a tab or clicking a close button),
-   * `false` for imperative API calls.
+   * `false` for imperative API calls and for changes the workspace makes itself.
+   *
+   * ℹ️ The workspace resizes (or collapses) tabsets itself when the model's sizes don't fit their minimum or maximum sizes,
+   * e.g. a model saved in a wider window, or when the workspace is made narrower; these changes are reported as `"resize"` (or `"collapse"`).
    */
   isUserInteraction: boolean;
 
@@ -420,6 +449,10 @@ export interface WorkspaceImperativeHandle<
 
   /**
    * Expand a collapsed tabset to its previous size.
+   *
+   * ℹ️ If the tabset (or one of the tabsets beside it) would be smaller than its minimum size, the workspace resizes them to fit;
+   * `onModelChanged` reports the expansion (as `"expand"`), and then the resize (as `"resize"`, with `isUserInteraction: false`),
+   * before the browser paints.
    */
   expandTabset: (tabsetId: string) => void;
 
@@ -432,6 +465,22 @@ export interface WorkspaceImperativeHandle<
    * Get the current model.
    */
   getModel: () => WorkspaceModel<TabData, TabsetData>;
+
+  /**
+   * Space (in pixels) in a tabset's tab list that its tabs don't use, e.g. how much a toolbar beside the tabs could grow
+   * before they overflow (and how much space an overflow menu needs to free up, once it's negative).
+   *
+   * ℹ️ The space is measured along the tab list: its width, or its height if its tabs are placed on the left or right
+   * (or the tabset is collapsed to a vertical strip).
+   *
+   * ℹ️ The tab list's `--tab-list-free-space` custom property has the same value (e.g. "120px").
+   *
+   * ℹ️ Within a tabset (e.g. its toolbar), the `useTabListFreeSpace` hook returns this value (and re-renders when it changes).
+   *
+   * @returns The free space, or `undefined` if the tabset isn't rendered (or hasn't been measured yet, e.g. while server rendering,
+   * or right after the tabset is first rendered: it's measured after React commits, before the browser paints)
+   */
+  getTabListFreeSpace: (tabsetId: string) => number | undefined;
 
   /**
    * Maximize a tabset, so that it covers the rest of the workspace.
@@ -474,6 +523,22 @@ export interface WorkspaceImperativeHandle<
   ) => WorkspaceModel<TabData, TabsetData>;
 
   /**
+   * Subscribe to changes to the free space in a tabset's tab list (see `getTabListFreeSpace`),
+   * e.g. from a toolbar rendered outside of the Workspace.
+   *
+   * ℹ️ The listener is called synchronously when the tab list is measured (when it or its tabs change size, or tabs are added or removed),
+   * before the browser paints; changes it makes to the DOM (e.g. with `flushSync`) are shown in the same frame.
+   *
+   * ℹ️ The listener is called with `undefined` when the tabset is removed (e.g. closed, or merged into another tabset).
+   *
+   * @returns A function that unsubscribes the listener
+   */
+  subscribeToTabListFreeSpace: (
+    tabsetId: string,
+    listener: (freeSpace: number | undefined) => void
+  ) => () => void;
+
+  /**
    * Update a tab; fields that are not specified are not changed.
    *
    * ℹ️ `data` is replaced rather than merged.
@@ -494,7 +559,7 @@ export interface WorkspaceImperativeHandle<
    * ℹ️ `data` is replaced rather than merged.
    *
    * ℹ️ Setting `minHeight`, `minWidth`, or `tabPlacement` to `undefined` removes the tabset's override,
-   * so the corresponding Workspace prop is used.
+   * so the corresponding Workspace prop is used; setting `maxHeight` or `maxWidth` to `undefined` removes the maximum.
    */
   updateTabset: (
     tabsetId: string,
@@ -503,6 +568,8 @@ export interface WorkspaceImperativeHandle<
       data?: TabsetData;
       disableDrag?: boolean | undefined;
       keepWhenEmpty?: boolean | undefined;
+      maxHeight?: string | undefined;
+      maxWidth?: string | undefined;
       minHeight?: string | undefined;
       minWidth?: string | undefined;
       tabPlacement?: TabsetNode["tabPlacement"];
@@ -551,7 +618,7 @@ export type ParentTabset<TabData = unknown> = {
   collapse: () => void;
 
   /**
-   * Expand the tabset if it is collapsed.
+   * Expand the tabset if it is collapsed (see `WorkspaceImperativeHandle.expandTabset`).
    */
   expand: () => void;
 
@@ -820,6 +887,10 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    *
    * ℹ️ For changes caused by pointer events, this method is not called until the pointer has been released.
    * This method is recommended when saving models to some storage api.
+   *
+   * ℹ️ The workspace also updates the model when it resizes (or collapses) tabsets itself to fit their minimum or maximum sizes
+   * (reported with `isUserInteraction: false`; see `WorkspaceChangedMeta`); while the workspace is being resized (e.g. the window is made narrower),
+   * this can happen on every frame, so saving each change may need to be debounced.
    */
   onModelChanged?: (
     model: WorkspaceModel<TabData, TabsetData>,
@@ -1060,6 +1131,11 @@ export type TabsetDragHandleProps = HTMLAttributes<HTMLDivElement>;
  * Minimum size of a node, in pixels (used internally).
  */
 export type MinimumSize = { height: number; width: number };
+
+/**
+ * Maximum size of a node, in pixels; Infinity if it has no maximum (used internally).
+ */
+export type MaximumSize = { height: number; width: number };
 
 /**
  * A pointer position, in client coordinates (used internally).

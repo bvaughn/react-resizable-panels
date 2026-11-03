@@ -10,9 +10,10 @@ import {
   useWorkspaceContext
 } from "../hooks/useWorkspaceContext";
 import { isTabsetDragDisabled } from "../utils/isTabsetDragDisabled";
+import { measureTabListFreeSpace } from "../utils/measureTabListFreeSpace";
 
 function TabListComponent({ children }: { children: ReactNode }) {
-  const { classNames, disabled, model, styles } =
+  const { classNames, disabled, model, styles, tabListFreeSpaceStore } =
     useWorkspaceContext("TabList");
   const { isCollapsed, tabPlacement, tabset } = useTabsetContext("TabList");
 
@@ -26,7 +27,8 @@ function TabListComponent({ children }: { children: ReactNode }) {
   // Tabs let the list be scrolled by touch while it overflows (see Tab)
   const [isOverflowing, setIsOverflowing] = useState(false);
 
-  // The list overflows when it or its tabs change size, or when tabs are added or removed
+  // The list overflows (and its free space changes) when it or its tabs change size, or when tabs are added or removed
+  const tabsetId = tabset.id;
   useIsomorphicLayoutEffect(() => {
     const element = elementRef.current;
     const window = element?.ownerDocument.defaultView;
@@ -36,7 +38,7 @@ function TabListComponent({ children }: { children: ReactNode }) {
 
     // The overflow attributes aren't rendered by React (so updating them while scrolling doesn't re-render the list);
     // only whether the list overflows at all is state, since tabs need it (see Tab)
-    const update = () => {
+    const updateOverflow = () => {
       const isVertical = element.dataset.orientation === "vertical";
       const offset = isVertical ? element.scrollTop : element.scrollLeft;
       const overflow = isVertical
@@ -47,6 +49,20 @@ function TabListComponent({ children }: { children: ReactNode }) {
       element.toggleAttribute("data-overflow-end", overflow - offset > 1);
 
       setIsOverflowing(overflow > 1);
+    };
+
+    // Free space is reported synchronously from ResizeObserver and MutationObserver callbacks (which run before the browser paints),
+    // so that e.g. a toolbar can move items into an overflow menu without showing them in the wrong place for a frame
+    let lastFreeSpace: number | undefined;
+    const update = () => {
+      updateOverflow();
+
+      const freeSpace = measureTabListFreeSpace(element);
+      if (freeSpace !== lastFreeSpace) {
+        lastFreeSpace = freeSpace;
+        element.style.setProperty("--tab-list-free-space", `${freeSpace}px`);
+      }
+      tabListFreeSpaceStore.set(tabsetId, freeSpace);
     };
 
     const resizeObserver = window.ResizeObserver
@@ -77,15 +93,30 @@ function TabListComponent({ children }: { children: ReactNode }) {
       : null;
     mutationObserver?.observe(element, { childList: true });
 
-    update();
-    element.addEventListener("scroll", update, { passive: true });
+    // The free space is measured after the commit (but before the browser paints), so that listeners aren't called while React is committing
+    // (e.g. a listener that calls flushSync would be warned)
+    updateOverflow();
+    let isDisposed = false;
+    queueMicrotask(() => {
+      if (!isDisposed) {
+        update();
+      }
+    });
+    element.addEventListener("scroll", updateOverflow, { passive: true });
 
     return () => {
+      isDisposed = true;
       resizeObserver?.disconnect();
       mutationObserver?.disconnect();
-      element.removeEventListener("scroll", update);
+      element.removeEventListener("scroll", updateOverflow);
     };
-  }, [orientation]);
+  }, [orientation, tabListFreeSpaceStore, tabsetId]);
+
+  // Cleared when the list is removed (e.g. the tabset is closed), rather than when it's measured again (e.g. its orientation changes)
+  useIsomorphicLayoutEffect(
+    () => tabListFreeSpaceStore.retain(tabsetId),
+    [tabListFreeSpaceStore, tabsetId]
+  );
 
   // The list's empty space drags the tabset (see TabsetView), so it handles touch drags itself like tabs do (see Tab)
   let touchAction = styles?.tabList?.touchAction;
@@ -127,6 +158,9 @@ function TabListComponent({ children }: { children: ReactNode }) {
  *
  * ℹ️ The `data-overflow-start` and `data-overflow-end` attributes are set while the list is scrolled away from its start or end
  * (e.g. to show that there are more tabs beyond the edge).
+ *
+ * ℹ️ The `--tab-list-free-space` custom property is set to the space the list's tabs don't use (negative once they overflow);
+ * see `WorkspaceImperativeHandle.getTabListFreeSpace`.
  *
  * ℹ️ While the list overflows, it can be scrolled by swiping along it on touch devices;
  * tabs are then dragged by first moving across the list (e.g. downward from tabs placed at the top).
