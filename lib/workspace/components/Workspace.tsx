@@ -729,14 +729,18 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       );
       if (!selectedTab) {
         dragPreview = dragTabset.id;
-      } else if (renderDragPreview) {
-        dragPreview = renderDragPreview(selectedTab as TabNode<TabData>);
       } else {
-        // Show how many other tabs are being dragged along with the selected one
-        const title = selectedTab.title ?? selectedTab.id;
+        dragPreview = renderTabPreview(selectedTab);
+
+        // The default preview also shows how many other tabs are being dragged along with the selected one
         const otherTabCount = dragTabset.tabs.length - 1;
-        dragPreview =
-          otherTabCount > 0 ? `${title} (+${otherTabCount})` : title;
+        if (!renderDragPreview && otherTabCount > 0) {
+          dragPreview = (
+            <>
+              {dragPreview} (+{otherTabCount})
+            </>
+          );
+        }
       }
     }
   }
