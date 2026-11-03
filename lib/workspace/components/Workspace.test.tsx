@@ -8,11 +8,15 @@ import { Group } from "../../flex/components/Group";
 import { Panel } from "../../flex/components/Panel";
 import { useParentPanel } from "../../flex/hooks/useParentPanel";
 import { TabCloseButton } from "./TabCloseButton";
+import { TabsetDragHandle } from "./TabsetDragHandle";
 import type {
+  DisableDropArgs,
   ParentTab,
+  ParentTabsetState,
   ParentTabState,
   SplitNode,
   TabNode,
+  TabsetNode,
   WorkspaceImperativeHandle,
   WorkspaceModel,
   WorkspaceProps
@@ -981,6 +985,288 @@ describe("Workspace", () => {
     });
   });
 
+  describe("tabRemovalSelectionBehavior", () => {
+    function createThreeTabModel(): WorkspaceModel<TabData> {
+      return {
+        root: {
+          id: "only",
+          selectedId: "1",
+          tabs: [tab("1", { title: "One" }), tab("2"), tab("3")],
+          type: "tabset"
+        },
+        version: 1
+      };
+    }
+
+    function getCloseButton(name: string) {
+      return screen.getByRole("button", { name: `Close ${name}` });
+    }
+
+    test("adjacent (default) selects the tab after the closed one, and doesn't save recently selected tabs", async () => {
+      const { workspaceRef } = renderWorkspace({
+        defaultModel: createThreeTabModel()
+      });
+
+      await userEvent.click(getTab("2"));
+      await userEvent.click(getCloseButton("2"));
+
+      expect(getTab("3")).toHaveAttribute("aria-selected", "true");
+      expect(workspaceRef.current!.getModel().root).not.toHaveProperty(
+        "recentTabIds"
+      );
+    });
+
+    test("recent selects the most recently selected tab, and saves recently selected tabs", async () => {
+      const { onModelChanged, workspaceRef } = renderWorkspace({
+        defaultModel: createThreeTabModel(),
+        tabRemovalSelectionBehavior: "recent"
+      });
+      expect(workspaceRef.current!.getModel().root).toMatchObject({
+        recentTabIds: ["1"]
+      });
+
+      await userEvent.click(getTab("2"));
+      expect(onModelChanged).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          root: expect.objectContaining({ recentTabIds: ["2", "1"] })
+        }),
+        { isUserInteraction: true, reason: "select" }
+      );
+
+      await userEvent.click(getCloseButton("2"));
+
+      expect(getTab("One")).toHaveAttribute("aria-selected", "true");
+      expect(workspaceRef.current!.getModel().root).toMatchObject({
+        recentTabIds: ["1"]
+      });
+    });
+
+    test("recent applies to the imperative API", () => {
+      const { workspaceRef } = renderWorkspace({
+        defaultModel: createThreeTabModel(),
+        tabRemovalSelectionBehavior: "recent"
+      });
+
+      act(() => {
+        workspaceRef.current!.selectTab("2");
+        workspaceRef.current!.closeTab("2");
+      });
+
+      expect(getTab("One")).toHaveAttribute("aria-selected", "true");
+    });
+
+    test("Delete moves focus to the tab that is selected instead", async () => {
+      renderWorkspace({
+        defaultModel: createThreeTabModel(),
+        tabRemovalSelectionBehavior: "recent"
+      });
+
+      await userEvent.click(getTab("2"));
+      await userEvent.keyboard("{Delete}");
+
+      expect(getTab("One")).toHaveFocus();
+      expect(getTab("One")).toHaveAttribute("aria-selected", "true");
+    });
+
+    test("changing the behavior to adjacent forgets recently selected tabs", async () => {
+      const props: Partial<WorkspaceProps<TabData>> = {
+        defaultModel: createThreeTabModel(),
+        renderTabContent: (tab) => <Content tab={tab} />
+      };
+      const { rerender, workspaceRef } = renderWorkspace({
+        ...props,
+        tabRemovalSelectionBehavior: "recent"
+      });
+      await userEvent.click(getTab("2"));
+
+      rerender(
+        <Workspace<TabData>
+          {...(props as WorkspaceProps<TabData>)}
+          tabRemovalSelectionBehavior="adjacent"
+          workspaceRef={workspaceRef}
+        />
+      );
+      await userEvent.click(getCloseButton("2"));
+
+      expect(getTab("3")).toHaveAttribute("aria-selected", "true");
+      expect(workspaceRef.current!.getModel().root).not.toHaveProperty(
+        "recentTabIds"
+      );
+    });
+  });
+
+  describe("collapsing tabsets", () => {
+    function createCollapsibleModel(
+      collapsed: boolean
+    ): WorkspaceModel<TabData> {
+      const model = createModel();
+      const root = model.root as SplitNode<TabData>;
+
+      return {
+        ...model,
+        root: {
+          ...root,
+          children: [
+            {
+              ...(root.children[0] as TabsetNode<TabData>),
+              collapsed,
+              collapsible: true
+            },
+            root.children[1]
+          ]
+        }
+      };
+    }
+
+    function getTabset(container: HTMLElement, id: string) {
+      return container.querySelector<HTMLElement>(
+        `[data-workspace-layout] [data-tabset-id="${id}"]`
+      )!;
+    }
+
+    test("a collapsed tabset hides its panels (keeping its content mounted) and shows its header along its split", () => {
+      const { container } = renderWorkspace({
+        defaultModel: createCollapsibleModel(true)
+      });
+
+      const tabset = getTabset(container, "left");
+      expect(tabset).toHaveAttribute("data-tabset-collapsed");
+      expect(tabset.querySelector("[data-tab-panels]")).toHaveStyle({
+        display: "none"
+      });
+      expect(screen.getByTestId("content-1")).toBeInTheDocument();
+
+      // Tabs placed on top run vertically while the tabset is collapsed within a horizontal split
+      expect(tabset).toHaveAttribute("data-tab-placement", "left");
+      expect(tabset.querySelector("[data-tab-list]")).toHaveAttribute(
+        "aria-orientation",
+        "vertical"
+      );
+      expect(getTabset(container, "right")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+    });
+
+    test("clicking a tab in a collapsed tabset expands it and selects the tab", async () => {
+      const { container, onModelChanged } = renderWorkspace({
+        defaultModel: createCollapsibleModel(true)
+      });
+
+      await userEvent.click(getTab("2"));
+
+      expect(getTabset(container, "left")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+      expect(getTab("2")).toHaveAttribute("aria-selected", "true");
+      expect(onModelChanged).toHaveBeenCalledTimes(1);
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: true,
+        reason: "expand"
+      });
+    });
+
+    test("clicking the empty space in a collapsed tabset's header expands it", async () => {
+      const { container } = renderWorkspace({
+        defaultModel: createCollapsibleModel(true)
+      });
+
+      await userEvent.click(
+        getTabset(container, "left").querySelector("[data-tab-list]")!
+      );
+
+      expect(getTabset(container, "left")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+    });
+
+    test("the imperative API collapses and expands collapsible tabsets", () => {
+      const { container, onModelChanged, workspaceRef } = renderWorkspace({
+        defaultModel: createCollapsibleModel(false)
+      });
+
+      // Not collapsible
+      act(() => workspaceRef.current!.collapseTabset("right"));
+      expect(onModelChanged).not.toHaveBeenCalled();
+
+      act(() => workspaceRef.current!.collapseTabset("left"));
+      expect(getTabset(container, "left")).toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: false,
+        reason: "collapse"
+      });
+
+      act(() => workspaceRef.current!.expandTabset("left"));
+      expect(getTabset(container, "left")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: false,
+        reason: "expand"
+      });
+    });
+
+    test("hooks report whether a tabset is collapsed, and its content isn't visible", () => {
+      const tabsetStates: { [id: string]: ParentTabsetState | null } = {};
+      const tabStates: { [id: string]: ParentTabState | null } = {};
+      function TabsetState() {
+        const tabset = useParentTabset();
+        tabsetStates[tabset!.id] = useParentTabsetState();
+        return null;
+      }
+      function TabState() {
+        const tab = useParentTab();
+        tabStates[tab!.id] = useParentTabState();
+        return null;
+      }
+
+      const { workspaceRef } = renderWorkspace({
+        defaultModel: createCollapsibleModel(false),
+        renderTabContent: () => <TabState />,
+        renderTabsetToolbar: () => <TabsetState />
+      });
+      expect(tabsetStates.left).toMatchObject({
+        isCollapsed: false,
+        isCollapsible: true
+      });
+      expect(tabsetStates.right).toMatchObject({ isCollapsible: false });
+      expect(tabStates["1"]).toMatchObject({ isVisible: true });
+
+      act(() => workspaceRef.current!.collapseTabset("left"));
+      expect(tabsetStates.left).toMatchObject({
+        isCollapsed: true,
+        isCollapsible: true
+      });
+      expect(tabStates["1"]).toMatchObject({
+        isSelected: true,
+        isVisible: false
+      });
+
+      // A maximized tabset is shown expanded
+      act(() => workspaceRef.current!.maximizeTabset("left"));
+      expect(tabStates["1"]).toMatchObject({ isVisible: true });
+    });
+
+    test("a maximized collapsed tabset is shown expanded, and is collapsed again when restored", () => {
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: createCollapsibleModel(true)
+      });
+
+      act(() => workspaceRef.current!.maximizeTabset("left"));
+      const overlay = container.querySelector<HTMLElement>(
+        '[data-workspace-maximized] [data-tabset-id="left"]'
+      )!;
+      expect(overlay).not.toHaveAttribute("data-tabset-collapsed");
+      expect(overlay).toHaveAttribute("data-tab-placement", "top");
+
+      act(() => workspaceRef.current!.restoreTabset());
+      expect(getTabset(container, "left")).toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+    });
+  });
+
   describe("hiddenTabBehavior", () => {
     function EffectLogger({ id, log }: { id: string; log: string[] }) {
       useEffect(() => {
@@ -1501,6 +1787,328 @@ describe("Workspace", () => {
       await startDrag(container, getTab("2"));
       expect(container.querySelector("[data-drag-preview]")).not.toBeNull();
       expect(getRenderCount()).toBe(initialRenderCount);
+    });
+
+    describe("tabsets", () => {
+      function getHeader(container: HTMLElement, tabsetId: string) {
+        return container.querySelector<HTMLElement>(
+          `[data-tabset-id="${tabsetId}"] [data-tabset-header]`
+        )!;
+      }
+
+      function getTabList(container: HTMLElement, tabsetId: string) {
+        const tabList = container.querySelector<HTMLElement>(
+          `[data-tabset-id="${tabsetId}"] [data-tab-list]`
+        )!;
+        elementAtPoint = tabList;
+        return tabList;
+      }
+
+      function getTabIds(container: HTMLElement, tabsetId: string) {
+        return Array.from(
+          container.querySelectorAll<HTMLElement>(
+            `[data-tabset-id="${tabsetId}"] [data-tab]`
+          )
+        ).map((element) => element.dataset.tabId);
+      }
+
+      // Points at the left edge of a tabset's panels (jsdom has no layout, so every point is otherwise at the center)
+      function getPanelsEdge(container: HTMLElement, tabsetId: string) {
+        const panels = getPanels(container, tabsetId);
+        panels.getBoundingClientRect = () =>
+          ({ height: 1000, left: 0, top: 0, width: 1000 }) as DOMRect;
+        return panels;
+      }
+
+      function createModelWith(
+        left: Partial<TabsetNode<TabData>>
+      ): WorkspaceModel<TabData> {
+        const model = createModel();
+        const root = model.root as SplitNode<TabData>;
+
+        return {
+          ...model,
+          root: {
+            ...root,
+            children: [
+              { ...(root.children[0] as TabsetNode<TabData>), ...left },
+              root.children[1]
+            ]
+          }
+        };
+      }
+
+      test("the empty space of a tabset's header drags the tabset", async () => {
+        const { container, onModelChanged } = renderWorkspace();
+
+        await drag(getHeader(container, "left"), getPanels(container, "right"));
+
+        expect(container.querySelector('[data-tabset-id="left"]')).toBeNull();
+        expect(getTabIds(container, "right")).toEqual(["3", "1", "2"]);
+        expect(onModelChanged).toHaveBeenCalledTimes(1);
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: true,
+          reason: "move"
+        });
+      });
+
+      test("the empty space of a tab list drags its tabset", async () => {
+        const { container } = renderWorkspace();
+
+        await drag(
+          getTabList(container, "left"),
+          getPanels(container, "right")
+        );
+
+        expect(getTabIds(container, "right")).toEqual(["3", "1", "2"]);
+      });
+
+      test("dropping a tabset onto the edge of another tabset moves it there", async () => {
+        const { container, workspaceRef } = renderWorkspace();
+
+        await drag(
+          getHeader(container, "right"),
+          getPanelsEdge(container, "left")
+        );
+
+        expect(
+          (workspaceRef.current!.getModel().root as SplitNode).children.map(
+            ({ id }) => id
+          )
+        ).toEqual(["right", "left"]);
+      });
+
+      test("toolbar content doesn't drag the tabset", async () => {
+        const { container, onModelChanged } = renderWorkspace({
+          renderTabsetToolbar: (tabset) => (
+            <span data-testid={`toolbar-${tabset.id}`}>toolbar</span>
+          )
+        });
+
+        await drag(
+          screen.getByTestId("toolbar-left"),
+          getPanels(container, "right")
+        );
+
+        expect(onModelChanged).not.toHaveBeenCalled();
+      });
+
+      test("a drag handle replaces the header's empty space", async () => {
+        const { container, onModelChanged } = renderWorkspace({
+          renderTabsetToolbar: (tabset) => (
+            <TabsetDragHandle data-testid={`handle-${tabset.id}`} />
+          )
+        });
+
+        await drag(getHeader(container, "left"), getPanels(container, "right"));
+        expect(onModelChanged).not.toHaveBeenCalled();
+
+        await drag(
+          screen.getByTestId("handle-left"),
+          getPanels(container, "right")
+        );
+        expect(getTabIds(container, "right")).toEqual(["3", "1", "2"]);
+      });
+
+      test("any element with a data-tabset-drag-handle attribute is a drag handle", async () => {
+        const { container } = renderWorkspace({
+          renderTabsetToolbar: (tabset) => (
+            <button data-tabset-drag-handle data-testid={`handle-${tabset.id}`}>
+              <span data-testid={`handle-icon-${tabset.id}`} />
+            </button>
+          )
+        });
+
+        await drag(
+          screen.getByTestId("handle-icon-left"),
+          getPanels(container, "right")
+        );
+        expect(getTabIds(container, "right")).toEqual(["3", "1", "2"]);
+      });
+
+      test.each([
+        ["the tabset has disableDrag", { disableDrag: true }, {}],
+        [
+          "one of its tabs has disableDrag",
+          { tabs: [tab("1"), tab("2", { disableDrag: true })] },
+          {}
+        ],
+        ["the workspace is disabled", {}, { disabled: true }]
+      ])(
+        "tabsets can't be dragged when %s",
+        async (_, left, props: Partial<WorkspaceProps<TabData>>) => {
+          const { container, onModelChanged } = renderWorkspace({
+            ...props,
+            defaultModel: createModelWith(left),
+            renderTabsetToolbar: (tabset) => (
+              <TabsetDragHandle data-testid={`handle-${tabset.id}`} />
+            )
+          });
+
+          expect(screen.getByTestId("handle-left")).toHaveAttribute(
+            "data-disabled"
+          );
+
+          await drag(
+            screen.getByTestId("handle-left"),
+            getPanels(container, "right")
+          );
+          expect(onModelChanged).not.toHaveBeenCalled();
+        }
+      );
+
+      test("the only tabset (the root) can't be dragged", () => {
+        renderWorkspace({
+          defaultModel: {
+            root: { id: "only", tabs: [tab("1")], type: "tabset" },
+            version: 1
+          },
+          renderTabsetToolbar: () => <TabsetDragHandle data-testid="handle" />
+        });
+
+        expect(screen.getByTestId("handle")).toHaveAttribute("data-disabled");
+      });
+
+      test("tabsets can't be dragged while a tabset is maximized", () => {
+        renderWorkspace({
+          defaultModel: { ...createModel(), maximizedTabsetId: "left" },
+          renderTabsetToolbar: (tabset) => (
+            <TabsetDragHandle data-testid={`handle-${tabset.id}`} />
+          )
+        });
+
+        for (const handle of screen.getAllByTestId("handle-left")) {
+          expect(handle).toHaveAttribute("data-disabled");
+        }
+      });
+
+      test("tabsets kept when empty can be moved but not merged into other tabsets", async () => {
+        const { container, onModelChanged, workspaceRef } = renderWorkspace({
+          defaultModel: createModelWith({ keepWhenEmpty: true })
+        });
+
+        await drag(getHeader(container, "left"), getPanels(container, "right"));
+        expect(onModelChanged).not.toHaveBeenCalled();
+
+        await drag(
+          getHeader(container, "left"),
+          getPanelsEdge(container, "right")
+        );
+        expect(
+          (workspaceRef.current!.getModel().root as SplitNode).children.map(
+            ({ id }) => id
+          )
+        ).toEqual(["left", "right"]);
+        expect(onModelChanged).toHaveBeenCalledTimes(1);
+      });
+
+      test("disableDrop is called for each tab of a dragged tabset", async () => {
+        const disableDrop = vi.fn(
+          ({ tab }: DisableDropArgs<TabData>) => tab?.id === "2"
+        );
+        const { container, onModelChanged } = renderWorkspace({ disableDrop });
+
+        await drag(getHeader(container, "left"), getPanels(container, "right"));
+
+        const target = { region: "center", tabsetId: "right" };
+        const tabset = expect.objectContaining({ id: "left" });
+        expect(disableDrop).toHaveBeenCalledWith({
+          model: expect.anything(),
+          tab: expect.objectContaining({ id: "1" }),
+          tabset,
+          target
+        });
+        expect(disableDrop).toHaveBeenCalledWith({
+          model: expect.anything(),
+          tab: expect.objectContaining({ id: "2" }),
+          tabset,
+          target
+        });
+        expect(onModelChanged).not.toHaveBeenCalled();
+      });
+
+      test("disableDrop is called for each tab's position when a tabset's tabs are dropped into a tab list", async () => {
+        const disableDrop = vi.fn((_: DisableDropArgs<TabData>) => false);
+        const { container } = renderWorkspace({ disableDrop });
+
+        await drag(
+          getHeader(container, "left"),
+          getTabList(container, "right")
+        );
+
+        expect(
+          disableDrop.mock.calls.map(([{ tab, target }]) => [tab?.id, target])
+        ).toEqual([
+          ["1", { index: 1, tabsetId: "right" }],
+          ["2", { index: 2, tabsetId: "right" }]
+        ]);
+      });
+
+      test("disableDrop is called without a tab for a tabset without tabs", async () => {
+        const disableDrop = vi.fn(() => true);
+        const { container, onModelChanged } = renderWorkspace({
+          defaultModel: createModelWith({ keepWhenEmpty: true, tabs: [] }),
+          disableDrop
+        });
+
+        await drag(
+          getHeader(container, "left"),
+          getPanelsEdge(container, "right")
+        );
+
+        expect(disableDrop).toHaveBeenCalledWith({
+          model: expect.anything(),
+          tab: undefined,
+          tabset: expect.objectContaining({ id: "left" }),
+          target: { region: "left", tabsetId: "right" }
+        });
+        expect(onModelChanged).not.toHaveBeenCalled();
+      });
+
+      test("a dragged tabset is marked, and its preview shows its selected tab by default", async () => {
+        const { container } = renderWorkspace();
+
+        await startDrag(container, getHeader(container, "left"));
+
+        expect(
+          container.querySelector('[data-tabset-id="left"]')
+        ).toHaveAttribute("data-tabset-dragging");
+        const preview = container.querySelector("[data-drag-preview]");
+        expect(preview).toHaveAttribute("data-drag-type", "tabset");
+        expect(preview).toHaveTextContent("One");
+      });
+
+      test("renderTabsetDragPreview customizes the preview", async () => {
+        const { container } = renderWorkspace({
+          renderTabsetDragPreview: (tabset) => `${tabset.tabs.length} tabs`
+        });
+
+        await startDrag(container, getHeader(container, "left"));
+
+        expect(
+          container.querySelector("[data-drag-preview]")
+        ).toHaveTextContent("2 tabs");
+      });
+
+      test("moveTabset moves tabsets imperatively", () => {
+        const { onModelChanged, workspaceRef } = renderWorkspace();
+
+        act(() => {
+          workspaceRef.current!.moveTabset("left", {
+            region: "center",
+            tabsetId: "right"
+          });
+        });
+
+        expect(workspaceRef.current!.getModel().root).toMatchObject({
+          id: "right",
+          tabs: [{ id: "3" }, { id: "1" }, { id: "2" }]
+        });
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: false,
+          reason: "move"
+        });
+      });
     });
   });
 });

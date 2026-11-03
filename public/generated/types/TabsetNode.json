@@ -114,12 +114,80 @@
     {
       "description": [
         {
+          "content": "<p>The tabset can be collapsed to just its header (its tab list and toolbar), e.g. a bottom panel or a sidebar.</p>\n"
+        },
+        {
+          "content": "<p>Tabsets are collapsed by dragging a separator past their minimum size (like collapsible Panels),\nor with the imperative API (e.g. a button rendered by <code>renderTabsetToolbar</code>, see <code>useParentTabset</code>);\nclicking a tab (or the empty space in the header) of a collapsed tabset expands it, as does dropping tabs into it from another tabset.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>The only tabset in a workspace (the root) can't be collapsed, and neither can a tabset whose siblings are all collapsed.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Tabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) don't keep this flag.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "collapsible",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The tabset is collapsed to just its header.</p>\n"
+        },
+        {
+          "content": "<p>A collapsed tabset's <code>size</code> is the size it expands to; its siblings share the rest of the split.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>A collapsed tabset's header runs along its split (e.g. tabs placed on top are shown on the left while a tabset in a horizontal split is collapsed);\nthis doesn't change its <code>tabPlacement</code>.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "collapsed",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The user cannot drag the tabset as a whole (by the empty space in its header, or by a <code>TabsetDragHandle</code>).</p>\n"
+        },
+        {
+          "content": "<p>Its tabs can still be dragged individually (unless they have their own <code>disableDrag</code> flags),\nand the tabset can still be moved using the imperative API.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "disableDrag",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "description": [
+        {
           "content": "<p>Id of the selected tab.</p>\n"
         }
       ],
       "name": "selectedId",
       "optional": true,
       "type": "string | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Ids of the tabset's tabs that have been selected, most recently selected first;\nused to choose which tab to select when the selected tab is removed (see the Workspace's <code>tabRemovalSelectionBehavior</code> prop).</p>\n"
+        },
+        {
+          "content": "<p>This field is maintained by the workspace, and only when <code>tabRemovalSelectionBehavior</code> is <code>&quot;recent&quot;</code>.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "recentTabIds",
+      "optional": true,
+      "type": "string[] | undefined"
     },
     {
       "description": [

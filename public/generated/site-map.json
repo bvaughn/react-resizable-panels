@@ -160,7 +160,7 @@
   {
     "path": "/examples/workspace",
     "section": "Workspace",
-    "text": "A Workspace arranges tabsets, like an IDE's editor groups. Users can rearrange them by dragging tabs between tabsets, within a tabset's list of tabs, or onto the edge of a tabset to split it. Tabsets can also be resized and maximized. Reset layout Tab content is never remounted when a tab is moved, so it keeps its state. Try incrementing the counter above and then dragging its tab somewhere else. Workspaces are uncontrolled. The layout is described by a serializable model and can be observed using the onModelChanged callback. Splits lay out their children side by side or stacked, and tabsets show one tab at a time. Sizes are percentages of the parent split; siblings without a size share the remaining space. Initial sizes can also be strings with units (e.g. \"250px\"), but they're converted to percentages when the user resizes the split, and they scale with the workspace when it's resized. This is the model for the workspace above: The tabsetMinWidth and tabsetMinHeight props above set a minimum size for the content of every tabset (not including its tabs); a tabset can override them with the minWidth and minHeight fields of its model node. Tabs can also be opened, selected, closed, and rearranged by the application (see managing tabs). Like the rest of the library, workspaces are unstyled; see custom tabsets and styling for how to render and style tabsets. The tabsets above are resized by dragging the space between them; see separators and accessibility for how to render visible separators, and how workspaces can be used with the keyboard.",
+    "text": "A Workspace arranges tabsets, like an IDE's editor groups. Users can rearrange them by dragging tabs between tabsets, within a tabset's list of tabs, or onto the edge of a tabset to split it. Tabsets can also be resized and maximized. Reset layout Tab content is never remounted when a tab is moved, so it keeps its state. Try incrementing the counter above and then dragging its tab somewhere else. Workspaces are uncontrolled. The layout is described by a serializable model and can be observed using the onModelChanged callback. Splits lay out their children side by side or stacked, and tabsets show one tab at a time. Sizes are percentages of the parent split; siblings without a size share the remaining space. Initial sizes can also be strings with units (e.g. \"250px\"), but they're converted to percentages when the user resizes the split, and they scale with the workspace when it's resized. This is the model for the workspace above: The tabsetMinWidth and tabsetMinHeight props above set a minimum size for the content of every tabset (not including its tabs); a tabset can override them with the minWidth and minHeight fields of its model node. Tabs can also be opened, selected, closed, and rearranged by the application (see managing tabs and managing tabsets). Like the rest of the library, workspaces are unstyled; see custom tabsets and styling for how to render and style tabsets. The tabsets above are resized by dragging the space between them; see separators and accessibility for how to render visible separators, and how workspaces can be used with the keyboard.",
     "title": "The basics"
   },
   {
@@ -182,9 +182,32 @@
         "text": "Updating and closing tabs The updateTab method changes a tab's title, data, or flags, and closeTab closes it. Within a tab's content, the useParentTab hook returns the tab, so content can update or close its own tab: A tab's data is replaced rather than merged when it is updated. To confirm before the user closes a tab (e.g. one with unsaved changes), see custom tabsets."
       },
       {
+        "id": "selecting-a-tab-after-one-is-closed",
+        "title": "Selecting a tab after one is closed",
+        "text": "Selecting a tab after one is closed When the selected tab is closed (or dragged to another tabset), the tab after it is selected by default. With the tabRemovalSelectionBehavior prop set to \"recent\", the tab that was selected before it is selected instead, like in an IDE: In the workspace below, select a few tabs and then close the selected one. About Counter Notes Nested panels Drag a tab onto another tab list to move it there. Drag a tab onto the edge of a tabset to split it, or onto its center to add the tab to it. Use the arrow keys to move between tabs, Enter to select one, and Delete to close one. Clicked 0 times Increment Reset layout Each tabset's recently selected tabs are saved in the model (as recentTabIds ), so they're restored with the rest of the layout. If none of the remaining tabs has been selected, the tab after the closed one is selected. Changes made with the imperative API are reported by onModelChanged (with isUserInteraction set to false), so they're saved like any other change. To keep, move, collapse, or maximize whole tabsets, see managing tabsets."
+      }
+    ],
+    "path": "/examples/workspace/managing-tabs",
+    "section": "Workspace",
+    "text": "Tabs are usually opened in response to something outside of the workspace (e.g. a file being selected in a tree). The imperative API's addTab method adds a tab to the active tabset (the one the user most recently interacted with) and selects it: If a tab with the same id is already open (anywhere in the workspace), it's selected instead, and addTab returns false. Options can add the tab to a specific tabset (tabsetId) or position (index), or without selecting it (select: false). Open Notes Open About Add content using the buttons above",
+    "title": "Managing tabs"
+  },
+  {
+    "headings": [
+      {
         "id": "empty-tabsets",
         "title": "Empty tabsets",
         "text": "Empty tabsets By default, a tabset is removed when its last tab is closed or dragged away. A tabset with the keepWhenEmpty flag stays instead (e.g. an editor area that should remain as a drop target), showing the Workspace's renderEmptyTabset content, until it's closed with the closeTabset method or the useParentTabset hook's close function: In the workspace below, the tabset on the right has the keepWhenEmpty flag. Close its tabs (or drag them into the tabset on the left) and it stays, as a place to drop them again. Each tabset's close button (×) removes it, along with any tabs it still has. Reset layout Closing a tabset also closes any tabs it contains. Like the rest of the imperative API, it isn't restricted by tabs' disableClose flags."
+      },
+      {
+        "id": "moving-tabsets",
+        "title": "Moving tabsets",
+        "text": "Moving tabsets Users can drag a whole tabset by the empty space in its header (e.g. after its last tab). Dropping it onto the edge of another tabset moves it there; dropping it onto the center of another tabset (or into its list of tabs) moves its tabs into that tabset instead. A TabsetDragHandle (or any element with a data-tabset-drag-handle attribute) within a tabset's header replaces its empty space: once a header has a handle, only the handle drags the tabset. Reset layout Tabsets with the keepWhenEmpty flag can be moved, but their tabs can't be dropped into another tabset with them (which would leave the tabset behind, empty). Tabsets can't be dragged when they (or any of their tabs) have the disableDrag flag (see restrictions), when they're the only tabset, or while a tabset is maximized. The moveTabset method moves a tabset from outside of the workspace (e.g. a \"Move to bottom\" menu item); it accepts the same targets as moveTab."
+      },
+      {
+        "id": "collapsing-tabsets",
+        "title": "Collapsing tabsets",
+        "text": "Collapsing tabsets A tabset with the collapsible flag can be collapsed to just its header (e.g. a bottom panel or a sidebar). Like a collapsible Panel, it collapses when a separator is dragged past its minimum size, and expands when the separator is dragged back. Clicking one of its tabs (or the empty space in its header) also expands it, as does dropping a tab into it from another tabset. Its collapsed flag is part of the model, and its size is the size it expands to: Tabsets can also be collapsed and expanded with the collapseTabset and expandTabset methods, or from within a tabset (e.g. a button in its toolbar) with the useParentTabset hook: In the workspace below, the bottom tabset starts collapsed and the sidebar can be collapsed (with the − button in its toolbar, or by dragging the space beside it). While collapsed, a tabset's header runs along its split, so the sidebar collapses to a vertical strip. Reset layout The only tabset in a workspace can't be collapsed, and neither can a tabset whose siblings are all collapsed (something has to fill the space). Collapsing a tabset doesn't unmount its content."
       },
       {
         "id": "maximizing-tabsets",
@@ -192,10 +215,10 @@
         "text": "Maximizing tabsets A maximized tabset covers the rest of the workspace until it's restored. The maximizeTabset and restoreTabset methods do this from outside of the workspace, and the useParentTabset hook from within a tabset (e.g. a button in its toolbar): Which tabset is maximized is part of the model, so it's saved and restored with the rest of the layout. While a tabset is maximized, tabs can only be dragged within it. Changes made with the imperative API are reported by onModelChanged (with isUserInteraction set to false), so they're saved like any other change."
       }
     ],
-    "path": "/examples/workspace/managing-tabs",
+    "path": "/examples/workspace/managing-tabsets",
     "section": "Workspace",
-    "text": "Tabs are usually opened in response to something outside of the workspace (e.g. a file being selected in a tree). The imperative API's addTab method adds a tab to the active tabset (the one the user most recently interacted with) and selects it: If a tab with the same id is already open (anywhere in the workspace), it's selected instead, and addTab returns false. Options can add the tab to a specific tabset (tabsetId) or position (index), or without selecting it (select: false). Open Notes Open About Add content using the buttons above",
-    "title": "Managing tabs"
+    "text": "Tabsets are created and removed as tabs are opened, closed, and dragged (see managing tabs), but they can also be kept when empty, moved, collapsed, and maximized as a whole.",
+    "title": "Managing tabsets"
   },
   {
     "path": "/examples/workspace/persistent-layout",
@@ -206,7 +229,7 @@
   {
     "path": "/examples/workspace/restrictions",
     "section": "Workspace",
-    "text": "By default, users can close and drag any tab, and drop it anywhere. Restrictions are opt-in: A tab's disableClose and disableDrag flags prevent the user from closing or dragging it. Other tabs can still be dropped around it. The disableDrop prop rejects drop targets: either all of them, or the ones a function returns true for. The disabled prop locks the arrangement: tabs can't be resized, dragged, dropped, or closed (but they can still be selected, and tabsets maximized). For example, a tab can opt out of being closed or dragged, and a tabset's data can be used to decide whether it accepts drops: None of these restrict the imperative API; it can still be used to add, remove, or re-arrange tabs. In the workspace below, the \"Pinned\" tab can't be closed or dragged, and other tabs can't be dropped into its tabset. Lock workspace (disabled) Prevent closing tabs (disableClose)",
+    "text": "By default, users can close and drag any tab, and drop it anywhere. Restrictions are opt-in: A tab's disableClose and disableDrag flags prevent the user from closing or dragging it. Other tabs can still be dropped around it. A tabset's disableDrag flag prevents the user from dragging the whole tabset (its tabs can still be dragged). Tabsets that contain a tab with the disableDrag flag can't be dragged either. The disableDrop prop rejects drop targets: either all of them, or the ones a function returns true for. While a tabset is dragged, the function is called for each of its tabs, so a tabset can only be dropped where all of its tabs could be. The disabled prop locks the arrangement: tabs can't be resized, dragged, dropped, or closed (but they can still be selected, and tabsets maximized). For example, a tab can opt out of being closed or dragged, and a tabset's data can be used to decide whether it accepts drops: None of these restrict the imperative API; it can still be used to add, remove, or re-arrange tabs. In the workspace below, the \"Pinned\" tab can't be closed or dragged, and other tabs can't be dropped into its tabset. Lock workspace (disabled) Prevent closing tabs (disableClose)",
     "title": "Restrictions"
   },
   {
@@ -243,7 +266,7 @@
   {
     "path": "/examples/workspace/styling",
     "section": "Workspace",
-    "text": "Like the rest of the library, workspaces are unstyled. The classNames and styles props apply class names and inline styles to the elements a workspace renders: Tabsets re-render when these objects (or the render props) change, so in large workspaces define them outside of the component (or memoize them) rather than inline. Each element also has a data attribute (e.g. data-tab), and exposes its state as data attributes, which can be used for styling: Elements within a tabset have a data-tab-placement attribute (see tab placement). Each split is a Group with data-split and data-split-id attributes; its gap (set with the split entry of classNames or styles) adds space between tabsets, and counts toward their minimum sizes. Separators between tabsets are rendered by the renderSeparator prop, which should return a Separator (or null, in which case tabsets can still be resized by dragging their edges). The content of the element that follows the pointer while a tab is dragged can be customized with the renderDragPreview prop. A maximized tabset is rendered above the rest of the workspace, so it should have a background.",
+    "text": "Like the rest of the library, workspaces are unstyled. The classNames and styles props apply class names and inline styles to the elements a workspace renders: Tabsets re-render when these objects (or the render props) change, so in large workspaces define them outside of the component (or memoize them) rather than inline. Each element also has a data attribute (e.g. data-tab), and exposes its state as data attributes, which can be used for styling: Elements within a tabset have a data-tab-placement attribute (see tab placement). Each split is a Group with data-split and data-split-id attributes; its gap (set with the split entry of classNames or styles) adds space between tabsets, and counts toward their minimum sizes. Separators between tabsets are rendered by the renderSeparator prop, which should return a Separator (or null, in which case tabsets can still be resized by dragging their edges). Elements within a collapsed tabset have a data-tabset-collapsed attribute, and their data-tab-placement is the side its header runs along while collapsed (e.g. \"left\" for a sidebar). The content of the element that follows the pointer while a tab is dragged can be customized with the renderDragPreview prop (and while a tabset is dragged, with the renderTabsetDragPreview prop). A tabset being dragged has a data-tabset-dragging attribute. A maximized tabset is rendered above the rest of the workspace, so it should have a background.",
     "title": "Styling"
   },
   {
@@ -573,6 +596,16 @@
         "text": "closeTabset Close a tabset, along with any tabs it contains (e.g. to remove an empty tabset with the keepWhenEmpty flag).\n Like the rest of the imperative API, this isn't restricted by tabs' disableClose flags.\nIf the root tabset is closed, the workspace is left with an empty root tabset."
       },
       {
+        "id": "collapseTabset",
+        "title": "collapseTabset",
+        "text": "collapseTabset Collapse a tabset to just its header.\n This has no effect unless the tabset has the collapsible flag;\nthe only tabset in a workspace, and tabsets whose siblings are all collapsed, can't be collapsed."
+      },
+      {
+        "id": "expandTabset",
+        "title": "expandTabset",
+        "text": "expandTabset Expand a collapsed tabset to its previous size."
+      },
+      {
         "id": "getActiveTabsetId",
         "title": "getActiveTabsetId",
         "text": "getActiveTabsetId Id of the tabset the user most recently interacted with (by pointer or focus)."
@@ -591,6 +624,11 @@
         "id": "moveTab",
         "title": "moveTab",
         "text": "moveTab Move a tab to a position within a tabset's tab list, or to a region of a tabset's content area."
+      },
+      {
+        "id": "moveTabset",
+        "title": "moveTabset",
+        "text": "moveTabset Move a tabset beside another tabset (by dropping it onto a region at the edge of that tabset's content area),\nor move its tabs into another tabset (at an index within its tab list, or onto the \"center\" of its content area).\n When its tabs are moved, the emptied tabset is removed (unless it has the keepWhenEmpty flag)."
       },
       {
         "id": "restoreTabset",
@@ -638,7 +676,7 @@
   {
     "path": "/model/tabset-node",
     "section": "Model",
-    "text": "A set of tabs, only one of which is shown at a time.\n type : \"tabset\" Distinguishes tabsets from splits.\n id : string Uniquely identifies the tabset within the workspace.\n Optional in the defaultModel prop and the setModel method; tabsets without ids are assigned ids based on their position (e.g. \"tabset-0-1\").\nTabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) are assigned generated ids.\n size ?: number | string | undefined Size of the tabset within its parent split.\n Interpretation rules:\n\nNumbers are percentages of the parent split (e.g. size: 25 is 25 percent)\nStrings may specify other units (e.g. size: \"250px\"); strings without units are percentages\nSiblings without a size share the remaining space evenly\n\n String sizes are only initial sizes: they're converted to percentages when the user resizes the split,\nand (like percentages) they scale with the workspace when it's resized.\n minWidth ?: string | undefined Minimum width of the tabset's content area (not including its header).\nOverrides the Workspace's tabsetMinWidth prop.\n Interpretation rules:\n\nStrings must specify a unit: \"px\", \"em\", \"rem\", \"vh\", or \"vw\" (e.g. minWidth: \"200px\")\nPercentages (and strings without units) are not allowed\n\n minHeight ?: string | undefined Minimum height of the tabset's content area (not including its header).\nOverrides the Workspace's tabsetMinHeight prop.\n Interpretation rules:\n\nStrings must specify a unit: \"px\", \"em\", \"rem\", \"vh\", or \"vw\" (e.g. minHeight: \"200px\")\nPercentages (and strings without units) are not allowed\n\n tabPlacement ?: \"bottom\" | \"left\" | \"right\" | \"top\" | undefined Where the tabset's tabs are placed relative to its content.\nOverrides the Workspace's tabPlacement prop.\n See the Workspace's tabPlacement prop for how placement affects tabsets.\n Tabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) use the Workspace's tabPlacement prop.\n keepWhenEmpty ?: boolean | undefined The tabset isn't removed when its last tab is closed or dragged away;\nit stays (showing the Workspace's renderEmptyTabset content) until it is closed (see closeTabset).\n By default, tabsets without tabs are removed (other than the root tabset of an empty workspace).\n Tabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) don't keep this flag.\n selectedId ?: string | undefined Id of the selected tab.\n data ?: TabsetData | undefined Application data for the tabset.\n Tabsets created by the workspace start without data.\n tabs : TabNode<TabData>[] Tabs in the tabset, in the order they are shown.",
+    "text": "A set of tabs, only one of which is shown at a time.\n type : \"tabset\" Distinguishes tabsets from splits.\n id : string Uniquely identifies the tabset within the workspace.\n Optional in the defaultModel prop and the setModel method; tabsets without ids are assigned ids based on their position (e.g. \"tabset-0-1\").\nTabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) are assigned generated ids.\n size ?: number | string | undefined Size of the tabset within its parent split.\n Interpretation rules:\n\nNumbers are percentages of the parent split (e.g. size: 25 is 25 percent)\nStrings may specify other units (e.g. size: \"250px\"); strings without units are percentages\nSiblings without a size share the remaining space evenly\n\n String sizes are only initial sizes: they're converted to percentages when the user resizes the split,\nand (like percentages) they scale with the workspace when it's resized.\n minWidth ?: string | undefined Minimum width of the tabset's content area (not including its header).\nOverrides the Workspace's tabsetMinWidth prop.\n Interpretation rules:\n\nStrings must specify a unit: \"px\", \"em\", \"rem\", \"vh\", or \"vw\" (e.g. minWidth: \"200px\")\nPercentages (and strings without units) are not allowed\n\n minHeight ?: string | undefined Minimum height of the tabset's content area (not including its header).\nOverrides the Workspace's tabsetMinHeight prop.\n Interpretation rules:\n\nStrings must specify a unit: \"px\", \"em\", \"rem\", \"vh\", or \"vw\" (e.g. minHeight: \"200px\")\nPercentages (and strings without units) are not allowed\n\n tabPlacement ?: \"bottom\" | \"left\" | \"right\" | \"top\" | undefined Where the tabset's tabs are placed relative to its content.\nOverrides the Workspace's tabPlacement prop.\n See the Workspace's tabPlacement prop for how placement affects tabsets.\n Tabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) use the Workspace's tabPlacement prop.\n keepWhenEmpty ?: boolean | undefined The tabset isn't removed when its last tab is closed or dragged away;\nit stays (showing the Workspace's renderEmptyTabset content) until it is closed (see closeTabset).\n By default, tabsets without tabs are removed (other than the root tabset of an empty workspace).\n Tabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) don't keep this flag.\n collapsible ?: boolean | undefined The tabset can be collapsed to just its header (its tab list and toolbar), e.g. a bottom panel or a sidebar.\n Tabsets are collapsed by dragging a separator past their minimum size (like collapsible Panels),\nor with the imperative API (e.g. a button rendered by renderTabsetToolbar, see useParentTabset);\nclicking a tab (or the empty space in the header) of a collapsed tabset expands it, as does dropping tabs into it from another tabset.\n The only tabset in a workspace (the root) can't be collapsed, and neither can a tabset whose siblings are all collapsed.\n Tabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) don't keep this flag.\n collapsed ?: boolean | undefined The tabset is collapsed to just its header.\n A collapsed tabset's size is the size it expands to; its siblings share the rest of the split.\n A collapsed tabset's header runs along its split (e.g. tabs placed on top are shown on the left while a tabset in a horizontal split is collapsed);\nthis doesn't change its tabPlacement.\n disableDrag ?: boolean | undefined The user cannot drag the tabset as a whole (by the empty space in its header, or by a TabsetDragHandle).\n Its tabs can still be dragged individually (unless they have their own disableDrag flags),\nand the tabset can still be moved using the imperative API.\n selectedId ?: string | undefined Id of the selected tab.\n recentTabIds ?: string[] | undefined Ids of the tabset's tabs that have been selected, most recently selected first;\nused to choose which tab to select when the selected tab is removed (see the Workspace's tabRemovalSelectionBehavior prop).\n This field is maintained by the workspace, and only when tabRemovalSelectionBehavior is \"recent\".\n data ?: TabsetData | undefined Application data for the tabset.\n Tabsets created by the workspace start without data.\n tabs : TabNode<TabData>[] Tabs in the tabset, in the order they are shown.",
     "title": "TabsetNode"
   },
   {
@@ -1043,8 +1081,14 @@
   {
     "path": "/props/tab-close-button",
     "section": "Props",
-    "text": "Closes the tab it is rendered within; render it within the element returned by the Workspace's renderTab prop:\n The button renders nothing if closing is disabled (by the tab's disableClose flag or the Workspace's disabled prop).\nIts default aria-label is \"Close\" followed by the tab's title (or id).\n To keep the tab open (e.g. to confirm unsaved changes first), call event.preventDefault() in an onClick handler:\n This button is not focusable by default (tabIndex={-1}), since tabs shouldn't contain focusable content;\nkeyboard users can close the focused tab with Delete or Backspace.",
+    "text": "Closes the tab it is rendered within; render it within the element returned by the Workspace's renderTab prop:\n The button renders nothing if closing is disabled (by the tab's disableClose flag or the Workspace's disabled prop).\nIts content defaults to \"×\" (e.g. it can be replaced with an icon),\nand its default aria-label is \"Close\" followed by the tab's title (or id).\n To keep the tab open (e.g. to confirm unsaved changes first), call event.preventDefault() in an onClick handler:\n This button is not focusable by default (tabIndex={-1}), since tabs shouldn't contain focusable content;\nkeyboard users can close the focused tab with Delete or Backspace.",
     "title": "TabCloseButton component props"
+  },
+  {
+    "path": "/props/tabset-drag-handle",
+    "section": "Props",
+    "text": "Drags the tabset it is rendered within; render it within the content returned by the Workspace's renderTabsetToolbar prop:\n By default, a tabset is dragged by the empty space in its header;\nonce its header contains a drag handle, only the handle drags it.\nAny element with a data-tabset-drag-handle attribute is a drag handle;\nthis component also sets touch-action: none, so that it can be dragged by touch.\n The handle has a data-disabled attribute when the tabset can't be dragged (see useParentTabsetState), e.g. to hide it.",
+    "title": "TabsetDragHandle component props"
   },
   {
     "headings": [
@@ -1066,7 +1110,7 @@
       {
         "id": "classNames",
         "title": "classNames",
-        "text": "CSS class names for the elements the workspace renders within its root element:\n\n tabset: root element of a tabset (data-tabset)\n header: contains a tabset's tab list and toolbar (data-tabset-header)\n tabList: contains a tabset's tabs (data-tab-list)\n tab: passed to renderTab with the rest of a tab's props (data-tab)\n toolbar: contains the content returned by renderTabsetToolbar (data-tabset-toolbar)\n tabPanels: contains a tabset's tab content (data-tab-panels)\n tabContent: the element each tab's content is rendered into (data-tab-content)\n dropIndicator: shows where a dragged tab will be dropped within a tabset's panels (data-drop-indicator)\n dragPreview: follows the pointer while a tab is dragged (data-drag-preview)\n\n Elements expose their state as data attributes (e.g. data-tab-selected), which can be used for styling.\nElements within a tabset also have a data-tab-placement attribute (see tabPlacement).\n Like the render props, this object is part of what tabsets re-render for;\nin large workspaces, define it outside of the component (or memoize it) rather than inline."
+        "text": "CSS class names for the elements the workspace renders within its root element:\n\n tabset: root element of a tabset (data-tabset)\n header: contains a tabset's tab list and toolbar (data-tabset-header)\n tabList: contains a tabset's tabs (data-tab-list)\n tab: passed to renderTab with the rest of a tab's props (data-tab)\n toolbar: contains the content returned by renderTabsetToolbar (data-tabset-toolbar)\n tabPanels: contains a tabset's tab content (data-tab-panels)\n tabContent: the element each tab's content is rendered into (data-tab-content)\n dropIndicator: shows where a dragged tab will be dropped within a tabset's panels (data-drop-indicator)\n dragPreview: follows the pointer while a tab or tabset is dragged (data-drag-preview)\n\n Elements expose their state as data attributes (e.g. data-tab-selected, or data-tabset-dragging while a tabset is dragged), which can be used for styling.\nElements within a collapsed tabset have a data-tabset-collapsed attribute.\nElements within a tabset also have a data-tab-placement attribute (see tabPlacement).\n Like the render props, this object is part of what tabsets re-render for;\nin large workspaces, define it outside of the component (or memoize it) rather than inline."
       },
       {
         "id": "disabled",
@@ -1076,7 +1120,7 @@
       {
         "id": "disableDrop",
         "title": "disableDrop",
-        "text": "Prevents tabs from being dropped onto some (or all) targets.\n Functions are called when the target under the pointer changes;\nreturning true rejects the target."
+        "text": "Prevents tabs (and tabsets) from being dropped onto some (or all) targets.\n Functions are called when the target under the pointer changes;\nreturning true rejects the target.\n While a tabset is dragged, this function is called for each of its tabs (see DisableDropArgs),\nso restrictions on where tabs can be dropped apply to dragged tabsets too."
       },
       {
         "id": "elementRef",
@@ -1119,6 +1163,11 @@
         "text": "Renders a tab (within its tabset's tab list).\nSpread props onto the returned element:\nthey make it a tab (its role and ARIA attributes, keyboard and pointer handling, and data attributes),\nand attach a ref that dragging and keyboard focus depend on.\n Individual props can be overridden or wrapped, e.g. to confirm before the Delete key closes a tab\n(call props.onKeyDown for other keys).\n Merge className and style rather than replacing them (e.g. style={{ ...props.style, padding: 4 }}):\nthey include the tab entries of the classNames and styles props, and style includes the touch-action that touch dragging depends on.\n Pointer and keyboard events from interactive descendants (button elements, role=\"button\", or elements with a data-tab-ignore attribute) are ignored,\nso clicking a button within a tab doesn't select or drag it.\n When this prop is not provided, tabs show their title (or id) followed by a TabCloseButton."
       },
       {
+        "id": "renderTabsetDragPreview",
+        "title": "renderTabsetDragPreview",
+        "text": "Content of the element that follows the pointer while a whole tabset is being dragged.\nDefaults to the preview of its selected tab (see renderDragPreview), or the tabset's id if it has no tabs.\n The element has a data-drag-type attribute: \"tabset\" while a tabset is dragged, and \"tab\" while a tab is."
+      },
+      {
         "id": "renderTabsetToolbar",
         "title": "renderTabsetToolbar",
         "text": "Content shown after a tabset's tab list (e.g. buttons to add a tab or maximize the tabset).\n The useParentTabset and useParentTabsetState hooks can be used within this content."
@@ -1147,6 +1196,11 @@
         "id": "tabPlacement",
         "title": "tabPlacement",
         "text": "Where tabs are placed relative to tab content.\n Tabs placed on the left or right are stacked (\"vertical\"):\nthis determines how a dropped tab's position is found and which arrow keys move focus between tabs.\n Elements within a tabset have a data-tab-placement attribute, which can be used for styling (e.g. rotating tabs on the left or right).\n Tabsets can override this with the tabPlacement field of their model node."
+      },
+      {
+        "id": "tabRemovalSelectionBehavior",
+        "title": "tabRemovalSelectionBehavior",
+        "text": "Which tab is selected when a tabset's selected tab is removed (closed, or dragged to another tabset):\n\n \"adjacent\": the tab after it (or before it, if it was the last tab)\n \"recent\": the tabset's most recently selected tab (like an IDE's editor groups),\nfalling back to \"adjacent\" if none of its other tabs has been selected\n\n In \"recent\" mode, each tabset's recently selected tabs are saved in the model (see TabsetNode.recentTabIds),\nso they're restored with the rest of the layout."
       },
       {
         "id": "tabsetMinHeight",

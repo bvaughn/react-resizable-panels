@@ -7,6 +7,8 @@ import type { WorkspaceModel } from "../types";
  */
 export type WorkspaceState = {
   activeTabsetId: string | undefined;
+  // Tabsets shown collapsed (or expanded) while a split is being resized (see isTabsetCollapsed)
+  collapsePreview: { [tabsetId: string]: boolean };
   disabled: boolean;
   model: WorkspaceModel;
   modelIndex: ModelIndex;

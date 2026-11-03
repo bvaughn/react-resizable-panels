@@ -119,9 +119,48 @@ export type TabsetNode<TabData = unknown, TabsetData = unknown> = {
   keepWhenEmpty?: boolean | undefined;
 
   /**
+   * The tabset can be collapsed to just its header (its tab list and toolbar), e.g. a bottom panel or a sidebar.
+   *
+   * ℹ️ Tabsets are collapsed by dragging a separator past their minimum size (like collapsible Panels),
+   * or with the imperative API (e.g. a button rendered by `renderTabsetToolbar`, see `useParentTabset`);
+   * clicking a tab (or the empty space in the header) of a collapsed tabset expands it, as does dropping tabs into it from another tabset.
+   *
+   * ℹ️ The only tabset in a workspace (the root) can't be collapsed, and neither can a tabset whose siblings are all collapsed.
+   *
+   * ℹ️ Tabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) don't keep this flag.
+   */
+  collapsible?: boolean | undefined;
+
+  /**
+   * The tabset is collapsed to just its header.
+   *
+   * ℹ️ A collapsed tabset's `size` is the size it expands to; its siblings share the rest of the split.
+   *
+   * ℹ️ A collapsed tabset's header runs along its split (e.g. tabs placed on top are shown on the left while a tabset in a horizontal split is collapsed);
+   * this doesn't change its `tabPlacement`.
+   */
+  collapsed?: boolean | undefined;
+
+  /**
+   * The user cannot drag the tabset as a whole (by the empty space in its header, or by a `TabsetDragHandle`).
+   *
+   * ℹ️ Its tabs can still be dragged individually (unless they have their own `disableDrag` flags),
+   * and the tabset can still be moved using the imperative API.
+   */
+  disableDrag?: boolean | undefined;
+
+  /**
    * Id of the selected tab.
    */
   selectedId?: string | undefined;
+
+  /**
+   * Ids of the tabset's tabs that have been selected, most recently selected first;
+   * used to choose which tab to select when the selected tab is removed (see the Workspace's `tabRemovalSelectionBehavior` prop).
+   *
+   * ℹ️ This field is maintained by the workspace, and only when `tabRemovalSelectionBehavior` is `"recent"`.
+   */
+  recentTabIds?: string[] | undefined;
 
   /**
    * Application data for the tabset.
@@ -256,6 +295,8 @@ export type TabDropTarget =
 export type WorkspaceChangeReason =
   | "add"
   | "close"
+  | "collapse"
+  | "expand"
   | "maximize"
   | "move"
   | "resize"
@@ -277,6 +318,9 @@ export type WorkspaceChangedMeta = {
   /**
    * Which change was made.
    *
+   * ℹ️ A resize that collapses or expands tabsets is reported as `"collapse"` or `"expand"` (as `"expand"` if it does both);
+   * dropping tabs into a collapsed tabset expands it, but is reported as `"move"`.
+   *
    * ⚠️ New reasons may be added in later versions, so code that switches on this value should handle unrecognized values.
    */
   reason: WorkspaceChangeReason;
@@ -291,9 +335,34 @@ export type WorkspaceChangedMeta = {
  */
 export type HiddenTabBehavior = "activity" | "keep-mounted" | "unmount";
 
+/**
+ * Which tab is selected when a tabset's selected tab is removed (closed, or dragged to another tabset):
+ * - `"adjacent"`: the tab after it (or before it, if it was the last tab)
+ * - `"recent"`: the tabset's most recently selected tab (falling back to `"adjacent"` if none of its other tabs has been selected)
+ */
+export type TabRemovalSelectionBehavior = "adjacent" | "recent";
+
+/**
+ * Arguments passed to the Workspace's `disableDrop` prop.
+ *
+ * While a tabset is dragged, `disableDrop` is called once for each of its tabs (with the target that tab would be dropped at),
+ * and the target is rejected if any call returns `true`.
+ */
 export type DisableDropArgs<TabData = unknown, TabsetData = unknown> = {
   model: WorkspaceModel<TabData, TabsetData>;
-  tab: TabNode<TabData>;
+
+  /**
+   * The tab being dropped.
+   *
+   * ⚠️ This is `undefined` when a tabset without tabs (one with the `keepWhenEmpty` flag) is dragged.
+   */
+  tab: TabNode<TabData> | undefined;
+
+  /**
+   * The tabset being dragged, when a whole tabset is dragged (rather than a single tab).
+   */
+  tabset: TabsetNode<TabData, TabsetData> | undefined;
+
   target: TabDropTarget;
 };
 
@@ -342,6 +411,19 @@ export interface WorkspaceImperativeHandle<
   closeTabset: (tabsetId: string) => void;
 
   /**
+   * Collapse a tabset to just its header.
+   *
+   * ℹ️ This has no effect unless the tabset has the `collapsible` flag;
+   * the only tabset in a workspace, and tabsets whose siblings are all collapsed, can't be collapsed.
+   */
+  collapseTabset: (tabsetId: string) => void;
+
+  /**
+   * Expand a collapsed tabset to its previous size.
+   */
+  expandTabset: (tabsetId: string) => void;
+
+  /**
    * Id of the tabset the user most recently interacted with (by pointer or focus).
    */
   getActiveTabsetId: () => string | undefined;
@@ -363,6 +445,14 @@ export interface WorkspaceImperativeHandle<
    * Move a tab to a position within a tabset's tab list, or to a region of a tabset's content area.
    */
   moveTab: (tabId: string, target: TabDropTarget) => void;
+
+  /**
+   * Move a tabset beside another tabset (by dropping it onto a region at the edge of that tabset's content area),
+   * or move its tabs into another tabset (at an `index` within its tab list, or onto the `"center"` of its content area).
+   *
+   * ℹ️ When its tabs are moved, the emptied tabset is removed (unless it has the `keepWhenEmpty` flag).
+   */
+  moveTabset: (tabsetId: string, target: TabDropTarget) => void;
 
   /**
    * Restore the maximized tabset (if there is one).
@@ -409,7 +499,9 @@ export interface WorkspaceImperativeHandle<
   updateTabset: (
     tabsetId: string,
     changes: {
+      collapsible?: boolean | undefined;
       data?: TabsetData;
+      disableDrag?: boolean | undefined;
       keepWhenEmpty?: boolean | undefined;
       minHeight?: string | undefined;
       minWidth?: string | undefined;
@@ -454,9 +546,27 @@ export type ParentTabset<TabData = unknown> = {
   close: () => void;
 
   /**
+   * Collapse the tabset to just its header (see `WorkspaceImperativeHandle.collapseTabset`).
+   */
+  collapse: () => void;
+
+  /**
+   * Expand the tabset if it is collapsed.
+   */
+  expand: () => void;
+
+  /**
    * Id of the tabset.
    */
   id: string;
+
+  /**
+   * The tabset is currently collapsed (in the model).
+   *
+   * ℹ️ While a separator is being dragged, a tabset may be shown collapsed (or expanded) before the model changes;
+   * `useParentTabsetState().isCollapsed` reflects how it's shown.
+   */
+  isCollapsed: () => boolean;
 
   /**
    * The tabset is currently maximized.
@@ -489,6 +599,31 @@ export type ParentTabsetState = {
    * The user most recently interacted with this tabset (by pointer or focus).
    */
   isActive: boolean;
+
+  /**
+   * The tabset is collapsed to just its header.
+   *
+   * ℹ️ While a separator is being dragged, this reflects how the tabset is shown (e.g. collapsed as soon as it reaches its collapsed size),
+   * which the model (and `useParentTabset().isCollapsed()`) only reflects once the drag ends.
+   *
+   * ℹ️ A maximized tabset is shown expanded, but it's still collapsed when it is restored.
+   */
+  isCollapsed: boolean;
+
+  /**
+   * The tabset can be collapsed (or is collapsed, and can be expanded), e.g. to show or hide a toolbar button:
+   * it has the `collapsible` flag, isn't the only tabset in the workspace, and has a sibling that isn't collapsed.
+   */
+  isCollapsible: boolean;
+
+  /**
+   * The user cannot drag the tabset as a whole, because:
+   * - It has the `disableDrag` flag, or one of its tabs does
+   * - The Workspace has the `disabled` prop
+   * - It's the only tabset in the workspace (see `isRoot`)
+   * - A tabset is maximized
+   */
+  isDragDisabled: boolean;
 
   /**
    * The tabset is maximized.
@@ -570,7 +705,10 @@ export type ParentTabState = {
   isSelected: boolean;
 
   /**
-   * The tab is selected, and its tabset is not covered by another, maximized tabset.
+   * The tab is selected, and its tabset is neither collapsed nor covered by another, maximized tabset.
+   *
+   * ℹ️ While a separator is being dragged, this reflects how the tab's tabset is shown (e.g. collapsed as soon as it reaches its collapsed size),
+   * which the model only reflects once the drag ends.
    *
    * ⚠️ This value does not account for the Workspace itself being hidden.
    */
@@ -601,9 +739,10 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * - `tabPanels`: contains a tabset's tab content (`data-tab-panels`)
    * - `tabContent`: the element each tab's content is rendered into (`data-tab-content`)
    * - `dropIndicator`: shows where a dragged tab will be dropped within a tabset's panels (`data-drop-indicator`)
-   * - `dragPreview`: follows the pointer while a tab is dragged (`data-drag-preview`)
+   * - `dragPreview`: follows the pointer while a tab or tabset is dragged (`data-drag-preview`)
    *
-   * ℹ️ Elements expose their state as data attributes (e.g. `data-tab-selected`), which can be used for styling.
+   * ℹ️ Elements expose their state as data attributes (e.g. `data-tab-selected`, or `data-tabset-dragging` while a tabset is dragged), which can be used for styling.
+   * Elements within a collapsed tabset have a `data-tabset-collapsed` attribute.
    * Elements within a tabset also have a `data-tab-placement` attribute (see `tabPlacement`).
    *
    * ℹ️ Like the render props, this object is part of what tabsets re-render for;
@@ -629,10 +768,13 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
   disabled?: boolean | undefined;
 
   /**
-   * Prevents tabs from being dropped onto some (or all) targets.
+   * Prevents tabs (and tabsets) from being dropped onto some (or all) targets.
    *
    * Functions are called when the target under the pointer changes;
    * returning `true` rejects the target.
+   *
+   * ℹ️ While a tabset is dragged, this function is called for each of its tabs (see `DisableDropArgs`),
+   * so restrictions on where tabs can be dropped apply to dragged tabsets too.
    */
   disableDrop?:
     | boolean
@@ -689,6 +831,16 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * Defaults to the tab's title (or id).
    */
   renderDragPreview?: ((tab: TabNode<TabData>) => ReactNode) | undefined;
+
+  /**
+   * Content of the element that follows the pointer while a whole tabset is being dragged.
+   * Defaults to the preview of its selected tab (see `renderDragPreview`), or the tabset's id if it has no tabs.
+   *
+   * ℹ️ The element has a `data-drag-type` attribute: `"tabset"` while a tabset is dragged, and `"tab"` while a tab is.
+   */
+  renderTabsetDragPreview?:
+    | ((tabset: TabsetNode<TabData, TabsetData>) => ReactNode)
+    | undefined;
 
   /**
    * Content shown in the panels of a tabset that has no tabs (e.g. "Drag a tab here"):
@@ -808,6 +960,19 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
   tabPlacement?: "bottom" | "left" | "right" | "top" | undefined;
 
   /**
+   * Which tab is selected when a tabset's selected tab is removed (closed, or dragged to another tabset):
+   * - `"adjacent"`: the tab after it (or before it, if it was the last tab)
+   * - `"recent"`: the tabset's most recently selected tab (like an IDE's editor groups),
+   *   falling back to `"adjacent"` if none of its other tabs has been selected
+   *
+   * ℹ️ In `"recent"` mode, each tabset's recently selected tabs are saved in the model (see `TabsetNode.recentTabIds`),
+   * so they're restored with the rest of the layout.
+   *
+   * @default "adjacent"
+   */
+  tabRemovalSelectionBehavior?: TabRemovalSelectionBehavior | undefined;
+
+  /**
    * Minimum height of each tabset's content area (not including its header).
    *
    * ℹ️ Tabsets can override this with the `minHeight` field of their model node.
@@ -889,6 +1054,8 @@ export type TabRenderProps = Pick<
 
 export type TabCloseButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
 
+export type TabsetDragHandleProps = HTMLAttributes<HTMLDivElement>;
+
 /**
  * Minimum size of a node, in pixels (used internally).
  */
@@ -898,3 +1065,10 @@ export type MinimumSize = { height: number; width: number };
  * A pointer position, in client coordinates (used internally).
  */
 export type DragPoint = { clientX: number; clientY: number };
+
+/**
+ * What is being dragged: a single tab, or a whole tabset (used internally).
+ */
+export type DragSource =
+  | { tabId: string; type: "tab" }
+  | { tabsetId: string; type: "tabset" };

@@ -58,6 +58,9 @@ export const routes = {
   "/examples/workspace/managing-tabs": lazy(
     () => import("./routes/WorkspaceManagingTabsRoute")
   ),
+  "/examples/workspace/managing-tabsets": lazy(
+    () => import("./routes/WorkspaceManagingTabsetsRoute")
+  ),
   "/examples/workspace/persistent-layout": lazy(
     () => import("./routes/WorkspacePersistenceRoute")
   ),
@@ -152,6 +155,9 @@ export const routes = {
   "/props/separator": lazy(() => import("./routes/SeparatorPropsRoute")),
   "/props/tab-close-button": lazy(
     () => import("./routes/TabCloseButtonPropsRoute")
+  ),
+  "/props/tabset-drag-handle": lazy(
+    () => import("./routes/TabsetDragHandlePropsRoute")
   ),
   "/props/workspace": lazy(() => import("./routes/WorkspacePropsRoute")),
   "/test": lazy(() => import("./routes/TestRoute"))

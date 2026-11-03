@@ -1,3 +1,4 @@
+import { getReplacementTabId } from "./getReplacementTabId";
 import type { TabsetNode } from "../types";
 
 export function removeTab(tabset: TabsetNode, tabId: string) {
@@ -6,10 +7,9 @@ export function removeTab(tabset: TabsetNode, tabId: string) {
     return;
   }
 
-  tabset.tabs.splice(index, 1);
-
   if (tabset.selectedId === tabId) {
-    tabset.selectedId =
-      tabset.tabs[Math.min(index, tabset.tabs.length - 1)]?.id;
+    tabset.selectedId = getReplacementTabId(tabset, tabId);
   }
+
+  tabset.tabs.splice(index, 1);
 }

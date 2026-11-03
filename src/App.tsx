@@ -194,6 +194,10 @@ const nav: NavConfig<Path | DefaultPath> = [
             path: "/examples/workspace/managing-tabs",
             title: "Managing tabs"
           },
+          {
+            path: "/examples/workspace/managing-tabsets",
+            title: "Managing tabsets"
+          },
           { path: "/examples/workspace/restrictions", title: "Restrictions" },
           {
             path: "/examples/workspace/persistent-layout",
@@ -215,7 +219,8 @@ const nav: NavConfig<Path | DefaultPath> = [
         title: "Components",
         links: [
           { path: "/props/workspace", title: "Workspace" },
-          { path: "/props/tab-close-button", title: "TabCloseButton" }
+          { path: "/props/tab-close-button", title: "TabCloseButton" },
+          { path: "/props/tabset-drag-handle", title: "TabsetDragHandle" }
         ]
       },
       {

@@ -53,8 +53,16 @@ export default function WorkspaceRestrictionsRoute() {
           dropped around it.
         </li>
         <li>
+          A tabset's <code>disableDrag</code> flag prevents the user from
+          dragging the whole tabset (its tabs can still be dragged). Tabsets
+          that contain a tab with the <code>disableDrag</code> flag can't be
+          dragged either.
+        </li>
+        <li>
           The <code>disableDrop</code> prop rejects drop targets: either all of
-          them, or the ones a function returns <code>true</code> for.
+          them, or the ones a function returns <code>true</code> for. While a
+          tabset is dragged, the function is called for each of its tabs, so a
+          tabset can only be dropped where all of its tabs could be.
         </li>
         <li>
           The <code>disabled</code> prop locks the arrangement: tabs can't be

@@ -6,6 +6,8 @@ import { warnOnce } from "../../shared/utils/warnOnce";
 import { ParentTabContext } from "../contexts/ParentTabContext";
 import { TabListContext } from "../contexts/TabListContext";
 import { closeTab } from "../models/closeTab";
+import { expandTabset } from "../models/expandTabset";
+import { getReplacementTabId } from "../models/getReplacementTabId";
 import { selectTab } from "../models/selectTab";
 import { TabCloseButton } from "./TabCloseButton";
 import type { TabNode, TabRenderProps } from "../types";
@@ -31,7 +33,11 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     takeFocusRequest,
     updateModel
   } = useWorkspaceContext("Tab");
-  const { tabPlacement, tabset: slotTabset } = useTabsetContext("Tab");
+  const {
+    isCollapsed,
+    tabPlacement,
+    tabset: slotTabset
+  } = useTabsetContext("Tab");
   const { isOverflowing, orientation } = useContext(TabListContext);
 
   const elementRef = useRef<HTMLElement | null>(null);
@@ -96,8 +102,13 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
 
   const { panelId, tabElementId } = getTabHost(tab.id);
 
+  // Selecting a tab in a collapsed tabset expands the tabset
   const select = () =>
-    updateModel("select", true, (prev) => selectTab(prev, tab.id));
+    isCollapsed
+      ? updateModel("expand", true, (prev) =>
+          expandTabset(selectTab(prev, tab.id), tabset.id)
+        )
+      : updateModel("select", true, (prev) => selectTab(prev, tab.id));
 
   const onTabKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (event.target !== event.currentTarget) {
@@ -150,9 +161,12 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
         if (!isCloseDisabled) {
           event.preventDefault();
 
-          const neighbor = tabset.tabs[index + 1] ?? tabset.tabs[index - 1];
-          if (neighbor) {
-            requestFocus(neighbor.id);
+          // Focus moves to the tab that will be selected instead (which is in the page's tab order), or to a neighbor
+          const focusId = isSelected
+            ? getReplacementTabId(tabset, tab.id)
+            : (tabset.tabs[index + 1] ?? tabset.tabs[index - 1])?.id;
+          if (focusId !== undefined) {
+            requestFocus(focusId);
           }
 
           updateModel("close", true, (prev) => closeTab(prev, tab.id));
@@ -172,6 +186,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     "data-tab-dragging": dragTabId === tab.id || undefined,
     "data-tab-id": tab.id,
     "data-tab-placement": tabPlacement,
+    "data-tabset-collapsed": isCollapsed || undefined,
     "data-tab-selected": isSelected || undefined,
     id: tabElementId,
     onClick: (event) => {
@@ -190,7 +205,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
         !isDragDisabled &&
         !isFromInteractiveDescendant(event)
       ) {
-        startTabDrag(tab, event);
+        startTabDrag(tab.id, event);
       }
     },
     ref: setElement,

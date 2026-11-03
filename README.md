@@ -914,9 +914,10 @@ Falls back to <code>useId</code> when not provided.</p>
 <li><code>tabPanels</code>: contains a tabset&#39;s tab content (<code>data-tab-panels</code>)</li>
 <li><code>tabContent</code>: the element each tab&#39;s content is rendered into (<code>data-tab-content</code>)</li>
 <li><code>dropIndicator</code>: shows where a dragged tab will be dropped within a tabset&#39;s panels (<code>data-drop-indicator</code>)</li>
-<li><code>dragPreview</code>: follows the pointer while a tab is dragged (<code>data-drag-preview</code>)</li>
+<li><code>dragPreview</code>: follows the pointer while a tab or tabset is dragged (<code>data-drag-preview</code>)</li>
 </ul>
-<p>ℹ️ Elements expose their state as data attributes (e.g. <code>data-tab-selected</code>), which can be used for styling.
+<p>ℹ️ Elements expose their state as data attributes (e.g. <code>data-tab-selected</code>, or <code>data-tabset-dragging</code> while a tabset is dragged), which can be used for styling.
+Elements within a collapsed tabset have a <code>data-tabset-collapsed</code> attribute.
 Elements within a tabset also have a <code>data-tab-placement</code> attribute (see <code>tabPlacement</code>).</p>
 <p>ℹ️ Like the render props, this object is part of what tabsets re-render for;
 in large workspaces, define it outside of the component (or memoize it) rather than inline.</p>
@@ -931,9 +932,11 @@ Selecting tabs and maximizing tabsets still work.</p>
     </tr>
     <tr>
       <td>disableDrop</td>
-      <td><p>Prevents tabs from being dropped onto some (or all) targets.</p>
+      <td><p>Prevents tabs (and tabsets) from being dropped onto some (or all) targets.</p>
 <p>Functions are called when the target under the pointer changes;
 returning <code>true</code> rejects the target.</p>
+<p>ℹ️ While a tabset is dragged, this function is called for each of its tabs (see <code>DisableDropArgs</code>),
+so restrictions on where tabs can be dropped apply to dragged tabsets too.</p>
 </td>
     </tr>
     <tr>
@@ -967,6 +970,13 @@ This method is recommended when saving models to some storage api.</p>
       <td>renderDragPreview</td>
       <td><p>Content of the element that follows the pointer while a tab is being dragged.
 Defaults to the tab&#39;s title (or id).</p>
+</td>
+    </tr>
+    <tr>
+      <td>renderTabsetDragPreview</td>
+      <td><p>Content of the element that follows the pointer while a whole tabset is being dragged.
+Defaults to the preview of its selected tab (see <code>renderDragPreview</code>), or the tabset&#39;s id if it has no tabs.</p>
+<p>ℹ️ The element has a <code>data-drag-type</code> attribute: <code>&quot;tabset&quot;</code> while a tabset is dragged, and <code>&quot;tab&quot;</code> while a tab is.</p>
 </td>
     </tr>
     <tr>
@@ -1044,6 +1054,18 @@ this determines how a dropped tab&#39;s position is found and which arrow keys m
 </td>
     </tr>
     <tr>
+      <td>tabRemovalSelectionBehavior</td>
+      <td><p>Which tab is selected when a tabset&#39;s selected tab is removed (closed, or dragged to another tabset):</p>
+<ul>
+<li><code>&quot;adjacent&quot;</code>: the tab after it (or before it, if it was the last tab)</li>
+<li><code>&quot;recent&quot;</code>: the tabset&#39;s most recently selected tab (like an IDE&#39;s editor groups),
+falling back to <code>&quot;adjacent&quot;</code> if none of its other tabs has been selected</li>
+</ul>
+<p>ℹ️ In <code>&quot;recent&quot;</code> mode, each tabset&#39;s recently selected tabs are saved in the model (see <code>TabsetNode.recentTabIds</code>),
+so they&#39;re restored with the rest of the layout.</p>
+</td>
+    </tr>
+    <tr>
       <td>tabsetMinHeight</td>
       <td><p>Minimum height of each tabset&#39;s content area (not including its header).</p>
 <p>ℹ️ Tabsets can override this with the <code>minHeight</code> field of their model node.</p>
@@ -1085,13 +1107,14 @@ Closes the tab it is rendered within; render it within the element returned by t
 renderTab={(tab, props) => (
   <div {...props}>
     {tab.title}
-    <TabCloseButton />
+    <TabCloseButton>×</TabCloseButton>
   </div>
 )}
 ```
 
 The button renders nothing if closing is disabled (by the tab's `disableClose` flag or the Workspace's `disabled` prop).
-Its default `aria-label` is "Close" followed by the tab's title (or id).
+Its content defaults to "×" (e.g. it can be replaced with an icon),
+and its default `aria-label` is "Close" followed by the tab's title (or id).
 
 To keep the tab open (e.g. to confirm unsaved changes first), call `event.preventDefault()` in an `onClick` handler:
 

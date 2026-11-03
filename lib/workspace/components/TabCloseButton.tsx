@@ -59,13 +59,14 @@ function TabCloseButtonComponent({
  * renderTab={(tab, props) => (
  *   <div {...props}>
  *     {tab.title}
- *     <TabCloseButton />
+ *     <TabCloseButton>×</TabCloseButton>
  *   </div>
  * )}
  * ```
  *
  * The button renders nothing if closing is disabled (by the tab's `disableClose` flag or the Workspace's `disabled` prop).
- * Its default `aria-label` is "Close" followed by the tab's title (or id).
+ * Its content defaults to "×" (e.g. it can be replaced with an icon),
+ * and its default `aria-label` is "Close" followed by the tab's title (or id).
  *
  * To keep the tab open (e.g. to confirm unsaved changes first), call `event.preventDefault()` in an `onClick` handler:
  *

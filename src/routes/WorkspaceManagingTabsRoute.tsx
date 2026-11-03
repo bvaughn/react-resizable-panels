@@ -1,9 +1,8 @@
 import { Box, Callout, Code, Header, SectionHeader } from "react-lib-tools";
 import { useWorkspaceRef, type WorkspaceModel } from "react-resizable-panels";
 import { html as UseParentTabsetHTML } from "../../public/generated/examples/UseParentTabset.json";
-import { html as KeepWhenEmptyHTML } from "../../public/generated/examples/WorkspaceKeepWhenEmpty.json";
-import { html as MaximizeTabsetHTML } from "../../public/generated/examples/WorkspaceMaximizeTabset.json";
 import { html as OpenTabHTML } from "../../public/generated/examples/WorkspaceOpenTab.json";
+import { html as TabRemovalSelectionHTML } from "../../public/generated/examples/WorkspaceTabRemovalSelection.json";
 import { html as UpdateTabHTML } from "../../public/generated/examples/WorkspaceUpdateTab.json";
 import { DemoButton } from "../components/DemoButton";
 import { Link } from "../components/Link";
@@ -23,29 +22,17 @@ const emptyModel: WorkspaceModel<TabData> = {
   }
 };
 
-// The editor area stays when its last tab is closed (see "Empty tabsets")
-const keepWhenEmptyModel: WorkspaceModel<TabData> = {
+// Several tabs in one tabset, to show which tab is selected when the selected one is closed
+const tabRemovalModel: WorkspaceModel<TabData> = {
   version: 1,
   root: {
-    type: "split",
-    id: "root",
-    orientation: "horizontal",
-    children: [
-      {
-        type: "tabset",
-        id: "sidebar",
-        size: 30,
-        tabs: [{ id: "about", title: "About", data: { kind: "about" } }]
-      },
-      {
-        type: "tabset",
-        id: "editors",
-        keepWhenEmpty: true,
-        tabs: [
-          { id: "counter", title: "Counter", data: { kind: "counter" } },
-          { id: "notes", title: "Notes", data: { kind: "notes" } }
-        ]
-      }
+    type: "tabset",
+    id: "tabs",
+    tabs: [
+      { id: "about", title: "About", data: { kind: "about" } },
+      { id: "counter", title: "Counter", data: { kind: "counter" } },
+      { id: "notes", title: "Notes", data: { kind: "notes" } },
+      { id: "nested", title: "Nested panels", data: { kind: "nested" } }
     ]
   }
 };
@@ -133,52 +120,43 @@ export default function WorkspaceManagingTabsRoute() {
         changes), see{" "}
         <Link to="/examples/workspace/custom-tabsets">custom tabsets</Link>.
       </Callout>
-      <SectionHeader>Empty tabsets</SectionHeader>
+      <SectionHeader>Selecting a tab after one is closed</SectionHeader>
       <div>
-        By default, a tabset is removed when its last tab is closed or dragged
-        away. A tabset with the <code>keepWhenEmpty</code> flag stays instead
-        (e.g. an editor area that should remain as a drop target), showing the
-        Workspace's <code>renderEmptyTabset</code> content, until it's closed
-        with the <code>closeTabset</code> method or the{" "}
-        <code>useParentTabset</code> hook's <code>close</code> function:
+        When the selected tab is closed (or dragged to another tabset), the tab
+        after it is selected by default. With the{" "}
+        <code>tabRemovalSelectionBehavior</code> prop set to{" "}
+        <code>"recent"</code>, the tab that was selected before it is selected
+        instead, like in an IDE:
       </div>
-      <Code html={KeepWhenEmptyHTML} />
+      <Code html={TabRemovalSelectionHTML} />
       <div>
-        In the workspace below, the tabset on the right has the{" "}
-        <code>keepWhenEmpty</code> flag. Close its tabs (or drag them into the
-        tabset on the left) and it stays, as a place to drop them again. Each
-        tabset's close button (×) removes it, along with any tabs it still has.
+        In the workspace below, select a few tabs and then close the selected
+        one.
       </div>
       <DemoWorkspace
-        canCloseTabset={() => true}
-        className="h-60"
-        defaultModel={keepWhenEmptyModel}
+        className="h-50"
+        defaultModel={tabRemovalModel}
         showResetButton
+        tabRemovalSelectionBehavior="recent"
       />
       <Callout>
-        Closing a tabset also closes any tabs it contains. Like the rest of the
-        imperative API, it isn't restricted by tabs' <code>disableClose</code>{" "}
-        flags.
+        Each tabset's recently selected tabs are saved in the model (as{" "}
+        <Link to="/model/tabset-node">
+          <code>recentTabIds</code>
+        </Link>
+        ), so they're restored with the rest of the layout. If none of the
+        remaining tabs has been selected, the tab after the closed one is
+        selected.
       </Callout>
-      <SectionHeader>Maximizing tabsets</SectionHeader>
-      <div>
-        A maximized tabset covers the rest of the workspace until it's restored.
-        The <code>maximizeTabset</code> and <code>restoreTabset</code> methods
-        do this from outside of the workspace, and the{" "}
-        <code>useParentTabset</code> hook from within a tabset (e.g. a button in
-        its toolbar):
-      </div>
-      <Code html={MaximizeTabsetHTML} />
-      <div>
-        Which tabset is maximized is part of the model, so it's saved and
-        restored with the rest of the layout. While a tabset is maximized, tabs
-        can only be dragged within it.
-      </div>
       <Callout>
         Changes made with the imperative API are reported by{" "}
         <code>onModelChanged</code> (with <code>isUserInteraction</code> set to{" "}
         <code>false</code>), so they're saved like any other change.
       </Callout>
+      <div>
+        To keep, move, collapse, or maximize whole tabsets, see{" "}
+        <Link to="/examples/workspace/managing-tabsets">managing tabsets</Link>.
+      </div>
     </Box>
   );
 }

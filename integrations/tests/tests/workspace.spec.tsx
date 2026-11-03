@@ -1,5 +1,11 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { Workspace, type WorkspaceModel } from "react-resizable-panels";
+import {
+  Workspace,
+  type SplitNode,
+  type TabsetNode,
+  type WorkspaceModel
+} from "react-resizable-panels";
+import { SEPARATOR_SIZE } from "../src/components/Workspace";
 import { goToUrl } from "../src/utils/goToUrl";
 
 function createModel({
@@ -167,6 +173,126 @@ test.describe("Workspace", () => {
     expect(Math.abs(added.height - right.height)).toBeLessThanOrEqual(1);
 
     await expect(page.getByTestId("content-a")).toHaveText("a: 1");
+  });
+
+  test("moves a tabset by the empty space in its header without remounting its content", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(mainPage, workspace());
+
+    await page.getByTestId("content-a").click();
+
+    // The header's empty space is after its tabs
+    const header = (await getTabset(page, "left")
+      .locator("[data-tabset-header]")
+      .boundingBox())!;
+    await drag(
+      page,
+      { x: header.x + header.width - 10, y: header.y + header.height / 2 },
+      await getPanelsPoint(getTabset(page, "right"), "bottom")
+    );
+
+    // The tabset is below the right tabset, and they share its space
+    const right = (await getTabset(page, "right").boundingBox())!;
+    const left = (await getTabset(page, "left").boundingBox())!;
+    expect(left.x).toBe(right.x);
+    expect(left.y).toBeGreaterThan(right.y);
+    expect(await getTabIds(getTabset(page, "left"))).toEqual(["a", "b"]);
+    expect(await getLastChange(page)).toMatchObject({
+      meta: { isUserInteraction: true, reason: "move" }
+    });
+
+    await expect(page.getByTestId("content-a")).toHaveText("a: 1");
+  });
+
+  test("collapses a tabset to its header, and expands it when a tab is clicked", async ({
+    page: mainPage
+  }) => {
+    const model = createModel();
+    const root = model.root as SplitNode;
+    root.children[1] = {
+      ...(root.children[1] as TabsetNode),
+      collapsed: true,
+      collapsible: true,
+      size: 40
+    };
+    const page = await goToUrl(mainPage, workspace(model));
+
+    // Tabs placed on top run vertically while the tabset is collapsed within a horizontal split,
+    // and it's as wide as its header's content
+    // (this app doesn't style vertical tab lists, so that's the width of its tab)
+    const right = getTabset(page, "right");
+    await expect(right).toHaveAttribute("data-tab-placement", "right");
+    const collapsedWidth = (await right.boundingBox())!.width;
+    const tabWidth = (await getTab(page, "c").boundingBox())!.width;
+    expect(Math.abs(collapsedWidth - tabWidth)).toBeLessThanOrEqual(1);
+
+    await getTab(page, "c").click();
+
+    await expect(right).not.toHaveAttribute("data-tabset-collapsed");
+    const workspaceWidth = 808 - SEPARATOR_SIZE;
+    expect(
+      Math.abs((await right.boundingBox())!.width - workspaceWidth * 0.4)
+    ).toBeLessThanOrEqual(1);
+    expect(await getLastChange(page)).toMatchObject({
+      meta: { isUserInteraction: true, reason: "expand" }
+    });
+  });
+
+  test("shows a tabset collapsed (or expanded) while its separator is dragged, before the pointer is released", async ({
+    page: mainPage
+  }) => {
+    const model = createModel();
+    const root = model.root as SplitNode;
+    root.children[1] = {
+      ...(root.children[1] as TabsetNode),
+      collapsible: true,
+      size: 40
+    };
+    const page = await goToUrl(mainPage, workspace(model));
+
+    const right = getTabset(page, "right");
+    const workspaceBox = (await page
+      .locator("[data-workspace]")
+      .boundingBox())!;
+    const separator = (await page.locator("[data-separator]").boundingBox())!;
+    const y = separator.y + separator.height / 2;
+
+    // Collapse: the tabset only shows its header as soon as it reaches its collapsed size
+    await page.mouse.move(separator.x + separator.width / 2, y);
+    await page.mouse.down();
+    await page.mouse.move(workspaceBox.x + workspaceBox.width - 5, y, {
+      steps: 10
+    });
+    await expect(right).toHaveAttribute("data-tabset-collapsed", "true");
+    await expect(right.locator("[data-tab-panels]")).toBeHidden();
+
+    await page.mouse.up();
+    await expect(right).toHaveAttribute("data-tabset-collapsed", "true");
+    expect(await getLastChange(page)).toMatchObject({
+      meta: { isUserInteraction: true, reason: "collapse" }
+    });
+
+    // Expand: its content is shown again as soon as it's dragged past its collapsed size
+    const collapsedSeparator = (await page
+      .locator("[data-separator]")
+      .boundingBox())!;
+    await page.mouse.move(
+      collapsedSeparator.x + collapsedSeparator.width / 2,
+      y
+    );
+    await page.mouse.down();
+    await page.mouse.move(workspaceBox.x + workspaceBox.width * 0.5, y, {
+      steps: 10
+    });
+    await expect(right).not.toHaveAttribute("data-tabset-collapsed");
+    await expect(right.locator("[data-tab-panels]")).toBeVisible();
+
+    await page.mouse.up();
+    await expect(right).not.toHaveAttribute("data-tabset-collapsed");
+    expect(await getLastChange(page)).toMatchObject({
+      meta: { isUserInteraction: true, reason: "expand" }
+    });
   });
 
   test("applies the model's sizes when a split's children change", async ({

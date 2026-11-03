@@ -49,9 +49,17 @@ export default function WorkspaceStylingRoute() {
           dragging their edges).
         </li>
         <li>
+          Elements within a collapsed tabset have a{" "}
+          <code>data-tabset-collapsed</code> attribute, and their{" "}
+          <code>data-tab-placement</code> is the side its header runs along
+          while collapsed (e.g. <code>"left"</code> for a sidebar).
+        </li>
+        <li>
           The content of the element that follows the pointer while a tab is
-          dragged can be customized with the <code>renderDragPreview</code>{" "}
-          prop.
+          dragged can be customized with the <code>renderDragPreview</code> prop
+          (and while a tabset is dragged, with the{" "}
+          <code>renderTabsetDragPreview</code> prop). A tabset being dragged has
+          a <code>data-tabset-dragging</code> attribute.
         </li>
       </ul>
       <Callout intent="warning">

@@ -62,10 +62,10 @@
     "classNames": {
       "description": [
         {
-          "content": "<p>CSS class names for the elements the workspace renders within its root element:</p>\n<ul>\n<li><code>tabset</code>: root element of a tabset (<code>data-tabset</code>)</li>\n<li><code>header</code>: contains a tabset's tab list and toolbar (<code>data-tabset-header</code>)</li>\n<li><code>tabList</code>: contains a tabset's tabs (<code>data-tab-list</code>)</li>\n<li><code>tab</code>: passed to <code>renderTab</code> with the rest of a tab's props (<code>data-tab</code>)</li>\n<li><code>toolbar</code>: contains the content returned by <code>renderTabsetToolbar</code> (<code>data-tabset-toolbar</code>)</li>\n<li><code>tabPanels</code>: contains a tabset's tab content (<code>data-tab-panels</code>)</li>\n<li><code>tabContent</code>: the element each tab's content is rendered into (<code>data-tab-content</code>)</li>\n<li><code>dropIndicator</code>: shows where a dragged tab will be dropped within a tabset's panels (<code>data-drop-indicator</code>)</li>\n<li><code>dragPreview</code>: follows the pointer while a tab is dragged (<code>data-drag-preview</code>)</li>\n</ul>\n"
+          "content": "<p>CSS class names for the elements the workspace renders within its root element:</p>\n<ul>\n<li><code>tabset</code>: root element of a tabset (<code>data-tabset</code>)</li>\n<li><code>header</code>: contains a tabset's tab list and toolbar (<code>data-tabset-header</code>)</li>\n<li><code>tabList</code>: contains a tabset's tabs (<code>data-tab-list</code>)</li>\n<li><code>tab</code>: passed to <code>renderTab</code> with the rest of a tab's props (<code>data-tab</code>)</li>\n<li><code>toolbar</code>: contains the content returned by <code>renderTabsetToolbar</code> (<code>data-tabset-toolbar</code>)</li>\n<li><code>tabPanels</code>: contains a tabset's tab content (<code>data-tab-panels</code>)</li>\n<li><code>tabContent</code>: the element each tab's content is rendered into (<code>data-tab-content</code>)</li>\n<li><code>dropIndicator</code>: shows where a dragged tab will be dropped within a tabset's panels (<code>data-drop-indicator</code>)</li>\n<li><code>dragPreview</code>: follows the pointer while a tab or tabset is dragged (<code>data-drag-preview</code>)</li>\n</ul>\n"
         },
         {
-          "content": "<p>Elements expose their state as data attributes (e.g. <code>data-tab-selected</code>), which can be used for styling.\nElements within a tabset also have a <code>data-tab-placement</code> attribute (see <code>tabPlacement</code>).</p>\n",
+          "content": "<p>Elements expose their state as data attributes (e.g. <code>data-tab-selected</code>, or <code>data-tabset-dragging</code> while a tabset is dragged), which can be used for styling.\nElements within a collapsed tabset have a <code>data-tabset-collapsed</code> attribute.\nElements within a tabset also have a <code>data-tab-placement</code> attribute (see <code>tabPlacement</code>).</p>\n",
           "intent": "primary"
         },
         {
@@ -112,10 +112,14 @@
     "disableDrop": {
       "description": [
         {
-          "content": "<p>Prevents tabs from being dropped onto some (or all) targets.</p>\n"
+          "content": "<p>Prevents tabs (and tabsets) from being dropped onto some (or all) targets.</p>\n"
         },
         {
           "content": "<p>Functions are called when the target under the pointer changes;\nreturning <code>true</code> rejects the target.</p>\n"
+        },
+        {
+          "content": "<p>While a tabset is dragged, this function is called for each of its tabs (see <code>DisableDropArgs</code>),\nso restrictions on where tabs can be dropped apply to dragged tabsets too.</p>\n",
+          "intent": "primary"
         }
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disableDrop</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">args</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">DisableDropArgs</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"tok-punctuation\">)</span></div>",
@@ -175,6 +179,20 @@
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">renderDragPreview</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span><span class=\"tok-punctuation\">)</span></div>",
       "name": "renderDragPreview",
+      "required": false
+    },
+    "renderTabsetDragPreview": {
+      "description": [
+        {
+          "content": "<p>Content of the element that follows the pointer while a whole tabset is being dragged.\nDefaults to the preview of its selected tab (see <code>renderDragPreview</code>), or the tabset's id if it has no tabs.</p>\n"
+        },
+        {
+          "content": "<p>The element has a <code>data-drag-type</code> attribute: <code>&quot;tabset&quot;</code> while a tabset is dragged, and <code>&quot;tab&quot;</code> while a tab is.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">renderTabsetDragPreview</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tabset</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "renderTabsetDragPreview",
       "required": false
     },
     "renderEmptyTabset": {
@@ -318,6 +336,20 @@
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">tabPlacement</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"bottom\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"left\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"right\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"top\"</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"top\"</span></div>",
       "name": "tabPlacement",
+      "required": false
+    },
+    "tabRemovalSelectionBehavior": {
+      "description": [
+        {
+          "content": "<p>Which tab is selected when a tabset's selected tab is removed (closed, or dragged to another tabset):</p>\n<ul>\n<li><code>&quot;adjacent&quot;</code>: the tab after it (or before it, if it was the last tab)</li>\n<li><code>&quot;recent&quot;</code>: the tabset's most recently selected tab (like an IDE's editor groups),\nfalling back to <code>&quot;adjacent&quot;</code> if none of its other tabs has been selected</li>\n</ul>\n"
+        },
+        {
+          "content": "<p>In <code>&quot;recent&quot;</code> mode, each tabset's recently selected tabs are saved in the model (see <code>TabsetNode.recentTabIds</code>),\nso they're restored with the rest of the layout.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">tabRemovalSelectionBehavior</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">TabRemovalSelectionBehavior</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"adjacent\"</span></div>",
+      "name": "tabRemovalSelectionBehavior",
       "required": false
     },
     "tabsetMinHeight": {

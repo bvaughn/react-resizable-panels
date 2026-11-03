@@ -9,10 +9,12 @@ import {
   useTabsetContext,
   useWorkspaceContext
 } from "../hooks/useWorkspaceContext";
+import { isTabsetDragDisabled } from "../utils/isTabsetDragDisabled";
 
 function TabListComponent({ children }: { children: ReactNode }) {
-  const { classNames, styles } = useWorkspaceContext("TabList");
-  const { tabPlacement } = useTabsetContext("TabList");
+  const { classNames, disabled, model, styles } =
+    useWorkspaceContext("TabList");
+  const { isCollapsed, tabPlacement, tabset } = useTabsetContext("TabList");
 
   const orientation: Orientation =
     tabPlacement === "left" || tabPlacement === "right"
@@ -85,6 +87,16 @@ function TabListComponent({ children }: { children: ReactNode }) {
     };
   }, [orientation]);
 
+  // The list's empty space drags the tabset (see TabsetView), so it handles touch drags itself like tabs do (see Tab)
+  let touchAction = styles?.tabList?.touchAction;
+  if (!isTabsetDragDisabled(model, tabset, disabled)) {
+    if (isOverflowing) {
+      touchAction = orientation === "horizontal" ? "pan-x" : "pan-y";
+    } else {
+      touchAction = "none";
+    }
+  }
+
   const context = useMemo(
     () => ({ isOverflowing, orientation }),
     [isOverflowing, orientation]
@@ -98,9 +110,10 @@ function TabListComponent({ children }: { children: ReactNode }) {
         data-orientation={orientation}
         data-tab-list
         data-tab-placement={tabPlacement}
+        data-tabset-collapsed={isCollapsed || undefined}
         ref={elementRef}
         role="tablist"
-        style={styles?.tabList}
+        style={{ ...styles?.tabList, touchAction }}
       >
         {children}
       </div>

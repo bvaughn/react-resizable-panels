@@ -7,24 +7,60 @@ import {
   useTabsetContext,
   useWorkspaceContext
 } from "../hooks/useWorkspaceContext";
+import { expandTabset } from "../models/expandTabset";
+import { isHeaderEmptySpace } from "../utils/isHeaderEmptySpace";
+import { isTabsetDragDisabled } from "../utils/isTabsetDragDisabled";
+import { isTabsetDragStart } from "../utils/isTabsetDragStart";
 
 function TabsetViewComponent() {
   const {
     activeTabsetId,
     classNames,
+    disabled,
+    dragTabsetId,
     model,
     renderTabsetToolbar,
     setActiveTabsetId,
-    styles
+    startTabsetDrag,
+    styles,
+    updateModel
   } = useWorkspaceContext("TabsetView");
-  const { setTabsetElement, tabPlacement, tabset } =
-    useTabsetContext("TabsetView");
+  const {
+    isCollapsed,
+    setHeaderElement,
+    setTabsetElement,
+    tabPlacement,
+    tabset
+  } = useTabsetContext("TabsetView");
+
+  const isDragDisabled = isTabsetDragDisabled(model, tabset, disabled);
 
   const header = (
     <div
       className={classNames?.header}
       data-tab-placement={tabPlacement}
+      data-tabset-collapsed={isCollapsed || undefined}
       data-tabset-header
+      // Clicking the empty space in a collapsed tabset's header (its own element or its tab list's) expands it;
+      // a click after the header is dragged isn't dispatched (see useTabDrag)
+      onClick={(event) => {
+        if (
+          isCollapsed &&
+          isHeaderEmptySpace(event.currentTarget, event.target as Element)
+        ) {
+          updateModel("expand", true, (prev) => expandTabset(prev, tabset.id));
+        }
+      }}
+      onPointerDown={(event) => {
+        if (
+          event.button === 0 &&
+          !isDragDisabled &&
+          isTabsetDragStart(event.currentTarget, event.target as Element)
+        ) {
+          startTabsetDrag(tabset.id, event);
+        }
+      }}
+      ref={setHeaderElement}
       style={styles?.header}
     >
       <TabList>
@@ -36,6 +72,7 @@ function TabsetViewComponent() {
         <div
           className={classNames?.toolbar}
           data-tab-placement={tabPlacement}
+          data-tabset-collapsed={isCollapsed || undefined}
           data-tabset-toolbar
           style={styles?.toolbar}
         >
@@ -51,6 +88,8 @@ function TabsetViewComponent() {
       data-tab-placement={tabPlacement}
       data-tabset
       data-tabset-active={activeTabsetId === tabset.id || undefined}
+      data-tabset-collapsed={isCollapsed || undefined}
+      data-tabset-dragging={dragTabsetId === tabset.id || undefined}
       data-tabset-id={tabset.id}
       data-tabset-maximized={model.maximizedTabsetId === tabset.id || undefined}
       onFocusCapture={() => setActiveTabsetId(tabset.id)}

@@ -3,13 +3,18 @@ import { resetWarnOnceForTest } from "../../shared/utils/warnOnce";
 import { addTab } from "./addTab";
 import { closeTab } from "./closeTab";
 import { closeTabset } from "./closeTabset";
+import { collapseTabset } from "./collapseTabset";
+import { expandTabset } from "./expandTabset";
+import { findTabset } from "./findTabset";
 import { maximizeTabset } from "./maximizeTabset";
 import { moveTab } from "./moveTab";
+import { moveTabset } from "./moveTabset";
 import { normalizeModel } from "./normalizeModel";
 import { restoreTabset } from "./restoreTabset";
 import { selectTab } from "./selectTab";
 import { setSplitLayout } from "./setSplitLayout";
 import { updateTab } from "./updateTab";
+import { updateRecentTabIds } from "./updateRecentTabIds";
 import { updateTabset } from "./updateTabset";
 import type {
   SplitNode,
@@ -219,6 +224,524 @@ describe("workspace model", () => {
         orientation: "horizontal",
         size: undefined
       });
+    });
+  });
+
+  describe("moveTabset", () => {
+    const threeTabsets = model(
+      split("root", "horizontal", [
+        tabset("a", ["1", "2"], 40),
+        split(
+          "b",
+          "vertical",
+          [tabset("c", ["3"], 50), tabset("d", ["4"], 50)],
+          60
+        )
+      ])
+    );
+
+    test("moves a tabset beside another tabset in the same direction as its split", () => {
+      expect(
+        shape(
+          moveTabset(twoTabsets, "a", { region: "right", tabsetId: "b" }).root
+        )
+      ).toEqual({
+        children: [
+          { selected: "3", size: 50, tabs: ["3"] },
+          { selected: "1", size: 50, tabs: ["1", "2"] }
+        ],
+        orientation: "horizontal",
+        size: undefined
+      });
+    });
+
+    test("moves a tabset beside another tabset in the other direction by wrapping it in a split", () => {
+      expect(
+        shape(
+          moveTabset(twoTabsets, "a", { region: "top", tabsetId: "b" }).root
+        )
+      ).toEqual({
+        children: [
+          { selected: "1", size: 50, tabs: ["1", "2"] },
+          { selected: "3", size: 50, tabs: ["3"] }
+        ],
+        orientation: "vertical",
+        size: undefined
+      });
+    });
+
+    test("moves a tabset beside a tabset in another split, and its siblings share the space it leaves", () => {
+      expect(
+        shape(
+          moveTabset(threeTabsets, "a", { region: "bottom", tabsetId: "d" })
+            .root
+        )
+      ).toEqual({
+        children: [
+          { selected: "3", size: 50, tabs: ["3"] },
+          { selected: "4", size: 25, tabs: ["4"] },
+          { selected: "1", size: 25, tabs: ["1", "2"] }
+        ],
+        orientation: "vertical",
+        size: undefined
+      });
+    });
+
+    test("keeps the tabset's id, data, and flags when moving it", () => {
+      const initial = model(
+        split("root", "horizontal", [
+          {
+            ...tabset("a", ["1", "2"]),
+            data: { label: "a" },
+            keepWhenEmpty: true,
+            minWidth: "100px",
+            selectedId: "2",
+            tabPlacement: "bottom"
+          },
+          tabset("b", ["3"])
+        ])
+      );
+      const next = moveTabset(initial, "a", { region: "top", tabsetId: "b" });
+      expect((next.root as SplitNode).children[0]).toMatchObject({
+        data: { label: "a" },
+        id: "a",
+        keepWhenEmpty: true,
+        minWidth: "100px",
+        selectedId: "2",
+        tabPlacement: "bottom"
+      });
+    });
+
+    test("moves its tabs to the end of another tabset, selecting its selected tab", () => {
+      const initial = model(
+        split("root", "horizontal", [
+          { ...tabset("a", ["1", "2"]), selectedId: "2" },
+          tabset("b", ["3"])
+        ])
+      );
+      expect(
+        shape(
+          moveTabset(initial, "a", { region: "center", tabsetId: "b" }).root
+        )
+      ).toEqual({ selected: "2", size: undefined, tabs: ["3", "1", "2"] });
+    });
+
+    test("moves its tabs into another tabset's tab list at an index", () => {
+      expect(
+        shape(moveTabset(twoTabsets, "b", { index: 1, tabsetId: "a" }).root)
+      ).toEqual({ selected: "3", size: undefined, tabs: ["1", "3", "2"] });
+    });
+
+    test("keeps a tabset with keepWhenEmpty when its tabs are moved", () => {
+      const initial = model(
+        split("root", "horizontal", [
+          { ...tabset("a", ["1"]), keepWhenEmpty: true },
+          tabset("b", ["2"])
+        ])
+      );
+      const next = moveTabset(initial, "a", {
+        region: "center",
+        tabsetId: "b"
+      });
+      expect(shape(next.root)).toMatchObject({
+        children: [
+          { selected: undefined, tabs: [] },
+          { selected: "1", tabs: ["2", "1"] }
+        ]
+      });
+    });
+
+    test("returns the same model for targets that wouldn't change it", () => {
+      // Onto itself
+      expect(
+        moveTabset(twoTabsets, "a", { region: "left", tabsetId: "a" })
+      ).toBe(twoTabsets);
+      // Unknown tabsets
+      expect(
+        moveTabset(twoTabsets, "x", { region: "left", tabsetId: "a" })
+      ).toBe(twoTabsets);
+      expect(
+        moveTabset(twoTabsets, "a", { region: "left", tabsetId: "x" })
+      ).toBe(twoTabsets);
+      // Merging a tabset without tabs
+      const empty = model(
+        split("root", "horizontal", [
+          { ...tabset("a", []), keepWhenEmpty: true },
+          tabset("b", ["1"])
+        ])
+      );
+      expect(moveTabset(empty, "a", { region: "center", tabsetId: "b" })).toBe(
+        empty
+      );
+    });
+
+    test("moves a tabset without tabs", () => {
+      const empty = model(
+        split("root", "horizontal", [
+          { ...tabset("a", []), keepWhenEmpty: true },
+          tabset("b", ["1"])
+        ])
+      );
+      expect(
+        shape(moveTabset(empty, "a", { region: "bottom", tabsetId: "b" }).root)
+      ).toEqual({
+        children: [
+          { selected: "1", size: 50, tabs: ["1"] },
+          { selected: undefined, size: 50, tabs: [] }
+        ],
+        orientation: "vertical",
+        size: undefined
+      });
+    });
+
+    test("ends a maximize when the maximized tabset is split", () => {
+      const maximized = model(threeTabsets.root, "c");
+      expect(
+        moveTabset(maximized, "a", { region: "left", tabsetId: "c" })
+          .maximizedTabsetId
+      ).toBeUndefined();
+      expect(
+        moveTabset(maximized, "a", { region: "left", tabsetId: "d" })
+          .maximizedTabsetId
+      ).toBe("c");
+    });
+  });
+
+  describe("recently selected tabs", () => {
+    function withRecent(
+      id: string,
+      tabIds: string[],
+      recentTabIds: string[]
+    ): TabsetNode {
+      return {
+        ...tabset(id, tabIds),
+        recentTabIds,
+        selectedId: recentTabIds[0]
+      };
+    }
+
+    test("updateRecentTabIds records each tabset's selected tab as its most recent", () => {
+      const initial = model(
+        split("root", "horizontal", [
+          tabset("a", ["1", "2"]),
+          withRecent("b", ["3", "4"], ["4", "3"])
+        ])
+      );
+
+      const recorded = updateRecentTabIds(initial, "recent");
+      expect((recorded.root as SplitNode).children).toMatchObject([
+        { recentTabIds: ["1"] },
+        { recentTabIds: ["4", "3"] }
+      ]);
+      // Tabsets whose selected tab is already the most recent aren't copied
+      expect((recorded.root as SplitNode).children[1]).toBe(
+        (initial.root as SplitNode).children[1]
+      );
+      expect(updateRecentTabIds(recorded, "recent")).toBe(recorded);
+
+      const selected = updateRecentTabIds(selectTab(recorded, "3"), "recent");
+      expect((selected.root as SplitNode).children[1]).toMatchObject({
+        recentTabIds: ["3", "4"]
+      });
+    });
+
+    test("updateRecentTabIds removes recently selected tabs for the adjacent behavior", () => {
+      const initial = model(withRecent("a", ["1", "2"], ["2", "1"]));
+
+      const next = updateRecentTabIds(initial, "adjacent");
+      expect(next.root).not.toHaveProperty("recentTabIds");
+      expect(updateRecentTabIds(next, "adjacent")).toBe(next);
+    });
+
+    test("closing the selected tab selects the most recently selected tab", () => {
+      const initial = model(withRecent("a", ["1", "2", "3"], ["2", "1"]));
+
+      expect(closeTab(initial, "2").root).toMatchObject({
+        recentTabIds: ["1"],
+        selectedId: "1"
+      });
+    });
+
+    test("closing the selected tab selects the adjacent tab if no other tab has been selected", () => {
+      const initial = model(withRecent("a", ["1", "2", "3"], ["2"]));
+
+      expect(closeTab(initial, "2").root).toMatchObject({ selectedId: "3" });
+      expect(initial.root).toMatchObject({ selectedId: "2" });
+    });
+
+    test("closing another tab doesn't change the selection, but forgets the tab", () => {
+      const initial = model(withRecent("a", ["1", "2", "3"], ["2", "3", "1"]));
+
+      expect(closeTab(initial, "3").root).toMatchObject({
+        recentTabIds: ["2", "1"],
+        selectedId: "2"
+      });
+    });
+
+    test("dragging the selected tab away selects the most recently selected tab", () => {
+      const initial = model(
+        split("root", "horizontal", [
+          withRecent("a", ["1", "2", "3"], ["2", "1"]),
+          withRecent("b", ["4"], ["4"])
+        ])
+      );
+
+      const next = moveTab(initial, "2", { region: "center", tabsetId: "b" });
+      expect((next.root as SplitNode).children).toMatchObject([
+        { recentTabIds: ["1"], selectedId: "1" },
+        { recentTabIds: ["4"], selectedId: "2" }
+      ]);
+    });
+
+    test("merging a tabset keeps both tabsets' recently selected tabs, the destination's first", () => {
+      const initial = model(
+        split("root", "horizontal", [
+          withRecent("a", ["1", "2"], ["2", "1"]),
+          withRecent("b", ["3", "4"], ["4", "3"])
+        ])
+      );
+
+      const next = moveTabset(initial, "a", {
+        region: "center",
+        tabsetId: "b"
+      });
+      expect(next.root).toMatchObject({
+        recentTabIds: ["4", "3", "2", "1"],
+        selectedId: "2"
+      });
+      expect(
+        updateRecentTabIds(next, "recent").root as TabsetNode
+      ).toMatchObject({ recentTabIds: ["2", "4", "3", "1"] });
+    });
+
+    test("normalizeModel forgets removed, duplicate, and invalid ids", () => {
+      expect(
+        normalizeModel(
+          model({
+            ...tabset("a", ["1", "2"]),
+            recentTabIds: ["2", "x", "2", "1"]
+          })
+        ).root
+      ).toMatchObject({ recentTabIds: ["2", "1"] });
+
+      for (const recentTabIds of [[], ["x"], "1", null]) {
+        expect(
+          normalizeModel(
+            model({
+              ...tabset("a", ["1"]),
+              recentTabIds: recentTabIds as string[]
+            })
+          ).root
+        ).not.toHaveProperty("recentTabIds");
+      }
+    });
+  });
+
+  describe("collapsing tabsets", () => {
+    function collapsible(
+      id: string,
+      size: number,
+      collapsed = false
+    ): TabsetNode {
+      return {
+        ...tabset(id, [`${id}-tab`], size),
+        collapsible: true,
+        ...(collapsed && { collapsed: true })
+      };
+    }
+
+    function sizes(next: WorkspaceModel) {
+      return (next.root as SplitNode).children.map(
+        (child) =>
+          `${child.id}:${Math.round(child.size as number)}${
+            child.type === "tabset" && child.collapsed ? " (collapsed)" : ""
+          }`
+      );
+    }
+
+    test("collapsing keeps the tabset's size, and its siblings fill the split", () => {
+      const initial = model(
+        split("root", "vertical", [
+          tabset("a", ["1"], 40),
+          tabset("b", ["2"], 30),
+          collapsible("c", 30)
+        ])
+      );
+
+      const collapsed = collapseTabset(initial, "c");
+      expect(sizes(collapsed)).toEqual(["a:57", "b:43", "c:30 (collapsed)"]);
+
+      // Expanding restores its size, and its siblings shrink proportionally
+      expect(sizes(expandTabset(collapsed, "c"))).toEqual([
+        "a:40",
+        "b:30",
+        "c:30"
+      ]);
+    });
+
+    test("dropping tabs into a collapsed tabset expands it", () => {
+      const initial = model(
+        split("root", "vertical", [
+          tabset("a", ["1", "2"], 70),
+          collapsible("b", 30, true)
+        ])
+      );
+
+      const movedTab = moveTab(initial, "2", { index: 0, tabsetId: "b" });
+      expect(sizes(movedTab)).toEqual(["a:70", "b:30"]);
+      expect(findTabset(movedTab, "b")?.selectedId).toBe("2");
+
+      const movedTabset = moveTabset(
+        model(
+          split("root", "vertical", [
+            tabset("a", ["1"], 40),
+            tabset("c", ["3"], 30),
+            collapsible("b", 30, true)
+          ])
+        ),
+        "c",
+        { region: "center", tabsetId: "b" }
+      );
+      expect(sizes(movedTabset)).toEqual(["a:70", "b:30"]);
+      expect(findTabset(movedTabset, "b")?.selectedId).toBe("3");
+    });
+
+    test("a collapsed tabset moved beside another tabset is expanded", () => {
+      const moved = moveTabset(
+        model(
+          split("root", "vertical", [
+            tabset("a", ["1"], 50),
+            tabset("c", ["3"], 30),
+            collapsible("b", 20, true)
+          ])
+        ),
+        "b",
+        { region: "right", tabsetId: "a" }
+      );
+
+      expect(findTabset(moved, "b")?.collapsed).toBeUndefined();
+      expect(
+        ((moved.root as SplitNode).children[0] as SplitNode).children.map(
+          ({ id }) => id
+        )
+      ).toEqual(["a", "b"]);
+    });
+
+    test("reordering the tabs of a collapsed tabset leaves it collapsed", () => {
+      const initial = model(
+        split("root", "vertical", [
+          tabset("a", ["1"], 70),
+          { ...collapsible("b", 30, true), tabs: [tab("2"), tab("3")] }
+        ])
+      );
+
+      const reordered = moveTab(initial, "3", { index: 0, tabsetId: "b" });
+      expect(findTabset(reordered, "b")?.tabs.map(({ id }) => id)).toEqual([
+        "3",
+        "2"
+      ]);
+      expect(sizes(reordered)).toEqual(["a:100", "b:30 (collapsed)"]);
+    });
+
+    test("tabsets can only be collapsed if they're collapsible and a sibling stays expanded", () => {
+      const initial = model(
+        split("root", "vertical", [
+          tabset("a", ["1"], 50),
+          collapsible("b", 50)
+        ])
+      );
+      expect(collapseTabset(initial, "a")).toBe(initial);
+
+      const collapsed = collapseTabset(initial, "b");
+      expect(collapsed).not.toBe(initial);
+      expect(collapseTabset(collapsed, "b")).toBe(collapsed);
+
+      const bothCollapsible = model(
+        split("root", "vertical", [
+          collapsible("a", 50),
+          collapsible("b", 50, true)
+        ])
+      );
+      expect(collapseTabset(bothCollapsible, "a")).toBe(bothCollapsible);
+
+      // The root tabset fills the workspace
+      const root = model({ ...collapsible("a", 100) });
+      expect(collapseTabset(root, "a")).toBe(root);
+    });
+
+    test("expanding a tabset that isn't collapsed does nothing", () => {
+      const initial = model(
+        split("root", "vertical", [
+          tabset("a", ["1"], 50),
+          collapsible("b", 50)
+        ])
+      );
+      expect(expandTabset(initial, "b")).toBe(initial);
+    });
+
+    test("normalizeModel expands tabsets that can't be collapsed", () => {
+      // Not collapsible
+      expect(
+        (
+          normalizeModel(
+            model(
+              split("root", "vertical", [
+                tabset("a", ["1"], 50),
+                { ...tabset("b", ["2"], 50), collapsed: true }
+              ])
+            )
+          ).root as SplitNode
+        ).children[1]
+      ).not.toHaveProperty("collapsed");
+
+      // Every child of a split collapsed
+      const allCollapsed = normalizeModel(
+        model(
+          split("root", "vertical", [
+            collapsible("a", 50, true),
+            collapsible("b", 50, true)
+          ])
+        )
+      );
+      expect(sizes(allCollapsed)).toEqual(["a:50 (collapsed)", "b:100"]);
+
+      // The root tabset (e.g. after its siblings are closed)
+      const root = closeTab(
+        model(
+          split("root", "vertical", [
+            tabset("a", ["1"], 50),
+            collapsible("b", 50, true)
+          ])
+        ),
+        "1"
+      );
+      expect(root.root).toMatchObject({ id: "b" });
+      expect(root.root).not.toHaveProperty("collapsed");
+    });
+
+    test("resizing can collapse and expand tabsets", () => {
+      const initial = model(
+        split("root", "vertical", [
+          tabset("a", ["1"], 70),
+          collapsible("b", 30)
+        ])
+      );
+
+      const collapsed = setSplitLayout(
+        initial,
+        "root",
+        { a: 95, b: 5 },
+        new Set(["b"])
+      );
+      expect(sizes(collapsed)).toEqual(["a:100", "b:30 (collapsed)"]);
+
+      const expanded = setSplitLayout(
+        collapsed,
+        "root",
+        { a: 60, b: 40 },
+        new Set()
+      );
+      expect(sizes(expanded)).toEqual(["a:60", "b:40"]);
     });
   });
 
