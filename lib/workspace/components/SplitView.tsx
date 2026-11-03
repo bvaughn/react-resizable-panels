@@ -14,26 +14,25 @@ import { useStableCallback } from "../../shared/hooks/useStableCallback";
 import { isHTMLElement } from "../../shared/utils/isHTMLElement";
 import { useWorkspaceContext } from "../hooks/useWorkspaceContext";
 import { canCollapseTabset } from "../models/canCollapseTabset";
-import { getSplitLayoutSignature } from "../models/getSplitLayoutSignature";
-import { setMeasuredSplitLayout } from "../models/setMeasuredSplitLayout";
 import { setSplitLayout } from "../models/setSplitLayout";
 import type { SplitNode } from "../types";
 import { calculateSplitLayout } from "../utils/calculateSplitLayout";
 import { getResizeReason } from "../utils/getResizeReason";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { NodeView } from "./NodeView";
 
 function SplitViewComponent({ split }: { split: SplitNode }) {
   const {
     classNames,
     collapsedSizes,
+    collapseToFit,
     disabled,
     id: workspaceId,
     maximumSizes,
     minimumSizes,
-    queueLayoutUpdate,
     renderSeparator,
     reportCollapsePreview,
+    reportCollapseToFit,
     reportSeparatorsSize,
     resizePreviewMode,
     splitGeneration,
@@ -48,6 +47,22 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
   const groupRef = useGroupRef();
 
   const [groupElement, setGroupElement] = useState<HTMLDivElement | null>(null);
+  // Also available to effects in the commit that mounts the Group (before groupElement is updated)
+  const groupElementRef = useRef<HTMLDivElement | null>(null);
+  const setGroupElementRefs = useCallback((element: HTMLDivElement | null) => {
+    groupElementRef.current = element;
+    setGroupElement(element);
+  }, []);
+
+  // The Group's size along the split, in layout pixels
+  const getGroupSize = () => {
+    const element = groupElementRef.current;
+    return element
+      ? split.orientation === "horizontal"
+        ? element.offsetWidth
+        : element.offsetHeight
+      : 0;
+  };
 
   const childIds = split.children.map(({ id }) => id).join();
   const panelIds = split.children.map(({ id }) => getPanelId(id)).join();
@@ -123,91 +138,142 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
     return collapsedIds;
   };
 
-  // The model only changes when a resize ends, so while a tabset is dragged past its collapsed size (or back),
-  // it's shown as it will be (e.g. its content is hidden as soon as it reaches its collapsed size); see isTabsetCollapsed
-  const updateCollapsePreview = useStableCallback((layout: Layout) => {
+  // Whether a layout shows each of the split's tabsets collapsed (by id);
+  // tabsets shown as the model has them are undefined, unless all of them are included
+  const getShownCollapsed = (layout: Layout, includeAll: boolean) => {
     const collapsedIds = getCollapsedIds(layout);
-    const previews: { [tabsetId: string]: boolean | undefined } = {};
+    const shown: { [tabsetId: string]: boolean | undefined } = {};
     for (const child of split.children) {
       if (child.type === "tabset") {
         const isCollapsed = collapsedIds.has(child.id);
-        previews[child.id] =
-          isCollapsed === !!child.collapsed ? undefined : isCollapsed;
+        shown[child.id] =
+          includeAll || isCollapsed !== !!child.collapsed
+            ? isCollapsed
+            : undefined;
       }
     }
 
-    reportCollapsePreview(previews);
-  });
+    return shown;
+  };
 
-  // Panels re-register when their collapsed sizes are measured (or change), which the Group handles in a later commit,
-  // so the layout is checked again once the Group's constraints have changed
-  const hasCollapsible = split.children.some(
-    (child) => child.type === "tabset" && child.collapsible
+  // Whether this split's Group is being resized by the user (e.g. dragging one of its separators)
+  const isResizing = () => {
+    const interactionState = getInteractionState();
+    return (
+      interactionState.state === "active" &&
+      interactionState.hitRegions.some((region) => region.axis.id === groupId)
+    );
+  };
+
+  // The model only changes when a resize ends, so while a tabset is dragged past its collapsed size (or back),
+  // it's shown as it will be (e.g. its content is hidden as soon as it reaches its collapsed size); see isTabsetCollapsed.
+  // Every tabset in the split is previewed (even those shown as the model has them), so that:
+  // - none of them are measured during the resize (see TabsetSlot), since a change to the Group's constraints would interrupt it
+  // - previews take precedence over tabsets that were collapsed to fit (e.g. one that's dragged open again is shown expanded)
+  const updateCollapsePreview = useStableCallback((layout: Layout) =>
+    reportCollapsePreview(
+      getShownCollapsed(layout, true) as { [tabsetId: string]: boolean }
+    )
   );
-  useEffect(() => {
-    if (!hasCollapsible) {
+
+  // When a split's tabsets don't fit (e.g. the workspace is made narrower than their minimum sizes), its Group may collapse some of them;
+  // they're shown collapsed without changing the model (see isTabsetCollapsed), so they're shown as the model has them again once they fit.
+  // While the split is being resized, its tabsets are previewed instead (see updateCollapsePreview).
+  const updateCollapseToFit = (layout: Layout) => {
+    if (!isResizing()) {
+      reportCollapseToFit(getShownCollapsed(layout, false));
+    }
+  };
+
+  // The Group's layout, constraints, and size (and the split's structure) the collapsed-to-fit tabsets were last checked for (see the layout effect below)
+  const collapseToFitCheckRef = useRef<{
+    constraints: unknown;
+    layout: Layout;
+    size: number;
+    structureKey: string;
+  } | null>(null);
+
+  // As the workspace is resized, the Group scales the layout it was last given, which may have been limited by its constraints
+  // (e.g. a tabset held at its minimum size, or collapsed to fit); when the Group is resized,
+  // the model's layout is applied again if what's shown differs from it, so that tabsets are shown as the model has them once they fit.
+  // Only resizes count (not other changes to the Group's constraints, e.g. a tabset's header being measured after it's collapsed to fit),
+  // since applying a layout that doesn't fit can collapse a tabset, which is then measured again.
+  // Children with sizes in other units (e.g. "250px") scale with the workspace (see TabsetNode.size), so only their collapsed states are compared.
+  const lastResizeCheckSizeRef = useRef<number | null>(null);
+  const applyModelLayoutAfterResize = useStableCallback(() => {
+    const appliedKey = getAppliedKey();
+    if (
+      appliedKey === null ||
+      appliedKeyRef.current !== appliedKey ||
+      isResizing()
+    ) {
       return;
     }
 
-    return subscribeToMountedAxis(groupId, ({ axis, next, prev }) => {
-      // Layout changes (e.g. each pointer move while resizing) keep the same constraints, so they're skipped
-      if (prev?.derivedItemConstraints !== next.derivedItemConstraints) {
-        requestLayoutCheck((count) => count + 1);
-      }
+    const size = getGroupSize();
+    const prevSize = lastResizeCheckSizeRef.current;
+    lastResizeCheckSizeRef.current = size;
+    if (prevSize === null || prevSize === size) {
+      return;
+    }
 
-      // Only resizes of this split are previewed (e.g. resizing an outer split changes this split's percentages too);
-      // the Workspace ends previews when the resize ends
-      const interactionState = getInteractionState();
-      if (
-        interactionState.state === "active" &&
-        interactionState.hitRegions.some((region) => region.axis === axis)
-      ) {
-        updateCollapsePreview(next.layout);
-      }
-    });
-  }, [groupId, hasCollapsible, updateCollapsePreview]);
-
-  // The Group can change the layout itself, e.g. collapsing a tabset (or growing it to its minimum size) when the workspace is made narrower,
-  // or when the model's sizes can't be applied as they are (see calculateSplitLayout); the model is updated to match.
-  // Only called once the model's layout has been applied (see appliedKeyRef); before that, the Group's layout is its own default rather than the model's.
-  // The update is queued (see queueLayoutUpdate), and isn't applied if the split has changed by then (see setMeasuredSplitLayout).
-  const updateModelToMatchLayout = (layout: Layout) => {
-    const collapsedIds = getCollapsedIds(layout);
+    const { derivedItemConstraints, layout } = getMountedAxisState(groupId)!;
     const modelLayout = calculateSplitLayout(
-      getMountedAxisState(groupId)!.derivedItemConstraints,
+      derivedItemConstraints,
       collapsedPanelIds,
-      getPanelSizes(),
-      { applyMinAndMaxSizes: false }
+      getPanelSizes()
     );
-    const isChanged = split.children.some((child) => {
+    const collapsedIds = getCollapsedIds(layout);
+    const isShownDifferently = split.children.some((child) => {
       const panelId = getPanelId(child.id);
       return (
         (child.type === "tabset" &&
           collapsedIds.has(child.id) !== !!child.collapsed) ||
-        !layoutNumbersEqual(layout[panelId], modelLayout[panelId], 0.01)
+        (typeof child.size === "number" &&
+          !layoutNumbersEqual(layout[panelId], modelLayout[panelId], 0.01))
       );
     });
-    if (isChanged) {
-      const nodeLayout: Layout = {};
-      for (const { id } of split.children) {
-        nodeLayout[id] = layout[getPanelId(id)];
-      }
-
-      const signature = getSplitLayoutSignature(split);
-      queueLayoutUpdate(
-        split.id,
-        getResizeReason(split.children, collapsedIds),
-        (prev) =>
-          setMeasuredSplitLayout(
-            prev,
-            split.id,
-            signature,
-            nodeLayout,
-            collapsedIds
-          )
-      );
+    if (isShownDifferently) {
+      groupRef.current?.setLayout(modelLayout);
     }
-  };
+  });
+
+  // The Group's constraints change when it's resized (since they're converted to percentages of its size), or when its Panels' sizes are measured;
+  // every split checks whether its layout needs to be applied again (see above), without re-rendering.
+  // Panels re-register when their collapsed sizes are measured (or change), which the Group handles in a later commit,
+  // so splits with collapsible tabsets are also rendered again (checking the layout, and which tabsets are collapsed to fit; see the layout effect below)
+  const hasCollapsible = split.children.some(
+    (child) => child.type === "tabset" && child.collapsible
+  );
+  useEffect(
+    () =>
+      subscribeToMountedAxis(groupId, ({ axis, next, prev }) => {
+        // Layout changes (e.g. each pointer move while resizing) keep the same constraints, so they're skipped
+        if (prev?.derivedItemConstraints !== next.derivedItemConstraints) {
+          applyModelLayoutAfterResize();
+          if (hasCollapsible) {
+            requestLayoutCheck((count) => count + 1);
+          }
+        }
+
+        // Only resizes of this split are previewed (e.g. resizing an outer split changes this split's percentages too);
+        // the Workspace ends previews when the resize ends
+        const interactionState = getInteractionState();
+        if (
+          hasCollapsible &&
+          interactionState.state === "active" &&
+          interactionState.hitRegions.some((region) => region.axis === axis)
+        ) {
+          updateCollapsePreview(next.layout);
+        }
+      }),
+    [
+      applyModelLayoutAfterResize,
+      groupId,
+      hasCollapsible,
+      updateCollapsePreview
+    ]
+  );
 
   // Runs after every render, since the Group's constraints (e.g. its Panels' collapsed sizes) aren't part of its rendered state
   useIsomorphicLayoutEffect(() => {
@@ -215,25 +281,52 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
     if (appliedKey === null) {
       // Not registered (or not visible) yet
       return;
-    } else if (appliedKeyRef.current === appliedKey) {
+    }
+
+    if (appliedKeyRef.current !== appliedKey) {
+      appliedKeyRef.current = appliedKey;
+
+      // Sizes come from the model; constraints have collapsed sizes (and sizes with other units) converted to percentages
+      groupRef.current?.setLayout(
+        calculateSplitLayout(
+          getMountedAxisState(groupId)!.derivedItemConstraints,
+          collapsedPanelIds,
+          getPanelSizes()
+        )
+      );
+
+      // The size the model's layout was applied at (see applyModelLayoutAfterResize)
+      lastResizeCheckSizeRef.current = getGroupSize();
+    }
+
+    // While the split is being resized, its tabsets are previewed instead (see updateCollapsePreview)
+    if (isResizing()) {
       return;
     }
 
-    appliedKeyRef.current = appliedKey;
+    const { derivedItemConstraints } = getMountedAxisState(groupId)!;
+    const lastCheck = collapseToFitCheckRef.current;
 
-    // Sizes come from the model; constraints have collapsed sizes (and sizes with other units) converted to percentages
-    groupRef.current?.setLayout(
-      calculateSplitLayout(
-        getMountedAxisState(groupId)!.derivedItemConstraints,
-        collapsedPanelIds,
-        getPanelSizes()
-      )
-    );
+    const size = getGroupSize();
 
-    // The Group only reports layouts that differ from the previous one it reported,
-    // so if it had already changed the layout itself (e.g. growing a tabset to its minimum size), the model is compared with it here
-    // (layouts it does report are compared again, but updates are batched; see queueLayoutUpdate)
-    updateModelToMatchLayout(getMountedAxisState(groupId)!.layout);
+    // Tabsets collapsed to fit are checked after renders, since the model may have changed (e.g. one was collapsed by the user),
+    // and the Group only reports layouts that differ from the previous one it reported;
+    // only when the Group's layout, constraints, or size (or the split's structure) changed since they were last checked, though
+    const { layout } = getMountedAxisState(groupId)!;
+    if (
+      lastCheck?.constraints !== derivedItemConstraints ||
+      lastCheck.layout !== layout ||
+      lastCheck.size !== size ||
+      lastCheck.structureKey !== structureKey
+    ) {
+      collapseToFitCheckRef.current = {
+        constraints: derivedItemConstraints,
+        layout,
+        size,
+        structureKey
+      };
+      updateCollapseToFit(layout);
+    }
   });
 
   // Separators (and gaps between the split's panels and separators, e.g. CSS "gap") count toward the split's minimum size;
@@ -342,7 +435,7 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
       data-split=""
       data-split-id={split.id}
       disabled={disabled}
-      elementRef={setGroupElement}
+      elementRef={setGroupElementRefs}
       groupRef={groupRef}
       id={groupId}
       onLayoutChanged={(layout, { isUserInteraction, requestedLayout }) => {
@@ -357,16 +450,32 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
             }
           }
 
-          // Resizing can collapse or expand collapsible tabsets (like collapsible Panels)
+          // Resizing can collapse or expand collapsible tabsets (like collapsible Panels);
+          // tabsets that were collapsed to fit before the resize (and still are) weren't collapsed by it,
+          // so they keep their sizes and stay expanded in the model (and are shown expanded again once they fit)
           const collapsedIds = getCollapsedIds(layout);
+          const collapsedToFitIds = new Set<string>();
+          for (const id of collapsedIds) {
+            if (collapseToFit[id] === true) {
+              collapsedIds.delete(id);
+              collapsedToFitIds.add(id);
+            }
+          }
+
           const reason = getResizeReason(split.children, collapsedIds);
           updateModel(reason, true, (prev) =>
-            setSplitLayout(prev, split.id, nodeLayout, collapsedIds)
+            setSplitLayout(
+              prev,
+              split.id,
+              nodeLayout,
+              collapsedIds,
+              collapsedToFitIds
+            )
           );
         } else {
           const appliedKey = getAppliedKey();
           if (appliedKey !== null && appliedKeyRef.current === appliedKey) {
-            updateModelToMatchLayout(layout);
+            updateCollapseToFit(layout);
           } else {
             requestLayoutCheck((count) => count + 1);
           }

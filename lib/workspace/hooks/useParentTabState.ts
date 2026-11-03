@@ -14,7 +14,7 @@ export function useParentTabState(): ParentTabState | null {
   const tabId = parentTab?.id;
 
   return useWorkspaceStoreSelector(
-    ({ collapsePreview, disabled, model, modelIndex }) => {
+    ({ collapseOverrides, disabled, model, modelIndex }) => {
       const tabset =
         tabId !== undefined ? modelIndex.tabsetsByTabId.get(tabId) : undefined;
       const tab = tabset?.tabs.find(({ id }) => id === tabId);
@@ -33,7 +33,7 @@ export function useParentTabState(): ParentTabState | null {
         isVisible:
           isSelected &&
           (maximizedTabsetId === undefined
-            ? !isTabsetCollapsed(tabset, collapsePreview)
+            ? !isTabsetCollapsed(tabset, collapseOverrides)
             : maximizedTabsetId === tabset.id),
         tabsetId: tabset.id
       };

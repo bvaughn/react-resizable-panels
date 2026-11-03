@@ -536,7 +536,7 @@ test.describe("Workspace", () => {
               id: "a",
               minWidth: "192px",
               size: 13.8,
-              tabs: [{ data: null, id: "a" }],
+              tabs: [{ data: null, id: "tab-a" }],
               type: "tabset"
             },
             {
@@ -544,14 +544,14 @@ test.describe("Workspace", () => {
               id: "b",
               minWidth: "288px",
               size: 14.95,
-              tabs: [{ data: null, id: "b" }],
+              tabs: [{ data: null, id: "tab-b" }],
               type: "tabset"
             },
             {
               collapsible: true,
               id: "c",
               size: 71.25,
-              tabs: [{ data: null, id: "c" }],
+              tabs: [{ data: null, id: "tab-c" }],
               type: "tabset"
             }
           ],
@@ -563,93 +563,52 @@ test.describe("Workspace", () => {
       };
     }
 
-    test("grows tabsets to their minimum sizes (rather than collapsing them), and updates the model", async ({
+    async function getChanges(page: Page) {
+      return JSON.parse(
+        (await page.getByTestId("workspace-changes").textContent()) ?? "[]"
+      ) as { meta: { isUserInteraction: boolean; reason: string } }[];
+    }
+
+    async function getCollapsedIds(page: Page) {
+      const ids: string[] = [];
+      for (const id of ["a", "b", "c"]) {
+        if (await getTabset(page, id).getAttribute("data-tabset-collapsed")) {
+          ids.push(id);
+        }
+      }
+
+      return ids;
+    }
+
+    async function getWidths(page: Page) {
+      const widths: number[] = [];
+      for (const id of ["a", "b", "c"]) {
+        widths.push(
+          Math.round((await getTabset(page, id).boundingBox())!.width)
+        );
+      }
+
+      return widths;
+    }
+
+    async function setWorkspaceWidth(page: Page, width: number) {
+      await page
+        .locator("[data-workspace]")
+        .evaluate((element: HTMLElement, width) => {
+          element.style.width = `${width}px`;
+        }, width);
+    }
+
+    test("shows tabsets at their minimum sizes (rather than collapsing them), without changing the model", async ({
       page: mainPage
     }) => {
       const page = await goToUrl(mainPage, workspace(createSavedModel()));
 
-      const a = getTabset(page, "a");
-      const b = getTabset(page, "b");
-      await expect(a).not.toHaveAttribute("data-tabset-collapsed");
-      await expect(b).not.toHaveAttribute("data-tabset-collapsed");
-      expect(Math.round((await a.boundingBox())!.width)).toBe(192);
-      expect(Math.round((await b.boundingBox())!.width)).toBe(288);
-
-      const change = await getLastChange(page);
-      expect(change.meta).toEqual({
-        isUserInteraction: false,
-        reason: "resize"
-      });
-
-      // The model's sizes match the layout
-      const workspaceWidth = 808 - SEPARATOR_SIZE * 2;
-      const [modelA, modelB] = (change.model.root as SplitNode).children;
-      expect(((modelA.size as number) * workspaceWidth) / 100).toBeCloseTo(
-        192,
-        0
-      );
-      expect(((modelB.size as number) * workspaceWidth) / 100).toBeCloseTo(
-        288,
-        0
-      );
-    });
-
-    test("reports changes to several splits' layouts as one change", async ({
-      page: mainPage
-    }) => {
-      // Two rows, each saved with sizes below its tabsets' minimums
-      const row = (id: string): SplitNode => ({
-        children: [
-          {
-            id: `${id}-a`,
-            minWidth: "300px",
-            size: 20,
-            tabs: [],
-            keepWhenEmpty: true,
-            type: "tabset"
-          },
-          {
-            id: `${id}-b`,
-            size: 80,
-            tabs: [],
-            keepWhenEmpty: true,
-            type: "tabset"
-          }
-        ],
-        id,
-        orientation: "horizontal",
-        type: "split"
-      });
-      const page = await goToUrl(
-        mainPage,
-        workspace({
-          root: {
-            children: [row("top"), row("bottom")],
-            id: "root",
-            orientation: "vertical",
-            type: "split"
-          },
-          version: 1
-        })
-      );
-
       await expect
-        .poll(async () =>
-          Math.round((await getTabset(page, "bottom-a").boundingBox())!.width)
-        )
-        .toBe(300);
-      expect(
-        Math.round((await getTabset(page, "top-a").boundingBox())!.width)
-      ).toBe(300);
-
-      const changes = JSON.parse(
-        (await page.getByTestId("workspace-changes").textContent()) ?? "[]"
-      );
-      expect(changes).toHaveLength(1);
-      expect(changes[0].meta).toEqual({
-        isUserInteraction: false,
-        reason: "resize"
-      });
+        .poll(async () => (await getWidths(page)).slice(0, 2))
+        .toEqual([192, 288]);
+      expect(await getCollapsedIds(page)).toEqual([]);
+      expect(await getChanges(page)).toEqual([]);
     });
 
     test("expands tabsets to at least their minimum sizes, without shrinking other tabsets below theirs", async ({
@@ -667,7 +626,7 @@ test.describe("Workspace", () => {
                 id: "a",
                 minWidth: "205px",
                 size: 15.48,
-                tabs: [{ data: null, id: "a" }],
+                tabs: [{ data: null, id: "tab-a" }],
                 type: "tabset"
               },
               {
@@ -676,13 +635,13 @@ test.describe("Workspace", () => {
                 id: "b",
                 minWidth: "282px",
                 size: 29.33,
-                tabs: [{ data: null, id: "b" }],
+                tabs: [{ data: null, id: "tab-b" }],
                 type: "tabset"
               },
               {
                 id: "c",
                 minWidth: "205px",
-                tabs: [{ data: null, id: "c" }],
+                tabs: [{ data: null, id: "tab-c" }],
                 type: "tabset"
               }
             ],
@@ -694,39 +653,30 @@ test.describe("Workspace", () => {
         })
       );
 
-      const a = getTabset(page, "a");
-      const b = getTabset(page, "b");
-      await clickTab(page, getTab(page, "a"));
-      await expect(a).not.toHaveAttribute("data-tabset-collapsed");
-      await clickTab(page, getTab(page, "b"));
-      await expect(b).not.toHaveAttribute("data-tabset-collapsed");
+      await clickTab(page, getTab(page, "tab-a"));
+      await expect(getTabset(page, "a")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+      await clickTab(page, getTab(page, "tab-b"));
+      await expect(getTabset(page, "b")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
 
       // Neither "a" nor "c" is shrunk below its minimum (or collapsed) to make room for "b"
-      await expect(a).not.toHaveAttribute("data-tabset-collapsed");
-      expect(Math.round((await a.boundingBox())!.width)).toBeGreaterThanOrEqual(
-        205
-      );
-      expect(Math.round((await b.boundingBox())!.width)).toBeGreaterThanOrEqual(
-        282
-      );
-      expect(
-        Math.round((await getTabset(page, "c").boundingBox())!.width)
-      ).toBeGreaterThanOrEqual(205);
+      expect(await getCollapsedIds(page)).toEqual([]);
+      const [a, b, c] = await getWidths(page);
+      expect(a).toBeGreaterThanOrEqual(205);
+      expect(b).toBeGreaterThanOrEqual(282);
+      expect(c).toBeGreaterThanOrEqual(205);
 
-      // The model agrees with the layout
-      const workspaceWidth = 808 - SEPARATOR_SIZE * 2;
-      const { model } = await getLastChange(page);
-      for (const child of (model.root as SplitNode).children) {
-        expect((child as TabsetNode).collapsed).toBeUndefined();
-        const width = (await getTabset(page, child.id!).boundingBox())!.width;
-        expect(((child.size as number) * workspaceWidth) / 100).toBeCloseTo(
-          width,
-          0
-        );
-      }
+      // Only the expansions are reported
+      expect((await getChanges(page)).map(({ meta }) => meta)).toEqual([
+        { isUserInteraction: true, reason: "expand" },
+        { isUserInteraction: true, reason: "expand" }
+      ]);
     });
 
-    test("updates the model when the workspace is too small for every tabset's minimum size", async ({
+    test("shows tabsets collapsed to fit when the workspace is too small for their minimum sizes, without changing the model", async ({
       page: mainPage
     }) => {
       const page = await goToUrl(
@@ -738,26 +688,193 @@ test.describe("Workspace", () => {
         />
       );
 
-      // The Group collapses tabsets to make room; the model (and the tabsets' attributes, which come from it) agrees
+      // The Group collapses tabsets to make room; they're shown collapsed (with their content hidden),
+      // as wide as their headers' content (this app doesn't style vertical tab lists, so that's the width of the tab)
+      await expect.poll(() => getCollapsedIds(page)).toEqual(["a", "b"]);
+      for (const id of ["a", "b"]) {
+        const tabset = getTabset(page, id);
+        await expect(tabset.locator("[data-tab-panels]")).toBeHidden();
+        await expect
+          .poll(async () =>
+            Math.abs(
+              (await tabset.boundingBox())!.width -
+                (await getTab(page, `tab-${id}`).boundingBox())!.width
+            )
+          )
+          .toBeLessThanOrEqual(1);
+      }
+      expect(await getChanges(page)).toEqual([]);
+    });
+
+    test("shows a tabset that's collapsed to fit as previewed while its separator is dragged", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(
+        mainPage,
+        <Workspace
+          defaultModel={createSavedModel()}
+          renderTabContent={() => null}
+          style={{ width: 408 }}
+        />
+      );
+      await expect.poll(() => getCollapsedIds(page)).toEqual(["a", "b"]);
+
+      // Dragging the separator beside "a" opens it again (taking the space from "c"), before the pointer is released
+      const separator = (await page
+        .locator("[data-separator]")
+        .first()
+        .boundingBox())!;
+      const y = separator.y + separator.height / 2;
+      await page.mouse.move(separator.x + separator.width / 2, y);
+      await page.mouse.down();
+      await page.mouse.move(separator.x + 200, y, { steps: 10 });
+      await expect(getTabset(page, "a")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+
+      // Releasing it saves the layout the user dragged to; "b" is still collapsed to fit, but the resize didn't collapse it,
+      // so it stays expanded (with its size) in the model
+      await page.mouse.up();
+      expect(await getCollapsedIds(page)).toEqual(["b"]);
+      await expect.poll(async () => (await getChanges(page)).length).toBe(1);
+      const [change] = (await getChanges(page)) as unknown as {
+        meta: { isUserInteraction: boolean; reason: string };
+        model: WorkspaceModel;
+      }[];
+      expect(change.meta).toEqual({
+        isUserInteraction: true,
+        reason: "resize"
+      });
+      expect(
+        (change.model.root as SplitNode).children.map(
+          (child) => (child as TabsetNode).collapsed ?? false
+        )
+      ).toEqual([false, false, false]);
+
+      // So it's shown expanded again once it fits
+      await setWorkspaceWidth(page, 808);
+      await expect.poll(() => getCollapsedIds(page)).toEqual([]);
+      expect(await getChanges(page)).toHaveLength(1);
+    });
+
+    test("shows tabsets as the model has them as the workspace is made wider, after their minimum sizes were applied", async ({
+      page: mainPage
+    }) => {
+      // Not collapsible, so only minimum sizes are applied (see the next test for collapsible tabsets)
+      const model = createSavedModel();
+      for (const child of (model.root as SplitNode).children) {
+        delete (child as TabsetNode).collapsible;
+      }
+      const page = await goToUrl(mainPage, workspace(model));
+      await expect
+        .poll(async () => (await getWidths(page)).slice(0, 2))
+        .toEqual([192, 288]);
+
+      // At 1600px, "b" is still held at its minimum size, and "a" and "c" share the rest in proportion to their sizes
+      // (1600px, less two 8px separators and "b", is 1296px; "a" is 13.8 / (13.8 + 71.25) of that)
+      await setWorkspaceWidth(page, 1600);
       await expect
         .poll(async () => {
-          const model = (await getLastChange(page))?.model;
-          return (model?.root as SplitNode | undefined)?.children
-            .filter((child) => (child as TabsetNode).collapsed)
-            .map(({ id }) => id);
+          const [a, b, c] = await getWidths(page);
+          return (
+            Math.abs(a - 210) <= 1 &&
+            Math.abs(b - 288) <= 1 &&
+            Math.abs(c - 1086) <= 1
+          );
         })
-        .not.toEqual([]);
+        .toBe(true);
+      expect(await getChanges(page)).toEqual([]);
+    });
 
-      const model = (await getLastChange(page)).model as WorkspaceModel;
-      for (const child of (model.root as SplitNode).children) {
-        const tabset = getTabset(page, child.id!);
-        if ((child as TabsetNode).collapsed) {
-          await expect(tabset).toHaveAttribute("data-tabset-collapsed", "true");
-        } else {
-          await expect(tabset).not.toHaveAttribute("data-tabset-collapsed");
-        }
+    test("reports tabsets that are collapsed to fit to useParentTabsetState", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(
+        mainPage,
+        <Workspace
+          defaultModel={createSavedModel()}
+          renderTabContent={() => null}
+          style={{ width: 408 }}
+          // A test-only prop (see the test app's Workspace)
+          {...({ showTabsetState: true } as object)}
+        />
+      );
+
+      await expect.poll(() => getCollapsedIds(page)).toEqual(["a", "b"]);
+      for (const id of ["a", "b"]) {
+        const state = page.getByTestId(`tabset-state-${id}`);
+        await expect(state).toHaveAttribute("data-collapsed", "true");
+        await expect(state).toHaveAttribute("data-collapsed-to-fit", "true");
       }
-      expect((await getLastChange(page)).meta.isUserInteraction).toBe(false);
+      await expect(page.getByTestId("tabset-state-c")).toHaveAttribute(
+        "data-collapsed-to-fit",
+        "false"
+      );
+
+      // Clicking a tab only selects it (the tabset can't be expanded until it fits)
+      await clickTab(page, getTab(page, "tab-a"));
+      expect(await getCollapsedIds(page)).toEqual(["a", "b"]);
+      expect(
+        (await getChanges(page)).filter(({ meta }) => meta.reason === "expand")
+      ).toEqual([]);
+    });
+
+    test("doesn't show a tabset collapsed to fit once it's no longer in a split", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(
+        mainPage,
+        <Workspace
+          defaultModel={createSavedModel()}
+          renderTabContent={() => null}
+          style={{ width: 408 }}
+        />
+      );
+      await expect.poll(() => getCollapsedIds(page)).toEqual(["a", "b"]);
+
+      // Closing the other tabsets' tabs leaves "b" as the only tabset (the root), which fills the workspace
+      // (a collapsed tab has no close button, so "a" is closed from the keyboard)
+      await getTab(page, "tab-c").getByRole("button").click();
+      await getTab(page, "tab-a").focus();
+      await page.keyboard.press("Delete");
+      await expect(getTabset(page, "a")).toHaveCount(0);
+      await expect(getTabset(page, "c")).toHaveCount(0);
+
+      await expect(getTabset(page, "b")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+      await expect(
+        getTabset(page, "b").locator("[data-tab-panels]")
+      ).toBeVisible();
+    });
+
+    test("shows tabsets as the model has them again once they fit", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, workspace(createSavedModel()));
+      await expect
+        .poll(async () => (await getWidths(page)).slice(0, 2))
+        .toEqual([192, 288]);
+      const initialWidths = await getWidths(page);
+
+      // Made narrower one step at a time (like a window being resized), until the tabsets don't fit
+      for (const width of [700, 600, 500, 408]) {
+        await setWorkspaceWidth(page, width);
+        await page.waitForTimeout(50);
+      }
+      await expect.poll(() => getCollapsedIds(page)).not.toEqual([]);
+
+      for (const width of [500, 600, 700, 808]) {
+        await setWorkspaceWidth(page, width);
+        await page.waitForTimeout(50);
+      }
+      await expect.poll(() => getCollapsedIds(page)).toEqual([]);
+      // (within a pixel, since sizes are rounded to percentages)
+      const widths = await getWidths(page);
+      widths.forEach((width, index) =>
+        expect(Math.abs(width - initialWidths[index])).toBeLessThanOrEqual(1)
+      );
+      expect(await getChanges(page)).toEqual([]);
     });
   });
 

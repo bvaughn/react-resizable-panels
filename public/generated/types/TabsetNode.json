@@ -41,6 +41,10 @@
         {
           "content": "<p>String sizes are only initial sizes: they're converted to percentages when the user resizes the split,\nand (like percentages) they scale with the workspace when it's resized.</p>\n",
           "intent": "warning"
+        },
+        {
+          "content": "<p>A tabset is shown within its minimum and maximum sizes (see <code>minWidth</code> and <code>maxWidth</code>), even if its size is outside of them\n(e.g. a model saved in a wider window); its size isn't changed, so it's shown at its size again once that fits.</p>\n",
+          "intent": "primary"
         }
       ],
       "name": "size",
@@ -158,6 +162,10 @@
         },
         {
           "content": "<p>The only tabset in a workspace (the root) can't be collapsed, and neither can a tabset whose siblings are all collapsed.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>When tabsets don't fit (e.g. the workspace is made narrower than their minimum sizes), a collapsible tabset may be collapsed to fit.\nIt's shown collapsed (see <code>useParentTabsetState().isCollapsedToFit</code>), but the model isn't changed, so it's shown expanded again once it fits.\nUntil then, it can't be expanded: clicking one of its tabs selects the tab, and <code>expandTabset</code> does nothing.\nA resize of its split doesn't change it either (it stays expanded in the model, with its size), unless the resize expands it.</p>\n",
           "intent": "primary"
         },
         {

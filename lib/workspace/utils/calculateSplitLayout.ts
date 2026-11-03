@@ -17,8 +17,7 @@ import { formatLayoutNumber } from "../../global/utils/formatLayoutNumber";
 export function calculateSplitLayout(
   derivedItemConstraints: ResizeItemConstraints[],
   collapsedItemIds: Set<string>,
-  sizes: { [itemId: string]: number | string | undefined },
-  { applyMinAndMaxSizes = true }: { applyMinAndMaxSizes?: boolean } = {}
+  sizes: { [itemId: string]: number | string | undefined }
 ): Layout {
   const defaultLayout = calculateDefaultLayout(
     derivedItemConstraints.map((constraints) => {
@@ -41,8 +40,8 @@ export function calculateSplitLayout(
 
   const expandedSizes = distribute(
     expanded.map(({ itemId, maxSize, minSize }) => ({
-      maxSize: applyMinAndMaxSizes ? maxSize : Infinity,
-      minSize: applyMinAndMaxSizes ? minSize : 0,
+      maxSize,
+      minSize,
       weight: defaultLayout[itemId]
     })),
     Math.max(0, 100 - collapsedTotal)

@@ -47,8 +47,11 @@ export default function UseParentTabsetStateRoute() {
             Whether the user most recently interacted with the tabset (
             <code>isActive</code>), whether it's maximized (
             <code>isMaximized</code>), whether it's the root of the model and so
-            the only tabset in the workspace (<code>isRoot</code>), and the id
-            of its selected tab (<code>selectedTabId</code>).
+            the only tabset in the workspace (<code>isRoot</code>), whether it's
+            collapsed (<code>isCollapsed</code>) and whether that's only because
+            it doesn't fit (<code>isCollapsedToFit</code>, in which case it
+            can't be expanded until it does), and the id of its selected tab (
+            <code>selectedTabId</code>).
           </p>
         </HookSignatureItem>
       </HookSignature>

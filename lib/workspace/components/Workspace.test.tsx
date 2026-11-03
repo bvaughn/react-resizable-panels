@@ -1125,6 +1125,37 @@ describe("Workspace", () => {
       )!;
     }
 
+    test("selecting a tab in a maximized collapsed tabset doesn't expand it (it's still collapsed when restored)", async () => {
+      const { container, onModelChanged, workspaceRef } = renderWorkspace({
+        defaultModel: createCollapsibleModel(true)
+      });
+
+      act(() => {
+        workspaceRef.current!.maximizeTabset("left");
+      });
+      onModelChanged.mockClear();
+
+      // The maximized tabset is shown expanded (in the overlay)
+      const overlay = container.querySelector<HTMLElement>(
+        "[data-workspace-maximized]"
+      )!;
+      const tab = overlay.querySelector<HTMLElement>('[data-tab-id="2"]')!;
+      await userEvent.click(tab);
+
+      expect(onModelChanged).toHaveBeenCalledTimes(1);
+      expect(onModelChanged.mock.lastCall![1]).toEqual({
+        isUserInteraction: true,
+        reason: "select"
+      });
+
+      act(() => {
+        workspaceRef.current!.restoreTabset();
+      });
+      expect(getTabset(container, "left")).toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+    });
+
     test("a collapsed tabset hides its panels (keeping its content mounted) and shows its header along its split", () => {
       const { container } = renderWorkspace({
         defaultModel: createCollapsibleModel(true)

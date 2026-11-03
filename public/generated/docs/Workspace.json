@@ -165,10 +165,6 @@
         {
           "content": "<p>For changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving models to some storage api.</p>\n",
           "intent": "primary"
-        },
-        {
-          "content": "<p>The workspace also updates the model when it resizes (or collapses) tabsets itself to fit their minimum or maximum sizes\n(reported with <code>isUserInteraction: false</code>; see <code>WorkspaceChangedMeta</code>); while the workspace is being resized (e.g. the window is made narrower),\nthis can happen on every frame, so saving each change may need to be debounced.</p>\n",
-          "intent": "primary"
         }
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onModelChanged</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">model</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">WorkspaceModel</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">meta</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">WorkspaceChangedMeta</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span></div>",

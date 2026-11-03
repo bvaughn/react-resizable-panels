@@ -8,6 +8,7 @@ import {
   type WorkspaceChangedMeta,
   type WorkspaceModel,
   type WorkspaceProps,
+  useParentTabsetState,
   useTabListFreeSpace
 } from "react-resizable-panels";
 
@@ -30,6 +31,8 @@ export type TestWorkspaceProps = Omit<
   // Renders a toolbar that shows each tabset's tab list free space (and makes tab lists fill their headers);
   // a "responsive" toolbar shrinks when there's little free space (like a toolbar that moves items into an overflow menu)
   showTabListFreeSpace?: boolean | "responsive" | undefined;
+  // Renders a toolbar that shows each tabset's state (see useParentTabsetState) as data attributes
+  showTabsetState?: boolean | undefined;
 };
 
 // Geometry is specified with inline styles (rather than CSS classes) so that tests can make exact assertions:
@@ -42,6 +45,7 @@ const NARROW_TOOLBAR_WIDTH = 20;
 
 export function Workspace({
   showTabListFreeSpace,
+  showTabsetState,
   style,
   ...rest
 }: TestWorkspaceProps) {
@@ -72,7 +76,9 @@ export function Workspace({
                   tabsetId={tabset.id}
                 />
               )
-            : undefined
+            : showTabsetState
+              ? (tabset) => <TabsetState tabsetId={tabset.id} />
+              : undefined
         }
         style={{ height: 400, width: 808, ...style }}
         styles={{
@@ -162,5 +168,17 @@ function FreeSpace({
     >
       {String(freeSpace)}
     </div>
+  );
+}
+
+function TabsetState({ tabsetId }: { tabsetId: string }) {
+  const state = useParentTabsetState();
+
+  return (
+    <span
+      data-collapsed={state?.isCollapsed}
+      data-collapsed-to-fit={state?.isCollapsedToFit}
+      data-testid={`tabset-state-${tabsetId}`}
+    />
   );
 }

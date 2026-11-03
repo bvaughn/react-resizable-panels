@@ -67,7 +67,11 @@
           "content": "<p>Expand a collapsed tabset to its previous size.</p>\n"
         },
         {
-          "content": "<p>If the tabset (or one of the tabsets beside it) would be smaller than its minimum size, the workspace resizes them to fit;\n<code>onModelChanged</code> reports the expansion (as <code>&quot;expand&quot;</code>), and then the resize (as <code>&quot;resize&quot;</code>, with <code>isUserInteraction: false</code>),\nbefore the browser paints.</p>\n",
+          "content": "<p>Tabsets are shown at least at their minimum sizes (if they fit), even if the model's sizes are smaller (see <code>TabsetNode.size</code>).</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>This has no effect on a tabset that's only collapsed to fit, which is expanded once it fits (see <code>TabsetNode.collapsible</code>).</p>\n",
           "intent": "primary"
         }
       ],

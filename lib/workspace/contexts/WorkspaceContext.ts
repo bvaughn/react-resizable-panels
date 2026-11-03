@@ -48,8 +48,12 @@ export type WorkspaceContextType = {
   // Sizes (in pixels, along their splits) that collapsible tabsets collapse to
   collapsedSizes: { [tabsetId: string]: number };
 
-  // Tabsets shown collapsed (or expanded) while a split is being resized (see isTabsetCollapsed)
+  // Tabsets shown collapsed (or expanded) unlike the model, e.g. while a split is being resized (see isTabsetCollapsed)
+  collapseOverrides: { [tabsetId: string]: boolean };
+  // Tabsets shown collapsed (or expanded) as they'll be when the current resize ends (one kind of collapseOverrides)
   collapsePreview: { [tabsetId: string]: boolean };
+  // Tabsets a split's Group collapsed to fit, which the model has expanded (one kind of collapseOverrides)
+  collapseToFit: { [tabsetId: string]: boolean };
 
   disabled: boolean;
   dragTabId: string | undefined;
@@ -83,19 +87,16 @@ export type WorkspaceContextType = {
   renderTab: ((tab: TabNode, props: TabRenderProps) => ReactNode) | undefined;
   renderTabContent: (tab: TabNode) => ReactNode;
   renderTabsetToolbar: ((tabset: TabsetNode) => ReactNode) | undefined;
-  // Writes a layout the Workspace's Groups changed themselves back to the model (see SplitView);
-  // batched with other splits' layouts (replacing the split's previous layout, if it hasn't been written yet)
-  queueLayoutUpdate: (
-    splitId: string,
-    reason: WorkspaceChangeReason,
-    update: (prev: WorkspaceModel) => WorkspaceModel
-  ) => void;
   reportChromeSize: (tabsetId: string, size: MinimumSize) => void;
   // Previews of a split's tabsets (by id), or undefined for tabsets shown as the model has them
   reportCollapsePreview: (previews: {
     [tabsetId: string]: boolean | undefined;
   }) => void;
   reportCollapsedSize: (tabsetId: string, size: number) => void;
+  // Tabsets (by id) a split's Group collapsed to fit (or undefined for tabsets shown as the model has them)
+  reportCollapseToFit: (changes: {
+    [tabsetId: string]: boolean | undefined;
+  }) => void;
   reportSeparatorsSize: (splitId: string, size: number) => void;
   requestFocus: (tabId: string) => void;
   resizePreviewMode: ResizePreviewMode | undefined;

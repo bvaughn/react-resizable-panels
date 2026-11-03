@@ -964,9 +964,6 @@ iframes are reloaded, playing media is paused, and focused elements are blurred.
       <td><p>Called after the model has changed (e.g. a tab was moved, selected, or closed, or a tabset was resized).</p>
 <p>ℹ️ For changes caused by pointer events, this method is not called until the pointer has been released.
 This method is recommended when saving models to some storage api.</p>
-<p>ℹ️ The workspace also updates the model when it resizes (or collapses) tabsets itself to fit their minimum or maximum sizes
-(reported with <code>isUserInteraction: false</code>; see <code>WorkspaceChangedMeta</code>); while the workspace is being resized (e.g. the window is made narrower),
-this can happen on every frame, so saving each change may need to be debounced.</p>
 </td>
     </tr>
     <tr>

@@ -29,11 +29,7 @@ export default function WorkspacePersistenceRoute() {
           <code>onModelChanged</code> is called after each change: when a tab is
           moved, selected, added, or closed, when a tabset is maximized or
           restored, and when a resize ends (not while the pointer is still
-          moving). Its second argument describes the change. The workspace also
-          reports changes it makes itself (e.g. resizing tabsets to fit their
-          minimum sizes when the window is made narrower), which can happen on
-          every frame while the workspace is resized, so saving may need to be
-          debounced.
+          moving). Its second argument describes the change.
         </li>
         <li>
           Saved models include each tab's <code>data</code>, so it should be

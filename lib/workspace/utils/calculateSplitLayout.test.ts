@@ -118,17 +118,6 @@ describe("calculateSplitLayout", () => {
     ).toEqual({ a: 25, b: 75 });
   });
 
-  test("can ignore minimum and maximum sizes", () => {
-    expect(
-      calculateSplitLayout(
-        [constraints("a", { minSize: 50 }), constraints("b")],
-        new Set(),
-        { a: 25, b: 75 },
-        { applyMinAndMaxSizes: false }
-      )
-    ).toEqual({ a: 25, b: 75 });
-  });
-
   test("applies fixed sizes (equal minimum and maximum sizes)", () => {
     // Larger than its fixed size
     expect(

@@ -8,11 +8,12 @@ import { ParentTabsetContext } from "../contexts/ParentTabsetContext";
 import { TabsetContext } from "../contexts/TabsetContext";
 import type { TabsetContextType } from "../contexts/TabsetContext";
 import { useWorkspaceContext } from "../hooks/useWorkspaceContext";
+import type { Orientation } from "../../global/types";
 import type { TabsetNode } from "../types";
 import { measureChromeSize } from "../utils/measureChromeSize";
 import { isTabsetCollapsed } from "../utils/isTabsetCollapsed";
 import { measureCollapsedSize } from "../utils/measureCollapsedSize";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 function TabsetSlotComponent({
   isMaximizedOverlay = false,
@@ -22,6 +23,7 @@ function TabsetSlotComponent({
   tabset: TabsetNode;
 }) {
   const {
+    collapseOverrides,
     collapsePreview,
     getTabsetHandle,
     model,
@@ -35,8 +37,9 @@ function TabsetSlotComponent({
   const parent = modelIndex.parentsById.get(tabset.id);
   const orientation = parent?.orientation;
   const isCollapsed =
-    !isMaximizedOverlay && isTabsetCollapsed(tabset, collapsePreview);
-  // While previewed (see isTabsetCollapsed), the tabset isn't measured, since its split's constraints shouldn't change during a resize
+    !isMaximizedOverlay && isTabsetCollapsed(tabset, collapseOverrides);
+  // While its split is being resized, the tabset is previewed (see SplitView) and isn't measured, since its split's constraints shouldn't change during a resize;
+  // a tabset that's collapsed to fit is measured (its collapsed size changes, but it stays collapsed)
   const isPreviewed = collapsePreview[tabset.id] !== undefined;
 
   // While collapsed, the header runs along the split (e.g. a tabset in a horizontal split collapses to a vertical strip),
@@ -62,6 +65,12 @@ function TabsetSlotComponent({
   const collapsedOrientation =
     tabset.collapsible && !isMaximizedOverlay ? orientation : undefined;
 
+  // The collapsed size measured while the tabset was collapsed (see below)
+  const measuredCollapsedSizeRef = useRef<{
+    orientation: Orientation;
+    size: number;
+  } | null>(null);
+
   useIsomorphicLayoutEffect(() => {
     if (!tabsetElement || !panelsElement) {
       return;
@@ -72,23 +81,44 @@ function TabsetSlotComponent({
         return;
       }
 
-      // A collapsed tabset's panels are hidden, so its chrome is measured while it's expanded
+      // A collapsed tabset's panels are hidden, so its chrome is measured while it's expanded;
+      // not while its panels have no size along its split, though (e.g. its Group squeezed it to its collapsed size, just before it's shown collapsed to fit),
+      // since they can't shrink any further, so the measurement would be the size of the whole tabset
       if (!isCollapsed) {
-        reportChromeSize(
-          tabset.id,
-          measureChromeSize(tabsetElement, panelsElement)
-        );
+        const panelsRect = panelsElement.getBoundingClientRect();
+        const isSqueezed =
+          orientation === "horizontal"
+            ? panelsRect.width <= 0
+            : orientation === "vertical"
+              ? panelsRect.height <= 0
+              : panelsRect.width <= 0 || panelsRect.height <= 0;
+        if (!isSqueezed) {
+          reportChromeSize(
+            tabset.id,
+            measureChromeSize(tabsetElement, panelsElement)
+          );
+        }
       }
 
+      // While the tabset is expanded, its collapsed size is an estimate (see measureCollapsedSize),
+      // so it doesn't replace a size measured while it was collapsed (which would change its Group's constraints each time it's collapsed or expanded,
+      // e.g. as it's collapsed to fit; see TabsetNode.collapsible)
       if (headerElement && collapsedOrientation) {
-        reportCollapsedSize(
-          tabset.id,
-          measureCollapsedSize(
-            tabsetElement,
-            headerElement,
-            collapsedOrientation
-          )
+        const size = measureCollapsedSize(
+          tabsetElement,
+          headerElement,
+          collapsedOrientation
         );
+        const measured = measuredCollapsedSizeRef.current;
+        if (isCollapsed) {
+          measuredCollapsedSizeRef.current = {
+            orientation: collapsedOrientation,
+            size
+          };
+          reportCollapsedSize(tabset.id, size);
+        } else if (measured?.orientation !== collapsedOrientation) {
+          reportCollapsedSize(tabset.id, size);
+        }
       }
     };
 
@@ -113,6 +143,7 @@ function TabsetSlotComponent({
     headerElement,
     isCollapsed,
     isPreviewed,
+    orientation,
     panelsElement,
     reportChromeSize,
     reportCollapsedSize,

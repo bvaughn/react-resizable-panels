@@ -32,7 +32,6 @@ import {
 import { WorkspaceStoreContext } from "../contexts/WorkspaceStoreContext";
 import { calculateMaximumSizes } from "../utils/calculateMaximumSizes";
 import { calculateMinimumSizes } from "../utils/calculateMinimumSizes";
-import { createLayoutUpdateQueue } from "../utils/createLayoutUpdateQueue";
 import { createTabListFreeSpaceStore } from "../utils/createTabListFreeSpaceStore";
 import {
   createWorkspaceStore,
@@ -70,7 +69,6 @@ import type {
   TabNode,
   TabRenderProps,
   TabsetNode,
-  WorkspaceChangeReason,
   WorkspaceImperativeHandle,
   WorkspaceModel,
   WorkspaceModelInput,
@@ -80,6 +78,7 @@ import { useTabDrag } from "../hooks/useTabDrag";
 import { NodeView } from "./NodeView";
 import { TabsetSlot } from "./TabsetSlot";
 import { pruneRemovedNodes } from "../utils/pruneRemovedNodes";
+import { updateCollapseOverrides } from "../utils/updateCollapseOverrides";
 import { sizeToPixels } from "../utils/sizeToPixels";
 import { subscribeToNothing } from "../../shared/utils/subscribeToNothing";
 import { DragPreview } from "./DragPreview";
@@ -171,31 +170,6 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       }
     },
     [getTabRemovalSelectionBehavior, onModelChangedStable]
-  );
-
-  // Whether the Workspace is mounted when queued layouts are reported (see createLayoutUpdateQueue)
-  const isMountedRef = useRef(false);
-  useIsomorphicLayoutEffect(() => {
-    isMountedRef.current = true;
-
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
-
-  // Layouts the Groups change themselves (e.g. when the workspace is made narrower than its tabsets' minimum sizes) are written back to the model
-  const applyLayoutUpdate = useStableCallback(
-    (
-      reason: WorkspaceChangeReason,
-      update: (prev: WorkspaceModel) => WorkspaceModel
-    ) => updateModel(reason, false, update)
-  );
-  const [{ queue: queueLayoutUpdate }] = useState(() =>
-    createLayoutUpdateQueue({
-      apply: applyLayoutUpdate,
-      getModel: () => modelRef.current as WorkspaceModel,
-      isActive: () => isMountedRef.current
-    })
   );
 
   // Tab lists report their free space here (rather than in React state), so that it can be read synchronously, e.g. from outside the Workspace
@@ -449,25 +423,42 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
   const reportCollapsePreview = useCallback(
     (previews: { [tabsetId: string]: boolean | undefined }) =>
-      setCollapsePreview((prev) => {
-        let next = prev;
-        for (const [tabsetId, isCollapsed] of Object.entries(previews)) {
-          if (prev[tabsetId] !== isCollapsed) {
-            if (next === prev) {
-              next = { ...prev };
-            }
-
-            if (isCollapsed === undefined) {
-              delete next[tabsetId];
-            } else {
-              next[tabsetId] = isCollapsed;
-            }
-          }
-        }
-
-        return next;
-      }),
+      setCollapsePreview((prev) => updateCollapseOverrides(prev, previews)),
     []
+  );
+
+  // When a split's tabsets don't fit (e.g. the workspace is narrower than their minimum sizes), its Group may collapse some of them;
+  // they're shown collapsed without changing the model, so they're shown expanded again (as the model has them) once they fit
+  const [collapseToFit, setCollapseToFit] = useState<{
+    [tabsetId: string]: boolean;
+  }>({});
+
+  const reportCollapseToFit = useCallback(
+    (changes: { [tabsetId: string]: boolean | undefined }) =>
+      setCollapseToFit((prev) => updateCollapseOverrides(prev, changes)),
+    []
+  );
+
+  // Only tabsets within splits (those with parents) can be collapsed to fit; e.g. a tabset left as the root (when the rest of its split is closed)
+  // isn't shown collapsed, even before its entry is removed (below), since no split reports it anymore
+  const tabsetsInSplitsIds = useMemo(
+    () => new Set(modelIndex.parentsById.keys()),
+    [modelIndex]
+  );
+  const collapseToFitInSplits = useMemo(
+    () => pruneRemovedNodes(collapseToFit, tabsetsInSplitsIds),
+    [collapseToFit, tabsetsInSplitsIds]
+  );
+
+  // Tabsets shown collapsed (or expanded) unlike the model (see isTabsetCollapsed); previews take precedence while a split is resized
+  const collapseOverrides = useMemo(
+    () =>
+      Object.keys(collapseToFitInSplits).length === 0
+        ? collapsePreview
+        : Object.keys(collapsePreview).length === 0
+          ? collapseToFitInSplits
+          : { ...collapseToFitInSplits, ...collapsePreview },
+    [collapsePreview, collapseToFitInSplits]
   );
 
   // Previews only last as long as the resize that reported them (including a canceled one),
@@ -505,7 +496,8 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     setSeparatorsSizes((prev) => pruneRemovedNodes(prev, modelIndex.nodeIds));
     setCollapsedSizes((prev) => pruneRemovedNodes(prev, modelIndex.nodeIds));
     setCollapsePreview((prev) => pruneRemovedNodes(prev, modelIndex.nodeIds));
-  }, [modelIndex]);
+    setCollapseToFit((prev) => pruneRemovedNodes(prev, tabsetsInSplitsIds));
+  }, [modelIndex, tabsetsInSplitsIds]);
 
   // Minimum sizes may be relative to the viewport (e.g. "20vw"), so they're converted to pixels again when it's resized;
   // the element (which units like "em" are relative to) is wrapped in a new object each time
@@ -658,7 +650,9 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     () => ({
       activeTabsetId,
       collapsedSizes,
+      collapseOverrides,
       collapsePreview,
+      collapseToFit: collapseToFitInSplits,
       disabled,
       dragTabId,
       dragTabsetId,
@@ -686,9 +680,9 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       renderTabsetToolbar: renderTabsetToolbar as
         | ((tabset: TabsetNode) => ReactNode)
         | undefined,
-      queueLayoutUpdate,
       reportChromeSize,
       reportCollapsePreview,
+      reportCollapseToFit,
       reportCollapsedSize,
       reportSeparatorsSize,
       requestFocus,
@@ -707,7 +701,9 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     [
       activeTabsetId,
       collapsedSizes,
+      collapseOverrides,
       collapsePreview,
+      collapseToFitInSplits,
       disabled,
       dragTabId,
       dragTabsetId,
@@ -729,9 +725,9 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       renderTab,
       renderTabContent,
       renderTabsetToolbar,
-      queueLayoutUpdate,
       reportChromeSize,
       reportCollapsePreview,
+      reportCollapseToFit,
       reportCollapsedSize,
       reportSeparatorsSize,
       requestFocus,
@@ -751,8 +747,22 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
   // Hooks like useParentTabState read this state from a store, so that they don't re-render whenever the context changes
   const workspaceState = useMemo<WorkspaceState>(
-    () => ({ activeTabsetId, collapsePreview, disabled, model, modelIndex }),
-    [activeTabsetId, collapsePreview, disabled, model, modelIndex]
+    () => ({
+      activeTabsetId,
+      collapseOverrides,
+      collapseToFit: collapseToFitInSplits,
+      disabled,
+      model,
+      modelIndex
+    }),
+    [
+      activeTabsetId,
+      collapseOverrides,
+      collapseToFitInSplits,
+      disabled,
+      model,
+      modelIndex
+    ]
   );
   const [store] = useState(() => createWorkspaceStore(workspaceState));
   // Set while rendering so that children rendered in this pass don't read stale state (see createWorkspaceStore)

@@ -75,6 +75,9 @@ export type TabsetNode<TabData = unknown, TabsetData = unknown> = {
    *
    * ⚠️ String sizes are only initial sizes: they're converted to percentages when the user resizes the split,
    * and (like percentages) they scale with the workspace when it's resized.
+   *
+   * ℹ️ A tabset is shown within its minimum and maximum sizes (see `minWidth` and `maxWidth`), even if its size is outside of them
+   * (e.g. a model saved in a wider window); its size isn't changed, so it's shown at its size again once that fits.
    */
   size?: number | string | undefined;
 
@@ -152,6 +155,11 @@ export type TabsetNode<TabData = unknown, TabsetData = unknown> = {
    * clicking a tab (or the empty space in the header) of a collapsed tabset expands it, as does dropping tabs into it from another tabset.
    *
    * ℹ️ The only tabset in a workspace (the root) can't be collapsed, and neither can a tabset whose siblings are all collapsed.
+   *
+   * ℹ️ When tabsets don't fit (e.g. the workspace is made narrower than their minimum sizes), a collapsible tabset may be collapsed to fit.
+   * It's shown collapsed (see `useParentTabsetState().isCollapsedToFit`), but the model isn't changed, so it's shown expanded again once it fits.
+   * Until then, it can't be expanded: clicking one of its tabs selects the tab, and `expandTabset` does nothing.
+   * A resize of its split doesn't change it either (it stays expanded in the model, with its size), unless the resize expands it.
    *
    * ℹ️ Tabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) don't keep this flag.
    */
@@ -337,10 +345,7 @@ export type WorkspaceChangeReason =
 export type WorkspaceChangedMeta = {
   /**
    * `true` when the change was caused by the user (e.g. dragging a tab or clicking a close button),
-   * `false` for imperative API calls and for changes the workspace makes itself.
-   *
-   * ℹ️ The workspace resizes (or collapses) tabsets itself when the model's sizes don't fit their minimum or maximum sizes,
-   * e.g. a model saved in a wider window, or when the workspace is made narrower; these changes are reported as `"resize"` (or `"collapse"`).
+   * `false` for imperative API calls.
    */
   isUserInteraction: boolean;
 
@@ -450,9 +455,9 @@ export interface WorkspaceImperativeHandle<
   /**
    * Expand a collapsed tabset to its previous size.
    *
-   * ℹ️ If the tabset (or one of the tabsets beside it) would be smaller than its minimum size, the workspace resizes them to fit;
-   * `onModelChanged` reports the expansion (as `"expand"`), and then the resize (as `"resize"`, with `isUserInteraction: false`),
-   * before the browser paints.
+   * ℹ️ Tabsets are shown at least at their minimum sizes (if they fit), even if the model's sizes are smaller (see `TabsetNode.size`).
+   *
+   * ℹ️ This has no effect on a tabset that's only collapsed to fit, which is expanded once it fits (see `TabsetNode.collapsible`).
    */
   expandTabset: (tabsetId: string) => void;
 
@@ -630,8 +635,8 @@ export type ParentTabset<TabData = unknown> = {
   /**
    * The tabset is currently collapsed (in the model).
    *
-   * ℹ️ While a separator is being dragged, a tabset may be shown collapsed (or expanded) before the model changes;
-   * `useParentTabsetState().isCollapsed` reflects how it's shown.
+   * ℹ️ A tabset may be shown collapsed (or expanded) unlike the model: while a separator is being dragged (before the model changes),
+   * and when it's collapsed to fit (see `TabsetNode.collapsible`); `useParentTabsetState().isCollapsed` reflects how it's shown.
    */
   isCollapsed: () => boolean;
 
@@ -673,9 +678,19 @@ export type ParentTabsetState = {
    * ℹ️ While a separator is being dragged, this reflects how the tabset is shown (e.g. collapsed as soon as it reaches its collapsed size),
    * which the model (and `useParentTabset().isCollapsed()`) only reflects once the drag ends.
    *
+   * ℹ️ A tabset that's collapsed to fit (see `isCollapsedToFit`) is collapsed, although the model has it expanded.
+   *
    * ℹ️ A maximized tabset is shown expanded, but it's still collapsed when it is restored.
    */
   isCollapsed: boolean;
+
+  /**
+   * The tabset is collapsed only because it doesn't fit (e.g. the workspace is narrower than its tabsets' minimum sizes; see `TabsetNode.collapsible`).
+   * The model has it expanded, and it's shown expanded again once it fits.
+   *
+   * ℹ️ It can't be expanded until then (e.g. `useParentTabset().expand()` does nothing), so a toolbar can hide (or disable) its "expand" button.
+   */
+  isCollapsedToFit: boolean;
 
   /**
    * The tabset can be collapsed (or is collapsed, and can be expanded), e.g. to show or hide a toolbar button:
@@ -775,7 +790,7 @@ export type ParentTabState = {
    * The tab is selected, and its tabset is neither collapsed nor covered by another, maximized tabset.
    *
    * ℹ️ While a separator is being dragged, this reflects how the tab's tabset is shown (e.g. collapsed as soon as it reaches its collapsed size),
-   * which the model only reflects once the drag ends.
+   * which the model only reflects once the drag ends; it also reflects tabsets that are collapsed to fit (see `TabsetNode.collapsible`).
    *
    * ⚠️ This value does not account for the Workspace itself being hidden.
    */
@@ -887,10 +902,6 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    *
    * ℹ️ For changes caused by pointer events, this method is not called until the pointer has been released.
    * This method is recommended when saving models to some storage api.
-   *
-   * ℹ️ The workspace also updates the model when it resizes (or collapses) tabsets itself to fit their minimum or maximum sizes
-   * (reported with `isUserInteraction: false`; see `WorkspaceChangedMeta`); while the workspace is being resized (e.g. the window is made narrower),
-   * this can happen on every frame, so saving each change may need to be debounced.
    */
   onModelChanged?: (
     model: WorkspaceModel<TabData, TabsetData>,
