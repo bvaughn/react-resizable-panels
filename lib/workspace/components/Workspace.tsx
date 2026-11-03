@@ -722,17 +722,19 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   let dragPreview: ReactNode = null;
   if (dragTab) {
     dragPreview = renderTabPreview(dragTab);
-  } else if (dragTabset && renderTabsetDragPreview) {
-    dragPreview = renderTabsetDragPreview(
-      dragTabset as TabsetNode<TabData, TabsetData>
-    );
   } else if (dragTabset) {
-    const selectedTab = dragTabset.tabs.find(
-      ({ id }) => id === dragTabset.selectedId
-    );
-    dragPreview = selectedTab
-      ? renderTabPreview(selectedTab, dragTabset.tabs.length - 1)
-      : dragTabset.id;
+    if (renderTabsetDragPreview) {
+      dragPreview = renderTabsetDragPreview(
+        dragTabset as TabsetNode<TabData, TabsetData>
+      );
+    } else {
+      const selectedTab = dragTabset.tabs.find(
+        ({ id }) => id === dragTabset.selectedId
+      );
+      dragPreview = selectedTab
+        ? renderTabPreview(selectedTab, dragTabset.tabs.length - 1)
+        : dragTabset.id;
+    }
   }
 
   return (
