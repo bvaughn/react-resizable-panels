@@ -87,16 +87,26 @@ async function drag(
   await page.mouse.up();
 }
 
-// Tabs are dragged by their labels: the center of a tab can be on its close button
-// (depending on font metrics), and pressing a button within a tab doesn't drag it
-async function dragTab(page: Page, tab: Locator, to: { x: number; y: number }) {
+// Tabs are pressed by their labels: the center of a tab can be on its close button (depending on font metrics),
+// and pressing a button within a tab doesn't select or drag it (clicking a tab's close button closes it)
+async function getTabLabelPoint(tab: Locator) {
   const box = (await tab.boundingBox())!;
   const closeButton = await tab.getByRole("button").boundingBox();
 
   // Midway between the tab's start and its close button (or its center, if it doesn't have one)
   const x = closeButton ? (box.x + closeButton.x) / 2 : box.x + box.width / 2;
 
-  await drag(page, { x, y: box.y + box.height / 2 }, to);
+  return { x, y: box.y + box.height / 2 };
+}
+
+async function clickTab(page: Page, tab: Locator) {
+  const { x, y } = await getTabLabelPoint(tab);
+
+  await page.mouse.click(x, y);
+}
+
+async function dragTab(page: Page, tab: Locator, to: { x: number; y: number }) {
+  await drag(page, await getTabLabelPoint(tab), to);
 }
 
 async function getPanelsPoint(
@@ -227,7 +237,7 @@ test.describe("Workspace", () => {
     const tabWidth = (await getTab(page, "c").boundingBox())!.width;
     expect(Math.abs(collapsedWidth - tabWidth)).toBeLessThanOrEqual(1);
 
-    await getTab(page, "c").click();
+    await clickTab(page, getTab(page, "c"));
 
     await expect(right).not.toHaveAttribute("data-tabset-collapsed");
     const workspaceWidth = 808 - SEPARATOR_SIZE;
