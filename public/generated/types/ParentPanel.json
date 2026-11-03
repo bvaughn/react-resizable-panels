@@ -1,0 +1,33 @@
+{
+  "description": [
+    {
+      "content": "<p>The nearest ancestor Panel (returned by <code>useParentPanel</code>), including its imperative API.</p>\n"
+    }
+  ],
+  "extends": [
+    "PanelImperativeHandle"
+  ],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>Id of the Group that contains the Panel.</p>\n"
+        }
+      ],
+      "name": "groupId",
+      "optional": false,
+      "type": "string"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Id of the Panel.</p>\n"
+        }
+      ],
+      "name": "id",
+      "optional": false,
+      "type": "string"
+    }
+  ],
+  "name": "ParentPanel"
+}

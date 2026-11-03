@@ -4,6 +4,7 @@
       "content": "<p>A set of tabs, only one of which is shown at a time.</p>\n"
     }
   ],
+  "extends": [],
   "fields": [
     {
       "description": [

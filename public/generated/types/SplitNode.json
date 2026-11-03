@@ -4,6 +4,7 @@
       "content": "<p>Lays out its children side by side (horizontally) or stacked (vertically), with resizable separators between them.</p>\n"
     }
   ],
+  "extends": [],
   "fields": [
     {
       "description": [

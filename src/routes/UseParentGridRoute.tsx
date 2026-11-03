@@ -7,6 +7,9 @@ import {
   HookSignatureItem,
   SectionHeader
 } from "react-lib-tools";
+import ParentGridJson from "../../public/generated/types/ParentGrid.json";
+import { HookReturnType } from "../components/HookReturnType";
+import type { ModelTypeMetadata } from "../components/workspace/ModelType";
 import { html } from "../../public/generated/examples/UseParentGrid.json";
 import { Link } from "../components/Link";
 
@@ -44,12 +47,11 @@ export default function UseParentGridRoute() {
           }
         >
           <p>
-            The Grid's <code>id</code> and its imperative API (
-            <code>getLayout</code>, <code>getTrackById</code>,{" "}
-            <code>getTrackByIndex</code>, and <code>setLayout</code>).
+            See <code>ParentGrid</code> (below).
           </p>
         </HookSignatureItem>
       </HookSignature>
+      <HookReturnType json={ParentGridJson as ModelTypeMetadata} />
     </Box>
   );
 }

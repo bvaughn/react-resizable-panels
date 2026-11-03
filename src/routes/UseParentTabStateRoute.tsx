@@ -7,6 +7,9 @@ import {
   HookSignatureItem,
   SectionHeader
 } from "react-lib-tools";
+import ParentTabStateJson from "../../public/generated/types/ParentTabState.json";
+import { HookReturnType } from "../components/HookReturnType";
+import type { ModelTypeMetadata } from "../components/workspace/ModelType";
 import { html } from "../../public/generated/examples/UseParentTabState.json";
 import { Link } from "../components/Link";
 
@@ -45,15 +48,11 @@ export default function UseParentTabStateRoute() {
           }
         >
           <p>
-            Whether the user can close or drag the tab (
-            <code>isCloseDisabled</code> and <code>isDragDisabled</code>, which
-            account for both the tab's flags and the Workspace's{" "}
-            <code>disabled</code> prop), whether it's selected (
-            <code>isSelected</code>) and visible (<code>isVisible</code>), and
-            the id of the tabset that contains it (<code>tabsetId</code>).
+            See <code>ParentTabState</code> (below).
           </p>
         </HookSignatureItem>
       </HookSignature>
+      <HookReturnType json={ParentTabStateJson as ModelTypeMetadata} />
     </Box>
   );
 }

@@ -374,7 +374,12 @@
       {
         "id": "return-value",
         "title": "Return value",
-        "text": "Return value useParentGrid : () => ParentGrid | null The Grid's id and its imperative API (getLayout, getTrackById, getTrackByIndex, and setLayout)."
+        "text": "Return value useParentGrid : () => ParentGrid | null See ParentGrid (below)."
+      },
+      {
+        "id": "parentgrid",
+        "title": "ParentGrid",
+        "text": "ParentGrid The nearest ancestor Grid (returned by useParentGrid), including its imperative API.\n It includes every method of the GridImperativeHandle (the imperative API), along with these values: id : string Id of the Grid."
       }
     ],
     "path": "/hooks/use-parent-grid",
@@ -387,7 +392,12 @@
       {
         "id": "return-value",
         "title": "Return value",
-        "text": "Return value useParentGroup : () => ParentGroup | null The Group's id and orientation, and its imperative API (getLayout and setLayout). Within a Cell, this returns the nearest Group outside of the Grid (if there is one)."
+        "text": "Return value useParentGroup : () => ParentGroup | null See ParentGroup (below). Within a Cell, this returns the nearest Group outside of the Grid (if there is one)."
+      },
+      {
+        "id": "parentgroup",
+        "title": "ParentGroup",
+        "text": "ParentGroup The nearest ancestor Group (returned by useParentGroup), including its imperative API.\n It includes every method of the GroupImperativeHandle (the imperative API), along with these values: id : string Id of the Group.\n orientation : Orientation Orientation of the Group."
       }
     ],
     "path": "/hooks/use-parent-group",
@@ -400,7 +410,12 @@
       {
         "id": "return-value",
         "title": "Return value",
-        "text": "Return value useParentPanel : () => ParentPanel | null The Panel's id, the groupId of the Group that contains it, and its imperative API (collapse, expand, getSize, isCollapsed, and resize)."
+        "text": "Return value useParentPanel : () => ParentPanel | null See ParentPanel (below)."
+      },
+      {
+        "id": "parentpanel",
+        "title": "ParentPanel",
+        "text": "ParentPanel The nearest ancestor Panel (returned by useParentPanel), including its imperative API.\n It includes every method of the PanelImperativeHandle (the imperative API), along with these values: groupId : string Id of the Group that contains the Panel.\n id : string Id of the Panel."
       }
     ],
     "path": "/hooks/use-parent-panel",
@@ -413,7 +428,12 @@
       {
         "id": "return-value",
         "title": "Return value",
-        "text": "Return value useParentTab : () => ParentTab | null The tab's id, the workspaceId of the Workspace that contains it, and methods to control it (close, getTabsetId, isSelected, and select)."
+        "text": "Return value useParentTab : () => ParentTab | null See ParentTab (below)."
+      },
+      {
+        "id": "parenttab",
+        "title": "ParentTab",
+        "text": "ParentTab The nearest ancestor tab (returned by useParentTab).\n This value does not change for the life of the tab, so it is safe to use as an effect dependency.\nUse useParentTabState for values that should trigger a re-render.\n close : () => void Close the tab.\n This method is not restricted by disableClose or disabled.\n getTabsetId : () => string Id of the tabset that currently contains the tab.\n id : string Id of the tab.\n isSelected : () => boolean The tab is selected within its tabset.\n select : () => void Select the tab.\n workspaceId : string Id of the Workspace that contains the tab."
       }
     ],
     "path": "/hooks/use-parent-tab",
@@ -426,7 +446,12 @@
       {
         "id": "return-value",
         "title": "Return value",
-        "text": "Return value useParentTabState : () => ParentTabState | null Whether the user can close or drag the tab (isCloseDisabled and isDragDisabled, which account for both the tab's flags and the Workspace's disabled prop), whether it's selected (isSelected) and visible (isVisible), and the id of the tabset that contains it (tabsetId)."
+        "text": "Return value useParentTabState : () => ParentTabState | null See ParentTabState (below)."
+      },
+      {
+        "id": "parenttabstate",
+        "title": "ParentTabState",
+        "text": "ParentTabState State of the nearest ancestor tab (returned by useParentTabState).\n isCloseDisabled : boolean The user cannot close the tab (because of its disableClose flag or the Workspace's disabled prop).\n isDragDisabled : boolean The user cannot drag the tab (because of its disableDrag flag or the Workspace's disabled prop).\n isSelected : boolean The tab is selected within its tabset.\n This is true even if the tabset is covered by another, maximized tabset.\n isVisible : boolean The tab is selected, and its tabset is neither collapsed nor covered by another, maximized tabset.\n While a separator is being dragged, this reflects how the tab's tabset is shown (e.g. collapsed as soon as it reaches its collapsed size),\nwhich the model only reflects once the drag ends; it also reflects tabsets that are collapsed to fit (see TabsetNode.collapsible).\n This value does not account for the Workspace itself being hidden.\n tabsetId : string Id of the tabset that currently contains the tab."
       }
     ],
     "path": "/hooks/use-parent-tab-state",
@@ -439,7 +464,12 @@
       {
         "id": "return-value",
         "title": "Return value",
-        "text": "Return value useParentTabset : () => ParentTabset | null The tabset's id, the workspaceId of the Workspace that contains it, and methods to control it (addTab, close, isMaximized, maximize, and restore)."
+        "text": "Return value useParentTabset : () => ParentTabset | null See ParentTabset (below)."
+      },
+      {
+        "id": "parenttabset",
+        "title": "ParentTabset",
+        "text": "ParentTabset The nearest ancestor tabset (returned by useParentTabset).\n This value does not change for the life of the tabset, so it is safe to use as an effect dependency.\nUse useParentTabsetState for values that should trigger a re-render.\n addTab : (tab: TabNode<TabData>, options?: {index?: number | undefined; select?: boolean | undefined}) => boolean Add a tab to this tabset.\n close : () => void Close the tabset, along with any tabs it contains (see WorkspaceImperativeHandle.closeTabset).\n collapse : () => void Collapse the tabset to just its header (see WorkspaceImperativeHandle.collapseTabset).\n expand : () => void Expand the tabset if it is collapsed (see WorkspaceImperativeHandle.expandTabset).\n id : string Id of the tabset.\n isCollapsed : () => boolean The tabset is currently collapsed (in the model).\n A tabset may be shown collapsed (or expanded) unlike the model: while a separator is being dragged (before the model changes),\nand when it's collapsed to fit (see TabsetNode.collapsible); useParentTabsetState().isCollapsed reflects how it's shown.\n isMaximized : () => boolean The tabset is currently maximized.\n maximize : () => void Maximize the tabset.\n This has no effect on the only tabset in a workspace (see ParentTabsetState.isRoot).\n restore : () => void Restore the tabset if it is maximized.\n workspaceId : string Id of the Workspace that contains the tabset."
       }
     ],
     "path": "/hooks/use-parent-tabset",
@@ -452,7 +482,12 @@
       {
         "id": "return-value",
         "title": "Return value",
-        "text": "Return value useParentTabsetState : () => ParentTabsetState | null Whether the user most recently interacted with the tabset (isActive), whether it's maximized (isMaximized), whether it's the root of the model and so the only tabset in the workspace (isRoot), whether it's collapsed (isCollapsed) and whether that's only because it doesn't fit (isCollapsedToFit, in which case it can't be expanded until it does), and the id of its selected tab (selectedTabId)."
+        "text": "Return value useParentTabsetState : () => ParentTabsetState | null See ParentTabsetState (below)."
+      },
+      {
+        "id": "parenttabsetstate",
+        "title": "ParentTabsetState",
+        "text": "ParentTabsetState State of the nearest ancestor tabset (returned by useParentTabsetState).\n isActive : boolean The user most recently interacted with this tabset (by pointer or focus).\n isCollapsed : boolean The tabset is collapsed to just its header.\n While a separator is being dragged, this reflects how the tabset is shown (e.g. collapsed as soon as it reaches its collapsed size),\nwhich the model (and useParentTabset().isCollapsed()) only reflects once the drag ends.\n A tabset that's collapsed to fit (see isCollapsedToFit) is collapsed, although the model has it expanded.\n A maximized tabset is shown expanded, but it's still collapsed when it is restored.\n isCollapsedToFit : boolean The tabset is collapsed only because it doesn't fit (e.g. the workspace is narrower than its tabsets' minimum sizes; see TabsetNode.collapsible).\nThe model has it expanded, and it's shown expanded again once it fits.\n It can't be expanded until then (e.g. useParentTabset().expand() does nothing), so a toolbar can hide (or disable) its \"expand\" button.\n isCollapsible : boolean The tabset can be collapsed (or is collapsed, and can be expanded), e.g. to show or hide a toolbar button:\nit has the collapsible flag, isn't the only tabset in the workspace, and has a sibling that isn't collapsed.\n isDragDisabled : boolean The user cannot drag the tabset as a whole, because:\n\nIt has the disableDrag flag, or one of its tabs does\nThe Workspace has the disabled prop\nIt's the only tabset in the workspace (see isRoot)\nA tabset is maximized\n\n isMaximized : boolean The tabset is maximized.\n isRoot : boolean The tabset is the root of the model, so it's the only tabset in the workspace.\n Some controls aren't useful for the only tabset (e.g. maximizing it), so this can be used to hide them.\n selectedTabId : string | undefined Id of the selected tab."
       }
     ],
     "path": "/hooks/use-parent-tabset-state",
@@ -465,7 +500,12 @@
       {
         "id": "return-value",
         "title": "Return value",
-        "text": "Return value useParentWorkspace : () => ParentWorkspace | null The Workspace's id and its imperative API (addTab, closeTab, getActiveTabsetId, getModel, maximizeTabset, moveTab, restoreTabset, selectTab, setModel, updateTab, and updateTabset)."
+        "text": "Return value useParentWorkspace : () => ParentWorkspace | null See ParentWorkspace (below)."
+      },
+      {
+        "id": "parentworkspace",
+        "title": "ParentWorkspace",
+        "text": "ParentWorkspace The nearest ancestor Workspace (returned by useParentWorkspace), including its imperative API.\n It includes every method of the WorkspaceImperativeHandle (the imperative API), along with these values: id : string Id of the Workspace."
       }
     ],
     "path": "/hooks/use-parent-workspace",

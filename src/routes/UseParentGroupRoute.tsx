@@ -7,6 +7,9 @@ import {
   HookSignatureItem,
   SectionHeader
 } from "react-lib-tools";
+import ParentGroupJson from "../../public/generated/types/ParentGroup.json";
+import { HookReturnType } from "../components/HookReturnType";
+import type { ModelTypeMetadata } from "../components/workspace/ModelType";
 import { html } from "../../public/generated/examples/UseParentGroup.json";
 import { Link } from "../components/Link";
 
@@ -45,8 +48,7 @@ export default function UseParentGroupRoute() {
           }
         >
           <p>
-            The Group's <code>id</code> and <code>orientation</code>, and its
-            imperative API (<code>getLayout</code> and <code>setLayout</code>).
+            See <code>ParentGroup</code> (below).
           </p>
           <p>
             Within a Cell, this returns the nearest Group outside of the Grid
@@ -54,6 +56,7 @@ export default function UseParentGroupRoute() {
           </p>
         </HookSignatureItem>
       </HookSignature>
+      <HookReturnType json={ParentGroupJson as ModelTypeMetadata} />
     </Box>
   );
 }
