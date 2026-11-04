@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.18.0
 
 - Add the `normalizeWorkspaceModel` function, which checks and tidies a model the same way the `defaultModel` prop does (e.g. removing empty tabsets and fixing selections), and returns `null` if the value isn't a model (e.g. corrupt saved data). Its `mapTab` option replaces each saved tab with the app's current version (or removes it, by returning `null`), so layouts saved by older versions of an app can be restored.
 - Add the free space in each tabset's tab list (the space its tabs don't use; negative once they overflow), e.g. for a toolbar that moves items into an overflow menu when the header runs out of room. It's returned by the new `useTabListFreeSpace` hook and `getTabListFreeSpace` imperative method, reported to listeners added with the new `subscribeToTabListFreeSpace` method (e.g. from a toolbar rendered outside of the Workspace), and set as the tab list's `--tab-list-free-space` custom property. All of them are updated before the browser paints.
