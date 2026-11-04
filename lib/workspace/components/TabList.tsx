@@ -31,8 +31,7 @@ function TabListComponent({ children }: { children: ReactNode }) {
   const tabsetId = tabset.id;
   useIsomorphicLayoutEffect(() => {
     const element = elementRef.current;
-    const window = element?.ownerDocument.defaultView;
-    if (!element || !window) {
+    if (!element) {
       return;
     }
 
@@ -65,42 +64,51 @@ function TabListComponent({ children }: { children: ReactNode }) {
       tabListFreeSpaceStore.set(tabsetId, freeSpace);
     };
 
-    const resizeObserver = window.ResizeObserver
-      ? new window.ResizeObserver(update)
-      : null;
-    resizeObserver?.observe(element);
-    for (const child of element.children) {
-      resizeObserver?.observe(child);
-    }
+    let resizeObserver: ResizeObserver | null = null;
+    let mutationObserver: MutationObserver | null = null;
 
-    const mutationObserver = window.MutationObserver
-      ? new window.MutationObserver((records) => {
-          // Elements are detected without "instanceof", which is false for elements created by another window (e.g. a popup's opener)
-          for (const record of records) {
-            for (const node of record.addedNodes) {
-              if (isHTMLElement(node)) {
-                resizeObserver?.observe(node);
-              }
-            }
-            for (const node of record.removedNodes) {
-              if (isHTMLElement(node)) {
-                resizeObserver?.unobserve(node);
-              }
-            }
-          }
-          update();
-        })
-      : null;
-    mutationObserver?.observe(element, { childList: true });
-
-    // The free space is measured after the commit (but before the browser paints), so that listeners aren't called while React is committing
-    // (e.g. a listener that calls flushSync would be warned)
+    // The observers are created (and the free space is first measured) after the commit, but before the browser paints:
+    // - They come from the window the list is in by then, rather than when this effect runs (e.g. content rendered into a container
+    //   that's created by one window and moved into another, like a popup, after its effects run); an observer from another window
+    //   isn't notified of changes to the list
+    // - Listeners aren't called while React is committing (e.g. a listener that calls flushSync would be warned)
     updateOverflow();
     let isDisposed = false;
     queueMicrotask(() => {
-      if (!isDisposed) {
-        update();
+      const window = element.ownerDocument.defaultView;
+      if (isDisposed || !window) {
+        return;
       }
+
+      resizeObserver = window.ResizeObserver
+        ? new window.ResizeObserver(update)
+        : null;
+      resizeObserver?.observe(element);
+      for (const child of element.children) {
+        resizeObserver?.observe(child);
+      }
+
+      mutationObserver = window.MutationObserver
+        ? new window.MutationObserver((records) => {
+            // Elements are detected without "instanceof", which is false for elements created by another window (e.g. a popup's opener)
+            for (const record of records) {
+              for (const node of record.addedNodes) {
+                if (isHTMLElement(node)) {
+                  resizeObserver?.observe(node);
+                }
+              }
+              for (const node of record.removedNodes) {
+                if (isHTMLElement(node)) {
+                  resizeObserver?.unobserve(node);
+                }
+              }
+            }
+            update();
+          })
+        : null;
+      mutationObserver?.observe(element, { childList: true });
+
+      update();
     });
     element.addEventListener("scroll", updateOverflow, { passive: true });
 

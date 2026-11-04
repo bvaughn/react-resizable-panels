@@ -1582,7 +1582,7 @@ describe("Workspace", () => {
       vi.restoreAllMocks();
     });
 
-    test("is reported by the imperative API, a custom property, and useTabListFreeSpace", () => {
+    test("is reported by the imperative API, a custom property, and useTabListFreeSpace", async () => {
       function FreeSpace() {
         const tabset = useParentTabset();
         return (
@@ -1595,6 +1595,10 @@ describe("Workspace", () => {
       const { container, workspaceRef } = renderWorkspace({
         renderTabsetToolbar: () => <FreeSpace />
       });
+
+      // Tab lists are first measured after the commit (but before the browser paints)
+      expect(workspaceRef.current!.getTabListFreeSpace("left")).toBe(undefined);
+      await act(async () => {});
 
       expect(workspaceRef.current!.getTabListFreeSpace("left")).toBe(300);
       expect(workspaceRef.current!.getTabListFreeSpace("missing")).toBe(
@@ -1623,6 +1627,8 @@ describe("Workspace", () => {
 
     test("notifies subscribers when it changes, and when the tabset is removed", async () => {
       const { workspaceRef } = renderWorkspace();
+      // Tab lists are first measured after the commit (but before the browser paints)
+      await act(async () => {});
       const listener = vi.fn();
       const unsubscribe = workspaceRef.current!.subscribeToTabListFreeSpace(
         "right",
