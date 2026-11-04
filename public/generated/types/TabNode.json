@@ -4,6 +4,7 @@
       "content": "<p>A tab within a tabset.</p>\n"
     }
   ],
+  "extends": [],
   "fields": [
     {
       "description": [

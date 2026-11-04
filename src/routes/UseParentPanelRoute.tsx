@@ -7,6 +7,9 @@ import {
   HookSignatureItem,
   SectionHeader
 } from "react-lib-tools";
+import ParentPanelJson from "../../public/generated/types/ParentPanel.json";
+import { HookReturnType } from "../components/HookReturnType";
+import type { ModelTypeMetadata } from "../components/workspace/ModelType";
 import { html } from "../../public/generated/examples/UseParentPanel.json";
 import { Link } from "../components/Link";
 
@@ -45,13 +48,11 @@ export default function UseParentPanelRoute() {
           }
         >
           <p>
-            The Panel's <code>id</code>, the <code>groupId</code> of the Group
-            that contains it, and its imperative API (<code>collapse</code>,{" "}
-            <code>expand</code>, <code>getSize</code>, <code>isCollapsed</code>,
-            and <code>resize</code>).
+            See <code>ParentPanel</code> (below).
           </p>
         </HookSignatureItem>
       </HookSignature>
+      <HookReturnType json={ParentPanelJson as ModelTypeMetadata} />
     </Box>
   );
 }

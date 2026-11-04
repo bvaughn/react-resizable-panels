@@ -4,6 +4,7 @@
       "content": "<p>Serializable description of a workspace's layout.</p>\n"
     }
   ],
+  "extends": [],
   "fields": [
     {
       "description": [

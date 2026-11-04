@@ -7,8 +7,10 @@ import type { Orientation, ResizePreviewMode } from "../../global/types";
 import type { ParentGroup, ParentPanel } from "../../flex/types";
 import type { ParentGrid } from "../../grid/types";
 import type { ModelIndex } from "../models/indexModel";
+import type { TabListFreeSpaceStore } from "../utils/createTabListFreeSpaceStore";
 import type {
   HiddenTabBehavior,
+  MaximumSize,
   MinimumSize,
   ParentTab,
   ParentTabset,
@@ -46,8 +48,12 @@ export type WorkspaceContextType = {
   // Sizes (in pixels, along their splits) that collapsible tabsets collapse to
   collapsedSizes: { [tabsetId: string]: number };
 
-  // Tabsets shown collapsed (or expanded) while a split is being resized (see isTabsetCollapsed)
+  // Tabsets shown collapsed (or expanded) unlike the model, e.g. while a split is being resized (see isTabsetCollapsed)
+  collapseOverrides: { [tabsetId: string]: boolean };
+  // Tabsets shown collapsed (or expanded) as they'll be when the current resize ends (one kind of collapseOverrides)
   collapsePreview: { [tabsetId: string]: boolean };
+  // Tabsets a split's Group collapsed to fit, which the model has expanded (one kind of collapseOverrides)
+  collapseToFit: { [tabsetId: string]: boolean };
 
   disabled: boolean;
   dragTabId: string | undefined;
@@ -62,6 +68,7 @@ export type WorkspaceContextType = {
   // True while server rendering and hydrating (when portals can't be rendered)
   isHydrating: boolean;
 
+  maximumSizes: Map<string, MaximumSize>;
   minimumSizes: Map<string, MinimumSize>;
   model: WorkspaceModel;
   modelIndex: ModelIndex;
@@ -86,6 +93,10 @@ export type WorkspaceContextType = {
     [tabsetId: string]: boolean | undefined;
   }) => void;
   reportCollapsedSize: (tabsetId: string, size: number) => void;
+  // Tabsets (by id) a split's Group collapsed to fit (or undefined for tabsets shown as the model has them)
+  reportCollapseToFit: (changes: {
+    [tabsetId: string]: boolean | undefined;
+  }) => void;
   reportSeparatorsSize: (splitId: string, size: number) => void;
   requestFocus: (tabId: string) => void;
   resizePreviewMode: ResizePreviewMode | undefined;
@@ -98,6 +109,7 @@ export type WorkspaceContextType = {
     event: ReactPointerEvent<HTMLElement>
   ) => void;
   styles: WorkspaceStyles | undefined;
+  tabListFreeSpaceStore: TabListFreeSpaceStore;
   tabPlacement: "bottom" | "left" | "right" | "top";
   takeFocusRequest: (tabId: string) => boolean;
   updateModel: UpdateModel;

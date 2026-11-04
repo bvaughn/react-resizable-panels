@@ -26,6 +26,7 @@ import { useParentTabset } from "../hooks/useParentTabset";
 import { useParentTabsetState } from "../hooks/useParentTabsetState";
 import { useParentTabState } from "../hooks/useParentTabState";
 import { useParentWorkspace } from "../hooks/useParentWorkspace";
+import { useTabListFreeSpace } from "../hooks/useTabListFreeSpace";
 import { getRegisteredAxis } from "../../global/mutable-state/axes";
 import { updateInteractionState } from "../../global/mutable-state/interactions";
 import { Workspace } from "./Workspace";
@@ -1124,6 +1125,37 @@ describe("Workspace", () => {
       )!;
     }
 
+    test("selecting a tab in a maximized collapsed tabset doesn't expand it (it's still collapsed when restored)", async () => {
+      const { container, onModelChanged, workspaceRef } = renderWorkspace({
+        defaultModel: createCollapsibleModel(true)
+      });
+
+      act(() => {
+        workspaceRef.current!.maximizeTabset("left");
+      });
+      onModelChanged.mockClear();
+
+      // The maximized tabset is shown expanded (in the overlay)
+      const overlay = container.querySelector<HTMLElement>(
+        "[data-workspace-maximized]"
+      )!;
+      const tab = overlay.querySelector<HTMLElement>('[data-tab-id="2"]')!;
+      await userEvent.click(tab);
+
+      expect(onModelChanged).toHaveBeenCalledTimes(1);
+      expect(onModelChanged.mock.lastCall![1]).toEqual({
+        isUserInteraction: true,
+        reason: "select"
+      });
+
+      act(() => {
+        workspaceRef.current!.restoreTabset();
+      });
+      expect(getTabset(container, "left")).toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+    });
+
     test("a collapsed tabset hides its panels (keeping its content mounted) and shows its header along its split", () => {
       const { container } = renderWorkspace({
         defaultModel: createCollapsibleModel(true)
@@ -1529,6 +1561,102 @@ describe("Workspace", () => {
         isUserInteraction: false,
         reason: "close"
       });
+    });
+  });
+
+  describe("tab list free space", () => {
+    // jsdom doesn't lay out elements; tab lists are 300px wide, and their tabs aren't laid out (so they take no space)
+    beforeEach(() => {
+      const getBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
+      vi.spyOn(
+        HTMLElement.prototype,
+        "getBoundingClientRect"
+      ).mockImplementation(function (this: HTMLElement) {
+        return this.hasAttribute("data-tab-list")
+          ? DOMRect.fromRect({ height: 30, width: 300, x: 0, y: 0 })
+          : getBoundingClientRect.call(this);
+      });
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    test("is reported by the imperative API, a custom property, and useTabListFreeSpace", async () => {
+      function FreeSpace() {
+        const tabset = useParentTabset();
+        return (
+          <div data-testid={`free-space-${tabset?.id}`}>
+            {String(useTabListFreeSpace())}
+          </div>
+        );
+      }
+
+      const { container, workspaceRef } = renderWorkspace({
+        renderTabsetToolbar: () => <FreeSpace />
+      });
+
+      // Tab lists are first measured after the commit (but before the browser paints)
+      expect(workspaceRef.current!.getTabListFreeSpace("left")).toBe(undefined);
+      await act(async () => {});
+
+      expect(workspaceRef.current!.getTabListFreeSpace("left")).toBe(300);
+      expect(workspaceRef.current!.getTabListFreeSpace("missing")).toBe(
+        undefined
+      );
+      expect(
+        container
+          .querySelector<HTMLElement>(
+            '[data-tabset-id="left"] [data-tab-list]'
+          )!
+          .style.getPropertyValue("--tab-list-free-space")
+      ).toBe("300px");
+      expect(screen.getByTestId("free-space-left")).toHaveTextContent("300");
+    });
+
+    test("useTabListFreeSpace returns undefined outside of a tabset", () => {
+      function FreeSpace() {
+        return (
+          <div data-testid="free-space">{String(useTabListFreeSpace())}</div>
+        );
+      }
+
+      render(<FreeSpace />);
+      expect(screen.getByTestId("free-space")).toHaveTextContent("undefined");
+    });
+
+    test("notifies subscribers when it changes, and when the tabset is removed", async () => {
+      const { workspaceRef } = renderWorkspace();
+      // Tab lists are first measured after the commit (but before the browser paints)
+      await act(async () => {});
+      const listener = vi.fn();
+      const unsubscribe = workspaceRef.current!.subscribeToTabListFreeSpace(
+        "right",
+        listener
+      );
+
+      // Maximizing (and restoring) a tabset moves its tab list, but its free space doesn't change
+      act(() => {
+        workspaceRef.current!.maximizeTabset("right");
+      });
+      await act(async () => {});
+      act(() => {
+        workspaceRef.current!.restoreTabset();
+      });
+      await act(async () => {});
+      expect(listener).not.toHaveBeenCalled();
+
+      act(() => {
+        workspaceRef.current!.closeTabset("right");
+      });
+      await act(async () => {});
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenLastCalledWith(undefined);
+      expect(workspaceRef.current!.getTabListFreeSpace("right")).toBe(
+        undefined
+      );
+
+      unsubscribe();
     });
   });
 
@@ -2065,7 +2193,7 @@ describe("Workspace", () => {
         expect(onModelChanged).not.toHaveBeenCalled();
       });
 
-      test("a dragged tabset is marked, and its preview shows its selected tab by default", async () => {
+      test("a dragged tabset is marked, and its preview shows its selected tab and the number of other tabs by default", async () => {
         const { container } = renderWorkspace();
 
         await startDrag(container, getHeader(container, "left"));
@@ -2075,7 +2203,29 @@ describe("Workspace", () => {
         ).toHaveAttribute("data-tabset-dragging");
         const preview = container.querySelector("[data-drag-preview]");
         expect(preview).toHaveAttribute("data-drag-type", "tabset");
-        expect(preview).toHaveTextContent("One");
+        expect(preview?.textContent).toBe("One (+1)");
+      });
+
+      test("the default preview of a dragged tabset with one tab has no count", async () => {
+        const { container } = renderWorkspace();
+
+        await startDrag(container, getHeader(container, "right"));
+
+        expect(
+          container.querySelector("[data-drag-preview]")?.textContent
+        ).toBe("3");
+      });
+
+      test("renderDragPreview customizes the preview of a dragged tabset's selected tab, without a count", async () => {
+        const { container } = renderWorkspace({
+          renderDragPreview: (tab) => `Custom ${tab.title}`
+        });
+
+        await startDrag(container, getHeader(container, "left"));
+
+        expect(
+          container.querySelector("[data-drag-preview]")?.textContent
+        ).toBe("Custom One");
       });
 
       test("renderTabsetDragPreview customizes the preview", async () => {

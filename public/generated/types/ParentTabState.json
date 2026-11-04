@@ -1,0 +1,73 @@
+{
+  "description": [
+    {
+      "content": "<p>State of the nearest ancestor tab (returned by <code>useParentTabState</code>).</p>\n"
+    }
+  ],
+  "extends": [],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>The user cannot close the tab (because of its <code>disableClose</code> flag or the Workspace's <code>disabled</code> prop).</p>\n"
+        }
+      ],
+      "name": "isCloseDisabled",
+      "optional": false,
+      "type": "boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The user cannot drag the tab (because of its <code>disableDrag</code> flag or the Workspace's <code>disabled</code> prop).</p>\n"
+        }
+      ],
+      "name": "isDragDisabled",
+      "optional": false,
+      "type": "boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The tab is selected within its tabset.</p>\n"
+        },
+        {
+          "content": "<p>This is true even if the tabset is covered by another, maximized tabset.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "isSelected",
+      "optional": false,
+      "type": "boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The tab is selected, and its tabset is neither collapsed nor covered by another, maximized tabset.</p>\n"
+        },
+        {
+          "content": "<p>While a separator is being dragged, this reflects how the tab's tabset is shown (e.g. collapsed as soon as it reaches its collapsed size),\nwhich the model only reflects once the drag ends; it also reflects tabsets that are collapsed to fit (see <code>TabsetNode.collapsible</code>).</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>This value does not account for the Workspace itself being hidden.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "name": "isVisible",
+      "optional": false,
+      "type": "boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Id of the tabset that currently contains the tab.</p>\n"
+        }
+      ],
+      "name": "tabsetId",
+      "optional": false,
+      "type": "string"
+    }
+  ],
+  "name": "ParentTabState"
+}

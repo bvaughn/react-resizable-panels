@@ -102,9 +102,11 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
 
   const { panelId, tabElementId } = getTabHost(tab.id);
 
-  // Selecting a tab in a collapsed tabset expands the tabset
+  // Selecting a tab in a collapsed tabset expands the tabset, if it's collapsed in the model
+  // (a maximized tabset is shown expanded, and stays collapsed in the model until it's restored;
+  // a tabset that's only collapsed to fit is expanded once it fits, see TabsetNode.collapsible)
   const select = () =>
-    isCollapsed
+    isCollapsed && tabset.collapsed
       ? updateModel("expand", true, (prev) =>
           expandTabset(selectTab(prev, tab.id), tabset.id)
         )

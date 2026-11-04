@@ -971,6 +971,51 @@ describe("workspace model", () => {
     });
   });
 
+  test("setSplitLayout ignores layouts measured for other children (e.g. before the model was replaced)", () => {
+    const collapsed = model(
+      split("root", "horizontal", [
+        tabset("a", ["1"], 30),
+        tabset("b", ["2"], 70),
+        { ...tabset("c", ["3"], 20), collapsed: true, collapsible: true }
+      ])
+    );
+
+    // Measured for two of the split's children
+    expect(setSplitLayout(collapsed, "root", { a: 30, b: 70 }, new Set())).toBe(
+      collapsed
+    );
+    // Measured for different children
+    expect(
+      setSplitLayout(collapsed, "root", { a: 30, b: 60, d: 10 }, new Set())
+    ).toBe(collapsed);
+  });
+
+  test("setSplitLayout keeps the sizes and collapsed flags of unchanged children (e.g. tabsets collapsed to fit)", () => {
+    const initial = model(
+      split("root", "horizontal", [
+        { ...tabset("a", ["1"], 25), collapsible: true },
+        tabset("b", ["2"], 25),
+        tabset("c", ["3"], 50)
+      ])
+    );
+
+    // "a" is shown at its collapsed size, but it was collapsed to fit (not by the resize)
+    const next = setSplitLayout(
+      initial,
+      "root",
+      { a: 5, b: 30, c: 65 },
+      new Set(),
+      new Set(["a"])
+    );
+    const children = (next.root as SplitNode).children as TabsetNode[];
+    expect(children[0].collapsed).toBeUndefined();
+    // "a" keeps its size; the others are scaled with it to fill the split
+    const sizes = children.map(({ size }) => size as number);
+    expect(sizes[0]).toBeCloseTo(20.833);
+    expect(sizes[1]).toBeCloseTo(25);
+    expect(sizes[2]).toBeCloseTo(54.167);
+  });
+
   test("maximizeTabset and restoreTabset", () => {
     const maximized = maximizeTabset(twoTabsets, "a");
     expect(maximized.maximizedTabsetId).toBe("a");

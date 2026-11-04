@@ -1,0 +1,33 @@
+{
+  "description": [
+    {
+      "content": "<p>The nearest ancestor Group (returned by <code>useParentGroup</code>), including its imperative API.</p>\n"
+    }
+  ],
+  "extends": [
+    "GroupImperativeHandle"
+  ],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>Id of the Group.</p>\n"
+        }
+      ],
+      "name": "id",
+      "optional": false,
+      "type": "string"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Orientation of the Group.</p>\n"
+        }
+      ],
+      "name": "orientation",
+      "optional": false,
+      "type": "Orientation"
+    }
+  ],
+  "name": "ParentGroup"
+}

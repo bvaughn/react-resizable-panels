@@ -1,0 +1,111 @@
+{
+  "description": [
+    {
+      "content": "<p>State of the nearest ancestor tabset (returned by <code>useParentTabsetState</code>).</p>\n"
+    }
+  ],
+  "extends": [],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>The user most recently interacted with this tabset (by pointer or focus).</p>\n"
+        }
+      ],
+      "name": "isActive",
+      "optional": false,
+      "type": "boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The tabset is collapsed to just its header.</p>\n"
+        },
+        {
+          "content": "<p>While a separator is being dragged, this reflects how the tabset is shown (e.g. collapsed as soon as it reaches its collapsed size),\nwhich the model (and <code>useParentTabset().isCollapsed()</code>) only reflects once the drag ends.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>A tabset that's collapsed to fit (see <code>isCollapsedToFit</code>) is collapsed, although the model has it expanded.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>A maximized tabset is shown expanded, but it's still collapsed when it is restored.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "isCollapsed",
+      "optional": false,
+      "type": "boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The tabset is collapsed only because it doesn't fit (e.g. the workspace is narrower than its tabsets' minimum sizes; see <code>TabsetNode.collapsible</code>).\nThe model has it expanded, and it's shown expanded again once it fits.</p>\n"
+        },
+        {
+          "content": "<p>It can't be expanded until then (e.g. <code>useParentTabset().expand()</code> does nothing), so a toolbar can hide (or disable) its &quot;expand&quot; button.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "isCollapsedToFit",
+      "optional": false,
+      "type": "boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The tabset can be collapsed (or is collapsed, and can be expanded), e.g. to show or hide a toolbar button:\nit has the <code>collapsible</code> flag, isn't the only tabset in the workspace, and has a sibling that isn't collapsed.</p>\n"
+        }
+      ],
+      "name": "isCollapsible",
+      "optional": false,
+      "type": "boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The user cannot drag the tabset as a whole, because:</p>\n<ul>\n<li>It has the <code>disableDrag</code> flag, or one of its tabs does</li>\n<li>The Workspace has the <code>disabled</code> prop</li>\n<li>It's the only tabset in the workspace (see <code>isRoot</code>)</li>\n<li>A tabset is maximized</li>\n</ul>\n"
+        }
+      ],
+      "name": "isDragDisabled",
+      "optional": false,
+      "type": "boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The tabset is maximized.</p>\n"
+        }
+      ],
+      "name": "isMaximized",
+      "optional": false,
+      "type": "boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The tabset is the root of the model, so it's the only tabset in the workspace.</p>\n"
+        },
+        {
+          "content": "<p>Some controls aren't useful for the only tabset (e.g. maximizing it), so this can be used to hide them.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "isRoot",
+      "optional": false,
+      "type": "boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Id of the selected tab.</p>\n"
+        }
+      ],
+      "name": "selectedTabId",
+      "optional": false,
+      "type": "string | undefined"
+    }
+  ],
+  "name": "ParentTabsetState"
+}

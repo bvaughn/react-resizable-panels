@@ -1,0 +1,79 @@
+{
+  "description": [
+    {
+      "content": "<p>The nearest ancestor tab (returned by <code>useParentTab</code>).</p>\n"
+    },
+    {
+      "content": "<p>This value does not change for the life of the tab, so it is safe to use as an effect dependency.\nUse <code>useParentTabState</code> for values that should trigger a re-render.</p>\n",
+      "intent": "primary"
+    }
+  ],
+  "extends": [],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>Close the tab.</p>\n"
+        },
+        {
+          "content": "<p>This method is not restricted by <code>disableClose</code> or <code>disabled</code>.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "close",
+      "optional": false,
+      "type": "() => void"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Id of the tabset that currently contains the tab.</p>\n"
+        }
+      ],
+      "name": "getTabsetId",
+      "optional": false,
+      "type": "() => string"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Id of the tab.</p>\n"
+        }
+      ],
+      "name": "id",
+      "optional": false,
+      "type": "string"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The tab is selected within its tabset.</p>\n"
+        }
+      ],
+      "name": "isSelected",
+      "optional": false,
+      "type": "() => boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Select the tab.</p>\n"
+        }
+      ],
+      "name": "select",
+      "optional": false,
+      "type": "() => void"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Id of the Workspace that contains the tab.</p>\n"
+        }
+      ],
+      "name": "workspaceId",
+      "optional": false,
+      "type": "string"
+    }
+  ],
+  "name": "ParentTab"
+}

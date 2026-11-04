@@ -4,6 +4,7 @@
       "content": "<p>A set of tabs, only one of which is shown at a time.</p>\n"
     }
   ],
+  "extends": [],
   "fields": [
     {
       "description": [
@@ -41,6 +42,10 @@
         {
           "content": "<p>String sizes are only initial sizes: they're converted to percentages when the user resizes the split,\nand (like percentages) they scale with the workspace when it's resized.</p>\n",
           "intent": "warning"
+        },
+        {
+          "content": "<p>A tabset is shown within its minimum and maximum sizes (see <code>minWidth</code> and <code>maxWidth</code>), even if its size is outside of them\n(e.g. a model saved in a wider window); its size isn't changed, so it's shown at its size again once that fits.</p>\n",
+          "intent": "primary"
         }
       ],
       "name": "size",
@@ -72,6 +77,42 @@
         }
       ],
       "name": "minHeight",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Maximum width of the tabset's content area (not including its header).</p>\n"
+        },
+        {
+          "content": "<p>Interpretation rules:</p>\n<ul>\n<li>Strings must specify a unit: &quot;px&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot; (e.g. <code>maxWidth: &quot;400px&quot;</code>)</li>\n<li>Percentages (and strings without units) are not allowed</li>\n<li>If the tabset's minimum width is larger, the minimum is used</li>\n</ul>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>A maximum only applies if something else can take up the rest of the space, e.g. another tabset in the same split without a maximum width;\notherwise it's ignored (e.g. if every tabset in a split has a maximum, or the tabset fills the workspace).</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "name": "maxWidth",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Maximum height of the tabset's content area (not including its header).</p>\n"
+        },
+        {
+          "content": "<p>Interpretation rules:</p>\n<ul>\n<li>Strings must specify a unit: &quot;px&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot; (e.g. <code>maxHeight: &quot;400px&quot;</code>)</li>\n<li>Percentages (and strings without units) are not allowed</li>\n<li>If the tabset's minimum height is larger, the minimum is used</li>\n</ul>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>A maximum only applies if something else can take up the rest of the space, e.g. another tabset in the same split without a maximum height;\notherwise it's ignored (e.g. if every tabset in a split has a maximum, or the tabset fills the workspace).</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "name": "maxHeight",
       "optional": true,
       "type": "string | undefined"
     },
@@ -122,6 +163,10 @@
         },
         {
           "content": "<p>The only tabset in a workspace (the root) can't be collapsed, and neither can a tabset whose siblings are all collapsed.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>When tabsets don't fit (e.g. the workspace is made narrower than their minimum sizes), a collapsible tabset may be collapsed to fit.\nIt's shown collapsed (see <code>useParentTabsetState().isCollapsedToFit</code>), but the model isn't changed, so it's shown expanded again once it fits.\nUntil then, it can't be expanded: clicking one of its tabs selects the tab, and <code>expandTabset</code> does nothing.\nA resize of its split doesn't change it either (it stays expanded in the model, with its size), unless the resize expands it.</p>\n",
           "intent": "primary"
         },
         {

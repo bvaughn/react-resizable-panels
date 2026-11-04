@@ -119,6 +119,9 @@ export const routes = {
   "/hooks/use-parent-workspace": lazy(
     () => import("./routes/UseParentWorkspaceRoute")
   ),
+  "/hooks/use-tab-list-free-space": lazy(
+    () => import("./routes/UseTabListFreeSpaceRoute")
+  ),
   "/hooks/use-workspace-callback-ref": lazy(
     () => import("./routes/UseWorkspaceCallbackRefRoute")
   ),

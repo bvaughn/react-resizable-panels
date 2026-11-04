@@ -4,66 +4,124 @@ import { parseDescription } from "react-lib-tools/scripts/utils/docs/parseDescri
 import { syntaxHighlight } from "react-lib-tools/scripts/utils/syntax-highlight.ts";
 import ts from "typescript";
 
-// Each model type has its own docs page (under "Imperative API")
-const sourcePath = join("lib", "workspace", "types.ts");
-const typeNames = ["SplitNode", "TabNode", "TabsetNode", "WorkspaceModel"];
+// Model types each have their own docs page (under "Model");
+// the types returned by hooks (e.g. "ParentWorkspace") are documented on the hooks' pages
+const sources = [
+  {
+    path: join("lib", "flex", "types.ts"),
+    typeNames: ["ParentGroup", "ParentPanel"]
+  },
+  {
+    path: join("lib", "grid", "types.ts"),
+    typeNames: ["ParentGrid"]
+  },
+  {
+    path: join("lib", "workspace", "types.ts"),
+    typeNames: [
+      "ParentTab",
+      "ParentTabset",
+      "ParentTabsetState",
+      "ParentTabState",
+      "ParentWorkspace",
+      "SplitNode",
+      "TabNode",
+      "TabsetNode",
+      "WorkspaceModel"
+    ]
+  }
+];
 const outputDir = join("public", "generated", "types");
-
-const sourceFile = ts.createSourceFile(
-  sourcePath,
-  await readFile(sourcePath, "utf8"),
-  ts.ScriptTarget.Latest,
-  true
-);
 
 await mkdir(outputDir, { recursive: true });
 
-for (const name of typeNames) {
-  const node = sourceFile.statements.find(
-    (statement): statement is ts.TypeAliasDeclaration =>
-      ts.isTypeAliasDeclaration(statement) && statement.name.text === name
+for (const source of sources) {
+  const sourceFile = ts.createSourceFile(
+    source.path,
+    await readFile(source.path, "utf8"),
+    ts.ScriptTarget.Latest,
+    true
   );
-  if (!node) {
-    throw Error(`Type "${name}" not found in ${sourcePath}`);
-  }
 
-  const json = {
-    description: await parseDescription(getComment(node, name)),
-    fields: [] as {
-      description: Awaited<ReturnType<typeof parseDescription>>;
-      name: string;
-      optional: boolean;
-      type: string;
-    }[],
-    // Types without fields (e.g. unions) are shown as code
-    html: undefined as string | undefined,
-    name
-  };
-
-  if (ts.isTypeLiteralNode(node.type)) {
-    for (const member of node.type.members) {
-      if (ts.isPropertySignature(member) && member.type) {
-        const fieldName = member.name.getText();
-
-        json.fields.push({
-          description: await parseDescription(
-            getComment(member, `${name}.${fieldName}`)
-          ),
-          name: fieldName,
-          optional: !!member.questionToken,
-          type: member.type.getText().replace(/\s+/g, " ")
-        });
-      }
+  for (const name of source.typeNames) {
+    const node = sourceFile.statements.find(
+      (statement): statement is ts.TypeAliasDeclaration =>
+        ts.isTypeAliasDeclaration(statement) && statement.name.text === name
+    );
+    if (!node) {
+      throw Error(`Type "${name}" not found in ${source.path}`);
     }
-  } else {
-    json.html = await syntaxHighlight(node.getText(), "TS");
+
+    const json = {
+      description: await parseDescription(getComment(node, name)),
+      // Types that a type combines with its own fields (e.g. "WorkspaceImperativeHandle" in "ParentWorkspace")
+      extends: [] as string[],
+      fields: [] as {
+        description: Awaited<ReturnType<typeof parseDescription>>;
+        name: string;
+        optional: boolean;
+        type: string;
+      }[],
+      // Types without fields (e.g. unions) are shown as code
+      html: undefined as string | undefined,
+      name
+    };
+
+    // A type literal, or the intersection of other types with one (e.g. `WorkspaceImperativeHandle & { id: string }`)
+    const parts: readonly ts.TypeNode[] = ts.isIntersectionTypeNode(node.type)
+      ? node.type.types
+      : [node.type];
+    const literals = parts.filter((part): part is ts.TypeLiteralNode =>
+      ts.isTypeLiteralNode(part)
+    );
+    const references = parts.filter((part): part is ts.TypeReferenceNode =>
+      ts.isTypeReferenceNode(part)
+    );
+
+    if (
+      literals.length > 0 &&
+      literals.length + references.length === parts.length
+    ) {
+      json.extends = references.map((reference) =>
+        reference.typeName.getText()
+      );
+
+      for (const literal of literals) {
+        for (const member of literal.members) {
+          if (
+            (ts.isPropertySignature(member) || ts.isMethodSignature(member)) &&
+            (ts.isPropertySignature(member) ? member.type : true)
+          ) {
+            const fieldName = member.name.getText();
+
+            json.fields.push({
+              description: await parseDescription(
+                getComment(member, `${name}.${fieldName}`)
+              ),
+              name: fieldName,
+              optional: !!member.questionToken,
+              type: (ts.isPropertySignature(member)
+                ? member.type!.getText()
+                : `(${member.parameters.map((parameter) => parameter.getText()).join(", ")}) => ${member.type?.getText() ?? "void"}`
+              )
+                // Types that span several lines are shown on one (e.g. a function's parameters)
+                .replace(/\s+/g, " ")
+                .replace(/([([{<]) /g, "$1")
+                .replace(/ ([)\]}>])/g, "$1")
+                .replace(/; ([)\]}>])/g, "$1")
+            });
+          }
+        }
+      }
+    } else {
+      json.html = await syntaxHighlight(node.getText(), "TS");
+    }
+
+    const outputFile = join(outputDir, `${name}.json`);
+
+    console.debug("Writing to", outputFile);
+
+    await writeFile(outputFile, JSON.stringify(json, null, 2));
   }
-
-  const outputFile = join(outputDir, `${name}.json`);
-
-  console.debug("Writing to", outputFile);
-
-  await writeFile(outputFile, JSON.stringify(json, null, 2));
 }
 
 function getComment(node: ts.Node, label: string) {

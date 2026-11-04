@@ -7,6 +7,9 @@ import {
   HookSignatureItem,
   SectionHeader
 } from "react-lib-tools";
+import ParentTabsetJson from "../../public/generated/types/ParentTabset.json";
+import { HookReturnType } from "../components/HookReturnType";
+import type { ModelTypeMetadata } from "../components/workspace/ModelType";
 import { html } from "../../public/generated/examples/UseParentTabset.json";
 import { Link } from "../components/Link";
 
@@ -47,13 +50,11 @@ export default function UseParentTabsetRoute() {
           }
         >
           <p>
-            The tabset's <code>id</code>, the <code>workspaceId</code> of the
-            Workspace that contains it, and methods to control it (
-            <code>addTab</code>, <code>close</code>, <code>isMaximized</code>,{" "}
-            <code>maximize</code>, and <code>restore</code>).
+            See <code>ParentTabset</code> (below).
           </p>
         </HookSignatureItem>
       </HookSignature>
+      <HookReturnType json={ParentTabsetJson as ModelTypeMetadata} />
     </Box>
   );
 }

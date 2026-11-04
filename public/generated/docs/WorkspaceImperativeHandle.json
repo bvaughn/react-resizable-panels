@@ -65,6 +65,14 @@
       "description": [
         {
           "content": "<p>Expand a collapsed tabset to its previous size.</p>\n"
+        },
+        {
+          "content": "<p>Tabsets are shown at least at their minimum sizes (if they fit), even if the model's sizes are smaller (see <code>TabsetNode.size</code>).</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>This has no effect on a tabset that's only collapsed to fit, which is expanded once it fits (see <code>TabsetNode.collapsible</code>).</p>\n",
+          "intent": "primary"
         }
       ],
       "html": "<div><span class=\"tok-labelName\">expandTabset</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tabsetId</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
@@ -87,6 +95,27 @@
       ],
       "html": "<div><span class=\"tok-labelName\">getModel</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">WorkspaceModel</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">;</span></div>",
       "name": "getModel"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Space (in pixels) in a tabset's tab list that its tabs don't use, e.g. how much a toolbar beside the tabs could grow\nbefore they overflow (and how much space an overflow menu needs to free up, once it's negative).</p>\n"
+        },
+        {
+          "content": "<p>The space is measured along the tab list: its width, or its height if its tabs are placed on the left or right\n(or the tabset is collapsed to a vertical strip).</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>The tab list's <code>--tab-list-free-space</code> custom property has the same value (e.g. &quot;120px&quot;).</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Within a tabset (e.g. its toolbar), the <code>useTabListFreeSpace</code> hook returns this value (and re-renders when it changes).</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">getTabListFreeSpace</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tabsetId</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "getTabListFreeSpace"
     },
     {
       "description": [
@@ -153,6 +182,23 @@
     {
       "description": [
         {
+          "content": "<p>Subscribe to changes to the free space in a tabset's tab list (see <code>getTabListFreeSpace</code>),\ne.g. from a toolbar rendered outside of the Workspace.</p>\n"
+        },
+        {
+          "content": "<p>The listener is called synchronously when the tab list is measured (when it or its tabs change size, or tabs are added or removed),\nbefore the browser paints; changes it makes to the DOM (e.g. with <code>flushSync</code>) are shown in the same frame.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>The listener is called with <code>undefined</code> when the tabset is removed (e.g. closed, or merged into another tabset).</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">subscribeToTabListFreeSpace</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">tabsetId</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">,</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">listener</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">freeSpace</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "subscribeToTabListFreeSpace"
+    },
+    {
+      "description": [
+        {
           "content": "<p>Update a tab; fields that are not specified are not changed.</p>\n"
         },
         {
@@ -173,11 +219,11 @@
           "intent": "primary"
         },
         {
-          "content": "<p>Setting <code>minHeight</code>, <code>minWidth</code>, or <code>tabPlacement</code> to <code>undefined</code> removes the tabset's override,\nso the corresponding Workspace prop is used.</p>\n",
+          "content": "<p>Setting <code>minHeight</code>, <code>minWidth</code>, or <code>tabPlacement</code> to <code>undefined</code> removes the tabset's override,\nso the corresponding Workspace prop is used; setting <code>maxHeight</code> or <code>maxWidth</code> to <code>undefined</code> removes the maximum.</p>\n",
           "intent": "primary"
         }
       ],
-      "html": "<div><span class=\"tok-labelName\">updateTabset</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">tabsetId</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">,</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">changes</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">collapsible</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">data</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">disableDrag</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">keepWhenEmpty</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">minHeight</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">minWidth</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">tabPlacement</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetNode</span><span class=\"tok-punctuation\">[</span><span class=\"tok-string\">\"tabPlacement\"</span><span class=\"tok-punctuation\">]</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-punctuation\">}</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
+      "html": "<div><span class=\"tok-labelName\">updateTabset</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">tabsetId</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">,</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">changes</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">{</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">collapsible</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">data</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">disableDrag</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">keepWhenEmpty</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">maxHeight</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">maxWidth</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">minHeight</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">minWidth</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">      </span><span class=\"tok-propertyName tok-definition\">tabPlacement</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetNode</span><span class=\"tok-punctuation\">[</span><span class=\"tok-string\">\"tabPlacement\"</span><span class=\"tok-punctuation\">]</span><span class=\"tok-punctuation\">;</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-punctuation\">}</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
       "name": "updateTabset"
     }
   ],

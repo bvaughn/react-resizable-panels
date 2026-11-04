@@ -7,6 +7,9 @@ import {
   HookSignatureItem,
   SectionHeader
 } from "react-lib-tools";
+import ParentTabJson from "../../public/generated/types/ParentTab.json";
+import { HookReturnType } from "../components/HookReturnType";
+import type { ModelTypeMetadata } from "../components/workspace/ModelType";
 import { html } from "../../public/generated/examples/UseParentTab.json";
 import { Link } from "../components/Link";
 
@@ -45,13 +48,11 @@ export default function UseParentTabRoute() {
           }
         >
           <p>
-            The tab's <code>id</code>, the <code>workspaceId</code> of the
-            Workspace that contains it, and methods to control it (
-            <code>close</code>, <code>getTabsetId</code>,{" "}
-            <code>isSelected</code>, and <code>select</code>).
+            See <code>ParentTab</code> (below).
           </p>
         </HookSignatureItem>
       </HookSignature>
+      <HookReturnType json={ParentTabJson as ModelTypeMetadata} />
     </Box>
   );
 }

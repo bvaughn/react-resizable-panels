@@ -23,9 +23,11 @@ export { useParentTabset } from "./workspace/hooks/useParentTabset";
 export { useParentTabsetState } from "./workspace/hooks/useParentTabsetState";
 export { useParentTabState } from "./workspace/hooks/useParentTabState";
 export { useParentWorkspace } from "./workspace/hooks/useParentWorkspace";
+export { useTabListFreeSpace } from "./workspace/hooks/useTabListFreeSpace";
 export { useWorkspaceCallbackRef } from "./workspace/hooks/useWorkspaceCallbackRef";
 export { useWorkspaceRef } from "./workspace/hooks/useWorkspaceRef";
 export { Workspace } from "./workspace/components/Workspace";
+export { normalizeWorkspaceModel } from "./workspace/models/normalizeWorkspaceModel";
 
 export { isCoarsePointer } from "./global/utils/isCoarsePointer";
 

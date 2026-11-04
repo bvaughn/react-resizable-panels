@@ -75,6 +75,9 @@ export type TabsetNode<TabData = unknown, TabsetData = unknown> = {
    *
    * ⚠️ String sizes are only initial sizes: they're converted to percentages when the user resizes the split,
    * and (like percentages) they scale with the workspace when it's resized.
+   *
+   * ℹ️ A tabset is shown within its minimum and maximum sizes (see `minWidth` and `maxWidth`), even if its size is outside of them
+   * (e.g. a model saved in a wider window); its size isn't changed, so it's shown at its size again once that fits.
    */
   size?: number | string | undefined;
 
@@ -97,6 +100,32 @@ export type TabsetNode<TabData = unknown, TabsetData = unknown> = {
    * - Percentages (and strings without units) are not allowed
    */
   minHeight?: string | undefined;
+
+  /**
+   * Maximum width of the tabset's content area (not including its header).
+   *
+   * ℹ️ Interpretation rules:
+   * - Strings must specify a unit: "px", "em", "rem", "vh", or "vw" (e.g. `maxWidth: "400px"`)
+   * - Percentages (and strings without units) are not allowed
+   * - If the tabset's minimum width is larger, the minimum is used
+   *
+   * ⚠️ A maximum only applies if something else can take up the rest of the space, e.g. another tabset in the same split without a maximum width;
+   * otherwise it's ignored (e.g. if every tabset in a split has a maximum, or the tabset fills the workspace).
+   */
+  maxWidth?: string | undefined;
+
+  /**
+   * Maximum height of the tabset's content area (not including its header).
+   *
+   * ℹ️ Interpretation rules:
+   * - Strings must specify a unit: "px", "em", "rem", "vh", or "vw" (e.g. `maxHeight: "400px"`)
+   * - Percentages (and strings without units) are not allowed
+   * - If the tabset's minimum height is larger, the minimum is used
+   *
+   * ⚠️ A maximum only applies if something else can take up the rest of the space, e.g. another tabset in the same split without a maximum height;
+   * otherwise it's ignored (e.g. if every tabset in a split has a maximum, or the tabset fills the workspace).
+   */
+  maxHeight?: string | undefined;
 
   /**
    * Where the tabset's tabs are placed relative to its content.
@@ -126,6 +155,11 @@ export type TabsetNode<TabData = unknown, TabsetData = unknown> = {
    * clicking a tab (or the empty space in the header) of a collapsed tabset expands it, as does dropping tabs into it from another tabset.
    *
    * ℹ️ The only tabset in a workspace (the root) can't be collapsed, and neither can a tabset whose siblings are all collapsed.
+   *
+   * ℹ️ When tabsets don't fit (e.g. the workspace is made narrower than their minimum sizes), a collapsible tabset may be collapsed to fit.
+   * It's shown collapsed (see `useParentTabsetState().isCollapsedToFit`), but the model isn't changed, so it's shown expanded again once it fits.
+   * Until then, it can't be expanded: clicking one of its tabs selects the tab, and `expandTabset` does nothing.
+   * A resize of its split doesn't change it either (it stays expanded in the model, with its size), unless the resize expands it.
    *
    * ℹ️ Tabsets created by the workspace (e.g. by dropping a tab onto the edge of another tabset) don't keep this flag.
    */
@@ -420,6 +454,10 @@ export interface WorkspaceImperativeHandle<
 
   /**
    * Expand a collapsed tabset to its previous size.
+   *
+   * ℹ️ Tabsets are shown at least at their minimum sizes (if they fit), even if the model's sizes are smaller (see `TabsetNode.size`).
+   *
+   * ℹ️ This has no effect on a tabset that's only collapsed to fit, which is expanded once it fits (see `TabsetNode.collapsible`).
    */
   expandTabset: (tabsetId: string) => void;
 
@@ -432,6 +470,22 @@ export interface WorkspaceImperativeHandle<
    * Get the current model.
    */
   getModel: () => WorkspaceModel<TabData, TabsetData>;
+
+  /**
+   * Space (in pixels) in a tabset's tab list that its tabs don't use, e.g. how much a toolbar beside the tabs could grow
+   * before they overflow (and how much space an overflow menu needs to free up, once it's negative).
+   *
+   * ℹ️ The space is measured along the tab list: its width, or its height if its tabs are placed on the left or right
+   * (or the tabset is collapsed to a vertical strip).
+   *
+   * ℹ️ The tab list's `--tab-list-free-space` custom property has the same value (e.g. "120px").
+   *
+   * ℹ️ Within a tabset (e.g. its toolbar), the `useTabListFreeSpace` hook returns this value (and re-renders when it changes).
+   *
+   * @returns The free space, or `undefined` if the tabset isn't rendered (or hasn't been measured yet, e.g. while server rendering,
+   * or right after the tabset is first rendered: it's measured after React commits, before the browser paints)
+   */
+  getTabListFreeSpace: (tabsetId: string) => number | undefined;
 
   /**
    * Maximize a tabset, so that it covers the rest of the workspace.
@@ -474,6 +528,22 @@ export interface WorkspaceImperativeHandle<
   ) => WorkspaceModel<TabData, TabsetData>;
 
   /**
+   * Subscribe to changes to the free space in a tabset's tab list (see `getTabListFreeSpace`),
+   * e.g. from a toolbar rendered outside of the Workspace.
+   *
+   * ℹ️ The listener is called synchronously when the tab list is measured (when it or its tabs change size, or tabs are added or removed),
+   * before the browser paints; changes it makes to the DOM (e.g. with `flushSync`) are shown in the same frame.
+   *
+   * ℹ️ The listener is called with `undefined` when the tabset is removed (e.g. closed, or merged into another tabset).
+   *
+   * @returns A function that unsubscribes the listener
+   */
+  subscribeToTabListFreeSpace: (
+    tabsetId: string,
+    listener: (freeSpace: number | undefined) => void
+  ) => () => void;
+
+  /**
    * Update a tab; fields that are not specified are not changed.
    *
    * ℹ️ `data` is replaced rather than merged.
@@ -494,7 +564,7 @@ export interface WorkspaceImperativeHandle<
    * ℹ️ `data` is replaced rather than merged.
    *
    * ℹ️ Setting `minHeight`, `minWidth`, or `tabPlacement` to `undefined` removes the tabset's override,
-   * so the corresponding Workspace prop is used.
+   * so the corresponding Workspace prop is used; setting `maxHeight` or `maxWidth` to `undefined` removes the maximum.
    */
   updateTabset: (
     tabsetId: string,
@@ -503,6 +573,8 @@ export interface WorkspaceImperativeHandle<
       data?: TabsetData;
       disableDrag?: boolean | undefined;
       keepWhenEmpty?: boolean | undefined;
+      maxHeight?: string | undefined;
+      maxWidth?: string | undefined;
       minHeight?: string | undefined;
       minWidth?: string | undefined;
       tabPlacement?: TabsetNode["tabPlacement"];
@@ -551,7 +623,7 @@ export type ParentTabset<TabData = unknown> = {
   collapse: () => void;
 
   /**
-   * Expand the tabset if it is collapsed.
+   * Expand the tabset if it is collapsed (see `WorkspaceImperativeHandle.expandTabset`).
    */
   expand: () => void;
 
@@ -563,8 +635,8 @@ export type ParentTabset<TabData = unknown> = {
   /**
    * The tabset is currently collapsed (in the model).
    *
-   * ℹ️ While a separator is being dragged, a tabset may be shown collapsed (or expanded) before the model changes;
-   * `useParentTabsetState().isCollapsed` reflects how it's shown.
+   * ℹ️ A tabset may be shown collapsed (or expanded) unlike the model: while a separator is being dragged (before the model changes),
+   * and when it's collapsed to fit (see `TabsetNode.collapsible`); `useParentTabsetState().isCollapsed` reflects how it's shown.
    */
   isCollapsed: () => boolean;
 
@@ -606,9 +678,19 @@ export type ParentTabsetState = {
    * ℹ️ While a separator is being dragged, this reflects how the tabset is shown (e.g. collapsed as soon as it reaches its collapsed size),
    * which the model (and `useParentTabset().isCollapsed()`) only reflects once the drag ends.
    *
+   * ℹ️ A tabset that's collapsed to fit (see `isCollapsedToFit`) is collapsed, although the model has it expanded.
+   *
    * ℹ️ A maximized tabset is shown expanded, but it's still collapsed when it is restored.
    */
   isCollapsed: boolean;
+
+  /**
+   * The tabset is collapsed only because it doesn't fit (e.g. the workspace is narrower than its tabsets' minimum sizes; see `TabsetNode.collapsible`).
+   * The model has it expanded, and it's shown expanded again once it fits.
+   *
+   * ℹ️ It can't be expanded until then (e.g. `useParentTabset().expand()` does nothing), so a toolbar can hide (or disable) its "expand" button.
+   */
+  isCollapsedToFit: boolean;
 
   /**
    * The tabset can be collapsed (or is collapsed, and can be expanded), e.g. to show or hide a toolbar button:
@@ -708,7 +790,7 @@ export type ParentTabState = {
    * The tab is selected, and its tabset is neither collapsed nor covered by another, maximized tabset.
    *
    * ℹ️ While a separator is being dragged, this reflects how the tab's tabset is shown (e.g. collapsed as soon as it reaches its collapsed size),
-   * which the model only reflects once the drag ends.
+   * which the model only reflects once the drag ends; it also reflects tabsets that are collapsed to fit (see `TabsetNode.collapsible`).
    *
    * ⚠️ This value does not account for the Workspace itself being hidden.
    */
@@ -834,7 +916,7 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
 
   /**
    * Content of the element that follows the pointer while a whole tabset is being dragged.
-   * Defaults to the preview of its selected tab (see `renderDragPreview`), or the tabset's id if it has no tabs.
+   * Defaults to the title (or id) of its selected tab followed by the number of other tabs being dragged (e.g. "One (+2)"), or the selected tab's `renderDragPreview` when that prop is set, or the tabset's id if it has no tabs.
    *
    * ℹ️ The element has a `data-drag-type` attribute: `"tabset"` while a tabset is dragged, and `"tab"` while a tab is.
    */
@@ -1060,6 +1142,11 @@ export type TabsetDragHandleProps = HTMLAttributes<HTMLDivElement>;
  * Minimum size of a node, in pixels (used internally).
  */
 export type MinimumSize = { height: number; width: number };
+
+/**
+ * Maximum size of a node, in pixels; Infinity if it has no maximum (used internally).
+ */
+export type MaximumSize = { height: number; width: number };
 
 /**
  * A pointer position, in client coordinates (used internally).

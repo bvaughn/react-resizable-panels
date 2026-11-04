@@ -1,0 +1,123 @@
+{
+  "description": [
+    {
+      "content": "<p>The nearest ancestor tabset (returned by <code>useParentTabset</code>).</p>\n"
+    },
+    {
+      "content": "<p>This value does not change for the life of the tabset, so it is safe to use as an effect dependency.\nUse <code>useParentTabsetState</code> for values that should trigger a re-render.</p>\n",
+      "intent": "primary"
+    }
+  ],
+  "extends": [],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>Add a tab to this tabset.</p>\n"
+        }
+      ],
+      "name": "addTab",
+      "optional": false,
+      "type": "(tab: TabNode<TabData>, options?: {index?: number | undefined; select?: boolean | undefined}) => boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Close the tabset, along with any tabs it contains (see <code>WorkspaceImperativeHandle.closeTabset</code>).</p>\n"
+        }
+      ],
+      "name": "close",
+      "optional": false,
+      "type": "() => void"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Collapse the tabset to just its header (see <code>WorkspaceImperativeHandle.collapseTabset</code>).</p>\n"
+        }
+      ],
+      "name": "collapse",
+      "optional": false,
+      "type": "() => void"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Expand the tabset if it is collapsed (see <code>WorkspaceImperativeHandle.expandTabset</code>).</p>\n"
+        }
+      ],
+      "name": "expand",
+      "optional": false,
+      "type": "() => void"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Id of the tabset.</p>\n"
+        }
+      ],
+      "name": "id",
+      "optional": false,
+      "type": "string"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The tabset is currently collapsed (in the model).</p>\n"
+        },
+        {
+          "content": "<p>A tabset may be shown collapsed (or expanded) unlike the model: while a separator is being dragged (before the model changes),\nand when it's collapsed to fit (see <code>TabsetNode.collapsible</code>); <code>useParentTabsetState().isCollapsed</code> reflects how it's shown.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "isCollapsed",
+      "optional": false,
+      "type": "() => boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The tabset is currently maximized.</p>\n"
+        }
+      ],
+      "name": "isMaximized",
+      "optional": false,
+      "type": "() => boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Maximize the tabset.</p>\n"
+        },
+        {
+          "content": "<p>This has no effect on the only tabset in a workspace (see <code>ParentTabsetState.isRoot</code>).</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "maximize",
+      "optional": false,
+      "type": "() => void"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Restore the tabset if it is maximized.</p>\n"
+        }
+      ],
+      "name": "restore",
+      "optional": false,
+      "type": "() => void"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Id of the Workspace that contains the tabset.</p>\n"
+        }
+      ],
+      "name": "workspaceId",
+      "optional": false,
+      "type": "string"
+    }
+  ],
+  "name": "ParentTabset"
+}

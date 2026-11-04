@@ -7,6 +7,9 @@ import {
   HookSignatureItem,
   SectionHeader
 } from "react-lib-tools";
+import ParentTabsetStateJson from "../../public/generated/types/ParentTabsetState.json";
+import { HookReturnType } from "../components/HookReturnType";
+import type { ModelTypeMetadata } from "../components/workspace/ModelType";
 import { html } from "../../public/generated/examples/UseParentTabsetState.json";
 import { Link } from "../components/Link";
 
@@ -44,14 +47,11 @@ export default function UseParentTabsetStateRoute() {
           }
         >
           <p>
-            Whether the user most recently interacted with the tabset (
-            <code>isActive</code>), whether it's maximized (
-            <code>isMaximized</code>), whether it's the root of the model and so
-            the only tabset in the workspace (<code>isRoot</code>), and the id
-            of its selected tab (<code>selectedTabId</code>).
+            See <code>ParentTabsetState</code> (below).
           </p>
         </HookSignatureItem>
       </HookSignature>
+      <HookReturnType json={ParentTabsetStateJson as ModelTypeMetadata} />
     </Box>
   );
 }

@@ -7,6 +7,9 @@ import {
   HookSignatureItem,
   SectionHeader
 } from "react-lib-tools";
+import ParentWorkspaceJson from "../../public/generated/types/ParentWorkspace.json";
+import { HookReturnType } from "../components/HookReturnType";
+import type { ModelTypeMetadata } from "../components/workspace/ModelType";
 import { html } from "../../public/generated/examples/UseParentWorkspace.json";
 import { Link } from "../components/Link";
 
@@ -47,16 +50,11 @@ export default function UseParentWorkspaceRoute() {
           }
         >
           <p>
-            The Workspace's <code>id</code> and its imperative API (
-            <code>addTab</code>, <code>closeTab</code>,{" "}
-            <code>getActiveTabsetId</code>, <code>getModel</code>,{" "}
-            <code>maximizeTabset</code>, <code>moveTab</code>,{" "}
-            <code>restoreTabset</code>, <code>selectTab</code>,{" "}
-            <code>setModel</code>, <code>updateTab</code>, and{" "}
-            <code>updateTabset</code>).
+            See <code>ParentWorkspace</code> (below).
           </p>
         </HookSignatureItem>
       </HookSignature>
+      <HookReturnType json={ParentWorkspaceJson as ModelTypeMetadata} />
     </Box>
   );
 }

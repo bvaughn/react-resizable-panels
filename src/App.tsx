@@ -238,7 +238,11 @@ const nav: NavConfig<Path | DefaultPath> = [
             title: "useParentTabsetState"
           },
           { path: "/hooks/use-parent-tab", title: "useParentTab" },
-          { path: "/hooks/use-parent-tab-state", title: "useParentTabState" }
+          { path: "/hooks/use-parent-tab-state", title: "useParentTabState" },
+          {
+            path: "/hooks/use-tab-list-free-space",
+            title: "useTabListFreeSpace"
+          }
         ]
       },
       {

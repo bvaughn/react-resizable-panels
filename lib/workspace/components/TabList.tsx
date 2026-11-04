@@ -10,9 +10,10 @@ import {
   useWorkspaceContext
 } from "../hooks/useWorkspaceContext";
 import { isTabsetDragDisabled } from "../utils/isTabsetDragDisabled";
+import { measureTabListFreeSpace } from "../utils/measureTabListFreeSpace";
 
 function TabListComponent({ children }: { children: ReactNode }) {
-  const { classNames, disabled, model, styles } =
+  const { classNames, disabled, model, styles, tabListFreeSpaceStore } =
     useWorkspaceContext("TabList");
   const { isCollapsed, tabPlacement, tabset } = useTabsetContext("TabList");
 
@@ -26,17 +27,17 @@ function TabListComponent({ children }: { children: ReactNode }) {
   // Tabs let the list be scrolled by touch while it overflows (see Tab)
   const [isOverflowing, setIsOverflowing] = useState(false);
 
-  // The list overflows when it or its tabs change size, or when tabs are added or removed
+  // The list overflows (and its free space changes) when it or its tabs change size, or when tabs are added or removed
+  const tabsetId = tabset.id;
   useIsomorphicLayoutEffect(() => {
     const element = elementRef.current;
-    const window = element?.ownerDocument.defaultView;
-    if (!element || !window) {
+    if (!element) {
       return;
     }
 
     // The overflow attributes aren't rendered by React (so updating them while scrolling doesn't re-render the list);
     // only whether the list overflows at all is state, since tabs need it (see Tab)
-    const update = () => {
+    const updateOverflow = () => {
       const isVertical = element.dataset.orientation === "vertical";
       const offset = isVertical ? element.scrollTop : element.scrollLeft;
       const overflow = isVertical
@@ -49,43 +50,81 @@ function TabListComponent({ children }: { children: ReactNode }) {
       setIsOverflowing(overflow > 1);
     };
 
-    const resizeObserver = window.ResizeObserver
-      ? new window.ResizeObserver(update)
-      : null;
-    resizeObserver?.observe(element);
-    for (const child of element.children) {
-      resizeObserver?.observe(child);
-    }
+    // Free space is reported synchronously from ResizeObserver and MutationObserver callbacks (which run before the browser paints),
+    // so that e.g. a toolbar can move items into an overflow menu without showing them in the wrong place for a frame
+    let lastFreeSpace: number | undefined;
+    const update = () => {
+      updateOverflow();
 
-    const mutationObserver = window.MutationObserver
-      ? new window.MutationObserver((records) => {
-          // Elements are detected without "instanceof", which is false for elements created by another window (e.g. a popup's opener)
-          for (const record of records) {
-            for (const node of record.addedNodes) {
-              if (isHTMLElement(node)) {
-                resizeObserver?.observe(node);
+      const freeSpace = measureTabListFreeSpace(element);
+      if (freeSpace !== lastFreeSpace) {
+        lastFreeSpace = freeSpace;
+        element.style.setProperty("--tab-list-free-space", `${freeSpace}px`);
+      }
+      tabListFreeSpaceStore.set(tabsetId, freeSpace);
+    };
+
+    let resizeObserver: ResizeObserver | null = null;
+    let mutationObserver: MutationObserver | null = null;
+
+    // The observers are created (and the free space is first measured) after the commit, but before the browser paints:
+    // - They come from the window the list is in by then, rather than when this effect runs (e.g. content rendered into a container
+    //   that's created by one window and moved into another, like a popup, after its effects run); an observer from another window
+    //   isn't notified of changes to the list
+    // - Listeners aren't called while React is committing (e.g. a listener that calls flushSync would be warned)
+    updateOverflow();
+    let isDisposed = false;
+    queueMicrotask(() => {
+      const window = element.ownerDocument.defaultView;
+      if (isDisposed || !window) {
+        return;
+      }
+
+      resizeObserver = window.ResizeObserver
+        ? new window.ResizeObserver(update)
+        : null;
+      resizeObserver?.observe(element);
+      for (const child of element.children) {
+        resizeObserver?.observe(child);
+      }
+
+      mutationObserver = window.MutationObserver
+        ? new window.MutationObserver((records) => {
+            // Elements are detected without "instanceof", which is false for elements created by another window (e.g. a popup's opener)
+            for (const record of records) {
+              for (const node of record.addedNodes) {
+                if (isHTMLElement(node)) {
+                  resizeObserver?.observe(node);
+                }
+              }
+              for (const node of record.removedNodes) {
+                if (isHTMLElement(node)) {
+                  resizeObserver?.unobserve(node);
+                }
               }
             }
-            for (const node of record.removedNodes) {
-              if (isHTMLElement(node)) {
-                resizeObserver?.unobserve(node);
-              }
-            }
-          }
-          update();
-        })
-      : null;
-    mutationObserver?.observe(element, { childList: true });
+            update();
+          })
+        : null;
+      mutationObserver?.observe(element, { childList: true });
 
-    update();
-    element.addEventListener("scroll", update, { passive: true });
+      update();
+    });
+    element.addEventListener("scroll", updateOverflow, { passive: true });
 
     return () => {
+      isDisposed = true;
       resizeObserver?.disconnect();
       mutationObserver?.disconnect();
-      element.removeEventListener("scroll", update);
+      element.removeEventListener("scroll", updateOverflow);
     };
-  }, [orientation]);
+  }, [orientation, tabListFreeSpaceStore, tabsetId]);
+
+  // Cleared when the list is removed (e.g. the tabset is closed), rather than when it's measured again (e.g. its orientation changes)
+  useIsomorphicLayoutEffect(
+    () => tabListFreeSpaceStore.retain(tabsetId),
+    [tabListFreeSpaceStore, tabsetId]
+  );
 
   // The list's empty space drags the tabset (see TabsetView), so it handles touch drags itself like tabs do (see Tab)
   let touchAction = styles?.tabList?.touchAction;
@@ -127,6 +166,9 @@ function TabListComponent({ children }: { children: ReactNode }) {
  *
  * ℹ️ The `data-overflow-start` and `data-overflow-end` attributes are set while the list is scrolled away from its start or end
  * (e.g. to show that there are more tabs beyond the edge).
+ *
+ * ℹ️ The `--tab-list-free-space` custom property is set to the space the list's tabs don't use (negative once they overflow);
+ * see `WorkspaceImperativeHandle.getTabListFreeSpace`.
  *
  * ℹ️ While the list overflows, it can be scrolled by swiping along it on touch devices;
  * tabs are then dragged by first moving across the list (e.g. downward from tabs placed at the top).

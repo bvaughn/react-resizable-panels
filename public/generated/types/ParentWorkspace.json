@@ -1,0 +1,23 @@
+{
+  "description": [
+    {
+      "content": "<p>The nearest ancestor Workspace (returned by <code>useParentWorkspace</code>), including its imperative API.</p>\n"
+    }
+  ],
+  "extends": [
+    "WorkspaceImperativeHandle"
+  ],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>Id of the Workspace.</p>\n"
+        }
+      ],
+      "name": "id",
+      "optional": false,
+      "type": "string"
+    }
+  ],
+  "name": "ParentWorkspace"
+}

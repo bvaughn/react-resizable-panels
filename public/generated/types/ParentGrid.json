@@ -1,0 +1,23 @@
+{
+  "description": [
+    {
+      "content": "<p>The nearest ancestor Grid (returned by <code>useParentGrid</code>), including its imperative API.</p>\n"
+    }
+  ],
+  "extends": [
+    "GridImperativeHandle"
+  ],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>Id of the Grid.</p>\n"
+        }
+      ],
+      "name": "id",
+      "optional": false,
+      "type": "string"
+    }
+  ],
+  "name": "ParentGrid"
+}
