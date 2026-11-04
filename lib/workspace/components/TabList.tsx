@@ -27,7 +27,8 @@ function TabListComponent({ children }: { children: ReactNode }) {
   // Tabs let the list be scrolled by touch while it overflows (see Tab)
   const [isOverflowing, setIsOverflowing] = useState(false);
 
-  // The list overflows (and its free space changes) when it or its tabs change size, or when tabs are added or removed
+  // The list overflows (and its free space changes) when it or its tabs change size, or when tabs are added or removed;
+  // its free space also changes when the header or its children change size, or when header children are added or removed
   const tabsetId = tabset.id;
   useIsomorphicLayoutEffect(() => {
     const element = elementRef.current;
@@ -80,33 +81,79 @@ function TabListComponent({ children }: { children: ReactNode }) {
         return;
       }
 
+      // The header (and e.g. its toolbar) is observed too: once the list is 0px wide, the header can shrink (or its toolbar can grow)
+      // without the list or its tabs changing size (see measureTabListFreeSpace).
+      // The list is always rendered directly within the header (see TabsetView).
+      const header = element.parentElement;
+
+      // A header child with "display: contents" (e.g. a toolbar whose items are the header's flex items) has no size of its own,
+      // so its children are observed instead (see getLayoutChildren).
+      // Whether a child has "display: contents" is only checked when it's observed, so a child that switches (e.g. by a class or media query)
+      // isn't observed differently until it's added again.
+      const observeHeaderChild = (node: HTMLElement) => {
+        if (window.getComputedStyle(node).display === "contents") {
+          mutationObserver?.observe(node, { childList: true });
+          for (const child of node.children) {
+            if (isHTMLElement(child)) {
+              observeHeaderChild(child);
+            }
+          }
+        } else {
+          resizeObserver?.observe(node);
+        }
+      };
+
+      // A removed "display: contents" node's descendants are no longer observed either
+      // (its own mutation observer target can't be removed, but it no longer changes anything)
+      const unobserveTree = (node: HTMLElement) => {
+        resizeObserver?.unobserve(node);
+        for (const child of node.children) {
+          if (isHTMLElement(child)) {
+            unobserveTree(child);
+          }
+        }
+      };
+
       resizeObserver = window.ResizeObserver
         ? new window.ResizeObserver(update)
         : null;
-      resizeObserver?.observe(element);
-      for (const child of element.children) {
-        resizeObserver?.observe(child);
-      }
-
       mutationObserver = window.MutationObserver
         ? new window.MutationObserver((records) => {
             // Elements are detected without "instanceof", which is false for elements created by another window (e.g. a popup's opener)
             for (const record of records) {
               for (const node of record.addedNodes) {
-                if (isHTMLElement(node)) {
+                if (!isHTMLElement(node)) {
+                  continue;
+                } else if (record.target === element) {
                   resizeObserver?.observe(node);
+                } else {
+                  observeHeaderChild(node);
                 }
               }
               for (const node of record.removedNodes) {
                 if (isHTMLElement(node)) {
-                  resizeObserver?.unobserve(node);
+                  unobserveTree(node);
                 }
               }
             }
             update();
           })
         : null;
+
+      resizeObserver?.observe(element);
+      for (const child of element.children) {
+        resizeObserver?.observe(child);
+      }
       mutationObserver?.observe(element, { childList: true });
+      if (header) {
+        resizeObserver?.observe(header);
+        for (const child of header.children) {
+          if (isHTMLElement(child) && child !== element) {
+            observeHeaderChild(child);
+          }
+        }
+        mutationObserver?.observe(header, { childList: true });
+      }
 
       update();
     });

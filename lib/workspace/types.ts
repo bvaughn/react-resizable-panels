@@ -477,6 +477,8 @@ export interface WorkspaceImperativeHandle<
    *
    * ℹ️ The space is measured along the tab list: its width, or its height if its tabs are placed on the left or right
    * (or the tabset is collapsed to a vertical strip).
+   * If the tab list can't shrink any further (e.g. it's 0px wide, beside a toolbar that doesn't shrink), the amount the header's content
+   * overflows the header is subtracted too, so it's still how much space a toolbar needs to free up.
    *
    * ℹ️ The tab list's `--tab-list-free-space` custom property has the same value (e.g. "120px").
    *

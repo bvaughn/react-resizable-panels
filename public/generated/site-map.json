@@ -690,7 +690,7 @@
       {
         "id": "getTabListFreeSpace",
         "title": "getTabListFreeSpace",
-        "text": "getTabListFreeSpace Space (in pixels) in a tabset's tab list that its tabs don't use, e.g. how much a toolbar beside the tabs could grow\nbefore they overflow (and how much space an overflow menu needs to free up, once it's negative).\n The space is measured along the tab list: its width, or its height if its tabs are placed on the left or right\n(or the tabset is collapsed to a vertical strip).\n The tab list's --tab-list-free-space custom property has the same value (e.g. \"120px\").\n Within a tabset (e.g. its toolbar), the useTabListFreeSpace hook returns this value (and re-renders when it changes)."
+        "text": "getTabListFreeSpace Space (in pixels) in a tabset's tab list that its tabs don't use, e.g. how much a toolbar beside the tabs could grow\nbefore they overflow (and how much space an overflow menu needs to free up, once it's negative).\n The space is measured along the tab list: its width, or its height if its tabs are placed on the left or right\n(or the tabset is collapsed to a vertical strip).\nIf the tab list can't shrink any further (e.g. it's 0px wide, beside a toolbar that doesn't shrink), the amount the header's content\noverflows the header is subtracted too, so it's still how much space a toolbar needs to free up.\n The tab list's --tab-list-free-space custom property has the same value (e.g. \"120px\").\n Within a tabset (e.g. its toolbar), the useTabListFreeSpace hook returns this value (and re-renders when it changes)."
       },
       {
         "id": "maximizeTabset",

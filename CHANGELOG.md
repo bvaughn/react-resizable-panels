@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.18.1
+
+- Fix the free space in a `Workspace` tabset's tab list (returned by `useTabListFreeSpace` and `getTabListFreeSpace`, reported to `subscribeToTabListFreeSpace` listeners, and set as the `--tab-list-free-space` custom property) not changing once the tab list is squeezed to 0px, e.g. beside a toolbar that doesn't shrink. It now keeps going down as the header's content overflows the header, and is updated when the header or its toolbar changes size.
+
 ## 4.18.0
 
 - Add the `normalizeWorkspaceModel` function, which checks and tidies a model the same way the `defaultModel` prop does (e.g. removing empty tabsets and fixing selections), and returns `null` if the value isn't a model (e.g. corrupt saved data). Its `mapTab` option replaces each saved tab with the app's current version (or removes it, by returning `null`), so layouts saved by older versions of an app can be restored.
