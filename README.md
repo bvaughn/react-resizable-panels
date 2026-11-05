@@ -1050,6 +1050,9 @@ so this is best suited to content that is cheap to mount and benefits from being
 <p>Tabs placed on the left or right are stacked (&quot;vertical&quot;):
 this determines how a dropped tab&#39;s position is found and which arrow keys move focus between tabs.</p>
 <p>ℹ️ Elements within a tabset have a <code>data-tab-placement</code> attribute, which can be used for styling (e.g. rotating tabs on the left or right).</p>
+<p>ℹ️ &quot;left&quot; and &quot;right&quot; are the start and end of the tabset (its header is rendered before or after its content),
+so in a right-to-left layout (e.g. within <code>dir=&quot;rtl&quot;</code>) tabs placed on the &quot;left&quot; are on the right;
+styles for them should use logical properties (e.g. <code>border-inline-end</code> rather than <code>border-right</code>).</p>
 <p>ℹ️ Tabsets can override this with the <code>tabPlacement</code> field of their model node.</p>
 </td>
     </tr>

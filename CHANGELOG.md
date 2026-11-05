@@ -3,6 +3,7 @@
 ## 4.18.1
 
 - Fix the free space in a `Workspace` tabset's tab list (returned by `useTabListFreeSpace` and `getTabListFreeSpace`, reported to `subscribeToTabListFreeSpace` listeners, and set as the `--tab-list-free-space` custom property) not changing once the tab list is squeezed to 0px, e.g. beside a toolbar that doesn't shrink. It now keeps going down as the header's content overflows the header, and is updated when the header or its toolbar changes size.
+- Fix `Workspace` interactions in right-to-left layouts (e.g. within `dir="rtl"`): dragging a tab within its tab list inserts it where it's dropped, arrow keys move focus to the tab on that side (`ArrowLeft` moves to the next tab), and dropping a tab or tabset onto the left or right edge of a tabset puts it on that side of the screen. The `left` and `right` regions passed to `moveTab` and `moveTabset` are sides of the screen too. A tab list's `data-overflow-start` and `data-overflow-end` attributes are also set correctly while it's scrolled. - [#791](https://github.com/bvaughn/react-resizable-panels/issues/791)
 
 ## 4.18.0
 

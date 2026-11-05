@@ -2259,6 +2259,45 @@ describe("Workspace", () => {
           reason: "move"
         });
       });
+
+      test("moveTab and moveTabset treat left and right as sides of the screen in a right-to-left layout", () => {
+        const getTabIds = (workspaceRef: {
+          current: WorkspaceImperativeHandle<TabData> | null;
+        }) =>
+          (
+            workspaceRef.current!.getModel().root as SplitNode<TabData>
+          ).children.map((child) =>
+            (child as TabsetNode<TabData>).tabs.map((tab) => tab.id)
+          );
+
+        // Left-to-right: the left region is before the target
+        const ltr = renderWorkspace();
+        act(() => {
+          ltr.workspaceRef.current!.moveTab("1", {
+            region: "left",
+            tabsetId: "right"
+          });
+        });
+        expect(getTabIds(ltr.workspaceRef)).toEqual([["2"], ["1"], ["3"]]);
+
+        const rtl = renderWorkspace({ style: { direction: "rtl" } });
+        act(() => {
+          rtl.workspaceRef.current!.moveTab("1", {
+            region: "left",
+            tabsetId: "right"
+          });
+        });
+        expect(getTabIds(rtl.workspaceRef)).toEqual([["2"], ["3"], ["1"]]);
+
+        const rtlTabset = renderWorkspace({ style: { direction: "rtl" } });
+        act(() => {
+          rtlTabset.workspaceRef.current!.moveTabset("left", {
+            region: "left",
+            tabsetId: "right"
+          });
+        });
+        expect(getTabIds(rtlTabset.workspaceRef)).toEqual([["3"], ["1", "2"]]);
+      });
     });
   });
 });

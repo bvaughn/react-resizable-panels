@@ -330,6 +330,10 @@
           "intent": "primary"
         },
         {
+          "content": "<p>&quot;left&quot; and &quot;right&quot; are the start and end of the tabset (its header is rendered before or after its content),\nso in a right-to-left layout (e.g. within <code>dir=&quot;rtl&quot;</code>) tabs placed on the &quot;left&quot; are on the right;\nstyles for them should use logical properties (e.g. <code>border-inline-end</code> rather than <code>border-right</code>).</p>\n",
+          "intent": "primary"
+        },
+        {
           "content": "<p>Tabsets can override this with the <code>tabPlacement</code> field of their model node.</p>\n",
           "intent": "primary"
         }

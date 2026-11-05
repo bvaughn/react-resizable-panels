@@ -304,7 +304,7 @@
     ],
     "path": "/examples/workspace/tab-placement",
     "section": "Workspace",
-    "text": "Tabs can be placed on any side of a tabset with the tabPlacement prop: Tabs placed on the left or right are stacked: dropped tabs are inserted based on their vertical position, and the up and down arrow keys move between tabs. top bottom left right Elements within a tabset have a data-tab-placement attribute, which can be used to style them for each placement (see styling). Tabs on the left or right don't have to be rotated; the demo above rotates them with the writing-mode CSS property, but a vertical list of unrotated tabs works too.",
+    "text": "Tabs can be placed on any side of a tabset with the tabPlacement prop: Tabs placed on the left or right are stacked: dropped tabs are inserted based on their vertical position, and the up and down arrow keys move between tabs. top bottom left right Elements within a tabset have a data-tab-placement attribute, which can be used to style them for each placement (see styling). The left and right placements are the start and end of a tabset, so in a right-to-left layout (e.g. within dir=\"rtl\") tabs placed on the left are on the right. Styles for them should use logical properties (e.g. border-inline-end rather than border-right), like the demo above does. Tabs on the left or right don't have to be rotated; the demo above rotates them with the writing-mode CSS property, but a vertical list of unrotated tabs works too.",
     "title": "Tab placement"
   },
   {
@@ -700,12 +700,12 @@
       {
         "id": "moveTab",
         "title": "moveTab",
-        "text": "moveTab Move a tab to a position within a tabset's tab list, or to a region of a tabset's content area."
+        "text": "moveTab Move a tab to a position within a tabset's tab list, or to a region of a tabset's content area.\n The \"left\" and \"right\" regions are sides of the screen (so they're mirrored in right-to-left layouts)."
       },
       {
         "id": "moveTabset",
         "title": "moveTabset",
-        "text": "moveTabset Move a tabset beside another tabset (by dropping it onto a region at the edge of that tabset's content area),\nor move its tabs into another tabset (at an index within its tab list, or onto the \"center\" of its content area).\n When its tabs are moved, the emptied tabset is removed (unless it has the keepWhenEmpty flag)."
+        "text": "moveTabset Move a tabset beside another tabset (by dropping it onto a region at the edge of that tabset's content area),\nor move its tabs into another tabset (at an index within its tab list, or onto the \"center\" of its content area).\nThe \"left\" and \"right\" regions are sides of the screen (so they're mirrored in right-to-left layouts).\n When its tabs are moved, the emptied tabset is removed (unless it has the keepWhenEmpty flag)."
       },
       {
         "id": "restoreTabset",
@@ -1277,7 +1277,7 @@
       {
         "id": "tabPlacement",
         "title": "tabPlacement",
-        "text": "Where tabs are placed relative to tab content.\n Tabs placed on the left or right are stacked (\"vertical\"):\nthis determines how a dropped tab's position is found and which arrow keys move focus between tabs.\n Elements within a tabset have a data-tab-placement attribute, which can be used for styling (e.g. rotating tabs on the left or right).\n Tabsets can override this with the tabPlacement field of their model node."
+        "text": "Where tabs are placed relative to tab content.\n Tabs placed on the left or right are stacked (\"vertical\"):\nthis determines how a dropped tab's position is found and which arrow keys move focus between tabs.\n Elements within a tabset have a data-tab-placement attribute, which can be used for styling (e.g. rotating tabs on the left or right).\n \"left\" and \"right\" are the start and end of the tabset (its header is rendered before or after its content),\nso in a right-to-left layout (e.g. within dir=\"rtl\") tabs placed on the \"left\" are on the right;\nstyles for them should use logical properties (e.g. border-inline-end rather than border-right).\n Tabsets can override this with the tabPlacement field of their model node."
       },
       {
         "id": "tabRemovalSelectionBehavior",

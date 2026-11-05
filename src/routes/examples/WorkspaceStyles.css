@@ -6,7 +6,9 @@
 [data-tab][data-drop-before]::before {
   content: "";
   position: absolute;
-  inset: 0 auto 0 0;
+  /* Logical properties, so it's on the right of the tab in a right-to-left layout */
+  inset-block: 0;
+  inset-inline-start: 0;
   width: 2px;
   background: dodgerblue;
 }
@@ -19,6 +21,10 @@
 /* Set while the tab list is scrolled away from its start or end */
 [data-tab-list][data-overflow-end] {
   mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+}
+/* :dir() follows the dir attribute (not a CSS direction) */
+[data-tab-list][data-overflow-end]:dir(rtl) {
+  mask-image: linear-gradient(to left, black calc(100% - 24px), transparent);
 }
 
 /* Where a dragged tab will be dropped; data-region is "top", "right", "bottom", "left", or "center" */

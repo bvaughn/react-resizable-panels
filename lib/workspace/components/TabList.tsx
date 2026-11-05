@@ -40,7 +40,10 @@ function TabListComponent({ children }: { children: ReactNode }) {
     // only whether the list overflows at all is state, since tabs need it (see Tab)
     const updateOverflow = () => {
       const isVertical = element.dataset.orientation === "vertical";
-      const offset = isVertical ? element.scrollTop : element.scrollLeft;
+      // In a right-to-left layout, scrollLeft is 0 at the start (the right) and negative toward the end
+      const offset = Math.abs(
+        isVertical ? element.scrollTop : element.scrollLeft
+      );
       const overflow = isVertical
         ? element.scrollHeight - element.offsetHeight
         : element.scrollWidth - element.offsetWidth;

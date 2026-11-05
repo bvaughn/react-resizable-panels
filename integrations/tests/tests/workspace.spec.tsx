@@ -1367,3 +1367,146 @@ test.describe("Workspace", () => {
     });
   });
 });
+
+test.describe("Workspace in a right-to-left layout", () => {
+  // The direction is read from computed styles when it's needed, so it can be set after the Workspace renders
+  async function setRightToLeft(page: Page) {
+    await page.evaluate(() => {
+      document.documentElement.dir = "rtl";
+    });
+  }
+
+  test("reorders tabs dragged toward the left end of the tab list", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(mainPage, workspace());
+    await setRightToLeft(page);
+
+    // The first tab is on the right
+    const a = (await getTab(page, "a").boundingBox())!;
+    const b = (await getTab(page, "b").boundingBox())!;
+    expect(a.x).toBeGreaterThan(b.x);
+
+    // Past the second tab's midpoint, toward the end of the list
+    await dragTab(page, getTab(page, "a"), {
+      x: b.x + 2,
+      y: b.y + b.height / 2
+    });
+
+    expect(await getTabIds(getTabset(page, "left"))).toEqual(["b", "a"]);
+  });
+
+  test("moves focus to the tab on the left with ArrowLeft", async ({
+    page: mainPage
+  }) => {
+    // Three tabs, so that moving focus back (which wraps around) and forward focus different tabs
+    const page = await goToUrl(
+      mainPage,
+      workspace({
+        root: {
+          id: "left",
+          tabs: [
+            { data: null, id: "a" },
+            { data: null, id: "b" },
+            { data: null, id: "c" }
+          ],
+          type: "tabset"
+        },
+        version: 1
+      })
+    );
+    await setRightToLeft(page);
+
+    await clickTab(page, getTab(page, "a"));
+    await expect(getTab(page, "a")).toBeFocused();
+
+    await page.keyboard.press("ArrowLeft");
+    await expect(getTab(page, "b")).toBeFocused();
+
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowRight");
+    await expect(getTab(page, "c")).toBeFocused();
+  });
+
+  test("splits a tabset on the side of the screen a tab is dropped onto", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(mainPage, workspace());
+    await setRightToLeft(page);
+
+    // The first tabset is on the right
+    const left = (await getTabset(page, "left").boundingBox())!;
+    const right = (await getTabset(page, "right").boundingBox())!;
+    expect(left.x).toBeGreaterThan(right.x);
+
+    await dragTab(
+      page,
+      getTab(page, "c"),
+      await getPanelsPoint(getTabset(page, "left"), "left")
+    );
+
+    // "c" was the right tabset's only tab, so that tabset was removed; its new tabset is on the left of the one it was dropped onto
+    await expect(page.locator("[data-tabset]")).toHaveCount(2);
+    const target = (await getTabset(page, "left").boundingBox())!;
+    const added = (await getTab(page, "c")
+      .locator("xpath=ancestor::*[@data-tabset]")
+      .boundingBox())!;
+    expect(added.x + added.width).toBeLessThanOrEqual(target.x);
+
+    // Dropping it onto the right edge moves it back to the right
+    await dragTab(
+      page,
+      getTab(page, "c"),
+      await getPanelsPoint(getTabset(page, "left"), "right")
+    );
+    const moved = (await getTab(page, "c")
+      .locator("xpath=ancestor::*[@data-tabset]")
+      .boundingBox())!;
+    const shrunk = (await getTabset(page, "left").boundingBox())!;
+    expect(moved.x).toBeGreaterThanOrEqual(shrunk.x + shrunk.width);
+  });
+
+  test("reports which end of an overflowing tab list is scrolled away from", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Workspace
+        defaultModel={{
+          root: {
+            id: "left",
+            tabs: Array.from({ length: 30 }, (_, index) => ({
+              data: null,
+              id: `tab-${index}`
+            })),
+            type: "tabset"
+          },
+          version: 1
+        }}
+        renderTabContent={() => null}
+        // A test-only prop (see the test app's Workspace); its tab list clips its tabs
+        {...({ showTabListFreeSpace: true } as object)}
+      />
+    );
+    await setRightToLeft(page);
+
+    const tabList = page.locator("[data-tab-list]");
+    await tabList.evaluate((list) => {
+      list.scrollLeft = 0;
+      list.dispatchEvent(new Event("scroll"));
+    });
+    await expect(tabList).not.toHaveAttribute("data-overflow-start");
+    await expect(tabList).toHaveAttribute("data-overflow-end");
+
+    // Scrolled toward the end (to the left), scrollLeft is negative
+    await tabList.evaluate((list) => {
+      list.scrollLeft = -(
+        list.scrollWidth - list.getBoundingClientRect().width
+      );
+      list.dispatchEvent(new Event("scroll"));
+    });
+    expect(await tabList.evaluate((list) => list.scrollLeft)).toBeLessThan(0);
+    await expect(tabList).toHaveAttribute("data-overflow-start");
+    await expect(tabList).not.toHaveAttribute("data-overflow-end");
+  });
+});
