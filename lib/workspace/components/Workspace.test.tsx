@@ -1924,6 +1924,51 @@ describe("Workspace", () => {
       expect(getRenderCount()).toBe(initialRenderCount);
     });
 
+    test("the drop indicator is the same element for the whole drag, so it can be animated between tabsets", async () => {
+      const { container } = renderWorkspace();
+      const getIndicator = () =>
+        container.querySelector<HTMLElement>("[data-drop-indicator]");
+
+      // Over the center of the "right" tabset's panels
+      const user = await startDrag(container, getTab("2"));
+      const indicator = getIndicator()!;
+      expect(indicator.dataset.region).toBe("center");
+      expect(indicator.style.opacity).toBe("");
+      // Rendered within the workspace's root element, rather than within a tabset's panels
+      expect(indicator.closest("[data-tab-panels]")).toBeNull();
+      expect(indicator.parentElement?.parentElement).toBe(
+        container.querySelector("[data-workspace]")
+      );
+
+      // Over a tab list, it stays where it was but isn't shown
+      const tabList = container.querySelector<HTMLElement>(
+        '[data-tabset-id="left"] [data-tab-list]'
+      )!;
+      elementAtPoint = tabList;
+      await user.pointer({
+        coords: { clientX: 160, clientY: 160 },
+        target: tabList
+      });
+      expect(getIndicator()).toBe(indicator);
+      expect(indicator.dataset.region).toBeUndefined();
+      expect(indicator.style.opacity).toBe("0");
+
+      // Over the left edge of the "left" tabset's panels (jsdom has no layout, so every point is otherwise at the center)
+      const panels = getPanels(container, "left");
+      panels.getBoundingClientRect = () =>
+        ({ height: 1000, left: 0, top: 0, width: 1000 }) as DOMRect;
+      await user.pointer({
+        coords: { clientX: 170, clientY: 170 },
+        target: panels
+      });
+      expect(getIndicator()).toBe(indicator);
+      expect(indicator.dataset.region).toBe("left");
+      expect(indicator.style.opacity).toBe("");
+
+      await user.pointer({ keys: "[/MouseLeft]", target: panels });
+      expect(getIndicator()).toBeNull();
+    });
+
     describe("between workspaces (dragGroup)", () => {
       // Includes the type that identifies the drag from another page posted below (with the id "remote")
       function createDataTransfer(id = "remote") {
@@ -2122,6 +2167,31 @@ describe("Workspace", () => {
         });
         expect(screen.getAllByRole("tab", { name: /^2/ })).toHaveLength(1);
         expect(document.querySelector("[data-drag-preview]")).toBeNull();
+      });
+
+      test("the drop indicator is shown by the workspace the drag is over, even if another workspace shows the preview", async () => {
+        const { container } = renderWorkspaces();
+        const otherWorkspace = container.querySelector(
+          '[data-workspace][id="other-workspace"]'
+        )!;
+
+        // The source shows the preview in this document
+        await startDrag(getTab("2"));
+        elementAtPoint = container.querySelector<HTMLElement>(
+          '[data-tabset-id="other"] [data-tab-panels]'
+        )!;
+        fireDragEvent("dragover", elementAtPoint);
+
+        expect(otherWorkspace.querySelector("[data-drag-preview]")).toBeNull();
+        expect(
+          otherWorkspace.querySelector<HTMLElement>("[data-drop-indicator]")
+            ?.dataset.region
+        ).toBe("center");
+
+        fireDragEvent("dragend", getTab("2"));
+        expect(
+          otherWorkspace.querySelector("[data-drop-indicator]")
+        ).toBeNull();
       });
 
       test("a whole tabset dropped into another workspace's tabset moves its tabs there", async () => {

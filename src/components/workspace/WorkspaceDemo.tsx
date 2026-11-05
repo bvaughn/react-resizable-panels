@@ -212,9 +212,10 @@ function renderSeparator(orientation: Orientation) {
 const CLASS_NAMES: WorkspaceClassNames = {
   dragPreview:
     "-translate-x-1/2 -translate-y-[calc(100%+4px)] px-2 py-1 rounded bg-violet-700 text-white text-sm whitespace-nowrap shadow-lg",
-  // "!" is needed to override the site's global "transition: none"
+  // "!" is needed to override the site's global "transition: none";
+  // the indicator slides between regions and tabsets, and fades while the tab isn't over any tabset's panels
   dropIndicator:
-    "bg-violet-400/25 border-2 border-violet-400 rounded-sm transition-[inset]! duration-250! motion-reduce:transition-none!",
+    "bg-violet-400/25 border-2 border-violet-400 rounded-sm transition-[inset,opacity]! duration-250! motion-reduce:transition-none!",
   // At least as tall (or wide, for tabs on the left or right) as a tab, so an empty tabset's header is the same size
   header: cn(
     "flex shrink-0 items-center min-h-7 tabs-vertical:min-h-0 tabs-vertical:min-w-7 tabs-vertical:flex-col tabs-vertical:items-stretch text-sm",

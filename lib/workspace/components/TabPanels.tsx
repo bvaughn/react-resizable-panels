@@ -1,28 +1,17 @@
 "use client";
 
-import { useRef, type CSSProperties } from "react";
+import { useRef } from "react";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../shared/hooks/useMergedRefs";
 import { TabContent } from "./TabContent";
-import type { TabDropRegion } from "../types";
 import {
   useTabsetContext,
   useWorkspaceContext
 } from "../hooks/useWorkspaceContext";
 
-// Every region sets all four insets, so that changes between regions can be animated (e.g. "transition: inset 250ms")
-const DROP_INDICATOR_STYLES: { [region in TabDropRegion]: CSSProperties } = {
-  bottom: { bottom: 0, left: 0, right: 0, top: "50%" },
-  center: { bottom: 0, left: 0, right: 0, top: 0 },
-  left: { bottom: 0, left: 0, right: "50%", top: 0 },
-  right: { bottom: 0, left: "50%", right: 0, top: 0 },
-  top: { bottom: "50%", left: 0, right: 0, top: 0 }
-};
-
 function TabPanelsComponent() {
   const {
     classNames,
-    dropTarget,
     getHiddenTabBehavior,
     getTabHost,
     isHydrating,
@@ -63,11 +52,6 @@ function TabPanelsComponent() {
       ? selectedTab
       : undefined;
 
-  const dropRegion =
-    dropTarget?.tabsetId === tabset.id && "region" in dropTarget
-      ? dropTarget.region
-      : undefined;
-
   return (
     <div
       className={classNames?.tabPanels}
@@ -92,20 +76,6 @@ function TabPanelsComponent() {
           />
         </div>
       )}
-      {dropRegion && (
-        <div
-          className={classNames?.dropIndicator}
-          data-drop-indicator
-          data-region={dropRegion}
-          style={{
-            ...styles?.dropIndicator,
-            ...DROP_INDICATOR_STYLES[dropRegion],
-            pointerEvents: "none",
-            position: "absolute",
-            zIndex: 1
-          }}
-        />
-      )}
     </div>
   );
 }
@@ -114,7 +84,8 @@ function TabPanelsComponent() {
  * Shows the content of a tabset's selected tab.
  *
  * Dragging a tab over the panels splits the tabset (near an edge) or adds the tab to it (in the center);
- * while a tab is dragged over the panels, an element with `data-drop-indicator` and `data-region` attributes shows where it will be dropped.
+ * while a tab is dragged over the panels, an element with `data-drop-indicator` and `data-region` attributes shows where it will be dropped
+ * (see DropIndicator).
  */
 export const TabPanels = /* @__PURE__ */ Object.assign(TabPanelsComponent, {
   displayName: "Workspace.TabPanels"
