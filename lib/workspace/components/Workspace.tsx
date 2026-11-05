@@ -77,9 +77,11 @@ import type {
 import { useTabDrag } from "../hooks/useTabDrag";
 import { NodeView } from "./NodeView";
 import { TabsetSlot } from "./TabsetSlot";
+import { isRightToLeft } from "../utils/isRightToLeft";
 import { pruneRemovedNodes } from "../utils/pruneRemovedNodes";
 import { updateCollapseOverrides } from "../utils/updateCollapseOverrides";
 import { sizeToPixels } from "../utils/sizeToPixels";
+import { toModelDropTarget } from "../utils/toModelDropTarget";
 import { subscribeToNothing } from "../../shared/utils/subscribeToNothing";
 import { DragPreview } from "./DragPreview";
 
@@ -175,6 +177,9 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   // Tab lists report their free space here (rather than in React state), so that it can be read synchronously, e.g. from outside the Workspace
   const [tabListFreeSpaceStore] = useState(createTabListFreeSpaceStore);
 
+  // Read by imperative methods, e.g. to tell which side of the screen a drop region is on (see toModelDropTarget)
+  const rootElementRef = useRef<HTMLDivElement | null>(null);
+
   const handle = useMemo<WorkspaceImperativeHandle>(() => {
     const getActiveTabsetId = () => {
       const tabsetId = activeTabsetIdRef.current;
@@ -210,10 +215,20 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
           maximizeTabset(prev, tabsetId)
         ),
       moveTab: (tabId, target) =>
-        updateModel("move", false, (prev) => moveTab(prev, tabId, target)),
+        updateModel("move", false, (prev) =>
+          moveTab(
+            prev,
+            tabId,
+            toModelDropTarget(target, isRightToLeft(rootElementRef.current))
+          )
+        ),
       moveTabset: (tabsetId, target) =>
         updateModel("move", false, (prev) =>
-          moveTabset(prev, tabsetId, target)
+          moveTabset(
+            prev,
+            tabsetId,
+            toModelDropTarget(target, isRightToLeft(rootElementRef.current))
+          )
         ),
       restoreTabset: () => updateModel("restore", false, restoreTabset),
       selectTab: (tabId) =>
@@ -308,7 +323,6 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   );
 
   const [rootElement, setRootElement] = useState<HTMLDivElement | null>(null);
-  const rootElementRef = useRef<HTMLDivElement | null>(null);
   const mergedRef = useMergedRefs(
     rootElementRef,
     setRootElement,
@@ -610,11 +624,16 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
   const onDrop = useCallback(
     (source: DragSource, target: TabDropTarget) =>
-      updateModel("move", true, (prev) =>
-        source.type === "tab"
-          ? moveTab(prev, source.tabId, target)
-          : moveTabset(prev, source.tabsetId, target)
-      ),
+      updateModel("move", true, (prev) => {
+        const modelTarget = toModelDropTarget(
+          target,
+          isRightToLeft(rootElementRef.current)
+        );
+
+        return source.type === "tab"
+          ? moveTab(prev, source.tabId, modelTarget)
+          : moveTabset(prev, source.tabsetId, modelTarget);
+      }),
     [updateModel]
   );
 

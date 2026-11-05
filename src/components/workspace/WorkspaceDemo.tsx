@@ -199,37 +199,42 @@ const CLASS_NAMES: WorkspaceClassNames = {
   header: cn(
     "flex shrink-0 items-center min-h-7 tabs-vertical:min-h-0 tabs-vertical:min-w-7 tabs-vertical:flex-col tabs-vertical:items-stretch text-sm",
     // Separated from the tab panels by a line, like the VS Code demo's tabs
-    "border-ink/10 data-[tab-placement=top]:border-b data-[tab-placement=bottom]:border-t data-[tab-placement=left]:border-r data-[tab-placement=right]:border-l"
+    // (logical properties, since tabs placed on the "left" are at the start of the tabset: on the right, in a right-to-left layout)
+    "border-ink/10 data-[tab-placement=top]:border-b data-[tab-placement=bottom]:border-t data-[tab-placement=left]:border-e data-[tab-placement=right]:border-s"
   ),
   // Spaced like the VS Code demo's panels
   split: "gap-2 sm:gap-1",
   tab: cn(
     "group/tab relative flex shrink-0 items-center justify-center cursor-pointer select-none whitespace-nowrap",
-    "px-3 has-[button]:pr-1 py-1 tabs-vertical:px-1 tabs-vertical:py-3",
+    "px-3 has-[button]:pe-1 py-1 tabs-vertical:px-1 tabs-vertical:py-3",
     "text-ink/60 hover:text-ink data-[tab-selected]:text-ink data-[tab-dragging]:opacity-50",
     // The selected tab is underlined along the edge facing its content, like the VS Code demo's tabs
     "data-[tab-selected]:shadow-[inset_0_-2px_0_var(--color-violet-400)]",
     "data-[tab-placement=bottom]:data-[tab-selected]:shadow-[inset_0_2px_0_var(--color-violet-400)]",
-    "data-[tab-placement=left]:data-[tab-selected]:shadow-[inset_-2px_0_0_var(--color-violet-400)]",
-    "data-[tab-placement=right]:data-[tab-selected]:shadow-[inset_2px_0_0_var(--color-violet-400)]",
+    // (box shadows don't have logical offsets, so they're flipped by --inline-sign; see tabset)
+    "data-[tab-placement=left]:data-[tab-selected]:shadow-[inset_calc(-2px*var(--inline-sign))_0_0_var(--color-violet-400)]",
+    "data-[tab-placement=right]:data-[tab-selected]:shadow-[inset_calc(2px*var(--inline-sign))_0_0_var(--color-violet-400)]",
     // "!" is needed to override the site's global "outline: none"
     "focus-visible:outline-2! focus-visible:-outline-offset-2! focus-visible:outline-sky-400!",
     // Lines showing where a dragged tab will be inserted
-    "before:absolute before:hidden data-[drop-before]:before:block before:bg-violet-400 before:inset-y-0 before:left-0 before:w-0.5",
+    "before:absolute before:hidden data-[drop-before]:before:block before:bg-violet-400 before:inset-y-0 before:start-0 before:w-0.5",
     "tabs-vertical:before:inset-x-0 tabs-vertical:before:bottom-auto tabs-vertical:before:w-auto tabs-vertical:before:h-0.5",
-    "after:absolute after:hidden data-[drop-after]:after:block after:bg-violet-400 after:inset-y-0 after:right-0 after:w-0.5",
+    "after:absolute after:hidden data-[drop-after]:after:block after:bg-violet-400 after:inset-y-0 after:end-0 after:w-0.5",
     "tabs-vertical:after:inset-x-0 tabs-vertical:after:top-auto tabs-vertical:after:w-auto tabs-vertical:after:h-0.5"
   ),
   tabContent: "h-full overflow-auto",
   tabList: cn(
     "flex flex-1 min-w-0 min-h-0 self-stretch overflow-auto tabs-vertical:flex-col",
-    // Fade the edges that have more tabs beyond them
-    "[--fade-direction:to_right] tabs-vertical:[--fade-direction:to_bottom] [--fade-start:0px] [--fade-end:0px] data-[overflow-start]:[--fade-start:24px] data-[overflow-end]:[--fade-end:24px]",
+    // Fade the edges that have more tabs beyond them (gradients don't have logical directions, so the angle is flipped by --inline-sign; see tabset)
+    "[--fade-direction:calc(90deg*var(--inline-sign))] tabs-vertical:[--fade-direction:to_bottom] [--fade-start:0px] [--fade-end:0px] data-[overflow-start]:[--fade-start:24px] data-[overflow-end]:[--fade-end:24px]",
     "[mask-image:linear-gradient(var(--fade-direction),transparent,black_var(--fade-start),black_calc(100%_-_var(--fade-end)),transparent)]"
   ),
   tabPanels: "grow min-h-0 min-w-0",
-  tabset:
+  tabset: cn(
     "flex flex-col tabs-vertical:flex-row h-full w-full bg-ink/8 rounded-md overflow-hidden data-[tabset-dragging]:opacity-50",
+    // 1 in left-to-right layouts and -1 in right-to-left ones, for styles that don't have logical equivalents (see tab and tabList)
+    "[--inline-sign:1] rtl:[--inline-sign:-1]"
+  ),
   toolbar:
     "flex tabs-vertical:flex-col tabs-vertical:items-center tabs-vertical:py-1"
 };

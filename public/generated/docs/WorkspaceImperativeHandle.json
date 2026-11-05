@@ -102,7 +102,7 @@
           "content": "<p>Space (in pixels) in a tabset's tab list that its tabs don't use, e.g. how much a toolbar beside the tabs could grow\nbefore they overflow (and how much space an overflow menu needs to free up, once it's negative).</p>\n"
         },
         {
-          "content": "<p>The space is measured along the tab list: its width, or its height if its tabs are placed on the left or right\n(or the tabset is collapsed to a vertical strip).</p>\n",
+          "content": "<p>The space is measured along the tab list: its width, or its height if its tabs are placed on the left or right\n(or the tabset is collapsed to a vertical strip).\nIf the tab list can't shrink any further (e.g. it's 0px wide, beside a toolbar that doesn't shrink), the amount the header's content\noverflows the header is subtracted too, so it's still how much space a toolbar needs to free up.</p>\n",
           "intent": "primary"
         },
         {
@@ -134,6 +134,10 @@
       "description": [
         {
           "content": "<p>Move a tab to a position within a tabset's tab list, or to a region of a tabset's content area.</p>\n"
+        },
+        {
+          "content": "<p>The <code>&quot;left&quot;</code> and <code>&quot;right&quot;</code> regions are sides of the screen (so they're mirrored in right-to-left layouts).</p>\n",
+          "intent": "primary"
         }
       ],
       "html": "<div><span class=\"tok-labelName\">moveTab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tabId</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">target</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabDropTarget</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
@@ -142,7 +146,7 @@
     {
       "description": [
         {
-          "content": "<p>Move a tabset beside another tabset (by dropping it onto a region at the edge of that tabset's content area),\nor move its tabs into another tabset (at an <code>index</code> within its tab list, or onto the <code>&quot;center&quot;</code> of its content area).</p>\n"
+          "content": "<p>Move a tabset beside another tabset (by dropping it onto a region at the edge of that tabset's content area),\nor move its tabs into another tabset (at an <code>index</code> within its tab list, or onto the <code>&quot;center&quot;</code> of its content area).\nThe <code>&quot;left&quot;</code> and <code>&quot;right&quot;</code> regions are sides of the screen (so they're mirrored in right-to-left layouts).</p>\n"
         },
         {
           "content": "<p>When its tabs are moved, the emptied tabset is removed (unless it has the <code>keepWhenEmpty</code> flag).</p>\n",

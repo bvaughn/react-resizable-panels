@@ -16,6 +16,7 @@ import {
   useWorkspaceContext
 } from "../hooks/useWorkspaceContext";
 import { isFromInteractiveDescendant } from "../utils/isFromInteractiveDescendant";
+import { isRightToLeft } from "../utils/isRightToLeft";
 
 function TabComponent({ tab: tabProp }: { tab: TabNode }) {
   const {
@@ -132,8 +133,14 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
       ]?.focus();
     };
 
-    const previousKey = orientation === "horizontal" ? "ArrowLeft" : "ArrowUp";
-    const nextKey = orientation === "horizontal" ? "ArrowRight" : "ArrowDown";
+    // In a right-to-left layout, a horizontal list's next tab is on the left
+    let [previousKey, nextKey] =
+      orientation === "horizontal"
+        ? ["ArrowLeft", "ArrowRight"]
+        : ["ArrowUp", "ArrowDown"];
+    if (orientation === "horizontal" && isRightToLeft(tabList)) {
+      [previousKey, nextKey] = [nextKey, previousKey];
+    }
 
     switch (event.key) {
       case previousKey: {

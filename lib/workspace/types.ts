@@ -309,12 +309,14 @@ export type TabsetNodeInput<TabData = unknown, TabsetData = unknown> = Omit<
 
 /**
  * Edge (or center) of a tabset's content area.
+ *
+ * ℹ️ Edges are sides of the screen, so in a right-to-left layout (e.g. within `dir="rtl"`), "left" is after the tabset in its split's `children`.
  */
 export type TabDropRegion = "bottom" | "center" | "left" | "right" | "top";
 
 /**
  * Where a dragged tab can be dropped:
- * - At an `index` within a tabset's tab list
+ * - At an `index` within a tabset's tab list (in the order of its `tabs`, which run from right to left in a right-to-left layout)
  * - Within a `region` of a tabset's content area; edges split the tabset, and the center adds the tab to it
  */
 export type TabDropTarget =
@@ -477,6 +479,8 @@ export interface WorkspaceImperativeHandle<
    *
    * ℹ️ The space is measured along the tab list: its width, or its height if its tabs are placed on the left or right
    * (or the tabset is collapsed to a vertical strip).
+   * If the tab list can't shrink any further (e.g. it's 0px wide, beside a toolbar that doesn't shrink), the amount the header's content
+   * overflows the header is subtracted too, so it's still how much space a toolbar needs to free up.
    *
    * ℹ️ The tab list's `--tab-list-free-space` custom property has the same value (e.g. "120px").
    *
@@ -497,12 +501,15 @@ export interface WorkspaceImperativeHandle<
 
   /**
    * Move a tab to a position within a tabset's tab list, or to a region of a tabset's content area.
+   *
+   * ℹ️ The `"left"` and `"right"` regions are sides of the screen (so they're mirrored in right-to-left layouts).
    */
   moveTab: (tabId: string, target: TabDropTarget) => void;
 
   /**
    * Move a tabset beside another tabset (by dropping it onto a region at the edge of that tabset's content area),
    * or move its tabs into another tabset (at an `index` within its tab list, or onto the `"center"` of its content area).
+   * The `"left"` and `"right"` regions are sides of the screen (so they're mirrored in right-to-left layouts).
    *
    * ℹ️ When its tabs are moved, the emptied tabset is removed (unless it has the `keepWhenEmpty` flag).
    */
@@ -1034,6 +1041,10 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * this determines how a dropped tab's position is found and which arrow keys move focus between tabs.
    *
    * ℹ️ Elements within a tabset have a `data-tab-placement` attribute, which can be used for styling (e.g. rotating tabs on the left or right).
+   *
+   * ℹ️ "left" and "right" are the start and end of the tabset (its header is rendered before or after its content),
+   * so in a right-to-left layout (e.g. within `dir="rtl"`) tabs placed on the "left" are on the right;
+   * styles for them should use logical properties (e.g. `border-inline-end` rather than `border-right`).
    *
    * ℹ️ Tabsets can override this with the `tabPlacement` field of their model node.
    *

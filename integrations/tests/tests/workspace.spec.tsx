@@ -470,6 +470,467 @@ test.describe("Workspace", () => {
     await expect(freeSpace).toHaveText(String(-Math.round(overflow)));
   });
 
+  test("keeps measuring the free space once the tab list is squeezed to 0px", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Workspace
+        defaultModel={createModel()}
+        renderTabContent={() => null}
+        // A test-only prop (see the test app's Workspace)
+        {...({ showTabListFreeSpace: true } as object)}
+      />
+    );
+    await expect(page.getByTestId("free-space-left")).not.toHaveText(
+      "undefined"
+    );
+
+    // The toolbar doesn't shrink, so once the header is narrower than it, the list is 0px wide and the header overflows;
+    // the free space is then the header's width less the toolbar's and the tabs' (which only the header changing size reveals)
+    const results = await page
+      .locator("[data-workspace]")
+      .evaluate(async (workspace: HTMLElement) => {
+        const window = workspace.ownerDocument.defaultView!;
+        const header = workspace.querySelector<HTMLElement>(
+          '[data-tabset-id="left"] [data-tabset-header]'
+        )!;
+        const list = header.querySelector<HTMLElement>("[data-tab-list]")!;
+        const toolbar = header.querySelector<HTMLElement>(
+          "[data-tabset-toolbar]"
+        )!;
+        const label = workspace.querySelector(
+          '[data-testid="free-space-left"]'
+        )!;
+        const nextFrame = () =>
+          new Promise((resolve) => window.requestAnimationFrame(resolve));
+
+        const results: {
+          expected: number;
+          listWidth: number;
+          rendered: number;
+        }[] = [];
+        const record = () => {
+          const tabs = Array.from(list.children).map((tab) =>
+            tab.getBoundingClientRect()
+          );
+          const tabsSpan =
+            Math.max(...tabs.map(({ right }) => right)) -
+            Math.min(...tabs.map(({ left }) => left));
+          const others = Array.from(header.children)
+            .filter((child) => child !== list)
+            .map((child) => child.getBoundingClientRect().width);
+          results.push({
+            expected: Math.round(
+              header.getBoundingClientRect().width -
+                others.reduce((total, width) => total + width, 0) -
+                tabsSpan
+            ),
+            listWidth: list.getBoundingClientRect().width,
+            rendered: Number(label.textContent)
+          });
+        };
+
+        // The header shrinks
+        for (const width of [128, 108, 98]) {
+          workspace.style.width = `${width}px`;
+          await nextFrame();
+          await nextFrame();
+          record();
+        }
+
+        // The toolbar grows, without the header changing size
+        toolbar.style.flex = "none";
+        toolbar.style.width = `${toolbar.getBoundingClientRect().width + 10}px`;
+        await nextFrame();
+        await nextFrame();
+        record();
+
+        // Another element is added to the header
+        const extra = header.ownerDocument.createElement("div");
+        extra.style.flex = "none";
+        extra.style.width = "10px";
+        header.appendChild(extra);
+        await nextFrame();
+        await nextFrame();
+        record();
+        extra.remove();
+
+        return results;
+      });
+
+    for (const { listWidth } of results) {
+      expect(listWidth).toBe(0);
+    }
+    for (const { expected, rendered } of results) {
+      expect(rendered).toBe(expected);
+    }
+    expect(new Set(results.map(({ rendered }) => rendered)).size).toBe(
+      results.length
+    );
+  });
+
+  test("only counts the header's overflow beside the tab list", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Workspace
+        defaultModel={createModel()}
+        renderTabContent={() => null}
+        // The header stacks the toolbar below the tab list
+        styles={{
+          header: { display: "block" },
+          tab: { display: "inline-block", width: 10 },
+          tabList: { display: "flex", overflow: "hidden" },
+          tabset: { display: "flex", flexDirection: "column", height: "100%" },
+          toolbar: { width: 60 }
+        }}
+        // A test-only prop (see the test app's Workspace)
+        {...({ showTabListFreeSpace: true } as object)}
+      />
+    );
+    await expect(page.getByTestId("free-space-left")).not.toHaveText(
+      "undefined"
+    );
+
+    // The toolbar is wider than the header, but it isn't beside the tabs
+    const result = await page
+      .locator("[data-workspace]")
+      .evaluate(async (workspace: HTMLElement) => {
+        const window = workspace.ownerDocument.defaultView!;
+        const nextFrame = () =>
+          new Promise((resolve) => window.requestAnimationFrame(resolve));
+        workspace.style.width = "108px";
+        await nextFrame();
+        await nextFrame();
+
+        const header = workspace.querySelector<HTMLElement>(
+          '[data-tabset-id="left"] [data-tabset-header]'
+        )!;
+        const list = header.querySelector<HTMLElement>("[data-tab-list]")!;
+        const tabs = Array.from(list.children).map((tab) =>
+          tab.getBoundingClientRect()
+        );
+        return {
+          expected: Math.round(
+            list.getBoundingClientRect().width -
+              (Math.max(...tabs.map(({ right }) => right)) -
+                Math.min(...tabs.map(({ left }) => left)))
+          ),
+          headerOverflow:
+            header
+              .querySelector("[data-tabset-toolbar]")!
+              .getBoundingClientRect().width -
+            header.getBoundingClientRect().width,
+          rendered: Number(
+            workspace.querySelector('[data-testid="free-space-left"]')!
+              .textContent
+          )
+        };
+      });
+
+    expect(result.headerOverflow).toBeGreaterThan(0);
+    expect(result.rendered).toBe(result.expected);
+  });
+
+  test("measures the free space of a header whose toolbar has display: contents", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Workspace
+        defaultModel={createModel()}
+        renderTabContent={() => null}
+        // The toolbar's content is one of the header's flex items
+        styles={{
+          header: { display: "flex", flex: "0 0 30px" },
+          tab: { display: "flex", flex: "none", width: 10 },
+          tabList: {
+            display: "flex",
+            flex: "1 1 0",
+            minWidth: 0,
+            overflow: "hidden"
+          },
+          tabset: { display: "flex", flexDirection: "column", height: "100%" },
+          toolbar: { display: "contents" }
+        }}
+        // A test-only prop (see the test app's Workspace)
+        {...({ showTabListFreeSpace: true } as object)}
+      />
+    );
+    await expect(page.getByTestId("free-space-left")).not.toHaveText(
+      "undefined"
+    );
+
+    const results = await page
+      .locator("[data-workspace]")
+      .evaluate(async (workspace: HTMLElement) => {
+        const window = workspace.ownerDocument.defaultView!;
+        const nextFrame = () =>
+          new Promise((resolve) => window.requestAnimationFrame(resolve));
+        const header = workspace.querySelector<HTMLElement>(
+          '[data-tabset-id="left"] [data-tabset-header]'
+        )!;
+        const list = header.querySelector<HTMLElement>("[data-tab-list]")!;
+        const label = workspace.querySelector<HTMLElement>(
+          '[data-testid="free-space-left"]'
+        )!;
+        // The toolbar's content doesn't shrink
+        label.style.flex = "none";
+
+        const results: {
+          expected: number;
+          listWidth: number;
+          rendered: number;
+        }[] = [];
+        const record = (...others: HTMLElement[]) => {
+          const tabs = Array.from(list.children).map((tab) =>
+            tab.getBoundingClientRect()
+          );
+          results.push({
+            expected: Math.round(
+              header.getBoundingClientRect().width -
+                [label, ...others].reduce(
+                  (total, other) => total + other.getBoundingClientRect().width,
+                  0
+                ) -
+                (Math.max(...tabs.map(({ right }) => right)) -
+                  Math.min(...tabs.map(({ left }) => left)))
+            ),
+            listWidth: list.getBoundingClientRect().width,
+            rendered: Number(label.textContent)
+          });
+        };
+        const settle = async () => {
+          await nextFrame();
+          await nextFrame();
+        };
+
+        for (const width of [128, 98]) {
+          workspace.style.width = `${width}px`;
+          await settle();
+          record();
+        }
+
+        // The toolbar's content grows, without the header changing size
+        label.style.width = `${label.getBoundingClientRect().width + 10}px`;
+        await settle();
+        record();
+
+        // Another element is added to the toolbar, and then resized
+        const extra = header.ownerDocument.createElement("div");
+        extra.style.flex = "none";
+        extra.style.width = "10px";
+        label.parentElement!.appendChild(extra);
+        await settle();
+        record(extra);
+        extra.style.width = "20px";
+        await settle();
+        record(extra);
+
+        // And removed again
+        extra.remove();
+        await settle();
+        record();
+
+        return results;
+      });
+
+    for (const { expected, listWidth, rendered } of results) {
+      expect(listWidth).toBe(0);
+      expect(rendered).toBe(expected);
+    }
+    expect(results[1].rendered).toBeLessThan(results[0].rendered);
+    // Every step changed the free space
+    for (let index = 1; index < results.length; index++) {
+      expect(results[index].rendered).not.toBe(results[index - 1].rendered);
+    }
+  });
+
+  test("measures the free space of an empty tab list that has no height", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Workspace
+        defaultModel={{
+          root: {
+            children: [
+              { id: "left", keepWhenEmpty: true, tabs: [], type: "tabset" },
+              { id: "right", tabs: [{ data: null, id: "c" }], type: "tabset" }
+            ],
+            id: "root",
+            orientation: "horizontal",
+            type: "split"
+          },
+          version: 1
+        }}
+        renderTabContent={() => null}
+        // The header doesn't stretch its children, so the empty list has no height (and is on the toolbar's top edge)
+        styles={{
+          header: {
+            alignItems: "flex-start",
+            display: "flex",
+            flex: "0 0 30px"
+          },
+          tabList: {
+            display: "flex",
+            flex: "1 1 0",
+            minWidth: 0,
+            overflow: "hidden"
+          },
+          tabset: { display: "flex", flexDirection: "column", height: "100%" },
+          toolbar: { flex: "none" }
+        }}
+        // A test-only prop (see the test app's Workspace)
+        {...({ showTabListFreeSpace: true } as object)}
+      />
+    );
+    await expect(page.getByTestId("free-space-left")).not.toHaveText(
+      "undefined"
+    );
+
+    const results = await page
+      .locator("[data-workspace]")
+      .evaluate(async (workspace: HTMLElement) => {
+        const window = workspace.ownerDocument.defaultView!;
+        const nextFrame = () =>
+          new Promise((resolve) => window.requestAnimationFrame(resolve));
+        const header = workspace.querySelector<HTMLElement>(
+          '[data-tabset-id="left"] [data-tabset-header]'
+        )!;
+        const list = header.querySelector<HTMLElement>("[data-tab-list]")!;
+        const toolbar = header.querySelector<HTMLElement>(
+          "[data-tabset-toolbar]"
+        )!;
+        const label = workspace.querySelector(
+          '[data-testid="free-space-left"]'
+        )!;
+
+        const results = [];
+        for (const width of [128, 98]) {
+          workspace.style.width = `${width}px`;
+          await nextFrame();
+          await nextFrame();
+
+          const listRect = list.getBoundingClientRect();
+          results.push({
+            expected: Math.round(
+              header.getBoundingClientRect().width -
+                toolbar.getBoundingClientRect().width
+            ),
+            listHeight: listRect.height,
+            listWidth: listRect.width,
+            rendered: Number(label.textContent)
+          });
+        }
+
+        return results;
+      });
+
+    for (const { expected, listHeight, listWidth, rendered } of results) {
+      expect(listHeight).toBe(0);
+      expect(listWidth).toBe(0);
+      expect(rendered).toBe(expected);
+    }
+    expect(results[1].rendered).toBeLessThan(results[0].rendered);
+  });
+
+  test("measures the free space along a vertical tab list beside a toolbar that doesn't shrink", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Workspace
+        defaultModel={createModel()}
+        renderTabContent={() => null}
+        // The header stacks the tab list above the toolbar, in a column to the left of the panels
+        styles={{
+          header: {
+            display: "flex",
+            flexDirection: "column",
+            flex: "0 0 30px"
+          },
+          tab: { display: "block", flex: "none", height: 10 },
+          tabList: {
+            display: "flex",
+            flex: "1 1 0",
+            flexDirection: "column",
+            minHeight: 0,
+            overflow: "hidden"
+          },
+          tabPanels: { flex: "1 1 0", minWidth: 0 },
+          tabset: { display: "flex", height: "100%" },
+          toolbar: { flex: "none", height: 60 }
+        }}
+        tabPlacement="left"
+        // A test-only prop (see the test app's Workspace)
+        {...({ showTabListFreeSpace: true } as object)}
+      />
+    );
+    await expect(page.getByTestId("free-space-left")).not.toHaveText(
+      "undefined"
+    );
+    await expect(
+      page.locator('[data-tabset-id="left"] [data-tab-list]')
+    ).toHaveAttribute("data-orientation", "vertical");
+
+    // The list is squeezed to 0px once the workspace is as short as the toolbar, and then the header overflows
+    const results = await page
+      .locator("[data-workspace]")
+      .evaluate(async (workspace: HTMLElement) => {
+        const window = workspace.ownerDocument.defaultView!;
+        const nextFrame = () =>
+          new Promise((resolve) => window.requestAnimationFrame(resolve));
+        const header = workspace.querySelector<HTMLElement>(
+          '[data-tabset-id="left"] [data-tabset-header]'
+        )!;
+        const list = header.querySelector<HTMLElement>("[data-tab-list]")!;
+        const toolbar = header.querySelector<HTMLElement>(
+          "[data-tabset-toolbar]"
+        )!;
+        const label = workspace.querySelector(
+          '[data-testid="free-space-left"]'
+        )!;
+
+        const results = [];
+        for (const height of [200, 60, 40]) {
+          workspace.style.height = `${height}px`;
+          await nextFrame();
+          await nextFrame();
+
+          const tabs = Array.from(list.children).map((tab) =>
+            tab.getBoundingClientRect()
+          );
+          results.push({
+            expected: Math.round(
+              header.getBoundingClientRect().height -
+                toolbar.getBoundingClientRect().height -
+                (Math.max(...tabs.map(({ bottom }) => bottom)) -
+                  Math.min(...tabs.map(({ top }) => top)))
+            ),
+            listHeight: list.getBoundingClientRect().height,
+            rendered: Number(label.textContent)
+          });
+        }
+
+        return results;
+      });
+
+    expect(results.map(({ listHeight }) => listHeight > 0)).toEqual([
+      true,
+      false,
+      false
+    ]);
+    for (const { expected, rendered } of results) {
+      expect(rendered).toBe(expected);
+    }
+    expect(new Set(results.map(({ rendered }) => rendered)).size).toBe(
+      results.length
+    );
+  });
+
   test("measures the free space again when a toolbar responds to it, without ResizeObserver errors", async ({
     page: mainPage
   }) => {
@@ -904,5 +1365,148 @@ test.describe("Workspace", () => {
       isUserInteraction: true,
       reason: "close"
     });
+  });
+});
+
+test.describe("Workspace in a right-to-left layout", () => {
+  // The direction is read from computed styles when it's needed, so it can be set after the Workspace renders
+  async function setRightToLeft(page: Page) {
+    await page.evaluate(() => {
+      document.documentElement.dir = "rtl";
+    });
+  }
+
+  test("reorders tabs dragged toward the left end of the tab list", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(mainPage, workspace());
+    await setRightToLeft(page);
+
+    // The first tab is on the right
+    const a = (await getTab(page, "a").boundingBox())!;
+    const b = (await getTab(page, "b").boundingBox())!;
+    expect(a.x).toBeGreaterThan(b.x);
+
+    // Past the second tab's midpoint, toward the end of the list
+    await dragTab(page, getTab(page, "a"), {
+      x: b.x + 2,
+      y: b.y + b.height / 2
+    });
+
+    expect(await getTabIds(getTabset(page, "left"))).toEqual(["b", "a"]);
+  });
+
+  test("moves focus to the tab on the left with ArrowLeft", async ({
+    page: mainPage
+  }) => {
+    // Three tabs, so that moving focus back (which wraps around) and forward focus different tabs
+    const page = await goToUrl(
+      mainPage,
+      workspace({
+        root: {
+          id: "left",
+          tabs: [
+            { data: null, id: "a" },
+            { data: null, id: "b" },
+            { data: null, id: "c" }
+          ],
+          type: "tabset"
+        },
+        version: 1
+      })
+    );
+    await setRightToLeft(page);
+
+    await clickTab(page, getTab(page, "a"));
+    await expect(getTab(page, "a")).toBeFocused();
+
+    await page.keyboard.press("ArrowLeft");
+    await expect(getTab(page, "b")).toBeFocused();
+
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowRight");
+    await expect(getTab(page, "c")).toBeFocused();
+  });
+
+  test("splits a tabset on the side of the screen a tab is dropped onto", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(mainPage, workspace());
+    await setRightToLeft(page);
+
+    // The first tabset is on the right
+    const left = (await getTabset(page, "left").boundingBox())!;
+    const right = (await getTabset(page, "right").boundingBox())!;
+    expect(left.x).toBeGreaterThan(right.x);
+
+    await dragTab(
+      page,
+      getTab(page, "c"),
+      await getPanelsPoint(getTabset(page, "left"), "left")
+    );
+
+    // "c" was the right tabset's only tab, so that tabset was removed; its new tabset is on the left of the one it was dropped onto
+    await expect(page.locator("[data-tabset]")).toHaveCount(2);
+    const target = (await getTabset(page, "left").boundingBox())!;
+    const added = (await getTab(page, "c")
+      .locator("xpath=ancestor::*[@data-tabset]")
+      .boundingBox())!;
+    expect(added.x + added.width).toBeLessThanOrEqual(target.x);
+
+    // Dropping it onto the right edge moves it back to the right
+    await dragTab(
+      page,
+      getTab(page, "c"),
+      await getPanelsPoint(getTabset(page, "left"), "right")
+    );
+    const moved = (await getTab(page, "c")
+      .locator("xpath=ancestor::*[@data-tabset]")
+      .boundingBox())!;
+    const shrunk = (await getTabset(page, "left").boundingBox())!;
+    expect(moved.x).toBeGreaterThanOrEqual(shrunk.x + shrunk.width);
+  });
+
+  test("reports which end of an overflowing tab list is scrolled away from", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Workspace
+        defaultModel={{
+          root: {
+            id: "left",
+            tabs: Array.from({ length: 30 }, (_, index) => ({
+              data: null,
+              id: `tab-${index}`
+            })),
+            type: "tabset"
+          },
+          version: 1
+        }}
+        renderTabContent={() => null}
+        // A test-only prop (see the test app's Workspace); its tab list clips its tabs
+        {...({ showTabListFreeSpace: true } as object)}
+      />
+    );
+    await setRightToLeft(page);
+
+    const tabList = page.locator("[data-tab-list]");
+    await tabList.evaluate((list) => {
+      list.scrollLeft = 0;
+      list.dispatchEvent(new Event("scroll"));
+    });
+    await expect(tabList).not.toHaveAttribute("data-overflow-start");
+    await expect(tabList).toHaveAttribute("data-overflow-end");
+
+    // Scrolled toward the end (to the left), scrollLeft is negative
+    await tabList.evaluate((list) => {
+      list.scrollLeft = -(
+        list.scrollWidth - list.getBoundingClientRect().width
+      );
+      list.dispatchEvent(new Event("scroll"));
+    });
+    expect(await tabList.evaluate((list) => list.scrollLeft)).toBeLessThan(0);
+    await expect(tabList).toHaveAttribute("data-overflow-start");
+    await expect(tabList).not.toHaveAttribute("data-overflow-end");
   });
 });

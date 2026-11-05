@@ -106,6 +106,14 @@ export default function WorkspaceTabPlacementRoute() {
         <Link to="/examples/workspace/styling">styling</Link>).
       </div>
       <Callout>
+        The <code>left</code> and <code>right</code> placements are the start
+        and end of a tabset, so in a right-to-left layout (e.g. within{" "}
+        <code>dir="rtl"</code>) tabs placed on the <code>left</code> are on the
+        right. Styles for them should use logical properties (e.g.{" "}
+        <code>border-inline-end</code> rather than <code>border-right</code>),
+        like the demo above does.
+      </Callout>
+      <Callout>
         Tabs on the left or right don't have to be rotated; the demo above
         rotates them with the <code>writing-mode</code> CSS property, but a
         vertical list of unrotated tabs works too.
