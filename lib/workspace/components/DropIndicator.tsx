@@ -1,6 +1,6 @@
 import { useRef, useState, type CSSProperties } from "react";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
-import type { TabDropTarget } from "../types";
+import type { TabDropTarget, WorkspaceModel } from "../types";
 import { findTabsetPanels } from "../utils/findTabsetPanels";
 import { isSameDropIndicatorInsets } from "../utils/isSameDropIndicatorInsets";
 import {
@@ -11,11 +11,13 @@ import {
 function DropIndicatorComponent({
   className,
   dropTarget,
+  model,
   rootElement,
   style
 }: {
   className: string | undefined;
   dropTarget: TabDropTarget | undefined;
+  model: WorkspaceModel;
   rootElement: HTMLElement | null;
   style: CSSProperties | undefined;
 }) {
@@ -29,7 +31,8 @@ function DropIndicatorComponent({
     dropTarget && "region" in dropTarget ? dropTarget.region : undefined;
   const tabsetId = region ? dropTarget?.tabsetId : undefined;
 
-  // Measured when the target changes, and again if the layout changes during the drag (e.g. the window is resized);
+  // Measured when the target or the model changes (the panels can be replaced or moved, e.g. by a maximized tabset),
+  // and again if the layout changes during the drag (e.g. the window is resized);
   // only the indicator re-renders (before the browser paints), and only when its insets change
   useIsomorphicLayoutEffect(() => {
     const containerElement = containerRef.current;
@@ -42,6 +45,10 @@ function DropIndicatorComponent({
     }
 
     const measure = () => {
+      if (!panelsElement.isConnected) {
+        return;
+      }
+
       const next = measureDropIndicatorInsets(
         containerElement,
         panelsElement,
@@ -65,7 +72,7 @@ function DropIndicatorComponent({
         resizeObserver.disconnect();
       };
     }
-  }, [region, rootElement, tabsetId]);
+  }, [model, region, rootElement, tabsetId]);
 
   // The container covers the workspace's root element (and a maximized tabset, which is rendered before it)
   return (

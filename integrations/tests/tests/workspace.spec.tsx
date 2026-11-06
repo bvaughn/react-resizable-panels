@@ -188,6 +188,50 @@ test.describe("Workspace", () => {
     await expect(page.getByTestId("content-a")).toHaveText("a: 1");
   });
 
+  test("positions the drop indicator over the region of the tabset's panels the pointer is over", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(mainPage, workspace());
+
+    const panels = getTabset(page, "right").locator("[data-tab-panels]");
+    const indicator = page.locator("[data-drop-indicator]");
+
+    const tab = getTab(page, "a");
+    const start = await getTabLabelPoint(tab);
+    await page.mouse.move(start.x, start.y);
+    await page.mouse.down();
+
+    const expectIndicatorToMatch = async (
+      region: "center" | "left",
+      expected: { height: number; width: number; x: number; y: number }
+    ) => {
+      await page.mouse.move(
+        ...(Object.values(
+          await getPanelsPoint(getTabset(page, "right"), region)
+        ) as [number, number]),
+        { steps: 10 }
+      );
+      await expect(indicator).toHaveAttribute("data-region", region);
+      await expect
+        .poll(async () => {
+          const box = (await indicator.boundingBox())!;
+          return [
+            Math.abs(box.x - expected.x),
+            Math.abs(box.y - expected.y),
+            Math.abs(box.width - expected.width),
+            Math.abs(box.height - expected.height)
+          ].every((delta) => delta <= 2);
+        })
+        .toBe(true);
+    };
+
+    const box = (await panels.boundingBox())!;
+    await expectIndicatorToMatch("center", box);
+    await expectIndicatorToMatch("left", { ...box, width: box.width / 2 });
+
+    await page.mouse.up();
+  });
+
   test("moves a tabset by the empty space in its header without remounting its content", async ({
     page: mainPage
   }) => {

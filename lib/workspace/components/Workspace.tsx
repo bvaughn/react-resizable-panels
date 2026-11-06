@@ -1034,11 +1034,12 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
                 <TabsetSlot isMaximizedOverlay tabset={maximizedTabset} />
               </div>
             )}
-            {/* Shown by every workspace a drag is over (not just the one showing the preview), for the whole drag, so it can be animated between tabsets */}
+            {/* Shown by every workspace in the document a drag is over (not just the one showing the preview), for the whole drag, so it can be animated between tabsets */}
             {(dragSource !== undefined || isNativeDragOver) && (
               <DropIndicator
                 className={classNames?.dropIndicator}
                 dropTarget={dropTarget}
+                model={model}
                 rootElement={rootElement}
                 style={styles?.dropIndicator}
               />
