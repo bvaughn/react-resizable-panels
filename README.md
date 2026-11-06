@@ -931,12 +931,37 @@ Selecting tabs and maximizing tabsets still work.</p>
 </td>
     </tr>
     <tr>
+      <td>disableDragBetweenApps</td>
+      <td><p>Keeps drags between workspaces (see <code>dragGroup</code>) within this copy of the application:
+tabs dragged from this workspace can&#39;t be dropped into other copies of the application (e.g. the application loaded in another browser window or tab), and tabs dragged from other copies can&#39;t be dropped into this workspace.
+Workspaces in popout windows rendered by this copy of the application (with portals) are still part of the group.</p>
+<p>Defaults to <code>false</code>, so that workspaces with the same <code>dragGroup</code> in other copies of the application from the same origin can exchange tabs.</p>
+</td>
+    </tr>
+    <tr>
       <td>disableDrop</td>
       <td><p>Prevents tabs (and tabsets) from being dropped onto some (or all) targets.</p>
 <p>Functions are called when the target under the pointer changes;
 returning <code>true</code> rejects the target.</p>
 <p>ℹ️ While a tabset is dragged, this function is called for each of its tabs (see <code>DisableDropArgs</code>),
 so restrictions on where tabs can be dropped apply to dragged tabsets too.</p>
+</td>
+    </tr>
+    <tr>
+      <td>dragGroup</td>
+      <td><p>Lets tabs (and tabsets) be dragged between workspaces with the same <code>dragGroup</code>,
+including workspaces in popout windows (opened by the application and rendered into with a portal)
+and in other copies of the application from the same origin, e.g. the application loaded in another browser window or tab (see <code>disableDragBetweenApps</code>).
+Dropping one into another workspace moves it there, keeping its id and data;
+both workspaces report the change to <code>onModelChanged</code> with the <code>&quot;transfer&quot;</code> reason.</p>
+<p>Mouse drags use the browser&#39;s drag and drop when this prop is set, since pointer events can&#39;t follow the pointer into another window.
+Touch drags still use pointer events, so they can&#39;t leave the window.</p>
+<p>ℹ️ Tab ids must be unique within the group; a tab can&#39;t be dropped into a workspace that already has a tab with its id (and a tabset with the <code>keepWhenEmpty</code> flag can&#39;t be dragged to another workspace).
+A tab dragged to another workspace is rendered by that workspace, so its content is mounted again.</p>
+<p>⚠️ A tab dragged to another copy of the application is sent there with the structured clone algorithm (like <code>postMessage</code>), so its data must be cloneable (e.g. no functions);
+tabs whose data can&#39;t be cloned (and tabsets containing them) can only be dragged within their copy of the application.
+Copies loaded at different times may be running different versions of the application, so the other copy may need to handle tab data it doesn&#39;t recognize.</p>
+<p>⚠️ Tabs (and tabsets) can still be torn off (see <code>onTearOff</code>), but some browsers (e.g. Safari) block popup windows opened at the end of a drag that uses the browser&#39;s drag and drop.</p>
 </td>
     </tr>
     <tr>
@@ -967,16 +992,32 @@ This method is recommended when saving models to some storage api.</p>
 </td>
     </tr>
     <tr>
+      <td>onTearOff</td>
+      <td><p>Called when a tab (or a whole tabset) is dropped outside of the window, e.g. to open it in a popup window.
+Return <code>true</code> to accept it, which removes it from this workspace (reported to <code>onModelChanged</code> with the <code>&quot;tear-off&quot;</code> reason);
+otherwise nothing changes.</p>
+<p>Tabs and tabsets can only be torn off if they could be dragged, and tabsets with the <code>keepWhenEmpty</code> flag can&#39;t be torn off.
+Without this prop, dropping a tab outside of the window does nothing.</p>
+<p>⚠️ The Workspace can&#39;t tell whether the application showed the tab, so check whether <code>window.open</code> returned <code>null</code> (because the popup was blocked)
+and return <code>false</code> then to keep the tab; returning <code>true</code> removes it even if nothing shows it.</p>
+<p>ℹ️ This is called while the release of the pointer is being handled (which browsers treat as user input), so a popup can be opened from it.
+With the <code>dragGroup</code> prop, a tab is torn off when it&#39;s dropped outside of every window in the group; the end of those drags isn&#39;t treated as user input,
+so browsers block popups opened then unless the drag started a few seconds earlier at most (and Safari blocks them always).</p>
+</td>
+    </tr>
+    <tr>
       <td>renderDragPreview</td>
       <td><p>Content of the element that follows the pointer while a tab is being dragged.
 Defaults to the tab&#39;s title (or id).</p>
+<p>ℹ️ The element has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tab (see <code>onTearOff</code>).</p>
 </td>
     </tr>
     <tr>
       <td>renderTabsetDragPreview</td>
       <td><p>Content of the element that follows the pointer while a whole tabset is being dragged.
 Defaults to the title (or id) of its selected tab followed by the number of other tabs being dragged (e.g. &quot;One (+2)&quot;), or the selected tab&#39;s <code>renderDragPreview</code> when that prop is set, or the tabset&#39;s id if it has no tabs.</p>
-<p>ℹ️ The element has a <code>data-drag-type</code> attribute: <code>&quot;tabset&quot;</code> while a tabset is dragged, and <code>&quot;tab&quot;</code> while a tab is.</p>
+<p>ℹ️ The element has a <code>data-drag-type</code> attribute: <code>&quot;tabset&quot;</code> while a tabset is dragged, and <code>&quot;tab&quot;</code> while a tab is.
+It also has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tabset (see <code>onTearOff</code>).</p>
 </td>
     </tr>
     <tr>

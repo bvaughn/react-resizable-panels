@@ -12,6 +12,7 @@ export type WorkspaceState = {
   // Tabsets a split's Group collapsed to fit, which the model has expanded (see TabsetNode.collapsible)
   collapseToFit: { [tabsetId: string]: boolean };
   disabled: boolean;
+  dragGroup: string | undefined;
   model: WorkspaceModel;
   modelIndex: ModelIndex;
 };

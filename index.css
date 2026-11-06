@@ -45,3 +45,8 @@
     --color-separator-active: #878b94;
   }
 }
+
+/* Pages shown in iframes (e.g. the drag between copies of the app demo) are transparent, so the iframe's background shows through */
+[data-embed] #root {
+  background: none;
+}

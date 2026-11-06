@@ -41,13 +41,17 @@ import { addTab } from "../models/addTab";
 import { closeTab } from "../models/closeTab";
 import { closeTabset } from "../models/closeTabset";
 import { collapseTabset } from "../models/collapseTabset";
+import { createTearOffModel } from "../models/createTearOffModel";
 import { expandTabset } from "../models/expandTabset";
 import { findTab } from "../models/findTab";
 import { findTabset } from "../models/findTabset";
 import { findTabsetContainingTab } from "../models/findTabsetContainingTab";
 import { getAllTabs } from "../models/getAllTabs";
 import { getValidModelInput } from "../models/getValidModelInput";
+import { hasConflictingIds } from "../models/hasConflictingIds";
 import { indexModel } from "../models/indexModel";
+import { insertTab } from "../models/insertTab";
+import { insertTabset } from "../models/insertTabset";
 import { maximizeTabset } from "../models/maximizeTabset";
 import { moveTab } from "../models/moveTab";
 import { moveTabset } from "../models/moveTabset";
@@ -59,6 +63,7 @@ import { updateRecentTabIds } from "../models/updateRecentTabIds";
 import { updateTabset } from "../models/updateTabset";
 import { TabContent } from "./TabContent";
 import type {
+  DragNode,
   DragSource,
   HiddenTabBehavior,
   MinimumSize,
@@ -69,6 +74,7 @@ import type {
   TabNode,
   TabRenderProps,
   TabsetNode,
+  TearOffArgs,
   WorkspaceImperativeHandle,
   WorkspaceModel,
   WorkspaceModelInput,
@@ -77,6 +83,7 @@ import type {
 import { useTabDrag } from "../hooks/useTabDrag";
 import { NodeView } from "./NodeView";
 import { TabsetSlot } from "./TabsetSlot";
+import { findTabsetElement } from "../utils/findTabsetElement";
 import { isRightToLeft } from "../utils/isRightToLeft";
 import { pruneRemovedNodes } from "../utils/pruneRemovedNodes";
 import { updateCollapseOverrides } from "../utils/updateCollapseOverrides";
@@ -90,11 +97,14 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   classNames,
   defaultModel,
   disabled = false,
+  disableDragBetweenApps = false,
   disableDrop,
+  dragGroup,
   elementRef: elementRefProp,
   hiddenTabBehavior = "keep-mounted",
   id: idProp,
   onModelChanged,
+  onTearOff,
   renderDragPreview,
   renderEmptyTabset,
   renderSeparator,
@@ -583,6 +593,60 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     [chromeSizes, collapsedSizes, model.root, separatorsSizes, unitsReference]
   );
 
+  const getDragNode = useStableCallback(
+    (source: DragSource): DragNode | undefined => {
+      if (source.type === "tab") {
+        const tab = findTab(modelRef.current, source.tabId);
+
+        return tab ? { tab, type: "tab" } : undefined;
+      }
+
+      const tabset = findTabset(modelRef.current, source.tabsetId);
+
+      return tabset ? { tabset, type: "tabset" } : undefined;
+    }
+  );
+
+  // A tabset can't be dropped where any of its tabs couldn't be;
+  // when its tabs are moved into a tab list, each tab is inserted after the previous one
+  const isDropDisabledByProp = (
+    node: DragNode,
+    source: "external" | "local",
+    target: TabDropTarget
+  ) => {
+    if (typeof disableDrop !== "function") {
+      return !!disableDrop;
+    }
+
+    const model = modelRef.current as WorkspaceModel<TabData, TabsetData>;
+    if (node.type === "tab") {
+      return disableDrop({
+        model,
+        source,
+        tab: node.tab as TabNode<TabData>,
+        tabset: undefined,
+        target
+      });
+    }
+
+    const tabset = node.tabset as TabsetNode<TabData, TabsetData>;
+
+    return tabset.tabs.length === 0
+      ? disableDrop({ model, source, tab: undefined, tabset, target })
+      : tabset.tabs.some((tab, index) =>
+          disableDrop({
+            model,
+            source,
+            tab,
+            tabset,
+            target:
+              "index" in target
+                ? { ...target, index: target.index + index }
+                : target
+          })
+        );
+  };
+
   const isDropDisabled = useStableCallback(
     (source: DragSource, target: TabDropTarget) => {
       if (typeof disableDrop !== "function") {
@@ -590,36 +654,20 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       }
 
       // Sources removed during the drag (e.g. by the imperative API) can't be dropped
-      const model = modelRef.current as WorkspaceModel<TabData, TabsetData>;
-      if (source.type === "tab") {
-        const tab = findTab(model, source.tabId);
+      const node = getDragNode(source);
 
-        return tab
-          ? disableDrop({ model, tab, tabset: undefined, target })
-          : true;
-      }
-
-      const tabset = findTabset(model, source.tabsetId);
-      if (!tabset) {
-        return true;
-      }
-
-      // A tabset can't be dropped where any of its tabs couldn't be;
-      // when its tabs are moved into a tab list, each tab is inserted after the previous one
-      return tabset.tabs.length === 0
-        ? disableDrop({ model, tab: undefined, tabset, target })
-        : tabset.tabs.some((tab, index) =>
-            disableDrop({
-              model,
-              tab,
-              tabset,
-              target:
-                "index" in target
-                  ? { ...target, index: target.index + index }
-                  : target
-            })
-          );
+      return node ? isDropDisabledByProp(node, "local", target) : true;
     }
+  );
+
+  // Tabs (and tabsets) dragged from other workspaces in the group (see the dragGroup prop) keep their ids, so they can't be dropped beside nodes with the same ids;
+  // tabsets with the keepWhenEmpty flag stay in their own workspaces (like they aren't torn off); disabled workspaces don't accept drops
+  const isExternalDropDisabled = useStableCallback(
+    (node: DragNode, target: TabDropTarget) =>
+      disabled ||
+      (node.type === "tabset" && !!node.tabset.keepWhenEmpty) ||
+      hasConflictingIds(modelRef.current, node, target) ||
+      isDropDisabledByProp(node, "external", target)
   );
 
   const onDrop = useCallback(
@@ -637,17 +685,129 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     [updateModel]
   );
 
+  // Sources removed during the drag (e.g. by the imperative API) can't be torn off;
+  // neither can tabsets with the keepWhenEmpty flag, which applications anchor in place
+  const canTearOff = useStableCallback((source: DragSource) => {
+    if (!onTearOff) {
+      return false;
+    }
+
+    if (source.type === "tab") {
+      return !!findTab(modelRef.current, source.tabId);
+    }
+
+    const tabset = findTabset(modelRef.current, source.tabsetId);
+
+    return !!tabset && !tabset.keepWhenEmpty;
+  });
+
+  const handleTearOff = useStableCallback(
+    (
+      source: DragSource,
+      { screenX, screenY }: { screenX: number; screenY: number }
+    ) => {
+      const model = modelRef.current as WorkspaceModel<TabData, TabsetData>;
+      const tearOffModel = createTearOffModel(model, source);
+      if (!onTearOff || !tearOffModel || !canTearOff(source)) {
+        return;
+      }
+
+      // The source (e.g. a tab) and the tabset it's dragged from
+      const sourceNode =
+        source.type === "tab"
+          ? {
+              tab: findTab(model, source.tabId)!,
+              tabset: findTabsetContainingTab(model, source.tabId)!,
+              type: "tab" as const
+            }
+          : {
+              tabset: findTabset(model, source.tabsetId)!,
+              type: "tabset" as const
+            };
+      const rect = findTabsetElement(
+        rootElementRef.current,
+        sourceNode.tabset.id
+      )?.getBoundingClientRect();
+
+      const args: TearOffArgs<TabData, TabsetData> = {
+        ...(sourceNode.type === "tab"
+          ? { tab: sourceNode.tab, type: "tab" }
+          : { tabset: sourceNode.tabset, type: "tabset" }),
+        height: rect?.height ?? 0,
+        model: tearOffModel,
+        screenX,
+        screenY,
+        width: rect?.width ?? 0
+      };
+
+      if (onTearOff(args) === true) {
+        updateModel("tear-off", true, (current) =>
+          source.type === "tab"
+            ? closeTab(current, source.tabId)
+            : closeTabset(current, source.tabsetId)
+        );
+      }
+    }
+  );
+
+  // Returns whether the tab (or tabset) was inserted, so that it's only removed from the workspace it was dragged from if it was
+  const handleTransferIn = useStableCallback(
+    (node: DragNode, target: TabDropTarget) => {
+      let isInserted = false;
+      updateModel("transfer", true, (prev) => {
+        const modelTarget = toModelDropTarget(
+          target,
+          isRightToLeft(rootElementRef.current)
+        );
+        const next =
+          node.type === "tab"
+            ? insertTab(prev, node.tab, modelTarget)
+            : insertTabset(prev, node.tabset, modelTarget);
+        isInserted = next !== prev;
+
+        return next;
+      });
+
+      return isInserted;
+    }
+  );
+
+  const handleTransferOut = useStableCallback((source: DragSource) =>
+    updateModel("transfer", true, (prev) =>
+      source.type === "tab"
+        ? closeTab(prev, source.tabId)
+        : closeTabset(prev, source.tabsetId)
+    )
+  );
+
   const getModel = useCallback(() => modelRef.current, []);
   const getRootElement = useCallback(() => rootElementRef.current, []);
 
   const {
     dragSource,
     dropTarget,
+    isNativeDragSource,
+    isTearOff,
+    nativePreviewNode,
     previewElementRef,
     previewPointRef,
     startTabDrag,
     startTabsetDrag
-  } = useTabDrag({ getModel, getRootElement, isDropDisabled, onDrop });
+  } = useTabDrag({
+    canTearOff,
+    disableDragBetweenApps,
+    dragGroup,
+    getDragNode,
+    getModel,
+    getRootElement,
+    isDropDisabled,
+    isExternalDropDisabled,
+    onDrop,
+    onTearOff: handleTearOff,
+    onTransferIn: handleTransferIn,
+    onTransferOut: handleTransferOut,
+    rootElement
+  });
   const dragTabId = dragSource?.type === "tab" ? dragSource.tabId : undefined;
   const dragTabsetId =
     dragSource?.type === "tabset" ? dragSource.tabsetId : undefined;
@@ -673,6 +833,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       collapsePreview,
       collapseToFit: collapseToFitInSplits,
       disabled,
+      dragGroup,
       dragTabId,
       dragTabsetId,
       dropTarget,
@@ -724,6 +885,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       collapsePreview,
       collapseToFitInSplits,
       disabled,
+      dragGroup,
       dragTabId,
       dragTabsetId,
       dropTarget,
@@ -771,6 +933,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       collapseOverrides,
       collapseToFit: collapseToFitInSplits,
       disabled,
+      dragGroup,
       model,
       modelIndex
     }),
@@ -779,6 +942,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       collapseOverrides,
       collapseToFitInSplits,
       disabled,
+      dragGroup,
       model,
       modelIndex
     ]
@@ -798,13 +962,24 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     layoutRef.current?.toggleAttribute("inert", !!maximizedTabset);
   }, [maximizedTabset]);
 
-  const dragTab = dragTabId ? findTab(model, dragTabId) : undefined;
-  const dragTabset = dragTabsetId ? findTabset(model, dragTabsetId) : undefined;
+  // Drags using HTML drag and drop (see the dragGroup prop) may come from other workspaces, so their previews show the dragged node as it was when the drag started
+  let dragTab: TabNode | undefined;
+  let dragTabset: TabsetNode | undefined;
+  if (nativePreviewNode) {
+    if (nativePreviewNode.type === "tab") {
+      dragTab = nativePreviewNode.tab;
+    } else {
+      dragTabset = nativePreviewNode.tabset;
+    }
+  } else if (!isNativeDragSource) {
+    dragTab = dragTabId ? findTab(model, dragTabId) : undefined;
+    dragTabset = dragTabsetId ? findTabset(model, dragTabsetId) : undefined;
+  }
 
   // The default preview also shows how many other tabs are being dragged along with the tab (when its tabset is dragged)
   const renderTabPreview = (tab: TabNode, otherTabCount = 0) => {
     if (renderDragPreview) {
-      return renderDragPreview(tab as TabNode<TabData>);
+      return renderDragPreview(tab as TabNode<TabData>, { isTearOff });
     }
     const title = tab.title ?? tab.id;
     return otherTabCount > 0 ? `${title} (+${otherTabCount})` : title;
@@ -816,7 +991,8 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   } else if (dragTabset) {
     if (renderTabsetDragPreview) {
       dragPreview = renderTabsetDragPreview(
-        dragTabset as TabsetNode<TabData, TabsetData>
+        dragTabset as TabsetNode<TabData, TabsetData>,
+        { isTearOff }
       );
     } else {
       const selectedTab = dragTabset.tabs.find(
@@ -861,6 +1037,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
                 className={classNames?.dragPreview}
                 dragType={dragTab ? "tab" : "tabset"}
                 elementRef={previewElementRef}
+                isTearOff={isTearOff}
                 pointRef={previewPointRef}
                 style={styles?.dragPreview}
               >

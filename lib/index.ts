@@ -64,6 +64,7 @@ export type {
 
 export type {
   DisableDropArgs,
+  DragPreviewState,
   HiddenTabBehavior,
   ParentTab,
   ParentTabset,
@@ -81,6 +82,7 @@ export type {
   TabsetDragHandleProps,
   TabsetNode,
   TabsetNodeInput,
+  TearOffArgs,
   WorkspaceChangedMeta,
   WorkspaceChangeReason,
   WorkspaceClassNames,

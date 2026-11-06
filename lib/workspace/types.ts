@@ -339,6 +339,8 @@ export type WorkspaceChangeReason =
   | "restore"
   | "select"
   | "set-model"
+  | "tear-off"
+  | "transfer"
   | "update";
 
 /**
@@ -356,6 +358,9 @@ export type WorkspaceChangedMeta = {
    *
    * ℹ️ A resize that collapses or expands tabsets is reported as `"collapse"` or `"expand"` (as `"expand"` if it does both);
    * dropping tabs into a collapsed tabset expands it, but is reported as `"move"`.
+   *
+   * ℹ️ A tab (or tabset) dragged to another workspace (see the `dragGroup` prop) is reported as `"transfer"` by both workspaces:
+   * the one it was dropped into (which added it) and the one it was dragged from (which removed it).
    *
    * ⚠️ New reasons may be added in later versions, so code that switches on this value should handle unrecognized values.
    */
@@ -388,6 +393,13 @@ export type DisableDropArgs<TabData = unknown, TabsetData = unknown> = {
   model: WorkspaceModel<TabData, TabsetData>;
 
   /**
+   * Where the tab (or tabset) is dragged from:
+   * - `"local"`: this workspace
+   * - `"external"`: another workspace with the same `dragGroup` (e.g. in another window)
+   */
+  source: "external" | "local";
+
+  /**
    * The tab being dropped.
    *
    * ⚠️ This is `undefined` when a tabset without tabs (one with the `keepWhenEmpty` flag) is dragged.
@@ -400,6 +412,67 @@ export type DisableDropArgs<TabData = unknown, TabsetData = unknown> = {
   tabset: TabsetNode<TabData, TabsetData> | undefined;
 
   target: TabDropTarget;
+};
+
+/**
+ * Arguments passed to the Workspace's `onTearOff` prop: the tab (or whole tabset) dropped outside of the window,
+ * and a model for showing it in a new workspace (e.g. in a popup window).
+ */
+export type TearOffArgs<TabData = unknown, TabsetData = unknown> = (
+  | {
+      /**
+       * The tab dropped outside of the window.
+       */
+      tab: TabNode<TabData>;
+      type: "tab";
+    }
+  | {
+      /**
+       * The tabset dropped outside of the window.
+       */
+      tabset: TabsetNode<TabData, TabsetData>;
+      type: "tabset";
+    }
+) & {
+  /**
+   * Height (in pixels) of the tabset the tab was dragged from (or of the dragged tabset), e.g. to size a popup window.
+   */
+  height: number;
+
+  /**
+   * A model containing only the torn off tab (in a new tabset) or tabset, e.g. the `defaultModel` of a workspace in a popup window.
+   */
+  model: WorkspaceModel<TabData, TabsetData>;
+
+  /**
+   * Horizontal position (in screen coordinates) where the pointer was released, e.g. to position a popup window.
+   *
+   * ℹ️ Approximate when dragging between workspaces (see the `dragGroup` prop), since some browsers report the wrong position when such drags end.
+   */
+  screenX: number;
+
+  /**
+   * Vertical position (in screen coordinates) where the pointer was released, e.g. to position a popup window.
+   */
+  screenY: number;
+
+  /**
+   * Width (in pixels) of the tabset the tab was dragged from (or of the dragged tabset), e.g. to size a popup window.
+   */
+  width: number;
+};
+
+/**
+ * State passed to the Workspace's `renderDragPreview` and `renderTabsetDragPreview` props.
+ */
+export type DragPreviewState = {
+  /**
+   * `true` while the pointer is outside of the window and releasing it would tear off the tab (or tabset);
+   * only when the Workspace has an `onTearOff` prop.
+   *
+   * ℹ️ This is never set for mouse drags when the Workspace has a `dragGroup` prop, since the pointer can't be followed outside of the window then.
+   */
+  isTearOff: boolean;
 };
 
 /**
@@ -709,7 +782,7 @@ export type ParentTabsetState = {
    * The user cannot drag the tabset as a whole, because:
    * - It has the `disableDrag` flag, or one of its tabs does
    * - The Workspace has the `disabled` prop
-   * - It's the only tabset in the workspace (see `isRoot`)
+   * - It's the only tabset in the workspace (see `isRoot`), and can't be dragged to another workspace (see the Workspace's `dragGroup` prop; tabsets with the `keepWhenEmpty` flag can't be)
    * - A tabset is maximized
    */
   isDragDisabled: boolean;
@@ -857,6 +930,15 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
   disabled?: boolean | undefined;
 
   /**
+   * Keeps drags between workspaces (see `dragGroup`) within this copy of the application:
+   * tabs dragged from this workspace can't be dropped into other copies of the application (e.g. the application loaded in another browser window or tab), and tabs dragged from other copies can't be dropped into this workspace.
+   * Workspaces in popout windows rendered by this copy of the application (with portals) are still part of the group.
+   *
+   * Defaults to `false`, so that workspaces with the same `dragGroup` in other copies of the application from the same origin can exchange tabs.
+   */
+  disableDragBetweenApps?: boolean | undefined;
+
+  /**
    * Prevents tabs (and tabsets) from being dropped onto some (or all) targets.
    *
    * Functions are called when the target under the pointer changes;
@@ -869,6 +951,27 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
     | boolean
     | ((args: DisableDropArgs<TabData, TabsetData>) => boolean)
     | undefined;
+
+  /**
+   * Lets tabs (and tabsets) be dragged between workspaces with the same `dragGroup`,
+   * including workspaces in popout windows (opened by the application and rendered into with a portal)
+   * and in other copies of the application from the same origin, e.g. the application loaded in another browser window or tab (see `disableDragBetweenApps`).
+   * Dropping one into another workspace moves it there, keeping its id and data;
+   * both workspaces report the change to `onModelChanged` with the `"transfer"` reason.
+   *
+   * Mouse drags use the browser's drag and drop when this prop is set, since pointer events can't follow the pointer into another window.
+   * Touch drags still use pointer events, so they can't leave the window.
+   *
+   * ℹ️ Tab ids must be unique within the group; a tab can't be dropped into a workspace that already has a tab with its id (and a tabset with the `keepWhenEmpty` flag can't be dragged to another workspace).
+   * A tab dragged to another workspace is rendered by that workspace, so its content is mounted again.
+   *
+   * ⚠️ A tab dragged to another copy of the application is sent there with the structured clone algorithm (like `postMessage`), so its data must be cloneable (e.g. no functions);
+   * tabs whose data can't be cloned (and tabsets containing them) can only be dragged within their copy of the application.
+   * Copies loaded at different times may be running different versions of the application, so the other copy may need to handle tab data it doesn't recognize.
+   *
+   * ⚠️ Tabs (and tabsets) can still be torn off (see `onTearOff`), but some browsers (e.g. Safari) block popup windows opened at the end of a drag that uses the browser's drag and drop.
+   */
+  dragGroup?: string | undefined;
 
   /**
    * Ref attached to the root `HTMLDivElement`.
@@ -916,19 +1019,44 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
   ) => void;
 
   /**
+   * Called when a tab (or a whole tabset) is dropped outside of the window, e.g. to open it in a popup window.
+   * Return `true` to accept it, which removes it from this workspace (reported to `onModelChanged` with the `"tear-off"` reason);
+   * otherwise nothing changes.
+   *
+   * Tabs and tabsets can only be torn off if they could be dragged, and tabsets with the `keepWhenEmpty` flag can't be torn off.
+   * Without this prop, dropping a tab outside of the window does nothing.
+   *
+   * ⚠️ The Workspace can't tell whether the application showed the tab, so check whether `window.open` returned `null` (because the popup was blocked)
+   * and return `false` then to keep the tab; returning `true` removes it even if nothing shows it.
+   *
+   * ℹ️ This is called while the release of the pointer is being handled (which browsers treat as user input), so a popup can be opened from it.
+   * With the `dragGroup` prop, a tab is torn off when it's dropped outside of every window in the group; the end of those drags isn't treated as user input,
+   * so browsers block popups opened then unless the drag started a few seconds earlier at most (and Safari blocks them always).
+   */
+  onTearOff?: ((args: TearOffArgs<TabData, TabsetData>) => boolean) | undefined;
+
+  /**
    * Content of the element that follows the pointer while a tab is being dragged.
    * Defaults to the tab's title (or id).
+   *
+   * ℹ️ The element has a `data-tear-off` attribute while releasing the pointer would tear off the tab (see `onTearOff`).
    */
-  renderDragPreview?: ((tab: TabNode<TabData>) => ReactNode) | undefined;
+  renderDragPreview?:
+    | ((tab: TabNode<TabData>, state: DragPreviewState) => ReactNode)
+    | undefined;
 
   /**
    * Content of the element that follows the pointer while a whole tabset is being dragged.
    * Defaults to the title (or id) of its selected tab followed by the number of other tabs being dragged (e.g. "One (+2)"), or the selected tab's `renderDragPreview` when that prop is set, or the tabset's id if it has no tabs.
    *
    * ℹ️ The element has a `data-drag-type` attribute: `"tabset"` while a tabset is dragged, and `"tab"` while a tab is.
+   * It also has a `data-tear-off` attribute while releasing the pointer would tear off the tabset (see `onTearOff`).
    */
   renderTabsetDragPreview?:
-    | ((tabset: TabsetNode<TabData, TabsetData>) => ReactNode)
+    | ((
+        tabset: TabsetNode<TabData, TabsetData>,
+        state: DragPreviewState
+      ) => ReactNode)
     | undefined;
 
   /**
@@ -1170,3 +1298,10 @@ export type DragPoint = { clientX: number; clientY: number };
 export type DragSource =
   | { tabId: string; type: "tab" }
   | { tabsetId: string; type: "tabset" };
+
+/**
+ * The tab (or whole tabset) being dragged (used internally).
+ */
+export type DragNode<TabData = unknown, TabsetData = unknown> =
+  | { tab: TabNode<TabData>; type: "tab" }
+  | { tabset: TabsetNode<TabData, TabsetData>; type: "tabset" };

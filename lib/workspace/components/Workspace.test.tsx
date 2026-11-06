@@ -1694,6 +1694,12 @@ describe("Workspace", () => {
       return panels;
     }
 
+    function getHeader(container: HTMLElement, tabsetId: string) {
+      return container.querySelector<HTMLElement>(
+        `[data-tabset-id="${tabsetId}"] [data-tabset-header]`
+      )!;
+    }
+
     test("dropping a tab onto another tabset moves it there", async () => {
       const { container, onModelChanged } = renderWorkspace();
 
@@ -1751,6 +1757,7 @@ describe("Workspace", () => {
 
       expect(disableDrop).toHaveBeenCalledWith({
         model: expect.anything(),
+        source: "local",
         tab: expect.objectContaining({ id: "2" }),
         target: { region: "center", tabsetId: "right" }
       });
@@ -1917,13 +1924,1094 @@ describe("Workspace", () => {
       expect(getRenderCount()).toBe(initialRenderCount);
     });
 
-    describe("tabsets", () => {
-      function getHeader(container: HTMLElement, tabsetId: string) {
-        return container.querySelector<HTMLElement>(
-          `[data-tabset-id="${tabsetId}"] [data-tabset-header]`
-        )!;
+    describe("between workspaces (dragGroup)", () => {
+      // Includes the type that identifies the drag from another page posted below (with the id "remote")
+      function createDataTransfer(id = "remote") {
+        return {
+          dropEffect: "none",
+          effectAllowed: "all",
+          setData: vi.fn(),
+          setDragImage: vi.fn(),
+          types: [
+            "application/x-react-resizable-panels-workspace",
+            `application/x-react-resizable-panels-workspace;id=${id}`
+          ]
+        };
       }
 
+      // jsdom doesn't implement DragEvent, so drag events are mouse events with a DataTransfer stand-in
+      function fireDragEvent(
+        type: string,
+        target: Element,
+        init: MouseEventInit = {},
+        dataTransfer = createDataTransfer()
+      ) {
+        const event = new MouseEvent(type, {
+          bubbles: true,
+          cancelable: true,
+          clientX: 150,
+          clientY: 150,
+          composed: true,
+          ...init
+        });
+        Object.defineProperty(event, "dataTransfer", { value: dataTransfer });
+        act(() => {
+          target.dispatchEvent(event);
+        });
+
+        return event;
+      }
+
+      function renderWorkspaces(
+        props: Partial<WorkspaceProps<TabData>> = {},
+        otherProps: Partial<WorkspaceProps<TabData>> = {}
+      ) {
+        const onModelChanged = vi.fn();
+        const onOtherModelChanged = vi.fn();
+
+        const result = render(
+          <>
+            <Workspace<TabData>
+              defaultModel={createModel()}
+              dragGroup="group"
+              id="main"
+              onModelChanged={onModelChanged}
+              renderTabContent={(tab) => <Content tab={tab} />}
+              {...props}
+            />
+            <Workspace<TabData>
+              defaultModel={{
+                root: {
+                  id: "other",
+                  selectedId: "4",
+                  tabs: [tab("4")],
+                  type: "tabset"
+                },
+                version: 1
+              }}
+              dragGroup="group"
+              id="other-workspace"
+              onModelChanged={onOtherModelChanged}
+              renderTabContent={(tab) => <Content tab={tab} />}
+              {...otherProps}
+            />
+          </>
+        );
+
+        return { ...result, onModelChanged, onOtherModelChanged };
+      }
+
+      // The mouse is pressed (but not released) before the drag starts
+      async function press(element: HTMLElement) {
+        await userEvent.pointer({
+          coords: { clientX: 100, clientY: 100 },
+          keys: "[MouseLeft>]",
+          target: element
+        });
+      }
+
+      async function startDrag(element: HTMLElement) {
+        await press(element);
+        const dataTransfer = createDataTransfer();
+        fireDragEvent("dragstart", element, {}, dataTransfer);
+
+        return dataTransfer;
+      }
+
+      // Drops onto an element (which is also returned by elementFromPoint)
+      function dropOnto(element: HTMLElement) {
+        elementAtPoint = element;
+        const dragOver = fireDragEvent("dragover", element);
+        const drop = fireDragEvent("drop", element);
+
+        return { dragOver, drop };
+      }
+
+      test("mouse drags use HTML drag and drop, with the browser's drag image hidden", async () => {
+        renderWorkspaces();
+
+        await press(getTab("2"));
+        expect(getTab("2").draggable).toBe(true);
+
+        const dataTransfer = createDataTransfer();
+        fireDragEvent("dragstart", getTab("2"), {}, dataTransfer);
+        expect(dataTransfer.effectAllowed).toBe("move");
+        expect(dataTransfer.setDragImage).toHaveBeenCalledTimes(1);
+        expect(getTab("2")).toHaveAttribute("data-tab-dragging");
+
+        // One preview is shown in the document (by the workspace the drag started in)
+        expect(document.querySelectorAll("[data-drag-preview]")).toHaveLength(
+          1
+        );
+
+        fireDragEvent("dragend", getTab("2"));
+        expect(getTab("2")).not.toHaveAttribute("draggable");
+        expect(getTab("2")).not.toHaveAttribute("data-tab-dragging");
+        expect(document.querySelector("[data-drag-preview]")).toBeNull();
+      });
+
+      test("drags started by elements within the tab (e.g. images) drag the tab", async () => {
+        const { container } = renderWorkspaces();
+
+        await press(getTab("2"));
+        const image = document.createElement("img");
+        getTab("2").append(image);
+        fireDragEvent("dragstart", image);
+        expect(getTab("2")).toHaveAttribute("data-tab-dragging");
+
+        dropOnto(
+          container.querySelector<HTMLElement>(
+            '[data-tabset-id="other"] [data-tab-panels]'
+          )!
+        );
+        expect(
+          container.querySelector('[data-tabset-id="other"]')
+        ).toContainElement(getTab("2"));
+      });
+
+      test("a canceled press doesn't leave the tab draggable", async () => {
+        renderWorkspaces();
+
+        await press(getTab("2"));
+        expect(getTab("2")).toHaveAttribute("draggable", "true");
+        fireEvent(document, new Event("pointercancel", { bubbles: true }));
+
+        expect(getTab("2")).not.toHaveAttribute("draggable");
+      });
+
+      test("a press without a drag (e.g. a click) doesn't leave the tab draggable", async () => {
+        renderWorkspaces();
+
+        await userEvent.pointer({ keys: "[MouseLeft]", target: getTab("2") });
+
+        expect(getTab("2")).not.toHaveAttribute("draggable");
+      });
+
+      test("a tab dropped into another workspace in the group is moved there", async () => {
+        const { container, onModelChanged, onOtherModelChanged } =
+          renderWorkspaces();
+
+        await startDrag(getTab("2"));
+        const { dragOver, drop } = dropOnto(
+          container.querySelector<HTMLElement>(
+            '[data-tabset-id="other"] [data-tab-panels]'
+          )!
+        );
+
+        expect(dragOver.defaultPrevented).toBe(true);
+        expect(drop.defaultPrevented).toBe(true);
+        expect(
+          container.querySelector('[data-tabset-id="other"]')
+        ).toContainElement(getTab("2"));
+
+        // Both workspaces report the change
+        expect(onOtherModelChanged).toHaveBeenCalledTimes(1);
+        expect(onOtherModelChanged).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            root: expect.objectContaining({
+              selectedId: "2",
+              tabs: [tab("4"), tab("2")]
+            })
+          }),
+          { isUserInteraction: true, reason: "transfer" }
+        );
+        expect(onModelChanged).toHaveBeenCalledTimes(1);
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: true,
+          reason: "transfer"
+        });
+        expect(screen.getAllByRole("tab", { name: /^2/ })).toHaveLength(1);
+        expect(document.querySelector("[data-drag-preview]")).toBeNull();
+      });
+
+      test("a whole tabset dropped into another workspace's tabset moves its tabs there", async () => {
+        const { container, onModelChanged, onOtherModelChanged } =
+          renderWorkspaces();
+
+        await startDrag(getHeader(container, "left"));
+        dropOnto(
+          container.querySelector<HTMLElement>(
+            '[data-tabset-id="other"] [data-tab-panels]'
+          )!
+        );
+
+        expect(onOtherModelChanged).toHaveBeenLastCalledWith(
+          expect.anything(),
+          { isUserInteraction: true, reason: "transfer" }
+        );
+        expect(
+          container.querySelector('[data-tabset-id="other"]')
+        ).toContainElement(getTab("One"));
+        expect(onModelChanged).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            root: expect.objectContaining({ id: "right" })
+          }),
+          { isUserInteraction: true, reason: "transfer" }
+        );
+      });
+
+      test("a workspace's only tabset can be dragged into another workspace", async () => {
+        const { container, onModelChanged, onOtherModelChanged } =
+          renderWorkspaces(
+            {},
+            {
+              renderTabsetToolbar: () => (
+                <TabsetDragHandle data-testid="other-handle" />
+              )
+            }
+          );
+        expect(screen.getByTestId("other-handle")).not.toHaveAttribute(
+          "data-disabled"
+        );
+
+        // Pressing the handle makes the header draggable, so the browser dispatches dragstart there
+        await press(screen.getByTestId("other-handle"));
+        expect(getHeader(container, "other").draggable).toBe(true);
+        fireDragEvent("dragstart", getHeader(container, "other"));
+        dropOnto(getPanels(container, "right"));
+
+        expect(
+          container.querySelector('[data-tabset-id="right"]')
+        ).toContainElement(getTab("4"));
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: true,
+          reason: "transfer"
+        });
+
+        // Leaving its workspace with an empty root tabset
+        expect(onOtherModelChanged).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            root: expect.objectContaining({ tabs: [] })
+          }),
+          { isUserInteraction: true, reason: "transfer" }
+        );
+      });
+
+      test("a workspace's only tabset can't be dragged if it's kept when empty", () => {
+        renderWorkspaces(
+          {},
+          {
+            defaultModel: {
+              root: {
+                id: "other",
+                keepWhenEmpty: true,
+                tabs: [tab("4")],
+                type: "tabset"
+              },
+              version: 1
+            },
+            renderTabsetToolbar: () => (
+              <TabsetDragHandle data-testid="other-handle" />
+            )
+          }
+        );
+
+        expect(screen.getByTestId("other-handle")).toHaveAttribute(
+          "data-disabled"
+        );
+      });
+
+      test("tabs dropped within their own workspace are moved as usual", async () => {
+        const { container, onModelChanged, onOtherModelChanged } =
+          renderWorkspaces();
+
+        await startDrag(getTab("2"));
+        dropOnto(getPanels(container, "right"));
+
+        expect(
+          container.querySelector('[data-tabset-id="right"]')
+        ).toContainElement(getTab("2"));
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: true,
+          reason: "move"
+        });
+        expect(onOtherModelChanged).not.toHaveBeenCalled();
+      });
+
+      test("disableDrop is told whether a tab comes from another workspace", async () => {
+        const disableDrop = vi.fn(() => true);
+        const { container, onModelChanged, onOtherModelChanged } =
+          renderWorkspaces({}, { disableDrop });
+
+        await startDrag(getTab("2"));
+        const { dragOver } = dropOnto(
+          container.querySelector<HTMLElement>(
+            '[data-tabset-id="other"] [data-tab-panels]'
+          )!
+        );
+
+        expect(disableDrop).toHaveBeenCalledWith({
+          model: expect.anything(),
+          source: "external",
+          tab: tab("2"),
+          tabset: undefined,
+          target: { region: "center", tabsetId: "other" }
+        });
+        expect(dragOver.defaultPrevented).toBe(false);
+        expect(onModelChanged).not.toHaveBeenCalled();
+        expect(onOtherModelChanged).not.toHaveBeenCalled();
+      });
+
+      test("tabs can't be dropped into a workspace that has a tab with the same id", async () => {
+        const { container, onModelChanged, onOtherModelChanged } =
+          renderWorkspaces(
+            {},
+            {
+              defaultModel: {
+                root: {
+                  id: "other",
+                  selectedId: "2",
+                  tabs: [tab("2", { title: "Other 2" })],
+                  type: "tabset"
+                },
+                version: 1
+              }
+            }
+          );
+
+        await startDrag(getTab("2"));
+        const { dragOver } = dropOnto(
+          container.querySelector<HTMLElement>(
+            '[data-tabset-id="other"] [data-tab-panels]'
+          )!
+        );
+
+        expect(dragOver.defaultPrevented).toBe(false);
+        expect(onModelChanged).not.toHaveBeenCalled();
+        expect(onOtherModelChanged).not.toHaveBeenCalled();
+      });
+
+      test("tabsets with the keepWhenEmpty flag can't be dropped into another workspace", async () => {
+        const model = createModel();
+        (model.root as SplitNode<TabData>).children[0] = {
+          ...((model.root as SplitNode<TabData>)
+            .children[0] as TabsetNode<TabData>),
+          keepWhenEmpty: true
+        };
+        const { container, onOtherModelChanged } = renderWorkspaces({
+          defaultModel: model
+        });
+
+        await startDrag(getHeader(container, "left"));
+        const { dragOver } = dropOnto(
+          container.querySelector<HTMLElement>(
+            '[data-tabset-id="other"] [data-tab-panels]'
+          )!
+        );
+
+        expect(dragOver.defaultPrevented).toBe(false);
+        expect(onOtherModelChanged).not.toHaveBeenCalled();
+      });
+
+      test("disabled workspaces don't accept drops", async () => {
+        const { container, onOtherModelChanged } = renderWorkspaces(
+          {},
+          { disabled: true }
+        );
+
+        await startDrag(getTab("2"));
+        const { dragOver } = dropOnto(
+          container.querySelector<HTMLElement>(
+            '[data-tabset-id="other"] [data-tab-panels]'
+          )!
+        );
+
+        expect(dragOver.defaultPrevented).toBe(false);
+        expect(onOtherModelChanged).not.toHaveBeenCalled();
+        expect(
+          container.querySelector('[data-tabset-id="other"]')
+        ).not.toContainElement(getTab("2"));
+      });
+
+      test("a tabset can be dropped onto a tabset with the same id in another workspace", async () => {
+        const { container, onOtherModelChanged } = renderWorkspaces(
+          {},
+          {
+            defaultModel: {
+              root: {
+                id: "left",
+                selectedId: "4",
+                tabs: [tab("4")],
+                type: "tabset"
+              },
+              version: 1
+            }
+          }
+        );
+
+        await startDrag(getHeader(container, "left"));
+        const otherPanels = container.querySelectorAll<HTMLElement>(
+          '[data-tabset-id="left"] [data-tab-panels]'
+        )[1];
+        const { dragOver } = dropOnto(otherPanels);
+
+        expect(dragOver.defaultPrevented).toBe(true);
+        expect(onOtherModelChanged).toHaveBeenLastCalledWith(
+          expect.anything(),
+          { isUserInteraction: true, reason: "transfer" }
+        );
+      });
+
+      test("a tab removed during the drag can't be dropped into another workspace", async () => {
+        const { container, onOtherModelChanged } = renderWorkspaces();
+
+        await startDrag(getTab("2"));
+        fireEvent.click(screen.getByRole("button", { name: "Close 2" }));
+        expect(screen.queryByRole("tab", { name: /^2/ })).toBeNull();
+
+        const { dragOver } = dropOnto(
+          container.querySelector<HTMLElement>(
+            '[data-tabset-id="other"] [data-tab-panels]'
+          )!
+        );
+
+        expect(dragOver.defaultPrevented).toBe(false);
+        expect(onOtherModelChanged).not.toHaveBeenCalled();
+        expect(document.querySelector("[data-drag-preview]")).toBeNull();
+      });
+
+      test("workspaces in other groups don't accept the drop", async () => {
+        const { container, onOtherModelChanged } = renderWorkspaces(
+          {},
+          { dragGroup: "other-group" }
+        );
+
+        await startDrag(getTab("2"));
+        const { dragOver } = dropOnto(
+          container.querySelector<HTMLElement>(
+            '[data-tabset-id="other"] [data-tab-panels]'
+          )!
+        );
+
+        expect(dragOver.defaultPrevented).toBe(false);
+        expect(onOtherModelChanged).not.toHaveBeenCalled();
+      });
+
+      test("a drag that ends outside of every window is torn off", async () => {
+        const now = vi.spyOn(Date, "now").mockReturnValue(1000);
+        const onTearOff = vi.fn(() => true);
+        const { container, onModelChanged } = renderWorkspaces({
+          onTearOff
+        });
+
+        try {
+          await startDrag(getTab("2"));
+
+          // The last dragover before leaving the window is near its edge
+          elementAtPoint = getPanels(container, "left");
+          fireDragEvent("dragover", elementAtPoint, { clientX: 2 });
+
+          now.mockReturnValue(2000);
+          fireDragEvent("dragend", getTab("2"), { screenX: 50, screenY: 60 });
+        } finally {
+          now.mockRestore();
+        }
+
+        expect(onTearOff).toHaveBeenCalledWith(
+          expect.objectContaining({
+            screenX: 50,
+            screenY: 60,
+            tab: tab("2"),
+            type: "tab"
+          })
+        );
+        expect(screen.queryByRole("tab", { name: /^2/ })).toBeNull();
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: true,
+          reason: "tear-off"
+        });
+      });
+
+      test("the last dragover's position is used if the dragend event's is wrong", async () => {
+        const now = vi.spyOn(Date, "now").mockReturnValue(1000);
+        const onTearOff = vi.fn(() => true);
+        const { container } = renderWorkspaces({ onTearOff });
+
+        try {
+          await startDrag(getTab("2"));
+          elementAtPoint = getPanels(container, "left");
+          fireDragEvent("dragover", elementAtPoint, {
+            clientX: 2,
+            clientY: 30
+          });
+
+          now.mockReturnValue(2000);
+          fireDragEvent("dragend", getTab("2"), { screenX: 0, screenY: 0 });
+        } finally {
+          now.mockRestore();
+        }
+
+        expect(onTearOff).toHaveBeenCalledWith(
+          expect.objectContaining({
+            screenX: window.screenX + 2,
+            screenY: window.screenY + 30
+          })
+        );
+      });
+
+      test("a drag canceled within the window isn't torn off", async () => {
+        const now = vi.spyOn(Date, "now").mockReturnValue(1000);
+        const onTearOff = vi.fn(() => true);
+        const { container } = renderWorkspaces({ onTearOff });
+
+        try {
+          await startDrag(getTab("2"));
+
+          elementAtPoint = getPanels(container, "left");
+          fireDragEvent("dragover", elementAtPoint, { clientX: 300 });
+
+          // e.g. the drag image animating back after being released where it can't be dropped
+          now.mockReturnValue(1600);
+          fireDragEvent("dragend", getTab("2"));
+        } finally {
+          now.mockRestore();
+        }
+
+        expect(onTearOff).not.toHaveBeenCalled();
+        expect(getTab("2")).toBeInTheDocument();
+      });
+
+      describe("between copies of the app", () => {
+        type Message = { id: string; type: string; [key: string]: unknown };
+
+        // Stands in for another page from the same origin (BroadcastChannels don't receive their own messages)
+        let otherPage: BroadcastChannel;
+        let messages: Message[];
+
+        beforeEach(() => {
+          messages = [];
+          otherPage = new BroadcastChannel("react-resizable-panels-workspace");
+          otherPage.onmessage = (event: MessageEvent<Message>) => {
+            messages.push(event.data);
+          };
+        });
+
+        afterEach(() => {
+          otherPage.close();
+        });
+
+        // Messages are delivered asynchronously
+        async function deliverMessages() {
+          await act(() => new Promise((resolve) => setTimeout(resolve, 20)));
+        }
+
+        function postFromOtherPage(message: Message) {
+          otherPage.postMessage({ ...message, version: 1 });
+        }
+
+        function getOtherPanels(container: HTMLElement) {
+          return container.querySelector<HTMLElement>(
+            '[data-tabset-id="other"] [data-tab-panels]'
+          )!;
+        }
+
+        test("drags are shared with other pages", async () => {
+          renderWorkspaces();
+
+          await startDrag(getTab("2"));
+          await deliverMessages();
+          expect(messages).toEqual([
+            {
+              dragGroup: "group",
+              id: expect.any(String),
+              node: { tab: tab("2"), type: "tab" },
+              source: { tabId: "2", type: "tab" },
+              type: "start",
+              version: 1
+            }
+          ]);
+
+          fireDragEvent("dragend", getTab("2"));
+          await deliverMessages();
+          expect(messages[1]).toEqual({
+            id: messages[0].id,
+            type: "end",
+            version: 1
+          });
+        });
+
+        test("a tab dragged from another page is moved here when dropped", async () => {
+          const { container, onOtherModelChanged } = renderWorkspaces();
+
+          postFromOtherPage({
+            dragGroup: "group",
+            id: "remote",
+            node: { tab: tab("9"), type: "tab" },
+            source: { tabId: "9", type: "tab" },
+            type: "start"
+          });
+          await deliverMessages();
+
+          const { dragOver, drop } = dropOnto(getOtherPanels(container));
+          expect(dragOver.defaultPrevented).toBe(true);
+          expect(drop.defaultPrevented).toBe(true);
+          expect(
+            container.querySelector('[data-tabset-id="other"]')
+          ).toContainElement(getTab("9"));
+          expect(onOtherModelChanged).toHaveBeenLastCalledWith(
+            expect.anything(),
+            { isUserInteraction: true, reason: "transfer" }
+          );
+
+          // The other page is told to remove it
+          await deliverMessages();
+          expect(messages).toContainEqual({
+            id: "remote",
+            type: "remove",
+            version: 1
+          });
+        });
+
+        test("a tab dropped into another page is removed even if the drag ended first", async () => {
+          const { onModelChanged } = renderWorkspaces();
+
+          await startDrag(getTab("2"));
+          await deliverMessages();
+          const { id } = messages[0];
+
+          fireDragEvent("dragend", getTab("2"));
+          await deliverMessages();
+          expect(messages).toContainEqual({ id, type: "end", version: 1 });
+          expect(getTab("2")).toBeInTheDocument();
+
+          postFromOtherPage({ id, type: "remove" });
+          await deliverMessages();
+
+          expect(screen.queryByRole("tab", { name: /^2/ })).toBeNull();
+          expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+            isUserInteraction: true,
+            reason: "transfer"
+          });
+        });
+
+        test("ending a drag from another page hides the drop indicator", async () => {
+          const { container } = renderWorkspaces();
+
+          postFromOtherPage({
+            dragGroup: "group",
+            id: "remote",
+            node: { tab: tab("9"), type: "tab" },
+            source: { tabId: "9", type: "tab" },
+            type: "start"
+          });
+          await deliverMessages();
+
+          elementAtPoint = getOtherPanels(container);
+          fireDragEvent("dragover", elementAtPoint);
+          expect(
+            document.querySelector("[data-drop-indicator]")
+          ).not.toBeNull();
+          expect(document.querySelector("[data-drag-preview]")).not.toBeNull();
+
+          postFromOtherPage({ id: "remote", type: "end" });
+          await deliverMessages();
+
+          expect(document.querySelector("[data-drop-indicator]")).toBeNull();
+          expect(document.querySelector("[data-drag-preview]")).toBeNull();
+        });
+
+        test("messages from other versions are ignored", async () => {
+          const { container } = renderWorkspaces();
+
+          otherPage.postMessage({
+            dragGroup: "group",
+            id: "remote",
+            node: { tab: tab("9"), type: "tab" },
+            source: { tabId: "9", type: "tab" },
+            type: "start",
+            version: 2
+          });
+          await deliverMessages();
+
+          const { dragOver } = dropOnto(getOtherPanels(container));
+          expect(dragOver.defaultPrevented).toBe(false);
+        });
+
+        test("a drag that isn't the one started by another page isn't mistaken for it", async () => {
+          const { container, onOtherModelChanged } = renderWorkspaces();
+
+          postFromOtherPage({
+            dragGroup: "group",
+            id: "remote",
+            node: { tab: tab("9"), type: "tab" },
+            source: { tabId: "9", type: "tab" },
+            type: "start"
+          });
+          await deliverMessages();
+
+          // E.g. a drag that wasn't shared, after the message that ended the remote one was missed
+          elementAtPoint = getOtherPanels(container);
+          const dataTransfer = createDataTransfer("other");
+          const dragOver = fireDragEvent(
+            "dragover",
+            elementAtPoint,
+            {},
+            dataTransfer
+          );
+          const drop = fireDragEvent("drop", elementAtPoint, {}, dataTransfer);
+
+          expect(dragOver.defaultPrevented).toBe(false);
+          expect(drop.defaultPrevented).toBe(false);
+          expect(onOtherModelChanged).not.toHaveBeenCalled();
+        });
+
+        test("a tab dropped into another page is removed from this one", async () => {
+          const { onModelChanged } = renderWorkspaces();
+
+          await startDrag(getTab("2"));
+          await deliverMessages();
+          const { id } = messages[0];
+
+          postFromOtherPage({ id, type: "over" });
+          postFromOtherPage({ id, type: "remove" });
+          await deliverMessages();
+
+          expect(screen.queryByRole("tab", { name: /^2/ })).toBeNull();
+          expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+            isUserInteraction: true,
+            reason: "transfer"
+          });
+          expect(messages).toContainEqual({ id, type: "end", version: 1 });
+        });
+
+        test("a drag released over another page isn't torn off", async () => {
+          const now = vi.spyOn(Date, "now").mockReturnValue(1000);
+          const onTearOff = vi.fn(() => true);
+          const { container } = renderWorkspaces({ onTearOff });
+
+          try {
+            await startDrag(getTab("2"));
+            await deliverMessages();
+
+            // Left this window near its edge, then moved over the other page (which doesn't accept the drop)
+            elementAtPoint = getPanels(container, "left");
+            fireDragEvent("dragover", elementAtPoint, { clientX: 2 });
+            now.mockReturnValue(1500);
+            postFromOtherPage({ id: messages[0].id, type: "over" });
+            await deliverMessages();
+
+            now.mockReturnValue(1600);
+            fireDragEvent("dragend", getTab("2"));
+          } finally {
+            now.mockRestore();
+          }
+
+          expect(onTearOff).not.toHaveBeenCalled();
+          expect(getTab("2")).toBeInTheDocument();
+        });
+
+        test("disableDragBetweenApps keeps drags within this copy of the app", async () => {
+          const { container, onOtherModelChanged } = renderWorkspaces(
+            { disableDragBetweenApps: true },
+            { disableDragBetweenApps: true }
+          );
+
+          await startDrag(getTab("2"));
+          await deliverMessages();
+          expect(messages).toEqual([]);
+          fireDragEvent("dragend", getTab("2"));
+
+          postFromOtherPage({
+            dragGroup: "group",
+            id: "remote",
+            node: { tab: tab("9"), type: "tab" },
+            source: { tabId: "9", type: "tab" },
+            type: "start"
+          });
+          await deliverMessages();
+
+          const { dragOver } = dropOnto(getOtherPanels(container));
+          expect(dragOver.defaultPrevented).toBe(false);
+          expect(onOtherModelChanged).not.toHaveBeenCalled();
+        });
+
+        test("tabs with data that can't be cloned can still be dragged within the page", async () => {
+          const model = createModel();
+          const left = (model.root as SplitNode<TabData>)
+            .children[0] as TabsetNode<TabData>;
+          left.tabs[1] = tab("2", {
+            data: { label: "content 2", onClick: () => {} } as TabData
+          });
+          const { container } = renderWorkspaces({ defaultModel: model });
+
+          await startDrag(getTab("2"));
+          await deliverMessages();
+          expect(messages).toEqual([]);
+
+          dropOnto(getOtherPanels(container));
+          expect(
+            container.querySelector('[data-tabset-id="other"]')
+          ).toContainElement(getTab("2"));
+        });
+      });
+
+      test("touch drags still use pointer events", async () => {
+        const { container, onModelChanged } = renderWorkspaces();
+
+        await userEvent.pointer([
+          {
+            coords: { clientX: 100, clientY: 100 },
+            keys: "[TouchA>]",
+            target: getTab("2")
+          },
+          {
+            coords: { clientX: 150, clientY: 150 },
+            pointerName: "TouchA",
+            target: getPanels(container, "right")
+          },
+          { keys: "[/TouchA]", target: getPanels(container, "right") }
+        ]);
+
+        expect(getTab("2")).not.toHaveAttribute("draggable");
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: true,
+          reason: "move"
+        });
+      });
+    });
+
+    describe("tearing off", () => {
+      // jsdom's window is 1024x768; the pointer is moved past its left edge
+      const outside = {
+        clientX: -10,
+        clientY: 100,
+        screenX: 50,
+        screenY: 60
+      };
+
+      async function dragOutside(from: HTMLElement) {
+        await userEvent.pointer([
+          {
+            coords: { clientX: 100, clientY: 100 },
+            keys: "[MouseLeft>]",
+            target: from
+          },
+          { coords: outside, target: document.body },
+          { keys: "[/MouseLeft]", target: document.body }
+        ]);
+      }
+
+      test("dropping a tab outside of the window does nothing without onTearOff", async () => {
+        const { container, onModelChanged } = renderWorkspace();
+
+        await dragOutside(getTab("2"));
+
+        expect(onModelChanged).not.toHaveBeenCalled();
+        expect(
+          container.querySelector('[data-tabset-id="left"]')
+        ).toContainElement(getTab("2"));
+      });
+
+      test("a tab dropped outside of the window is passed to onTearOff, and removed if accepted", async () => {
+        const onTearOff = vi.fn(() => true);
+        const { container, onModelChanged } = renderWorkspace({ onTearOff });
+
+        await dragOutside(getTab("2"));
+
+        expect(onTearOff).toHaveBeenCalledTimes(1);
+        expect(onTearOff).toHaveBeenCalledWith({
+          height: 0,
+          model: {
+            root: {
+              id: expect.any(String),
+              selectedId: "2",
+              tabs: [tab("2")],
+              type: "tabset"
+            },
+            version: 1
+          },
+          screenX: 50,
+          screenY: 60,
+          tab: tab("2"),
+          type: "tab",
+          width: 0
+        });
+        expect(screen.queryByRole("tab", { name: /^2/ })).toBeNull();
+        expect(container.querySelector("[data-drag-preview]")).toBeNull();
+        expect(onModelChanged).toHaveBeenCalledTimes(1);
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: true,
+          reason: "tear-off"
+        });
+      });
+
+      test("a tab isn't removed unless onTearOff returns true", async () => {
+        const onTearOff = vi.fn(() => false);
+        const { container, onModelChanged } = renderWorkspace({ onTearOff });
+
+        await dragOutside(getTab("2"));
+
+        expect(onTearOff).toHaveBeenCalledTimes(1);
+        expect(onModelChanged).not.toHaveBeenCalled();
+        expect(
+          container.querySelector('[data-tabset-id="left"]')
+        ).toContainElement(getTab("2"));
+      });
+
+      test("a tab dragged back into the window is dropped as usual", async () => {
+        const onTearOff = vi.fn(() => true);
+        const { container, onModelChanged } = renderWorkspace({ onTearOff });
+
+        await userEvent.pointer([
+          {
+            coords: { clientX: 100, clientY: 100 },
+            keys: "[MouseLeft>]",
+            target: getTab("2")
+          },
+          { coords: outside, target: document.body },
+          {
+            coords: { clientX: 150, clientY: 150 },
+            target: getPanels(container, "right")
+          },
+          { keys: "[/MouseLeft]", target: getPanels(container, "right") }
+        ]);
+
+        expect(onTearOff).not.toHaveBeenCalled();
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: true,
+          reason: "move"
+        });
+        expect(
+          container.querySelector('[data-tabset-id="right"]')
+        ).toContainElement(getTab("2"));
+      });
+
+      test("the drag preview shows when releasing the pointer would tear off the tab", async () => {
+        const renderDragPreview = vi.fn(
+          (tab: TabNode<TabData>, { isTearOff }: { isTearOff: boolean }) =>
+            isTearOff ? `Open ${tab.id} in a new window` : tab.id
+        );
+        const { container } = renderWorkspace({
+          onTearOff: () => true,
+          renderDragPreview
+        });
+
+        const user = await startDrag(container, getTab("2"));
+        const getPreview = () =>
+          container.querySelector<HTMLElement>("[data-drag-preview]")!;
+        expect(getPreview()).toHaveTextContent(/^2$/);
+        expect(getPreview()).not.toHaveAttribute("data-tear-off");
+
+        await user.pointer({ coords: outside, target: document.body });
+        expect(getPreview()).toHaveTextContent("Open 2 in a new window");
+        expect(getPreview()).toHaveAttribute("data-tear-off");
+
+        await user.keyboard("{Escape}");
+      });
+
+      test("the drag preview isn't marked without onTearOff", async () => {
+        const { container } = renderWorkspace();
+
+        const user = await startDrag(container, getTab("2"));
+        await user.pointer({ coords: outside, target: document.body });
+        expect(
+          container.querySelector("[data-drag-preview]")
+        ).not.toHaveAttribute("data-tear-off");
+
+        await user.keyboard("{Escape}");
+      });
+
+      test("a tabset dropped outside of the window is passed to onTearOff, and removed if accepted", async () => {
+        const onTearOff = vi.fn(() => true);
+        const { container, onModelChanged } = renderWorkspace({
+          defaultModel: {
+            ...createModel(),
+            root: {
+              children: [
+                {
+                  data: { label: "left" },
+                  id: "left",
+                  selectedId: "2",
+                  size: 30,
+                  tabs: [tab("1"), tab("2")],
+                  type: "tabset"
+                },
+                { id: "right", tabs: [tab("3")], type: "tabset" }
+              ],
+              id: "root",
+              orientation: "horizontal",
+              type: "split"
+            }
+          },
+          onTearOff
+        });
+
+        await dragOutside(getHeader(container, "left"));
+
+        expect(onTearOff).toHaveBeenCalledWith(
+          expect.objectContaining({
+            model: {
+              root: {
+                data: { label: "left" },
+                id: "left",
+                selectedId: "2",
+                tabs: [tab("1"), tab("2")],
+                type: "tabset"
+              },
+              version: 1
+            },
+            tabset: expect.objectContaining({ id: "left" }),
+            type: "tabset"
+          })
+        );
+        expect(container.querySelector('[data-tabset-id="left"]')).toBeNull();
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: true,
+          reason: "tear-off"
+        });
+      });
+
+      test("tabsets with the keepWhenEmpty flag can't be torn off", async () => {
+        const onTearOff = vi.fn(() => true);
+        const model = createModel();
+        const root = model.root as SplitNode<TabData>;
+        const { container, onModelChanged } = renderWorkspace({
+          defaultModel: {
+            ...model,
+            root: {
+              ...root,
+              children: [
+                {
+                  ...(root.children[0] as TabsetNode<TabData>),
+                  keepWhenEmpty: true
+                },
+                root.children[1]
+              ]
+            }
+          },
+          onTearOff
+        });
+
+        await dragOutside(getHeader(container, "left"));
+
+        expect(onTearOff).not.toHaveBeenCalled();
+        expect(onModelChanged).not.toHaveBeenCalled();
+
+        // Its tabs can still be torn off
+        await dragOutside(getTab("2"));
+        expect(onTearOff).toHaveBeenCalledTimes(1);
+      });
+
+      test("tearing off the last tab of the root tabset leaves it empty", async () => {
+        const { workspaceRef } = renderWorkspace({
+          defaultModel: {
+            root: { id: "only", tabs: [tab("1")], type: "tabset" },
+            version: 1
+          },
+          onTearOff: () => true
+        });
+
+        await dragOutside(getTab("1"));
+
+        expect(workspaceRef.current?.getModel().root).toEqual({
+          id: "only",
+          tabs: [],
+          type: "tabset"
+        });
+      });
+    });
+
+    describe("tabsets", () => {
       function getTabList(container: HTMLElement, tabsetId: string) {
         const tabList = container.querySelector<HTMLElement>(
           `[data-tabset-id="${tabsetId}"] [data-tab-list]`
@@ -2142,12 +3230,14 @@ describe("Workspace", () => {
         const tabset = expect.objectContaining({ id: "left" });
         expect(disableDrop).toHaveBeenCalledWith({
           model: expect.anything(),
+          source: "local",
           tab: expect.objectContaining({ id: "1" }),
           tabset,
           target
         });
         expect(disableDrop).toHaveBeenCalledWith({
           model: expect.anything(),
+          source: "local",
           tab: expect.objectContaining({ id: "2" }),
           tabset,
           target
@@ -2186,6 +3276,7 @@ describe("Workspace", () => {
 
         expect(disableDrop).toHaveBeenCalledWith({
           model: expect.anything(),
+          source: "local",
           tab: undefined,
           tabset: expect.objectContaining({ id: "left" }),
           target: { region: "left", tabsetId: "right" }

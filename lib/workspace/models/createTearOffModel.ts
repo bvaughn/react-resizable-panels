@@ -1,0 +1,43 @@
+import { copyStructure } from "./copyStructure";
+import { createId } from "./createId";
+import { findTab } from "./findTab";
+import { findTabset } from "./findTabset";
+import { normalizeModel } from "./normalizeModel";
+import type { DragSource, TabsetNode, WorkspaceModel } from "../types";
+
+/**
+ * Creates a model containing only a torn off tab or tabset (see the Workspace's `onTearOff` prop), e.g. for a workspace in a popup window.
+ *
+ * A torn off tab is put in a new tabset, like a tab dropped onto the edge of a tabset (so it doesn't inherit its old tabset's data or flags);
+ * a torn off tabset keeps its id, data, and flags, but not the size (or collapsed state) it had within its split.
+ */
+export function createTearOffModel<TabData, TabsetData>(
+  model: WorkspaceModel<TabData, TabsetData>,
+  source: DragSource
+): WorkspaceModel<TabData, TabsetData> | undefined {
+  let root: TabsetNode<TabData, TabsetData>;
+  if (source.type === "tab") {
+    const tab = findTab(model, source.tabId);
+    if (!tab) {
+      return undefined;
+    }
+
+    root = {
+      id: createId(),
+      selectedId: tab.id,
+      tabs: [{ ...tab }],
+      type: "tabset"
+    };
+  } else {
+    const tabset = findTabset(model, source.tabsetId);
+    if (!tabset) {
+      return undefined;
+    }
+
+    root = copyStructure(tabset);
+    delete root.collapsed;
+    delete root.size;
+  }
+
+  return normalizeModel({ root, version: 1 });
+}
