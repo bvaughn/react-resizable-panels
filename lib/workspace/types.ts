@@ -907,6 +907,10 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * Elements within a collapsed tabset have a `data-tabset-collapsed` attribute.
    * Elements within a tabset also have a `data-tab-placement` attribute (see `tabPlacement`).
    *
+   * ℹ️ The drop indicator is the same element for the whole drag (rendered within the workspace's root element),
+   * so it can be animated between regions and tabsets (e.g. `transition: inset 250ms`).
+   * Its `data-region` attribute is the region it covers; while a tab isn't over any tabset's panels, it has none and isn't shown (`opacity: 0`).
+   *
    * ℹ️ Like the render props, this object is part of what tabsets re-render for;
    * in large workspaces, define it outside of the component (or memoize it) rather than inline.
    */

@@ -100,6 +100,10 @@ export function useTabDrag({
     DragNode | undefined
   >();
 
+  // Set while a drag (using HTML drag and drop) from this workspace's group is over its document, whether or not this workspace shows its preview,
+  // so that the drop indicator stays mounted (and can be animated between tabsets) while it's over this workspace
+  const [isNativeDragOver, setIsNativeDragOver] = useState(false);
+
   // Identifies this workspace in NativeDrag records
   const [owner] = useState(() => ({}));
 
@@ -370,6 +374,7 @@ export function useTabDrag({
       }
       updateNativeDragDocument(drag, ownerDocument);
       reportNativeDragover(drag);
+      setIsNativeDragOver(true);
 
       // The first workspace the drag reaches in each document shows the preview there (the source does in its own document)
       if (!drag.previewOwners.has(ownerDocument)) {
@@ -416,10 +421,12 @@ export function useTabDrag({
       if (drag?.dragGroup !== dragGroup) {
         setDragSource(undefined);
         setDropTarget(undefined);
+        setIsNativeDragOver(false);
         setIsNativeDragSource(false);
         setNativePreviewNode(undefined);
       } else if (drag.lastDocument !== ownerDocument) {
         setDropTarget(undefined);
+        setIsNativeDragOver(false);
         setNativePreviewNode(undefined);
       }
     });
@@ -675,6 +682,7 @@ export function useTabDrag({
   return {
     dragSource,
     dropTarget,
+    isNativeDragOver,
     isNativeDragSource,
     isTearOff,
     nativePreviewNode,

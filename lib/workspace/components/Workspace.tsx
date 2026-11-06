@@ -91,6 +91,7 @@ import { sizeToPixels } from "../utils/sizeToPixels";
 import { toModelDropTarget } from "../utils/toModelDropTarget";
 import { subscribeToNothing } from "../../shared/utils/subscribeToNothing";
 import { DragPreview } from "./DragPreview";
+import { DropIndicator } from "./DropIndicator";
 
 function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   className,
@@ -786,6 +787,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   const {
     dragSource,
     dropTarget,
+    isNativeDragOver,
     isNativeDragSource,
     isTearOff,
     nativePreviewNode,
@@ -1031,6 +1033,16 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
               >
                 <TabsetSlot isMaximizedOverlay tabset={maximizedTabset} />
               </div>
+            )}
+            {/* Shown by every workspace in the document a drag is over (not just the one showing the preview), for the whole drag, so it can be animated between tabsets */}
+            {(dragSource !== undefined || isNativeDragOver) && (
+              <DropIndicator
+                className={classNames?.dropIndicator}
+                dropTarget={dropTarget}
+                model={model}
+                rootElement={rootElement}
+                style={styles?.dropIndicator}
+              />
             )}
             {(dragTab || dragTabset) && (
               <DragPreview

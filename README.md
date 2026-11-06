@@ -919,6 +919,9 @@ Falls back to <code>useId</code> when not provided.</p>
 <p>ℹ️ Elements expose their state as data attributes (e.g. <code>data-tab-selected</code>, or <code>data-tabset-dragging</code> while a tabset is dragged), which can be used for styling.
 Elements within a collapsed tabset have a <code>data-tabset-collapsed</code> attribute.
 Elements within a tabset also have a <code>data-tab-placement</code> attribute (see <code>tabPlacement</code>).</p>
+<p>ℹ️ The drop indicator is the same element for the whole drag (rendered within the workspace&#39;s root element),
+so it can be animated between regions and tabsets (e.g. <code>transition: inset 250ms</code>).
+Its <code>data-region</code> attribute is the region it covers; while a tab isn&#39;t over any tabset&#39;s panels, it has none and isn&#39;t shown (<code>opacity: 0</code>).</p>
 <p>ℹ️ Like the render props, this object is part of what tabsets re-render for;
 in large workspaces, define it outside of the component (or memoize it) rather than inline.</p>
 </td>

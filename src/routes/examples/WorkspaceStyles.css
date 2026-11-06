@@ -28,8 +28,12 @@
 }
 
 /* Where a dragged tab will be dropped; data-region is "top", "right", "bottom", "left", or "center" */
-[data-tab-panels] > [data-drop-indicator] {
+[data-drop-indicator] {
   background: rgb(30 144 255 / 25%);
+  /* The same element is shown for the whole drag, so it can slide between regions and tabsets */
+  transition:
+    inset 250ms,
+    opacity 150ms;
 }
 
 /* Follows the pointer while a tab is dragged */
