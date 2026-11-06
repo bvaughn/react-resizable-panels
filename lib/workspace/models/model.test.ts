@@ -1247,6 +1247,20 @@ describe("workspace model", () => {
       expect(findTabset(next, "b")).not.toHaveProperty("collapsed");
     });
 
+    test("keeps an empty root tabset that a tab is dropped into", () => {
+      const empty = model({ ...tabset("a", []), data: "data" });
+
+      const next = insertTab(empty, tab("9"), {
+        region: "center",
+        tabsetId: "a"
+      });
+      expect(next.root).toMatchObject({
+        data: "data",
+        id: "a",
+        selectedId: "9"
+      });
+    });
+
     test("returns the same model when the target tabset doesn't exist", () => {
       expect(
         insertTab(twoTabsets, tab("9"), { region: "center", tabsetId: "x" })
@@ -1293,6 +1307,21 @@ describe("workspace model", () => {
         type: "tabset"
       });
       expect(inserted.collapsed).toBe(true);
+    });
+
+    test("keeps an empty root tabset that a tabset is dropped into", () => {
+      const empty = model({ ...tabset("a", []), data: "data" });
+
+      const next = insertTabset(empty, tabset("x", ["8", "9"]), {
+        region: "center",
+        tabsetId: "a"
+      });
+      expect(next.root).toMatchObject({
+        data: "data",
+        id: "a",
+        selectedId: "8",
+        tabs: [tab("8"), tab("9")]
+      });
     });
 
     test("returns the same model when an empty tabset's tabs would be inserted", () => {

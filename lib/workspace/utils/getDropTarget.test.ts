@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "vitest";
-import type { WorkspaceModel } from "../types";
+import type { DragSource, WorkspaceModel } from "../types";
 import { getDropTarget } from "./getDropTarget";
 
 const model: WorkspaceModel = {
@@ -175,5 +175,95 @@ describe("getDropTarget for tabsets", () => {
     });
     expect(getTarget("b", "panels")).toBeUndefined();
     expect(getTarget("b", "list")).toBeUndefined();
+  });
+});
+
+describe("getDropTarget for empty tabsets", () => {
+  let cleanup: (() => void) | undefined;
+
+  afterEach(() => {
+    cleanup?.();
+    cleanup = undefined;
+  });
+
+  function setup({ keepWhenEmpty = false } = {}) {
+    const model: WorkspaceModel = {
+      root: {
+        id: "tabset",
+        keepWhenEmpty,
+        tabs: [],
+        type: "tabset"
+      },
+      version: 1
+    };
+
+    const container = document.createElement("div");
+    container.innerHTML = `
+      <div data-workspace>
+        <div data-tabset-id="tabset">
+          <div data-tab-list></div>
+          <div data-tab-panels></div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(container);
+
+    const rootElement =
+      container.querySelector<HTMLElement>("[data-workspace]")!;
+    const panels = container.querySelector("[data-tab-panels]")!;
+    panels.getBoundingClientRect = () =>
+      ({ height: 100, left: 0, top: 0, width: 100 }) as DOMRect;
+
+    Object.assign(document, { elementFromPoint: () => panels });
+    cleanup = () => {
+      container.remove();
+      // @ts-expect-error Not implemented by jsdom
+      delete document.elementFromPoint;
+    };
+
+    // An empty root tabset can only be the target of a drop from another workspace
+    const getTarget = (source: DragSource, clientX: number) =>
+      getDropTarget({
+        clientX,
+        clientY: 50,
+        isExternal: true,
+        model,
+        rootElement,
+        source
+      });
+
+    return { getTarget };
+  }
+
+  test("only targets the center of an empty tabset that isn't kept when empty", () => {
+    const { getTarget } = setup();
+
+    for (const source of [
+      { tabId: "1", type: "tab" },
+      { tabsetId: "other", type: "tabset" }
+    ] satisfies DragSource[]) {
+      expect(getTarget(source, 5)).toEqual({
+        region: "center",
+        tabsetId: "tabset"
+      });
+      expect(getTarget(source, 50)).toEqual({
+        region: "center",
+        tabsetId: "tabset"
+      });
+    }
+  });
+
+  test("targets the edges of an empty tabset that's kept when empty", () => {
+    const { getTarget } = setup({ keepWhenEmpty: true });
+
+    for (const source of [
+      { tabId: "1", type: "tab" },
+      { tabsetId: "other", type: "tabset" }
+    ] satisfies DragSource[]) {
+      expect(getTarget(source, 5)).toEqual({
+        region: "left",
+        tabsetId: "tabset"
+      });
+    }
   });
 });
