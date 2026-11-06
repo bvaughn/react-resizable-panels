@@ -1,7 +1,7 @@
 import type { Layout } from "../../global/types";
 import { copyModel } from "./copyModel";
 import { findSplit } from "./findSplit";
-import { normalizeModel } from "./normalizeModel";
+import { normalizeCopiedModel } from "./normalizeCopiedModel";
 import type { WorkspaceModel } from "../types";
 
 // Applies a split's layout (e.g. after the user resizes it);
@@ -60,6 +60,6 @@ export function setSplitLayout<TabData, TabsetData>(
   return isCollapsedChanged ||
     (unchangedIds?.size ?? 0) > 0 ||
     split.children.some((child) => child.type === "tabset" && child.collapsed)
-    ? normalizeModel(next)
+    ? normalizeCopiedModel(next)
     : next;
 }

@@ -17,14 +17,10 @@ export function getTrackGridSpan(span: number, hasGutters: boolean) {
 // Returns the CSS grid placement (e.g. "1 / span 3") for the specified track range
 export function getTrackGridPlacement(
   index: number,
-  span: number | undefined,
+  span: number,
   hasGutters: boolean
 ) {
-  const line = getTrackGridLine(index, hasGutters);
-
-  return span === undefined
-    ? `${line} / -1`
-    : `${line} / span ${getTrackGridSpan(span, hasGutters)}`;
+  return `${getTrackGridLine(index, hasGutters)} / span ${getTrackGridSpan(span, hasGutters)}`;
 }
 
 // Returns the CSS grid placement for the gutter between tracks `index - 1` and `index`

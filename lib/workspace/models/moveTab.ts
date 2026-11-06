@@ -1,11 +1,9 @@
 import { copyModel } from "./copyModel";
 import { createTabset } from "./createTabset";
-import { expandTabset } from "./expandTabset";
 import { findTabset } from "./findTabset";
 import { findTabsetContainingTab } from "./findTabsetContainingTab";
-import { normalizeModel } from "./normalizeModel";
+import { insertAtDropTarget } from "./insertAtDropTarget";
 import { removeTab } from "./removeTab";
-import { splitTabset } from "./splitTabset";
 import type { TabDropTarget, WorkspaceModel } from "../types";
 
 export function moveTab<TabData, TabsetData>(
@@ -23,14 +21,14 @@ export function moveTab<TabData, TabsetData>(
   const sourceIndex = source.tabs.findIndex(({ id }) => id === tabId);
   const tab = source.tabs[sourceIndex];
 
+  let insertTarget = target;
   if ("index" in target || target.region === "center") {
-    let index =
-      "index" in target
-        ? Math.max(0, Math.min(target.index, destination.tabs.length))
-        : destination.tabs.length;
-
     if (source === destination) {
       // Removing the tab shifts the tabs after it
+      let index =
+        "index" in target
+          ? Math.max(0, Math.min(target.index, destination.tabs.length))
+          : destination.tabs.length;
       if (index > sourceIndex) {
         index--;
       }
@@ -38,40 +36,29 @@ export function moveTab<TabData, TabsetData>(
       if (index === sourceIndex && destination.selectedId === tabId) {
         return model;
       }
-    }
 
-    removeTab(source, tabId);
-    destination.tabs.splice(index, 0, tab);
-    destination.selectedId = tab.id;
-
-    // A tab dropped in from another tabset is selected, so a collapsed tabset expands to show it (like when one of its tabs is clicked);
-    // reordering the tabs of a collapsed tabset leaves it collapsed
-    if (destination.collapsed && source !== destination) {
-      return expandTabset(normalizeModel(next), destination.id);
+      insertTarget = { index, tabsetId: destination.id };
     }
-  } else {
+  } else if (
     // Splitting a tabset with its only tab would leave the layout unchanged (unless the tabset is kept when empty)
-    if (
-      source === destination &&
-      source.tabs.length === 1 &&
-      !source.keepWhenEmpty
-    ) {
-      return model;
-    }
-
-    removeTab(source, tabId);
-    next.root = splitTabset(
-      next.root,
-      destination,
-      createTabset([tab]),
-      target.region
-    );
-
-    // A maximized tabset that's split is no longer maximized
-    if (next.maximizedTabsetId === destination.id) {
-      next.maximizedTabsetId = undefined;
-    }
+    source === destination &&
+    source.tabs.length === 1 &&
+    !source.keepWhenEmpty
+  ) {
+    return model;
   }
 
-  return normalizeModel(next);
+  removeTab(source, tabId);
+
+  // A tab dropped in from another tabset is selected, so a collapsed tabset expands to show it (like when one of its tabs is clicked);
+  // reordering the tabs of a collapsed tabset leaves it collapsed
+  return insertAtDropTarget(
+    next,
+    destination,
+    createTabset([tab]),
+    insertTarget,
+    {
+      expandCollapsedDestination: source !== destination
+    }
+  );
 }

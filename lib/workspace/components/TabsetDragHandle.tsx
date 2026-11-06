@@ -11,9 +11,11 @@ function TabsetDragHandleComponent({ style, ...rest }: TabsetDragHandleProps) {
   const tabsetState = useParentTabsetState();
 
   if (!parentTabset) {
-    warnOnce(
-      "TabsetDragHandle must be rendered within a tabset's header (see renderTabsetToolbar)"
-    );
+    if (process.env.NODE_ENV !== "production") {
+      warnOnce(
+        "TabsetDragHandle must be rendered within a tabset's header (see renderTabsetToolbar)"
+      );
+    }
   }
 
   const isDragDisabled = tabsetState?.isDragDisabled ?? true;

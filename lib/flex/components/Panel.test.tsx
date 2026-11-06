@@ -51,6 +51,36 @@ describe("Panel", () => {
     }
   );
 
+  describe("onResize prop", () => {
+    test("should only register an onResize callback (and be observed) if the prop is provided", () => {
+      const { rerender } = render(
+        <Group id="group">
+          <Panel id="a" />
+          <Panel id="b" />
+        </Group>
+      );
+
+      expect(
+        getRegisteredAxis("group", true).items.map((item) => item.onResize)
+      ).toEqual([undefined, undefined]);
+
+      const onResize = vi.fn();
+
+      rerender(
+        <Group id="group">
+          <Panel id="a" onResize={onResize} />
+          <Panel id="b" />
+        </Group>
+      );
+
+      const items = getRegisteredAxis("group", true).items;
+      expect(items.find((item) => item.id === "a")?.onResize).toBeTypeOf(
+        "function"
+      );
+      expect(items.find((item) => item.id === "b")?.onResize).toBeUndefined();
+    });
+  });
+
   describe("disabled prop", () => {
     test("changes to disabled prop should not cause the Panel to remount", () => {
       const { rerender } = render(
@@ -77,6 +107,9 @@ describe("Panel", () => {
     test("changes to this prop should update Panel behavior", async () => {
       setElementBoundsFunction((element) => {
         switch (element.id) {
+          case "group": {
+            return new DOMRect(0, 0, 110, 50);
+          }
           case "left": {
             return new DOMRect(0, 0, 50, 50);
           }
@@ -94,6 +127,7 @@ describe("Panel", () => {
 
       const { rerender } = render(
         <Group
+          id="group"
           onLayoutChange={onLayoutChange}
           onLayoutChanged={onLayoutChanged}
         >
@@ -108,6 +142,7 @@ describe("Panel", () => {
 
       rerender(
         <Group
+          id="group"
           onLayoutChange={onLayoutChange}
           onLayoutChanged={onLayoutChanged}
         >
@@ -126,6 +161,7 @@ describe("Panel", () => {
 
       rerender(
         <Group
+          id="group"
           onLayoutChange={onLayoutChange}
           onLayoutChanged={onLayoutChanged}
         >

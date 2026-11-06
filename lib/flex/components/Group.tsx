@@ -27,7 +27,9 @@ import { useForceUpdate } from "../../shared/hooks/useForceUpdate";
 import { useId } from "../../shared/hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../shared/hooks/useMergedRefs";
+import { useMemoizedLayoutCallbacks } from "../../shared/hooks/useMemoizedLayoutCallbacks";
 import { useStableCallback } from "../../shared/hooks/useStableCallback";
+import { notifyLayoutChange } from "../../shared/utils/notifyLayoutChange";
 import { useStableObject } from "../../shared/hooks/useStableObject";
 import { getTestId } from "../../shared/utils/getTestId";
 import type {
@@ -65,36 +67,13 @@ function GroupComponent({
   style,
   ...rest
 }: GroupProps) {
-  const prevLayoutRef = useRef<{
-    onLayoutChange: Layout;
-    onLayoutChanged: Layout;
-  }>({
-    onLayoutChange: {},
-    onLayoutChanged: {}
-  });
-
-  const onLayoutChangeStable = useStableCallback((layout: Layout) => {
-    if (layoutsEqual(prevLayoutRef.current.onLayoutChange, layout)) {
-      // Memoize callback
-      return;
-    }
-
-    prevLayoutRef.current.onLayoutChange = layout;
-    onLayoutChangeUnstable?.(layout);
-  });
-
-  const onLayoutChangedStable = useStableCallback(
-    (layout: Layout, isUserInteraction: boolean, requestedLayout: Layout) => {
-      // Only the validated layout is memoized; requested layout changes alone don't trigger the callback
-      if (layoutsEqual(prevLayoutRef.current.onLayoutChanged, layout)) {
-        // Memoize callback
-        return;
-      }
-
-      prevLayoutRef.current.onLayoutChanged = layout;
-      onLayoutChangedUnstable?.(layout, { isUserInteraction, requestedLayout });
-    }
-  );
+  const { onLayoutChangeStable, onLayoutChangedStable } =
+    useMemoizedLayoutCallbacks<Layout>({
+      initialLayout: {},
+      layoutsEqual,
+      onLayoutChange: onLayoutChangeUnstable,
+      onLayoutChanged: onLayoutChangedUnstable
+    });
 
   const id = useId(idProp);
 
@@ -335,13 +314,15 @@ function GroupComponent({
 
     if (!defaultLayoutDeferred && derivedPanelConstraints.length > 0) {
       try {
-        // Either handler may throw; onLayoutChanged should still be called if onLayoutChange throws
-        try {
-          onLayoutChangeStable(layout);
-        } finally {
+        notifyLayoutChange({
+          isCompleted: true,
           // Initial mount is not a user interaction (#716).
-          onLayoutChangedStable(layout, false, requestedLayout);
-        }
+          isUserInteraction: false,
+          layout,
+          onLayoutChange: onLayoutChangeStable,
+          onLayoutChanged: onLayoutChangedStable,
+          requestedLayout
+        });
       } catch (error) {
         // An effect that throws can't return a cleanup function, so unmount the group before re-throwing
         registeredGroupRef.current = null;
@@ -379,18 +360,14 @@ function GroupComponent({
       const isCompleted =
         interactionState.state !== "active" ||
         !interactionState.hitRegions.some((region) => region.axis === group);
-      // Either handler may throw; onLayoutChanged should still be called if onLayoutChange throws
-      try {
-        onLayoutChangeStable(layout);
-      } finally {
-        if (isCompleted) {
-          onLayoutChangedStable(
-            layout,
-            event.isUserInteraction,
-            requestedLayout
-          );
-        }
-      }
+      notifyLayoutChange({
+        isCompleted,
+        isUserInteraction: event.isUserInteraction,
+        layout,
+        onLayoutChange: onLayoutChangeStable,
+        onLayoutChanged: onLayoutChangedStable,
+        requestedLayout
+      });
     });
 
     return () => {

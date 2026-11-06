@@ -116,7 +116,7 @@ describe("Group", () => {
     const groupRef = createRef<GroupImperativeHandle>();
     const onLayoutChanged = vi.fn();
     const { getByRole } = render(
-      <Group groupRef={groupRef} onLayoutChanged={onLayoutChanged}>
+      <Group groupRef={groupRef} id="group" onLayoutChanged={onLayoutChanged}>
         <Panel id="a">
           <button>Resize</button>
         </Panel>
@@ -199,7 +199,7 @@ describe("Group", () => {
           <Separator id="separator" />
           <Panel id="right" />
         </Group>
-        <Group groupRef={groupRef} onLayoutChanged={onLayoutChanged}>
+        <Group groupRef={groupRef} id="group" onLayoutChanged={onLayoutChanged}>
           <Panel id="a" />
           <Panel id="b" />
         </Group>
@@ -476,7 +476,7 @@ describe("Group", () => {
       const panelRef = createRef<PanelImperativeHandle>();
 
       const { container, rerender } = render(
-        <Group groupRef={groupRef} onLayoutChanged={onLayoutChanged}>
+        <Group groupRef={groupRef} id="group" onLayoutChanged={onLayoutChanged}>
           <Panel id="left" panelRef={panelRef} />
           <Separator id="separator" />
           <Panel id="right" />
@@ -503,7 +503,7 @@ describe("Group", () => {
       );
 
       rerender(
-        <Group groupRef={groupRef} onLayoutChanged={onLayoutChanged}>
+        <Group groupRef={groupRef} id="group" onLayoutChanged={onLayoutChanged}>
           <Panel id="right" />
         </Group>
       );
@@ -515,7 +515,7 @@ describe("Group", () => {
       );
 
       rerender(
-        <Group groupRef={groupRef} onLayoutChanged={onLayoutChanged}>
+        <Group groupRef={groupRef} id="group" onLayoutChanged={onLayoutChanged}>
           <Panel id="left" panelRef={panelRef} />
           <Separator id="separator" />
           <Panel id="right" />
@@ -706,7 +706,7 @@ describe("Group", () => {
       const onLayoutChanged = vi.fn();
 
       render(
-        <Group groupRef={groupRef} onLayoutChanged={onLayoutChanged}>
+        <Group groupRef={groupRef} id="group" onLayoutChanged={onLayoutChanged}>
           <Panel
             defaultSize="25%"
             groupResizeBehavior="preserve-relative-size"
@@ -755,7 +755,7 @@ describe("Group", () => {
       const onLayoutChanged = vi.fn();
 
       render(
-        <Group groupRef={groupRef} onLayoutChanged={onLayoutChanged}>
+        <Group groupRef={groupRef} id="group" onLayoutChanged={onLayoutChanged}>
           <Panel
             defaultSize="25%"
             groupResizeBehavior="preserve-pixel-size"
@@ -1212,6 +1212,7 @@ describe("Group", () => {
               middle: 30,
               top: 20
             }}
+            id="group"
             onLayoutChanged={onLayoutChanged}
             orientation="vertical"
           >
@@ -1577,6 +1578,9 @@ describe("Group", () => {
     test("should be called once per layout change", async () => {
       setElementBoundsFunction((element) => {
         switch (element.id) {
+          case "group": {
+            return new DOMRect(0, 0, 110, 50);
+          }
           case "a": {
             return new DOMRect(0, 0, 50, 50);
           }
@@ -1594,6 +1598,7 @@ describe("Group", () => {
 
       render(
         <Group
+          id="group"
           onLayoutChange={onLayoutChange}
           onLayoutChanged={onLayoutChanged}
         >

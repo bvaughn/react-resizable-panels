@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.19.1
+
+- Improve resizing and dragging performance:
+  - `Panel`s without an `onResize` prop are no longer observed with a `ResizeObserver` (they were, because of a bug, and every resize re-measured the panels of their groups for each of them).
+  - Moving the pointer over the page no longer recalculates the resize targets of groups and grids it isn't near, and separators (and gridlines) only re-render when their `aria-value*` attributes change.
+  - `Grid` resize targets are calculated with fewer layout reads, and the `aria-controls` values of gridlines are no longer recalculated while they're dragged.
+  - Dragging a `Workspace` tab (or tabset) only re-renders the drop indicator and the tabs (or tabset) whose drag state changes, rather than the whole workspace, and drop targets are found without searching the tabsets' content. Changes to the model also copy it fewer times.
+- Development-only warnings (e.g. about invalid `Workspace` models) and `Grid` placement errors (e.g. a `Gridline` rendered alongside of a `Cell` that spans across its boundary) are now removed from production builds, since they're checked with `process.env.NODE_ENV` (which bundlers replace) rather than within a function. `Grid` placement errors are no longer logged in production.
+- When a `Workspace` has a `dragGroup` prop, `disableDrop` is now called when the drop target changes (as it is without a `dragGroup`), rather than for every `dragover` event.
+
+> [!WARNING]
+> The library now reads `process.env.NODE_ENV` (like React does), so it must be loaded with a bundler (or a CDN, like esm.sh) that defines it.
+
 ## 4.19.0
 
 - Add the `onTearOff` prop to `Workspace`, which is called when a tab (or a whole tabset) is dropped outside of the window, e.g. to open it in a popup window. It's passed the tab (or tabset), a model containing just that tab (in a new tabset) or tabset, where the pointer was released (in screen coordinates), and the size of the tabset it was dragged from. Returning `true` removes the tab (or tabset) from the workspace, reported to `onModelChanged` with the new `"tear-off"` reason. Tabsets with the `keepWhenEmpty` flag can't be torn off. The `renderDragPreview` and `renderTabsetDragPreview` props are passed an `isTearOff` flag (and the preview has a `data-tear-off` attribute) while releasing the pointer would tear off the tab. See the new "Multiple windows" guides. - [#794](https://github.com/bvaughn/react-resizable-panels/pull/794)

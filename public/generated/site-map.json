@@ -1,7 +1,7 @@
 [
   {
     "path": "/",
-    "text": "This library is a set of React components that can be used to build resizable layouts like the one below: There are three kinds of layouts: flex layouts of panels in a row or column, grids of cells that resize in two dimensions, and workspaces of tabsets that users can rearrange by dragging tabs. Check out the support page if you have questions. Installation Begin by installing the library from NPM: TypeScript definitions are included within the published dist folder. Support Here are some ways to support this project: Become a GitHub sponsor Buy me a coffee",
+    "text": "This library is a set of React components that can be used to build resizable layouts like the one below: main App.tsx Hide panel There are three kinds of layouts: flex layouts of panels in a row or column, grids of cells that resize in two dimensions, and workspaces of tabsets that users can rearrange by dragging tabs. Check out the support page if you have questions. Installation Begin by installing the library from NPM: TypeScript definitions are included within the published dist folder. Support Here are some ways to support this project: Become a GitHub sponsor Buy me a coffee",
     "title": "Getting started with react-resizable-panels"
   },
   {
@@ -160,7 +160,7 @@
   {
     "path": "/examples/workspace",
     "section": "Workspace",
-    "text": "A Workspace arranges tabsets, like an IDE's editor groups. Users can rearrange them by dragging tabs between tabsets, within a tabset's list of tabs, or onto the edge of a tabset to split it. Tabsets can also be resized and maximized. Reset layout Tab content is never remounted when a tab is moved, so it keeps its state. Try incrementing the counter above and then dragging its tab somewhere else. Workspaces are uncontrolled. The layout is described by a serializable model and can be observed using the onModelChanged callback. Splits lay out their children side by side or stacked, and tabsets show one tab at a time. Sizes are percentages of the parent split; siblings without a size share the remaining space. Initial sizes can also be strings with units (e.g. \"250px\"), but they're converted to percentages when the user resizes the split, and they scale with the workspace when it's resized. This is the model for the workspace above: The tabsetMinWidth and tabsetMinHeight props above set a minimum size for the content of every tabset (not including its tabs); a tabset can override them with the minWidth and minHeight fields of its model node. Tabsets can also have maximum sizes (see limiting tabset sizes). Tabs can also be opened, selected, closed, and rearranged by the application (see managing tabs and managing tabsets). Like the rest of the library, workspaces are unstyled; see custom tabsets and styling for how to render and style tabsets. The tabsets above are resized by dragging the space between them; see separators and accessibility for how to render visible separators, and how workspaces can be used with the keyboard.",
+    "text": "A Workspace arranges tabsets, like an IDE's editor groups. Users can rearrange them by dragging tabs between tabsets, within a tabset's list of tabs, or onto the edge of a tabset to split it. Tabsets can also be resized and maximized. Reset layout Tab content is never remounted when a tab is moved, so it keeps its state. Try incrementing the counter above and then dragging its tab somewhere else. Workspaces are uncontrolled. Their arrangement of tabsets and tabs is described by a serializable model, which can be observed using the onModelChanged callback. Splits lay out their children side by side or stacked, and tabsets show one tab at a time. Sizes are percentages of the parent split; siblings without a size share the remaining space. Initial sizes can also be strings with units (e.g. \"250px\"), but they're converted to percentages when the user resizes the split, and they scale with the workspace when it's resized. This is the model for the workspace above: The tabsetMinWidth and tabsetMinHeight props above set a minimum size for the content of every tabset (not including its tabs); a tabset can override them with the minWidth and minHeight fields of its model node. Tabsets can also have maximum sizes (see limiting tabset sizes). Tabs can also be opened, selected, closed, and rearranged by the application (see managing tabs and managing tabsets). Like the rest of the library, workspaces are unstyled; see custom tabsets and styling for how to render and style tabsets. The tabsets above are resized by dragging the boundary between them; see separators and accessibility for how to render visible separators, and how workspaces can be used with the keyboard.",
     "title": "The basics"
   },
   {
@@ -191,12 +191,12 @@
       {
         "id": "selecting-a-tab-after-one-is-closed",
         "title": "Selecting a tab after one is closed",
-        "text": "Selecting a tab after one is closed When the selected tab is closed (or dragged to another tabset), the tab after it is selected by default. With the tabRemovalSelectionBehavior prop set to \"recent\", the tab that was selected before it is selected instead, like in an IDE: In the workspace below, select a few tabs and then close the selected one. About Counter Notes Nested panels Drag a tab onto another tab list to move it there. Drag a tab onto the edge of a tabset to split it, or onto its center to add the tab to it. Use the arrow keys to move between tabs, Enter to select one, and Delete to close one. Clicked 0 times Increment Reset layout Each tabset's recently selected tabs are saved in the model (as recentTabIds ), so they're restored with the rest of the layout. If none of the remaining tabs has been selected, the tab after the closed one is selected. Changes made with the imperative API are reported by onModelChanged (with isUserInteraction set to false), so they're saved like any other change. To keep, move, collapse, or maximize whole tabsets, see managing tabsets."
+        "text": "Selecting a tab after one is closed When the selected tab is closed (or dragged to another tabset), the tab after it is selected by default. With the tabRemovalSelectionBehavior prop set to \"recent\", the tab that was selected before it is selected instead, like in an IDE: In the workspace below, select a few tabs and then close the selected one. About Counter Notes Nested panels Drag a tab onto another tab list to move it there. Drag a tab onto the edge of a tabset to split it, or onto its center to add the tab to it. Use the arrow keys to move between tabs, Enter to select one, and Delete to close one. Clicked 0 times Increment Reset layout Each tabset's recently selected tabs are saved in the model (as recentTabIds ), so they're restored with the rest of the model. If none of the remaining tabs has been selected, the tab after the closed one is selected. Changes made with the imperative API are reported by onModelChanged (with isUserInteraction set to false), so they're saved like any other change. To keep, move, collapse, or maximize whole tabsets, see managing tabsets."
       }
     ],
     "path": "/examples/workspace/managing-tabs",
     "section": "Workspace",
-    "text": "Tabs are usually opened in response to something outside of the workspace (e.g. a file being selected in a tree). The imperative API's addTab method adds a tab to the active tabset (the one the user most recently interacted with) and selects it: If a tab with the same id is already open (anywhere in the workspace), it's selected instead, and addTab returns false. Options can add the tab to a specific tabset (tabsetId) or position (index), or without selecting it (select: false). Open Notes Open About Add content using the buttons above",
+    "text": "Tabs are usually opened in response to something outside of the workspace (e.g. a file being selected in a tree). The imperative API's addTab method adds a tab to the active tabset (the one the user most recently interacted with) and selects it: If a tab with the same id is already open (anywhere in the workspace), it's selected instead, and addTab returns false. Options can add the tab to a specific tabset (tabsetId) or position (index), or add it without selecting it (select: false). Open Notes Open About Add content using the buttons above",
     "title": "Managing tabs"
   },
   {
@@ -224,7 +224,7 @@
       {
         "id": "maximizing-tabsets",
         "title": "Maximizing tabsets",
-        "text": "Maximizing tabsets A maximized tabset covers the rest of the workspace until it's restored. The maximizeTabset and restoreTabset methods do this from outside of the workspace, and the useParentTabset hook from within a tabset (e.g. a button in its toolbar): Which tabset is maximized is part of the model, so it's saved and restored with the rest of the layout. While a tabset is maximized, tabs can only be dragged within it. Changes made with the imperative API are reported by onModelChanged (with isUserInteraction set to false), so they're saved like any other change."
+        "text": "Maximizing tabsets A maximized tabset covers the rest of the workspace until it's restored. The maximizeTabset and restoreTabset methods do this from outside of the workspace, and the useParentTabset hook from within a tabset (e.g. a button in its toolbar): Which tabset is maximized is part of the model, so it's saved and restored with the rest of the model. While a tabset is maximized, tabs can only be dragged within it. Changes made with the imperative API are reported by onModelChanged (with isUserInteraction set to false), so they're saved like any other change."
       }
     ],
     "path": "/examples/workspace/managing-tabsets",
@@ -247,7 +247,7 @@
     ],
     "path": "/examples/workspace/multiple-windows",
     "section": "Workspace",
-    "text": "Tabs (and tabsets) don't have to stay in the window they started in. A Workspace can be rendered into a popup window opened by your app and tabs can be dragged between workspaces in different windows. This functionality is enabled using the dragGroup prop.",
+    "text": "Tabs (and tabsets) don't have to stay in the window they started in. A Workspace can be rendered into a popout window opened by your app and tabs can be dragged between workspaces in different windows. This functionality is enabled using the dragGroup prop.",
     "title": "Multiple windows"
   },
   {
@@ -269,27 +269,27 @@
         "text": "Drag previews The renderDragPreview and renderTabsetDragPreview props are passed an isTearOff flag, which is true while releasing the pointer would tear off the tab (or tabset), e.g. to show \"Open in a new window\". The preview element also has a data-tear-off attribute then. The preview can only be shown within the window, so only the part of it near the edge of the window is visible."
       },
       {
-        "id": "rendering-into-popup-windows",
-        "title": "Rendering into popup windows",
-        "text": "Rendering into popup windows Elements in a popup window should be created by the popup's own document (e.g. the container the Workspace is rendered into), so that they belong to that window. The Workspace and its tabsets read the globals they need (e.g. ResizeObserver) from the window their elements are in."
+        "id": "rendering-into-popout-windows",
+        "title": "Rendering into popout windows",
+        "text": "Rendering into popout windows Elements in a popout window should be created by that window's own document (e.g. the container the Workspace is rendered into), so that they belong to that window. The Workspace and its tabsets read the globals they need (e.g. ResizeObserver) from the window their elements are in."
       }
     ],
     "path": "/examples/workspace/multiple-windows/popout-windows",
     "section": "Workspace",
-    "text": "When a tab or tabset is dropped outside of the window it was rendered in, the Workspace calls its onTearOff prop with the tab and a detached model (containing just that tab) along with where the pointer was released and the size of the tabset it was dragged from. Returning true removes the tab from the workspace (reported to onModelChanged with the \"tear-off\" reason) Returning false leaves it where it was. Tabsets with the keepWhenEmpty flag can't be torn off, but their tabs can. In the example below, each torn off tab is opened in a popup window with its own Workspace. When a popup is closed, the tabs left in it are moved back: Drag a tab (or a tabset) out of the window below and release it to open it in a new window. Tabs can also be dragged between this window and the popups (see dragGroup below). The \"Open in new window\" button in each tabset's toolbar opens its selected tab in a popup too, for browsers that block popups opened by those drags (see below). Reset layout Browsers block popup windows that aren't opened in response to user input, and window.open returns null when that happens. The Workspace can't tell whether your popup opened, so onTearOff should check for null and return false to keep the tab (as the example above does); returning true removes the tab even if nothing shows it. onTearOff is called while the pointer's release is handled, which browsers treat as user input, so this mostly affects drags between workspaces (see below). Some browsers (e.g. Safari) block popup windows opened at the end of a drag. Opening popups from a click instead (e.g. a button, like in the example above) works in every browser.",
+    "text": "When a tab or tabset is dropped outside of the window it was rendered in, the Workspace calls its onTearOff prop with the tab and a detached model (containing just that tab) along with where the pointer was released and the size of the tabset it was dragged from. Returning true removes the tab from the workspace (reported to onModelChanged with the \"tear-off\" reason) Returning false leaves it where it was. Tabsets with the keepWhenEmpty flag can't be torn off, but their tabs can. In the example below, each torn-off tab is opened in a popout window with its own Workspace. When a popout window is closed, the tabs left in it are moved back: Drag a tab (or a tabset) out of the window below and release it to open it in a new window. Tabs can also be dragged between this window and the popout windows (see dragGroup below). The \"Open in new window\" button in each tabset's toolbar opens its selected tab in a popout window too, for browsers that block popups opened by those drags (see below). Reset layout Browsers block popup windows that aren't opened in response to user input, and window.open returns null when that happens. The Workspace can't tell whether your popup opened, so onTearOff should check for null and return false to keep the tab (as the example above does); returning true removes the tab even if nothing shows it. onTearOff is called while the pointer's release is handled, which browsers treat as user input, so this mostly affects drags between workspaces (see below). Some browsers (e.g. Safari) block popup windows opened at the end of a drag. Opening popups from a click instead (e.g. a button, like in the example above) works in every browser.",
     "title": "Popout windows"
   },
   {
     "headings": [
       {
-        "id": "restoring-layouts-saved-by-older-versions-of-an-app",
-        "title": "Restoring layouts saved by older versions of an app",
-        "text": "Restoring layouts saved by older versions of an app A saved layout may refer to tabs that the app no longer has (e.g. a tab that was renamed or removed), or have stale copies of tabs that still exist (e.g. an old title). The normalizeWorkspaceModel function checks a saved model and tidies it the same way the workspace does (e.g. removing tabsets left empty, and fixing the selected tab). Its mapTab option can replace each saved tab with the app's current version, or remove it by returning null: It returns null if the saved value isn't a model, so the app can fall back to its own default layout (rather than an empty workspace). The result can also be checked for anything the app requires (e.g. a tab that should always be open) before it's used."
+        "id": "restoring-models-saved-by-older-versions-of-an-app",
+        "title": "Restoring models saved by older versions of an app",
+        "text": "Restoring models saved by older versions of an app A saved model may refer to tabs that the app no longer has (e.g. a tab that was renamed or removed), or have stale copies of tabs that still exist (e.g. an old title). The normalizeWorkspaceModel function checks a saved model and tidies it the same way the workspace does (e.g. removing tabsets left empty, and fixing the selected tab). Its mapTab option can replace each saved tab with the app's current version, or remove it by returning null: It returns null if the saved value isn't a model, so the app can fall back to its own default model (rather than an empty workspace). The result can also be checked for anything the app requires (e.g. a tab that should always be open) before it's used."
       }
     ],
     "path": "/examples/workspace/persistent-layout",
     "section": "Workspace",
-    "text": "A workspace's model is serializable, so it can be saved and restored. Save it from the onModelChanged callback, and restore it with the defaultModel prop: Rearrange the workspace below, then reload the page to see the layout restored. Reset layout onModelChanged is called after each change: when a tab is moved, selected, added, or closed, when a tabset is maximized or restored, and when a resize ends (not while the pointer is still moving). Its second argument describes the change. Saved models include each tab's data, so it should be serializable. Models include a version, so that models saved by older versions of the library can be migrated. A malformed model (e.g. one that was saved incorrectly) is replaced with an empty workspace, rather than throwing; in development, a warning is logged. To fall back to a different layout instead, check the model with normalizeWorkspaceModel (see below). To restore a layout after the workspace has mounted (e.g. a \"reset layout\" button), use the imperative setModel method. Content that isn't part of the model (e.g. the text in a notes tab) isn't saved; tabs can save it in their data with the updateTab method. The example above works well with client-rendered applications. For server-rendered applications, see server rendering.",
+    "text": "A workspace's model is serializable, so it can be saved and restored. Save it from the onModelChanged callback, and restore it with the defaultModel prop: Rearrange the workspace below, then reload the page to see the model restored. Reset layout onModelChanged is called after each change: when a tab is moved, selected, added, or closed, when a tabset is maximized or restored, and when a resize ends (not while the pointer is still moving). Its second argument describes the change. Saved models include each tab's data, so it should be serializable. Models include a version, so that models saved by older versions of the library can be migrated. A malformed model (e.g. one that was saved incorrectly) is replaced with an empty workspace, rather than throwing; in development, a warning is logged. To fall back to a different model instead, check the model with normalizeWorkspaceModel (see below). To restore a saved model after the workspace has mounted (e.g. a \"reset layout\" button), use the imperative setModel method. Content that isn't part of the model (e.g. the text in a notes tab) isn't saved; tabs can save it in their data with the updateTab method. The example above works well with client-rendered applications. For server-rendered applications, see server rendering.",
     "title": "Persistent layouts"
   },
   {
@@ -308,7 +308,7 @@
     ],
     "path": "/examples/workspace/separators",
     "section": "Workspace",
-    "text": "By default, a workspace renders an unstyled Separator between tabsets. It takes up no space and can't be seen, so tabsets are resized by dragging the space between them (like in the basics demo). Rendering visible separators with the renderSeparator prop is recommended; it receives the orientation of the split, so separators between tabsets side by side can be given a width and those between stacked tabsets a height: Reset layout Visible separators show users where tabsets can be resized, and give them something to grab. Separators are tab-focusable window splitters, so tabsets can be resized with the keyboard (by the default separators too); a visible separator can also show keyboard users which one has focus. To render no separators at all, return null from renderSeparator. Tabsets can still be resized by dragging the edges between them, but not with the keyboard.",
+    "text": "By default, a workspace renders an unstyled Separator between tabsets. It takes up no space and can't be seen, so tabsets are resized by dragging the boundary between them (like in the basics demo). Rendering visible separators with the renderSeparator prop is recommended; it receives the orientation of the split, so separators between tabsets side by side can be given a width and those between stacked tabsets a height: Reset layout Visible separators show users where tabsets can be resized, and give them something to grab. Separators are tab-focusable window splitters, so tabsets can be resized with the keyboard (by the default separators too); a visible separator can also show keyboard users which one has focus. To render no separators at all, return null from renderSeparator. Tabsets can still be resized by dragging the edges between them, but not with the keyboard.",
     "title": "Separators and accessibility"
   },
   {
@@ -319,9 +319,9 @@
         "text": "Tab content Workspaces render their tabsets and tabs on the server. Tab content isn't server rendered by default, though: it's rendered through portals (so that moving a tab doesn't remount it), which React can't render on the server. Instead, it's rendered once hydration has finished. The serverRenderTabContent prop renders the content of selected tabs on the server. It can be true, or a function to choose per tab: Server-rendered content is rendered inline (within its tabset's tab panels) on the server and while hydrating, then moved into a portal. Moving the content into a portal remounts it once (e.g. resetting its state and re-running its effects), so this is best suited to content that is cheap to mount and benefits from being in the server-rendered HTML. This prop has no effect for workspaces that aren't server rendered."
       },
       {
-        "id": "saved-layouts",
-        "title": "Saved layouts",
-        "text": "Saved layouts A saved layout has to be available on the server too, so that the server and client render the same model. Saving it in localStorage doesn't work, since the server can't read it; a cookie (or other storage the server can read) does: Don't read localStorage while rendering (e.g. only when window is defined): the client would render a different layout than the server, causing hydration errors. Cookies are limited to about 4KB, which a workspace with many tabs (or a lot of tab data) can exceed. Larger models can be saved on the server (e.g. with the user's settings) and passed in the same way."
+        "id": "saved-models",
+        "title": "Saved models",
+        "text": "Saved models A saved model has to be available on the server too, so that the server and client render the same model. Saving it in localStorage doesn't work, since the server can't read it; a cookie (or other storage the server can read) does: Don't read localStorage while rendering (e.g. only when window is defined): the client would render a different model than the server, causing hydration errors. Cookies are limited to about 4KB, which a workspace with many tabs (or a lot of tab data) can exceed. Larger models can be saved on the server (e.g. with the user's settings) and passed in the same way."
       }
     ],
     "path": "/examples/workspace/server-rendering",
@@ -610,7 +610,7 @@
     ],
     "path": "/imperative-api/grid",
     "section": "Imperative API",
-    "text": "Imperative Grid API.\n The useGridRef and useGridCallbackRef hooks are exported for convenience use in TypeScript projects.",
+    "text": "Imperative Grid API.\n The useGridRef and useGridCallbackRef hooks are exported for convenience in TypeScript projects.",
     "title": "GridImperativeHandle"
   },
   {
@@ -661,7 +661,7 @@
     ],
     "path": "/imperative-api/group",
     "section": "Imperative API",
-    "text": "Imperative Group API.\n The useGroupRef and useGroupCallbackRef hooks are exported for convenience use in TypeScript projects.",
+    "text": "Imperative Group API.\n The useGroupRef and useGroupCallbackRef hooks are exported for convenience in TypeScript projects.",
     "title": "GroupImperativeHandle"
   },
   {
@@ -694,7 +694,7 @@
     ],
     "path": "/imperative-api/panel",
     "section": "Imperative API",
-    "text": "Imperative Panel API\n The usePanelRef and usePanelCallbackRef hooks are exported for convenience use in TypeScript projects.",
+    "text": "Imperative Panel API\n The usePanelRef and usePanelCallbackRef hooks are exported for convenience in TypeScript projects.",
     "title": "PanelImperativeHandle"
   },
   {
@@ -854,7 +854,7 @@
       {
         "id": "id",
         "title": "id",
-        "text": "Uniquely identifies this cell within the parent grid.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
+        "text": "Uniquely identifies this cell within the parent grid.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "rowSpan",
@@ -917,12 +917,12 @@
       {
         "id": "gridRef",
         "title": "gridRef",
-        "text": "Exposes the following imperative API:\n\n getLayout(): GridLayout \n getTrackById(axis: \"column\" | \"row\", id: string | number): GridTrackImperativeHandle \n getTrackByIndex(axis: \"column\" | \"row\", index: number): GridTrackImperativeHandle \n setLayout(layout: Partial<GridLayout>): GridLayout \n\n The useGridRef and useGridCallbackRef hooks are exported for convenience use in TypeScript projects."
+        "text": "Exposes the following imperative API:\n\n getLayout(): GridLayout \n getTrackById(axis: \"column\" | \"row\", id: string | number): GridTrackImperativeHandle \n getTrackByIndex(axis: \"column\" | \"row\", index: number): GridTrackImperativeHandle \n setLayout(layout: Partial<GridLayout>): GridLayout \n\n The useGridRef and useGridCallbackRef hooks are exported for convenience in TypeScript projects."
       },
       {
         "id": "id",
         "title": "id",
-        "text": "Uniquely identifies this grid within an application.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
+        "text": "Uniquely identifies this grid within an application.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "onLayoutChange",
@@ -932,7 +932,7 @@
       {
         "id": "onLayoutChanged",
         "title": "onLayoutChanged",
-        "text": "Called after the Grid's layout has been changed.\n For layout changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving layouts to some storage api."
+        "text": "Called after the Grid's layout has been changed.\n For layout changes caused by pointer events, this callback is not called until the pointer has been released.\nThis callback is recommended for saving layouts to storage."
       },
       {
         "id": "resizeTargetMinimumSize",
@@ -1005,7 +1005,7 @@
     ],
     "path": "/props/gridline",
     "section": "Props",
-    "text": "Resizes the columns (or rows) of a Grid.\n For example:\n A gridline should not be rendered alongside of a Cell that spans across its boundary\n(this includes disabled gridlines; an error will be logged to the console);\nrender multiple gridlines along the same boundary instead (e.g. before and after the spanning Cell).\n Once a boundary contains a gridline, it can only be resized using gridlines;\nthe parts of the boundary that aren't alongside of a gridline can't be dragged.\n Where column and row gridlines intersect, dragging resizes both axes.\n Gridlines are not required but they are recommended as they improve keyboard accessibility.\n Gridline elements always include the following attributes:\n Column gridlines are vertical (aria-orientation=\"vertical\") and row gridlines are horizontal (aria-orientation=\"horizontal\").\n In addition to the attributes shown above, gridlines also render all required WAI-ARIA properties.\n Gridline elements must be direct DOM children of their parent Grid elements.\n Gridlines rendered by another component (rather than directly within the Grid) aren't detected until they mount, so server-rendered layouts may shift slightly during hydration.",
+    "text": "Resizes the columns (or rows) of a Grid.\n For example:\n A gridline should not be rendered alongside of a Cell that spans across its boundary\n(this includes disabled gridlines; in development builds, an error will be logged to the console);\nrender multiple gridlines along the same boundary instead (e.g. before and after the spanning Cell).\n Once a boundary contains a gridline, it can only be resized using gridlines;\nthe parts of the boundary that aren't alongside of a gridline can't be dragged.\n Where column and row gridlines intersect, dragging resizes both axes.\n Gridlines are not required but they are recommended as they improve keyboard accessibility.\n Gridline elements always include the following attributes:\n Column gridlines are vertical (aria-orientation=\"vertical\") and row gridlines are horizontal (aria-orientation=\"horizontal\").\n In addition to the attributes shown above, gridlines also render all required WAI-ARIA properties.\n Gridline elements must be direct DOM children of their parent Grid elements.\n Gridlines rendered by another component (rather than directly within the Grid) aren't detected until they mount, so server-rendered layouts may shift slightly during hydration.",
     "title": "Gridline component props"
   },
   {
@@ -1043,12 +1043,12 @@
       {
         "id": "groupRef",
         "title": "groupRef",
-        "text": "Exposes the following imperative API:\n\n getLayout(): Layout \n setLayout(layout: Layout): Layout \n\n The useGroupRef and useGroupCallbackRef hooks are exported for convenience use in TypeScript projects."
+        "text": "Exposes the following imperative API:\n\n getLayout(): Layout \n setLayout(layout: Layout): Layout \n\n The useGroupRef and useGroupCallbackRef hooks are exported for convenience in TypeScript projects."
       },
       {
         "id": "id",
         "title": "id",
-        "text": "Uniquely identifies this group within an application.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
+        "text": "Uniquely identifies this group within an application.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "onLayoutChange",
@@ -1058,7 +1058,7 @@
       {
         "id": "onLayoutChanged",
         "title": "onLayoutChanged",
-        "text": "Called after the Group's layout has been changed.\n For layout changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving layouts to some storage api.\n The second argument contains meta information about the layout change.\nThe isUserInteraction attribute signals whether the resize was caused by direct user input.\nIt is true for resizes caused by pointer or keyboard input\nand false for other triggers (e.g. imperative API calls, initial mount, etc.)\nThe requestedLayout attribute is the layout before constraints were applied for the current Group size;\nprefer it when persisting layouts."
+        "text": "Called after the Group's layout has been changed.\n For layout changes caused by pointer events, this callback is not called until the pointer has been released.\nThis callback is recommended for saving layouts to storage.\n The second argument contains meta information about the layout change.\nThe isUserInteraction attribute signals whether the resize was caused by direct user input.\nIt is true for resizes caused by pointer or keyboard input\nand false for other triggers (e.g. imperative API calls, initial mount, etc.)\nThe requestedLayout attribute is the layout before constraints were applied for the current Group size;\nprefer it when persisting layouts."
       },
       {
         "id": "orientation",
@@ -1131,7 +1131,7 @@
       {
         "id": "id",
         "title": "id",
-        "text": "Uniquely identifies this panel within the parent group.\nFalls back to useId when not provided.\n This prop is used to associate persisted group layouts with the original panel.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
+        "text": "Uniquely identifies this panel within the parent group.\nFalls back to useId when not provided.\n This prop is used to associate persisted group layouts with the original panel.\n This value will also be assigned to the id and data-testid attributes (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "maxSize",
@@ -1151,7 +1151,7 @@
       {
         "id": "panelRef",
         "title": "panelRef",
-        "text": "Exposes the following imperative API:\n\n collapse(): void \n expand(): void \n getSize(): PanelSize \n isCollapsed(): boolean \n resize(size: number | string): void \n\n The usePanelRef and usePanelCallbackRef hooks are exported for convenience use in TypeScript projects."
+        "text": "Exposes the following imperative API:\n\n collapse(): void \n expand(): void \n getSize(): PanelSize \n isCollapsed(): boolean \n resize(size: number | string): void \n\n The usePanelRef and usePanelCallbackRef hooks are exported for convenience in TypeScript projects."
       },
       {
         "id": "style",
@@ -1189,7 +1189,7 @@
       {
         "id": "id",
         "title": "id",
-        "text": "Uniquely identifies the separator within the parent group.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
+        "text": "Uniquely identifies the separator within the parent group.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "preview",
@@ -1274,12 +1274,12 @@
       {
         "id": "id",
         "title": "id",
-        "text": "Uniquely identifies this workspace within an application.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes; (an explicit data-testid prop will take precedence)."
+        "text": "Uniquely identifies this workspace within an application.\nFalls back to useId when not provided.\n This value will also be assigned to the id and data-testid attributes (an explicit data-testid prop will take precedence)."
       },
       {
         "id": "onModelChanged",
         "title": "onModelChanged",
-        "text": "Called after the model has changed (e.g. a tab was moved, selected, or closed, or a tabset was resized).\n For changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving models to some storage api."
+        "text": "Called after the model has changed (e.g. a tab was moved, selected, or closed, or a tabset was resized).\n For changes caused by pointer events, this callback is not called until the pointer has been released.\nThis callback is recommended for saving models to storage."
       },
       {
         "id": "onTearOff",
@@ -1359,7 +1359,7 @@
       {
         "id": "workspaceRef",
         "title": "workspaceRef",
-        "text": "Exposes the imperative API (see WorkspaceImperativeHandle).\n The useWorkspaceRef and useWorkspaceCallbackRef hooks are exported for convenience use in TypeScript projects."
+        "text": "Exposes the imperative API (see WorkspaceImperativeHandle).\n The useWorkspaceRef and useWorkspaceCallbackRef hooks are exported for convenience in TypeScript projects."
       }
     ],
     "path": "/props/workspace",

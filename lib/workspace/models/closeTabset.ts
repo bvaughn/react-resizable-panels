@@ -1,6 +1,6 @@
 import { copyModel } from "./copyModel";
 import { findTabset } from "./findTabset";
-import { normalizeModel } from "./normalizeModel";
+import { normalizeCopiedModel } from "./normalizeCopiedModel";
 import type { WorkspaceModel } from "../types";
 
 // The tabset is emptied (and no longer kept when empty), so that normalizing the model removes it;
@@ -21,5 +21,5 @@ export function closeTabset<TabData, TabsetData>(
     delete tabset.keepWhenEmpty;
   }
 
-  return normalizeModel(next);
+  return normalizeCopiedModel(next);
 }

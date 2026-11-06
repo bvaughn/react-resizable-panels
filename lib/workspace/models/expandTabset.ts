@@ -1,7 +1,7 @@
 import { copyModel } from "./copyModel";
-import { findParent } from "./findParent";
+import { expandCopiedTabset } from "./expandCopiedTabset";
 import { findTabset } from "./findTabset";
-import { normalizeModel } from "./normalizeModel";
+import { normalizeCopiedModel } from "./normalizeCopiedModel";
 import type { WorkspaceModel } from "../types";
 
 export function expandTabset<TabData, TabsetData>(
@@ -13,30 +13,7 @@ export function expandTabset<TabData, TabsetData>(
   }
 
   const next = copyModel(model);
-  const tabset = findTabset(next, tabsetId);
-  if (!tabset) {
-    return model;
-  }
+  expandCopiedTabset(next, tabsetId);
 
-  delete tabset.collapsed;
-
-  // The expanded siblings fill the split (see normalizeModel), so they shrink to make room for the tabset's size
-  // (when the sizes are percentages)
-  const size = tabset.size;
-  const expandedSiblings =
-    findParent(next.root, tabsetId)?.children.filter(
-      (child) =>
-        child !== tabset && !(child.type === "tabset" && child.collapsed)
-    ) ?? [];
-  if (
-    typeof size === "number" &&
-    size < 100 &&
-    expandedSiblings.every((child) => typeof child.size === "number")
-  ) {
-    for (const child of expandedSiblings) {
-      child.size = ((child.size as number) * (100 - size)) / 100;
-    }
-  }
-
-  return normalizeModel(next);
+  return normalizeCopiedModel(next);
 }

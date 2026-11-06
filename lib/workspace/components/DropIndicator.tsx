@@ -1,7 +1,9 @@
 import { useRef, useState, type CSSProperties } from "react";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
-import type { TabDropTarget, WorkspaceModel } from "../types";
-import { findTabsetPanels } from "../utils/findTabsetPanels";
+import { useDragState } from "../hooks/useDragState";
+import type { WorkspaceModel } from "../types";
+import type { DragStore } from "../utils/createDragStore";
+import type { TabsetElementRegistry } from "../utils/createTabsetElementRegistry";
 import { isSameDropIndicatorInsets } from "../utils/isSameDropIndicatorInsets";
 import {
   measureDropIndicatorInsets,
@@ -10,17 +12,20 @@ import {
 
 function DropIndicatorComponent({
   className,
-  dropTarget,
+  dragStore,
   model,
-  rootElement,
-  style
+  style,
+  tabsetElements
 }: {
   className: string | undefined;
-  dropTarget: TabDropTarget | undefined;
+  dragStore: DragStore;
   model: WorkspaceModel;
-  rootElement: HTMLElement | null;
   style: CSSProperties | undefined;
+  tabsetElements: TabsetElementRegistry;
 }) {
+  // Only the indicator re-renders when the drop target changes (see createDragStore)
+  const dropTarget = useDragState(dragStore, (state) => state.dropTarget);
+
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Kept while the dragged tab isn't over a tabset's panels (e.g. it's over a tab list, or between tabsets),
@@ -36,10 +41,9 @@ function DropIndicatorComponent({
   // only the indicator re-renders (before the browser paints), and only when its insets change
   useIsomorphicLayoutEffect(() => {
     const containerElement = containerRef.current;
-    const panelsElement =
-      rootElement && tabsetId
-        ? findTabsetPanels(rootElement, tabsetId)
-        : undefined;
+    const panelsElement = tabsetId
+      ? tabsetElements.get(tabsetId)?.panels
+      : undefined;
     if (!containerElement || !panelsElement || !region) {
       return;
     }
@@ -72,7 +76,7 @@ function DropIndicatorComponent({
         resizeObserver.disconnect();
       };
     }
-  }, [model, region, rootElement, tabsetId]);
+  }, [model, region, tabsetElements, tabsetId]);
 
   // The container covers the workspace's root element (and a maximized tabset, which is rendered before it)
   return (

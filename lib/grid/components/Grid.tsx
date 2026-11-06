@@ -31,7 +31,9 @@ import { useForceUpdate } from "../../shared/hooks/useForceUpdate";
 import { useId } from "../../shared/hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../shared/hooks/useMergedRefs";
+import { useMemoizedLayoutCallbacks } from "../../shared/hooks/useMemoizedLayoutCallbacks";
 import { useStableCallback } from "../../shared/hooks/useStableCallback";
+import { notifyLayoutChange } from "../../shared/utils/notifyLayoutChange";
 import { useStableObject } from "../../shared/hooks/useStableObject";
 import { assert } from "../../shared/utils/assert";
 import { getTestId } from "../../shared/utils/getTestId";
@@ -39,6 +41,9 @@ import { GroupContext } from "../../flex/contexts/GroupContext";
 import { AXES } from "../constants";
 import { GridContext } from "../contexts/GridContext";
 import { ParentGridContext } from "../contexts/ParentGridContext";
+import { getAxisLayoutKey } from "../utils/getAxisLayoutKey";
+import { getCellRange } from "../utils/getCellRange";
+import { getGridSlots } from "../utils/getGridSlots";
 import { isValidGridlineIndex } from "../utils/gridPlacement";
 import type {
   GridAxis,
@@ -47,6 +52,7 @@ import type {
   GridLayout,
   GridProps,
   GridSeparatorPlacement,
+  GridSlots,
   GridTrackImperativeHandle,
   GridTrackProps,
   ParentGrid,
@@ -89,7 +95,7 @@ function GridComponent({
   const id = useId(idProp);
 
   const getResizeAxisId = useCallback(
-    (axis: GridAxis) => (axis === "column" ? `${id}:columns` : `${id}:rows`),
+    (axis: GridAxis) => `${id}:${getAxisLayoutKey(axis)}`,
     [id]
   );
 
@@ -98,40 +104,13 @@ function GridComponent({
   const getTracks = (axis: GridAxis) =>
     axis === "column" ? columnTracks : rowTracks;
 
-  const prevLayoutRef = useRef<{
-    onLayoutChange: GridLayout;
-    onLayoutChanged: GridLayout;
-  }>({
-    onLayoutChange: EMPTY_GRID_LAYOUT,
-    onLayoutChanged: EMPTY_GRID_LAYOUT
-  });
-
-  const onLayoutChangeStable = useStableCallback((layout: GridLayout) => {
-    if (gridLayoutsEqual(prevLayoutRef.current.onLayoutChange, layout)) {
-      // Memoize callback
-      return;
-    }
-
-    prevLayoutRef.current.onLayoutChange = layout;
-    onLayoutChangeUnstable?.(layout);
-  });
-
-  const onLayoutChangedStable = useStableCallback(
-    (
-      layout: GridLayout,
-      isUserInteraction: boolean,
-      requestedLayout: GridLayout
-    ) => {
-      // Only the validated layout is memoized; requested layout changes alone don't trigger the callback
-      if (gridLayoutsEqual(prevLayoutRef.current.onLayoutChanged, layout)) {
-        // Memoize callback
-        return;
-      }
-
-      prevLayoutRef.current.onLayoutChanged = layout;
-      onLayoutChangedUnstable?.(layout, { isUserInteraction, requestedLayout });
-    }
-  );
+  const { onLayoutChangeStable, onLayoutChangedStable } =
+    useMemoizedLayoutCallbacks<GridLayout>({
+      initialLayout: EMPTY_GRID_LAYOUT,
+      layoutsEqual: gridLayoutsEqual,
+      onLayoutChange: onLayoutChangeUnstable,
+      onLayoutChanged: onLayoutChangedUnstable
+    });
 
   const elementRef = useRef<HTMLDivElement | null>(null);
   const mergedRef = useMergedRefs(elementRef, elementRefProp);
@@ -241,7 +220,6 @@ function GridComponent({
         column: gutters.column,
         row: gutters.row
       },
-      id,
       registerCell,
       registerSeparator,
       separatorPlacements,
@@ -257,7 +235,6 @@ function GridComponent({
       getResizeAxisId,
       gutters.column,
       gutters.row,
-      id,
       registerCell,
       registerSeparator,
       rowTracks.length,
@@ -283,17 +260,20 @@ function GridComponent({
     // Invalid placements are logged (rather than thrown) because they are easy to create temporarily
     // (e.g. when the number of tracks, cells, and gridlines are conditionally rendered based on different state);
     // each problem is only logged once (until it's been resolved)
-    const errors = getPlacementErrors({
-      cells: inMemoryValues.cells,
-      separatorPlacements: inMemoryValues.separators,
-      trackCounts: { column: columnTracks.length, row: rowTracks.length }
-    });
-    errors.forEach((error) => {
-      if (!inMemoryValues.loggedErrors.has(error)) {
-        console.error(error);
-      }
-    });
-    inMemoryValues.loggedErrors = new Set(errors);
+    // Only in development builds; the check is inline (rather than in a helper) so that bundlers can remove it from production builds
+    if (process.env.NODE_ENV !== "production") {
+      const errors = getPlacementErrors({
+        cells: inMemoryValues.cells,
+        separatorPlacements: inMemoryValues.separators,
+        trackCounts: { column: columnTracks.length, row: rowTracks.length }
+      });
+      errors.forEach((error) => {
+        if (!inMemoryValues.loggedErrors.has(error)) {
+          console.error(error);
+        }
+      });
+      inMemoryValues.loggedErrors = new Set(errors);
+    }
 
     const getSeparators = (axis: GridAxis) =>
       Array.from(inMemoryValues.separators.entries())
@@ -302,8 +282,10 @@ function GridComponent({
         .map(([separator]) => separator);
 
     const createResizeAxis = (axis: GridAxis): RegisteredResizeAxis => {
-      const tracks = axis === "column" ? columnTracks : rowTracks;
-      const crossTracks = axis === "column" ? rowTracks : columnTracks;
+      const [tracks, crossTracks] =
+        axis === "column"
+          ? [columnTracks, rowTracks]
+          : [rowTracks, columnTracks];
       const trackIds = tracks.map((track) => track.id);
       const axisId = getResizeAxisId(axis);
       const separators = getSeparators(axis);
@@ -325,7 +307,8 @@ function GridComponent({
         })
       );
 
-      const measure = () => {
+      // Gutter sizes are only needed when the track sizes can't be read from the computed style (e.g. jsdom)
+      const getGutterSizes = () => {
         const gutterSizes: number[] = [];
         if (hasGutters) {
           for (const [separator, placement] of inMemoryValues.separators) {
@@ -341,21 +324,77 @@ function GridComponent({
             }
           }
         }
+        return gutterSizes.filter((size) => size !== undefined);
+      };
 
-        return measureGridAxis({
+      const measure = () =>
+        measureGridAxis({
           axis,
           element,
-          gutterSizes: gutterSizes.filter((size) => size !== undefined),
+          getGutterSizes,
           hasGutters,
           layout: getMountedAxisState(axisId)?.layout,
           trackIds
         });
+
+      // Derived from the registered cells; cached until they change
+      // (the Grid is re-registered when they do, but these may be read before that happens)
+      let cellsCache:
+        | {
+            ariaControls: Map<string, string | undefined> | undefined;
+            cells: RegisteredCell[];
+            slots: GridSlots | undefined;
+          }
+        | undefined = undefined;
+      const getCellsCache = () => {
+        const { cells } = inMemoryValues;
+        if (cellsCache?.cells !== cells) {
+          cellsCache = { ariaControls: undefined, cells, slots: undefined };
+        }
+        return cellsCache;
+      };
+
+      const getAriaControls = () => {
+        const cache = getCellsCache();
+        if (!cache.ariaControls) {
+          const ids: string[][] = trackIds.map(() => []);
+          for (const cell of cache.cells) {
+            const [start, span] = getCellRange(cell, axis);
+            if (cell.element.id) {
+              for (
+                let index = Math.max(0, start);
+                index < Math.min(trackIds.length, start + span);
+                index++
+              ) {
+                ids[index].push(cell.element.id);
+              }
+            }
+          }
+          cache.ariaControls = new Map(
+            trackIds.map((trackId, index) => [
+              trackId,
+              ids[index].join(" ") || undefined
+            ])
+          );
+        }
+        return cache.ariaControls;
+      };
+
+      const getSlots = () => {
+        const cache = getCellsCache();
+        cache.slots ??= getGridSlots({
+          axis,
+          cells: cache.cells,
+          crossTrackCount: crossTracks.length,
+          trackCount: tracks.length
+        });
+        return cache.slots;
       };
 
       // Guard against unexpected layout attribute ordering by pre-sorting track ids; see issues/656
       let preSortedDefaultLayout: Layout | undefined = undefined;
       const defaultAxisLayout =
-        stableProps.defaultLayout?.[axis === "column" ? "columns" : "rows"];
+        stableProps.defaultLayout?.[getAxisLayoutKey(axis)];
       if (
         defaultAxisLayout !== undefined &&
         Object.keys(defaultAxisLayout).length === trackIds.length
@@ -374,21 +413,7 @@ function GridComponent({
         element,
         id: axisId,
         layoutStrategy: {
-          getItemAriaControls: (trackId) => {
-            const index = trackIds.indexOf(trackId);
-            return (
-              inMemoryValues.cells
-                .filter((cell) => {
-                  const start = axis === "column" ? cell.column : cell.row;
-                  const span =
-                    axis === "column" ? cell.columnSpan : cell.rowSpan;
-                  return start <= index && index < start + span;
-                })
-                .map((cell) => cell.element.id)
-                .filter(Boolean)
-                .join(" ") || undefined
-            );
-          },
+          getItemAriaControls: (trackId) => getAriaControls().get(trackId),
           calculateAvailableSize: () => measure().availableSize,
           calculateHitRegions: ({
             expandHitTargets,
@@ -400,11 +425,12 @@ function GridComponent({
               cells: inMemoryValues.cells,
               crossTrackCount: crossTracks.length,
               expandHitTargets,
-              resizeAxis,
-              axisSize:
+              getAxisSize: () =>
                 measure().availableSize *
                 getClientScale(resizeAxis.element, resizeAxis.orientation),
+              getSlots,
               includeDisabled,
+              resizeAxis,
               separatorPlacements: inMemoryValues.separators
             }),
           getItemSizeInPixels: (trackId: string) =>
@@ -463,17 +489,15 @@ function GridComponent({
       const layouts = getGridLayouts();
       if (layouts) {
         try {
-          // Either handler may throw; onLayoutChanged should still be called if onLayoutChange throws
-          try {
-            onLayoutChangeStable(layouts.layout);
-          } finally {
+          notifyLayoutChange({
+            isCompleted: true,
             // Initial mount is not a user interaction (#716).
-            onLayoutChangedStable(
-              layouts.layout,
-              false,
-              layouts.requestedLayout
-            );
-          }
+            isUserInteraction: false,
+            layout: layouts.layout,
+            onLayoutChange: onLayoutChangeStable,
+            onLayoutChanged: onLayoutChangedStable,
+            requestedLayout: layouts.requestedLayout
+          });
         } catch (error) {
           // An effect that throws can't return a cleanup function, so unmount the axes before re-throwing
           registeredAxesRef.current = [];
@@ -514,18 +538,14 @@ function GridComponent({
               resizeAxes.includes(region.axis)
             );
 
-          // Either handler may throw; onLayoutChanged should still be called if onLayoutChange throws
-          try {
-            onLayoutChangeStable(gridLayouts.layout);
-          } finally {
-            if (isCompleted) {
-              onLayoutChangedStable(
-                gridLayouts.layout,
-                event.isUserInteraction,
-                gridLayouts.requestedLayout
-              );
-            }
-          }
+          notifyLayoutChange({
+            isCompleted,
+            isUserInteraction: event.isUserInteraction,
+            layout: gridLayouts.layout,
+            onLayoutChange: onLayoutChangeStable,
+            onLayoutChanged: onLayoutChangedStable,
+            requestedLayout: gridLayouts.requestedLayout
+          });
         }
       })
     );
@@ -629,7 +649,7 @@ function GridComponent({
       },
       setLayout: (layout: Parameters<GridImperativeHandle["setLayout"]>[0]) => {
         AXES.forEach((axis) => {
-          const axisLayout = layout[axis === "column" ? "columns" : "rows"];
+          const axisLayout = layout[getAxisLayoutKey(axis)];
           const axisId = getResizeAxisId(axis);
           if (axisLayout && getRegisteredAxis(axisId)) {
             getImperativeAxisMethods({ axisId }).setLayout(axisLayout);
@@ -672,7 +692,7 @@ function GridComponent({
           ? tracks.map((track) => `minmax(0, ${state.layout[track.id] ?? 1}fr)`)
           : getInitialTrackSizes(
               tracks,
-              defaultLayout?.[axis === "column" ? "columns" : "rows"]
+              defaultLayout?.[getAxisLayoutKey(axis)]
             );
 
       return sizes.join(gutters[axis] ? " auto " : " ");

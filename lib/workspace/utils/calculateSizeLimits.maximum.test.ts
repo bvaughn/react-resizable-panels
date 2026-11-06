@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { resetWarnOnceForTest } from "../../shared/utils/warnOnce";
-import { calculateMaximumSizes } from "./calculateMaximumSizes";
+import { calculateSizeLimits } from "./calculateSizeLimits";
 import { sizeToPixels } from "./sizeToPixels";
 import type { TabsetNode, WorkspaceNode } from "../types";
 
@@ -25,18 +25,20 @@ function calculate(
     separators?: number;
   } = {}
 ) {
-  return calculateMaximumSizes(root, {
+  return calculateSizeLimits(root, {
     getChromeSize: () => chrome,
     getCollapsedSize: () => collapsedSize,
     getContentMaximumSize: (node) => ({
       height: sizeToPixels(node.maxHeight, null) ?? Infinity,
       width: sizeToPixels(node.maxWidth, null) ?? Infinity
     }),
+    // Maximum sizes don't depend on minimum sizes
+    getContentMinimumSize: () => ({ height: 0, width: 0 }),
     getSeparatorsSize: () => separators
-  });
+  }).maximumSizes;
 }
 
-describe("calculateMaximumSizes", () => {
+describe("calculateSizeLimits (maximum sizes)", () => {
   let warn: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {

@@ -61,10 +61,6 @@ export class EventEmitter<Events extends EventMap> {
     }
   }
 
-  removeAllListeners() {
-    this.#listenerMap = {};
-  }
-
   removeListener<Type extends keyof Events>(
     type: Type,
     listener: EventListener<Events[Type]>

@@ -221,6 +221,9 @@ describe("Separator", () => {
     test("changes to this prop should update Separator behavior", async () => {
       setElementBoundsFunction((element) => {
         switch (element.id) {
+          case "group": {
+            return new DOMRect(0, 0, 110, 50);
+          }
           case "left": {
             return new DOMRect(0, 0, 50, 50);
           }
@@ -238,6 +241,7 @@ describe("Separator", () => {
 
       const { rerender } = render(
         <Group
+          id="group"
           onLayoutChange={onLayoutChange}
           onLayoutChanged={onLayoutChanged}
         >
@@ -252,6 +256,7 @@ describe("Separator", () => {
 
       rerender(
         <Group
+          id="group"
           onLayoutChange={onLayoutChange}
           onLayoutChanged={onLayoutChanged}
         >
@@ -270,6 +275,7 @@ describe("Separator", () => {
 
       rerender(
         <Group
+          id="group"
           onLayoutChange={onLayoutChange}
           onLayoutChanged={onLayoutChanged}
         >

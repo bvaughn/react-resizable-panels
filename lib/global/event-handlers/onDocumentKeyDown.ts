@@ -16,19 +16,29 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
     return;
   }
 
+  // findSeparatorAxis guarantees that a matching separator exists
   const separator = axis.separators.find(
     (current) => current.element === separatorElement
   );
-  if (separator?.disabled) {
+  assert(separator, "Matching separator not found");
+  if (separator.disabled) {
     return;
   }
+
+  const adjustLayout = (delta: number) =>
+    adjustLayoutForSeparator({
+      axis,
+      axisState: getMountedAxisState(axis.id, true),
+      delta,
+      separator
+    });
 
   switch (event.key) {
     case "ArrowDown": {
       event.preventDefault();
 
       if (axis.orientation === "vertical") {
-        adjustLayoutForSeparator(separatorElement, 5);
+        adjustLayout(5);
       }
       break;
     }
@@ -36,7 +46,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
       event.preventDefault();
 
       if (axis.orientation === "horizontal") {
-        adjustLayoutForSeparator(separatorElement, -5);
+        adjustLayout(-5);
       }
       break;
     }
@@ -44,7 +54,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
       event.preventDefault();
 
       if (axis.orientation === "horizontal") {
-        adjustLayoutForSeparator(separatorElement, 5);
+        adjustLayout(5);
       }
       break;
     }
@@ -52,7 +62,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
       event.preventDefault();
 
       if (axis.orientation === "vertical") {
-        adjustLayoutForSeparator(separatorElement, -5);
+        adjustLayout(-5);
       }
       break;
     }
@@ -62,7 +72,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
       // Moves splitter to the position that gives the primary pane its largest allowed size.
       // This may completely collapse the secondary pane.
 
-      adjustLayoutForSeparator(separatorElement, 100);
+      adjustLayout(100);
       break;
     }
     case "Enter": {
@@ -73,11 +83,6 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
 
       const axisState = getMountedAxisState(axis.id, true);
       const { derivedItemConstraints, layout, separatorToItems } = axisState;
-
-      const separator = axis.separators.find(
-        (current) => current.element === separatorElement
-      );
-      assert(separator, "Matching separator not found");
 
       const items = separatorToItems.get(separator);
       assert(items, "Matching panels not found");
@@ -97,7 +102,12 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
               constraints.minSize)
             : constraints.collapsedSize;
 
-        adjustLayoutForSeparator(separatorElement, nextSize - prevSize);
+        adjustLayoutForSeparator({
+          axis,
+          axisState,
+          delta: nextSize - prevSize,
+          separator
+        });
       }
       break;
     }
@@ -135,7 +145,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
       // Moves splitter to the position that gives the primary pane its smallest allowed size.
       // This may completely collapse the primary pane.
 
-      adjustLayoutForSeparator(separatorElement, -100);
+      adjustLayout(-100);
       break;
     }
   }

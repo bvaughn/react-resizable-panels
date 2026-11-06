@@ -1,6 +1,7 @@
 import { isShadowRoot } from "../../shared/utils/isShadowRoot";
-import { findTabset } from "../models/findTabset";
+import { getModelIndex } from "../models/getModelIndex";
 import type { DragSource, TabDropTarget, WorkspaceModel } from "../types";
+import type { TabsetElementRegistry } from "./createTabsetElementRegistry";
 import { getOwnElement } from "./getOwnElement";
 import { getDropRegion } from "./getDropRegion";
 import { getTabListIndex } from "./getTabListIndex";
@@ -11,7 +12,8 @@ export function getDropTarget({
   isExternal = false,
   model,
   rootElement,
-  source
+  source,
+  tabsetElements
 }: {
   clientX: number;
   clientY: number;
@@ -20,6 +22,8 @@ export function getDropTarget({
   model: WorkspaceModel;
   rootElement: HTMLElement;
   source: DragSource;
+  /** The workspace's tabset elements; tabsets that aren't registered are searched for their elements instead */
+  tabsetElements?: TabsetElementRegistry | undefined;
 }): TabDropTarget | undefined {
   // Hit test within the workspace's own root, since for a workspace in a shadow root the document only reports the shadow host
   const root = rootElement.getRootNode();
@@ -42,7 +46,9 @@ export function getDropTarget({
   }
 
   const tabsetId = tabsetElement?.dataset.tabsetId;
-  const tabset = findTabset(model, tabsetId);
+  const modelIndex = getModelIndex(model);
+  const tabset =
+    tabsetId !== undefined ? modelIndex.tabsetsById.get(tabsetId) : undefined;
   if (!tabsetElement || !tabset) {
     return undefined;
   }
@@ -55,6 +61,16 @@ export function getDropTarget({
     return undefined;
   }
 
+  // The tabset's own list and panels (rather than those of a tabset nested within it)
+  const registered = tabsetElements?.get(tabset.id);
+  const { tabList, tabPanels } =
+    registered?.tabset === tabsetElement
+      ? { tabList: registered.tabList, tabPanels: registered.panels }
+      : {
+          tabList: getOwnElement(tabsetElement, "[data-tab-list]"),
+          tabPanels: getOwnElement(tabsetElement, "[data-tab-panels]")
+        };
+
   // Splitting an empty tabset would remove it (unless it's kept when empty), leaving the dropped tab(s) in its place,
   // so it's only targeted as a whole (which also keeps the tabset itself, e.g. its id and data)
   const isSplittable = tabset.tabs.length > 0 || !!tabset.keepWhenEmpty;
@@ -65,15 +81,17 @@ export function getDropTarget({
       clientY,
       element,
       isExternal,
+      isMoveOnly:
+        !isExternal &&
+        !!modelIndex.tabsetsById.get(source.tabsetId)?.keepWhenEmpty,
       isSplittable,
-      model,
       sourceTabsetId: source.tabsetId,
-      tabsetElement,
+      tabList,
+      tabPanels,
       tabsetId: tabset.id
     });
   }
 
-  const tabList = getOwnElement(tabsetElement, "[data-tab-list]");
   if (tabList?.contains(element)) {
     return {
       index: getTabListIndex(tabList, clientX, clientY),
@@ -81,7 +99,6 @@ export function getDropTarget({
     };
   }
 
-  const tabPanels = getOwnElement(tabsetElement, "[data-tab-panels]");
   if (tabPanels?.contains(element)) {
     const isOwnTabset =
       !isExternal && tabset.tabs.some(({ id }) => id === source.tabId);
@@ -111,20 +128,24 @@ function getTabsetDropTarget({
   clientY,
   element,
   isExternal,
+  isMoveOnly,
   isSplittable,
-  model,
   sourceTabsetId,
-  tabsetElement,
+  tabList,
+  tabPanels,
   tabsetId
 }: {
   clientX: number;
   clientY: number;
   element: Element;
   isExternal: boolean;
+  /** Tabsets kept when empty can be moved, but not merged into other tabsets (which would leave them behind, empty);
+   * those of other workspaces aren't moved at all (see isExternalDropDisabled) */
+  isMoveOnly: boolean;
   isSplittable: boolean;
-  model: WorkspaceModel;
   sourceTabsetId: string;
-  tabsetElement: HTMLElement;
+  tabList: HTMLElement | null | undefined;
+  tabPanels: HTMLElement | null | undefined;
   tabsetId: string;
 }): TabDropTarget | undefined {
   // A tabset can't be dropped onto itself
@@ -132,19 +153,12 @@ function getTabsetDropTarget({
     return undefined;
   }
 
-  // Tabsets kept when empty can be moved, but not merged into other tabsets (which would leave them behind, empty);
-  // those of other workspaces aren't moved at all (see isExternalDropDisabled)
-  const isMoveOnly =
-    !isExternal && !!findTabset(model, sourceTabsetId)?.keepWhenEmpty;
-
-  const tabList = getOwnElement(tabsetElement, "[data-tab-list]");
   if (tabList?.contains(element)) {
     return isMoveOnly
       ? undefined
       : { index: getTabListIndex(tabList, clientX, clientY), tabsetId };
   }
 
-  const tabPanels = getOwnElement(tabsetElement, "[data-tab-panels]");
   if (tabPanels?.contains(element)) {
     const region = isSplittable
       ? getDropRegion(tabPanels.getBoundingClientRect(), clientX, clientY)

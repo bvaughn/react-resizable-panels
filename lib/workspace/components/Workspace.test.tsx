@@ -1924,6 +1924,57 @@ describe("Workspace", () => {
       expect(getRenderCount()).toBe(initialRenderCount);
     });
 
+    test("only the tabs whose drag state changes re-render while dragging (not splits or other tabs)", async () => {
+      const renderedTabIds: string[] = [];
+      // Called each time a split renders
+      const renderSeparator = vi.fn(() => null);
+
+      const { container } = renderWorkspace({
+        renderSeparator,
+        renderTab: (tab, props) => {
+          renderedTabIds.push(tab.id);
+          return <div {...props}>{tab.id}</div>;
+        }
+      });
+      // Pressing the tab makes its tabset active, which re-renders the workspace
+      const user = userEvent.setup();
+      await user.pointer({
+        coords: { clientX: 100, clientY: 100 },
+        keys: "[MouseLeft>]",
+        target: getTab("2")
+      });
+      renderedTabIds.length = 0;
+      renderSeparator.mockClear();
+
+      // Starting the drag only re-renders the dragged tab (to mark it as dragged)
+      await user.pointer({
+        coords: { clientX: 150, clientY: 150 },
+        target: getPanels(container, "right")
+      });
+      expect(container.querySelector("[data-drop-indicator]")).not.toBeNull();
+      expect(new Set(renderedTabIds)).toEqual(new Set(["2"]));
+      expect(renderSeparator).not.toHaveBeenCalled();
+      renderedTabIds.length = 0;
+
+      // Moving over the other tabset's tab list only re-renders the tab the drop is shown beside
+      elementAtPoint = container.querySelector(
+        '[data-tabset-id="left"] [data-tab-list]'
+      );
+      await user.pointer({
+        coords: { clientX: 160, clientY: 160 },
+        target: elementAtPoint!
+      });
+      expect(
+        container.querySelector("[data-drop-before], [data-drop-after]")
+      ).not.toBeNull();
+      expect(renderedTabIds.length).toBeGreaterThan(0);
+      expect(renderedTabIds).not.toContain("3");
+      expect(renderSeparator).not.toHaveBeenCalled();
+
+      await user.keyboard("{Escape}");
+      await user.pointer({ keys: "[/MouseLeft]", target: elementAtPoint! });
+    });
+
     test("the drop indicator is the same element for the whole drag, so it can be animated between tabsets", async () => {
       const { container } = renderWorkspace();
       const getIndicator = () =>

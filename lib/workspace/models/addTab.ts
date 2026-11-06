@@ -3,7 +3,7 @@ import { copyModel } from "./copyModel";
 import { findTab } from "./findTab";
 import { findTabset } from "./findTabset";
 import { getAllTabsets } from "./getAllTabsets";
-import { normalizeModel } from "./normalizeModel";
+import { normalizeCopiedModel } from "./normalizeCopiedModel";
 import { selectTab } from "./selectTab";
 import type { TabNode, WorkspaceModel } from "../types";
 
@@ -28,9 +28,11 @@ export function addTab<TabData, TabsetData>(
   let tabset = findTabset(next, tabsetId);
   if (!tabset) {
     if (tabsetId !== undefined) {
-      warnOnce(
-        `Tabset "${tabsetId}" not found in workspace model; adding tab to the first tabset instead`
-      );
+      if (process.env.NODE_ENV !== "production") {
+        warnOnce(
+          `Tabset "${tabsetId}" not found in workspace model; adding tab to the first tabset instead`
+        );
+      }
     }
 
     tabset = getAllTabsets(next.root)[0];
@@ -46,5 +48,5 @@ export function addTab<TabData, TabsetData>(
     tabset.selectedId = tab.id;
   }
 
-  return { added: true, model: normalizeModel(next) };
+  return { added: true, model: normalizeCopiedModel(next) };
 }

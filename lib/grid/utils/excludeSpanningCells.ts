@@ -1,56 +1,53 @@
-import type { GridAxis, RegisteredCell } from "../types";
+import type { GridAxis, GridSegment, RegisteredCell } from "../types";
+import { getCellRange } from "./getCellRange";
+import { getRectSegment } from "./getRectSegment";
+import { setRectCrossRange } from "./setRectCrossRange";
 
 /**
  * Removes the parts of a (resize target) rect that overlap cells spanning across the boundary before the specified track.
  * This prevents resize targets that have been expanded (to meet the minimum hit target size)
  * from extending into cells that span across the boundary.
+ *
+ * Cell bounds are read using `getCellBounds` so that callers can cache them.
  */
 export function excludeSpanningCells({
   axis,
   cells,
+  getCellBounds,
   index,
   rect
 }: {
   axis: GridAxis;
   cells: RegisteredCell[];
+  getCellBounds: (cell: RegisteredCell) => GridSegment;
   index: number;
   rect: DOMRect;
 }): DOMRect[] {
   let rects = [rect];
   for (const cell of cells) {
-    const start = axis === "column" ? cell.column : cell.row;
-    const span = axis === "column" ? cell.columnSpan : cell.rowSpan;
+    const [start, span] = getCellRange(cell, axis);
     if (start >= index || start + span <= index) {
       continue;
     }
 
-    const bounds = cell.element.getBoundingClientRect();
-    const blockedStart = axis === "column" ? bounds.top : bounds.left;
-    const blockedEnd = axis === "column" ? bounds.bottom : bounds.right;
+    const { crossStart: blockedStart, crossEnd: blockedEnd } =
+      getCellBounds(cell);
     if (blockedEnd <= blockedStart) {
       continue;
     }
 
     rects = rects.flatMap((rect) => {
-      const crossStart = axis === "column" ? rect.top : rect.left;
-      const crossEnd = axis === "column" ? rect.bottom : rect.right;
+      const { crossStart, crossEnd } = getRectSegment(rect, axis);
       if (blockedStart >= crossEnd || blockedEnd <= crossStart) {
         return [rect];
       }
 
       const segments: DOMRect[] = [];
-      const addSegment = (start: number, end: number) => {
-        segments.push(
-          axis === "column"
-            ? new DOMRect(rect.x, start, rect.width, end - start)
-            : new DOMRect(start, rect.y, end - start, rect.height)
-        );
-      };
       if (crossStart < blockedStart) {
-        addSegment(crossStart, blockedStart);
+        segments.push(setRectCrossRange(rect, axis, crossStart, blockedStart));
       }
       if (crossEnd > blockedEnd) {
-        addSegment(blockedEnd, crossEnd);
+        segments.push(setRectCrossRange(rect, axis, blockedEnd, crossEnd));
       }
       return segments;
     });
