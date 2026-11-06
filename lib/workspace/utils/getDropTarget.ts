@@ -55,12 +55,17 @@ export function getDropTarget({
     return undefined;
   }
 
+  // Splitting an empty tabset would remove it (unless it's kept when empty), leaving the dropped tab(s) in its place,
+  // so it's only targeted as a whole (which also keeps the tabset itself, e.g. its id and data)
+  const isSplittable = tabset.tabs.length > 0 || !!tabset.keepWhenEmpty;
+
   if (source.type === "tabset") {
     return getTabsetDropTarget({
       clientX,
       clientY,
       element,
       isExternal,
+      isSplittable,
       model,
       sourceTabsetId: source.tabsetId,
       tabsetElement,
@@ -83,7 +88,8 @@ export function getDropTarget({
 
     // Splitting a tabset with its only tab would leave the layout unchanged (unless the tabset is kept when empty)
     const canSplit =
-      !!tabset.keepWhenEmpty || !(tabset.tabs.length === 1 && isOwnTabset);
+      isSplittable &&
+      (!!tabset.keepWhenEmpty || !(tabset.tabs.length === 1 && isOwnTabset));
     const region = canSplit
       ? getDropRegion(tabPanels.getBoundingClientRect(), clientX, clientY)
       : "center";
@@ -105,6 +111,7 @@ function getTabsetDropTarget({
   clientY,
   element,
   isExternal,
+  isSplittable,
   model,
   sourceTabsetId,
   tabsetElement,
@@ -114,6 +121,7 @@ function getTabsetDropTarget({
   clientY: number;
   element: Element;
   isExternal: boolean;
+  isSplittable: boolean;
   model: WorkspaceModel;
   sourceTabsetId: string;
   tabsetElement: HTMLElement;
@@ -138,11 +146,9 @@ function getTabsetDropTarget({
 
   const tabPanels = getOwnElement(tabsetElement, "[data-tab-panels]");
   if (tabPanels?.contains(element)) {
-    const region = getDropRegion(
-      tabPanels.getBoundingClientRect(),
-      clientX,
-      clientY
-    );
+    const region = isSplittable
+      ? getDropRegion(tabPanels.getBoundingClientRect(), clientX, clientY)
+      : "center";
 
     return region === "center" && isMoveOnly ? undefined : { region, tabsetId };
   }
