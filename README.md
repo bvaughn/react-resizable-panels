@@ -696,7 +696,7 @@ For example:
 ```
 
 A gridline should not be rendered alongside of a Cell that spans across its boundary
-(this includes disabled gridlines; an error will be logged to the console);
+(this includes disabled gridlines; in development builds, an error will be logged to the console);
 render multiple gridlines along the same boundary instead (e.g. before and after the spanning Cell).
 
 ℹ️ Once a boundary contains a gridline, it can only be resized using gridlines;

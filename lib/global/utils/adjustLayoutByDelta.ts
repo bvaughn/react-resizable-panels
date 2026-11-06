@@ -223,13 +223,7 @@ export function adjustLayoutByDelta({
 
         nextLayout[index] = safeSize;
 
-        if (
-          deltaApplied
-            .toFixed(3)
-            .localeCompare(Math.abs(delta).toFixed(3), undefined, {
-              numeric: true
-            }) >= 0
-        ) {
+        if (compareLayoutNumbers(deltaApplied, Math.abs(delta)) >= 0) {
           break;
         }
       }
@@ -309,10 +303,7 @@ export function adjustLayoutByDelta({
     }
   }
 
-  const totalSize = Object.values(nextLayout).reduce(
-    (total, size) => size + total,
-    0
-  );
+  const totalSize = nextLayout.reduce((total, size) => size + total, 0);
 
   // If our new layout doesn't add up to 100%, that means the requested delta can't be applied
   // In that case, fall back to our most recent valid layout

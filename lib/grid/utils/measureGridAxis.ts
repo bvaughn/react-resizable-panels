@@ -14,18 +14,19 @@ function parsePixels(value: string | undefined | null) {
  * the available size is approximated from the element's size and the Grid's layout.
  *
  * ℹ️ When separators are present, the Grid interleaves "gutter" tracks between its content tracks.
+ * Their sizes are only needed (and so only requested) when approximating.
  */
 export function measureGridAxis({
   axis,
   element,
-  gutterSizes,
+  getGutterSizes,
   hasGutters,
   layout,
   trackIds
 }: {
   axis: GridAxis;
   element: HTMLElement;
-  gutterSizes: number[];
+  getGutterSizes: () => number[];
   hasGutters: boolean;
   layout: { [trackId: string]: number } | undefined;
   trackIds: string[];
@@ -35,8 +36,11 @@ export function measureGridAxis({
 
   const style = element.ownerDocument.defaultView?.getComputedStyle(element);
 
-  const template =
-    axis === "column" ? style?.gridTemplateColumns : style?.gridTemplateRows;
+  const isColumn = axis === "column";
+
+  const template = isColumn
+    ? style?.gridTemplateColumns
+    : style?.gridTemplateRows;
   if (template) {
     const tokens = template.trim().split(/\s+/);
     if (
@@ -54,20 +58,18 @@ export function measureGridAxis({
     }
   }
 
-  const outerSize =
-    axis === "column" ? element.offsetWidth : element.offsetHeight;
-  const padding =
-    axis === "column"
-      ? parsePixels(style?.paddingLeft) +
-        parsePixels(style?.paddingRight) +
-        parsePixels(style?.borderLeftWidth) +
-        parsePixels(style?.borderRightWidth)
-      : parsePixels(style?.paddingTop) +
-        parsePixels(style?.paddingBottom) +
-        parsePixels(style?.borderTopWidth) +
-        parsePixels(style?.borderBottomWidth);
-  const gap = parsePixels(axis === "column" ? style?.columnGap : style?.rowGap);
-  const gutters = gutterSizes.reduce((total, size) => total + size, 0);
+  const outerSize = isColumn ? element.offsetWidth : element.offsetHeight;
+  const padding = isColumn
+    ? parsePixels(style?.paddingLeft) +
+      parsePixels(style?.paddingRight) +
+      parsePixels(style?.borderLeftWidth) +
+      parsePixels(style?.borderRightWidth)
+    : parsePixels(style?.paddingTop) +
+      parsePixels(style?.paddingBottom) +
+      parsePixels(style?.borderTopWidth) +
+      parsePixels(style?.borderBottomWidth);
+  const gap = parsePixels(isColumn ? style?.columnGap : style?.rowGap);
+  const gutters = getGutterSizes().reduce((total, size) => total + size, 0);
 
   const availableSize = Math.max(
     0,

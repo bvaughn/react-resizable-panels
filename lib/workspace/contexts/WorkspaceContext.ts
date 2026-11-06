@@ -7,14 +7,15 @@ import type { Orientation, ResizePreviewMode } from "../../global/types";
 import type { ParentGroup, ParentPanel } from "../../flex/types";
 import type { ParentGrid } from "../../grid/types";
 import type { ModelIndex } from "../models/indexModel";
+import type { DragStore } from "../utils/createDragStore";
 import type { TabListFreeSpaceStore } from "../utils/createTabListFreeSpaceStore";
+import type { TabsetElementRegistry } from "../utils/createTabsetElementRegistry";
 import type {
   HiddenTabBehavior,
   MaximumSize,
   MinimumSize,
   ParentTab,
   ParentTabset,
-  TabDropTarget,
   TabNode,
   TabRenderProps,
   TabsetNode,
@@ -40,7 +41,7 @@ export type TabHost = {
 /**
  * Internal state shared by the parts of a Workspace.
  *
- * ℹ️ This value changes whenever the model (or drag state) changes.
+ * ℹ️ This value changes whenever the model changes (but not while a tab is dragged; see dragStore).
  */
 export type WorkspaceContextType = {
   activeTabsetId: string | undefined;
@@ -57,9 +58,8 @@ export type WorkspaceContextType = {
 
   disabled: boolean;
   dragGroup: string | undefined;
-  dragTabId: string | undefined;
-  dragTabsetId: string | undefined;
-  dropTarget: TabDropTarget | undefined;
+  // The tab (or tabset) being dragged, and where it would be dropped; kept in a store (rather than in this context), since it changes often during a drag
+  dragStore: DragStore;
   getHiddenTabBehavior: (tab: TabNode) => HiddenTabBehavior;
   getTabHandle: (tabId: string) => ParentTab;
   getTabHost: (tabId: string) => TabHost;
@@ -112,6 +112,8 @@ export type WorkspaceContextType = {
   styles: WorkspaceStyles | undefined;
   tabListFreeSpaceStore: TabListFreeSpaceStore;
   tabPlacement: "bottom" | "left" | "right" | "top";
+  // Elements of the workspace's tabsets (see TabsetSlot), e.g. for hit testing drags
+  tabsetElements: TabsetElementRegistry;
   takeFocusRequest: (tabId: string) => boolean;
   updateModel: UpdateModel;
 };

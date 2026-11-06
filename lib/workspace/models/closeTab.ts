@@ -1,7 +1,7 @@
 import { copyModel } from "./copyModel";
 import { findTab } from "./findTab";
 import { findTabsetContainingTab } from "./findTabsetContainingTab";
-import { normalizeModel } from "./normalizeModel";
+import { normalizeCopiedModel } from "./normalizeCopiedModel";
 import { removeTab } from "./removeTab";
 import type { WorkspaceModel } from "../types";
 
@@ -19,5 +19,5 @@ export function closeTab<TabData, TabsetData>(
     removeTab(tabset, tabId);
   }
 
-  return normalizeModel(next);
+  return normalizeCopiedModel(next);
 }

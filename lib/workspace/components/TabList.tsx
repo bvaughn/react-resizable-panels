@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
+import { useMergedRefs } from "../../shared/hooks/useMergedRefs";
 import { isHTMLElement } from "../../shared/utils/isHTMLElement";
 import type { Orientation } from "../../global/types";
 import { TabListContext } from "../contexts/TabListContext";
@@ -21,7 +22,8 @@ function TabListComponent({ children }: { children: ReactNode }) {
     styles,
     tabListFreeSpaceStore
   } = useWorkspaceContext("TabList");
-  const { isCollapsed, tabPlacement, tabset } = useTabsetContext("TabList");
+  const { isCollapsed, setTabListElement, tabPlacement, tabset } =
+    useTabsetContext("TabList");
 
   const orientation: Orientation =
     tabPlacement === "left" || tabPlacement === "right"
@@ -29,6 +31,7 @@ function TabListComponent({ children }: { children: ReactNode }) {
       : "horizontal";
 
   const elementRef = useRef<HTMLDivElement | null>(null);
+  const mergedRef = useMergedRefs(elementRef, setTabListElement);
 
   // Tabs let the list be scrolled by touch while it overflows (see Tab)
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -206,7 +209,7 @@ function TabListComponent({ children }: { children: ReactNode }) {
         data-tab-list
         data-tab-placement={tabPlacement}
         data-tabset-collapsed={isCollapsed || undefined}
-        ref={elementRef}
+        ref={mergedRef}
         role="tablist"
         style={{ ...styles?.tabList, touchAction }}
       >

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -59,7 +60,7 @@ function PanelComponent({
     updatePanelProps
   } = useGroupContext();
 
-  const hasOnResize = onResizeUnstable !== null;
+  const hasOnResize = onResizeUnstable != null;
   const onResizeStable = useStableCallback(
     (
       panelSize: PanelSize,
@@ -134,24 +135,21 @@ function PanelComponent({
     [groupId, id, imperativePanelRef]
   );
 
-  // useSyncExternalStore does not support a custom equality check
-  // stringify avoids re-rendering when the style value hasn't changed
-  const read = () => {
-    const maybePanelStyles = getPanelStyles(groupId, id);
-    if (maybePanelStyles) {
-      return JSON.stringify(maybePanelStyles);
-    }
-  };
-
-  const panelStylesString = useSyncExternalStore(
-    (subscribe) => subscribeToMountedAxis(groupId, subscribe),
-    read,
-    read
+  const subscribe = useCallback(
+    (onStoreChange: () => void) =>
+      subscribeToMountedAxis(groupId, onStoreChange),
+    [groupId]
   );
 
+  // useSyncExternalStore does not support a custom equality check;
+  // reading a primitive avoids re-rendering when the style value hasn't changed
+  const read = () => getPanelStyles(groupId, id)?.flexGrow;
+
+  const flexGrow = useSyncExternalStore(subscribe, read, read);
+
   let panelStyles: CSSProperties;
-  if (panelStylesString) {
-    panelStyles = JSON.parse(panelStylesString);
+  if (flexGrow !== undefined) {
+    panelStyles = { flexGrow };
   } else if (defaultSize !== undefined) {
     panelStyles = {
       flexGrow: undefined,

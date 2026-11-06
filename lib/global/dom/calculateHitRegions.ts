@@ -55,6 +55,7 @@ export function calculateHitRegions({
   let lastEnabledItemIndex = -1;
   let numEnabledItems = 0;
   let prevItem: RegisteredResizeItem | undefined = undefined;
+  let prevItemRect: DOMRect | undefined = undefined;
   let pendingSeparators: RegisteredSeparator[] = [];
 
   {
@@ -89,9 +90,10 @@ export function calculateHitRegions({
           (current) => current.element === childElement
         );
         if (itemData) {
-          if (prevItem) {
-            const prevRect = prevItem.element.getBoundingClientRect();
-            const rect = childElement.getBoundingClientRect();
+          const rect = childElement.getBoundingClientRect();
+
+          if (prevItem && prevItemRect) {
+            const prevRect = prevItemRect;
 
             let pendingRectsOrSeparators: (DOMRect | RegisteredSeparator)[];
 
@@ -205,6 +207,7 @@ export function calculateHitRegions({
 
           hasInterleavedStaticContent = false;
           prevItem = itemData;
+          prevItemRect = rect;
           pendingSeparators = [];
         }
       } else if (childElement.hasAttribute("data-separator")) {

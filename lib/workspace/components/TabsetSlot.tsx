@@ -13,7 +13,8 @@ import type { TabsetNode } from "../types";
 import { measureChromeSize } from "../utils/measureChromeSize";
 import { isTabsetCollapsed } from "../utils/isTabsetCollapsed";
 import { measureCollapsedSize } from "../utils/measureCollapsedSize";
-import { useMemo, useRef, useState } from "react";
+import type { TabsetElements } from "../utils/createTabsetElementRegistry";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 function TabsetSlotComponent({
   isMaximizedOverlay = false,
@@ -31,7 +32,8 @@ function TabsetSlotComponent({
     outerParents,
     reportChromeSize,
     reportCollapsedSize,
-    tabPlacement: defaultTabPlacement
+    tabPlacement: defaultTabPlacement,
+    tabsetElements
   } = useWorkspaceContext("TabsetSlot");
 
   const parent = modelIndex.parentsById.get(tabset.id);
@@ -57,9 +59,45 @@ function TabsetSlotComponent({
     }
   }
 
-  const [tabsetElement, setTabsetElement] = useState<HTMLElement | null>(null);
+  const [tabsetElement, setTabsetElementState] = useState<HTMLElement | null>(
+    null
+  );
   const [headerElement, setHeaderElement] = useState<HTMLElement | null>(null);
-  const [panelsElement, setPanelsElement] = useState<HTMLElement | null>(null);
+  const [panelsElement, setPanelsElementState] = useState<HTMLElement | null>(
+    null
+  );
+
+  // The tabset's elements are registered with the workspace (e.g. for hit testing drags; see getDropTarget);
+  // they're recorded as soon as they're mounted (rather than after re-rendering), so that they can be found by effects in the same commit (see DropIndicator)
+  const [elements] = useState<TabsetElements>(() => ({
+    panels: null,
+    tabList: null,
+    tabset: null
+  }));
+  const setTabsetElement = useCallback(
+    (element: HTMLElement | null) => {
+      elements.tabset = element;
+      setTabsetElementState(element);
+    },
+    [elements]
+  );
+  const setPanelsElement = useCallback(
+    (element: HTMLElement | null) => {
+      elements.panels = element;
+      setPanelsElementState(element);
+    },
+    [elements]
+  );
+  const setTabListElement = useCallback(
+    (element: HTMLElement | null) => {
+      elements.tabList = element;
+    },
+    [elements]
+  );
+  useIsomorphicLayoutEffect(
+    () => tabsetElements.register(tabset.id, elements),
+    [elements, tabset.id, tabsetElements]
+  );
 
   // Only collapsible tabsets (within splits) are measured for their collapsed size
   const collapsedOrientation =
@@ -157,11 +195,19 @@ function TabsetSlotComponent({
       isCollapsed,
       setHeaderElement,
       setPanelsElement,
+      setTabListElement,
       setTabsetElement,
       tabPlacement,
       tabset
     }),
-    [isCollapsed, tabPlacement, tabset]
+    [
+      isCollapsed,
+      setPanelsElement,
+      setTabListElement,
+      setTabsetElement,
+      tabPlacement,
+      tabset
+    ]
   );
 
   if (!isMaximizedOverlay && model.maximizedTabsetId === tabset.id) {

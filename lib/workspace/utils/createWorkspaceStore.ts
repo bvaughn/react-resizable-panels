@@ -1,4 +1,5 @@
 import { EventEmitter } from "../../shared/utils/EventEmitter";
+import type { UpdateModel } from "../contexts/WorkspaceContext";
 import type { ModelIndex } from "../models/indexModel";
 import type { WorkspaceModel } from "../types";
 
@@ -24,6 +25,8 @@ export type WorkspaceStore = {
   // Updates the state without notifying subscribers (see notify)
   setState: (state: WorkspaceState) => void;
   subscribe: (listener: () => void) => () => void;
+  // Stable for the life of the Workspace (e.g. for components that would otherwise read WorkspaceContext only for this; see TabCloseButton)
+  updateModel: UpdateModel;
 };
 
 /**
@@ -34,7 +37,8 @@ export type WorkspaceStore = {
  * and notifies subscribers once it commits (so that components that didn't re-render are updated too).
  */
 export function createWorkspaceStore(
-  initialState: WorkspaceState
+  initialState: WorkspaceState,
+  updateModel: UpdateModel
 ): WorkspaceStore {
   const eventEmitter = new EventEmitter<{ change: undefined }>();
   let notifiedState = initialState;
@@ -51,6 +55,7 @@ export function createWorkspaceStore(
     setState: (next) => {
       state = next;
     },
-    subscribe: (listener) => eventEmitter.addListener("change", listener)
+    subscribe: (listener) => eventEmitter.addListener("change", listener),
+    updateModel
   };
 }

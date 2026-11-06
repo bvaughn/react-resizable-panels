@@ -40,14 +40,9 @@ type AxisChangeEvent = {
   next: MountedAxisState;
   prev: MountedAxisState | undefined;
 };
-type AxesChangeEvent = {
-  next: MountedAxes;
-  prev: MountedAxes;
-};
 
 const eventEmitter = new EventEmitter<{
   axisChange: AxisChangeEvent;
-  axesChange: AxesChangeEvent;
 }>();
 
 // Change events dispatched while a batch is open are queued rather than emitted,

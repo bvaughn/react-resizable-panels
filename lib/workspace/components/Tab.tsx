@@ -10,6 +10,7 @@ import { expandTabset } from "../models/expandTabset";
 import { getReplacementTabId } from "../models/getReplacementTabId";
 import { selectTab } from "../models/selectTab";
 import { TabCloseButton } from "./TabCloseButton";
+import { useDragState } from "../hooks/useDragState";
 import type { TabNode, TabRenderProps } from "../types";
 import {
   useTabsetContext,
@@ -22,8 +23,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
   const {
     classNames,
     disabled,
-    dragTabId,
-    dropTarget,
+    dragStore,
     getTabHandle,
     getTabHost,
     modelIndex,
@@ -65,15 +65,30 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     }
   }
 
-  const isDropTargetList =
-    dropTarget !== undefined &&
-    "index" in dropTarget &&
-    dropTarget.tabsetId === tabset.id;
-  const isDropBefore = isDropTargetList && dropTarget.index === index;
-  const isDropAfter =
-    isDropTargetList &&
-    dropTarget.index === tabset.tabs.length &&
-    index === tabset.tabs.length - 1;
+  // Only the tabs whose drag state changes re-render during a drag (see createDragStore)
+  const dropPosition = useDragState(dragStore, ({ dropTarget }) => {
+    if (
+      dropTarget === undefined ||
+      !("index" in dropTarget) ||
+      dropTarget.tabsetId !== tabset.id
+    ) {
+      return undefined;
+    } else if (dropTarget.index === index) {
+      return "before";
+    } else if (
+      dropTarget.index === tabset.tabs.length &&
+      index === tabset.tabs.length - 1
+    ) {
+      return "after";
+    }
+
+    return undefined;
+  });
+  const isDragging = useDragState(
+    dragStore,
+    ({ dragSource }) =>
+      dragSource?.type === "tab" && dragSource.tabId === tab.id
+  );
 
   // Restore focus after a keyboard interaction re-renders the tab (e.g. closing its neighbor)
   useIsomorphicLayoutEffect(() => {
@@ -86,18 +101,22 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
   useIsomorphicLayoutEffect(() => {
     const element = elementRef.current;
     if (!element) {
-      warnOnce(
-        "The element returned by renderTab must receive its props (including ref); otherwise tabs can't be selected, dragged, or focused"
-      );
+      if (process.env.NODE_ENV !== "production") {
+        warnOnce(
+          "The element returned by renderTab must receive its props (including ref); otherwise tabs can't be selected, dragged, or focused"
+        );
+      }
     } else if (
       !isDragDisabled &&
       // Environments without touch-action support (e.g. jsdom) can't be checked
       "touchAction" in element.style &&
       element.style.touchAction !== touchAction
     ) {
-      warnOnce(
-        "The element returned by renderTab replaced props.style (rather than merging it, e.g. style={{ ...props.style, padding: 4 }}); tabs can't be dragged by touch without its touch-action"
-      );
+      if (process.env.NODE_ENV !== "production") {
+        warnOnce(
+          "The element returned by renderTab replaced props.style (rather than merging it, e.g. style={{ ...props.style, padding: 4 }}); tabs can't be dragged by touch without its touch-action"
+        );
+      }
     }
   }, [isDragDisabled, touchAction]);
 
@@ -189,10 +208,10 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     "aria-controls": panelId,
     "aria-selected": isSelected,
     className: classNames?.tab,
-    "data-drop-after": isDropAfter || undefined,
-    "data-drop-before": isDropBefore || undefined,
+    "data-drop-after": dropPosition === "after" || undefined,
+    "data-drop-before": dropPosition === "before" || undefined,
     "data-tab": "",
-    "data-tab-dragging": dragTabId === tab.id || undefined,
+    "data-tab-dragging": isDragging || undefined,
     "data-tab-id": tab.id,
     "data-tab-placement": tabPlacement,
     "data-tabset-collapsed": isCollapsed || undefined,

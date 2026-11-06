@@ -1,30 +1,31 @@
+import {
+  updateMountedAxis,
+  type MountedAxisState
+} from "../mutable-state/axes";
+import type { RegisteredResizeAxis, RegisteredSeparator } from "../types";
 import { assert } from "../../shared/utils/assert";
-import { getMountedAxisState, updateMountedAxis } from "../mutable-state/axes";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
-import { findSeparatorAxis } from "./findSeparatorAxis";
-import { getImperativeAxisMethods } from "./getImperativeAxisMethods";
 import { layoutsEqual } from "./layoutsEqual";
 import { validateAxisLayout } from "./validateAxisLayout";
 
-export function adjustLayoutForSeparator(
-  separatorElement: HTMLElement,
-  delta: number
-) {
-  const axis = findSeparatorAxis(separatorElement);
-  const axisState = getMountedAxisState(axis.id, true);
-
-  const separator = axis.separators.find(
-    (current) => current.element === separatorElement
-  );
-  assert(separator, "Matching separator not found");
-
+export function adjustLayoutForSeparator({
+  axis,
+  axisState,
+  delta,
+  separator
+}: {
+  axis: RegisteredResizeAxis;
+  axisState: MountedAxisState;
+  delta: number;
+  separator: RegisteredSeparator;
+}) {
   const items = axisState.separatorToItems.get(separator);
   assert(items, "Matching panels not found");
 
   const pivotIndices = items.map((item) => axis.items.indexOf(item));
 
-  const axisAPI = getImperativeAxisMethods({ axisId: axis.id });
-  const prevLayout = axisAPI.getLayout();
+  // A deferred layout (e.g. an axis mounted in a hidden DOM subtree) has not been validated, so it should not be used
+  const prevLayout = axisState.defaultLayoutDeferred ? {} : axisState.layout;
 
   const unsafeLayout = adjustLayoutByDelta({
     delta,

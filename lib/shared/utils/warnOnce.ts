@@ -1,14 +1,14 @@
-import { isDevelopment } from "./isDevelopment";
-
 const warnedMessages = new Set<string>();
 
 /**
  * Logs a warning about likely misuse; each distinct message is only logged once.
  *
- * ℹ️ Warnings are only logged in development builds.
+ * ⚠️ Callers should only call this in development builds,
+ * by checking `process.env.NODE_ENV !== "production"` inline (rather than in a helper function),
+ * so that bundlers can remove the check and its message from production builds.
  */
 export function warnOnce(message: string) {
-  if (isDevelopment() && !warnedMessages.has(message)) {
+  if (!warnedMessages.has(message)) {
     warnedMessages.add(message);
 
     console.warn(`react-resizable-panels: ${message}`);

@@ -17,7 +17,9 @@ export function getValidModelInput<TabData, TabsetData>(
     return value;
   }
 
-  warnOnce("Invalid workspace model; using an empty workspace instead");
+  if (process.env.NODE_ENV !== "production") {
+    warnOnce("Invalid workspace model; using an empty workspace instead");
+  }
 
   return { root: { tabs: [], type: "tabset" }, version: 1 };
 }

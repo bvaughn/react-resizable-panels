@@ -28,6 +28,8 @@ import type {
   TabDropTarget,
   WorkspaceModel
 } from "../types";
+import type { DragStore } from "../utils/createDragStore";
+import type { TabsetElementRegistry } from "../utils/createTabsetElementRegistry";
 import { positionPreview } from "../utils/positionPreview";
 import { getDropTarget } from "../utils/getDropTarget";
 import { getEmptyDragImage } from "../utils/getEmptyDragImage";
@@ -61,6 +63,7 @@ export function useTabDrag({
   canTearOff,
   disableDragBetweenApps,
   dragGroup,
+  dragStore,
   getDragNode,
   getModel,
   getRootElement,
@@ -70,11 +73,14 @@ export function useTabDrag({
   onTearOff,
   onTransferIn,
   onTransferOut,
-  rootElement
+  rootElement,
+  tabsetElements
 }: {
   canTearOff: (source: DragSource) => boolean;
   disableDragBetweenApps: boolean;
   dragGroup: string | undefined;
+  // The drop target is shown by the components that subscribe to this store (rather than being returned), so that the workspace doesn't re-render as it changes
+  dragStore: DragStore;
   getDragNode: (source: DragSource) => DragNode | undefined;
   getModel: () => WorkspaceModel;
   getRootElement: () => HTMLElement | null;
@@ -88,9 +94,18 @@ export function useTabDrag({
   onTransferIn: (node: DragNode, target: TabDropTarget) => boolean;
   onTransferOut: (source: DragSource) => void;
   rootElement: HTMLElement | null;
+  tabsetElements: TabsetElementRegistry;
 }) {
-  const [dragSource, setDragSource] = useState<DragSource | undefined>();
-  const [dropTarget, setDropTarget] = useState<TabDropTarget | undefined>();
+  // The source is also shared through the store (see Tab), which is updated along with this state
+  const [dragSource, setDragSourceState] = useState<DragSource | undefined>();
+  const setDragSource = useCallback(
+    (source: DragSource | undefined) => {
+      setDragSourceState(source);
+      dragStore.setDragSource(source);
+    },
+    [dragStore]
+  );
+  const setDropTarget = dragStore.setDropTarget;
   const [isTearOff, setIsTearOff] = useState(false);
 
   // While a drag uses HTML drag and drop, the preview is shown by one workspace in each document (rather than by the source),
@@ -266,7 +281,8 @@ export function useTabDrag({
       getDragNode,
       onTearOff,
       onTransferOut,
-      owner
+      owner,
+      setDragSource
     ]
   );
 
@@ -312,6 +328,15 @@ export function useTabDrag({
       return drag;
     };
 
+    // Drag events are dispatched continuously (even while the pointer isn't moving),
+    // so whether a target is disabled is only checked again when the target (or the drag, or the model) changes
+    let lastTarget: {
+      drag: NativeDrag;
+      isDisabled: boolean;
+      model: WorkspaceModel;
+      target: TabDropTarget;
+    } | null = null;
+
     const getTarget = (event: DragEvent, drag: NativeDrag) => {
       // Only the innermost workspace under the pointer (e.g. not one that has another workspace within a tab) accepts the drop
       const element = event.composedPath()[0] as Element | undefined;
@@ -322,24 +347,37 @@ export function useTabDrag({
         return undefined;
       }
 
+      const model = getModel();
       const target = getDropTarget({
         clientX: event.clientX,
         clientY: event.clientY,
-        model: getModel(),
+        model,
         isExternal: drag.sourceOwner !== owner,
         rootElement,
-        source: drag.source
+        source: drag.source,
+        tabsetElements
       });
       if (!target) {
         return undefined;
       }
 
-      const isDisabled =
-        drag.sourceOwner === owner
-          ? isDropDisabled(drag.source, target)
-          : isExternalDropDisabled(drag.node, target);
+      if (
+        lastTarget?.drag !== drag ||
+        lastTarget.model !== model ||
+        !isSameDropTarget(lastTarget.target, target)
+      ) {
+        lastTarget = {
+          drag,
+          isDisabled:
+            drag.sourceOwner === owner
+              ? isDropDisabled(drag.source, target)
+              : isExternalDropDisabled(drag.node, target),
+          model,
+          target
+        };
+      }
 
-      return isDisabled ? undefined : target;
+      return lastTarget.isDisabled ? undefined : lastTarget.target;
     };
 
     const onDragOver = (event: DragEvent) => {
@@ -395,7 +433,7 @@ export function useTabDrag({
         }
       }
 
-      setDropTarget((prev) => (isSameDropTarget(prev, target) ? prev : target));
+      setDropTarget(target);
     };
 
     const onDropEvent = (event: DragEvent) => {
@@ -452,7 +490,10 @@ export function useTabDrag({
     onDrop,
     onTransferIn,
     owner,
-    rootElement
+    rootElement,
+    setDragSource,
+    setDropTarget,
+    tabsetElements
   ]);
 
   const startDrag = useCallback(
@@ -549,7 +590,8 @@ export function useTabDrag({
               clientY,
               model: getModel(),
               rootElement,
-              source
+              source,
+              tabsetElements
             });
         if (!isSameDropTarget(rawTarget, nextRawTarget)) {
           rawTarget = nextRawTarget;
@@ -663,7 +705,10 @@ export function useTabDrag({
       isDropDisabled,
       onDrop,
       onTearOff,
-      startNativeDrag
+      setDragSource,
+      setDropTarget,
+      startNativeDrag,
+      tabsetElements
     ]
   );
 
@@ -681,7 +726,6 @@ export function useTabDrag({
 
   return {
     dragSource,
-    dropTarget,
     isNativeDragOver,
     isNativeDragSource,
     isTearOff,

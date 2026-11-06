@@ -52,9 +52,11 @@ function TabContentComponent({
           </Activity>
         );
       } else {
-        warnOnce(
-          'hiddenTabBehavior "activity" requires React 19.2 or newer; falling back to "keep-mounted"'
-        );
+        if (process.env.NODE_ENV !== "production") {
+          warnOnce(
+            'hiddenTabBehavior "activity" requires React 19.2 or newer; falling back to "keep-mounted"'
+          );
+        }
       }
     }
   }

@@ -7,6 +7,7 @@ import {
   useTabsetContext,
   useWorkspaceContext
 } from "../hooks/useWorkspaceContext";
+import { useDragState } from "../hooks/useDragState";
 import { expandTabset } from "../models/expandTabset";
 import { isHeaderEmptySpace } from "../utils/isHeaderEmptySpace";
 import { isTabsetDragDisabled } from "../utils/isTabsetDragDisabled";
@@ -18,7 +19,7 @@ function TabsetViewComponent() {
     classNames,
     disabled,
     dragGroup,
-    dragTabsetId,
+    dragStore,
     model,
     renderTabsetToolbar,
     setActiveTabsetId,
@@ -33,6 +34,12 @@ function TabsetViewComponent() {
     tabPlacement,
     tabset
   } = useTabsetContext("TabsetView");
+
+  const isDragging = useDragState(
+    dragStore,
+    ({ dragSource }) =>
+      dragSource?.type === "tabset" && dragSource.tabsetId === tabset.id
+  );
 
   const isDragDisabled = isTabsetDragDisabled(
     model,
@@ -95,7 +102,7 @@ function TabsetViewComponent() {
       data-tabset
       data-tabset-active={activeTabsetId === tabset.id || undefined}
       data-tabset-collapsed={isCollapsed || undefined}
-      data-tabset-dragging={dragTabsetId === tabset.id || undefined}
+      data-tabset-dragging={isDragging || undefined}
       data-tabset-id={tabset.id}
       data-tabset-maximized={model.maximizedTabsetId === tabset.id || undefined}
       onFocusCapture={() => setActiveTabsetId(tabset.id)}
