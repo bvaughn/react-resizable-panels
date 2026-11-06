@@ -56,6 +56,7 @@ export type WorkspaceContextType = {
   collapseToFit: { [tabsetId: string]: boolean };
 
   disabled: boolean;
+  dragGroup: string | undefined;
   dragTabId: string | undefined;
   dragTabsetId: string | undefined;
   dropTarget: TabDropTarget | undefined;

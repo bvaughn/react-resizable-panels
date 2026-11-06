@@ -17,6 +17,7 @@ function TabsetViewComponent() {
     activeTabsetId,
     classNames,
     disabled,
+    dragGroup,
     dragTabsetId,
     model,
     renderTabsetToolbar,
@@ -33,7 +34,12 @@ function TabsetViewComponent() {
     tabset
   } = useTabsetContext("TabsetView");
 
-  const isDragDisabled = isTabsetDragDisabled(model, tabset, disabled);
+  const isDragDisabled = isTabsetDragDisabled(
+    model,
+    tabset,
+    disabled,
+    dragGroup
+  );
 
   const header = (
     <div

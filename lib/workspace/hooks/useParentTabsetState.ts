@@ -21,6 +21,7 @@ export function useParentTabsetState(): ParentTabsetState | null {
       collapseOverrides,
       collapseToFit,
       disabled,
+      dragGroup,
       model,
       modelIndex
     }) => {
@@ -41,7 +42,12 @@ export function useParentTabsetState(): ParentTabsetState | null {
         isCollapsible:
           !!tabset.collapsed ||
           canCollapseTabset(modelIndex.parentsById.get(tabset.id), tabset),
-        isDragDisabled: isTabsetDragDisabled(model, tabset, disabled),
+        isDragDisabled: isTabsetDragDisabled(
+          model,
+          tabset,
+          disabled,
+          dragGroup
+        ),
         isMaximized: model.maximizedTabsetId === tabset.id,
         isRoot: model.root.id === tabset.id,
         selectedTabId: tabset.selectedId

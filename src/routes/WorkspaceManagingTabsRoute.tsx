@@ -37,10 +37,11 @@ const tabRemovalModel: WorkspaceModel<TabData> = {
   }
 };
 
-const FILES: (DemoTab & {
+const FILES: {
   id: string;
+  kind: "about" | "notes";
   title: string;
-})[] = [
+}[] = [
   { id: "notes", kind: "notes", title: "Notes" },
   { id: "about", kind: "about", title: "About" }
 ];

@@ -13,8 +13,14 @@ import { isTabsetDragDisabled } from "../utils/isTabsetDragDisabled";
 import { measureTabListFreeSpace } from "../utils/measureTabListFreeSpace";
 
 function TabListComponent({ children }: { children: ReactNode }) {
-  const { classNames, disabled, model, styles, tabListFreeSpaceStore } =
-    useWorkspaceContext("TabList");
+  const {
+    classNames,
+    disabled,
+    dragGroup,
+    model,
+    styles,
+    tabListFreeSpaceStore
+  } = useWorkspaceContext("TabList");
   const { isCollapsed, tabPlacement, tabset } = useTabsetContext("TabList");
 
   const orientation: Orientation =
@@ -178,7 +184,7 @@ function TabListComponent({ children }: { children: ReactNode }) {
 
   // The list's empty space drags the tabset (see TabsetView), so it handles touch drags itself like tabs do (see Tab)
   let touchAction = styles?.tabList?.touchAction;
-  if (!isTabsetDragDisabled(model, tabset, disabled)) {
+  if (!isTabsetDragDisabled(model, tabset, disabled, dragGroup)) {
     if (isOverflowing) {
       touchAction = orientation === "horizontal" ? "pan-x" : "pan-y";
     } else {

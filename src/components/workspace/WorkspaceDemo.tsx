@@ -1,4 +1,5 @@
 import {
+  ArrowTopRightOnSquareIcon,
   ArrowsPointingInIcon,
   ArrowsPointingOutIcon,
   Bars3Icon,
@@ -17,6 +18,7 @@ import {
   type TabsetNode,
   useParentTabset,
   useParentTabsetState,
+  useParentWorkspace,
   useWorkspaceRef,
   Workspace,
   type WorkspaceClassNames,
@@ -30,9 +32,20 @@ import { Group } from "../styled-panels/Group";
 import { Panel } from "../styled-panels/Panel";
 import { Separator as StyledSeparator } from "../styled-panels/Separator";
 
-export type DemoTab = {
-  kind: "about" | "counter" | "nested" | "notes" | "pinned";
-};
+export type DemoTab =
+  | {
+      kind:
+        | "about"
+        | "about-copies"
+        | "about-popouts"
+        | "counter"
+        | "nested"
+        | "notes"
+        | "pinned";
+    }
+  // Content that keeps its state in the tab's data (rather than component state), so it survives being moved to another window
+  | { count: number; kind: "saved-counter" }
+  | { kind: "saved-notes"; text: string };
 
 export type TabPlacement = "bottom" | "left" | "right" | "top";
 
@@ -89,6 +102,7 @@ export function DemoWorkspace({
   className,
   defaultModel,
   defaultSeparators = false,
+  onPopOut,
   showDragHandles = false,
   showResetButton = false,
   storageKey,
@@ -100,7 +114,10 @@ export function DemoWorkspace({
   | "className"
   | "disabled"
   | "disableDrop"
+  | "dragGroup"
   | "onModelChanged"
+  | "onTearOff"
+  | "renderDragPreview"
   | "renderEmptyTabset"
   | "renderTabsetToolbar"
   | "tabRemovalSelectionBehavior"
@@ -110,6 +127,8 @@ export function DemoWorkspace({
   defaultModel: WorkspaceModel<DemoTab>;
   // Use the Workspace's default (unstyled) separators, rather than the docs' styled ones
   defaultSeparators?: boolean;
+  // Shows a button that opens the tabset's selected tab in a new window
+  onPopOut?: (tabset: TabsetNode<DemoTab>, tab: TabNode<DemoTab>) => void;
   // Tabsets are dragged by a handle in their toolbars, rather than by the empty space in their headers
   showDragHandles?: boolean;
   showResetButton?: boolean;
@@ -146,6 +165,7 @@ export function DemoWorkspace({
               {!rest.disabled && (canAddTabs?.(tabset) ?? true) && (
                 <AddTabButton />
               )}
+              {onPopOut && <PopOutButton onPopOut={onPopOut} tabset={tabset} />}
               <CollapseButton />
               <MaximizeButton />
               {canCloseTabset?.(tabset) && <CloseTabsetButton />}
@@ -287,6 +307,29 @@ function AddTabButton() {
   );
 }
 
+// Hidden when the selected tab can't be dragged (so it couldn't be torn off either)
+function PopOutButton({
+  onPopOut,
+  tabset
+}: {
+  onPopOut: (tabset: TabsetNode<DemoTab>, tab: TabNode<DemoTab>) => void;
+  tabset: TabsetNode<DemoTab>;
+}) {
+  const tab = tabset.tabs.find(({ id }) => id === tabset.selectedId);
+  if (!tab || tab.disableDrag) {
+    return null;
+  }
+
+  return (
+    <TabsetButton
+      onClick={() => onPopOut(tabset, tab)}
+      title="Open in new window"
+    >
+      <ArrowTopRightOnSquareIcon className="w-4 h-4" />
+    </TabsetButton>
+  );
+}
+
 // Hidden when the tabset can't be dragged (e.g. it's the only tabset in the workspace)
 function DragHandle() {
   return (
@@ -395,6 +438,34 @@ function renderTabContent(tab: TabNode<DemoTab>) {
           </p>
         </div>
       );
+    case "about-copies":
+      return (
+        <div className="p-3 text-sm flex flex-col gap-2">
+          <p>
+            This frame loads its own copy of the app. Drag a tab into the other
+            frame to move it there, or open both copies in their own windows.
+          </p>
+          <p>
+            The counter and scratchpad keep their values in their tabs' data,
+            which is sent along with a tab to the other copy.
+          </p>
+        </div>
+      );
+    case "about-popouts":
+      return (
+        <div className="p-3 text-sm flex flex-col gap-2">
+          <p>
+            Drag a tab (or a tabset) out of the window to open it in a popup
+            window, or use the "Open in new window" button in a tabset's
+            toolbar. Tabs can be dragged between this window and the popups.
+          </p>
+          <p>
+            Closing a popup moves its tabs back here. The counter and scratchpad
+            keep their values in their tabs' data, so they survive being moved
+            to another window.
+          </p>
+        </div>
+      );
     case "counter":
       return <Counter />;
     case "nested":
@@ -413,6 +484,12 @@ function renderTabContent(tab: TabNode<DemoTab>) {
           placeholder="Type something, then drag this tab somewhere else…"
         />
       );
+    case "saved-counter":
+      return <SavedCounter count={tab.data.count} tabId={tab.id} />;
+    case "saved-notes":
+      return (
+        <SavedNotes text={tab.data.text} tabId={tab.id} title={tab.title} />
+      );
     case "pinned":
       return (
         <div className="p-3 text-sm">
@@ -421,6 +498,52 @@ function renderTabContent(tab: TabNode<DemoTab>) {
         </div>
       );
   }
+}
+
+// Kept in the tab's data, which moves with the tab (unlike component state, which is lost when another workspace mounts the tab's content)
+function SavedCounter({ count, tabId }: { count: number; tabId: string }) {
+  const workspace = useParentWorkspace<DemoTab>();
+
+  return (
+    <div className="h-full flex flex-col items-center justify-center gap-2 text-sm">
+      <div>Clicked {count} times</div>
+      <DemoButton
+        onClick={() =>
+          workspace?.updateTab(tabId, {
+            data: { count: count + 1, kind: "saved-counter" }
+          })
+        }
+      >
+        Increment
+      </DemoButton>
+    </div>
+  );
+}
+
+function SavedNotes({
+  tabId,
+  text,
+  title
+}: {
+  tabId: string;
+  text: string;
+  title: string | undefined;
+}) {
+  const workspace = useParentWorkspace<DemoTab>();
+
+  return (
+    <textarea
+      aria-label={title}
+      className="w-full h-full p-3 text-sm bg-transparent resize-none outline-none"
+      onChange={(event) =>
+        workspace?.updateTab(tabId, {
+          data: { kind: "saved-notes", text: event.target.value }
+        })
+      }
+      placeholder="Type something, then drag this tab to another window…"
+      value={text}
+    />
+  );
 }
 
 // Local state survives moving the tab, since tab content is never remounted

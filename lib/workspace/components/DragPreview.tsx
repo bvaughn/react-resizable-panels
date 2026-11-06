@@ -12,6 +12,7 @@ function DragPreviewComponent({
   className,
   dragType,
   elementRef,
+  isTearOff,
   pointRef,
   style
 }: {
@@ -19,6 +20,7 @@ function DragPreviewComponent({
   className: string | undefined;
   dragType: "tab" | "tabset";
   elementRef: RefObject<HTMLElement | null>;
+  isTearOff: boolean;
   pointRef: RefObject<{ clientX: number; clientY: number }>;
   style: CSSProperties | undefined;
 }) {
@@ -38,6 +40,7 @@ function DragPreviewComponent({
       className={className}
       data-drag-preview
       data-drag-type={dragType}
+      data-tear-off={isTearOff || undefined}
       ref={ref}
       style={{
         zIndex: 2,

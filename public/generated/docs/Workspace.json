@@ -109,6 +109,19 @@
       "name": "disabled",
       "required": false
     },
+    "disableDragBetweenApps": {
+      "description": [
+        {
+          "content": "<p>Keeps drags between workspaces (see <code>dragGroup</code>) within this copy of the application:\ntabs dragged from this workspace can't be dropped into other copies of the application (e.g. the application loaded in another browser window or tab), and tabs dragged from other copies can't be dropped into this workspace.\nWorkspaces in popout windows rendered by this copy of the application (with portals) are still part of the group.</p>\n"
+        },
+        {
+          "content": "<p>Defaults to <code>false</code>, so that workspaces with the same <code>dragGroup</code> in other copies of the application from the same origin can exchange tabs.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disableDragBetweenApps</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
+      "name": "disableDragBetweenApps",
+      "required": false
+    },
     "disableDrop": {
       "description": [
         {
@@ -124,6 +137,31 @@
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">disableDrop</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">args</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">DisableDropArgs</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"tok-punctuation\">)</span></div>",
       "name": "disableDrop",
+      "required": false
+    },
+    "dragGroup": {
+      "description": [
+        {
+          "content": "<p>Lets tabs (and tabsets) be dragged between workspaces with the same <code>dragGroup</code>,\nincluding workspaces in popout windows (opened by the application and rendered into with a portal)\nand in other copies of the application from the same origin, e.g. the application loaded in another browser window or tab (see <code>disableDragBetweenApps</code>).\nDropping one into another workspace moves it there, keeping its id and data;\nboth workspaces report the change to <code>onModelChanged</code> with the <code>&quot;transfer&quot;</code> reason.</p>\n"
+        },
+        {
+          "content": "<p>Mouse drags use the browser's drag and drop when this prop is set, since pointer events can't follow the pointer into another window.\nTouch drags still use pointer events, so they can't leave the window.</p>\n"
+        },
+        {
+          "content": "<p>Tab ids must be unique within the group; a tab can't be dropped into a workspace that already has a tab with its id (and a tabset with the <code>keepWhenEmpty</code> flag can't be dragged to another workspace).\nA tab dragged to another workspace is rendered by that workspace, so its content is mounted again.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>A tab dragged to another copy of the application is sent there with the structured clone algorithm (like <code>postMessage</code>), so its data must be cloneable (e.g. no functions);\ntabs whose data can't be cloned (and tabsets containing them) can only be dragged within their copy of the application.\nCopies loaded at different times may be running different versions of the application, so the other copy may need to handle tab data it doesn't recognize.</p>\n",
+          "intent": "warning"
+        },
+        {
+          "content": "<p>Tabs (and tabsets) can still be torn off (see <code>onTearOff</code>), but some browsers (e.g. Safari) block popup windows opened at the end of a drag that uses the browser's drag and drop.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">dragGroup</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
+      "name": "dragGroup",
       "required": false
     },
     "elementRef": {
@@ -171,13 +209,38 @@
       "name": "onModelChanged",
       "required": false
     },
+    "onTearOff": {
+      "description": [
+        {
+          "content": "<p>Called when a tab (or a whole tabset) is dropped outside of the window, e.g. to open it in a popup window.\nReturn <code>true</code> to accept it, which removes it from this workspace (reported to <code>onModelChanged</code> with the <code>&quot;tear-off&quot;</code> reason);\notherwise nothing changes.</p>\n"
+        },
+        {
+          "content": "<p>Tabs and tabsets can only be torn off if they could be dragged, and tabsets with the <code>keepWhenEmpty</code> flag can't be torn off.\nWithout this prop, dropping a tab outside of the window does nothing.</p>\n"
+        },
+        {
+          "content": "<p>The Workspace can't tell whether the application showed the tab, so check whether <code>window.open</code> returned <code>null</code> (because the popup was blocked)\nand return <code>false</code> then to keep the tab; returning <code>true</code> removes it even if nothing shows it.</p>\n",
+          "intent": "warning"
+        },
+        {
+          "content": "<p>This is called while the release of the pointer is being handled (which browsers treat as user input), so a popup can be opened from it.\nWith the <code>dragGroup</code> prop, a tab is torn off when it's dropped outside of every window in the group; the end of those drags isn't treated as user input,\nso browsers block popups opened then unless the drag started a few seconds earlier at most (and Safari blocks them always).</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onTearOff</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">args</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TearOffArgs</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "onTearOff",
+      "required": false
+    },
     "renderDragPreview": {
       "description": [
         {
           "content": "<p>Content of the element that follows the pointer while a tab is being dragged.\nDefaults to the tab's title (or id).</p>\n"
+        },
+        {
+          "content": "<p>The element has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tab (see <code>onTearOff</code>).</p>\n",
+          "intent": "primary"
         }
       ],
-      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">renderDragPreview</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span><span class=\"tok-punctuation\">)</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">renderDragPreview</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">state</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">DragPreviewState</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span><span class=\"tok-punctuation\">)</span></div>",
       "name": "renderDragPreview",
       "required": false
     },
@@ -187,11 +250,11 @@
           "content": "<p>Content of the element that follows the pointer while a whole tabset is being dragged.\nDefaults to the title (or id) of its selected tab followed by the number of other tabs being dragged (e.g. &quot;One (+2)&quot;), or the selected tab's <code>renderDragPreview</code> when that prop is set, or the tabset's id if it has no tabs.</p>\n"
         },
         {
-          "content": "<p>The element has a <code>data-drag-type</code> attribute: <code>&quot;tabset&quot;</code> while a tabset is dragged, and <code>&quot;tab&quot;</code> while a tab is.</p>\n",
+          "content": "<p>The element has a <code>data-drag-type</code> attribute: <code>&quot;tabset&quot;</code> while a tabset is dragged, and <code>&quot;tab&quot;</code> while a tab is.\nIt also has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tabset (see <code>onTearOff</code>).</p>\n",
           "intent": "primary"
         }
       ],
-      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">renderTabsetDragPreview</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tabset</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span><span class=\"tok-punctuation\">)</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">renderTabsetDragPreview</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tabset</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">state</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">DragPreviewState</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span><span class=\"tok-punctuation\">)</span></div>",
       "name": "renderTabsetDragPreview",
       "required": false
     },

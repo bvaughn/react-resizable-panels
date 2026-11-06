@@ -6,6 +6,9 @@ import { closeTabset } from "./closeTabset";
 import { collapseTabset } from "./collapseTabset";
 import { expandTabset } from "./expandTabset";
 import { findTabset } from "./findTabset";
+import { hasConflictingIds } from "./hasConflictingIds";
+import { insertTab } from "./insertTab";
+import { insertTabset } from "./insertTabset";
 import { maximizeTabset } from "./maximizeTabset";
 import { moveTab } from "./moveTab";
 import { moveTabset } from "./moveTabset";
@@ -1196,6 +1199,172 @@ describe("workspace model", () => {
         'react-resizable-panels: Duplicate id found in workspace model: "1"'
       );
       warn.mockRestore();
+    });
+  });
+
+  describe("insertTab", () => {
+    test("inserts a tab into a tabset's list and selects it", () => {
+      const next = insertTab(twoTabsets, tab("9"), { index: 1, tabsetId: "a" });
+      expect(shape(next.root)).toEqual({
+        children: [
+          { selected: "9", size: 40, tabs: ["1", "9", "2"] },
+          { selected: "3", size: 60, tabs: ["3"] }
+        ],
+        orientation: "horizontal",
+        size: undefined
+      });
+    });
+
+    test("inserts a tab into a new tabset beside the target", () => {
+      expect(
+        shape(
+          insertTab(twoTabsets, tab("9"), { region: "right", tabsetId: "b" })
+            .root
+        )
+      ).toEqual({
+        children: [
+          { selected: "1", size: 40, tabs: ["1", "2"] },
+          { selected: "3", size: 30, tabs: ["3"] },
+          { selected: "9", size: 30, tabs: ["9"] }
+        ],
+        orientation: "horizontal",
+        size: undefined
+      });
+    });
+
+    test("expands a collapsed tabset that a tab is dropped into", () => {
+      const collapsed = model(
+        split("root", "vertical", [
+          tabset("a", ["1"]),
+          { ...tabset("b", ["2"]), collapsed: true }
+        ])
+      );
+
+      const next = insertTab(collapsed, tab("9"), {
+        region: "center",
+        tabsetId: "b"
+      });
+      expect(findTabset(next, "b")).not.toHaveProperty("collapsed");
+    });
+
+    test("returns the same model when the target tabset doesn't exist", () => {
+      expect(
+        insertTab(twoTabsets, tab("9"), { region: "center", tabsetId: "x" })
+      ).toBe(twoTabsets);
+    });
+  });
+
+  describe("insertTabset", () => {
+    test("inserts a tabset's tabs into a tabset's list, keeping its selected tab", () => {
+      const inserted = { ...tabset("x", ["8", "9"]), selectedId: "9" };
+      expect(
+        shape(
+          insertTabset(twoTabsets, inserted, { index: 0, tabsetId: "b" }).root
+        )
+      ).toEqual({
+        children: [
+          { selected: "1", size: 40, tabs: ["1", "2"] },
+          { selected: "9", size: 60, tabs: ["8", "9", "3"] }
+        ],
+        orientation: "horizontal",
+        size: undefined
+      });
+    });
+
+    test("inserts a whole tabset (with its id and flags, but not its size) beside the target", () => {
+      const inserted = {
+        ...tabset("x", ["9"], 25),
+        collapsed: true,
+        data: { kind: "tools" },
+        keepWhenEmpty: false
+      };
+      const next = insertTabset(twoTabsets, inserted, {
+        region: "bottom",
+        tabsetId: "b"
+      });
+
+      expect(findTabset(next, "x")).toEqual({
+        data: { kind: "tools" },
+        id: "x",
+        keepWhenEmpty: false,
+        selectedId: "9",
+        size: 50,
+        tabs: [tab("9")],
+        type: "tabset"
+      });
+      expect(inserted.collapsed).toBe(true);
+    });
+
+    test("returns the same model when an empty tabset's tabs would be inserted", () => {
+      expect(
+        insertTabset(twoTabsets, tabset("x", []), {
+          region: "center",
+          tabsetId: "b"
+        })
+      ).toBe(twoTabsets);
+    });
+  });
+
+  describe("hasConflictingIds", () => {
+    test("detects tabs with the same ids", () => {
+      const target = { region: "center", tabsetId: "b" } as const;
+      expect(
+        hasConflictingIds(twoTabsets, { tab: tab("1"), type: "tab" }, target)
+      ).toBe(true);
+      expect(
+        hasConflictingIds(twoTabsets, { tab: tab("9"), type: "tab" }, target)
+      ).toBe(false);
+      expect(
+        hasConflictingIds(
+          twoTabsets,
+          { tabset: tabset("x", ["9", "3"]), type: "tabset" },
+          target
+        )
+      ).toBe(true);
+    });
+
+    test("compares ids across tabs, tabsets, and splits", () => {
+      const target = { region: "center", tabsetId: "b" } as const;
+      expect(
+        hasConflictingIds(twoTabsets, { tab: tab("a"), type: "tab" }, target)
+      ).toBe(true);
+      expect(
+        hasConflictingIds(twoTabsets, { tab: tab("root"), type: "tab" }, target)
+      ).toBe(true);
+      expect(
+        hasConflictingIds(
+          twoTabsets,
+          { tabset: tabset("x", ["root"]), type: "tabset" },
+          target
+        )
+      ).toBe(true);
+      expect(
+        hasConflictingIds(
+          twoTabsets,
+          { tabset: tabset("3", ["9"]), type: "tabset" },
+          { region: "left", tabsetId: "b" }
+        )
+      ).toBe(true);
+      expect(
+        hasConflictingIds(
+          twoTabsets,
+          { tabset: tabset("3", ["9"]), type: "tabset" },
+          target
+        )
+      ).toBe(false);
+    });
+
+    test("only compares a tabset's own id where it's inserted whole", () => {
+      const node = { tabset: tabset("a", ["9"]), type: "tabset" } as const;
+      expect(
+        hasConflictingIds(twoTabsets, node, { index: 0, tabsetId: "b" })
+      ).toBe(false);
+      expect(
+        hasConflictingIds(twoTabsets, node, { region: "center", tabsetId: "b" })
+      ).toBe(false);
+      expect(
+        hasConflictingIds(twoTabsets, node, { region: "left", tabsetId: "b" })
+      ).toBe(true);
     });
   });
 });

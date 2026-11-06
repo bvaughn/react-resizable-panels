@@ -200,6 +200,20 @@ const nav: NavConfig<Path | DefaultPath> = [
           },
           { path: "/examples/workspace/restrictions", title: "Restrictions" },
           {
+            path: "/examples/workspace/multiple-windows",
+            title: "Multiple windows",
+            children: [
+              {
+                path: "/examples/workspace/multiple-windows/popout-windows",
+                title: "Popout windows"
+              },
+              {
+                path: "/examples/workspace/multiple-windows/copies-of-your-app",
+                title: "Copies of your app"
+              }
+            ]
+          },
+          {
             path: "/examples/workspace/persistent-layout",
             title: "Persistent layouts"
           },

@@ -5,6 +5,7 @@ import {
   Separator,
   Workspace as WorkspaceExternal,
   type TabNode,
+  type TearOffArgs,
   type WorkspaceChangedMeta,
   type WorkspaceModel,
   type WorkspaceProps,
@@ -19,6 +20,7 @@ export type TestWorkspaceProps = Omit<
   | "elementRef"
   | "hiddenTabBehavior"
   | "onModelChanged"
+  | "onTearOff"
   | "renderDragPreview"
   | "renderSeparator"
   | "renderEmptyTabset"
@@ -33,6 +35,8 @@ export type TestWorkspaceProps = Omit<
   showTabListFreeSpace?: boolean | "responsive" | undefined;
   // Renders a toolbar that shows each tabset's state (see useParentTabsetState) as data attributes
   showTabsetState?: boolean | undefined;
+  // Adds an onTearOff prop that records its arguments and accepts (or rejects) each tear off
+  tearOff?: "accept" | "reject" | undefined;
 };
 
 // Geometry is specified with inline styles (rather than CSS classes) so that tests can make exact assertions:
@@ -47,11 +51,13 @@ export function Workspace({
   showTabListFreeSpace,
   showTabsetState,
   style,
+  tearOff,
   ...rest
 }: TestWorkspaceProps) {
   const [changes, setChanges] = useState<
     { meta: WorkspaceChangedMeta; model: WorkspaceModel }[]
   >([]);
+  const [tearOffs, setTearOffs] = useState<TearOffArgs[]>([]);
 
   return (
     <>
@@ -60,6 +66,14 @@ export function Workspace({
         classNames={{ tabContent: "h-full" }}
         onModelChanged={(model, meta) =>
           setChanges((prev) => [...prev, { meta, model }])
+        }
+        onTearOff={
+          tearOff
+            ? (args) => {
+                setTearOffs((prev) => [...prev, args]);
+                return tearOff === "accept";
+              }
+            : undefined
         }
         renderSeparator={() => (
           <Separator
@@ -109,6 +123,9 @@ export function Workspace({
       />
       <pre data-testid="workspace-changes" hidden>
         {JSON.stringify(changes)}
+      </pre>
+      <pre data-testid="workspace-tear-offs" hidden>
+        {JSON.stringify(tearOffs)}
       </pre>
     </>
   );

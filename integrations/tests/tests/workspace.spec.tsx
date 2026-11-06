@@ -6,6 +6,7 @@ import {
   type WorkspaceModel
 } from "react-resizable-panels";
 import { SEPARATOR_SIZE } from "../src/components/Workspace";
+import { Container } from "../src/components/Container";
 import { goToUrl } from "../src/utils/goToUrl";
 
 function createModel({
@@ -1341,6 +1342,148 @@ test.describe("Workspace", () => {
         expect(Math.abs(width - initialWidths[index])).toBeLessThanOrEqual(1)
       );
       expect(await getChanges(page)).toEqual([]);
+    });
+  });
+
+  test.describe("tearing off", () => {
+    function tearOffWorkspace(tearOff: "accept" | "reject") {
+      return (
+        <Workspace
+          defaultModel={createModel()}
+          renderTabContent={() => null}
+          {...({ tearOff } as object)}
+        />
+      );
+    }
+
+    async function getTearOffs(page: Page) {
+      return JSON.parse(
+        (await page.getByTestId("workspace-tear-offs").textContent()) ?? "[]"
+      );
+    }
+
+    test("tears off a tab dropped outside of the window", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, tearOffWorkspace("accept"));
+
+      // The pointer is captured, so it's still reported (and released) past the edge of the window
+      await dragTab(page, getTab(page, "b"), { x: -20, y: 100 });
+
+      await expect(getTab(page, "b")).toHaveCount(0);
+      expect((await getLastChange(page)).meta).toEqual({
+        isUserInteraction: true,
+        reason: "tear-off"
+      });
+
+      const tearOffs = await getTearOffs(page);
+      expect(tearOffs).toHaveLength(1);
+      expect(tearOffs[0]).toMatchObject({
+        height: 400,
+        model: {
+          root: { selectedId: "b", tabs: [{ id: "b" }], type: "tabset" },
+          version: 1
+        },
+        tab: { id: "b" },
+        type: "tab",
+        width: 400
+      });
+      expect(typeof tearOffs[0].screenX).toBe("number");
+      expect(typeof tearOffs[0].screenY).toBe("number");
+    });
+
+    test("tears off a tabset dropped outside of the window", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, tearOffWorkspace("accept"));
+
+      // The empty space at the end of the left tabset's header
+      const header = (await getTabset(page, "left")
+        .locator("[data-tabset-header]")
+        .boundingBox())!;
+      await drag(
+        page,
+        { x: header.x + header.width - 10, y: header.y + header.height / 2 },
+        { x: 100, y: -20 }
+      );
+
+      await expect(getTabset(page, "left")).toHaveCount(0);
+      expect(await getTabIds(getTabset(page, "right"))).toEqual(["c"]);
+      expect((await getTearOffs(page))[0]).toMatchObject({
+        model: { root: { id: "left", tabs: [{ id: "a" }, { id: "b" }] } },
+        tabset: { id: "left" },
+        type: "tabset"
+      });
+    });
+
+    test("keeps a tab when the tear off is rejected", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, tearOffWorkspace("reject"));
+
+      await dragTab(page, getTab(page, "b"), { x: -20, y: 100 });
+
+      expect(await getTearOffs(page)).toHaveLength(1);
+      expect(await getTabIds(getTabset(page, "left"))).toEqual(["a", "b"]);
+      expect(await getLastChange(page)).toBeUndefined();
+    });
+  });
+
+  // Mouse drags between workspaces in a group use HTML drag and drop (which Chromium performs for the mouse within a page)
+  test.describe("between workspaces (dragGroup)", () => {
+    function groupWorkspaces() {
+      return (
+        <Container className="flex gap-2">
+          <Workspace
+            defaultModel={createModel()}
+            dragGroup="group"
+            renderTabContent={() => null}
+          />
+          <Workspace
+            defaultModel={{
+              root: {
+                id: "far",
+                tabs: [{ data: null, id: "d" }],
+                type: "tabset"
+              },
+              version: 1
+            }}
+            dragGroup="group"
+            renderTabContent={() => null}
+            style={{ height: 400, width: 150 }}
+          />
+        </Container>
+      );
+    }
+
+    test("moves a tab dropped into another workspace", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, groupWorkspaces());
+
+      await dragTab(
+        page,
+        getTab(page, "b"),
+        await getPanelsPoint(getTabset(page, "far"), "center")
+      );
+
+      await expect
+        .poll(() => getTabIds(getTabset(page, "far")))
+        .toEqual(["d", "b"]);
+      expect(await getTabIds(getTabset(page, "left"))).toEqual(["a"]);
+      await expect(getTab(page, "b")).not.toHaveAttribute("draggable");
+    });
+
+    test("keeps a tab dropped where it can't be dropped", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, groupWorkspaces());
+
+      await dragTab(page, getTab(page, "b"), { x: 100, y: 450 });
+
+      await expect(getTab(page, "b")).not.toHaveAttribute("draggable");
+      expect(await getTabIds(getTabset(page, "left"))).toEqual(["a", "b"]);
+      expect(await getTabIds(getTabset(page, "far"))).toEqual(["d"]);
     });
   });
 

@@ -8,12 +8,15 @@ import { getTabListIndex } from "./getTabListIndex";
 export function getDropTarget({
   clientX,
   clientY,
+  isExternal = false,
   model,
   rootElement,
   source
 }: {
   clientX: number;
   clientY: number;
+  /** Set if the source is in another workspace, so its ids don't refer to nodes of this one's model (and the nodes' own tabsets don't apply) */
+  isExternal?: boolean;
   model: WorkspaceModel;
   rootElement: HTMLElement;
   source: DragSource;
@@ -57,6 +60,7 @@ export function getDropTarget({
       clientX,
       clientY,
       element,
+      isExternal,
       model,
       sourceTabsetId: source.tabsetId,
       tabsetElement,
@@ -74,7 +78,8 @@ export function getDropTarget({
 
   const tabPanels = getOwnElement(tabsetElement, "[data-tab-panels]");
   if (tabPanels?.contains(element)) {
-    const isOwnTabset = tabset.tabs.some(({ id }) => id === source.tabId);
+    const isOwnTabset =
+      !isExternal && tabset.tabs.some(({ id }) => id === source.tabId);
 
     // Splitting a tabset with its only tab would leave the layout unchanged (unless the tabset is kept when empty)
     const canSplit =
@@ -99,6 +104,7 @@ function getTabsetDropTarget({
   clientX,
   clientY,
   element,
+  isExternal,
   model,
   sourceTabsetId,
   tabsetElement,
@@ -107,18 +113,21 @@ function getTabsetDropTarget({
   clientX: number;
   clientY: number;
   element: Element;
+  isExternal: boolean;
   model: WorkspaceModel;
   sourceTabsetId: string;
   tabsetElement: HTMLElement;
   tabsetId: string;
 }): TabDropTarget | undefined {
   // A tabset can't be dropped onto itself
-  if (tabsetId === sourceTabsetId) {
+  if (!isExternal && tabsetId === sourceTabsetId) {
     return undefined;
   }
 
-  // Tabsets kept when empty can be moved, but not merged into other tabsets (which would leave them behind, empty)
-  const isMoveOnly = !!findTabset(model, sourceTabsetId)?.keepWhenEmpty;
+  // Tabsets kept when empty can be moved, but not merged into other tabsets (which would leave them behind, empty);
+  // those of other workspaces aren't moved at all (see isExternalDropDisabled)
+  const isMoveOnly =
+    !isExternal && !!findTabset(model, sourceTabsetId)?.keepWhenEmpty;
 
   const tabList = getOwnElement(tabsetElement, "[data-tab-list]");
   if (tabList?.contains(element)) {
