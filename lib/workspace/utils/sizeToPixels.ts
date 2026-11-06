@@ -15,18 +15,22 @@ export function sizeToPixels(
   if (value === undefined) {
     return undefined;
   } else if (typeof value !== "string") {
-    warnOnce(
-      `Workspace tabset sizes (e.g. minWidth or maxWidth) must be strings with units (e.g. "200px"); received ${value}`
-    );
+    if (process.env.NODE_ENV !== "production") {
+      warnOnce(
+        `Workspace tabset sizes (e.g. minWidth or maxWidth) must be strings with units (e.g. "200px"); received ${value}`
+      );
+    }
     return undefined;
   }
 
   const [size, unit] = parseSizeAndUnit(value);
   switch (unit) {
     case "%": {
-      warnOnce(
-        `Workspace tabset sizes (e.g. minWidth or maxWidth) must use absolute units (px, em, rem, vh, or vw); received "${value}". Use "vw" or "vh" for sizes relative to the viewport.`
-      );
+      if (process.env.NODE_ENV !== "production") {
+        warnOnce(
+          `Workspace tabset sizes (e.g. minWidth or maxWidth) must use absolute units (px, em, rem, vh, or vw); received "${value}". Use "vw" or "vh" for sizes relative to the viewport.`
+        );
+      }
       return undefined;
     }
     case "px": {

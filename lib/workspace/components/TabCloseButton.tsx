@@ -3,10 +3,11 @@
 import { useContext } from "react";
 import { warnOnce } from "../../shared/utils/warnOnce";
 import { ParentTabContext } from "../contexts/ParentTabContext";
-import { WorkspaceContext } from "../contexts/WorkspaceContext";
+import { WorkspaceStoreContext } from "../contexts/WorkspaceStoreContext";
 import { closeTab } from "../models/closeTab";
 import type { TabCloseButtonProps } from "../types";
 import { useParentTabState } from "../hooks/useParentTabState";
+import { useWorkspaceStoreSelector } from "../hooks/useWorkspaceStoreSelector";
 
 function TabCloseButtonComponent({
   "aria-label": ariaLabel,
@@ -14,25 +15,29 @@ function TabCloseButtonComponent({
   onClick,
   ...rest
 }: TabCloseButtonProps) {
-  const workspace = useContext(WorkspaceContext);
+  // Read from the store (rather than WorkspaceContext), so that the button only re-renders when its tab's state (or title) changes
+  const store = useContext(WorkspaceStoreContext);
   const parentTab = useContext(ParentTabContext);
   const tabState = useParentTabState();
+  const tabId = parentTab?.id;
+  const tabLabel = useWorkspaceStoreSelector(({ modelIndex }) => {
+    const tab =
+      tabId !== undefined ? modelIndex.tabsById.get(tabId) : undefined;
 
-  if (!workspace || !parentTab) {
-    warnOnce("TabCloseButton must be rendered within a tab (see renderTab)");
+    return tab ? { title: tab.title ?? tab.id } : null;
+  });
+
+  if (!store || !parentTab) {
+    if (process.env.NODE_ENV !== "production") {
+      warnOnce("TabCloseButton must be rendered within a tab (see renderTab)");
+    }
   } else if (tabState?.isCloseDisabled) {
     return null;
   }
 
-  const tab = parentTab
-    ? workspace?.modelIndex.tabsetsByTabId
-        .get(parentTab.id)
-        ?.tabs.find(({ id }) => id === parentTab.id)
-    : undefined;
-
   return (
     <button
-      aria-label={ariaLabel ?? `Close ${tab?.title ?? tab?.id ?? "tab"}`}
+      aria-label={ariaLabel ?? `Close ${tabLabel?.title ?? "tab"}`}
       // Tabs shouldn't contain focusable content; the tab itself can be closed with Delete or Backspace
       tabIndex={-1}
       type="button"
@@ -40,8 +45,8 @@ function TabCloseButtonComponent({
       onClick={(event) => {
         onClick?.(event);
 
-        if (!event.defaultPrevented && workspace && parentTab) {
-          workspace.updateModel("close", true, (prev) =>
+        if (!event.defaultPrevented && store && parentTab) {
+          store.updateModel("close", true, (prev) =>
             closeTab(prev, parentTab.id)
           );
         }

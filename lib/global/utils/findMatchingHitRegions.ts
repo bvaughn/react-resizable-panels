@@ -2,6 +2,7 @@ import { calculateHitRegions } from "../dom/calculateHitRegions";
 import type { MountedAxes } from "../mutable-state/axes";
 import type { HitRegion } from "../types";
 import { findClosestHitRegion } from "./findClosestHitRegion";
+import { isPointNearAxis } from "./isPointNearAxis";
 import { isViableHitTarget } from "./isViableHitTarget";
 
 export function findMatchingHitRegions(
@@ -26,11 +27,16 @@ export function findMatchingHitRegions(
       return;
     }
 
+    const point = { x: event.clientX, y: event.clientY };
+
+    // Calculating hit regions has a cost (it measures every item and separator);
+    // skip axes that the pointer isn't near
+    if (!isPointNearAxis(axisData, point)) {
+      return;
+    }
+
     const hitRegions = calculateHitRegions({ axis: axisData });
-    const match = findClosestHitRegion(axisData.orientation, hitRegions, {
-      x: event.clientX,
-      y: event.clientY
-    });
+    const match = findClosestHitRegion(axisData.orientation, hitRegions, point);
     if (
       match &&
       match.distance.x <= 0 &&

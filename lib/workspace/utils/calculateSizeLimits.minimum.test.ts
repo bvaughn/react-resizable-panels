@@ -1,13 +1,27 @@
 import { describe, expect, test } from "vitest";
-import { calculateMinimumSizes } from "./calculateMinimumSizes";
+import { calculateSizeLimits } from "./calculateSizeLimits";
 import { sizeToPixels } from "./sizeToPixels";
 import type { TabsetNode, WorkspaceNode } from "../types";
+
+// Minimum sizes don't depend on maximum sizes
+function calculateMinimumSizes(
+  root: WorkspaceNode,
+  options: Omit<
+    Parameters<typeof calculateSizeLimits>[1],
+    "getContentMaximumSize"
+  >
+) {
+  return calculateSizeLimits(root, {
+    ...options,
+    getContentMaximumSize: () => ({ height: Infinity, width: Infinity })
+  }).minimumSizes;
+}
 
 function tabset(id: string, minWidth?: string, minHeight?: string): TabsetNode {
   return { id, minHeight, minWidth, tabs: [], type: "tabset" };
 }
 
-describe("calculateMinimumSizes", () => {
+describe("calculateSizeLimits (minimum sizes)", () => {
   const root: WorkspaceNode = {
     children: [
       tabset("a", "100px", "50px"),

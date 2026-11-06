@@ -445,12 +445,29 @@ export type GridSeparatorPlacement = {
 
 /**
  * @internal
+ * Position of a rect relative to one Grid axis
+ * (e.g. for the column axis, start/end are left/right and crossStart/crossEnd are top/bottom)
+ */
+export type GridSegment = {
+  crossEnd: number;
+  crossStart: number;
+  end: number;
+  start: number;
+};
+
+/**
+ * @internal
+ * The Cell (if any) that occupies each slot of a Grid, indexed by [crossIndex][index] relative to one axis
+ */
+export type GridSlots = (RegisteredCell | undefined)[][];
+
+/**
+ * @internal
  */
 export type GridContextType = {
   getDisableCursor: () => boolean;
   getResizeAxisId: (axis: GridAxis) => string;
   gutters: { column: boolean; row: boolean };
-  id: string;
   registerCell: (cell: RegisteredCell) => () => void;
   registerSeparator: (
     placement: GridSeparatorPlacement,

@@ -5,6 +5,7 @@ import {
 } from "../mutable-state/interactions";
 import { abortActivePointerResize } from "../utils/abortActivePointerResize";
 import { findMatchingHitRegions } from "../utils/findMatchingHitRegions";
+import { hitRegionsEqual } from "../utils/hitRegionsEqual";
 import { isActivePointerEvent } from "../utils/isActivePointerEvent";
 import { updateActiveHitRegions } from "../utils/updateActiveHitRegion";
 
@@ -76,7 +77,11 @@ export function onDocumentPointerMove(event: PointerEvent) {
             state: "inactive"
           });
         }
-      } else {
+      } else if (
+        interactionState.state !== "hover" ||
+        interactionState.ownerDocument !== ownerDocument ||
+        !hitRegionsEqual(interactionState.hitRegions, hitRegions)
+      ) {
         updateInteractionState({
           cursorFlags: 0,
           hitRegions,

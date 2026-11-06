@@ -1,6 +1,6 @@
 import { copyModel } from "./copyModel";
 import { findTabset } from "./findTabset";
-import { normalizeModel } from "./normalizeModel";
+import { normalizeCopiedModel } from "./normalizeCopiedModel";
 import type { WorkspaceImperativeHandle, WorkspaceModel } from "../types";
 
 export function updateTabset<TabData, TabsetData>(
@@ -21,5 +21,5 @@ export function updateTabset<TabData, TabsetData>(
   }
 
   // Turning off keepWhenEmpty may leave an empty tabset to remove
-  return normalizeModel(next);
+  return normalizeCopiedModel(next);
 }

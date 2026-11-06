@@ -1,22 +1,22 @@
 import type {
   GridAxis,
+  GridSegment,
   GridSeparatorPlacement,
+  GridSlots,
   RegisteredCell
 } from "../types";
 import { expandHitTarget } from "../../global/utils/expandHitTarget";
 import { excludeSpanningCells } from "./excludeSpanningCells";
+import { getCellRange } from "./getCellRange";
+import { getGridSlots } from "./getGridSlots";
+import { getRectSegment } from "./getRectSegment";
+import { segmentToRect } from "./segmentToRect";
+import { setRectCrossRange } from "./setRectCrossRange";
 import type {
   HitRegion,
   RegisteredResizeAxis,
   RegisteredSeparator
 } from "../../global/types";
-
-type Segment = {
-  crossEnd: number;
-  crossStart: number;
-  end: number;
-  start: number;
-};
 
 /**
  * Determines hit regions for one axis of a Grid; a hit region is either:
@@ -30,24 +30,29 @@ type Segment = {
  * Adjacent segments are merged into a single region, including the gap between rows (or columns).
  * This ensures that the area where column and row boundaries intersect is included in the hit regions for both axes,
  * allowing both to be resized at once.
+ *
+ * ℹ️ The axis size and slots are requested lazily (only if there may be hit regions)
+ * so that callers can defer (or cache) the work required to compute them.
  */
 export function calculateGridHitRegions({
   axis,
   cells,
   crossTrackCount,
   expandHitTargets,
-  resizeAxis,
-  axisSize,
+  getAxisSize,
+  getSlots,
   includeDisabled,
+  resizeAxis,
   separatorPlacements
 }: {
   axis: GridAxis;
   cells: RegisteredCell[];
   crossTrackCount: number;
   expandHitTargets: boolean;
-  resizeAxis: RegisteredResizeAxis;
-  axisSize: number;
+  getAxisSize: () => number;
+  getSlots?: () => GridSlots;
   includeDisabled: boolean;
+  resizeAxis: RegisteredResizeAxis;
   separatorPlacements: Map<RegisteredSeparator, GridSeparatorPlacement>;
 }): HitRegion[] {
   const { items: tracks, separators } = resizeAxis;
@@ -71,6 +76,8 @@ export function calculateGridHitRegions({
     return [];
   }
 
+  const axisSize = getAxisSize();
+
   const isBoundaryResizable = (index: number) =>
     includeDisabled || (index > firstEnabledIndex && index <= lastEnabledIndex);
 
@@ -88,25 +95,34 @@ export function calculateGridHitRegions({
     separator
   });
 
+  // Cell bounds are read (at most) once per call
+  const bounds = new Map<RegisteredCell, GridSegment>();
+  const getBounds = (cell: RegisteredCell) => {
+    let segment = bounds.get(cell);
+    if (!segment) {
+      segment = getRectSegment(cell.element.getBoundingClientRect(), axis);
+      bounds.set(cell, segment);
+    }
+    return segment;
+  };
+
   // Returns the position (along the cross axis) where the specified cross track starts or ends
   const getCrossTrackEdge = (crossIndex: number, edge: "start" | "end") => {
     let position: number | undefined = undefined;
     for (const cell of cells) {
-      const cellCrossStart = axis === "column" ? cell.row : cell.column;
-      const cellCrossSpan = axis === "column" ? cell.rowSpan : cell.columnSpan;
-      if (
-        edge === "start"
-          ? cellCrossStart === crossIndex
-          : cellCrossStart + cellCrossSpan - 1 === crossIndex
-      ) {
-        const rect = cell.element.getBoundingClientRect();
-        if (edge === "start") {
-          const start = axis === "column" ? rect.top : rect.left;
-          position = position === undefined ? start : Math.min(position, start);
-        } else {
-          const end = axis === "column" ? rect.bottom : rect.right;
-          position = position === undefined ? end : Math.max(position, end);
+      const [, , cellCrossStart, cellCrossSpan] = getCellRange(cell, axis);
+      if (edge === "start") {
+        if (cellCrossStart === crossIndex) {
+          const { crossStart } = getBounds(cell);
+          position =
+            position === undefined
+              ? crossStart
+              : Math.min(position, crossStart);
         }
+      } else if (cellCrossStart + cellCrossSpan - 1 === crossIndex) {
+        const { crossEnd } = getBounds(cell);
+        position =
+          position === undefined ? crossEnd : Math.max(position, crossEnd);
       }
     }
     return position;
@@ -140,8 +156,10 @@ export function calculateGridHitRegions({
     const { crossSpan, crossStart } = placement;
     const crossEnd =
       crossSpan === undefined ? crossTrackCount : crossStart + crossSpan;
-    let rectStart = axis === "column" ? rect.top : rect.left;
-    let rectEnd = axis === "column" ? rect.bottom : rect.right;
+    let { crossStart: rectStart, crossEnd: rectEnd } = getRectSegment(
+      rect,
+      axis
+    );
     if (crossStart > 0) {
       const previousEnd = getCrossTrackEdge(crossStart - 1, "end");
       if (previousEnd !== undefined && previousEnd < rectStart) {
@@ -154,10 +172,7 @@ export function calculateGridHitRegions({
         rectEnd = nextStart;
       }
     }
-    rect =
-      axis === "column"
-        ? new DOMRect(rect.x, rectStart, rect.width, rectEnd - rectStart)
-        : new DOMRect(rectStart, rect.y, rectEnd - rectStart, rect.height);
+    rect = setRectCrossRange(rect, axis, rectStart, rectEnd);
 
     rect = expandHitTarget({ expandHitTargets, axis: resizeAxis, rect });
 
@@ -170,6 +185,7 @@ export function calculateGridHitRegions({
       excludeSpanningCells({
         axis,
         cells,
+        getCellBounds: getBounds,
         index: placement.index,
         rect
       }).forEach((current) => {
@@ -184,6 +200,7 @@ export function calculateGridHitRegions({
     excludeSpanningCells({
       axis,
       cells,
+      getCellBounds: getBounds,
       index,
       rect: expandHitTarget({ expandHitTargets, axis: resizeAxis, rect })
     }).forEach((current) => {
@@ -192,73 +209,22 @@ export function calculateGridHitRegions({
   };
 
   // Map each (cross track, track) slot to the Cell that occupies it (if any)
-  const slots: (RegisteredCell | undefined)[][] = Array.from(
-    { length: crossTrackCount },
-    () => new Array(trackCount)
-  );
-  for (const cell of cells) {
-    const [start, span, crossStart, crossSpan] =
-      axis === "column"
-        ? [cell.column, cell.columnSpan, cell.row, cell.rowSpan]
-        : [cell.row, cell.rowSpan, cell.column, cell.columnSpan];
-
-    for (
-      let crossIndex = Math.max(0, crossStart);
-      crossIndex < Math.min(crossTrackCount, crossStart + crossSpan);
-      crossIndex++
-    ) {
-      for (
-        let index = Math.max(0, start);
-        index < Math.min(trackCount, start + span);
-        index++
-      ) {
-        // If cells overlap, the first one wins
-        slots[crossIndex][index] ??= cell;
-      }
-    }
-  }
-
-  const bounds = new Map<RegisteredCell, Segment>();
-  const getBounds = (cell: RegisteredCell) => {
-    let segment = bounds.get(cell);
-    if (!segment) {
-      const rect = cell.element.getBoundingClientRect();
-      segment =
-        axis === "column"
-          ? {
-              crossEnd: rect.bottom,
-              crossStart: rect.top,
-              end: rect.right,
-              start: rect.left
-            }
-          : {
-              crossEnd: rect.right,
-              crossStart: rect.left,
-              end: rect.bottom,
-              start: rect.top
-            };
-      bounds.set(cell, segment);
-    }
-    return segment;
-  };
-
-  const toDOMRect = ({ crossEnd, crossStart, end, start }: Segment) =>
-    axis === "column"
-      ? new DOMRect(start, crossStart, end - start, crossEnd - crossStart)
-      : new DOMRect(crossStart, start, crossEnd - crossStart, end - start);
+  const slots = getSlots
+    ? getSlots()
+    : getGridSlots({ axis, cells, crossTrackCount, trackCount });
 
   for (let index = 1; index < trackCount; index++) {
     if (boundariesWithSeparators.has(index) || !isBoundaryResizable(index)) {
       continue;
     }
 
-    let pending: Segment | undefined = undefined;
+    let pending: GridSegment | undefined = undefined;
 
     for (let crossIndex = 0; crossIndex < crossTrackCount; crossIndex++) {
       const before = slots[crossIndex][index - 1];
       const after = slots[crossIndex][index];
 
-      let segment: Segment | undefined = undefined;
+      let segment: GridSegment | undefined = undefined;
       if ((before || after) && before !== after) {
         const beforeBounds = before ? getBounds(before) : undefined;
         const afterBounds = after ? getBounds(after) : undefined;
@@ -295,13 +261,13 @@ export function calculateGridHitRegions({
             }
           : segment;
       } else if (pending) {
-        addImplicitHitRegions(index, toDOMRect(pending));
+        addImplicitHitRegions(index, segmentToRect(pending, axis));
         pending = undefined;
       }
     }
 
     if (pending) {
-      addImplicitHitRegions(index, toDOMRect(pending));
+      addImplicitHitRegions(index, segmentToRect(pending, axis));
     }
   }
 

@@ -1,4 +1,4 @@
-import { completeActivePointerResize } from "../utils/completeActivePointerResize.ts";
+import { completeActivePointerResize } from "../utils/completeActivePointerResize";
 
 export function onDocumentPointerUp(event: PointerEvent) {
   if (event.defaultPrevented) {

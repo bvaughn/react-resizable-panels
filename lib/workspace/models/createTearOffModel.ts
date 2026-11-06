@@ -2,7 +2,7 @@ import { copyStructure } from "./copyStructure";
 import { createId } from "./createId";
 import { findTab } from "./findTab";
 import { findTabset } from "./findTabset";
-import { normalizeModel } from "./normalizeModel";
+import { normalizeCopiedModel } from "./normalizeCopiedModel";
 import type { DragSource, TabsetNode, WorkspaceModel } from "../types";
 
 /**
@@ -39,5 +39,5 @@ export function createTearOffModel<TabData, TabsetData>(
     delete root.size;
   }
 
-  return normalizeModel({ root, version: 1 });
+  return normalizeCopiedModel({ root, version: 1 });
 }

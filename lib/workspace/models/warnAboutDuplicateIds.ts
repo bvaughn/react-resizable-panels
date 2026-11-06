@@ -6,7 +6,9 @@ export function warnAboutDuplicateIds(root: WorkspaceNode) {
 
   const visit = (id: string) => {
     if (ids.has(id)) {
-      warnOnce(`Duplicate id found in workspace model: "${id}"`);
+      if (process.env.NODE_ENV !== "production") {
+        warnOnce(`Duplicate id found in workspace model: "${id}"`);
+      }
     }
     ids.add(id);
   };

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { mountAxis } from "../mountAxis";
 import { getMountedAxes, type MountedAxes } from "../mutable-state/axes";
 import { mockGroup } from "../test/mockGroup";
@@ -142,6 +142,72 @@ describe("findMatchingHitRegions", () => {
     expect(serialize(mockPointerEvent({ clientX: 50 }), getMountedAxes()))
       .toMatchInlineSnapshot(`
       "[]"
+    `);
+  });
+
+  test("should not measure items or separators of groups the pointer is not near", () => {
+    const group = mockGroup(new DOMRect(0, 0, 100, 50));
+    group.addPanel(new DOMRect(0, 0, 50, 50), "left");
+    group.addSeparator(new DOMRect(50, 0, 0, 50), "separator");
+    group.addPanel(new DOMRect(50, 0, 50, 50), "right");
+    mountAxis(group);
+
+    const spies = [
+      ...group.items.map(({ element }) =>
+        vi.spyOn(element, "getBoundingClientRect")
+      ),
+      ...group.separators.map(({ element }) =>
+        vi.spyOn(element, "getBoundingClientRect")
+      )
+    ];
+
+    expect(
+      serialize(
+        mockPointerEvent({ clientX: 50, clientY: 100 }),
+        getMountedAxes()
+      )
+    ).toMatchInlineSnapshot(`"[]"`);
+
+    for (const spy of spies) {
+      expect(spy).not.toHaveBeenCalled();
+    }
+
+    // Sanity check: the same boundary should match when the pointer is near the group
+    expect(
+      JSON.parse(
+        serialize(
+          mockPointerEvent({ clientX: 50, clientY: 25 }),
+          getMountedAxes()
+        )
+      )
+    ).toHaveLength(1);
+  });
+
+  test("should match expanded hit regions that extend past the edge of the group", () => {
+    // A narrow vertical group; the boundary between its panels is expanded to the minimum hit target size,
+    // which extends past the left/right edges of the group
+    const group = mockGroup(new DOMRect(0, 0, 4, 100), {
+      orientation: "vertical"
+    });
+    group.addPanel(new DOMRect(0, 0, 4, 50), "top");
+    group.addPanel(new DOMRect(0, 50, 4, 50), "bottom");
+    mountAxis(group);
+
+    expect(
+      serialize(
+        mockPointerEvent({ clientX: -2, clientY: 50 }),
+        getMountedAxes()
+      )
+    ).toMatchInlineSnapshot(`
+      "[
+        {
+          "panels": [
+            "group-1-top",
+            "group-1-bottom"
+          ],
+          "rect": "-3,45 10 x 10"
+        }
+      ]"
     `);
   });
 });

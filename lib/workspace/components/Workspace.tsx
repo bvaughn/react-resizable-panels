@@ -30,9 +30,10 @@ import {
   type WorkspaceContextType
 } from "../contexts/WorkspaceContext";
 import { WorkspaceStoreContext } from "../contexts/WorkspaceStoreContext";
-import { calculateMaximumSizes } from "../utils/calculateMaximumSizes";
-import { calculateMinimumSizes } from "../utils/calculateMinimumSizes";
+import { calculateSizeLimits } from "../utils/calculateSizeLimits";
+import { createDragStore } from "../utils/createDragStore";
 import { createTabListFreeSpaceStore } from "../utils/createTabListFreeSpaceStore";
+import { createTabsetElementRegistry } from "../utils/createTabsetElementRegistry";
 import {
   createWorkspaceStore,
   type WorkspaceState
@@ -43,13 +44,9 @@ import { closeTabset } from "../models/closeTabset";
 import { collapseTabset } from "../models/collapseTabset";
 import { createTearOffModel } from "../models/createTearOffModel";
 import { expandTabset } from "../models/expandTabset";
-import { findTab } from "../models/findTab";
-import { findTabset } from "../models/findTabset";
-import { findTabsetContainingTab } from "../models/findTabsetContainingTab";
-import { getAllTabs } from "../models/getAllTabs";
+import { getModelIndex } from "../models/getModelIndex";
 import { getValidModelInput } from "../models/getValidModelInput";
 import { hasConflictingIds } from "../models/hasConflictingIds";
-import { indexModel } from "../models/indexModel";
 import { insertTab } from "../models/insertTab";
 import { insertTabset } from "../models/insertTabset";
 import { maximizeTabset } from "../models/maximizeTabset";
@@ -83,7 +80,6 @@ import type {
 import { useTabDrag } from "../hooks/useTabDrag";
 import { NodeView } from "./NodeView";
 import { TabsetSlot } from "./TabsetSlot";
-import { findTabsetElement } from "../utils/findTabsetElement";
 import { isRightToLeft } from "../utils/isRightToLeft";
 import { pruneRemovedNodes } from "../utils/pruneRemovedNodes";
 import { updateCollapseOverrides } from "../utils/updateCollapseOverrides";
@@ -188,6 +184,12 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   // Tab lists report their free space here (rather than in React state), so that it can be read synchronously, e.g. from outside the Workspace
   const [tabListFreeSpaceStore] = useState(createTabListFreeSpaceStore);
 
+  // The tab (or tabset) being dragged, and where it would be dropped (see createDragStore)
+  const [dragStore] = useState(createDragStore);
+
+  // Tabsets register their elements here (see TabsetSlot), so that drags can be hit tested without searching the document
+  const [tabsetElements] = useState(createTabsetElementRegistry);
+
   // Read by imperative methods, e.g. to tell which side of the screen a drop region is on (see toModelDropTarget)
   const rootElementRef = useRef<HTMLDivElement | null>(null);
 
@@ -195,7 +197,10 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     const getActiveTabsetId = () => {
       const tabsetId = activeTabsetIdRef.current;
 
-      return findTabset(modelRef.current, tabsetId) ? tabsetId : undefined;
+      return tabsetId !== undefined &&
+        getModelIndex(modelRef.current).tabsetsById.has(tabsetId)
+        ? tabsetId
+        : undefined;
     };
 
     return {
@@ -287,11 +292,11 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         parentTab = {
           close: () => handle.closeTab(tabId),
           getTabsetId: () =>
-            findTabsetContainingTab(modelRef.current, tabId)?.id ?? "",
+            getModelIndex(modelRef.current).tabsetsByTabId.get(tabId)?.id ?? "",
           id: tabId,
           isSelected: () =>
-            findTabsetContainingTab(modelRef.current, tabId)?.selectedId ===
-            tabId,
+            getModelIndex(modelRef.current).tabsetsByTabId.get(tabId)
+              ?.selectedId === tabId,
           select: () => handle.selectTab(tabId),
           workspaceId: id
         };
@@ -315,7 +320,8 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
           expand: () => handle.expandTabset(tabsetId),
           id: tabsetId,
           isCollapsed: () =>
-            !!findTabset(modelRef.current, tabsetId)?.collapsed,
+            !!getModelIndex(modelRef.current).tabsetsById.get(tabsetId)
+              ?.collapsed,
           isMaximized: () => modelRef.current.maximizedTabsetId === tabsetId,
           maximize: () => handle.maximizeTabset(tabsetId),
           restore: () => {
@@ -372,16 +378,20 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     [id, ownerDocument, tabHosts]
   );
 
-  const tabs = getAllTabs(model.root);
-  const modelIndex = useMemo(() => indexModel(model), [model]);
+  const modelIndex = getModelIndex(model);
 
   // Clean up after removed tabs and tabsets
   useEffect(() => {
-    const tabIds = new Set(tabs.map(({ id }) => id));
     for (const [tabId, host] of tabHosts) {
-      if (!tabIds.has(tabId)) {
+      if (!modelIndex.tabsById.has(tabId)) {
         host.element?.remove();
         tabHosts.delete(tabId);
+        handles.tabs.delete(tabId);
+      }
+    }
+
+    for (const tabId of handles.tabs.keys()) {
+      if (!modelIndex.tabsById.has(tabId)) {
         handles.tabs.delete(tabId);
       }
     }
@@ -391,7 +401,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         handles.tabsets.delete(tabsetId);
       }
     }
-  });
+  }, [handles, modelIndex, tabHosts]);
 
   // Tab content is rendered through portals, which can't be rendered on the server (or during hydration);
   // content opted into server rendering is rendered inline by TabPanels until hydration has finished
@@ -545,64 +555,45 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     };
   }, [rootElement]);
 
-  const minimumSizes = useMemo(
-    () =>
-      calculateMinimumSizes(model.root, {
-        getChromeSize: (tabsetId) => chromeSizes[tabsetId],
-        getCollapsedSize: (tabsetId) => collapsedSizes[tabsetId],
-        getContentMinimumSize: (tabset: TabsetNode) => ({
-          height:
-            sizeToPixels(
-              tabset.minHeight ?? tabsetMinHeight,
-              unitsReference?.element ?? null
-            ) ?? 0,
-          width:
-            sizeToPixels(
-              tabset.minWidth ?? tabsetMinWidth,
-              unitsReference?.element ?? null
-            ) ?? 0
-        }),
-        getSeparatorsSize: (splitId) => separatorsSizes[splitId]
-      }),
-    [
-      chromeSizes,
-      collapsedSizes,
-      model.root,
-      separatorsSizes,
-      tabsetMinHeight,
-      tabsetMinWidth,
-      unitsReference
-    ]
-  );
-
   // Maximums that can't be converted yet (e.g. "em" before the workspace has rendered) aren't applied until they can be
-  const maximumSizes = useMemo(
-    () =>
-      calculateMaximumSizes(model.root, {
-        getChromeSize: (tabsetId) => chromeSizes[tabsetId],
-        getCollapsedSize: (tabsetId) => collapsedSizes[tabsetId],
-        getContentMaximumSize: (tabset: TabsetNode) => ({
-          height:
-            sizeToPixels(tabset.maxHeight, unitsReference?.element ?? null) ??
-            Infinity,
-          width:
-            sizeToPixels(tabset.maxWidth, unitsReference?.element ?? null) ??
-            Infinity
-        }),
-        getSeparatorsSize: (splitId) => separatorsSizes[splitId]
+  const { maximumSizes, minimumSizes } = useMemo(() => {
+    const unitsElement = unitsReference?.element ?? null;
+
+    return calculateSizeLimits(model.root, {
+      getChromeSize: (tabsetId) => chromeSizes[tabsetId],
+      getCollapsedSize: (tabsetId) => collapsedSizes[tabsetId],
+      getContentMaximumSize: (tabset: TabsetNode) => ({
+        height: sizeToPixels(tabset.maxHeight, unitsElement) ?? Infinity,
+        width: sizeToPixels(tabset.maxWidth, unitsElement) ?? Infinity
       }),
-    [chromeSizes, collapsedSizes, model.root, separatorsSizes, unitsReference]
-  );
+      getContentMinimumSize: (tabset: TabsetNode) => ({
+        height:
+          sizeToPixels(tabset.minHeight ?? tabsetMinHeight, unitsElement) ?? 0,
+        width:
+          sizeToPixels(tabset.minWidth ?? tabsetMinWidth, unitsElement) ?? 0
+      }),
+      getSeparatorsSize: (splitId) => separatorsSizes[splitId]
+    });
+  }, [
+    chromeSizes,
+    collapsedSizes,
+    model.root,
+    separatorsSizes,
+    tabsetMinHeight,
+    tabsetMinWidth,
+    unitsReference
+  ]);
 
   const getDragNode = useStableCallback(
     (source: DragSource): DragNode | undefined => {
+      const { tabsById, tabsetsById } = getModelIndex(modelRef.current);
       if (source.type === "tab") {
-        const tab = findTab(modelRef.current, source.tabId);
+        const tab = tabsById.get(source.tabId);
 
         return tab ? { tab, type: "tab" } : undefined;
       }
 
-      const tabset = findTabset(modelRef.current, source.tabsetId);
+      const tabset = tabsetsById.get(source.tabsetId);
 
       return tabset ? { tabset, type: "tabset" } : undefined;
     }
@@ -693,11 +684,12 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       return false;
     }
 
+    const { tabsById, tabsetsById } = getModelIndex(modelRef.current);
     if (source.type === "tab") {
-      return !!findTab(modelRef.current, source.tabId);
+      return tabsById.has(source.tabId);
     }
 
-    const tabset = findTabset(modelRef.current, source.tabsetId);
+    const tabset = tabsetsById.get(source.tabsetId);
 
     return !!tabset && !tabset.keepWhenEmpty;
   });
@@ -707,28 +699,38 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       source: DragSource,
       { screenX, screenY }: { screenX: number; screenY: number }
     ) => {
+      if (!onTearOff || !canTearOff(source)) {
+        return;
+      }
+
       const model = modelRef.current as WorkspaceModel<TabData, TabsetData>;
       const tearOffModel = createTearOffModel(model, source);
-      if (!onTearOff || !tearOffModel || !canTearOff(source)) {
+      if (!tearOffModel) {
         return;
       }
 
       // The source (e.g. a tab) and the tabset it's dragged from
+      const { tabsById, tabsetsById, tabsetsByTabId } = getModelIndex(model);
       const sourceNode =
         source.type === "tab"
           ? {
-              tab: findTab(model, source.tabId)!,
-              tabset: findTabsetContainingTab(model, source.tabId)!,
+              tab: tabsById.get(source.tabId) as TabNode<TabData>,
+              tabset: tabsetsByTabId.get(source.tabId) as TabsetNode<
+                TabData,
+                TabsetData
+              >,
               type: "tab" as const
             }
           : {
-              tabset: findTabset(model, source.tabsetId)!,
+              tabset: tabsetsById.get(source.tabsetId) as TabsetNode<
+                TabData,
+                TabsetData
+              >,
               type: "tabset" as const
             };
-      const rect = findTabsetElement(
-        rootElementRef.current,
-        sourceNode.tabset.id
-      )?.getBoundingClientRect();
+      const rect = tabsetElements
+        .get(sourceNode.tabset.id)
+        ?.tabset?.getBoundingClientRect();
 
       const args: TearOffArgs<TabData, TabsetData> = {
         ...(sourceNode.type === "tab"
@@ -786,7 +788,6 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
   const {
     dragSource,
-    dropTarget,
     isNativeDragOver,
     isNativeDragSource,
     isTearOff,
@@ -799,6 +800,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     canTearOff,
     disableDragBetweenApps,
     dragGroup,
+    dragStore,
     getDragNode,
     getModel,
     getRootElement,
@@ -808,11 +810,9 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     onTearOff: handleTearOff,
     onTransferIn: handleTransferIn,
     onTransferOut: handleTransferOut,
-    rootElement
+    rootElement,
+    tabsetElements
   });
-  const dragTabId = dragSource?.type === "tab" ? dragSource.tabId : undefined;
-  const dragTabsetId =
-    dragSource?.type === "tabset" ? dragSource.tabsetId : undefined;
 
   // Keyboard interactions can ask for a tab to be focused after it re-renders
   const focusRequestRef = useRef<string | undefined>(undefined);
@@ -836,9 +836,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       collapseToFit: collapseToFitInSplits,
       disabled,
       dragGroup,
-      dragTabId,
-      dragTabsetId,
-      dropTarget,
+      dragStore,
       getTabHandle,
       getTabHost,
       getHiddenTabBehavior,
@@ -877,6 +875,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       styles,
       tabListFreeSpaceStore,
       tabPlacement,
+      tabsetElements,
       takeFocusRequest,
       updateModel
     }),
@@ -888,9 +887,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       collapseToFitInSplits,
       disabled,
       dragGroup,
-      dragTabId,
-      dragTabsetId,
-      dropTarget,
+      dragStore,
       getTabHandle,
       getTabHost,
       getHiddenTabBehavior,
@@ -923,6 +920,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       styles,
       tabListFreeSpaceStore,
       tabPlacement,
+      tabsetElements,
       takeFocusRequest,
       updateModel
     ]
@@ -949,20 +947,70 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       modelIndex
     ]
   );
-  const [store] = useState(() => createWorkspaceStore(workspaceState));
+  const [store] = useState(() =>
+    createWorkspaceStore(workspaceState, updateModel)
+  );
   // Set while rendering so that children rendered in this pass don't read stale state (see createWorkspaceStore)
   store.setState(workspaceState);
   useIsomorphicLayoutEffect(() => {
     store.notify();
   }, [store, workspaceState]);
 
-  const maximizedTabset = findTabset(model, model.maximizedTabsetId);
+  const maximizedTabset =
+    model.maximizedTabsetId !== undefined
+      ? modelIndex.tabsetsById.get(model.maximizedTabsetId)
+      : undefined;
 
   // While a tabset is maximized, the rest of the layout is covered (and shouldn't be focusable)
   const layoutRef = useRef<HTMLDivElement | null>(null);
   useIsomorphicLayoutEffect(() => {
     layoutRef.current?.toggleAttribute("inert", !!maximizedTabset);
   }, [maximizedTabset]);
+
+  // The layout, the maximized tabset, and tab content are memoized, so that they aren't re-rendered when only the Workspace's own state changes
+  // (e.g. when a drag starts or ends); parts of the layout re-render when the context changes, or when the state they subscribe to does (see createDragStore)
+  const layout = useMemo(() => <NodeView node={model.root} />, [model.root]);
+  const maximizedOverlay = useMemo(
+    () =>
+      maximizedTabset && (
+        <div
+          data-workspace-maximized
+          style={{ inset: 0, position: "absolute", zIndex: 1 }}
+        >
+          <TabsetSlot isMaximizedOverlay tabset={maximizedTabset} />
+        </div>
+      ),
+    [maximizedTabset]
+  );
+  const portals = useMemo(
+    () =>
+      isHydrating
+        ? null
+        : Array.from(modelIndex.tabsById.values(), (tab) => {
+            const element = getTabHost(tab.id).element;
+
+            return element
+              ? createPortal(
+                  <TabContent
+                    hiddenTabBehavior={getHiddenTabBehavior(tab)}
+                    renderTabContent={
+                      renderTabContent as (tab: TabNode) => ReactNode
+                    }
+                    tab={tab}
+                  />,
+                  element,
+                  tab.id
+                )
+              : null;
+          }),
+    [
+      getHiddenTabBehavior,
+      getTabHost,
+      isHydrating,
+      modelIndex,
+      renderTabContent
+    ]
+  );
 
   // Drags using HTML drag and drop (see the dragGroup prop) may come from other workspaces, so their previews show the dragged node as it was when the drag started
   let dragTab: TabNode | undefined;
@@ -974,8 +1022,14 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       dragTabset = nativePreviewNode.tabset;
     }
   } else if (!isNativeDragSource) {
-    dragTab = dragTabId ? findTab(model, dragTabId) : undefined;
-    dragTabset = dragTabsetId ? findTabset(model, dragTabsetId) : undefined;
+    dragTab =
+      dragSource?.type === "tab"
+        ? modelIndex.tabsById.get(dragSource.tabId)
+        : undefined;
+    dragTabset =
+      dragSource?.type === "tabset"
+        ? modelIndex.tabsetsById.get(dragSource.tabsetId)
+        : undefined;
   }
 
   // The default preview also shows how many other tabs are being dragged along with the tab (when its tabset is dragged)
@@ -1024,24 +1078,17 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
               ref={layoutRef}
               style={{ height: "100%", width: "100%" }}
             >
-              <NodeView node={model.root} />
+              {layout}
             </div>
-            {maximizedTabset && (
-              <div
-                data-workspace-maximized
-                style={{ inset: 0, position: "absolute", zIndex: 1 }}
-              >
-                <TabsetSlot isMaximizedOverlay tabset={maximizedTabset} />
-              </div>
-            )}
+            {maximizedOverlay}
             {/* Shown by every workspace in the document a drag is over (not just the one showing the preview), for the whole drag, so it can be animated between tabsets */}
             {(dragSource !== undefined || isNativeDragOver) && (
               <DropIndicator
                 className={classNames?.dropIndicator}
-                dropTarget={dropTarget}
+                dragStore={dragStore}
                 model={model}
-                rootElement={rootElement}
                 style={styles?.dropIndicator}
+                tabsetElements={tabsetElements}
               />
             )}
             {(dragTab || dragTabset) && (
@@ -1057,24 +1104,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
               </DragPreview>
             )}
           </div>
-          {!isHydrating &&
-            tabs.map((tab) => {
-              const element = getTabHost(tab.id).element;
-
-              return element
-                ? createPortal(
-                    <TabContent
-                      hiddenTabBehavior={getHiddenTabBehavior(tab)}
-                      renderTabContent={
-                        renderTabContent as (tab: TabNode) => ReactNode
-                      }
-                      tab={tab}
-                    />,
-                    element,
-                    tab.id
-                  )
-                : null;
-            })}
+          {portals}
         </WorkspaceContext.Provider>
       </WorkspaceStoreContext.Provider>
     </ParentWorkspaceContext.Provider>

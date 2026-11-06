@@ -2,6 +2,8 @@ import type { RegisteredSeparator } from "../../global/types";
 import type { GridSeparatorPlacement, RegisteredCell } from "../types";
 import { isValidGridlineIndex } from "./gridPlacement";
 import { AXES } from "../constants";
+import { getCellRange } from "./getCellRange";
+import { getCrossAxis } from "./getCrossAxis";
 
 export function getPlacementErrors({
   cells,
@@ -17,10 +19,7 @@ export function getPlacementErrors({
   // Cells must be placed within the Grid's tracks
   for (const cell of cells) {
     AXES.forEach((axis) => {
-      const [index, span] =
-        axis === "column"
-          ? [cell.column, cell.columnSpan]
-          : [cell.row, cell.rowSpan];
+      const [index, span] = getCellRange(cell, axis);
       const trackCount = trackCounts[axis];
       if (
         !Number.isInteger(index) ||
@@ -43,7 +42,7 @@ export function getPlacementErrors({
     disabled,
     index
   }: GridSeparatorPlacement) => {
-    const crossAxis = axis === "column" ? "row" : "column";
+    const crossAxis = getCrossAxis(axis);
     let props = `type="${axis}" ${axis}={${index}}`;
     if (crossStart !== 0 || crossSpan !== undefined) {
       props += ` ${crossAxis}={${crossStart}}`;
@@ -61,7 +60,7 @@ export function getPlacementErrors({
   const placements = Array.from(separatorPlacements.values()).filter(
     (placement) => {
       const { axis, crossSpan, crossStart, index } = placement;
-      const crossAxis = axis === "column" ? "row" : "column";
+      const crossAxis = getCrossAxis(axis);
       const trackCount = trackCounts[axis];
       const crossCount = trackCounts[crossAxis];
 
@@ -99,8 +98,7 @@ export function getPlacementErrors({
   );
 
   const getCrossRange = (placement: GridSeparatorPlacement) => {
-    const crossCount =
-      trackCounts[placement.axis === "column" ? "row" : "column"];
+    const crossCount = trackCounts[getCrossAxis(placement.axis)];
     return [
       placement.crossStart,
       placement.crossSpan === undefined
@@ -115,17 +113,17 @@ export function getPlacementErrors({
 
     // Gridlines should not be rendered alongside of cells that span across their boundary
     for (const cell of cells) {
-      const [start, span, cellCrossStart, cellCrossSpan] =
-        axis === "column"
-          ? [cell.column, cell.columnSpan, cell.row, cell.rowSpan]
-          : [cell.row, cell.rowSpan, cell.column, cell.columnSpan];
+      const [start, span, cellCrossStart, cellCrossSpan] = getCellRange(
+        cell,
+        axis
+      );
       if (
         start < index &&
         index < start + span &&
         cellCrossStart < crossEnd &&
         crossStart < cellCrossStart + cellCrossSpan
       ) {
-        const crossAxis = axis === "column" ? "row" : "column";
+        const crossAxis = getCrossAxis(axis);
         errors.push(
           `${describe(placement)} overlaps a Cell that spans across it (${axis}: ${start}, ${axis}Span: ${span}, ${crossAxis}: ${cellCrossStart}, ${crossAxis}Span: ${cellCrossSpan}); use the ${crossAxis} and ${crossAxis}Span props to render gridlines beside the Cell instead`
         );

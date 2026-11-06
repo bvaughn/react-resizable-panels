@@ -1,4 +1,4 @@
-import { completeActivePointerResize } from "../utils/completeActivePointerResize.ts";
+import { completeActivePointerResize } from "../utils/completeActivePointerResize";
 
 export function onDocumentContextMenu(event: MouseEvent) {
   if (event.defaultPrevented) {

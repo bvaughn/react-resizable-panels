@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import type {
   RegisteredResizeAxis,
   RegisteredResizeItem,
@@ -90,7 +90,7 @@ function calculate({
     crossTrackCount,
     expandHitTargets: true,
     resizeAxis: group,
-    axisSize: 100,
+    getAxisSize: () => 100,
     includeDisabled,
     separatorPlacements
   }).map(({ items: panels, rect, separator }) => ({
@@ -366,5 +366,120 @@ describe("calculateGridHitRegions", () => {
         })
       })
     ).toEqual([]);
+  });
+
+  test("does not measure the axis if there are no resizable boundaries", () => {
+    const getAxisSize = vi.fn(() => 100);
+
+    expect(
+      calculateGridHitRegions({
+        axis: "column",
+        cells: twoByTwo(),
+        crossTrackCount: 2,
+        expandHitTargets: true,
+        getAxisSize,
+        includeDisabled: false,
+        resizeAxis: createGroup({ axis: "column", disabledTracks: [0] }),
+        separatorPlacements: new Map()
+      })
+    ).toEqual([]);
+    expect(getAxisSize).not.toHaveBeenCalled();
+  });
+
+  test("reads each cell's bounds at most once", () => {
+    // Rows: 0 (two cells), 1 (spanning cell), 2 (two cells); gridlines above and below the spanning cell
+    const cells = [
+      createCell(0, 0),
+      createCell(0, 1),
+      createCell(1, 0, 1, 2),
+      createCell(2, 0),
+      createCell(2, 1)
+    ];
+    const spies = cells.map((cell) =>
+      vi.spyOn(cell.element, "getBoundingClientRect")
+    );
+
+    const createSeparator = (id: string, y: number) => {
+      const element = document.createElement("div");
+      setElementBounds(element, new DOMRect(50, y, 10, 50));
+      return { element, id } satisfies RegisteredSeparator;
+    };
+    const before = createSeparator("before", 0);
+    const after = createSeparator("after", 120);
+
+    const getAxisSize = vi.fn(() => 100);
+    const regions = calculateGridHitRegions({
+      axis: "column",
+      cells,
+      crossTrackCount: 3,
+      expandHitTargets: true,
+      getAxisSize,
+      includeDisabled: false,
+      resizeAxis: createGroup({
+        axis: "column",
+        separators: [before, after]
+      }),
+      separatorPlacements: new Map([
+        [
+          before,
+          {
+            axis: "column",
+            crossSpan: 1,
+            crossStart: 0,
+            disabled: false,
+            index: 1
+          }
+        ],
+        [
+          after,
+          {
+            axis: "column",
+            crossSpan: 1,
+            crossStart: 2,
+            disabled: false,
+            index: 1
+          }
+        ]
+      ])
+    });
+
+    expect(
+      regions.map(({ axisSize, rect, separator }) => ({
+        axisSize,
+        rect: [rect.x, rect.y, rect.width, rect.height],
+        separator: separator?.id
+      }))
+    ).toEqual([
+      // Extended into the gaps next to the spanning cell, but not over it
+      { axisSize: 100, rect: [50, 0, 10, 60], separator: "before" },
+      { axisSize: 100, rect: [50, 110, 10, 60], separator: "after" }
+    ]);
+    expect(getAxisSize).toHaveBeenCalledTimes(1);
+    spies.forEach((spy) => {
+      expect(spy.mock.calls.length).toBeLessThanOrEqual(1);
+    });
+  });
+
+  test("uses precomputed slots when provided", () => {
+    const cells = twoByTwo();
+    const getSlots = vi.fn(() => [
+      [cells[0], cells[1]],
+      [cells[2], cells[3]]
+    ]);
+
+    expect(
+      calculateGridHitRegions({
+        axis: "column",
+        cells,
+        crossTrackCount: 2,
+        expandHitTargets: true,
+        getAxisSize: () => 100,
+        getSlots,
+        includeDisabled: false,
+        resizeAxis: createGroup({ axis: "column" }),
+        separatorPlacements: new Map()
+      }).map(({ rect }) => [rect.x, rect.y, rect.width, rect.height])
+    ).toEqual([[50, 0, 10, 110]]);
+    expect(getSlots).toHaveBeenCalledTimes(1);
   });
 });

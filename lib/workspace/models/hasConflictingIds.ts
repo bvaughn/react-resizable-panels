@@ -1,4 +1,4 @@
-import { indexModel } from "./indexModel";
+import { getModelIndex } from "./getModelIndex";
 import type { DragNode, TabDropTarget, WorkspaceModel } from "../types";
 
 /**
@@ -12,7 +12,7 @@ export function hasConflictingIds(
   node: DragNode,
   target: TabDropTarget
 ) {
-  const { nodeIds, tabsetsByTabId } = indexModel(model);
+  const { nodeIds, tabsetsByTabId } = getModelIndex(model);
 
   // Ids are unique across tabs, tabsets, and splits
   const isTaken = (id: string) => nodeIds.has(id) || tabsetsByTabId.has(id);

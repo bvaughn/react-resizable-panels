@@ -2,7 +2,7 @@ import { canCollapseTabset } from "./canCollapseTabset";
 import { copyModel } from "./copyModel";
 import { findParent } from "./findParent";
 import { findTabset } from "./findTabset";
-import { normalizeModel } from "./normalizeModel";
+import { normalizeCopiedModel } from "./normalizeCopiedModel";
 import type { WorkspaceModel } from "../types";
 
 // The tabset keeps its size (to expand to); its siblings share the rest of the split (see normalizeModel)
@@ -25,5 +25,5 @@ export function collapseTabset<TabData, TabsetData>(
     tabset.collapsed = true;
   }
 
-  return normalizeModel(next);
+  return normalizeCopiedModel(next);
 }

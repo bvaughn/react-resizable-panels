@@ -22,6 +22,7 @@ import type {
   RegisteredSeparator
 } from "../../global/types";
 import { calculateSeparatorAriaValues } from "../../global/utils/calculateSeparatorAriaValues";
+import { objectsEqual } from "../../global/utils/objectsEqual";
 import { useIsomorphicLayoutEffect } from "../hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../hooks/useMergedRefs";
 import { useStableObject } from "../hooks/useStableObject";
@@ -190,7 +191,7 @@ export function ResizeSeparator({
 
             const { layoutStrategy } = event.axis;
 
-            setAria({
+            const nextAria = {
               ...calculateSeparatorAriaValues({
                 layout,
                 itemConstraints: derivedItemConstraints,
@@ -203,7 +204,12 @@ export function ResizeSeparator({
                   primaryItem.id
                 )
               })
-            });
+            };
+
+            // Bail out of re-rendering when nothing has changed (e.g. layout changes that don't affect this separator)
+            setAria((prevAria) =>
+              objectsEqual(prevAria, nextAria) ? prevAria : nextAria
+            );
           }
         }
       );
