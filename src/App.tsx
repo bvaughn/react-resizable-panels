@@ -12,7 +12,7 @@ import Logo from "../public/favicon.svg?react";
 import { html as ConditionallyRenderPanel } from "../public/generated/examples/ConditionallyRenderPanel.json";
 import { html as GroupExplicitHeightHTML } from "../public/generated/examples/GroupExplicitHeight.json";
 import { Link } from "./components/Link";
-import { VSCode } from "./components/vs-code/VSCode";
+import { VSCodeWorkspace } from "./components/vs-code-workspace/VSCodeWorkspace";
 import { type Path, routes } from "./routes";
 
 export default function App() {
@@ -27,7 +27,7 @@ export default function App() {
             This library is a set of React components that can be used to build
             resizable layouts like the one below:
           </div>
-          <VSCode />
+          <VSCodeWorkspace />
           <div>
             There are three kinds of layouts:{" "}
             <Link to="/examples/the-basics">flex</Link> layouts of panels in a

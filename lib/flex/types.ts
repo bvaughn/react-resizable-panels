@@ -73,7 +73,7 @@ export type GroupContextType = {
 /**
  * Imperative Group API.
  *
- * ℹ️ The `useGroupRef` and `useGroupCallbackRef` hooks are exported for convenience use in TypeScript projects.
+ * ℹ️ The `useGroupRef` and `useGroupCallbackRef` hooks are exported for convenience in TypeScript projects.
  */
 export interface GroupImperativeHandle {
   /**
@@ -134,7 +134,7 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    * - `getLayout(): Layout`
    * - `setLayout(layout: Layout): Layout`
    *
-   * ℹ️ The `useGroupRef` and `useGroupCallbackRef` hooks are exported for convenience use in TypeScript projects.
+   * ℹ️ The `useGroupRef` and `useGroupCallbackRef` hooks are exported for convenience in TypeScript projects.
    */
   groupRef?: Ref<GroupImperativeHandle | null> | undefined;
 
@@ -142,7 +142,7 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
    * Uniquely identifies this group within an application.
    * Falls back to `useId` when not provided.
    *
-   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes; (an explicit `data-testid` prop will take precedence).
+   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes (an explicit `data-testid` prop will take precedence).
    */
   id?: string | number | undefined;
 
@@ -157,8 +157,8 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
   /**
    * Called after the Group's layout has been changed.
    *
-   * ℹ️ For layout changes caused by pointer events, this method is not called until the pointer has been released.
-   * This method is recommended when saving layouts to some storage api.
+   * ℹ️ For layout changes caused by pointer events, this callback is not called until the pointer has been released.
+   * This callback is recommended for saving layouts to storage.
    *
    * ℹ️ The second argument contains meta information about the layout change.
    * The `isUserInteraction` attribute signals whether the resize was caused by direct user input.
@@ -246,7 +246,7 @@ export type SizeUnit = "px" | "%" | "em" | "rem" | "vh" | "vw";
 /**
  * Imperative Panel API
  *
- * ℹ️ The `usePanelRef` and `usePanelCallbackRef` hooks are exported for convenience use in TypeScript projects.
+ * ℹ️ The `usePanelRef` and `usePanelCallbackRef` hooks are exported for convenience in TypeScript projects.
  */
 export interface PanelImperativeHandle {
   /**
@@ -388,7 +388,7 @@ export type PanelProps = BasePanelAttributes & {
    *
    * ℹ️ This prop is used to associate persisted group layouts with the original panel.
    *
-   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes; (an explicit `data-testid` prop will take precedence).
+   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes (an explicit `data-testid` prop will take precedence).
    */
   id?: string | number | undefined;
 
@@ -439,7 +439,7 @@ export type PanelProps = BasePanelAttributes & {
    * - `isCollapsed(): boolean`
    * - `resize(size: number | string): void`
    *
-   * ℹ️ The `usePanelRef` and `usePanelCallbackRef` hooks are exported for convenience use in TypeScript projects.
+   * ℹ️ The `usePanelRef` and `usePanelCallbackRef` hooks are exported for convenience in TypeScript projects.
    */
   panelRef?: Ref<PanelImperativeHandle | null> | undefined;
 
@@ -532,7 +532,7 @@ export type SeparatorProps = BaseSeparatorAttributes & {
    * Uniquely identifies the separator within the parent group.
    * Falls back to `useId` when not provided.
    *
-   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes; (an explicit `data-testid` prop will take precedence).
+   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes (an explicit `data-testid` prop will take precedence).
    */
   id?: string | number | undefined;
 

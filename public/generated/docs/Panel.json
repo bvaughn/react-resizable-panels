@@ -53,7 +53,7 @@
           "intent": "primary"
         },
         {
-          "content": "<p>This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>\n",
+          "content": "<p>This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes (an explicit <code>data-testid</code> prop will take precedence).</p>\n",
           "intent": "primary"
         }
       ],
@@ -219,7 +219,7 @@
           "content": "<p>Exposes the following imperative API:</p>\n<ul>\n<li><code>collapse(): void</code></li>\n<li><code>expand(): void</code></li>\n<li><code>getSize(): PanelSize</code></li>\n<li><code>isCollapsed(): boolean</code></li>\n<li><code>resize(size: number | string): void</code></li>\n</ul>\n"
         },
         {
-          "content": "<p>The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>\n",
+          "content": "<p>The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience in TypeScript projects.</p>\n",
           "intent": "primary"
         }
       ],

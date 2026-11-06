@@ -97,7 +97,7 @@ export interface GridTrackImperativeHandle {
 /**
  * Imperative Grid API.
  *
- * ℹ️ The `useGridRef` and `useGridCallbackRef` hooks are exported for convenience use in TypeScript projects.
+ * ℹ️ The `useGridRef` and `useGridCallbackRef` hooks are exported for convenience in TypeScript projects.
  */
 export interface GridImperativeHandle {
   /**
@@ -205,7 +205,7 @@ export type GridProps = HTMLAttributes<HTMLDivElement> & {
    * - `getTrackByIndex(axis: "column" | "row", index: number): GridTrackImperativeHandle`
    * - `setLayout(layout: Partial<GridLayout>): GridLayout`
    *
-   * ℹ️ The `useGridRef` and `useGridCallbackRef` hooks are exported for convenience use in TypeScript projects.
+   * ℹ️ The `useGridRef` and `useGridCallbackRef` hooks are exported for convenience in TypeScript projects.
    */
   gridRef?: Ref<GridImperativeHandle | null> | undefined;
 
@@ -213,7 +213,7 @@ export type GridProps = HTMLAttributes<HTMLDivElement> & {
    * Uniquely identifies this grid within an application.
    * Falls back to `useId` when not provided.
    *
-   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes; (an explicit `data-testid` prop will take precedence).
+   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes (an explicit `data-testid` prop will take precedence).
    */
   id?: string | number | undefined;
 
@@ -228,8 +228,8 @@ export type GridProps = HTMLAttributes<HTMLDivElement> & {
   /**
    * Called after the Grid's layout has been changed.
    *
-   * ℹ️ For layout changes caused by pointer events, this method is not called until the pointer has been released.
-   * This method is recommended when saving layouts to some storage api.
+   * ℹ️ For layout changes caused by pointer events, this callback is not called until the pointer has been released.
+   * This callback is recommended for saving layouts to storage.
    */
   onLayoutChanged?:
     | ((layout: GridLayout, meta: LayoutChangedMeta<GridLayout>) => void)
@@ -293,7 +293,7 @@ export type CellProps = HTMLAttributes<HTMLDivElement> & {
    * Uniquely identifies this cell within the parent grid.
    * Falls back to `useId` when not provided.
    *
-   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes; (an explicit `data-testid` prop will take precedence).
+   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes (an explicit `data-testid` prop will take precedence).
    */
   id?: string | number | undefined;
 

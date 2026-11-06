@@ -4,7 +4,7 @@
       "content": "<p>Imperative Grid API.</p>\n"
     },
     {
-      "content": "<p>The <code>useGridRef</code> and <code>useGridCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>\n",
+      "content": "<p>The <code>useGridRef</code> and <code>useGridCallbackRef</code> hooks are exported for convenience in TypeScript projects.</p>\n",
       "intent": "primary"
     }
   ],

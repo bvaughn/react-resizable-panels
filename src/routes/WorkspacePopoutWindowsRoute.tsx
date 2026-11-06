@@ -29,17 +29,18 @@ export default function WorkspacePopoutWindowsRoute() {
         their tabs can.
       </Callout>
       <div>
-        In the example below, each torn off tab is opened in a popup window with
-        its own Workspace. When a popup is closed, the tabs left in it are moved
-        back:
+        In the example below, each torn-off tab is opened in a popout window
+        with its own Workspace. When a popout window is closed, the tabs left in
+        it are moved back:
       </div>
       <Code html={PopoutWindowsHTML} />
       <div>
         Drag a tab (or a tabset) out of the window below and release it to open
         it in a new window. Tabs can also be dragged between this window and the
-        popups (see <code>dragGroup</code> below). The "Open in new window"
-        button in each tabset's toolbar opens its selected tab in a popup too,
-        for browsers that block popups opened by those drags (see below).
+        popout windows (see <code>dragGroup</code> below). The "Open in new
+        window" button in each tabset's toolbar opens its selected tab in a
+        popout window too, for browsers that block popups opened by those drags
+        (see below).
       </div>
       <PopoutWindowsDemo />
       <Callout intent="warning">
@@ -78,13 +79,13 @@ export default function WorkspacePopoutWindowsRoute() {
         attribute then. The preview can only be shown within the window, so only
         the part of it near the edge of the window is visible.
       </div>
-      <SectionHeader>Rendering into popup windows</SectionHeader>
+      <SectionHeader>Rendering into popout windows</SectionHeader>
       <div>
-        Elements in a popup window should be created by the popup's own document
-        (e.g. the container the Workspace is rendered into), so that they belong
-        to that window. The Workspace and its tabsets read the globals they need
-        (e.g. <code>ResizeObserver</code>) from the window their elements are
-        in.
+        Elements in a popout window should be created by that window's own
+        document (e.g. the container the Workspace is rendered into), so that
+        they belong to that window. The Workspace and its tabsets read the
+        globals they need (e.g. <code>ResizeObserver</code>) from the window
+        their elements are in.
       </div>
     </Box>
   );

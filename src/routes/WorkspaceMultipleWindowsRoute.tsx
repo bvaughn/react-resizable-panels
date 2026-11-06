@@ -9,7 +9,7 @@ export default function WorkspaceMultipleWindowsRoute() {
         Tabs (and tabsets) don't have to stay in the window they started in. A
         Workspace can be rendered into a{" "}
         <Link to="/examples/workspace/multiple-windows/popout-windows">
-          popup window opened by your app
+          popout window opened by your app
         </Link>{" "}
         and tabs can be dragged{" "}
         <Link to="/examples/workspace/multiple-windows/copies-of-your-app">

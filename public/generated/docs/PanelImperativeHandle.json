@@ -4,7 +4,7 @@
       "content": "<p>Imperative Panel API</p>\n"
     },
     {
-      "content": "<p>The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>\n",
+      "content": "<p>The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience in TypeScript projects.</p>\n",
       "intent": "primary"
     }
   ],

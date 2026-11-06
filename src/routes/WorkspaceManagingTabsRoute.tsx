@@ -64,8 +64,8 @@ export default function WorkspaceManagingTabsRoute() {
         If a tab with the same id is already open (anywhere in the workspace),
         it's selected instead, and <code>addTab</code> returns{" "}
         <code>false</code>. Options can add the tab to a specific tabset (
-        <code>tabsetId</code>) or position (<code>index</code>), or without
-        selecting it (<code>select: false</code>).
+        <code>tabsetId</code>) or position (<code>index</code>), or add it
+        without selecting it (<code>select: false</code>).
       </div>
       <div className="flex flex-wrap gap-2">
         {FILES.map(({ id, kind, title }) => (
@@ -145,7 +145,7 @@ export default function WorkspaceManagingTabsRoute() {
         <Link to="/model/tabset-node">
           <code>recentTabIds</code>
         </Link>
-        ), so they're restored with the rest of the layout. If none of the
+        ), so they're restored with the rest of the model. If none of the
         remaining tabs has been selected, the tab after the closed one is
         selected.
       </Callout>

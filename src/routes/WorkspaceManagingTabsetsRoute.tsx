@@ -185,7 +185,7 @@ export default function WorkspaceManagingTabsetsRoute() {
       <Code html={MaximizeTabsetHTML} />
       <div>
         Which tabset is maximized is part of the model, so it's saved and
-        restored with the rest of the layout. While a tabset is maximized, tabs
+        restored with the rest of the model. While a tabset is maximized, tabs
         can only be dragged within it.
       </div>
       <Callout>

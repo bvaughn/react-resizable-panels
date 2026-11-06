@@ -16,7 +16,7 @@ export default function WorkspacePersistenceRoute() {
       </div>
       <Code html={html} />
       <div>
-        Rearrange the workspace below, then reload the page to see the layout
+        Rearrange the workspace below, then reload the page to see the model
         restored.
       </div>
       <DemoWorkspace
@@ -42,12 +42,12 @@ export default function WorkspacePersistenceRoute() {
         <li>
           A malformed model (e.g. one that was saved incorrectly) is replaced
           with an empty workspace, rather than throwing; in development, a
-          warning is logged. To fall back to a different layout instead, check
+          warning is logged. To fall back to a different model instead, check
           the model with <code>normalizeWorkspaceModel</code> (see below).
         </li>
         <li>
-          To restore a layout after the workspace has mounted (e.g. a "reset
-          layout" button), use the{" "}
+          To restore a saved model after the workspace has mounted (e.g. a
+          "reset layout" button), use the{" "}
           <Link to="/imperative-api/workspace">imperative</Link>{" "}
           <code>setModel</code> method.
         </li>
@@ -63,10 +63,10 @@ export default function WorkspacePersistenceRoute() {
         <Link to="/examples/workspace/server-rendering">server rendering</Link>.
       </div>
       <SectionHeader>
-        Restoring layouts saved by older versions of an app
+        Restoring models saved by older versions of an app
       </SectionHeader>
       <div>
-        A saved layout may refer to tabs that the app no longer has (e.g. a tab
+        A saved model may refer to tabs that the app no longer has (e.g. a tab
         that was renamed or removed), or have stale copies of tabs that still
         exist (e.g. an old title). The <code>normalizeWorkspaceModel</code>{" "}
         function checks a saved model and tidies it the same way the workspace
@@ -77,7 +77,7 @@ export default function WorkspacePersistenceRoute() {
       <Code html={NormalizeModelHTML} />
       <div>
         It returns <code>null</code> if the saved value isn't a model, so the
-        app can fall back to its own default layout (rather than an empty
+        app can fall back to its own default model (rather than an empty
         workspace). The result can also be checked for anything the app requires
         (e.g. a tab that should always be open) before it's used.
       </div>

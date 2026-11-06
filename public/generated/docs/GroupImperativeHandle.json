@@ -4,7 +4,7 @@
       "content": "<p>Imperative Group API.</p>\n"
     },
     {
-      "content": "<p>The <code>useGroupRef</code> and <code>useGroupCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>\n",
+      "content": "<p>The <code>useGroupRef</code> and <code>useGroupCallbackRef</code> hooks are exported for convenience in TypeScript projects.</p>\n",
       "intent": "primary"
     }
   ],

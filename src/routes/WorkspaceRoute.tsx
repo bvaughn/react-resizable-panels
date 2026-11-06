@@ -21,9 +21,9 @@ export default function WorkspaceRoute() {
         somewhere else.
       </Callout>
       <div>
-        Workspaces are uncontrolled. The layout is described by a serializable
-        model and can be observed using the <code>onModelChanged</code>{" "}
-        callback.
+        Workspaces are uncontrolled. Their arrangement of tabsets and tabs is
+        described by a serializable model, which can be observed using the{" "}
+        <code>onModelChanged</code> callback.
       </div>
       <Code html={BasicsHTML} />
       <div>
@@ -58,7 +58,7 @@ export default function WorkspaceRoute() {
         how to render and style tabsets.
       </div>
       <div>
-        The tabsets above are resized by dragging the space between them; see{" "}
+        The tabsets above are resized by dragging the boundary between them; see{" "}
         <Link to="/examples/workspace/separators">
           separators and accessibility
         </Link>{" "}

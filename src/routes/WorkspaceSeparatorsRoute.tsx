@@ -20,7 +20,7 @@ export default function WorkspaceSeparatorsRoute() {
           <code>Separator</code>
         </Link>{" "}
         between tabsets. It takes up no space and can't be seen, so tabsets are
-        resized by dragging the space between them (like in the{" "}
+        resized by dragging the boundary between them (like in the{" "}
         <Link to="/examples/workspace">basics</Link> demo). Rendering visible
         separators with the <code>renderSeparator</code> prop is recommended; it
         receives the orientation of the split, so separators between tabsets

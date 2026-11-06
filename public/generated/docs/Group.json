@@ -34,7 +34,7 @@
           "content": "<p>Uniquely identifies this group within an application.\nFalls back to <code>useId</code> when not provided.</p>\n"
         },
         {
-          "content": "<p>This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>\n",
+          "content": "<p>This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes (an explicit <code>data-testid</code> prop will take precedence).</p>\n",
           "intent": "primary"
         }
       ],
@@ -120,7 +120,7 @@
           "content": "<p>Exposes the following imperative API:</p>\n<ul>\n<li><code>getLayout(): Layout</code></li>\n<li><code>setLayout(layout: Layout): Layout</code></li>\n</ul>\n"
         },
         {
-          "content": "<p>The <code>useGroupRef</code> and <code>useGroupCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>\n",
+          "content": "<p>The <code>useGroupRef</code> and <code>useGroupCallbackRef</code> hooks are exported for convenience in TypeScript projects.</p>\n",
           "intent": "primary"
         }
       ],
@@ -148,7 +148,7 @@
           "content": "<p>Called after the Group's layout has been changed.</p>\n"
         },
         {
-          "content": "<p>For layout changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving layouts to some storage api.</p>\n",
+          "content": "<p>For layout changes caused by pointer events, this callback is not called until the pointer has been released.\nThis callback is recommended for saving layouts to storage.</p>\n",
           "intent": "primary"
         },
         {

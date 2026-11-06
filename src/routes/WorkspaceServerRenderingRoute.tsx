@@ -33,9 +33,9 @@ export default function WorkspaceServerRenderingRoute() {
       <Callout>
         This prop has no effect for workspaces that aren't server rendered.
       </Callout>
-      <SectionHeader>Saved layouts</SectionHeader>
+      <SectionHeader>Saved models</SectionHeader>
       <div>
-        A <Link to="/examples/workspace/persistent-layout">saved layout</Link>{" "}
+        A <Link to="/examples/workspace/persistent-layout">saved model</Link>{" "}
         has to be available on the server too, so that the server and client
         render the same model. Saving it in <code>localStorage</code> doesn't
         work, since the server can't read it; a cookie (or other storage the
@@ -45,7 +45,7 @@ export default function WorkspaceServerRenderingRoute() {
       <Callout intent="warning">
         Don't read <code>localStorage</code> while rendering (e.g. only when{" "}
         <code>window</code> is defined): the client would render a different
-        layout than the server, causing hydration errors.
+        model than the server, causing hydration errors.
       </Callout>
       <Callout>
         Cookies are limited to about 4KB, which a workspace with many tabs (or a

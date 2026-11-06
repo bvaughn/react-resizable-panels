@@ -1007,15 +1007,15 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * Uniquely identifies this workspace within an application.
    * Falls back to `useId` when not provided.
    *
-   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes; (an explicit `data-testid` prop will take precedence).
+   * ℹ️ This value will also be assigned to the `id` and `data-testid` attributes (an explicit `data-testid` prop will take precedence).
    */
   id?: string | number | undefined;
 
   /**
    * Called after the model has changed (e.g. a tab was moved, selected, or closed, or a tabset was resized).
    *
-   * ℹ️ For changes caused by pointer events, this method is not called until the pointer has been released.
-   * This method is recommended when saving models to some storage api.
+   * ℹ️ For changes caused by pointer events, this callback is not called until the pointer has been released.
+   * This callback is recommended for saving models to storage.
    */
   onModelChanged?: (
     model: WorkspaceModel<TabData, TabsetData>,
@@ -1222,7 +1222,7 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
   /**
    * Exposes the imperative API (see `WorkspaceImperativeHandle`).
    *
-   * ℹ️ The `useWorkspaceRef` and `useWorkspaceCallbackRef` hooks are exported for convenience use in TypeScript projects.
+   * ℹ️ The `useWorkspaceRef` and `useWorkspaceCallbackRef` hooks are exported for convenience in TypeScript projects.
    */
   workspaceRef?:
     | Ref<WorkspaceImperativeHandle<TabData, TabsetData> | null>

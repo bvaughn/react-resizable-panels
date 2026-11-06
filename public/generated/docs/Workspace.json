@@ -41,7 +41,7 @@
           "content": "<p>Uniquely identifies this workspace within an application.\nFalls back to <code>useId</code> when not provided.</p>\n"
         },
         {
-          "content": "<p>This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>\n",
+          "content": "<p>This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes (an explicit <code>data-testid</code> prop will take precedence).</p>\n",
           "intent": "primary"
         }
       ],
@@ -205,7 +205,7 @@
           "content": "<p>Called after the model has changed (e.g. a tab was moved, selected, or closed, or a tabset was resized).</p>\n"
         },
         {
-          "content": "<p>For changes caused by pointer events, this method is not called until the pointer has been released.\nThis method is recommended when saving models to some storage api.</p>\n",
+          "content": "<p>For changes caused by pointer events, this callback is not called until the pointer has been released.\nThis callback is recommended for saving models to storage.</p>\n",
           "intent": "primary"
         }
       ],
@@ -465,7 +465,7 @@
           "content": "<p>Exposes the imperative API (see <code>WorkspaceImperativeHandle</code>).</p>\n"
         },
         {
-          "content": "<p>The <code>useWorkspaceRef</code> and <code>useWorkspaceCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>\n",
+          "content": "<p>The <code>useWorkspaceRef</code> and <code>useWorkspaceCallbackRef</code> hooks are exported for convenience in TypeScript projects.</p>\n",
           "intent": "primary"
         }
       ],

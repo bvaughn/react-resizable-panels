@@ -71,7 +71,7 @@ None
       <td>id</td>
       <td><p>Uniquely identifies this group within an application.
 Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes (an explicit <code>data-testid</code> prop will take precedence).</p>
 </td>
     </tr>
     <tr>
@@ -116,7 +116,7 @@ Use this prop to disable that behavior for Panels and Separators in this group.<
 <li><code>getLayout(): Layout</code></li>
 <li><code>setLayout(layout: Layout): Layout</code></li>
 </ul>
-<p>ℹ️ The <code>useGroupRef</code> and <code>useGroupCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>
+<p>ℹ️ The <code>useGroupRef</code> and <code>useGroupCallbackRef</code> hooks are exported for convenience in TypeScript projects.</p>
 </td>
     </tr>
     <tr>
@@ -129,8 +129,8 @@ For most cases, it is recommended to use the <code>onLayoutChanged</code> callba
     <tr>
       <td>onLayoutChanged</td>
       <td><p>Called after the Group&#39;s layout has been changed.</p>
-<p>ℹ️ For layout changes caused by pointer events, this method is not called until the pointer has been released.
-This method is recommended when saving layouts to some storage api.</p>
+<p>ℹ️ For layout changes caused by pointer events, this callback is not called until the pointer has been released.
+This callback is recommended for saving layouts to storage.</p>
 <p>ℹ️ The second argument contains meta information about the layout change.
 The <code>isUserInteraction</code> attribute signals whether the resize was caused by direct user input.
 It is true for resizes caused by pointer or keyboard input
@@ -227,7 +227,7 @@ None
       <td><p>Uniquely identifies this panel within the parent group.
 Falls back to <code>useId</code> when not provided.</p>
 <p>ℹ️ This prop is used to associate persisted group layouts with the original panel.</p>
-<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes (an explicit <code>data-testid</code> prop will take precedence).</p>
 </td>
     </tr>
     <tr>
@@ -337,7 +337,7 @@ Defaults to <code>preserve-relative-size</code>.</p>
 <li><code>isCollapsed(): boolean</code></li>
 <li><code>resize(size: number | string): void</code></li>
 </ul>
-<p>ℹ️ The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>
+<p>ℹ️ The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience in TypeScript projects.</p>
 </td>
     </tr>
   </tbody>
@@ -392,7 +392,7 @@ None
       <td>id</td>
       <td><p>Uniquely identifies the separator within the parent group.
 Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes (an explicit <code>data-testid</code> prop will take precedence).</p>
 </td>
     </tr>
     <tr>
@@ -499,7 +499,7 @@ Grid elements always include the following attributes:
       <td>id</td>
       <td><p>Uniquely identifies this grid within an application.
 Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes (an explicit <code>data-testid</code> prop will take precedence).</p>
 </td>
     </tr>
     <tr>
@@ -545,7 +545,7 @@ Use this prop to disable that behavior for this grid.</p>
 <li><code>getTrackByIndex(axis: &quot;column&quot; | &quot;row&quot;, index: number): GridTrackImperativeHandle</code></li>
 <li><code>setLayout(layout: Partial&lt;GridLayout&gt;): GridLayout</code></li>
 </ul>
-<p>ℹ️ The <code>useGridRef</code> and <code>useGridCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>
+<p>ℹ️ The <code>useGridRef</code> and <code>useGridCallbackRef</code> hooks are exported for convenience in TypeScript projects.</p>
 </td>
     </tr>
     <tr>
@@ -558,8 +558,8 @@ For most cases, it is recommended to use the <code>onLayoutChanged</code> callba
     <tr>
       <td>onLayoutChanged</td>
       <td><p>Called after the Grid&#39;s layout has been changed.</p>
-<p>ℹ️ For layout changes caused by pointer events, this method is not called until the pointer has been released.
-This method is recommended when saving layouts to some storage api.</p>
+<p>ℹ️ For layout changes caused by pointer events, this callback is not called until the pointer has been released.
+This callback is recommended for saving layouts to storage.</p>
 </td>
     </tr>
     <tr>
@@ -639,7 +639,7 @@ Cell elements always include the following attributes:
       <td>id</td>
       <td><p>Uniquely identifies this cell within the parent grid.
 Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes (an explicit <code>data-testid</code> prop will take precedence).</p>
 </td>
     </tr>
     <tr>
@@ -894,7 +894,7 @@ so it should be memoized (e.g. with <code>useCallback</code>) when tab content i
       <td>id</td>
       <td><p>Uniquely identifies this workspace within an application.
 Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes; (an explicit <code>data-testid</code> prop will take precedence).</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes (an explicit <code>data-testid</code> prop will take precedence).</p>
 </td>
     </tr>
     <tr>
@@ -990,8 +990,8 @@ iframes are reloaded, playing media is paused, and focused elements are blurred.
     <tr>
       <td>onModelChanged</td>
       <td><p>Called after the model has changed (e.g. a tab was moved, selected, or closed, or a tabset was resized).</p>
-<p>ℹ️ For changes caused by pointer events, this method is not called until the pointer has been released.
-This method is recommended when saving models to some storage api.</p>
+<p>ℹ️ For changes caused by pointer events, this callback is not called until the pointer has been released.
+This callback is recommended for saving models to storage.</p>
 </td>
     </tr>
     <tr>
@@ -1137,7 +1137,7 @@ so they&#39;re restored with the rest of the layout.</p>
     <tr>
       <td>workspaceRef</td>
       <td><p>Exposes the imperative API (see <code>WorkspaceImperativeHandle</code>).</p>
-<p>ℹ️ The <code>useWorkspaceRef</code> and <code>useWorkspaceCallbackRef</code> hooks are exported for convenience use in TypeScript projects.</p>
+<p>ℹ️ The <code>useWorkspaceRef</code> and <code>useWorkspaceCallbackRef</code> hooks are exported for convenience in TypeScript projects.</p>
 </td>
     </tr>
   </tbody>
