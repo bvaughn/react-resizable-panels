@@ -1,3 +1,4 @@
+import type { FloatingGesture } from "../hooks/useFloatingTabsetGesture";
 import {
   createContext,
   type PointerEvent as ReactPointerEvent,
@@ -104,6 +105,12 @@ export type WorkspaceContextType = {
   setActiveTabsetId: (tabsetId: string) => void;
   shouldServerRenderTabContent: (tab: TabNode) => boolean;
   splitGeneration: number;
+  // Moves (or resizes) a floating tabset (see useFloatingTabsetGesture)
+  startFloatingGesture: (
+    tabsetId: string,
+    gesture: FloatingGesture,
+    event: ReactPointerEvent<HTMLElement>
+  ) => void;
   startTabDrag: (tabId: string, event: ReactPointerEvent<HTMLElement>) => void;
   startTabsetDrag: (
     tabsetId: string,

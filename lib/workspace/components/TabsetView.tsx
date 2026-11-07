@@ -21,8 +21,10 @@ function TabsetViewComponent() {
     dragGroup,
     dragStore,
     model,
+    modelIndex,
     renderTabsetToolbar,
     setActiveTabsetId,
+    startFloatingGesture,
     startTabsetDrag,
     styles,
     updateModel
@@ -41,6 +43,9 @@ function TabsetViewComponent() {
       dragSource?.type === "tabset" && dragSource.tabsetId === tabset.id
   );
 
+  const isFloating = modelIndex.floatingTabsetIds.has(tabset.id);
+
+  // Dragging a floating tabset moves it, rather than dropping it elsewhere (see isTabsetDragDisabled)
   const isDragDisabled = isTabsetDragDisabled(
     model,
     tabset,
@@ -70,7 +75,11 @@ function TabsetViewComponent() {
           !isDragDisabled &&
           isTabsetDragStart(event.currentTarget, event.target as Element)
         ) {
-          startTabsetDrag(tabset.id, event);
+          if (isFloating) {
+            startFloatingGesture(tabset.id, "move", event);
+          } else {
+            startTabsetDrag(tabset.id, event);
+          }
         }
       }}
       ref={setHeaderElement}
@@ -103,6 +112,7 @@ function TabsetViewComponent() {
       data-tabset-active={activeTabsetId === tabset.id || undefined}
       data-tabset-collapsed={isCollapsed || undefined}
       data-tabset-dragging={isDragging || undefined}
+      data-tabset-floating={isFloating || undefined}
       data-tabset-id={tabset.id}
       data-tabset-maximized={model.maximizedTabsetId === tabset.id || undefined}
       onFocusCapture={() => setActiveTabsetId(tabset.id)}

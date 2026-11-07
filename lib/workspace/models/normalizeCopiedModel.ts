@@ -1,9 +1,10 @@
-import { findTabset } from "./findTabset";
+import { getAllTabsets } from "./getAllTabsets";
+import { normalizeFloatingTabset } from "./normalizeFloatingTabset";
 import { normalizeNode } from "./normalizeNode";
-import type { TabsetNode, WorkspaceModel } from "../types";
+import type { FloatingTabsetNode, TabsetNode, WorkspaceModel } from "../types";
 
 /**
- * Tidies a model whose tree has already been copied (e.g. by copyModel) and has ids, changing the copy in place;
+ * Tidies a model whose tree (and floating tabsets) have already been copied (e.g. by copyModel) and have ids, changing the copy in place;
  * see normalizeModel, which also copies (and assigns ids to) models from outside of the workspace.
  *
  * ℹ️ Nodes may be replaced (e.g. merged splits), so nodes found before normalizing should be found again afterward.
@@ -27,11 +28,22 @@ export function normalizeCopiedModel<TabData, TabsetData>(
   }
 
   const next: WorkspaceModel<TabData, TabsetData> = { root, version: 1 };
+
+  // Emptied floating tabsets are removed (like tabsets in the layout); models without floating tabsets don't have the field
+  const floating = (model.floating ?? []).flatMap((tabset) => {
+    const normalized = normalizeFloatingTabset(tabset);
+    return normalized ? [normalized] : [];
+  }) satisfies FloatingTabsetNode<TabData, TabsetData>[];
+  if (floating.length > 0) {
+    next.floating = floating;
+  }
+
   if (
     model.maximizedTabsetId !== undefined &&
-    // A root tabset is the only tabset, so it can't be maximized (e.g. after the other tabsets are closed)
+    // A root tabset is the only tabset, so it can't be maximized (e.g. after the other tabsets are closed);
+    // nor can a floating tabset
     root.type === "split" &&
-    findTabset(next, model.maximizedTabsetId)
+    getAllTabsets(root).some(({ id }) => id === model.maximizedTabsetId)
   ) {
     next.maximizedTabsetId = model.maximizedTabsetId;
   }

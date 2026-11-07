@@ -1,13 +1,15 @@
 import { copyModel } from "./copyModel";
+import { detachFloatingTabset } from "./detachFloatingTabset";
 import { findParent } from "./findParent";
 import { findTabset } from "./findTabset";
 import { insertAtDropTarget } from "./insertAtDropTarget";
 import { insertAtWorkspaceEdge } from "./insertAtWorkspaceEdge";
 import { isAtWorkspaceEdge } from "./isAtWorkspaceEdge";
+import { toFloatingDropTarget } from "./toFloatingDropTarget";
 import type { TabDropTarget, TabsetNode, WorkspaceModel } from "../types";
 
-// Edge regions (and edges of the workspace) move the tabset beside the target; other targets move its tabs into the target
-// (and the emptied tabset is removed, unless it's kept when empty)
+// Edge regions (and edges of the workspace) move the tabset beside the target (docking a floating tabset in the layout);
+// other targets move its tabs into the target (and the emptied tabset is removed, unless it's kept when empty)
 export function moveTabset<TabData, TabsetData>(
   model: WorkspaceModel<TabData, TabsetData>,
   tabsetId: string,
@@ -20,6 +22,11 @@ export function moveTabset<TabData, TabsetData>(
   }
 
   if ("edge" in target) {
+    const docked = detachFloatingTabset(next, source);
+    if (docked) {
+      return insertAtWorkspaceEdge(next, docked, target.edge);
+    }
+
     // The root tabset is already at every edge
     const parent = findParent(next.root, source.id);
     if (!parent || isAtWorkspaceEdge(next.root, source, target.edge)) {
@@ -37,8 +44,11 @@ export function moveTabset<TabData, TabsetData>(
     return model;
   }
 
+  // Floating tabsets can't be split
+  const tabsetTarget = toFloatingDropTarget(next, destination, target);
+
   let inserted: TabsetNode<TabData, TabsetData>;
-  if ("index" in target || target.region === "center") {
+  if ("index" in tabsetTarget || tabsetTarget.region === "center") {
     if (source.tabs.length === 0) {
       return model;
     }
@@ -48,16 +58,21 @@ export function moveTabset<TabData, TabsetData>(
     source.tabs = [];
     source.selectedId = undefined;
   } else {
-    // The source can't be the root, since the destination is another tabset
-    const parent = findParent(next.root, source.id);
-    if (!parent) {
-      return model;
-    }
+    const docked = detachFloatingTabset(next, source);
+    if (docked) {
+      inserted = docked;
+    } else {
+      // The source can't be the root, since the destination is another tabset
+      const parent = findParent(next.root, source.id);
+      if (!parent) {
+        return model;
+      }
 
-    // Siblings share the space the tabset leaves (see normalizeModel)
-    parent.children.splice(parent.children.indexOf(source), 1);
-    inserted = source;
+      // Siblings share the space the tabset leaves (see normalizeModel)
+      parent.children.splice(parent.children.indexOf(source), 1);
+      inserted = source;
+    }
   }
 
-  return insertAtDropTarget(next, destination, inserted, target);
+  return insertAtDropTarget(next, destination, inserted, tabsetTarget);
 }

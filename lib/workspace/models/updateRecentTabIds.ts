@@ -13,7 +13,19 @@ export function updateRecentTabIds<Model extends WorkspaceModel>(
 ): Model {
   const root = updateNode(model.root, behavior);
 
-  return root === model.root ? model : { ...model, root };
+  // Floating tabsets are tabsets too (without layout fields), so they're updated the same way
+  const floating = model.floating?.map(
+    (tabset) => updateNode(tabset as WorkspaceNode, behavior) as typeof tabset
+  );
+  const isFloatingChanged = !!floating?.some(
+    (tabset, index) => tabset !== model.floating?.[index]
+  );
+
+  if (root === model.root && !isFloatingChanged) {
+    return model;
+  }
+
+  return isFloatingChanged ? { ...model, floating, root } : { ...model, root };
 }
 
 function updateNode<Node extends WorkspaceNode>(

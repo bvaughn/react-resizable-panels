@@ -44,6 +44,8 @@ import { closeTabset } from "../models/closeTabset";
 import { collapseTabset } from "../models/collapseTabset";
 import { createTearOffModel } from "../models/createTearOffModel";
 import { expandTabset } from "../models/expandTabset";
+import { floatTab } from "../models/floatTab";
+import { floatTabset } from "../models/floatTabset";
 import { getModelIndex } from "../models/getModelIndex";
 import { getValidModelInput } from "../models/getValidModelInput";
 import { hasConflictingIds } from "../models/hasConflictingIds";
@@ -77,7 +79,10 @@ import type {
   WorkspaceModelInput,
   WorkspaceProps
 } from "../types";
+import { useFloatingTabsetGesture } from "../hooks/useFloatingTabsetGesture";
 import { useTabDrag } from "../hooks/useTabDrag";
+import { getDefaultFloatingRect } from "../utils/getDefaultFloatingRect";
+import { FloatingTabsets } from "./FloatingTabsets";
 import { NodeView } from "./NodeView";
 import { TabsetSlot } from "./TabsetSlot";
 import { isRightToLeft } from "../utils/isRightToLeft";
@@ -193,6 +198,10 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   // Read by imperative methods, e.g. to tell which side of the screen a drop region is on (see toModelDropTarget)
   const rootElementRef = useRef<HTMLDivElement | null>(null);
 
+  // Floating tabsets are positioned relative to the layout (see WorkspaceModel.floating);
+  // while a tabset is maximized, the rest of the layout is covered (and shouldn't be focusable)
+  const layoutRef = useRef<HTMLDivElement | null>(null);
+
   const handle = useMemo<WorkspaceImperativeHandle>(() => {
     const getActiveTabsetId = () => {
       const tabsetId = activeTabsetIdRef.current;
@@ -223,6 +232,34 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         ),
       expandTabset: (tabsetId) =>
         updateModel("expand", false, (prev) => expandTabset(prev, tabsetId)),
+      floatTab: (tabId, rect) =>
+        updateModel("float", false, (prev) => {
+          const tabsetId = getModelIndex(prev).tabsetsByTabId.get(tabId)?.id;
+
+          return floatTab(
+            prev,
+            tabId,
+            getDefaultFloatingRect(
+              layoutRef.current,
+              tabsetId !== undefined
+                ? tabsetElements.get(tabsetId)?.tabset
+                : undefined,
+              rect
+            )
+          );
+        }),
+      floatTabset: (tabsetId, rect) =>
+        updateModel("float", false, (prev) =>
+          floatTabset(
+            prev,
+            tabsetId,
+            getDefaultFloatingRect(
+              layoutRef.current,
+              tabsetElements.get(tabsetId)?.tabset,
+              rect
+            )
+          )
+        ),
       getActiveTabsetId,
       getModel: () => modelRef.current,
       getTabListFreeSpace: (tabsetId) => tabListFreeSpaceStore.get(tabsetId),
@@ -266,7 +303,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
           updateTabset(prev, tabsetId, changes)
         )
     };
-  }, [tabListFreeSpaceStore, updateModel]);
+  }, [tabListFreeSpaceStore, tabsetElements, updateModel]);
 
   useImperativeHandle(
     workspaceRef as Ref<WorkspaceImperativeHandle> | undefined,
@@ -291,6 +328,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       if (!parentTab) {
         parentTab = {
           close: () => handle.closeTab(tabId),
+          float: (rect) => handle.floatTab(tabId, rect),
           getTabsetId: () =>
             getModelIndex(modelRef.current).tabsetsByTabId.get(tabId)?.id ?? "",
           id: tabId,
@@ -318,10 +356,13 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
           close: () => handle.closeTabset(tabsetId),
           collapse: () => handle.collapseTabset(tabsetId),
           expand: () => handle.expandTabset(tabsetId),
+          float: (rect) => handle.floatTabset(tabsetId, rect),
           id: tabsetId,
           isCollapsed: () =>
             !!getModelIndex(modelRef.current).tabsetsById.get(tabsetId)
               ?.collapsed,
+          isFloating: () =>
+            getModelIndex(modelRef.current).floatingTabsetIds.has(tabsetId),
           isMaximized: () => modelRef.current.maximizedTabsetId === tabsetId,
           maximize: () => handle.maximizeTabset(tabsetId),
           restore: () => {
@@ -583,6 +624,29 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     tabsetMinWidth,
     unitsReference
   ]);
+
+  // Floating tabsets can be resized down to their content's minimum size plus their "chrome" (e.g. tabs), like tabsets in the layout
+  const getFloatingMinimumSize = useStableCallback(
+    (tabsetId: string): MinimumSize => {
+      const tabset = getModelIndex(modelRef.current).tabsetsById.get(tabsetId);
+      const chrome = chromeSizes[tabsetId] ?? { height: 0, width: 0 };
+      const unitsElement = unitsReference?.element ?? null;
+
+      return {
+        height:
+          chrome.height +
+          (sizeToPixels(tabset?.minHeight ?? tabsetMinHeight, unitsElement) ??
+            0),
+        width:
+          chrome.width +
+          (sizeToPixels(tabset?.minWidth ?? tabsetMinWidth, unitsElement) ?? 0)
+      };
+    }
+  );
+  const startFloatingGesture = useFloatingTabsetGesture({
+    getMinimumSize: getFloatingMinimumSize,
+    updateModel
+  });
 
   const getDragNode = useStableCallback(
     (source: DragSource): DragNode | undefined => {
@@ -870,6 +934,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       setActiveTabsetId,
       shouldServerRenderTabContent,
       splitGeneration,
+      startFloatingGesture,
       startTabDrag,
       startTabsetDrag,
       styles,
@@ -915,6 +980,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       setActiveTabsetId,
       shouldServerRenderTabContent,
       splitGeneration,
+      startFloatingGesture,
       startTabDrag,
       startTabsetDrag,
       styles,
@@ -961,8 +1027,6 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       ? modelIndex.tabsetsById.get(model.maximizedTabsetId)
       : undefined;
 
-  // While a tabset is maximized, the rest of the layout is covered (and shouldn't be focusable)
-  const layoutRef = useRef<HTMLDivElement | null>(null);
   useIsomorphicLayoutEffect(() => {
     layoutRef.current?.toggleAttribute("inert", !!maximizedTabset);
   }, [maximizedTabset]);
@@ -981,6 +1045,17 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         </div>
       ),
     [maximizedTabset]
+  );
+  // Floating tabsets are shown above the layout (and a maximized tabset), and below the drop indicator
+  const floatingLayer = useMemo(
+    () =>
+      model.floating && (
+        <FloatingTabsets
+          floating={model.floating}
+          layoutElementRef={layoutRef}
+        />
+      ),
+    [model.floating]
   );
   const portals = useMemo(
     () =>
@@ -1081,6 +1156,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
               {layout}
             </div>
             {maximizedOverlay}
+            {floatingLayer}
             {/* Shown by every workspace in the document a drag is over (not just the one showing the preview), for the whole drag, so it can be animated between tabsets */}
             {(dragSource !== undefined || isNativeDragOver) && (
               <DropIndicator

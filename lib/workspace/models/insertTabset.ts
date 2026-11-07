@@ -3,6 +3,7 @@ import { copyStructure } from "./copyStructure";
 import { findTabset } from "./findTabset";
 import { insertAtDropTarget } from "./insertAtDropTarget";
 import { insertAtWorkspaceEdge } from "./insertAtWorkspaceEdge";
+import { toFloatingDropTarget } from "./toFloatingDropTarget";
 import type { TabDropTarget, TabsetNode, WorkspaceModel } from "../types";
 
 // Inserts a tabset dropped in from another workspace (see the Workspace's dragGroup prop), like moveTabset does for a tabset from this workspace:
@@ -23,13 +24,18 @@ export function insertTabset<TabData, TabsetData>(
   }
 
   const destination = findTabset(next, target.tabsetId);
+  if (!destination) {
+    return model;
+  }
+
+  // Floating tabsets can't be split
+  const tabsetTarget = toFloatingDropTarget(next, destination, target);
   if (
-    !destination ||
-    (("index" in target || target.region === "center") &&
-      tabset.tabs.length === 0)
+    ("index" in tabsetTarget || tabsetTarget.region === "center") &&
+    tabset.tabs.length === 0
   ) {
     return model;
   }
 
-  return insertAtDropTarget(next, destination, inserted, target);
+  return insertAtDropTarget(next, destination, inserted, tabsetTarget);
 }

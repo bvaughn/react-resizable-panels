@@ -33,7 +33,29 @@
     {
       "description": [
         {
+          "content": "<p>Tabsets that float above the layout, in stacking order (the last one is on top).</p>\n"
+        },
+        {
+          "content": "<p>Floating tabsets are created with the <code>floatTab</code> and <code>floatTabset</code> methods.\nDragging a floating tabset's header (or its <code>TabsetDragHandle</code>) moves it, its edges resize it, and pressing it brings it to the front.\nIts tabs can be dragged into the layout (and other tabs can be dropped into it), and an emptied floating tabset is removed (unless it has the <code>keepWhenEmpty</code> flag).</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Tabset (and tab) ids are unique across the layout and its floating tabsets.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "floating",
+      "optional": true,
+      "type": "FloatingTabsetNode<TabData, TabsetData>[] | undefined"
+    },
+    {
+      "description": [
+        {
           "content": "<p>Id of the tabset that is maximized, if any.</p>\n"
+        },
+        {
+          "content": "<p>Floating tabsets can't be maximized; they're shown above the maximized tabset.</p>\n",
+          "intent": "primary"
         }
       ],
       "name": "maximizedTabsetId",

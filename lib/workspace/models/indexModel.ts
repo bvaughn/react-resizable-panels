@@ -7,6 +7,8 @@ import type {
 } from "../types";
 
 export type ModelIndex = {
+  // Floating tabsets (see WorkspaceModel.floating), which are in tabsetsById too
+  floatingTabsetIds: Set<string>;
   nodeIds: Set<string>;
   parentsById: Map<string, SplitNode>;
   tabsetsById: Map<string, TabsetNode>;
@@ -22,6 +24,7 @@ export type ModelIndex = {
  */
 export function indexModel(model: WorkspaceModel): ModelIndex {
   const index: ModelIndex = {
+    floatingTabsetIds: new Set(),
     nodeIds: new Set(),
     parentsById: new Map(),
     tabsetsById: new Map(),
@@ -30,6 +33,7 @@ export function indexModel(model: WorkspaceModel): ModelIndex {
   };
 
   const visit = (node: WorkspaceNode) => {
+    // Floating tabsets have no parents
     index.nodeIds.add(node.id);
 
     if (node.type === "tabset") {
@@ -46,6 +50,11 @@ export function indexModel(model: WorkspaceModel): ModelIndex {
     }
   };
   visit(model.root);
+
+  for (const tabset of model.floating ?? []) {
+    index.floatingTabsetIds.add(tabset.id);
+    visit(tabset);
+  }
 
   return index;
 }

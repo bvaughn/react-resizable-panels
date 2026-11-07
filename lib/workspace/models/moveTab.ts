@@ -6,6 +6,7 @@ import { insertAtDropTarget } from "./insertAtDropTarget";
 import { insertAtWorkspaceEdge } from "./insertAtWorkspaceEdge";
 import { isAtWorkspaceEdge } from "./isAtWorkspaceEdge";
 import { removeTab } from "./removeTab";
+import { toFloatingDropTarget } from "./toFloatingDropTarget";
 import type { TabDropTarget, WorkspaceModel } from "../types";
 
 export function moveTab<TabData, TabsetData>(
@@ -42,13 +43,16 @@ export function moveTab<TabData, TabsetData>(
     return model;
   }
 
-  let insertTarget = target;
-  if ("index" in target || target.region === "center") {
+  // Floating tabsets can't be split
+  const tabsetTarget = toFloatingDropTarget(next, destination, target);
+
+  let insertTarget = tabsetTarget;
+  if ("index" in tabsetTarget || tabsetTarget.region === "center") {
     if (source === destination) {
       // Removing the tab shifts the tabs after it
       let index =
-        "index" in target
-          ? Math.max(0, Math.min(target.index, destination.tabs.length))
+        "index" in tabsetTarget
+          ? Math.max(0, Math.min(tabsetTarget.index, destination.tabs.length))
           : destination.tabs.length;
       if (index > sourceIndex) {
         index--;

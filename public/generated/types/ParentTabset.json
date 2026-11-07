@@ -53,6 +53,16 @@
     {
       "description": [
         {
+          "content": "<p>Move the tabset out of the layout, to float above it (see <code>WorkspaceImperativeHandle.floatTabset</code>).</p>\n"
+        }
+      ],
+      "name": "float",
+      "optional": false,
+      "type": "(rect?: Partial<FloatingTabsetRect>) => void"
+    },
+    {
+      "description": [
+        {
           "content": "<p>Id of the tabset.</p>\n"
         }
       ],
@@ -71,6 +81,16 @@
         }
       ],
       "name": "isCollapsed",
+      "optional": false,
+      "type": "() => boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The tabset currently floats above the layout (see <code>WorkspaceModel.floating</code>).</p>\n"
+        }
+      ],
+      "name": "isFloating",
       "optional": false,
       "type": "() => boolean"
     },

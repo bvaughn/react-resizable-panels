@@ -3,7 +3,12 @@ import { createId } from "./createId";
 import { findTab } from "./findTab";
 import { findTabset } from "./findTabset";
 import { normalizeCopiedModel } from "./normalizeCopiedModel";
-import type { DragSource, TabsetNode, WorkspaceModel } from "../types";
+import type {
+  DragSource,
+  FloatingTabsetRect,
+  TabsetNode,
+  WorkspaceModel
+} from "../types";
 
 /**
  * Creates a model containing only a torn off tab or tabset (see the Workspace's `onTearOff` prop), e.g. for a workspace in a popup window.
@@ -34,7 +39,16 @@ export function createTearOffModel<TabData, TabsetData>(
       return undefined;
     }
 
-    root = copyStructure(tabset);
+    // A floating tabset's position and size don't apply either
+    const {
+      height: _h,
+      width: _w,
+      x: _x,
+      y: _y,
+      ...copy
+    } = copyStructure(tabset) as TabsetNode<TabData, TabsetData> &
+      Partial<FloatingTabsetRect>;
+    root = copy;
     delete root.collapsed;
     delete root.size;
   }

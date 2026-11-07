@@ -23,6 +23,9 @@ export const CLASS_NAMES: WorkspaceClassNames = {
   // the indicator slides between regions and tabsets, and fades while the tab isn't over any tabset's panels
   dropIndicator:
     "bg-violet-400/25 border-2 border-violet-400 rounded-sm transition-[inset,opacity]! duration-250! motion-reduce:transition-none!",
+  // Tabsets are translucent, so floating tabsets are backed by the page's color (and shadowed), so the layout doesn't show through them
+  floatingTabset:
+    "rounded-md bg-white dark:bg-[#0f0618] shadow-2xl ring-1 ring-ink/20",
   // At least as tall (or wide, for tabs on the left or right) as a tab, so an empty tabset's header is the same size
   header: cn(
     "flex shrink-0 items-center min-h-7 tabs-vertical:min-h-0 tabs-vertical:min-w-7 tabs-vertical:flex-col tabs-vertical:items-stretch text-sm",

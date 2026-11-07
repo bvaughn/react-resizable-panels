@@ -65,6 +65,9 @@ export type {
 export type {
   DisableDropArgs,
   DragPreviewState,
+  FloatingTabsetNode,
+  FloatingTabsetNodeInput,
+  FloatingTabsetRect,
   HiddenTabBehavior,
   ParentTab,
   ParentTabset,
