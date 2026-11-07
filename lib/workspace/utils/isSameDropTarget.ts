@@ -6,6 +6,8 @@ export function isSameDropTarget(
 ) {
   if (a === undefined || b === undefined) {
     return a === b;
+  } else if ("edge" in a || "edge" in b) {
+    return "edge" in a && "edge" in b && a.edge === b.edge;
   } else if (a.tabsetId !== b.tabsetId) {
     return false;
   } else if ("index" in a && "index" in b) {

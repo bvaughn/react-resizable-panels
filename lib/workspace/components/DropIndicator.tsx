@@ -1,9 +1,11 @@
-import { useRef, useState, type CSSProperties } from "react";
+import { useRef, useState, type CSSProperties, type RefObject } from "react";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
 import { useDragState } from "../hooks/useDragState";
 import type { WorkspaceModel } from "../types";
+import { getWorkspaceEdgeShare } from "../utils/getWorkspaceEdgeShare";
 import type { DragStore } from "../utils/createDragStore";
 import type { TabsetElementRegistry } from "../utils/createTabsetElementRegistry";
+import { isRightToLeft } from "../utils/isRightToLeft";
 import { isSameDropIndicatorInsets } from "../utils/isSameDropIndicatorInsets";
 import {
   measureDropIndicatorInsets,
@@ -13,50 +15,71 @@ import {
 function DropIndicatorComponent({
   className,
   dragStore,
+  layoutElementRef,
   model,
   style,
   tabsetElements
 }: {
   className: string | undefined;
   dragStore: DragStore;
+  /** Contains the workspace's tabsets; drops at its edges are shown within it */
+  layoutElementRef: RefObject<HTMLElement | null>;
   model: WorkspaceModel;
   style: CSSProperties | undefined;
   tabsetElements: TabsetElementRegistry;
 }) {
   // Only the indicator re-renders when the drop target changes (see createDragStore)
   const dropTarget = useDragState(dragStore, (state) => state.dropTarget);
+  const dragSource = useDragState(dragStore, (state) => state.dragSource);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Kept while the dragged tab isn't over a tabset's panels (e.g. it's over a tab list, or between tabsets),
+  // Kept while the dragged tab isn't over a tabset's panels or an edge of the workspace (e.g. it's over a tab list, or between tabsets),
   // so that the indicator is animated from where it was to the next region
   const [insets, setInsets] = useState<DropIndicatorInsets | undefined>();
 
   const region =
     dropTarget && "region" in dropTarget ? dropTarget.region : undefined;
-  const tabsetId = region ? dropTarget?.tabsetId : undefined;
+  const tabsetId =
+    dropTarget && "tabsetId" in dropTarget ? dropTarget.tabsetId : undefined;
+  const edge = dropTarget && "edge" in dropTarget ? dropTarget.edge : undefined;
 
   // Measured when the target or the model changes (the panels can be replaced or moved, e.g. by a maximized tabset),
   // and again if the layout changes during the drag (e.g. the window is resized);
   // only the indicator re-renders (before the browser paints), and only when its insets change
   useIsomorphicLayoutEffect(() => {
     const containerElement = containerRef.current;
-    const panelsElement = tabsetId
-      ? tabsetElements.get(tabsetId)?.panels
-      : undefined;
-    if (!containerElement || !panelsElement || !region) {
+
+    // Drops at an edge of the workspace are shown over the part of its layout that the tabset would fill
+    const element = edge
+      ? layoutElementRef.current
+      : region && tabsetId
+        ? tabsetElements.get(tabsetId)?.panels
+        : undefined;
+    const elementRegion = edge ?? region;
+    if (!containerElement || !element || !elementRegion) {
       return;
     }
 
+    const fraction = edge
+      ? getWorkspaceEdgeShare(
+          model,
+          edge,
+          dragSource,
+          isRightToLeft(layoutElementRef.current)
+        )
+      : undefined;
+
     const measure = () => {
-      if (!panelsElement.isConnected) {
+      if (!element.isConnected) {
         return;
       }
 
       const next = measureDropIndicatorInsets(
         containerElement,
-        panelsElement,
-        region
+        element,
+        elementRegion,
+        fraction
       );
       setInsets((prev) =>
         isSameDropIndicatorInsets(prev, next) ? prev : next
@@ -70,13 +93,21 @@ function DropIndicatorComponent({
     if (ResizeObserver) {
       const resizeObserver = new ResizeObserver(measure);
       resizeObserver.observe(containerElement);
-      resizeObserver.observe(panelsElement);
+      resizeObserver.observe(element);
 
       return () => {
         resizeObserver.disconnect();
       };
     }
-  }, [model, region, tabsetElements, tabsetId]);
+  }, [
+    dragSource,
+    edge,
+    layoutElementRef,
+    model,
+    region,
+    tabsetElements,
+    tabsetId
+  ]);
 
   // The container covers the workspace's root element (and a maximized tabset, which is rendered before it)
   return (
@@ -92,11 +123,12 @@ function DropIndicatorComponent({
       <div
         className={className}
         data-drop-indicator
+        data-edge={edge}
         data-region={region}
         style={{
           ...style,
           ...insets,
-          ...(!region && { opacity: 0 }),
+          ...(!region && !edge && { opacity: 0 }),
           pointerEvents: "none",
           position: "absolute"
         }}
@@ -106,7 +138,8 @@ function DropIndicatorComponent({
 }
 
 /**
- * Shows where a dragged tab (or tabset) will be dropped within a tabset's panels.
+ * Shows where a dragged tab (or tabset) will be dropped within a tabset's panels (`data-region`),
+ * or at an edge of the workspace (`data-edge`).
  *
  * ℹ️ It's rendered within the workspace's root element for the whole drag (rather than within each tabset's panels),
  * so that it can be animated between regions and tabsets.

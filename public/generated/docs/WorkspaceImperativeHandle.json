@@ -133,10 +133,10 @@
     {
       "description": [
         {
-          "content": "<p>Move a tab to a position within a tabset's tab list, or to a region of a tabset's content area.</p>\n"
+          "content": "<p>Move a tab to a position within a tabset's tab list, to a region of a tabset's content area,\nor to an <code>edge</code> of the workspace (in a new tabset beside all of the other tabsets).</p>\n"
         },
         {
-          "content": "<p>The <code>&quot;left&quot;</code> and <code>&quot;right&quot;</code> regions are sides of the screen (so they're mirrored in right-to-left layouts).</p>\n",
+          "content": "<p>The <code>&quot;left&quot;</code> and <code>&quot;right&quot;</code> regions (and edges) are sides of the screen (so they're mirrored in right-to-left layouts).</p>\n",
           "intent": "primary"
         }
       ],
@@ -146,7 +146,7 @@
     {
       "description": [
         {
-          "content": "<p>Move a tabset beside another tabset (by dropping it onto a region at the edge of that tabset's content area),\nor move its tabs into another tabset (at an <code>index</code> within its tab list, or onto the <code>&quot;center&quot;</code> of its content area).\nThe <code>&quot;left&quot;</code> and <code>&quot;right&quot;</code> regions are sides of the screen (so they're mirrored in right-to-left layouts).</p>\n"
+          "content": "<p>Move a tabset beside another tabset (by dropping it onto a region at the edge of that tabset's content area),\nor beside all of the other tabsets (at an <code>edge</code> of the workspace),\nor move its tabs into another tabset (at an <code>index</code> within its tab list, or onto the <code>&quot;center&quot;</code> of its content area).\nThe <code>&quot;left&quot;</code> and <code>&quot;right&quot;</code> regions (and edges) are sides of the screen (so they're mirrored in right-to-left layouts).</p>\n"
         },
         {
           "content": "<p>When its tabs are moved, the emptied tabset is removed (unless it has the <code>keepWhenEmpty</code> flag).</p>\n",

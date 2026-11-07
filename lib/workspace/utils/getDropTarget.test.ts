@@ -267,3 +267,170 @@ describe("getDropTarget for empty tabsets", () => {
     }
   });
 });
+
+describe("getDropTarget at the edges of the workspace", () => {
+  let cleanup: (() => void) | undefined;
+
+  afterEach(() => {
+    cleanup?.();
+    cleanup = undefined;
+  });
+
+  // Two tabsets side by side, filling an 800x600 workspace
+  function setup({
+    dir = "ltr",
+    root = {
+      children: [
+        {
+          id: "a",
+          selectedId: "1",
+          tabs: [{ data: undefined, id: "1" }],
+          type: "tabset"
+        },
+        {
+          id: "b",
+          selectedId: "2",
+          tabs: [
+            { data: undefined, id: "2" },
+            { data: undefined, id: "3" }
+          ],
+          type: "tabset"
+        }
+      ],
+      id: "root",
+      orientation: "horizontal",
+      type: "split"
+    },
+    maximizedTabsetId
+  }: {
+    dir?: "ltr" | "rtl";
+    maximizedTabsetId?: string;
+    root?: WorkspaceModel["root"];
+  } = {}) {
+    const model: WorkspaceModel = { maximizedTabsetId, root, version: 1 };
+
+    const container = document.createElement("div");
+    container.innerHTML = `
+      <div data-workspace style="direction: ${dir}">
+        <div data-workspace-layout>
+          <div data-tabset-id="a">
+            <div data-tab-list></div>
+            <div data-tab-panels></div>
+          </div>
+          <div data-tabset-id="b">
+            <div data-tab-list></div>
+            <div data-tab-panels></div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(container);
+
+    const rootElement =
+      container.querySelector<HTMLElement>("[data-workspace]")!;
+    const layoutElement = container.querySelector<HTMLElement>(
+      "[data-workspace-layout]"
+    )!;
+    rootElement.getBoundingClientRect = () => new DOMRect(0, 0, 800, 600);
+    layoutElement.getBoundingClientRect = () => new DOMRect(0, 0, 800, 600);
+
+    // In a right-to-left layout, the first tabset is on the right
+    const [left, right] = dir === "rtl" ? ["b", "a"] : ["a", "b"];
+    container.querySelector<HTMLElement>(
+      `[data-tabset-id="${left}"] [data-tab-panels]`
+    )!.getBoundingClientRect = () => new DOMRect(0, 30, 400, 570);
+    container.querySelector<HTMLElement>(
+      `[data-tabset-id="${right}"] [data-tab-panels]`
+    )!.getBoundingClientRect = () => new DOMRect(400, 30, 400, 570);
+
+    let elementAtPoint: Element | null = null;
+    Object.assign(document, { elementFromPoint: () => elementAtPoint });
+    cleanup = () => {
+      container.remove();
+      // @ts-expect-error Not implemented by jsdom
+      delete document.elementFromPoint;
+    };
+
+    const getTarget = (
+      source: DragSource,
+      clientX: number,
+      { isExternal = false }: { isExternal?: boolean } = {}
+    ) => {
+      elementAtPoint = container.querySelector(
+        `[data-tabset-id="${clientX < 400 ? left : right}"] [data-tab-panels]`
+      );
+
+      return getDropTarget({
+        clientX,
+        clientY: 300,
+        isExternal,
+        model,
+        rootElement,
+        source
+      });
+    };
+
+    return { getTarget };
+  }
+
+  test("targets the edges of the workspace before the edges of the tabsets beneath them", () => {
+    const { getTarget } = setup();
+
+    expect(getTarget({ tabId: "2", type: "tab" }, 5)).toEqual({
+      edge: "left"
+    });
+    expect(getTarget({ tabId: "2", type: "tab" }, 30)).toEqual({
+      region: "left",
+      tabsetId: "a"
+    });
+    expect(getTarget({ tabsetId: "a", type: "tabset" }, 795)).toEqual({
+      edge: "right"
+    });
+  });
+
+  test("doesn't target an edge that the dragged tabset (or its only tab) already fills", () => {
+    const { getTarget } = setup();
+
+    expect(getTarget({ tabsetId: "b", type: "tabset" }, 795)).toBeUndefined();
+    expect(getTarget({ tabId: "1", type: "tab" }, 5)).toBeUndefined();
+
+    // Tabs dragged in from other workspaces aren't in this one
+    expect(
+      getTarget({ tabId: "1", type: "tab" }, 5, { isExternal: true })
+    ).toEqual({ edge: "left" });
+  });
+
+  test("compares the sides of the screen with the order of the root's children in a right-to-left layout", () => {
+    const { getTarget } = setup({ dir: "rtl" });
+
+    // The first tabset is on the right
+    expect(getTarget({ tabId: "1", type: "tab" }, 795)).toBeUndefined();
+    expect(getTarget({ tabId: "1", type: "tab" }, 5)).toEqual({
+      edge: "left"
+    });
+  });
+
+  test("doesn't target edges while a tabset is maximized, or of a root tabset", () => {
+    expect(
+      setup({ maximizedTabsetId: "b" }).getTarget(
+        { tabId: "3", type: "tab" },
+        795
+      )
+    ).toEqual({ region: "right", tabsetId: "b" });
+    cleanup?.();
+
+    expect(
+      setup({
+        root: {
+          id: "a",
+          selectedId: "1",
+          tabs: [
+            { data: undefined, id: "1" },
+            { data: undefined, id: "2" }
+          ],
+          type: "tabset"
+        }
+      }).getTarget({ tabId: "2", type: "tab" }, 5)
+    ).toEqual({ region: "left", tabsetId: "a" });
+  });
+});

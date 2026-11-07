@@ -2,16 +2,26 @@ import { copyModel } from "./copyModel";
 import { copyStructure } from "./copyStructure";
 import { findTabset } from "./findTabset";
 import { insertAtDropTarget } from "./insertAtDropTarget";
+import { insertAtWorkspaceEdge } from "./insertAtWorkspaceEdge";
 import type { TabDropTarget, TabsetNode, WorkspaceModel } from "../types";
 
 // Inserts a tabset dropped in from another workspace (see the Workspace's dragGroup prop), like moveTabset does for a tabset from this workspace:
-// edge regions insert the tabset beside the target, and other targets insert its tabs into the target
+// edge regions (and edges of the workspace) insert the tabset beside the target, and other targets insert its tabs into the target
 export function insertTabset<TabData, TabsetData>(
   model: WorkspaceModel<TabData, TabsetData>,
   tabset: TabsetNode<TabData, TabsetData>,
   target: TabDropTarget
 ): WorkspaceModel<TabData, TabsetData> {
   const next = copyModel(model);
+
+  // The tabset fills the space it's given at an edge (like a tabset moved within a workspace; see moveTabset)
+  const inserted = copyStructure(tabset);
+  delete inserted.size;
+
+  if ("edge" in target) {
+    return insertAtWorkspaceEdge(next, inserted, target.edge);
+  }
+
   const destination = findTabset(next, target.tabsetId);
   if (
     !destination ||
@@ -20,10 +30,6 @@ export function insertTabset<TabData, TabsetData>(
   ) {
     return model;
   }
-
-  // The tabset fills the space it's given at an edge (like a tabset moved within a workspace; see moveTabset)
-  const inserted = copyStructure(tabset);
-  delete inserted.size;
 
   return insertAtDropTarget(next, destination, inserted, target);
 }

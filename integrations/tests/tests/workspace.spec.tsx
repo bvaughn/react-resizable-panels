@@ -117,7 +117,8 @@ async function getPanelsPoint(
   region: "bottom" | "center" | "left" | "right" | "top"
 ) {
   const box = (await tabset.locator("[data-tab-panels]").boundingBox())!;
-  const inset = 10;
+  // Far enough in that the edges of tabsets at the edges of the workspace aren't the edges of the workspace (which are 16px)
+  const inset = 30;
 
   switch (region) {
     case "bottom":
@@ -230,6 +231,158 @@ test.describe("Workspace", () => {
     await expectIndicatorToMatch("left", { ...box, width: box.width / 2 });
 
     await page.mouse.up();
+  });
+
+  test.describe("dropping at the edges of the workspace", () => {
+    // A sidebar beside two stacked tabsets
+    function createEdgeModel(): WorkspaceModel {
+      return {
+        root: {
+          children: [
+            {
+              id: "left",
+              tabs: [
+                { data: null, id: "a" },
+                { data: null, id: "b" }
+              ],
+              type: "tabset"
+            },
+            {
+              children: [
+                { id: "top", tabs: [{ data: null, id: "c" }], type: "tabset" },
+                {
+                  id: "bottom",
+                  tabs: [{ data: null, id: "d" }],
+                  type: "tabset"
+                }
+              ],
+              id: "main",
+              orientation: "vertical",
+              type: "split"
+            }
+          ],
+          id: "root",
+          orientation: "horizontal",
+          type: "split"
+        },
+        version: 1
+      };
+    }
+
+    async function getLayoutBox(page: Page) {
+      return (await page.locator("[data-workspace-layout]").boundingBox())!;
+    }
+
+    function getTabsetOf(page: Page, tabId: string) {
+      return getTab(page, tabId).locator("xpath=ancestor::*[@data-tabset]");
+    }
+
+    test("moves a tab dropped at the right edge beside all of the tabsets, filling the workspace's height", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, workspace(createEdgeModel()));
+      const layout = await getLayoutBox(page);
+      const indicator = page.locator("[data-drop-indicator]");
+
+      const start = await getTabLabelPoint(getTab(page, "a"));
+      await page.mouse.move(start.x, start.y);
+      await page.mouse.down();
+      await page.mouse.move(
+        layout.x + layout.width - 4,
+        layout.y + layout.height / 2,
+        { steps: 10 }
+      );
+
+      // The indicator previews the share of the workspace the new tabset will fill (a third, beside the other two children of the root)
+      await expect(indicator).toHaveAttribute("data-edge", "right");
+      await expect(indicator).not.toHaveAttribute("data-region");
+      await expect
+        .poll(async () => {
+          const box = (await indicator.boundingBox())!;
+          return [
+            Math.abs(box.x + box.width - (layout.x + layout.width)),
+            Math.abs(box.y - layout.y),
+            Math.abs(box.width - layout.width / 3),
+            Math.abs(box.height - layout.height)
+          ].every((delta) => delta <= 2);
+        })
+        .toBe(true);
+
+      await page.mouse.up();
+
+      await expect(page.locator("[data-tabset]")).toHaveCount(4);
+      const added = (await getTabsetOf(page, "a").boundingBox())!;
+      expect(Math.abs(added.y - layout.y)).toBeLessThanOrEqual(1);
+      expect(Math.abs(added.height - layout.height)).toBeLessThanOrEqual(1);
+      expect(
+        Math.abs(added.x + added.width - (layout.x + layout.width))
+      ).toBeLessThanOrEqual(1);
+
+      expect((await getLastChange(page)).meta).toEqual({
+        isUserInteraction: true,
+        reason: "move"
+      });
+    });
+
+    test("moves a tab dropped within the root's top padding beside all of the tabsets, filling the workspace's width", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(
+        mainPage,
+        <Workspace
+          defaultModel={createEdgeModel()}
+          renderTabContent={() => null}
+          style={{ paddingTop: 20 }}
+        />
+      );
+      const layout = await getLayoutBox(page);
+
+      // Within the tabsets' headers, the top of the layout isn't an edge of the workspace
+      await dragTab(page, getTab(page, "d"), {
+        x: layout.x + layout.width / 4,
+        y: layout.y + 4
+      });
+      await expect(page.locator("[data-tabset]")).toHaveCount(3);
+      expect(
+        Math.abs(
+          (await getTabsetOf(page, "d").boundingBox())!.width - layout.width
+        )
+      ).toBeGreaterThan(1);
+
+      await dragTab(page, getTab(page, "d"), {
+        x: layout.x + layout.width / 2,
+        y: layout.y - 10
+      });
+
+      const added = (await getTabsetOf(page, "d").boundingBox())!;
+      expect(Math.abs(added.x - layout.x)).toBeLessThanOrEqual(1);
+      expect(Math.abs(added.y - layout.y)).toBeLessThanOrEqual(1);
+      expect(Math.abs(added.width - layout.width)).toBeLessThanOrEqual(1);
+    });
+
+    test("moves a tab dropped near the top of the layout beside all of the tabsets when the tab lists aren't along the top", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(
+        mainPage,
+        <Workspace
+          defaultModel={createEdgeModel()}
+          renderTabContent={() => null}
+          tabPlacement="bottom"
+        />
+      );
+      const layout = await getLayoutBox(page);
+
+      await dragTab(page, getTab(page, "d"), {
+        x: layout.x + layout.width / 4,
+        y: layout.y + 4
+      });
+
+      const added = (await getTabsetOf(page, "d").boundingBox())!;
+      expect(Math.abs(added.x - layout.x)).toBeLessThanOrEqual(1);
+      expect(Math.abs(added.y - layout.y)).toBeLessThanOrEqual(1);
+      expect(Math.abs(added.width - layout.width)).toBeLessThanOrEqual(1);
+    });
   });
 
   test("moves a tabset by the empty space in its header without remounting its content", async ({

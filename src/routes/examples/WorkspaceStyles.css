@@ -27,7 +27,8 @@
   mask-image: linear-gradient(to left, black calc(100% - 24px), transparent);
 }
 
-/* Where a dragged tab will be dropped; data-region is "top", "right", "bottom", "left", or "center" */
+/* Where a dragged tab will be dropped; data-region is "top", "right", "bottom", "left", or "center";
+   data-edge is "top", "right", "bottom", or "left" when it's dropped at an edge of the workspace */
 [data-drop-indicator] {
   background: rgb(30 144 255 / 25%);
   /* The same element is shown for the whole drag, so it can slide between regions and tabsets */

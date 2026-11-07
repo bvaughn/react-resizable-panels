@@ -94,6 +94,7 @@ export default function WorkspaceRestrictionsRoute() {
         className="h-60"
         defaultModel={initialModel}
         disableDrop={({ model, target }) =>
+          "tabsetId" in target &&
           (
             findTabset(model.root, target.tabsetId)?.data as
               | { acceptsDrops?: boolean }

@@ -2,9 +2,11 @@ import { copyModel } from "./copyModel";
 import { findParent } from "./findParent";
 import { findTabset } from "./findTabset";
 import { insertAtDropTarget } from "./insertAtDropTarget";
+import { insertAtWorkspaceEdge } from "./insertAtWorkspaceEdge";
+import { isAtWorkspaceEdge } from "./isAtWorkspaceEdge";
 import type { TabDropTarget, TabsetNode, WorkspaceModel } from "../types";
 
-// Edge regions move the tabset beside the target; other targets move its tabs into the target
+// Edge regions (and edges of the workspace) move the tabset beside the target; other targets move its tabs into the target
 // (and the emptied tabset is removed, unless it's kept when empty)
 export function moveTabset<TabData, TabsetData>(
   model: WorkspaceModel<TabData, TabsetData>,
@@ -13,8 +15,25 @@ export function moveTabset<TabData, TabsetData>(
 ): WorkspaceModel<TabData, TabsetData> {
   const next = copyModel(model);
   const source = findTabset(next, tabsetId);
+  if (!source) {
+    return model;
+  }
+
+  if ("edge" in target) {
+    // The root tabset is already at every edge
+    const parent = findParent(next.root, source.id);
+    if (!parent || isAtWorkspaceEdge(next.root, source, target.edge)) {
+      return model;
+    }
+
+    // Siblings share the space the tabset leaves (see normalizeModel)
+    parent.children.splice(parent.children.indexOf(source), 1);
+
+    return insertAtWorkspaceEdge(next, source, target.edge);
+  }
+
   const destination = findTabset(next, target.tabsetId);
-  if (!source || !destination || source === destination) {
+  if (!destination || source === destination) {
     return model;
   }
 

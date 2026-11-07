@@ -62,14 +62,14 @@
     "classNames": {
       "description": [
         {
-          "content": "<p>CSS class names for the elements the workspace renders within its root element:</p>\n<ul>\n<li><code>tabset</code>: root element of a tabset (<code>data-tabset</code>)</li>\n<li><code>header</code>: contains a tabset's tab list and toolbar (<code>data-tabset-header</code>)</li>\n<li><code>tabList</code>: contains a tabset's tabs (<code>data-tab-list</code>)</li>\n<li><code>tab</code>: passed to <code>renderTab</code> with the rest of a tab's props (<code>data-tab</code>)</li>\n<li><code>toolbar</code>: contains the content returned by <code>renderTabsetToolbar</code> (<code>data-tabset-toolbar</code>)</li>\n<li><code>tabPanels</code>: contains a tabset's tab content (<code>data-tab-panels</code>)</li>\n<li><code>tabContent</code>: the element each tab's content is rendered into (<code>data-tab-content</code>)</li>\n<li><code>dropIndicator</code>: shows where a dragged tab will be dropped within a tabset's panels (<code>data-drop-indicator</code>)</li>\n<li><code>dragPreview</code>: follows the pointer while a tab or tabset is dragged (<code>data-drag-preview</code>)</li>\n</ul>\n"
+          "content": "<p>CSS class names for the elements the workspace renders within its root element:</p>\n<ul>\n<li><code>tabset</code>: root element of a tabset (<code>data-tabset</code>)</li>\n<li><code>header</code>: contains a tabset's tab list and toolbar (<code>data-tabset-header</code>)</li>\n<li><code>tabList</code>: contains a tabset's tabs (<code>data-tab-list</code>)</li>\n<li><code>tab</code>: passed to <code>renderTab</code> with the rest of a tab's props (<code>data-tab</code>)</li>\n<li><code>toolbar</code>: contains the content returned by <code>renderTabsetToolbar</code> (<code>data-tabset-toolbar</code>)</li>\n<li><code>tabPanels</code>: contains a tabset's tab content (<code>data-tab-panels</code>)</li>\n<li><code>tabContent</code>: the element each tab's content is rendered into (<code>data-tab-content</code>)</li>\n<li><code>dropIndicator</code>: shows where a dragged tab will be dropped within a tabset's panels, or at an edge of the workspace (<code>data-drop-indicator</code>)</li>\n<li><code>dragPreview</code>: follows the pointer while a tab or tabset is dragged (<code>data-drag-preview</code>)</li>\n</ul>\n"
         },
         {
           "content": "<p>Elements expose their state as data attributes (e.g. <code>data-tab-selected</code>, or <code>data-tabset-dragging</code> while a tabset is dragged), which can be used for styling.\nElements within a collapsed tabset have a <code>data-tabset-collapsed</code> attribute.\nElements within a tabset also have a <code>data-tab-placement</code> attribute (see <code>tabPlacement</code>).</p>\n",
           "intent": "primary"
         },
         {
-          "content": "<p>The drop indicator is the same element for the whole drag (rendered within the workspace's root element),\nso it can be animated between regions and tabsets (e.g. <code>transition: inset 250ms</code>).\nIts <code>data-region</code> attribute is the region it covers; while a tab isn't over any tabset's panels, it has none and isn't shown (<code>opacity: 0</code>).</p>\n",
+          "content": "<p>The drop indicator is the same element for the whole drag (rendered within the workspace's root element),\nso it can be animated between regions and tabsets (e.g. <code>transition: inset 250ms</code>).\nIts <code>data-region</code> attribute is the region of a tabset's panels it covers, or its <code>data-edge</code> attribute is the edge of the workspace it's at;\nwhile a tab isn't over either, it has neither and isn't shown (<code>opacity: 0</code>).</p>\n",
           "intent": "primary"
         },
         {
@@ -136,6 +136,10 @@
         },
         {
           "content": "<p>While a tabset is dragged, this function is called for each of its tabs (see <code>DisableDropArgs</code>),\nso restrictions on where tabs can be dropped apply to dragged tabsets too.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Tabs can also be dropped at the edges of the workspace (beside all of the other tabsets), within a few pixels of the edges of its layout\n(except over tabset headers, where the tab lists are) or within its root element's padding.\nThese targets have an <code>edge</code> rather than a <code>tabsetId</code>; <code>disableDrop={({ target }) =&gt; &quot;edge&quot; in target}</code> turns them off.</p>\n",
           "intent": "primary"
         }
       ],
