@@ -54,7 +54,7 @@
           "content": "<p>Id of the tabset that is maximized, if any.</p>\n"
         },
         {
-          "content": "<p>Floating tabsets can't be maximized; they're shown above the maximized tabset.</p>\n",
+          "content": "<p>Floating tabsets can't be maximized; they're shown above the maximized tabset, and still accept dropped tabs.</p>\n",
           "intent": "primary"
         }
       ],

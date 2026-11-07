@@ -92,6 +92,10 @@
         {
           "content": "<p>A maximum only applies if something else can take up the rest of the space, e.g. another tabset in the same split without a maximum width;\notherwise it's ignored (e.g. if every tabset in a split has a maximum, or the tabset fills the workspace).</p>\n",
           "intent": "warning"
+        },
+        {
+          "content": "<p>Maximums don't apply to floating tabsets, which can be resized to any size larger than their minimums.</p>\n",
+          "intent": "primary"
         }
       ],
       "name": "maxWidth",
@@ -110,6 +114,10 @@
         {
           "content": "<p>A maximum only applies if something else can take up the rest of the space, e.g. another tabset in the same split without a maximum height;\notherwise it's ignored (e.g. if every tabset in a split has a maximum, or the tabset fills the workspace).</p>\n",
           "intent": "warning"
+        },
+        {
+          "content": "<p>Maximums don't apply to floating tabsets, which can be resized to any size larger than their minimums.</p>\n",
+          "intent": "primary"
         }
       ],
       "name": "maxHeight",
