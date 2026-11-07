@@ -913,7 +913,7 @@ Falls back to <code>useId</code> when not provided.</p>
 <li><code>toolbar</code>: contains the content returned by <code>renderTabsetToolbar</code> (<code>data-tabset-toolbar</code>)</li>
 <li><code>tabPanels</code>: contains a tabset&#39;s tab content (<code>data-tab-panels</code>)</li>
 <li><code>tabContent</code>: the element each tab&#39;s content is rendered into (<code>data-tab-content</code>)</li>
-<li><code>dropIndicator</code>: shows where a dragged tab will be dropped within a tabset&#39;s panels (<code>data-drop-indicator</code>)</li>
+<li><code>dropIndicator</code>: shows where a dragged tab will be dropped within a tabset&#39;s panels, or at an edge of the workspace (<code>data-drop-indicator</code>)</li>
 <li><code>dragPreview</code>: follows the pointer while a tab or tabset is dragged (<code>data-drag-preview</code>)</li>
 </ul>
 <p>ℹ️ Elements expose their state as data attributes (e.g. <code>data-tab-selected</code>, or <code>data-tabset-dragging</code> while a tabset is dragged), which can be used for styling.
@@ -921,7 +921,8 @@ Elements within a collapsed tabset have a <code>data-tabset-collapsed</code> att
 Elements within a tabset also have a <code>data-tab-placement</code> attribute (see <code>tabPlacement</code>).</p>
 <p>ℹ️ The drop indicator is the same element for the whole drag (rendered within the workspace&#39;s root element),
 so it can be animated between regions and tabsets (e.g. <code>transition: inset 250ms</code>).
-Its <code>data-region</code> attribute is the region it covers; while a tab isn&#39;t over any tabset&#39;s panels, it has none and isn&#39;t shown (<code>opacity: 0</code>).</p>
+Its <code>data-region</code> attribute is the region of a tabset&#39;s panels it covers, or its <code>data-edge</code> attribute is the edge of the workspace it&#39;s at;
+while a tab isn&#39;t over either, it has neither and isn&#39;t shown (<code>opacity: 0</code>).</p>
 <p>ℹ️ Like the render props, this object is part of what tabsets re-render for;
 in large workspaces, define it outside of the component (or memoize it) rather than inline.</p>
 </td>
@@ -948,6 +949,9 @@ Workspaces in popout windows rendered by this copy of the application (with port
 returning <code>true</code> rejects the target.</p>
 <p>ℹ️ While a tabset is dragged, this function is called for each of its tabs (see <code>DisableDropArgs</code>),
 so restrictions on where tabs can be dropped apply to dragged tabsets too.</p>
+<p>ℹ️ Tabs can also be dropped at the edges of the workspace (beside all of the other tabsets), within a few pixels of the edges of its layout
+(except over tabset headers, where the tab lists are) or within its root element&#39;s padding.
+These targets have an <code>edge</code> rather than a <code>tabsetId</code>; <code>disableDrop={({ target }) =&gt; &quot;edge&quot; in target}</code> turns them off.</p>
 </td>
     </tr>
     <tr>

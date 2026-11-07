@@ -121,12 +121,13 @@ export default function WorkspaceManagingTabsetsRoute() {
         proportionally.
       </div>
       <div>
-        The left, right, and bottom edges accept drops within a few pixels of
-        the edges of the workspace's tabsets (further in, the edges of the
-        tabsets themselves accept them), and anywhere within the padding of the
-        workspace's root element. Since tab lists are usually along the top of
-        the workspace, the top edge only accepts drops within the root element's
-        padding; add top padding to the workspace to enable it.
+        Each edge accepts drops within a few pixels of the edges of the
+        workspace's tabsets (further in, the edges of the tabsets themselves
+        accept them), and anywhere within the padding of the workspace's root
+        element. Tabset headers aren't part of the edge, so that drops into
+        their tab lists stay precise; an edge lined with tab lists (e.g. the top
+        of the workspace, by default) only accepts drops within the root
+        element's padding, so add padding there to enable it.
       </div>
       <Callout>
         These targets have an <code>edge</code> rather than a{" "}

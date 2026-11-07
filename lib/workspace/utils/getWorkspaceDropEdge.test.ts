@@ -56,11 +56,12 @@ describe("getWorkspaceDropEdge", () => {
     return { getEdge };
   }
 
-  test("targets the sides and bottom within a few pixels of the edges of the layout", () => {
+  test("targets each edge within a few pixels of the edges of the layout", () => {
     const { getEdge } = setup();
 
     expect(getEdge(110, 300)).toBe("left");
     expect(getEdge(890, 300)).toBe("right");
+    expect(getEdge(500, 60)).toBe("top");
     expect(getEdge(500, 640)).toBe("bottom");
 
     // Further in
@@ -68,18 +69,12 @@ describe("getWorkspaceDropEdge", () => {
     expect(getEdge(500, 300)).toBeUndefined();
   });
 
-  test("only targets the top within the root's padding", () => {
-    expect(setup().getEdge(500, 55)).toBeUndefined();
-    cleanup?.();
-
-    expect(setup({ padding: 10 }).getEdge(500, 55)).toBe("top");
-  });
-
   test("targets the root's padding", () => {
     const { getEdge } = setup({ padding: 10 });
 
     expect(getEdge(105, 300)).toBe("left");
     expect(getEdge(895, 300)).toBe("right");
+    expect(getEdge(500, 55)).toBe("top");
     expect(getEdge(500, 645)).toBe("bottom");
   });
 
@@ -90,12 +85,15 @@ describe("getWorkspaceDropEdge", () => {
     expect(getEdge(50, 300)).toBeUndefined();
   });
 
-  test("doesn't target tabset headers within the layout", () => {
+  test("doesn't target tabset headers within the layout, wherever they're placed", () => {
     const { getEdge } = setup({ padding: 10 });
 
     expect(getEdge(120, 300, "header")).toBeUndefined();
+    expect(getEdge(500, 70, "header")).toBeUndefined();
+    expect(getEdge(500, 630, "header")).toBeUndefined();
     // The root's padding beside a header is still an edge
     expect(getEdge(105, 300, "header")).toBe("left");
+    expect(getEdge(500, 55, "header")).toBe("top");
   });
 
   test("targets the edge a corner point is furthest past", () => {

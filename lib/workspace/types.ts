@@ -964,7 +964,7 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * so restrictions on where tabs can be dropped apply to dragged tabsets too.
    *
    * ℹ️ Tabs can also be dropped at the edges of the workspace (beside all of the other tabsets), within a few pixels of the edges of its layout
-   * or within its root element's padding; the top edge is only within the padding (since tab lists are usually there).
+   * (except over tabset headers, where the tab lists are) or within its root element's padding.
    * These targets have an `edge` rather than a `tabsetId`; `disableDrop={({ target }) => "edge" in target}` turns them off.
    */
   disableDrop?:

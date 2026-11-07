@@ -339,7 +339,7 @@ test.describe("Workspace", () => {
 
       // Within the tabsets' headers, the top of the layout isn't an edge of the workspace
       await dragTab(page, getTab(page, "d"), {
-        x: layout.x + layout.width / 2,
+        x: layout.x + layout.width / 4,
         y: layout.y + 4
       });
       await expect(page.locator("[data-tabset]")).toHaveCount(3);
@@ -352,6 +352,30 @@ test.describe("Workspace", () => {
       await dragTab(page, getTab(page, "d"), {
         x: layout.x + layout.width / 2,
         y: layout.y - 10
+      });
+
+      const added = (await getTabsetOf(page, "d").boundingBox())!;
+      expect(Math.abs(added.x - layout.x)).toBeLessThanOrEqual(1);
+      expect(Math.abs(added.y - layout.y)).toBeLessThanOrEqual(1);
+      expect(Math.abs(added.width - layout.width)).toBeLessThanOrEqual(1);
+    });
+
+    test("moves a tab dropped near the top of the layout beside all of the tabsets when the tab lists aren't along the top", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(
+        mainPage,
+        <Workspace
+          defaultModel={createEdgeModel()}
+          renderTabContent={() => null}
+          tabPlacement="bottom"
+        />
+      );
+      const layout = await getLayoutBox(page);
+
+      await dragTab(page, getTab(page, "d"), {
+        x: layout.x + layout.width / 4,
+        y: layout.y + 4
       });
 
       const added = (await getTabsetOf(page, "d").boundingBox())!;

@@ -9,7 +9,7 @@ export const WORKSPACE_EDGE_THRESHOLD = 16;
  * (where the tabsets beneath still accept drops further in, e.g. at the edge regions of their panels).
  *
  * ℹ️ Tabset headers (which contain the tab lists, so that drops between tabs stay precise) aren't edges of the workspace,
- * and nor is the top of the layout (where tab lists usually are), so the top edge is only within the root's top padding.
+ * wherever they're placed (e.g. along the top), so an edge lined with tab lists only accepts drops within the root's padding.
  */
 export function getWorkspaceDropEdge({
   clientX,
@@ -52,12 +52,15 @@ export function getWorkspaceDropEdge({
     top: clientY - layoutRect.top
   };
 
+  // Over a header, only the root's padding accepts drops
   const isOverHeader = isWithinOwnHeader(element, rootElement);
+  const thresholdX = isOverHeader ? 0 : WORKSPACE_EDGE_THRESHOLD * scaleX;
+  const thresholdY = isOverHeader ? 0 : WORKSPACE_EDGE_THRESHOLD * scaleY;
   const thresholds: { [edge in WorkspaceDropEdge]: number } = {
-    bottom: isOverHeader ? 0 : WORKSPACE_EDGE_THRESHOLD * scaleY,
-    left: isOverHeader ? 0 : WORKSPACE_EDGE_THRESHOLD * scaleX,
-    right: isOverHeader ? 0 : WORKSPACE_EDGE_THRESHOLD * scaleX,
-    top: 0
+    bottom: thresholdY,
+    left: thresholdX,
+    right: thresholdX,
+    top: thresholdY
   };
 
   // In a corner, the edge the point is furthest past (or nearest to) wins
