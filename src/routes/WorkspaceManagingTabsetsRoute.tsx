@@ -112,6 +112,30 @@ export default function WorkspaceManagingTabsetsRoute() {
         workspace (e.g. a "Move to bottom" menu item); it accepts the same
         targets as <code>moveTab</code>.
       </Callout>
+      <SectionHeader>Dropping at the edges of the workspace</SectionHeader>
+      <div>
+        Dropping a tab (or tabset) at the very edge of the workspace puts it
+        beside all of the other tabsets, filling the workspace's height (or
+        width), like a sidebar or a bottom panel in an IDE. It takes an equal
+        share of the space, which the other tabsets beside it give up
+        proportionally.
+      </div>
+      <div>
+        The left, right, and bottom edges accept drops within a few pixels of
+        the edges of the workspace's tabsets (further in, the edges of the
+        tabsets themselves accept them), and anywhere within the padding of the
+        workspace's root element. Since tab lists are usually along the top of
+        the workspace, the top edge only accepts drops within the root element's
+        padding; add top padding to the workspace to enable it.
+      </div>
+      <Callout>
+        These targets have an <code>edge</code> rather than a{" "}
+        <code>tabsetId</code> (e.g. <code>{'{ edge: "right" }'}</code>), and can
+        be turned off with{" "}
+        <code>{'disableDrop={({ target }) => "edge" in target}'}</code>. The
+        drop indicator has a <code>data-edge</code> attribute (rather than{" "}
+        <code>data-region</code>) while it shows one.
+      </Callout>
       <SectionHeader>Limiting tabset sizes</SectionHeader>
       <div>
         The <code>maxWidth</code> and <code>maxHeight</code> fields of a tabset

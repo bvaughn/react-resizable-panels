@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.20.0
+
+- `Workspace` tabs (and tabsets) can be dropped at the edges of the workspace, beside all of the other tabsets, so that they fill its height (or width), like a sidebar or a bottom panel in an IDE. The new tabset takes an equal share of the space (e.g. a third, beside two other tabsets), which the others give up proportionally. The left, right, and bottom edges accept drops within a few pixels of the edges of the workspace's layout, and the root element's padding accepts drops at all four edges; the top edge (where tab lists usually are) only accepts drops within the padding. These targets are on by default, and can be turned off with `disableDrop={({ target }) => "edge" in target}`. The drop indicator has a `data-edge` attribute while it shows one, and is sized to the space the tabset will fill. `moveTab` and `moveTabset` accept the new targets too. - [#800](https://github.com/bvaughn/react-resizable-panels/issues/800)
+
+> [!WARNING]
+> `TabDropTarget` has a new `{ edge: WorkspaceDropEdge }` variant without a `tabsetId`, so code that reads `target.tabsetId` (e.g. in a `disableDrop` function) must check for it first, e.g. with `"tabsetId" in target`.
+
 ## 4.19.1
 
 - Improve resizing and dragging performance:

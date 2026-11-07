@@ -3,6 +3,8 @@ import { createTabset } from "./createTabset";
 import { findTabset } from "./findTabset";
 import { findTabsetContainingTab } from "./findTabsetContainingTab";
 import { insertAtDropTarget } from "./insertAtDropTarget";
+import { insertAtWorkspaceEdge } from "./insertAtWorkspaceEdge";
+import { isAtWorkspaceEdge } from "./isAtWorkspaceEdge";
 import { removeTab } from "./removeTab";
 import type { TabDropTarget, WorkspaceModel } from "../types";
 
@@ -13,13 +15,32 @@ export function moveTab<TabData, TabsetData>(
 ): WorkspaceModel<TabData, TabsetData> {
   const next = copyModel(model);
   const source = findTabsetContainingTab(next, tabId);
-  const destination = findTabset(next, target.tabsetId);
-  if (!source || !destination) {
+  if (!source) {
     return model;
   }
 
   const sourceIndex = source.tabs.findIndex(({ id }) => id === tabId);
   const tab = source.tabs[sourceIndex];
+
+  if ("edge" in target) {
+    // Moving a tabset's only tab to an edge it's already at would leave the layout unchanged
+    if (
+      source.tabs.length === 1 &&
+      !source.keepWhenEmpty &&
+      isAtWorkspaceEdge(next.root, source, target.edge)
+    ) {
+      return model;
+    }
+
+    removeTab(source, tabId);
+
+    return insertAtWorkspaceEdge(next, createTabset([tab]), target.edge);
+  }
+
+  const destination = findTabset(next, target.tabsetId);
+  if (!destination) {
+    return model;
+  }
 
   let insertTarget = target;
   if ("index" in target || target.region === "center") {

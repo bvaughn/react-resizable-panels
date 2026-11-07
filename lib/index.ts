@@ -86,6 +86,7 @@ export type {
   WorkspaceChangedMeta,
   WorkspaceChangeReason,
   WorkspaceClassNames,
+  WorkspaceDropEdge,
   WorkspaceImperativeHandle,
   WorkspaceModel,
   WorkspaceModelInput,

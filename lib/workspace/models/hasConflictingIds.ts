@@ -5,7 +5,7 @@ import type { DragNode, TabDropTarget, WorkspaceModel } from "../types";
  * Whether a tab (or tabset) dropped in from another workspace (see the Workspace's dragGroup prop) has the same id as one of this model's nodes.
  * Ids are kept when moving between workspaces (since applications may refer to them), so these drops are rejected rather than given new ids.
  *
- * A tabset's own id only matters where the tabset is inserted whole (an edge region); elsewhere only its tabs are inserted.
+ * A tabset's own id only matters where the tabset is inserted whole (an edge region, or an edge of the workspace); elsewhere only its tabs are inserted.
  */
 export function hasConflictingIds(
   model: WorkspaceModel,
@@ -20,7 +20,8 @@ export function hasConflictingIds(
     return isTaken(node.tab.id);
   }
 
-  const isInsertedWhole = "region" in target && target.region !== "center";
+  const isInsertedWhole =
+    "edge" in target || ("region" in target && target.region !== "center");
 
   return (
     (isInsertedWhole && isTaken(node.tabset.id)) ||

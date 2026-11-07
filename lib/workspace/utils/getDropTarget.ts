@@ -1,10 +1,19 @@
 import { isShadowRoot } from "../../shared/utils/isShadowRoot";
 import { getModelIndex } from "../models/getModelIndex";
-import type { DragSource, TabDropTarget, WorkspaceModel } from "../types";
+import { isAtWorkspaceEdge } from "../models/isAtWorkspaceEdge";
+import type {
+  DragSource,
+  TabDropTarget,
+  WorkspaceDropEdge,
+  WorkspaceModel
+} from "../types";
 import type { TabsetElementRegistry } from "./createTabsetElementRegistry";
 import { getOwnElement } from "./getOwnElement";
 import { getDropRegion } from "./getDropRegion";
 import { getTabListIndex } from "./getTabListIndex";
+import { getWorkspaceDropEdge } from "./getWorkspaceDropEdge";
+import { isRightToLeft } from "./isRightToLeft";
+import { toModelDropTarget } from "./toModelDropTarget";
 
 export function getDropTarget({
   clientX,
@@ -34,6 +43,22 @@ export function getDropTarget({
     return undefined;
   }
 
+  const modelIndex = getModelIndex(model);
+
+  // Edges of the workspace take precedence over the tabsets beneath them (which still accept drops further in)
+  const edge = getEdgeDropTarget({
+    clientX,
+    clientY,
+    element,
+    isExternal,
+    model,
+    rootElement,
+    source
+  });
+  if (edge) {
+    return { edge };
+  }
+
   // Skip tabsets of other workspaces (e.g. one rendered within a tab)
   let tabsetElement = element.closest<HTMLElement>("[data-tabset-id]");
   while (
@@ -46,7 +71,6 @@ export function getDropTarget({
   }
 
   const tabsetId = tabsetElement?.dataset.tabsetId;
-  const modelIndex = getModelIndex(model);
   const tabset =
     tabsetId !== undefined ? modelIndex.tabsetsById.get(tabsetId) : undefined;
   if (!tabsetElement || !tabset) {
@@ -121,6 +145,71 @@ export function getDropTarget({
 
   // Other parts of a tabset (e.g. buttons in its header) don't accept drops
   return undefined;
+}
+
+function getEdgeDropTarget({
+  clientX,
+  clientY,
+  element,
+  isExternal,
+  model,
+  rootElement,
+  source
+}: {
+  clientX: number;
+  clientY: number;
+  element: Element;
+  isExternal: boolean;
+  model: WorkspaceModel;
+  rootElement: HTMLElement;
+  source: DragSource;
+}): WorkspaceDropEdge | undefined {
+  // While a tabset is maximized, tabs can only be dropped within it;
+  // and the edges of a root tabset (e.g. of an empty workspace) are already its own edge regions
+  if (model.maximizedTabsetId !== undefined || model.root.type !== "split") {
+    return undefined;
+  }
+
+  const layoutElement = getLayoutElement(rootElement);
+  const edge = layoutElement
+    ? getWorkspaceDropEdge({
+        clientX,
+        clientY,
+        element,
+        layoutElement,
+        rootElement
+      })
+    : undefined;
+  if (!edge || isExternal) {
+    return edge;
+  }
+
+  // Moving a tabset (or a tabset's only tab) to an edge it already fills would leave the layout unchanged;
+  // edges are sides of the screen, so they're converted to the model's order first (see toModelDropTarget)
+  const modelTarget = toModelDropTarget({ edge }, isRightToLeft(rootElement));
+  const modelEdge = "edge" in modelTarget ? modelTarget.edge : edge;
+  const modelIndex = getModelIndex(model);
+  const sourceTabset =
+    source.type === "tabset"
+      ? modelIndex.tabsetsById.get(source.tabsetId)
+      : modelIndex.tabsetsByTabId.get(source.tabId);
+  if (
+    sourceTabset &&
+    (source.type === "tabset" ||
+      (sourceTabset.tabs.length === 1 && !sourceTabset.keepWhenEmpty)) &&
+    isAtWorkspaceEdge(model.root, sourceTabset, modelEdge)
+  ) {
+    return undefined;
+  }
+
+  return edge;
+}
+
+// The workspace's own layout (rather than that of a workspace nested within it)
+function getLayoutElement(rootElement: HTMLElement) {
+  return Array.from(rootElement.children).find((child): child is HTMLElement =>
+    child.hasAttribute("data-workspace-layout")
+  );
 }
 
 function getTabsetDropTarget({

@@ -64,4 +64,24 @@ describe("measureDropIndicatorInsets", () => {
       )
     ).toEqual({ bottom: 0, left: 400, right: 200, top: 30 });
   });
+
+  test("covers a fraction of an element at an edge", () => {
+    // e.g. a quarter of the workspace's layout, for a drop at its edge
+    expect(
+      measureDropIndicatorInsets(container, container, "right", 0.25)
+    ).toEqual({
+      bottom: 0,
+      left: 600,
+      right: 0,
+      top: 0
+    });
+    expect(
+      measureDropIndicatorInsets(container, container, "top", 0.25)
+    ).toEqual({
+      bottom: 450,
+      left: 0,
+      right: 0,
+      top: 0
+    });
+  });
 });

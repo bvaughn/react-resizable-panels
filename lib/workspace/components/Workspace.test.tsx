@@ -1764,6 +1764,62 @@ describe("Workspace", () => {
       expect(onModelChanged).not.toHaveBeenCalled();
     });
 
+    test("dropping a tab at an edge of the workspace moves it beside all of the tabsets", async () => {
+      const disableDrop = vi.fn(() => false);
+      const { container, onModelChanged } = renderWorkspace({ disableDrop });
+
+      // jsdom has no layout, so the workspace is given a size within the window (the tabsets' panels are still at the origin)
+      const rootElement =
+        container.querySelector<HTMLElement>("[data-workspace]")!;
+      rootElement.getBoundingClientRect = () => new DOMRect(0, 0, 700, 700);
+      rootElement.querySelector<HTMLElement>(
+        "[data-workspace-layout]"
+      )!.getBoundingClientRect = () => new DOMRect(0, 0, 700, 700);
+
+      const user = userEvent.setup();
+      await user.pointer([
+        {
+          coords: { clientX: 100, clientY: 100 },
+          keys: "[MouseLeft>]",
+          target: getTab("2")
+        },
+        {
+          coords: { clientX: 350, clientY: 695 },
+          target: getPanels(container, "right")
+        }
+      ]);
+
+      const indicator = container.querySelector<HTMLElement>(
+        "[data-drop-indicator]"
+      )!;
+      expect(indicator.dataset.edge).toBe("bottom");
+      expect(indicator.dataset.region).toBeUndefined();
+      expect(indicator.style.opacity).toBe("");
+      expect(disableDrop).toHaveBeenLastCalledWith(
+        expect.objectContaining({ target: { edge: "bottom" } })
+      );
+
+      await user.pointer({
+        keys: "[/MouseLeft]",
+        target: getPanels(container, "right")
+      });
+
+      expect(onModelChanged).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          root: expect.objectContaining({
+            children: [
+              expect.objectContaining({ orientation: "horizontal" }),
+              expect.objectContaining({
+                tabs: [expect.objectContaining({ id: "2" })]
+              })
+            ],
+            orientation: "vertical"
+          })
+        }),
+        { isUserInteraction: true, reason: "move" }
+      );
+    });
+
     // Starts dragging a tab over the "right" tabset (without releasing the pointer)
     async function startDrag(container: HTMLElement, tabElement: HTMLElement) {
       // A single instance tracks the pointer's state between calls

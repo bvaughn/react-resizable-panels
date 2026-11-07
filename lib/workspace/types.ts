@@ -315,13 +315,22 @@ export type TabsetNodeInput<TabData = unknown, TabsetData = unknown> = Omit<
 export type TabDropRegion = "bottom" | "center" | "left" | "right" | "top";
 
 /**
+ * Edge of the workspace.
+ *
+ * ℹ️ Edges are sides of the screen, so in a right-to-left layout (e.g. within `dir="rtl"`), "left" is at the end of the root split's `children`.
+ */
+export type WorkspaceDropEdge = "bottom" | "left" | "right" | "top";
+
+/**
  * Where a dragged tab can be dropped:
  * - At an `index` within a tabset's tab list (in the order of its `tabs`, which run from right to left in a right-to-left layout)
  * - Within a `region` of a tabset's content area; edges split the tabset, and the center adds the tab to it
+ * - At an `edge` of the workspace, beside all of the other tabsets (filling the workspace's height or width)
  */
 export type TabDropTarget =
   | { index: number; tabsetId: string }
-  | { region: TabDropRegion; tabsetId: string };
+  | { region: TabDropRegion; tabsetId: string }
+  | { edge: WorkspaceDropEdge };
 
 /**
  * Which change caused `onModelChanged` to be called.
@@ -573,16 +582,18 @@ export interface WorkspaceImperativeHandle<
   maximizeTabset: (tabsetId: string) => void;
 
   /**
-   * Move a tab to a position within a tabset's tab list, or to a region of a tabset's content area.
+   * Move a tab to a position within a tabset's tab list, to a region of a tabset's content area,
+   * or to an `edge` of the workspace (in a new tabset beside all of the other tabsets).
    *
-   * ℹ️ The `"left"` and `"right"` regions are sides of the screen (so they're mirrored in right-to-left layouts).
+   * ℹ️ The `"left"` and `"right"` regions (and edges) are sides of the screen (so they're mirrored in right-to-left layouts).
    */
   moveTab: (tabId: string, target: TabDropTarget) => void;
 
   /**
    * Move a tabset beside another tabset (by dropping it onto a region at the edge of that tabset's content area),
+   * or beside all of the other tabsets (at an `edge` of the workspace),
    * or move its tabs into another tabset (at an `index` within its tab list, or onto the `"center"` of its content area).
-   * The `"left"` and `"right"` regions are sides of the screen (so they're mirrored in right-to-left layouts).
+   * The `"left"` and `"right"` regions (and edges) are sides of the screen (so they're mirrored in right-to-left layouts).
    *
    * ℹ️ When its tabs are moved, the emptied tabset is removed (unless it has the `keepWhenEmpty` flag).
    */
@@ -900,7 +911,7 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * - `toolbar`: contains the content returned by `renderTabsetToolbar` (`data-tabset-toolbar`)
    * - `tabPanels`: contains a tabset's tab content (`data-tab-panels`)
    * - `tabContent`: the element each tab's content is rendered into (`data-tab-content`)
-   * - `dropIndicator`: shows where a dragged tab will be dropped within a tabset's panels (`data-drop-indicator`)
+   * - `dropIndicator`: shows where a dragged tab will be dropped within a tabset's panels, or at an edge of the workspace (`data-drop-indicator`)
    * - `dragPreview`: follows the pointer while a tab or tabset is dragged (`data-drag-preview`)
    *
    * ℹ️ Elements expose their state as data attributes (e.g. `data-tab-selected`, or `data-tabset-dragging` while a tabset is dragged), which can be used for styling.
@@ -909,7 +920,8 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    *
    * ℹ️ The drop indicator is the same element for the whole drag (rendered within the workspace's root element),
    * so it can be animated between regions and tabsets (e.g. `transition: inset 250ms`).
-   * Its `data-region` attribute is the region it covers; while a tab isn't over any tabset's panels, it has none and isn't shown (`opacity: 0`).
+   * Its `data-region` attribute is the region of a tabset's panels it covers, or its `data-edge` attribute is the edge of the workspace it's at;
+   * while a tab isn't over either, it has neither and isn't shown (`opacity: 0`).
    *
    * ℹ️ Like the render props, this object is part of what tabsets re-render for;
    * in large workspaces, define it outside of the component (or memoize it) rather than inline.
@@ -950,6 +962,10 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    *
    * ℹ️ While a tabset is dragged, this function is called for each of its tabs (see `DisableDropArgs`),
    * so restrictions on where tabs can be dropped apply to dragged tabsets too.
+   *
+   * ℹ️ Tabs can also be dropped at the edges of the workspace (beside all of the other tabsets), within a few pixels of the edges of its layout
+   * or within its root element's padding; the top edge is only within the padding (since tab lists are usually there).
+   * These targets have an `edge` rather than a `tabsetId`; `disableDrop={({ target }) => "edge" in target}` turns them off.
    */
   disableDrop?:
     | boolean

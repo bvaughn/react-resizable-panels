@@ -220,8 +220,11 @@ export function VSCodeWorkspace() {
           // The Workspace's default separators are invisible; tabsets are resized by dragging the gaps between them
           classNames={CLASS_NAMES_DEFAULT_SEPARATORS}
           defaultModel={defaultModel}
-          // Only the activity views belong in the sidebar
-          disableDrop={({ target }) => target.tabsetId === SIDEBAR_ID}
+          // Only the activity views belong in the sidebar (so nothing is dropped in it, or beside it at the left edge)
+          disableDrop={({ target }) =>
+            ("tabsetId" in target && target.tabsetId === SIDEBAR_ID) ||
+            ("edge" in target && target.edge === "left")
+          }
           onModelChanged={onModelChanged}
           renderEmptyTabset={renderEmptyTabset}
           renderTab={renderTab}

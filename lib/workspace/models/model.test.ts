@@ -410,6 +410,254 @@ describe("workspace model", () => {
     });
   });
 
+  describe("dropping at the edges of the workspace", () => {
+    // An IDE-like layout: a sidebar, beside two editors above a terminal
+    const ide = model(
+      split("root", "horizontal", [
+        tabset("explorer", ["explorer"], 40),
+        split(
+          "main",
+          "vertical",
+          [
+            split(
+              "editors",
+              "horizontal",
+              [tabset("app", ["app"], 50), tabset("index", ["index"], 50)],
+              50
+            ),
+            tabset("terminal", ["terminal"], 50)
+          ],
+          60
+        )
+      ])
+    );
+
+    test("adds a tabset to the end of a root split in the same direction, taking an equal share of its space", () => {
+      // The editors split is left with one tabset, so it's replaced by it before the space is shared
+      expect(shape(moveTabset(ide, "index", { edge: "right" }).root)).toEqual({
+        children: [
+          { selected: "explorer", size: (40 / 150) * 100, tabs: ["explorer"] },
+          {
+            children: [
+              { selected: "app", size: 50, tabs: ["app"] },
+              { selected: "terminal", size: 50, tabs: ["terminal"] }
+            ],
+            orientation: "vertical",
+            size: (60 / 150) * 100
+          },
+          { selected: "index", size: (50 / 150) * 100, tabs: ["index"] }
+        ],
+        orientation: "horizontal",
+        size: undefined
+      });
+    });
+
+    test("adds a tabset to the start of a root split in the same direction", () => {
+      const next = moveTabset(ide, "app", { edge: "left" });
+      expect(next.root.type === "split" && next.root.children[0]).toMatchObject(
+        { id: "app", size: (50 / 150) * 100 }
+      );
+    });
+
+    test("wraps the root in a split in the other direction", () => {
+      // The main split is left with the editors split, which is merged into the root
+      expect(shape(moveTabset(ide, "terminal", { edge: "top" }).root)).toEqual({
+        children: [
+          { selected: "terminal", size: 50, tabs: ["terminal"] },
+          {
+            children: [
+              { selected: "explorer", size: 40, tabs: ["explorer"] },
+              { selected: "app", size: 30, tabs: ["app"] },
+              { selected: "index", size: 30, tabs: ["index"] }
+            ],
+            orientation: "horizontal",
+            size: 50
+          }
+        ],
+        orientation: "vertical",
+        size: undefined
+      });
+    });
+
+    test("shares the space with the split the moved tabset leaves, once it's replaced by its only child", () => {
+      const initial = model(
+        split("root", "vertical", [
+          tabset("a", ["1"], 40),
+          split(
+            "b",
+            "horizontal",
+            [tabset("c", ["2"], 50), tabset("d", ["3"], 50)],
+            60
+          )
+        ])
+      );
+
+      expect(shape(moveTabset(initial, "a", { edge: "right" }).root)).toEqual({
+        children: [
+          { selected: "2", size: (50 / 150) * 100, tabs: ["2"] },
+          { selected: "3", size: (50 / 150) * 100, tabs: ["3"] },
+          { selected: "1", size: (50 / 150) * 100, tabs: ["1"] }
+        ],
+        orientation: "horizontal",
+        size: undefined
+      });
+    });
+
+    test("moves a tab into a new tabset at an edge, leaving the rest of its tabset", () => {
+      expect(shape(moveTab(twoTabsets, "2", { edge: "left" }).root)).toEqual({
+        children: [
+          { selected: "2", size: (50 / 150) * 100, tabs: ["2"] },
+          { selected: "1", size: (40 / 150) * 100, tabs: ["1"] },
+          { selected: "3", size: (60 / 150) * 100, tabs: ["3"] }
+        ],
+        orientation: "horizontal",
+        size: undefined
+      });
+    });
+
+    test("returns the same model when a tabset (or its only tab) already fills the edge", () => {
+      expect(moveTabset(twoTabsets, "b", { edge: "right" })).toBe(twoTabsets);
+      expect(moveTab(twoTabsets, "3", { edge: "right" })).toBe(twoTabsets);
+      expect(moveTabset(twoTabsets, "a", { edge: "left" })).toBe(twoTabsets);
+
+      // The root tabset is at every edge
+      const single = model(tabset("a", ["1"]));
+      expect(moveTab(single, "1", { edge: "top" })).toBe(single);
+      expect(moveTabset(single, "a", { edge: "top" })).toBe(single);
+    });
+
+    test("moves a tabset that fills one edge to the opposite edge", () => {
+      expect(
+        shape(moveTabset(twoTabsets, "a", { edge: "right" }).root)
+      ).toEqual({
+        children: [
+          { selected: "3", size: 50, tabs: ["3"] },
+          { selected: "1", size: 50, tabs: ["1", "2"] }
+        ],
+        orientation: "horizontal",
+        size: undefined
+      });
+    });
+
+    test("moves the only tab of a tabset that's kept when empty, leaving the tabset", () => {
+      const initial = model(
+        split("root", "horizontal", [
+          tabset("a", ["1"], 40),
+          { ...tabset("b", ["2"], 60), keepWhenEmpty: true }
+        ])
+      );
+
+      const next = moveTab(initial, "2", { edge: "right" });
+      expect(shape(next.root)).toEqual({
+        children: [
+          { selected: "1", size: (40 / 150) * 100, tabs: ["1"] },
+          { selected: undefined, size: (60 / 150) * 100, tabs: [] },
+          { selected: "2", size: (50 / 150) * 100, tabs: ["2"] }
+        ],
+        orientation: "horizontal",
+        size: undefined
+      });
+    });
+
+    test("keeps the tabset's id, data, and flags when moving it", () => {
+      const initial = model(
+        split("root", "horizontal", [
+          tabset("a", ["1"]),
+          split("b", "vertical", [
+            tabset("c", ["2"]),
+            { ...tabset("d", ["3"]), data: "data", keepWhenEmpty: true }
+          ])
+        ])
+      );
+
+      expect(
+        findTabset(moveTabset(initial, "d", { edge: "bottom" }), "d")
+      ).toMatchObject({ data: "data", id: "d", keepWhenEmpty: true });
+    });
+
+    test("expands a collapsed tabset moved to an edge, and only shares the space with expanded tabsets", () => {
+      const initial = model(
+        split("root", "horizontal", [
+          { ...tabset("a", ["1"], 20), collapsed: true, collapsible: true },
+          split(
+            "b",
+            "vertical",
+            [
+              tabset("c", ["2"], 50),
+              { ...tabset("d", ["3"], 50), collapsed: true, collapsible: true }
+            ],
+            100
+          )
+        ])
+      );
+
+      const next = moveTabset(initial, "d", { edge: "right" });
+      expect(findTabset(next, "d")).not.toHaveProperty("collapsed");
+      expect(next.root.type === "split" && next.root.children).toMatchObject([
+        { collapsed: true, id: "a", size: 20 },
+        { id: "c", size: 50 },
+        { id: "d", size: 50 }
+      ]);
+    });
+
+    test("shares the space evenly when sizes can't be calculated", () => {
+      const initial = model(
+        split("root", "horizontal", [
+          tabset("a", ["1"], "200px"),
+          split("b", "vertical", [tabset("c", ["2"]), tabset("d", ["3"])])
+        ])
+      );
+
+      expect(moveTabset(initial, "d", { edge: "right" }).root).toMatchObject({
+        children: [
+          { id: "a", size: "200px" },
+          { id: "c", size: undefined },
+          { id: "d", size: undefined }
+        ]
+      });
+    });
+
+    test("keeps a maximized tabset maximized", () => {
+      const maximized = model(ide.root, "app");
+      expect(
+        moveTabset(maximized, "terminal", { edge: "right" }).maximizedTabsetId
+      ).toBe("app");
+    });
+
+    test("inserts a tab or tabset from another workspace at an edge", () => {
+      expect(
+        shape(insertTab(twoTabsets, tab("9"), { edge: "bottom" }).root)
+      ).toEqual({
+        children: [
+          {
+            children: [
+              { selected: "1", size: 40, tabs: ["1", "2"] },
+              { selected: "3", size: 60, tabs: ["3"] }
+            ],
+            orientation: "horizontal",
+            size: 50
+          },
+          { selected: "9", size: 50, tabs: ["9"] }
+        ],
+        orientation: "vertical",
+        size: undefined
+      });
+
+      const inserted = { ...tabset("x", ["8", "9"], 10), selectedId: "9" };
+      expect(
+        shape(insertTabset(twoTabsets, inserted, { edge: "right" }).root)
+      ).toEqual({
+        children: [
+          { selected: "1", size: (40 / 150) * 100, tabs: ["1", "2"] },
+          { selected: "3", size: (60 / 150) * 100, tabs: ["3"] },
+          { selected: "9", size: (50 / 150) * 100, tabs: ["8", "9"] }
+        ],
+        orientation: "horizontal",
+        size: undefined
+      });
+    });
+  });
+
   describe("recently selected tabs", () => {
     function withRecent(
       id: string,
@@ -1394,6 +1642,7 @@ describe("workspace model", () => {
       expect(
         hasConflictingIds(twoTabsets, node, { region: "left", tabsetId: "b" })
       ).toBe(true);
+      expect(hasConflictingIds(twoTabsets, node, { edge: "left" })).toBe(true);
     });
   });
 });

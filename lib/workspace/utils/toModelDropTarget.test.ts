@@ -17,12 +17,23 @@ describe("toModelDropTarget", () => {
     );
   });
 
+  test("right to left layouts swap the left and right edges of the workspace", () => {
+    expect(toModelDropTarget({ edge: "left" }, true)).toEqual({
+      edge: "right"
+    });
+    expect(toModelDropTarget({ edge: "right" }, true)).toEqual({
+      edge: "left"
+    });
+  });
+
   test("right to left layouts don't change other targets", () => {
     for (const target of [
       { region: "bottom", tabsetId: "a" },
       { region: "center", tabsetId: "a" },
       { region: "top", tabsetId: "a" },
-      { index: 1, tabsetId: "a" }
+      { index: 1, tabsetId: "a" },
+      { edge: "bottom" },
+      { edge: "top" }
     ] as const) {
       expect(toModelDropTarget(target, true)).toBe(target);
     }

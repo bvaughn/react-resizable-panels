@@ -1086,6 +1086,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
               <DropIndicator
                 className={classNames?.dropIndicator}
                 dragStore={dragStore}
+                layoutElementRef={layoutRef}
                 model={model}
                 style={styles?.dropIndicator}
                 tabsetElements={tabsetElements}
