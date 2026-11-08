@@ -174,8 +174,14 @@ export const routes = {
   "/props/tab-close-button": lazy(
     () => import("./routes/TabCloseButtonPropsRoute")
   ),
+  "/props/tabset-collapse-button": lazy(
+    () => import("./routes/TabsetCollapseButtonPropsRoute")
+  ),
   "/props/tabset-drag-handle": lazy(
     () => import("./routes/TabsetDragHandlePropsRoute")
+  ),
+  "/props/tabset-maximize-button": lazy(
+    () => import("./routes/TabsetMaximizeButtonPropsRoute")
   ),
   "/props/workspace": lazy(() => import("./routes/WorkspacePropsRoute")),
   "/test": lazy(() => import("./routes/TestRoute"))

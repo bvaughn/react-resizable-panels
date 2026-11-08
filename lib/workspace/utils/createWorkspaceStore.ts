@@ -20,6 +20,8 @@ export type WorkspaceState = {
 
 export type WorkspaceStore = {
   getState: () => WorkspaceState;
+  // The id of a tab's panel element (e.g. for a button that controls it; see TabsetCollapseButton); stable for the life of the Workspace
+  getTabPanelId: (tabId: string) => string;
   // Notifies subscribers if the state has changed since they were last notified
   notify: () => void;
   // Updates the state without notifying subscribers (see notify)
@@ -38,7 +40,8 @@ export type WorkspaceStore = {
  */
 export function createWorkspaceStore(
   initialState: WorkspaceState,
-  updateModel: UpdateModel
+  updateModel: UpdateModel,
+  getTabPanelId: (tabId: string) => string
 ): WorkspaceStore {
   const eventEmitter = new EventEmitter<{ change: undefined }>();
   let notifiedState = initialState;
@@ -46,6 +49,7 @@ export function createWorkspaceStore(
 
   return {
     getState: () => state,
+    getTabPanelId,
     notify: () => {
       if (notifiedState !== state) {
         notifiedState = state;

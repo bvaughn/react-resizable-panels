@@ -244,7 +244,15 @@ const nav: NavConfig<Path | DefaultPath> = [
         links: [
           { path: "/props/workspace", title: "Workspace" },
           { path: "/props/tab-close-button", title: "TabCloseButton" },
-          { path: "/props/tabset-drag-handle", title: "TabsetDragHandle" }
+          {
+            path: "/props/tabset-collapse-button",
+            title: "TabsetCollapseButton"
+          },
+          { path: "/props/tabset-drag-handle", title: "TabsetDragHandle" },
+          {
+            path: "/props/tabset-maximize-button",
+            title: "TabsetMaximizeButton"
+          }
         ]
       },
       {

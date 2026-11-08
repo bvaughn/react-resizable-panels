@@ -5,8 +5,15 @@ import { warnOnce } from "../../shared/utils/warnOnce";
 import { ParentTabsetContext } from "../contexts/ParentTabsetContext";
 import { useParentTabsetState } from "../hooks/useParentTabsetState";
 import type { TabsetDragHandleProps } from "../types";
+import { resolveStatefulProps } from "../utils/resolveStatefulProps";
 
-function TabsetDragHandleComponent({ style, ...rest }: TabsetDragHandleProps) {
+function TabsetDragHandleComponent({
+  children,
+  className,
+  style,
+  title,
+  ...rest
+}: TabsetDragHandleProps) {
   const parentTabset = useContext(ParentTabsetContext);
   const tabsetState = useParentTabsetState();
 
@@ -19,15 +26,27 @@ function TabsetDragHandleComponent({ style, ...rest }: TabsetDragHandleProps) {
   }
 
   const isDragDisabled = tabsetState?.isDragDisabled ?? true;
+  const resolved = resolveStatefulProps(
+    { children, className, style, title },
+    { isDisabled: isDragDisabled }
+  );
 
   return (
     <div
       data-disabled={isDragDisabled || undefined}
       data-tabset-drag-handle=""
       {...rest}
+      className={resolved.className}
       // The handle handles touch drags itself (rather than letting them scroll the page)
-      style={isDragDisabled ? style : { touchAction: "none", ...style }}
-    />
+      style={
+        isDragDisabled
+          ? resolved.style
+          : { touchAction: "none", ...resolved.style }
+      }
+      title={resolved.title}
+    >
+      {resolved.children}
+    </div>
   );
 }
 
@@ -46,6 +65,13 @@ function TabsetDragHandleComponent({ style, ...rest }: TabsetDragHandleProps) {
  * this component also sets `touch-action: none`, so that it can be dragged by touch.
  *
  * The handle has a `data-disabled` attribute when the tabset can't be dragged (see `useParentTabsetState`), e.g. to hide it.
+ * Its `children`, `className`, `style`, and `title` can also be functions of its state (see `TabsetDragHandleState`):
+ *
+ * ```tsx
+ * <TabsetDragHandle title={({ isDisabled }) => (isDisabled ? undefined : "Drag tabset")}>
+ *   ⠿
+ * </TabsetDragHandle>
+ * ```
  */
 export const TabsetDragHandle = /* @__PURE__ */ Object.assign(
   TabsetDragHandleComponent,

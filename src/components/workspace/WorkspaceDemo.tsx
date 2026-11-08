@@ -16,7 +16,9 @@ import {
   TabCloseButton,
   type TabNode,
   type TabRenderProps,
+  TabsetCollapseButton,
   TabsetDragHandle,
+  TabsetMaximizeButton,
   type TabsetNode,
   useParentTabset,
   useParentTabsetState,
@@ -172,7 +174,6 @@ export function DemoWorkspace({
         renderTabsetToolbar={(tabset) => (
           <>
             {showDragHandles && <DragHandle />}
-            <ExpandButton />
             <ExpandedOnly>
               {/* Adding tabs isn't restricted by the workspace, so the demo hides the button itself */}
               {!rest.disabled && (canAddTabs?.(tabset) ?? true) && (
@@ -180,7 +181,9 @@ export function DemoWorkspace({
               )}
               {onPopOut && <PopOutButton onPopOut={onPopOut} tabset={tabset} />}
               {showFloatButtons && <FloatButton />}
-              <CollapseButton />
+            </ExpandedOnly>
+            <CollapseButton />
+            <ExpandedOnly>
               {showMaximizeButtons && <MaximizeButton />}
               {canCloseTabset?.(tabset) && <CloseTabsetButton />}
             </ExpandedOnly>
@@ -320,41 +323,34 @@ function ExpandedOnly({ children }: PropsWithChildren) {
   return state?.isCollapsed && !state.isMaximized ? null : children;
 }
 
-// Only shown for tabsets that can be collapsed
+// TabsetCollapseButton renders nothing for tabsets that can't be collapsed;
+// a collapsed tabset in the layout is a narrow strip (expanded by clicking one of its tabs), so the button is hidden for it,
+// but a collapsed floating tabset's header runs across it, so it shows the button (to expand it) like a disclosure
 function CollapseButton() {
-  const tabset = useParentTabset();
   const state = useParentTabsetState();
+  const isFloating = !!state?.isFloating;
 
-  if (!state?.isCollapsible || state.isMaximized) {
+  if (state?.isCollapsed && !isFloating && !state.isMaximized) {
     return null;
   }
 
   return (
-    <TabsetButton onClick={() => tabset?.collapse()} title="Collapse tabset">
-      {/* A floating tabset collapses (and expands) like a disclosure; see ExpandButton */}
-      {state.isFloating ? (
-        <ChevronDownIcon className="w-4 h-4" />
-      ) : (
-        <MinusIcon className="w-4 h-4" />
-      )}
-    </TabsetButton>
-  );
-}
-
-// A collapsed floating tabset's header runs across it (rather than being a narrow strip), so it has room for a button to expand it;
-// tabsets in the layout are expanded by clicking one of their tabs
-function ExpandButton() {
-  const tabset = useParentTabset();
-  const state = useParentTabsetState();
-
-  if (!state?.isCollapsed || !state.isFloating) {
-    return null;
-  }
-
-  return (
-    <TabsetButton onClick={() => tabset?.expand()} title="Expand tabset">
-      <ChevronRightIcon className="w-4 h-4" />
-    </TabsetButton>
+    <TabsetCollapseButton
+      className={TABSET_BUTTON_CLASS_NAME}
+      title={({ isCollapsed }) =>
+        isCollapsed ? "Expand tabset" : "Collapse tabset"
+      }
+    >
+      {({ isCollapsed }) =>
+        !isFloating ? (
+          <MinusIcon className="w-4 h-4" />
+        ) : isCollapsed ? (
+          <ChevronRightIcon className="w-4 h-4" />
+        ) : (
+          <ChevronDownIcon className="w-4 h-4" />
+        )
+      }
+    </TabsetCollapseButton>
   );
 }
 
@@ -374,29 +370,28 @@ function CloseTabsetButton() {
   );
 }
 
+// TabsetMaximizeButton renders nothing for the only tabset in a workspace (and for floating tabsets)
 function MaximizeButton() {
-  const tabset = useParentTabset();
-  const state = useParentTabsetState();
-  const isMaximized = !!state?.isMaximized;
-
-  // Floating tabsets can't be maximized
-  if (state?.isRoot || state?.isFloating) {
-    return null;
-  }
-
   return (
-    <TabsetButton
-      onClick={() => (isMaximized ? tabset?.restore() : tabset?.maximize())}
-      title={isMaximized ? "Restore tabset" : "Maximize tabset"}
+    <TabsetMaximizeButton
+      className={TABSET_BUTTON_CLASS_NAME}
+      title={({ isMaximized }) =>
+        isMaximized ? "Restore tabset" : "Maximize tabset"
+      }
     >
-      {isMaximized ? (
-        <ArrowsPointingInIcon className="w-4 h-4" />
-      ) : (
-        <ArrowsPointingOutIcon className="w-4 h-4" />
-      )}
-    </TabsetButton>
+      {({ isMaximized }) =>
+        isMaximized ? (
+          <ArrowsPointingInIcon className="w-4 h-4" />
+        ) : (
+          <ArrowsPointingOutIcon className="w-4 h-4" />
+        )
+      }
+    </TabsetMaximizeButton>
   );
 }
+
+const TABSET_BUTTON_CLASS_NAME =
+  "p-1 mx-0.5 rounded text-ink/60 hover:text-ink hover:bg-ink/10 cursor-pointer focus-visible:outline-2! focus-visible:outline-sky-400!";
 
 function TabsetButton({
   children,
@@ -406,7 +401,7 @@ function TabsetButton({
   return (
     <button
       aria-label={title}
-      className="p-1 mx-0.5 rounded text-ink/60 hover:text-ink hover:bg-ink/10 cursor-pointer focus-visible:outline-2! focus-visible:outline-sky-400!"
+      className={TABSET_BUTTON_CLASS_NAME}
       onClick={onClick}
       title={title}
     >

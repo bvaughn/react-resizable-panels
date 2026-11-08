@@ -11,10 +11,55 @@
       "content": "<p>By default, a tabset is dragged by the empty space in its header;\nonce its header contains a drag handle, only the handle drags it.\nAny element with a <code>data-tabset-drag-handle</code> attribute is a drag handle;\nthis component also sets <code>touch-action: none</code>, so that it can be dragged by touch.</p>\n"
     },
     {
-      "content": "<p>The handle has a <code>data-disabled</code> attribute when the tabset can't be dragged (see <code>useParentTabsetState</code>), e.g. to hide it.</p>\n"
+      "content": "<p>The handle has a <code>data-disabled</code> attribute when the tabset can't be dragged (see <code>useParentTabsetState</code>), e.g. to hide it.\nIts <code>children</code>, <code>className</code>, <code>style</code>, and <code>title</code> can also be functions of its state (see <code>TabsetDragHandleState</code>):</p>\n"
+    },
+    {
+      "code": true,
+      "content": "<div><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">TabsetDragHandle</span><span class=\"\"> </span><span class=\"tok-propertyName\">title</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-propertyName\">isDisabled</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName\">isDisabled</span><span class=\"\"> </span><span class=\"tok-operator\">?</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span><span class=\"\"> </span><span class=\"tok-operator\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"Drag tabset\"</span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">&#62;</span><span class=\"\"></span></div>\n<div><span class=\"\">  &#10303;</span></div>\n<div><span class=\"\"></span><span class=\"tok-punctuation\">&#60;/</span><span class=\"tok-typeName\">TabsetDragHandle</span><span class=\"tok-punctuation\">&#62;</span></div>"
     }
   ],
   "filePath": "lib/workspace/components/TabsetDragHandle.tsx",
   "name": "TabsetDragHandle",
-  "props": {}
+  "props": {
+    "children": {
+      "description": [
+        {
+          "content": "<p>Content of the element, or a function that returns it (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">children</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">ReactNode</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetDragHandleState</span><span class=\"\">&#62;</span></div>",
+      "name": "children",
+      "required": false
+    },
+    "className": {
+      "description": [
+        {
+          "content": "<p>Class name of the element, or a function that returns it (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetDragHandleState</span><span class=\"\">&#62;</span></div>",
+      "name": "className",
+      "required": false
+    },
+    "style": {
+      "description": [
+        {
+          "content": "<p>Inline styles of the element, or a function that returns them (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">CSSProperties</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetDragHandleState</span><span class=\"\">&#62;</span></div>",
+      "name": "style",
+      "required": false
+    },
+    "title": {
+      "description": [
+        {
+          "content": "<p>Tooltip of the element, or a function that returns it (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">title</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetDragHandleState</span><span class=\"\">&#62;</span></div>",
+      "name": "title",
+      "required": false
+    }
+  }
 }

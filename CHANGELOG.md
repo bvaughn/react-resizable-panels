@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.21.0
+
+- Add `TabsetCollapseButton` and `TabsetMaximizeButton` components, which collapse (or expand) and maximize (or restore) the tabset they're rendered within, with `aria-expanded`/`aria-controls` and `aria-pressed`. They render nothing when the action isn't available (e.g. maximizing the only tabset).
+- The `children`, `className`, `style`, and `title` props of `TabCloseButton`, `TabsetDragHandle`, and the new buttons can be functions of the component's state, e.g. `{({ isCollapsed }) => (isCollapsed ? "▸" : "▾")}`.
+
 ## 4.20.0
 
 - Add floating tabsets to `Workspace`: tabsets that float above the layout, listed in the model's new `floating` field. Users move them by their headers, resize them by their edges, and drag tabs into and out of them. The new `floatTab` and `floatTabset` methods create them, `collapseTabset` collapses them to their headers, and `moveTabset` docks them. - [#799](https://github.com/bvaughn/react-resizable-panels/issues/799)

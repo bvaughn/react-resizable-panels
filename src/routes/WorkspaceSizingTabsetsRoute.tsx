@@ -61,8 +61,14 @@ export default function WorkspaceSizingTabsetsRoute() {
       <div>
         Tabsets can also be collapsed and expanded with the{" "}
         <code>collapseTabset</code> and <code>expandTabset</code> methods, or
-        from within a tabset (e.g. a button in its toolbar) with the{" "}
-        <code>useParentTabset</code> hook:
+        from within a tabset with the <code>useParentTabset</code> hook. The{" "}
+        <Link to="/props/tabset-collapse-button">
+          <code>TabsetCollapseButton</code>
+        </Link>{" "}
+        component does this from a tabset's toolbar, with the ARIA attributes a
+        toggle needs (<code>aria-expanded</code> and <code>aria-controls</code>
+        ); its <code>children</code>, <code>className</code>, <code>style</code>
+        , and <code>title</code> can be functions of the tabset's state:
       </div>
       <Code html={CollapseButtonHTML} />
       <div>
@@ -98,8 +104,12 @@ export default function WorkspaceSizingTabsetsRoute() {
         A maximized tabset covers the rest of the workspace until it's restored.
         The <code>maximizeTabset</code> and <code>restoreTabset</code> methods
         do this from outside of the workspace, and the{" "}
-        <code>useParentTabset</code> hook from within a tabset (e.g. a button in
-        its toolbar):
+        <code>useParentTabset</code> hook from within a tabset. The{" "}
+        <Link to="/props/tabset-maximize-button">
+          <code>TabsetMaximizeButton</code>
+        </Link>{" "}
+        component does this from a tabset's toolbar (with{" "}
+        <code>aria-pressed</code>):
       </div>
       <Code html={MaximizeTabsetHTML} />
       <div>
