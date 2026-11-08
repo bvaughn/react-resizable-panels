@@ -24,8 +24,9 @@ export function notifyItemOnResize(
       ? item.element.offsetWidth
       : item.element.offsetHeight;
 
-  // The observed border box size is exact (not rounded) and ignores transforms;
-  // it's only used when it agrees with the offset size (e.g. it might not for CSS `zoom`)
+  // The observed border box size is exact (not rounded) and in layout pixels, like the offset size:
+  // it ignores transforms and CSS `zoom` (checked in Chrome, Firefox, and Safari; see #804).
+  // It's only used when it agrees with the offset size, e.g. not in a vertical writing mode (where its inline size is the element's height)
   const exactItemSize =
     axis.orientation === "horizontal"
       ? resizeObserverSize.inlineSize
