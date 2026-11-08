@@ -232,6 +232,38 @@ describe("floating tabsets", () => {
       ).not.toBeInTheDocument();
     });
 
+    test("renders collapsed tabsets as large as their headers across them, resizable only along them", () => {
+      const getHandles = (element: HTMLElement) =>
+        Array.from(
+          element.querySelectorAll("[data-floating-resize-handle]"),
+          (handle) => handle.getAttribute("data-floating-resize-handle")
+        ).sort((a, b) => (a ?? "").localeCompare(b ?? ""));
+
+      const { container } = renderWorkspace({
+        defaultModel: createModel([
+          { ...floating("f", ["4"]), collapsed: true },
+          { ...floating("g", ["5"]), collapsed: true, tabPlacement: "left" }
+        ])
+      });
+
+      const element = getFloating(container, "f");
+      expect(element).toHaveAttribute("data-tabset-collapsed");
+      expect(element.style.height).toBe("auto");
+      expect(element.style.width).toBe("300px");
+      expect(getHandles(element)).toEqual(["left", "right"]);
+      expect(
+        element.querySelector("[data-tab-panels]") as HTMLElement
+      ).toHaveStyle({ display: "none" });
+      // Its content stays mounted
+      expect(screen.getByTestId("content-4")).toBeInTheDocument();
+
+      // A header placed on the side runs along the tabset's height
+      const vertical = getFloating(container, "g");
+      expect(vertical.style.height).toBe("200px");
+      expect(vertical.style.width).toBe("auto");
+      expect(getHandles(vertical)).toEqual(["bottom", "top"]);
+    });
+
     test("is shown above a maximized tabset", () => {
       const { container, workspaceRef } = renderWorkspace({
         defaultModel: createModel([floating("f", ["4"])])
@@ -359,6 +391,167 @@ describe("floating tabsets", () => {
       expect(
         workspaceRef.current!.getModel().floating?.map(({ id }) => id)
       ).toEqual(["right"]);
+    });
+  });
+
+  describe("collapsing", () => {
+    test("useParentTabset collapses and expands floating tabsets (without the collapsible flag)", () => {
+      let parentTabset: ReturnType<typeof useParentTabset> = null;
+      let state: ParentTabsetState | null = null;
+      function Probe() {
+        parentTabset = useParentTabset();
+        state = useParentTabsetState();
+        return null;
+      }
+
+      const { container, onModelChanged, workspaceRef } = renderWorkspace({
+        defaultModel: createModel([floating("f", ["4"])]),
+        renderTabContent: (tab) => (tab.id === "4" ? <Probe /> : null)
+      });
+      expect(state!.isCollapsible).toBe(true);
+
+      act(() => parentTabset!.collapse());
+      expect(state!.isCollapsed).toBe(true);
+      expect(parentTabset!.isCollapsed()).toBe(true);
+      expect(workspaceRef.current!.getModel().floating?.[0]).toMatchObject({
+        collapsed: true,
+        height: 200,
+        width: 300
+      });
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: false,
+        reason: "collapse"
+      });
+      expect(getFloating(container, "f").style.height).toBe("auto");
+
+      act(() => parentTabset!.expand());
+      expect(state!.isCollapsed).toBe(false);
+      expect(getFloating(container, "f").style.height).toBe("200px");
+    });
+
+    test("clicking a tab of a collapsed floating tabset expands it", async () => {
+      const { container, onModelChanged, workspaceRef } = renderWorkspace({
+        defaultModel: createModel([
+          { ...floating("f", ["4", "5"]), collapsed: true }
+        ])
+      });
+
+      await userEvent.click(
+        getFloating(container, "f").querySelector<HTMLElement>(
+          '[data-tab-id="5"]'
+        )!
+      );
+
+      expect(workspaceRef.current!.getModel().floating?.[0]).toMatchObject({
+        selectedId: "5"
+      });
+      expect(workspaceRef.current!.getModel().floating?.[0]).not.toHaveProperty(
+        "collapsed"
+      );
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: true,
+        reason: "expand"
+      });
+    });
+
+    test("resizing a collapsed floating tabset keeps the height it expands to", async () => {
+      const node = {
+        ...floating("f", ["4"], { x: 10, y: 20 }),
+        collapsed: true
+      };
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: createModel([node])
+      });
+      const element = getFloating(container, "f");
+      // Only its header is shown
+      mockLayout(element, { ...node, height: 30 });
+
+      await press(
+        element.querySelector<HTMLElement>(
+          '[data-floating-resize-handle="left"]'
+        )!,
+        [{ clientX: 150, clientY: 100 }]
+      );
+
+      expect(workspaceRef.current!.getModel().floating?.[0]).toMatchObject({
+        collapsed: true,
+        height: 200,
+        width: 250,
+        x: 60
+      });
+      expect(element.style.height).toBe("auto");
+
+      // (jsdom has no layout, so the move starts from the mocked position)
+      await press(getHeader(container, "f"), [{ clientX: 120, clientY: 130 }]);
+
+      expect(workspaceRef.current!.getModel().floating?.[0]).toMatchObject({
+        collapsed: true,
+        height: 200,
+        x: 30,
+        y: 50
+      });
+      expect(element.style.height).toBe("auto");
+    });
+
+    test("Escape during a resize puts a collapsed floating tabset back", async () => {
+      const node = {
+        ...floating("f", ["4"], { x: 10, y: 20 }),
+        collapsed: true
+      };
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: createModel([node])
+      });
+      const element = getFloating(container, "f");
+      mockLayout(element, { ...node, height: 30 });
+      const before = workspaceRef.current!.getModel();
+
+      await press(
+        element.querySelector<HTMLElement>(
+          '[data-floating-resize-handle="left"]'
+        )!,
+        [{ clientX: 150, clientY: 100 }],
+        false
+      );
+      expect(element.style.left).toBe("60px");
+
+      await userEvent.keyboard("{Escape}");
+      await userEvent.pointer({ keys: "[/MouseLeft]", target: element });
+
+      expect(element.style.left).toBe("10px");
+      expect(element.style.width).toBe("300px");
+      expect(element.style.height).toBe("auto");
+      expect(workspaceRef.current!.getModel()).toEqual(before);
+    });
+
+    test("resizing a collapsed floating tabset with a vertical header only changes its height", async () => {
+      const node = {
+        ...floating("f", ["4"], { x: 10, y: 20 }),
+        collapsed: true,
+        tabPlacement: "left" as const
+      };
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: createModel([node])
+      });
+      const element = getFloating(container, "f");
+      // Only its header is shown
+      mockLayout(element, { ...node, width: 30 });
+
+      await press(
+        element.querySelector<HTMLElement>(
+          '[data-floating-resize-handle="top"]'
+        )!,
+        [{ clientX: 100, clientY: 130 }]
+      );
+
+      expect(workspaceRef.current!.getModel().floating?.[0]).toMatchObject({
+        collapsed: true,
+        height: 170,
+        width: 300,
+        x: 10,
+        y: 50
+      });
+      expect(element.style.width).toBe("auto");
+      expect(element.style.height).toBe("170px");
     });
   });
 

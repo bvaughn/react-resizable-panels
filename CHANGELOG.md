@@ -2,7 +2,7 @@
 
 ## 4.20.0
 
-- Add floating tabsets to `Workspace`: tabsets that float above the layout, listed in the model's new `floating` field. Users move them by their headers, resize them by their edges, and drag tabs into and out of them. The new `floatTab` and `floatTabset` methods create them, and `moveTabset` docks them. - [#799](https://github.com/bvaughn/react-resizable-panels/issues/799)
+- Add floating tabsets to `Workspace`: tabsets that float above the layout, listed in the model's new `floating` field. Users move them by their headers, resize them by their edges, and drag tabs into and out of them. The new `floatTab` and `floatTabset` methods create them, `collapseTabset` collapses them to their headers, and `moveTabset` docks them. - [#799](https://github.com/bvaughn/react-resizable-panels/issues/799)
 - `Workspace` tabs (and tabsets) can be dropped at the edges of the workspace, beside all of the other tabsets (e.g. as a sidebar or bottom panel). These targets are on by default; turn them off with `disableDrop={({ target }) => "edge" in target}`. - [#800](https://github.com/bvaughn/react-resizable-panels/issues/800)
 
 > [!WARNING]

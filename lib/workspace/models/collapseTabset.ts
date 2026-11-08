@@ -2,10 +2,12 @@ import { canCollapseTabset } from "./canCollapseTabset";
 import { copyModel } from "./copyModel";
 import { findParent } from "./findParent";
 import { findTabset } from "./findTabset";
+import { isFloatingTabset } from "./isFloatingTabset";
 import { normalizeCopiedModel } from "./normalizeCopiedModel";
 import type { WorkspaceModel } from "../types";
 
-// The tabset keeps its size (to expand to); its siblings share the rest of the split (see normalizeModel)
+// The tabset keeps its size (to expand to); its siblings share the rest of the split (see normalizeModel).
+// Floating tabsets can always be collapsed (see FloatingTabsetNode)
 export function collapseTabset<TabData, TabsetData>(
   model: WorkspaceModel<TabData, TabsetData>,
   tabsetId: string
@@ -14,7 +16,10 @@ export function collapseTabset<TabData, TabsetData>(
   if (
     !current ||
     current.collapsed ||
-    !canCollapseTabset(findParent(model.root, tabsetId), current)
+    !(
+      isFloatingTabset(model, current) ||
+      canCollapseTabset(findParent(model.root, tabsetId), current)
+    )
   ) {
     return model;
   }

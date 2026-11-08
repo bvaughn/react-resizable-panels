@@ -61,6 +61,12 @@ export const routes = {
   "/examples/workspace/managing-tabsets": lazy(
     () => import("./routes/WorkspaceManagingTabsetsRoute")
   ),
+  "/examples/workspace/managing-tabsets/floating-tabsets": lazy(
+    () => import("./routes/WorkspaceFloatingTabsetsRoute")
+  ),
+  "/examples/workspace/managing-tabsets/sizing-tabsets": lazy(
+    () => import("./routes/WorkspaceSizingTabsetsRoute")
+  ),
   "/examples/workspace/multiple-windows": lazy(
     () => import("./routes/WorkspaceMultipleWindowsRoute")
   ),

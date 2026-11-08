@@ -4,6 +4,8 @@ import {
   ArrowsPointingOutIcon,
   ArrowTopRightOnSquareIcon,
   Bars3Icon,
+  ChevronDownIcon,
+  ChevronRightIcon,
   MinusIcon,
   PlusIcon,
   XMarkIcon
@@ -170,6 +172,7 @@ export function DemoWorkspace({
         renderTabsetToolbar={(tabset) => (
           <>
             {showDragHandles && <DragHandle />}
+            <ExpandButton />
             <ExpandedOnly>
               {/* Adding tabs isn't restricted by the workspace, so the demo hides the button itself */}
               {!rest.disabled && (canAddTabs?.(tabset) ?? true) && (
@@ -328,7 +331,29 @@ function CollapseButton() {
 
   return (
     <TabsetButton onClick={() => tabset?.collapse()} title="Collapse tabset">
-      <MinusIcon className="w-4 h-4" />
+      {/* A floating tabset collapses (and expands) like a disclosure; see ExpandButton */}
+      {state.isFloating ? (
+        <ChevronDownIcon className="w-4 h-4" />
+      ) : (
+        <MinusIcon className="w-4 h-4" />
+      )}
+    </TabsetButton>
+  );
+}
+
+// A collapsed floating tabset's header runs across it (rather than being a narrow strip), so it has room for a button to expand it;
+// tabsets in the layout are expanded by clicking one of their tabs
+function ExpandButton() {
+  const tabset = useParentTabset();
+  const state = useParentTabsetState();
+
+  if (!state?.isCollapsed || !state.isFloating) {
+    return null;
+  }
+
+  return (
+    <TabsetButton onClick={() => tabset?.expand()} title="Expand tabset">
+      <ChevronRightIcon className="w-4 h-4" />
     </TabsetButton>
   );
 }

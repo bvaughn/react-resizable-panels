@@ -41,7 +41,10 @@ export default function WorkspaceRoute() {
         its tabs); a tabset can override them with the <code>minWidth</code> and{" "}
         <code>minHeight</code> fields of its model node. Tabsets can also have
         maximum sizes (see{" "}
-        <Link to="/examples/workspace/managing-tabsets">
+        <Link
+          anchor="limiting-tabset-sizes"
+          to="/examples/workspace/managing-tabsets/sizing-tabsets"
+        >
           limiting tabset sizes
         </Link>
         ).

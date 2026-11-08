@@ -498,6 +498,64 @@ test.describe("Workspace", () => {
       });
     });
 
+    test("shows a collapsed floating tabset's header, resizes it along its header, and expands it when a tab is clicked", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(
+        mainPage,
+        workspace(
+          createFloatingModel([
+            {
+              collapsed: true,
+              height: 150,
+              id: "notes",
+              tabs: [{ data: null, id: "n" }],
+              type: "tabset",
+              width: 200,
+              x: 100,
+              y: 100
+            }
+          ])
+        )
+      );
+
+      const frame = getFloating(page, "notes");
+      const header = (await getTabset(page, "notes")
+        .locator("[data-tabset-header]")
+        .boundingBox())!;
+      const collapsed = (await frame.boundingBox())!;
+      expect(collapsed.width).toBeCloseTo(200, 0);
+      expect(collapsed.height).toBeCloseTo(header.height, 0);
+      await expect(page.getByTestId("content-n")).toBeHidden();
+      await expect(
+        frame.locator('[data-floating-resize-handle="bottom"]')
+      ).toHaveCount(0);
+
+      const handle = frame.locator('[data-floating-resize-handle="right"]');
+      const box = (await handle.boundingBox())!;
+      const start = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+      await drag(page, start, { x: start.x + 60, y: start.y });
+
+      expect((await frame.boundingBox())!.height).toBeCloseTo(header.height, 0);
+      expect((await getLastChange(page)).model.floating[0]).toMatchObject({
+        collapsed: true,
+        height: 150,
+        width: 260
+      });
+
+      // (not at its center, which may be its close button)
+      await clickTab(page, getTab(page, "n"));
+
+      expect((await getLastChange(page)).meta).toEqual({
+        isUserInteraction: true,
+        reason: "expand"
+      });
+      const expanded = (await frame.boundingBox())!;
+      expect(expanded.width).toBeCloseTo(260, 0);
+      expect(expanded.height).toBeCloseTo(150, 0);
+      await expect(page.getByTestId("content-n")).toBeVisible();
+    });
+
     test("adds a tab dropped onto a floating tabset (even at its edges, or the edges of the workspace beneath it)", async ({
       page: mainPage
     }) => {

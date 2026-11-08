@@ -55,7 +55,7 @@
     {
       "description": [
         {
-          "content": "<p>The tabset can be collapsed (or is collapsed, and can be expanded), e.g. to show or hide a toolbar button:\nit has the <code>collapsible</code> flag, isn't the only tabset in the workspace, and has a sibling that isn't collapsed.</p>\n"
+          "content": "<p>The tabset can be collapsed (or is collapsed, and can be expanded), e.g. to show or hide a toolbar button:\nit has the <code>collapsible</code> flag, isn't the only tabset in the workspace, and has a sibling that isn't collapsed (or it's floating; see <code>FloatingTabsetNode</code>).</p>\n"
         }
       ],
       "name": "isCollapsible",

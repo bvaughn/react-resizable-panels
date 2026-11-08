@@ -54,7 +54,7 @@
           "content": "<p>Collapse a tabset to just its header.</p>\n"
         },
         {
-          "content": "<p>This has no effect unless the tabset has the <code>collapsible</code> flag;\nthe only tabset in a workspace, and tabsets whose siblings are all collapsed, can't be collapsed.</p>\n",
+          "content": "<p>This has no effect unless the tabset has the <code>collapsible</code> flag (or is floating; see <code>FloatingTabsetNode</code>);\nthe only tabset in a workspace, and tabsets whose siblings are all collapsed, can't be collapsed.</p>\n",
           "intent": "primary"
         }
       ],

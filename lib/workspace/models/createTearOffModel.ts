@@ -14,7 +14,7 @@ import type {
  * Creates a model containing only a torn off tab or tabset (see the Workspace's `onTearOff` prop), e.g. for a workspace in a popup window.
  *
  * A torn off tab is put in a new tabset, like a tab dropped onto the edge of a tabset (so it doesn't inherit its old tabset's data or flags);
- * a torn off tabset keeps its id, data, and flags, but not the size (or collapsed state) it had within its split.
+ * a torn off tabset keeps its id, data, and flags, but not its size, position, or collapsed state.
  */
 export function createTearOffModel<TabData, TabsetData>(
   model: WorkspaceModel<TabData, TabsetData>,

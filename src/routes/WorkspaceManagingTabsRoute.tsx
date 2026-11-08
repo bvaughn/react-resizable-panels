@@ -155,7 +155,7 @@ export default function WorkspaceManagingTabsRoute() {
         <code>false</code>), so they're saved like any other change.
       </Callout>
       <div>
-        To keep, move, collapse, or maximize whole tabsets, see{" "}
+        To keep, move, resize, collapse, maximize, or float whole tabsets, see{" "}
         <Link to="/examples/workspace/managing-tabsets">managing tabsets</Link>.
       </div>
     </Box>

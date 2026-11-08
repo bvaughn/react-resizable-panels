@@ -4,7 +4,7 @@ import {
   type SVGProps,
   useContext
 } from "react";
-import { cn, Tooltip } from "react-lib-tools";
+import { cn } from "react-lib-tools";
 import { type Tab, VSCodeContext } from "./VSCodeContext";
 
 type Icon = ForwardRefExoticComponent<
@@ -29,26 +29,25 @@ export function VSCodeSidebarButton({
   const isActive = activeTab === tab && !sidebarCollapsed;
 
   return (
-    <Tooltip content={title}>
-      <button
-        className={cn(
-          "shrink-0 w-8 h-8 p-1 rounded cursor-pointer",
-          isActive ? "text-ink bg-ink/10" : "text-ink/60 hover:text-ink"
-        )}
-        onClick={() => {
-          if (activeTab === tab) {
-            toggleSidebar();
-          } else {
-            changeTab(tab);
+    <button
+      className={cn(
+        "shrink-0 w-8 h-8 p-1 rounded cursor-pointer",
+        isActive ? "text-ink bg-ink/10" : "text-ink/60 hover:text-ink"
+      )}
+      onClick={() => {
+        if (activeTab === tab) {
+          toggleSidebar();
+        } else {
+          changeTab(tab);
 
-            if (sidebarCollapsed) {
-              toggleSidebar();
-            }
+          if (sidebarCollapsed) {
+            toggleSidebar();
           }
-        }}
-      >
-        <Icon className="w-6 h-6" />
-      </button>
-    </Tooltip>
+        }
+      }}
+      title={title}
+    >
+      <Icon className="w-6 h-6" />
+    </button>
   );
 }
