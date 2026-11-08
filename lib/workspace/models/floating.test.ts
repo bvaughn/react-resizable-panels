@@ -5,6 +5,7 @@ import { closeTab } from "./closeTab";
 import { closeTabset } from "./closeTabset";
 import { collapseTabset } from "./collapseTabset";
 import { createTearOffModel } from "./createTearOffModel";
+import { expandTabset } from "./expandTabset";
 import { floatTab } from "./floatTab";
 import { floatTabset } from "./floatTabset";
 import { getModelIndex } from "./getModelIndex";
@@ -100,7 +101,6 @@ describe("floating tabsets", () => {
         floating: [
           {
             ...floating("f", ["f1"]),
-            collapsed: true,
             collapsible: true,
             size: 50
           } as FloatingTabsetNode
@@ -110,6 +110,27 @@ describe("floating tabsets", () => {
       });
 
       expect(model.floating?.[0]).toEqual(floating("f", ["f1"]));
+    });
+
+    test("keeps floating tabsets' collapsed states (without the collapsible flag), and removes invalid ones", () => {
+      const model = normalizeModel({
+        floating: [
+          { ...floating("f", ["f1"]), collapsed: true },
+          { ...floating("g", ["g1"]), collapsed: false },
+          {
+            ...floating("h", ["h1"]),
+            collapsed: "yes" as unknown as boolean
+          }
+        ],
+        root: tabset("a", ["a1"]),
+        version: 1
+      });
+
+      expect(model.floating).toEqual([
+        { ...floating("f", ["f1"]), collapsed: true },
+        floating("g", ["g1"]),
+        floating("h", ["h1"])
+      ]);
     });
 
     test("fixes invalid positions and sizes", () => {
@@ -493,11 +514,56 @@ describe("floating tabsets", () => {
   });
 
   describe("other operations", () => {
-    test("doesn't maximize or collapse floating tabsets", () => {
+    test("doesn't maximize floating tabsets", () => {
       const prev = createModel();
 
       expect(maximizeTabset(prev, "f")).toBe(prev);
-      expect(collapseTabset(prev, "f")).toBe(prev);
+    });
+
+    test("collapses and expands floating tabsets, keeping their sizes", () => {
+      const collapsed = collapseTabset(createModel(), "f");
+      expect(collapsed.floating?.[0]).toEqual({
+        ...floating("f", ["f1", "f2"]),
+        collapsed: true
+      });
+      expect(collapseTabset(collapsed, "f")).toBe(collapsed);
+
+      const expanded = expandTabset(collapsed, "f");
+      expect(expanded.floating?.[0]).toEqual(floating("f", ["f1", "f2"]));
+      expect(expandTabset(expanded, "f")).toBe(expanded);
+    });
+
+    test("keeps a collapsed floating tabset collapsed when it's moved or resized", () => {
+      const model = updateTabset(collapseTabset(createModel(), "f"), "f", {
+        width: 250,
+        x: 5
+      });
+
+      expect(model.floating?.[0]).toMatchObject({
+        collapsed: true,
+        width: 250,
+        x: 5
+      });
+    });
+
+    test("expands a collapsed floating tabset when tabs are dropped into it", () => {
+      const model = moveTab(collapseTabset(createModel(), "f"), "b1", {
+        region: "center",
+        tabsetId: "f"
+      });
+
+      expect(model.floating?.[0]).not.toHaveProperty("collapsed");
+      expect(model.floating?.[0].selectedId).toBe("b1");
+    });
+
+    test("docks a collapsed floating tabset expanded", () => {
+      const model = moveTabset(collapseTabset(createModel(), "f"), "f", {
+        edge: "left"
+      });
+
+      expect(getModelIndex(model).tabsetsById.get("f")).not.toHaveProperty(
+        "collapsed"
+      );
     });
 
     test("closes floating tabsets", () => {

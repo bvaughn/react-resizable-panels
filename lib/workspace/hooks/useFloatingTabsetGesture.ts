@@ -107,14 +107,16 @@ export function useFloatingTabsetGesture({
       };
       const minimumSize = getMinimumSize(tabsetId);
 
+      // Only the parts of the rect that the gesture changes are positioned (and saved), e.g. resizing a collapsed tabset's width leaves its height to fit its header
+      const fields = getGestureFields(gesture);
+
       // The tabset is put back (with the styles React rendered) if the gesture is canceled
+      const prevFrameStyles = Object.fromEntries(
+        fields.map((field) => [field, frame.style[STYLE_PROPERTIES[field]]])
+      );
       const prevStyles = {
         cursor: ownerDocument.documentElement.style.cursor,
-        height: frame.style.height,
-        left: frame.style.left,
-        top: frame.style.top,
-        userSelect: ownerDocument.body.style.userSelect,
-        width: frame.style.width
+        userSelect: ownerDocument.body.style.userSelect
       };
 
       let isActive = false;
@@ -156,10 +158,9 @@ export function useFloatingTabsetGesture({
               }
             : resize(start, gesture, deltaX, deltaY, minimumSize, layout);
 
-        frame.style.left = `${rect.x}px`;
-        frame.style.top = `${rect.y}px`;
-        frame.style.width = `${rect.width}px`;
-        frame.style.height = `${rect.height}px`;
+        for (const field of fields) {
+          frame.style[STYLE_PROPERTIES[field]] = `${rect[field]}px`;
+        }
       };
 
       const stop = (shouldCommit: boolean) => {
@@ -183,12 +184,9 @@ export function useFloatingTabsetGesture({
         suppressNextClick(ownerDocument);
 
         if (shouldCommit) {
-          const changes = {
-            height: Math.round(rect.height),
-            width: Math.round(rect.width),
-            x: Math.round(rect.x),
-            y: Math.round(rect.y)
-          };
+          const changes = Object.fromEntries(
+            fields.map((field) => [field, Math.round(rect[field])])
+          );
           // The tabset may have been docked (or closed) during the gesture (e.g. by app code), in which case there's nothing to change
           updateModel(gesture === "move" ? "move" : "resize", true, (prev) =>
             getModelIndex(prev).floatingTabsetIds.has(tabsetId)
@@ -196,10 +194,9 @@ export function useFloatingTabsetGesture({
               : prev
           );
         } else {
-          frame.style.left = prevStyles.left;
-          frame.style.top = prevStyles.top;
-          frame.style.width = prevStyles.width;
-          frame.style.height = prevStyles.height;
+          for (const field of fields) {
+            frame.style[STYLE_PROPERTIES[field]] = prevFrameStyles[field] ?? "";
+          }
         }
       };
 
@@ -240,6 +237,36 @@ export function useFloatingTabsetGesture({
     },
     [getMinimumSize, updateModel]
   );
+}
+
+const STYLE_PROPERTIES = {
+  height: "height",
+  width: "width",
+  x: "left",
+  y: "top"
+} as const satisfies { [field in keyof FloatingTabsetRect]: string };
+
+// The parts of a floating tabset's rect that a gesture changes
+function getGestureFields(
+  gesture: FloatingGesture
+): (keyof FloatingTabsetRect)[] {
+  if (gesture === "move") {
+    return ["x", "y"];
+  }
+
+  const fields: (keyof FloatingTabsetRect)[] = [];
+  if (gesture.includes("left")) {
+    fields.push("x", "width");
+  } else if (gesture.includes("right")) {
+    fields.push("width");
+  }
+  if (gesture.includes("top")) {
+    fields.push("y", "height");
+  } else if (gesture.includes("bottom")) {
+    fields.push("height");
+  }
+
+  return fields;
 }
 
 // The element that positions the floating tabset (rather than that of a floating tabset in a workspace nested within it)

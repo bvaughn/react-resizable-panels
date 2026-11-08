@@ -140,10 +140,29 @@ function FloatingTabset({
   stackIndex: number;
   tabset: FloatingTabsetNode;
 }) {
-  const { classNames, disabled, startFloatingGesture, styles, updateModel } =
-    useWorkspaceContext("FloatingTabset");
+  const {
+    classNames,
+    disabled,
+    startFloatingGesture,
+    styles,
+    tabPlacement: defaultTabPlacement,
+    updateModel
+  } = useWorkspaceContext("FloatingTabset");
 
   const isMoveDisabled = disabled || !!tabset.disableDrag;
+
+  // A collapsed tabset is only as large as its header across it (e.g. as tall as its tabs, when they're placed on top), so it can only be resized along its header;
+  // it keeps its size in the model, to expand to
+  const isCollapsed = !!tabset.collapsed;
+  const tabPlacement = tabset.tabPlacement ?? defaultTabPlacement;
+  const isHeaderVertical = tabPlacement === "left" || tabPlacement === "right";
+  const resizeEdges = isCollapsed
+    ? RESIZE_EDGES.filter((edge) =>
+        isHeaderVertical
+          ? edge === "top" || edge === "bottom"
+          : edge === "left" || edge === "right"
+      )
+    : RESIZE_EDGES;
 
   // The header is kept within the layout, so that it can be dragged back (see clampFloatingPosition);
   // the model's position isn't changed, so it's shown there again once that fits (e.g. when the workspace is made larger again).
@@ -200,21 +219,22 @@ function FloatingTabset({
     <div
       className={classNames?.floatingTabset}
       data-floating-tabset={tabset.id}
+      data-tabset-collapsed={isCollapsed || undefined}
       ref={elementRef}
       style={{
         ...styles?.floatingTabset,
-        height: tabset.height,
+        height: isCollapsed && !isHeaderVertical ? "auto" : tabset.height,
         left: tabset.x,
         pointerEvents: "auto",
         position: "absolute",
         top: tabset.y,
-        width: tabset.width,
+        width: isCollapsed && isHeaderVertical ? "auto" : tabset.width,
         zIndex: stackIndex + 1
       }}
     >
       <TabsetSlot tabset={tabset} />
       {!isMoveDisabled &&
-        RESIZE_EDGES.map((edge) => (
+        resizeEdges.map((edge) => (
           <div
             className={classNames?.floatingResizeHandle}
             data-floating-resize-handle={edge}

@@ -41,6 +41,7 @@ export function useParentTabsetState(): ParentTabsetState | null {
           collapseToFit[tabset.id] === true,
         isCollapsible:
           !!tabset.collapsed ||
+          modelIndex.floatingTabsetIds.has(tabset.id) ||
           canCollapseTabset(modelIndex.parentsById.get(tabset.id), tabset),
         isDragDisabled: isTabsetDragDisabled(
           model,

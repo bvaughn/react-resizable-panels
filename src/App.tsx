@@ -196,7 +196,17 @@ const nav: NavConfig<Path | DefaultPath> = [
           },
           {
             path: "/examples/workspace/managing-tabsets",
-            title: "Managing tabsets"
+            title: "Managing tabsets",
+            children: [
+              {
+                path: "/examples/workspace/managing-tabsets/sizing-tabsets",
+                title: "Sizing tabsets"
+              },
+              {
+                path: "/examples/workspace/managing-tabsets/floating-tabsets",
+                title: "Floating tabsets"
+              }
+            ]
           },
           { path: "/examples/workspace/restrictions", title: "Restrictions" },
           {

@@ -176,6 +176,8 @@ export type TabsetNode<TabData = unknown, TabsetData = unknown> = {
    *
    * ℹ️ A collapsed tabset's header runs along its split (e.g. tabs placed on top are shown on the left while a tabset in a horizontal split is collapsed);
    * this doesn't change its `tabPlacement`.
+   *
+   * ℹ️ A floating tabset can be collapsed too (without the `collapsible` flag, which doesn't apply to it; see `FloatingTabsetNode`).
    */
   collapsed?: boolean | undefined;
 
@@ -294,11 +296,15 @@ export type FloatingTabsetRect = {
  * They're shown with their headers within the workspace's layout (so they can always be dragged back), and the rest of them is clipped to it;
  * their positions aren't changed to fit, though, so they're shown where they were again once that fits (e.g. when the workspace is made larger again).
  *
- * ℹ️ Unlike tabsets within the layout, floating tabsets can't be split, collapsed, or maximized, and their maximum sizes (`maxWidth` and `maxHeight`) are ignored.
+ * ℹ️ Unlike tabsets within the layout, floating tabsets can't be split or maximized, and their maximum sizes (`maxWidth` and `maxHeight`) are ignored.
+ *
+ * ℹ️ Floating tabsets can always be collapsed (with the imperative API, e.g. `useParentTabset().collapse()`), so they don't have the `collapsible` flag.
+ * A collapsed floating tabset is only as large as its header across it (e.g. as tall as its tabs, when they're placed on top), and can only be resized along it;
+ * its `width` and `height` are the size it expands to. Like tabsets in the layout, clicking a tab (or the empty space in the header) of a collapsed floating tabset expands it.
  */
 export type FloatingTabsetNode<TabData = unknown, TabsetData = unknown> = Omit<
   TabsetNode<TabData, TabsetData>,
-  "collapsed" | "collapsible" | "size"
+  "collapsible" | "size"
 > &
   FloatingTabsetRect;
 
@@ -603,7 +609,7 @@ export interface WorkspaceImperativeHandle<
   /**
    * Collapse a tabset to just its header.
    *
-   * ℹ️ This has no effect unless the tabset has the `collapsible` flag;
+   * ℹ️ This has no effect unless the tabset has the `collapsible` flag (or is floating; see `FloatingTabsetNode`);
    * the only tabset in a workspace, and tabsets whose siblings are all collapsed, can't be collapsed.
    */
   collapseTabset: (tabsetId: string) => void;
@@ -900,7 +906,7 @@ export type ParentTabsetState = {
 
   /**
    * The tabset can be collapsed (or is collapsed, and can be expanded), e.g. to show or hide a toolbar button:
-   * it has the `collapsible` flag, isn't the only tabset in the workspace, and has a sibling that isn't collapsed.
+   * it has the `collapsible` flag, isn't the only tabset in the workspace, and has a sibling that isn't collapsed (or it's floating; see `FloatingTabsetNode`).
    */
   isCollapsible: boolean;
 
@@ -1380,7 +1386,7 @@ export type WorkspaceClassNames = {
   dragPreview?: string | undefined;
   dropIndicator?: string | undefined;
   /**
-   * The element that positions each floating tabset (with a `data-floating-tabset` attribute), around the tabset itself, e.g. for a shadow.
+   * The element that positions each floating tabset (with a `data-floating-tabset` attribute, and a `data-tabset-collapsed` attribute while its tabset is collapsed), around the tabset itself, e.g. for a shadow.
    */
   floatingTabset?: string | undefined;
   /**

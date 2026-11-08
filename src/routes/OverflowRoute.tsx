@@ -4,8 +4,7 @@ import {
   Code,
   ExternalLink,
   Header,
-  Input,
-  Tooltip
+  Input
 } from "react-lib-tools";
 import { html as GroupAndPanelElementsHTML } from "../../public/generated/examples/GroupAndPanelElements.json";
 import { html as GroupOverflowClassNameHTML } from "../../public/generated/examples/GroupOverflowClassName.json";
@@ -108,14 +107,20 @@ export default function OverflowRoute() {
       <Code html={PanelTooltipHTML} />
       <Group className="overflow-visible!">
         <Panel className="overflow-visible!" minSize={100}>
-          <Tooltip content="This is the left panel" positions={["top"]}>
+          <div
+            className="w-full h-full text-center"
+            title="This is the left panel"
+          >
             left
-          </Tooltip>
+          </div>
         </Panel>
         <Panel className="overflow-visible!" minSize={100}>
-          <Tooltip content="This is the right panel" positions={["top"]}>
+          <div
+            className="w-full h-full text-center"
+            title="This is the right panel"
+          >
             right
-          </Tooltip>
+          </div>
         </Panel>
       </Group>
       <div>All of the above styles also apply to the separator component.</div>

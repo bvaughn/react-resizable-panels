@@ -34,6 +34,7 @@ export function floatTabset<TabData, TabsetData>(
 
   parent.children.splice(parent.children.indexOf(tabset), 1);
 
+  // A collapsed tabset floats expanded (it can be collapsed again; see FloatingTabsetNode)
   const { collapsed: _c, collapsible: _cs, size: _s, ...rest } = tabset;
   const floating: FloatingTabsetNode<TabData, TabsetData> = {
     ...rest,

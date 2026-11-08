@@ -198,6 +198,10 @@
         {
           "content": "<p>A collapsed tabset's header runs along its split (e.g. tabs placed on top are shown on the left while a tabset in a horizontal split is collapsed);\nthis doesn't change its <code>tabPlacement</code>.</p>\n",
           "intent": "primary"
+        },
+        {
+          "content": "<p>A floating tabset can be collapsed too (without the <code>collapsible</code> flag, which doesn't apply to it; see <code>FloatingTabsetNode</code>).</p>\n",
+          "intent": "primary"
         }
       ],
       "name": "collapsed",

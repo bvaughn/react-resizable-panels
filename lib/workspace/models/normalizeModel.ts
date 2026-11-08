@@ -16,7 +16,7 @@ import type { WorkspaceModel, WorkspaceModelInput } from "../types";
  * - Expands tabsets that can't be collapsed (the root tabset, tabsets that aren't collapsible, and the last child of a split whose children are all collapsed)
  * - Forgets recently selected tabs that no longer exist (see updateRecentTabIds)
  * - Clears the maximized tabset if it no longer exists (or is the only tabset, or is floating)
- * - Removes floating tabsets' sizes and collapsed states, and fixes their invalid positions and sizes (see normalizeFloatingTabset)
+ * - Removes floating tabsets' sizes and collapsible flags, and fixes their invalid positions and sizes (see normalizeFloatingTabset)
  *
  * ℹ️ Operations on the workspace's own model copy it themselves, and tidy the copy with normalizeCopiedModel instead.
  */
