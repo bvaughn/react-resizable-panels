@@ -77,10 +77,12 @@ export function getDropTarget({
     return undefined;
   }
 
-  // While a tabset is maximized, tabs can only be dropped within it
+  // While a tabset is maximized, tabs can only be dropped within it (or within floating tabsets, which are shown above it;
+  // they only take center and index targets, so this can't split a tabset that's hidden)
   if (
     model.maximizedTabsetId !== undefined &&
-    model.maximizedTabsetId !== tabset.id
+    model.maximizedTabsetId !== tabset.id &&
+    !modelIndex.floatingTabsetIds.has(tabset.id)
   ) {
     return undefined;
   }
@@ -96,8 +98,11 @@ export function getDropTarget({
         };
 
   // Splitting an empty tabset would remove it (unless it's kept when empty), leaving the dropped tab(s) in its place,
-  // so it's only targeted as a whole (which also keeps the tabset itself, e.g. its id and data)
-  const isSplittable = tabset.tabs.length > 0 || !!tabset.keepWhenEmpty;
+  // so it's only targeted as a whole (which also keeps the tabset itself, e.g. its id and data);
+  // floating tabsets can't be split at all, so tabs dropped anywhere on their content are added to them
+  const isSplittable =
+    (tabset.tabs.length > 0 || !!tabset.keepWhenEmpty) &&
+    !modelIndex.floatingTabsetIds.has(tabset.id);
 
   if (source.type === "tabset") {
     return getTabsetDropTarget({
@@ -164,9 +169,14 @@ function getEdgeDropTarget({
   rootElement: HTMLElement;
   source: DragSource;
 }): WorkspaceDropEdge | undefined {
-  // While a tabset is maximized, tabs can only be dropped within it;
+  // While a tabset is maximized, tabs can only be dropped within it (or within floating tabsets);
   // and the edges of a root tabset (e.g. of an empty workspace) are already its own edge regions
   if (model.maximizedTabsetId !== undefined || model.root.type !== "split") {
+    return undefined;
+  }
+
+  // Floating tabsets cover the layout (and its edges) beneath them
+  if (isWithinOwnFloatingTabset(element, rootElement)) {
     return undefined;
   }
 
@@ -203,6 +213,22 @@ function getEdgeDropTarget({
   }
 
   return edge;
+}
+
+// Floating tabsets of other workspaces (e.g. one rendered within a tab) are part of those tabs' content
+function isWithinOwnFloatingTabset(element: Element, rootElement: HTMLElement) {
+  // Walk outward, since a workspace nested within a floating tabset may have floating tabsets of its own
+  let floating = element.closest("[data-floating-tabset]");
+  while (floating) {
+    if (floating.closest("[data-workspace]") === rootElement) {
+      return true;
+    }
+
+    floating =
+      floating.parentElement?.closest("[data-floating-tabset]") ?? null;
+  }
+
+  return false;
 }
 
 // The workspace's own layout (rather than that of a workspace nested within it)

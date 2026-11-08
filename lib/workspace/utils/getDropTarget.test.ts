@@ -433,4 +433,165 @@ describe("getDropTarget at the edges of the workspace", () => {
       }).getTarget({ tabId: "2", type: "tab" }, 5)
     ).toEqual({ region: "left", tabsetId: "a" });
   });
+
+  describe("floating tabsets", () => {
+    const floatingModel: WorkspaceModel = {
+      floating: [
+        {
+          height: 100,
+          id: "f",
+          selectedId: "9",
+          tabs: [
+            { data: undefined, id: "8" },
+            { data: undefined, id: "9" }
+          ],
+          type: "tabset",
+          width: 200,
+          x: 0,
+          y: 0
+        }
+      ],
+      maximizedTabsetId: "b",
+      root: {
+        children: [
+          {
+            id: "a",
+            selectedId: "1",
+            tabs: [{ data: undefined, id: "1" }],
+            type: "tabset"
+          },
+          {
+            id: "b",
+            selectedId: "2",
+            tabs: [{ data: undefined, id: "2" }],
+            type: "tabset"
+          }
+        ],
+        id: "root",
+        orientation: "horizontal",
+        type: "split"
+      },
+      version: 1
+    };
+
+    function mount(html: string) {
+      const container = document.createElement("div");
+      container.innerHTML = html;
+      document.body.appendChild(container);
+      cleanup = () => {
+        container.remove();
+        // @ts-expect-error Not implemented by jsdom
+        delete document.elementFromPoint;
+      };
+
+      return container;
+    }
+
+    function pointAt(element: Element | null) {
+      Object.assign(document, { elementFromPoint: () => element });
+    }
+
+    test("accepts tabs while another tabset is maximized", () => {
+      const container = mount(`
+        <div data-workspace>
+          <div data-workspace-layout>
+            <div data-tabset-id="b"><div data-tab-list></div><div data-tab-panels></div></div>
+          </div>
+          <div data-floating-tabset="f">
+            <div data-tabset-id="f"><div data-tab-list></div><div data-tab-panels></div></div>
+          </div>
+        </div>
+      `);
+      const rootElement =
+        container.querySelector<HTMLElement>("[data-workspace]")!;
+      const tabList = container.querySelector(
+        '[data-tabset-id="f"] [data-tab-list]'
+      )!;
+      const tabPanels = container.querySelector(
+        '[data-tabset-id="f"] [data-tab-panels]'
+      )!;
+      tabPanels.getBoundingClientRect = () => new DOMRect(0, 30, 200, 70);
+
+      pointAt(tabList);
+      expect(
+        getDropTarget({
+          clientX: 0,
+          clientY: 0,
+          model: floatingModel,
+          rootElement,
+          source: { tabId: "2", type: "tab" }
+        })
+      ).toEqual({ index: 0, tabsetId: "f" });
+
+      // Floating tabsets can't be split
+      pointAt(tabPanels);
+      expect(
+        getDropTarget({
+          clientX: 5,
+          clientY: 35,
+          model: floatingModel,
+          rootElement,
+          source: { tabId: "2", type: "tab" }
+        })
+      ).toEqual({ region: "center", tabsetId: "f" });
+    });
+
+    test("still ignores the other tabsets while a tabset is maximized", () => {
+      const container = mount(`
+        <div data-workspace>
+          <div data-workspace-layout>
+            <div data-tabset-id="a"><div data-tab-list></div><div data-tab-panels></div></div>
+          </div>
+        </div>
+      `);
+      pointAt(container.querySelector('[data-tabset-id="a"] [data-tab-list]'));
+
+      expect(
+        getDropTarget({
+          clientX: 0,
+          clientY: 0,
+          model: floatingModel,
+          rootElement:
+            container.querySelector<HTMLElement>("[data-workspace]")!,
+          source: { tabId: "8", type: "tab" }
+        })
+      ).toBeUndefined();
+    });
+
+    test("doesn't target workspace edges beneath floating tabsets of nested workspaces", () => {
+      // The nested workspace has a floating tabset of its own, within one of the outer workspace's
+      const container = mount(`
+        <div data-workspace>
+          <div data-workspace-layout>
+            <div data-tabset-id="a"><div data-tab-list></div><div data-tab-panels></div></div>
+          </div>
+          <div data-floating-tabset="f">
+            <div data-tabset-id="f">
+              <div data-workspace>
+                <div data-floating-tabset="inner"><span data-target></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `);
+      const rootElement =
+        container.querySelector<HTMLElement>("[data-workspace]")!;
+      const layoutElement = container.querySelector<HTMLElement>(
+        "[data-workspace-layout]"
+      )!;
+      rootElement.getBoundingClientRect = () => new DOMRect(0, 0, 800, 600);
+      layoutElement.getBoundingClientRect = () => new DOMRect(0, 0, 800, 600);
+      pointAt(container.querySelector("[data-target]"));
+
+      expect(
+        getDropTarget({
+          clientX: 5,
+          clientY: 300,
+          model: { ...floatingModel, maximizedTabsetId: undefined },
+          rootElement,
+          source: { tabId: "8", type: "tab" }
+        })
+      ).toBeUndefined();
+    });
+  });
 });

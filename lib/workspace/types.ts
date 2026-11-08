@@ -111,6 +111,8 @@ export type TabsetNode<TabData = unknown, TabsetData = unknown> = {
    *
    * ⚠️ A maximum only applies if something else can take up the rest of the space, e.g. another tabset in the same split without a maximum width;
    * otherwise it's ignored (e.g. if every tabset in a split has a maximum, or the tabset fills the workspace).
+   *
+   * ℹ️ Maximums don't apply to floating tabsets, which can be resized to any size larger than their minimums.
    */
   maxWidth?: string | undefined;
 
@@ -124,6 +126,8 @@ export type TabsetNode<TabData = unknown, TabsetData = unknown> = {
    *
    * ⚠️ A maximum only applies if something else can take up the rest of the space, e.g. another tabset in the same split without a maximum height;
    * otherwise it's ignored (e.g. if every tabset in a split has a maximum, or the tabset fills the workspace).
+   *
+   * ℹ️ Maximums don't apply to floating tabsets, which can be resized to any size larger than their minimums.
    */
   maxHeight?: string | undefined;
 
@@ -257,6 +261,48 @@ export type WorkspaceNode<TabData = unknown, TabsetData = unknown> =
   | TabsetNode<TabData, TabsetData>;
 
 /**
+ * Position and size of a floating tabset (see `WorkspaceModel.floating`), in pixels.
+ *
+ * ℹ️ Positions are relative to the top left corner of the workspace's layout (within the root element's padding), even in a right-to-left layout.
+ */
+export type FloatingTabsetRect = {
+  /**
+   * Distance from the left edge of the workspace's layout to the tabset's left edge.
+   */
+  x: number;
+
+  /**
+   * Distance from the top edge of the workspace's layout to the tabset's top edge.
+   */
+  y: number;
+
+  /**
+   * Width of the tabset (including its header).
+   */
+  width: number;
+
+  /**
+   * Height of the tabset (including its header).
+   */
+  height: number;
+};
+
+/**
+ * A tabset that floats above the workspace's layout (see `WorkspaceModel.floating`), e.g. a notepad that can be moved out of the way of the content beneath it.
+ *
+ * ℹ️ Floating tabsets are positioned (and sized) in pixels, so they keep their size when the workspace is resized.
+ * They're shown with their headers within the workspace's layout (so they can always be dragged back), and the rest of them is clipped to it;
+ * their positions aren't changed to fit, though, so they're shown where they were again once that fits (e.g. when the workspace is made larger again).
+ *
+ * ℹ️ Unlike tabsets within the layout, floating tabsets can't be split, collapsed, or maximized, and their maximum sizes (`maxWidth` and `maxHeight`) are ignored.
+ */
+export type FloatingTabsetNode<TabData = unknown, TabsetData = unknown> = Omit<
+  TabsetNode<TabData, TabsetData>,
+  "collapsed" | "collapsible" | "size"
+> &
+  FloatingTabsetRect;
+
+/**
  * Serializable description of a workspace's layout.
  */
 export type WorkspaceModel<TabData = unknown, TabsetData = unknown> = {
@@ -273,7 +319,20 @@ export type WorkspaceModel<TabData = unknown, TabsetData = unknown> = {
   root: WorkspaceNode<TabData, TabsetData>;
 
   /**
+   * Tabsets that float above the layout, in stacking order (the last one is on top).
+   *
+   * ℹ️ Floating tabsets are created with the `floatTab` and `floatTabset` methods.
+   * Dragging a floating tabset's header (or its `TabsetDragHandle`) moves it, its edges resize it, and pressing it brings it to the front.
+   * Its tabs can be dragged into the layout (and other tabs can be dropped into it), and an emptied floating tabset is removed (unless it has the `keepWhenEmpty` flag).
+   *
+   * ℹ️ Tabset (and tab) ids are unique across the layout and its floating tabsets.
+   */
+  floating?: FloatingTabsetNode<TabData, TabsetData>[] | undefined;
+
+  /**
    * Id of the tabset that is maximized, if any.
+   *
+   * ℹ️ Floating tabsets can't be maximized; they're shown above the maximized tabset, and still accept dropped tabs.
    */
   maximizedTabsetId?: string | undefined;
 };
@@ -283,9 +342,17 @@ export type WorkspaceModel<TabData = unknown, TabsetData = unknown> = {
  */
 export type WorkspaceModelInput<TabData = unknown, TabsetData = unknown> = Omit<
   WorkspaceModel<TabData, TabsetData>,
-  "root"
+  "floating" | "root"
 > & {
+  floating?: FloatingTabsetNodeInput<TabData, TabsetData>[] | undefined;
   root: WorkspaceNodeInput<TabData, TabsetData>;
+};
+
+export type FloatingTabsetNodeInput<
+  TabData = unknown,
+  TabsetData = unknown
+> = Omit<FloatingTabsetNode<TabData, TabsetData>, "id"> & {
+  id?: string | undefined;
 };
 
 export type WorkspaceNodeInput<TabData = unknown, TabsetData = unknown> =
@@ -342,8 +409,10 @@ export type WorkspaceChangeReason =
   | "close"
   | "collapse"
   | "expand"
+  | "float"
   | "maximize"
   | "move"
+  | "raise"
   | "resize"
   | "restore"
   | "select"
@@ -370,6 +439,9 @@ export type WorkspaceChangedMeta = {
    *
    * ℹ️ A tab (or tabset) dragged to another workspace (see the `dragGroup` prop) is reported as `"transfer"` by both workspaces:
    * the one it was dropped into (which added it) and the one it was dragged from (which removed it).
+   *
+   * ℹ️ Floating tabsets (see `WorkspaceModel.floating`) are reported as `"float"` when they're created, `"move"` and `"resize"` when they're dragged by their headers and edges,
+   * and `"raise"` when they're brought to the front (e.g. by pressing one that's behind another).
    *
    * ⚠️ New reasons may be added in later versions, so code that switches on this value should handle unrecognized values.
    */
@@ -546,6 +618,27 @@ export interface WorkspaceImperativeHandle<
   expandTabset: (tabsetId: string) => void;
 
   /**
+   * Move a tab into a new floating tabset (see `WorkspaceModel.floating`), on top of any other floating tabsets.
+   *
+   * ℹ️ Parts of the position and size that aren't specified default to those of the tab's tabset, offset slightly down and to the right
+   * (and moved, if needed, to fit within the workspace).
+   *
+   * ℹ️ This has no effect on the only tab of a floating tabset (unless the tabset has the `keepWhenEmpty` flag).
+   */
+  floatTab: (tabId: string, rect?: Partial<FloatingTabsetRect>) => void;
+
+  /**
+   * Move a tabset out of the layout, to float above it (see `WorkspaceModel.floating`), on top of any other floating tabsets.
+   *
+   * ℹ️ Parts of the position and size that aren't specified default to those of the tabset, offset slightly down and to the right
+   * (and moved, if needed, to fit within the workspace).
+   *
+   * ℹ️ This has no effect on the root tabset (which fills the workspace) or a tabset that's already floating.
+   * A maximized tabset is restored first.
+   */
+  floatTabset: (tabsetId: string, rect?: Partial<FloatingTabsetRect>) => void;
+
+  /**
    * Id of the tabset the user most recently interacted with (by pointer or focus).
    */
   getActiveTabsetId: () => string | undefined;
@@ -576,7 +669,7 @@ export interface WorkspaceImperativeHandle<
   /**
    * Maximize a tabset, so that it covers the rest of the workspace.
    *
-   * ℹ️ This has no effect on the only tabset in a workspace (the root), which already fills it.
+   * ℹ️ This has no effect on the only tabset in a workspace (the root), which already fills it, or on a floating tabset.
    * A maximized tabset is restored if it becomes the only one (e.g. after the other tabsets are closed).
    */
   maximizeTabset: (tabsetId: string) => void;
@@ -586,6 +679,8 @@ export interface WorkspaceImperativeHandle<
    * or to an `edge` of the workspace (in a new tabset beside all of the other tabsets).
    *
    * ℹ️ The `"left"` and `"right"` regions (and edges) are sides of the screen (so they're mirrored in right-to-left layouts).
+   *
+   * ℹ️ Floating tabsets can't be split, so a tab moved to an edge region of one is added to it instead (like the `"center"` region).
    */
   moveTab: (tabId: string, target: TabDropTarget) => void;
 
@@ -596,6 +691,9 @@ export interface WorkspaceImperativeHandle<
    * The `"left"` and `"right"` regions (and edges) are sides of the screen (so they're mirrored in right-to-left layouts).
    *
    * ℹ️ When its tabs are moved, the emptied tabset is removed (unless it has the `keepWhenEmpty` flag).
+   *
+   * ℹ️ A floating tabset moved beside another tabset (or to an edge of the workspace) is docked: it's moved into the layout, and stops floating.
+   * Floating tabsets can't be split, so a tabset moved to an edge region of one has its tabs moved into it instead (like the `"center"` region).
    */
   moveTabset: (tabsetId: string, target: TabDropTarget) => void;
 
@@ -656,6 +754,9 @@ export interface WorkspaceImperativeHandle<
    *
    * ℹ️ Setting `minHeight`, `minWidth`, or `tabPlacement` to `undefined` removes the tabset's override,
    * so the corresponding Workspace prop is used; setting `maxHeight` or `maxWidth` to `undefined` removes the maximum.
+   *
+   * ℹ️ The position and size (`x`, `y`, `width`, and `height`) of a floating tabset can be changed too (and are ignored for other tabsets),
+   * as can be its `collapsible` flag (which is ignored for floating tabsets).
    */
   updateTabset: (
     tabsetId: string,
@@ -663,12 +764,16 @@ export interface WorkspaceImperativeHandle<
       collapsible?: boolean | undefined;
       data?: TabsetData;
       disableDrag?: boolean | undefined;
+      height?: number | undefined;
       keepWhenEmpty?: boolean | undefined;
       maxHeight?: string | undefined;
       maxWidth?: string | undefined;
       minHeight?: string | undefined;
       minWidth?: string | undefined;
       tabPlacement?: TabsetNode["tabPlacement"];
+      width?: number | undefined;
+      x?: number | undefined;
+      y?: number | undefined;
     }
   ) => void;
 }
@@ -719,6 +824,11 @@ export type ParentTabset<TabData = unknown> = {
   expand: () => void;
 
   /**
+   * Move the tabset out of the layout, to float above it (see `WorkspaceImperativeHandle.floatTabset`).
+   */
+  float: (rect?: Partial<FloatingTabsetRect>) => void;
+
+  /**
    * Id of the tabset.
    */
   id: string;
@@ -730,6 +840,11 @@ export type ParentTabset<TabData = unknown> = {
    * and when it's collapsed to fit (see `TabsetNode.collapsible`); `useParentTabsetState().isCollapsed` reflects how it's shown.
    */
   isCollapsed: () => boolean;
+
+  /**
+   * The tabset currently floats above the layout (see `WorkspaceModel.floating`).
+   */
+  isFloating: () => boolean;
 
   /**
    * The tabset is currently maximized.
@@ -795,8 +910,16 @@ export type ParentTabsetState = {
    * - The Workspace has the `disabled` prop
    * - It's the only tabset in the workspace (see `isRoot`), and can't be dragged to another workspace (see the Workspace's `dragGroup` prop; tabsets with the `keepWhenEmpty` flag can't be)
    * - A tabset is maximized
+   *
+   * ℹ️ Dragging a floating tabset moves it (rather than dropping it elsewhere), so only its own `disableDrag` flag and the Workspace's `disabled` prop prevent that;
+   * they also prevent it from being resized.
    */
   isDragDisabled: boolean;
+
+  /**
+   * The tabset floats above the layout (see `WorkspaceModel.floating`).
+   */
+  isFloating: boolean;
 
   /**
    * The tabset is maximized.
@@ -829,6 +952,11 @@ export type ParentTab = {
    * ℹ️ This method is not restricted by `disableClose` or `disabled`.
    */
   close: () => void;
+
+  /**
+   * Move the tab into a new floating tabset (see `WorkspaceImperativeHandle.floatTab`).
+   */
+  float: (rect?: Partial<FloatingTabsetRect>) => void;
 
   /**
    * Id of the tabset that currently contains the tab.
@@ -1251,6 +1379,17 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
 export type WorkspaceClassNames = {
   dragPreview?: string | undefined;
   dropIndicator?: string | undefined;
+  /**
+   * The element that positions each floating tabset (with a `data-floating-tabset` attribute), around the tabset itself, e.g. for a shadow.
+   */
+  floatingTabset?: string | undefined;
+  /**
+   * Each of the handles along the edges (and at the corners) of a floating tabset that resize it,
+   * with a `data-floating-resize-handle` attribute naming its edge (e.g. "bottom" or "bottom-right").
+   *
+   * ℹ️ The handles are positioned (and given resize cursors) by the workspace, but they're transparent.
+   */
+  floatingResizeHandle?: string | undefined;
   header?: string | undefined;
   /**
    * Each split (a Group with `data-split` and `data-split-id` attributes); for example, its `gap` adds space between tabsets.

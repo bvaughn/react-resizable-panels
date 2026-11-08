@@ -1,7 +1,8 @@
 import {
-  ArrowTopRightOnSquareIcon,
+  ArrowDownTrayIcon,
   ArrowsPointingInIcon,
   ArrowsPointingOutIcon,
+  ArrowTopRightOnSquareIcon,
   Bars3Icon,
   MinusIcon,
   PlusIcon,
@@ -107,6 +108,8 @@ export function DemoWorkspace({
   defaultSeparators = false,
   onPopOut,
   showDragHandles = false,
+  showFloatButtons = false,
+  showMaximizeButtons = true,
   showResetButton = false,
   storageKey,
   tabPlacement = "top",
@@ -134,6 +137,10 @@ export function DemoWorkspace({
   onPopOut?: (tabset: TabsetNode<DemoTab>, tab: TabNode<DemoTab>) => void;
   // Tabsets are dragged by a handle in their toolbars, rather than by the empty space in their headers
   showDragHandles?: boolean;
+  // Shows a button that floats the tabset above the layout (or docks it, if it's floating)
+  showFloatButtons?: boolean;
+  // Hides the maximize buttons (e.g. in demos that don't need them, to keep the toolbars short)
+  showMaximizeButtons?: boolean;
   showResetButton?: boolean;
   storageKey?: string;
   tabPlacement?: TabPlacement;
@@ -169,8 +176,9 @@ export function DemoWorkspace({
                 <AddTabButton />
               )}
               {onPopOut && <PopOutButton onPopOut={onPopOut} tabset={tabset} />}
+              {showFloatButtons && <FloatButton />}
               <CollapseButton />
-              <MaximizeButton />
+              {showMaximizeButtons && <MaximizeButton />}
               {canCloseTabset?.(tabset) && <CloseTabsetButton />}
             </ExpandedOnly>
           </>
@@ -264,6 +272,31 @@ function PopOutButton({
   );
 }
 
+// The only tabset in a workspace fills it, so it can't float
+function FloatButton() {
+  const workspace = useParentWorkspace();
+  const tabset = useParentTabset();
+  const state = useParentTabsetState();
+
+  if (!workspace || !tabset || !state || state.isRoot) {
+    return null;
+  }
+
+  return state.isFloating ? (
+    <TabsetButton
+      // Moving a floating tabset beside the others docks it
+      onClick={() => workspace.moveTabset(tabset.id, { edge: "right" })}
+      title="Dock tabset"
+    >
+      <ArrowDownTrayIcon className="w-4 h-4" />
+    </TabsetButton>
+  ) : (
+    <TabsetButton onClick={() => tabset.float()} title="Float tabset">
+      <ArrowTopRightOnSquareIcon className="w-4 h-4" />
+    </TabsetButton>
+  );
+}
+
 // Hidden when the tabset can't be dragged (e.g. it's the only tabset in the workspace)
 function DragHandle() {
   return (
@@ -321,7 +354,8 @@ function MaximizeButton() {
   const state = useParentTabsetState();
   const isMaximized = !!state?.isMaximized;
 
-  if (state?.isRoot) {
+  // Floating tabsets can't be maximized
+  if (state?.isRoot || state?.isFloating) {
     return null;
   }
 

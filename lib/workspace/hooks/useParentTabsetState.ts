@@ -48,6 +48,7 @@ export function useParentTabsetState(): ParentTabsetState | null {
           disabled,
           dragGroup
         ),
+        isFloating: modelIndex.floatingTabsetIds.has(tabset.id),
         isMaximized: model.maximizedTabsetId === tabset.id,
         isRoot: model.root.id === tabset.id,
         selectedTabId: tabset.selectedId

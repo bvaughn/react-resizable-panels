@@ -385,6 +385,214 @@ test.describe("Workspace", () => {
     });
   });
 
+  test.describe("floating tabsets", () => {
+    function createFloatingModel(
+      floating: WorkspaceModel["floating"] = [
+        {
+          height: 150,
+          id: "notes",
+          tabs: [{ data: null, id: "n" }],
+          type: "tabset",
+          width: 200,
+          x: 100,
+          y: 100
+        }
+      ]
+    ): WorkspaceModel {
+      return { ...createModel(), floating };
+    }
+
+    function getFloating(page: Page, id: string) {
+      return page.locator(`[data-floating-tabset="${id}"]`);
+    }
+
+    async function getLayoutBox(page: Page) {
+      return (await page.locator("[data-workspace-layout]").boundingBox())!;
+    }
+
+    // The empty space at the end of the header (after the tabs)
+    async function getHeaderPoint(page: Page, tabsetId: string) {
+      const box = (await getTabset(page, tabsetId)
+        .locator("[data-tabset-header]")
+        .boundingBox())!;
+
+      return { x: box.x + box.width - 10, y: box.y + box.height / 2 };
+    }
+
+    test("moves a floating tabset by its header without remounting its content", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, workspace(createFloatingModel()));
+
+      await page.getByTestId("content-n").click();
+      await expect(page.getByTestId("content-n")).toHaveText("n: 1");
+
+      const before = (await getFloating(page, "notes").boundingBox())!;
+      const start = await getHeaderPoint(page, "notes");
+      await drag(page, start, { x: start.x + 50, y: start.y + 40 });
+
+      const after = (await getFloating(page, "notes").boundingBox())!;
+      expect(after.x - before.x).toBeCloseTo(50, 0);
+      expect(after.y - before.y).toBeCloseTo(40, 0);
+      await expect(page.getByTestId("content-n")).toHaveText("n: 1");
+
+      expect((await getLastChange(page)).meta).toEqual({
+        isUserInteraction: true,
+        reason: "move"
+      });
+      expect((await getLastChange(page)).model.floating[0]).toMatchObject({
+        x: 150,
+        y: 140
+      });
+    });
+
+    test("keeps a floating tabset's header within the workspace, so that it can be dragged back", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, workspace(createFloatingModel()));
+      const layout = await getLayoutBox(page);
+
+      const start = await getHeaderPoint(page, "notes");
+      await drag(page, start, { x: layout.x + layout.width + 300, y: start.y });
+
+      const header = (await getTabset(page, "notes")
+        .locator("[data-tabset-header]")
+        .boundingBox())!;
+      expect(header.x + header.width).toBeCloseTo(layout.x + layout.width, 0);
+
+      // The rest of the tabset can be moved below the bottom of the workspace (and is clipped to it)
+      const next = await getHeaderPoint(page, "notes");
+      await drag(page, next, { x: next.x, y: layout.y + layout.height + 200 });
+      const moved = (await getTabset(page, "notes")
+        .locator("[data-tabset-header]")
+        .boundingBox())!;
+      expect(moved.y + moved.height).toBeCloseTo(layout.y + layout.height, 0);
+
+      // And dragged back by its header
+      const back = await getHeaderPoint(page, "notes");
+      await drag(page, back, { x: back.x - 300, y: back.y - 200 });
+      expect((await getLastChange(page)).model.floating[0]).toMatchObject({
+        x: 808 - 200 - 300,
+        y: 400 - 30 - 200
+      });
+    });
+
+    test("resizes a floating tabset by its edges", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, workspace(createFloatingModel()));
+
+      const handle = getFloating(page, "notes").locator(
+        '[data-floating-resize-handle="bottom-right"]'
+      );
+      const box = (await handle.boundingBox())!;
+      const start = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+      await drag(page, start, { x: start.x + 60, y: start.y + 30 });
+
+      const after = (await getFloating(page, "notes").boundingBox())!;
+      expect(after.width).toBeCloseTo(260, 0);
+      expect(after.height).toBeCloseTo(180, 0);
+      expect((await getLastChange(page)).meta).toEqual({
+        isUserInteraction: true,
+        reason: "resize"
+      });
+    });
+
+    test("adds a tab dropped onto a floating tabset (even at its edges, or the edges of the workspace beneath it)", async ({
+      page: mainPage
+    }) => {
+      const layout = { height: 400, width: 808 };
+      const page = await goToUrl(
+        mainPage,
+        workspace(
+          createFloatingModel([
+            {
+              height: 150,
+              id: "notes",
+              tabs: [{ data: null, id: "n" }],
+              type: "tabset",
+              width: 200,
+              // Against the right edge of the workspace
+              x: layout.width - 200,
+              y: 100
+            }
+          ])
+        )
+      );
+
+      const panels = (await getTabset(page, "notes")
+        .locator("[data-tab-panels]")
+        .boundingBox())!;
+      // Within the edge of the workspace (16px), but past the tabset's resize handle (which straddles its edge)
+      await dragTab(page, getTab(page, "a"), {
+        x: panels.x + panels.width - 10,
+        y: panels.y + panels.height / 2
+      });
+
+      expect(await getTabIds(getTabset(page, "notes"))).toEqual(["n", "a"]);
+      await expect(page.locator("[data-floating-tabset]")).toHaveCount(1);
+    });
+
+    test("docks a tab dragged out of a floating tabset, and removes the emptied tabset", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, workspace(createFloatingModel()));
+
+      await page.getByTestId("content-n").click();
+      await dragTab(
+        page,
+        getTab(page, "n"),
+        await getPanelsPoint(getTabset(page, "right"), "center")
+      );
+
+      await expect(page.locator("[data-floating-tabset]")).toHaveCount(0);
+      expect(await getTabIds(getTabset(page, "right"))).toEqual(["c", "n"]);
+      await expect(page.getByTestId("content-n")).toHaveText("n: 1");
+    });
+
+    test("brings a floating tabset that's behind another to the front when it's pressed", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(
+        mainPage,
+        workspace(
+          createFloatingModel([
+            {
+              height: 150,
+              id: "back",
+              tabs: [{ data: null, id: "x" }],
+              type: "tabset",
+              width: 200,
+              x: 100,
+              y: 100
+            },
+            {
+              height: 150,
+              id: "front",
+              tabs: [{ data: null, id: "y" }],
+              type: "tabset",
+              width: 200,
+              x: 150,
+              y: 150
+            }
+          ])
+        )
+      );
+
+      // A part of the back tabset that the front one doesn't cover
+      await page.getByTestId("content-x").click({ position: { x: 10, y: 10 } });
+
+      expect((await getLastChange(page)).meta).toEqual({
+        isUserInteraction: true,
+        reason: "raise"
+      });
+      const zIndex = (id: string) =>
+        getFloating(page, id).evaluate((element) => element.style.zIndex);
+      expect(await zIndex("back")).toBe("2");
+      expect(await zIndex("front")).toBe("1");
+    });
+  });
+
   test("moves a tabset by the empty space in its header without remounting its content", async ({
     page: mainPage
   }) => {

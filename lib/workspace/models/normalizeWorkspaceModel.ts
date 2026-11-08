@@ -15,6 +15,7 @@ import type {
  * - Scales sizes so they add up to 100 (when all siblings have percentage sizes)
  * - Fixes selections (and recently selected tabs) of tabs that no longer exist
  * - Expands tabsets that can't be collapsed (e.g. the only tabset in the workspace)
+ * - Removes floating tabsets that are empty, and fixes their invalid positions and sizes
  * - Clears the maximized tabset if it no longer exists
  * - Assigns ids to splits and tabsets that don't have them
  *
@@ -42,21 +43,25 @@ export function normalizeWorkspaceModel<
     return normalizeModel(value);
   }
 
+  const mapTabs = (tabs: TabNode<TabData>[]) =>
+    tabs.flatMap((tab) => {
+      const mapped = mapTab(tab);
+      return mapped ? [mapped] : [];
+    });
+
   const mapNode = (
     node: WorkspaceNodeInput<TabData, TabsetData>
   ): WorkspaceNodeInput<TabData, TabsetData> =>
     node.type === "split"
       ? { ...node, children: node.children.map(mapNode) }
-      : {
-          ...node,
-          tabs: node.tabs.flatMap((tab) => {
-            const mapped = mapTab(tab);
-            return mapped ? [mapped] : [];
-          })
-        };
+      : { ...node, tabs: mapTabs(node.tabs) };
 
   const mapped: WorkspaceModelInput<TabData, TabsetData> = {
     ...value,
+    floating: value.floating?.map((tabset) => ({
+      ...tabset,
+      tabs: mapTabs(tabset.tabs)
+    })),
     root: mapNode(value.root)
   };
 

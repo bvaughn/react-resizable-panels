@@ -3,12 +3,21 @@ import type { WorkspaceModelInput } from "../types";
 /**
  * The value has the structure of a model (which normalizeModel depends on).
  *
- * ℹ️ Only the structure and the fields rendered by default (e.g. tab titles) are checked; other fields (e.g. sizes) are tidied by normalizeModel.
+ * ℹ️ Only the structure and the fields rendered by default (e.g. tab titles) are checked; other fields (e.g. sizes, and floating tabsets' positions) are tidied by normalizeModel.
  */
 export function isValidModelInput<TabData, TabsetData>(
   value: unknown
 ): value is WorkspaceModelInput<TabData, TabsetData> {
-  return isObject(value) && isValidNode(value.root);
+  return (
+    isObject(value) &&
+    isValidNode(value.root) &&
+    (value.floating === undefined ||
+      (Array.isArray(value.floating) &&
+        value.floating.every(
+          (tabset) =>
+            isObject(tabset) && tabset.type === "tabset" && isValidNode(tabset)
+        )))
+  );
 }
 
 function isObject(value: unknown): value is { [key: string]: unknown } {

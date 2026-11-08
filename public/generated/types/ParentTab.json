@@ -27,6 +27,16 @@
     {
       "description": [
         {
+          "content": "<p>Move the tab into a new floating tabset (see <code>WorkspaceImperativeHandle.floatTab</code>).</p>\n"
+        }
+      ],
+      "name": "float",
+      "optional": false,
+      "type": "(rect?: Partial<FloatingTabsetRect>) => void"
+    },
+    {
+      "description": [
+        {
           "content": "<p>Id of the tabset that currently contains the tab.</p>\n"
         }
       ],

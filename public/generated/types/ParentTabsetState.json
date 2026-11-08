@@ -66,9 +66,23 @@
       "description": [
         {
           "content": "<p>The user cannot drag the tabset as a whole, because:</p>\n<ul>\n<li>It has the <code>disableDrag</code> flag, or one of its tabs does</li>\n<li>The Workspace has the <code>disabled</code> prop</li>\n<li>It's the only tabset in the workspace (see <code>isRoot</code>), and can't be dragged to another workspace (see the Workspace's <code>dragGroup</code> prop; tabsets with the <code>keepWhenEmpty</code> flag can't be)</li>\n<li>A tabset is maximized</li>\n</ul>\n"
+        },
+        {
+          "content": "<p>Dragging a floating tabset moves it (rather than dropping it elsewhere), so only its own <code>disableDrag</code> flag and the Workspace's <code>disabled</code> prop prevent that;\nthey also prevent it from being resized.</p>\n",
+          "intent": "primary"
         }
       ],
       "name": "isDragDisabled",
+      "optional": false,
+      "type": "boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The tabset floats above the layout (see <code>WorkspaceModel.floating</code>).</p>\n"
+        }
+      ],
+      "name": "isFloating",
       "optional": false,
       "type": "boolean"
     },

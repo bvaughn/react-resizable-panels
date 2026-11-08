@@ -1,7 +1,8 @@
 import { warnOnce } from "../../shared/utils/warnOnce";
-import type { WorkspaceNode } from "../types";
+import type { TabsetNode, WorkspaceModel, WorkspaceNode } from "../types";
 
-export function warnAboutDuplicateIds(root: WorkspaceNode) {
+// Ids are unique across the layout and its floating tabsets
+export function warnAboutDuplicateIds(model: WorkspaceModel) {
   const ids = new Set<string>();
 
   const visit = (id: string) => {
@@ -13,7 +14,7 @@ export function warnAboutDuplicateIds(root: WorkspaceNode) {
     ids.add(id);
   };
 
-  const visitNode = (node: WorkspaceNode) => {
+  const visitNode = (node: WorkspaceNode | TabsetNode) => {
     visit(node.id);
 
     if (node.type === "split") {
@@ -23,5 +24,6 @@ export function warnAboutDuplicateIds(root: WorkspaceNode) {
     }
   };
 
-  visitNode(root);
+  visitNode(model.root);
+  model.floating?.forEach(visitNode);
 }

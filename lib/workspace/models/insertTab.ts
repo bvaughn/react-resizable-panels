@@ -3,6 +3,7 @@ import { createTabset } from "./createTabset";
 import { findTabset } from "./findTabset";
 import { insertAtDropTarget } from "./insertAtDropTarget";
 import { insertAtWorkspaceEdge } from "./insertAtWorkspaceEdge";
+import { toFloatingDropTarget } from "./toFloatingDropTarget";
 import type { TabDropTarget, TabNode, WorkspaceModel } from "../types";
 
 // Inserts a tab dropped in from another workspace (see the Workspace's dragGroup prop), like moveTab does for a tab from this workspace
@@ -25,6 +26,6 @@ export function insertTab<TabData, TabsetData>(
     next,
     destination,
     createTabset([{ ...tab }]),
-    target
+    toFloatingDropTarget(next, destination, target)
   );
 }
