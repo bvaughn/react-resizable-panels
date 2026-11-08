@@ -13,6 +13,24 @@ const elementToDOMRect = new Map<HTMLElement, DOMRect>();
 let defaultDomRect: DOMRectReadOnly = new DOMRect(0, 0, 0, 0);
 let getDOMRect: GetDOMRect | undefined = undefined;
 
+// Converts an element's (mocked) client size to its offset size (offsetWidth and offsetHeight)
+type OffsetSizeTransform = (clientSize: number) => number;
+let offsetSizeTransform: OffsetSizeTransform | undefined = undefined;
+
+/**
+ * By default, offset sizes (offsetWidth and offsetHeight) are the same as the mocked client sizes (getBoundingClientRect);
+ * browsers round them (e.g. `Math.round`), and they're smaller than client sizes when an ancestor is scaled (e.g. `(size) => Math.round(size / 2)`).
+ */
+export function setOffsetSizeTransform(value: OffsetSizeTransform | undefined) {
+  offsetSizeTransform = value;
+
+  emitter.emit("change");
+}
+
+function toOffsetSize(clientSize: number) {
+  return offsetSizeTransform ? offsetSizeTransform(clientSize) : clientSize;
+}
+
 function defaultGetDOMRect(element: Element) {
   const idString =
     element.getAttribute("data-group") ||
@@ -108,7 +126,7 @@ export function mockBoundingClientRect() {
   Object.defineProperty(HTMLElement.prototype, "offsetHeight", {
     configurable: true,
     get: function () {
-      return (this as HTMLElement).getBoundingClientRect().height;
+      return toOffsetSize((this as HTMLElement).getBoundingClientRect().height);
     }
   });
   Object.defineProperty(HTMLElement.prototype, "offsetLeft", {
@@ -126,7 +144,7 @@ export function mockBoundingClientRect() {
   Object.defineProperty(HTMLElement.prototype, "offsetWidth", {
     configurable: true,
     get: function () {
-      return (this as HTMLElement).getBoundingClientRect().width;
+      return toOffsetSize((this as HTMLElement).getBoundingClientRect().width);
     }
   });
 }
@@ -136,6 +154,7 @@ export function unmockBoundingClientRect() {
 
   defaultDomRect = new DOMRect(0, 0, 0, 0);
   getDOMRect = undefined;
+  offsetSizeTransform = undefined;
 
   elementToDOMRect.clear();
 }

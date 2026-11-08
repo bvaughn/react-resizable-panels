@@ -15,7 +15,8 @@ import { moveSeparator } from "../../global/test/moveSeparator";
 import { assert } from "../../shared/utils/assert";
 import {
   setDefaultElementBounds,
-  setElementBoundsFunction
+  setElementBoundsFunction,
+  setOffsetSizeTransform
 } from "../../shared/utils/test/mockBoundingClientRect";
 import { Panel } from "./Panel";
 import type {
@@ -1034,6 +1035,201 @@ describe("Group", () => {
       await act(() => resizeGroup(1000));
 
       expect(groupRef.current?.getLayout()).toEqual({ left: 10, right: 90 });
+    });
+
+    // Browsers round offset sizes, so the sum of panels' offset sizes can differ from the space they share (see #804)
+    test("should not resize preserve-pixel-size panels when their (rounded) offset sizes don't add up to the Group's size", async () => {
+      setOffsetSizeTransform(Math.round);
+      mockElementBounds({
+        groupSize: 1000,
+        leftPanelSize: 400,
+        rightPanelSize: 600
+      });
+
+      const groupRef = createRef<GroupImperativeHandle | null>();
+      const onLayoutChanged = vi.fn();
+
+      render(
+        <Group groupRef={groupRef} id="group" onLayoutChanged={onLayoutChanged}>
+          <Panel
+            defaultSize={400}
+            groupResizeBehavior="preserve-pixel-size"
+            id="left"
+          />
+          <Panel id="right" />
+        </Group>
+      );
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 40, right: 60 });
+      expect(onLayoutChanged).toBeCalledTimes(1);
+
+      // The panels' shares move (e.g. while another panel mounts), so their sizes are fractional: 401 + 600 = 1001 rounded, but 1000 exactly
+      await act(() =>
+        mockElementBounds({
+          groupSize: 1000,
+          leftPanelSize: 400.5,
+          rightPanelSize: 599.5
+        })
+      );
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 40, right: 60 });
+      expect(onLayoutChanged).toBeCalledTimes(1);
+    });
+
+    test("should measure panels in layout pixels when an ancestor is scaled", async () => {
+      // Elements are shown at twice their layout size (e.g. by an ancestor's CSS zoom or scale transform)
+      setOffsetSizeTransform((size) => Math.round(size / 2));
+      mockElementBounds({
+        groupSize: 2000,
+        leftPanelSize: 800,
+        rightPanelSize: 1200
+      });
+
+      const groupRef = createRef<GroupImperativeHandle | null>();
+
+      render(
+        <Group groupRef={groupRef} id="group">
+          <Panel
+            defaultSize={400}
+            groupResizeBehavior="preserve-pixel-size"
+            id="left"
+          />
+          <Panel id="right" />
+        </Group>
+      );
+
+      // 400 layout pixels of the Group's 1000
+      expect(groupRef.current?.getLayout()).toEqual({ left: 40, right: 60 });
+
+      await act(() =>
+        mockElementBounds({
+          groupSize: 2000,
+          leftPanelSize: 801,
+          rightPanelSize: 1199
+        })
+      );
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 40, right: 60 });
+    });
+
+    test("should measure small panels in layout pixels when an ancestor is scaled", async () => {
+      setOffsetSizeTransform((size) => Math.round(size / 2));
+      const mockWidths = (middle: number) =>
+        setElementBoundsFunction((element: HTMLElement) => {
+          switch (element.id) {
+            case "group": {
+              return new DOMRect(0, 0, 2000, 50);
+            }
+            case "left": {
+              return new DOMRect(0, 0, 800, 50);
+            }
+            case "middle": {
+              return new DOMRect(800, 0, middle, 50);
+            }
+            case "right": {
+              return new DOMRect(800 + middle, 0, 1200 - middle, 50);
+            }
+          }
+        });
+      mockWidths(2.5);
+
+      const groupRef = createRef<GroupImperativeHandle | null>();
+
+      render(
+        <Group groupRef={groupRef} id="group">
+          <Panel
+            defaultSize={400}
+            groupResizeBehavior="preserve-pixel-size"
+            id="left"
+          />
+          <Panel id="middle" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      expect(groupRef.current?.getLayout().left).toBe(40);
+
+      // The middle panel is small enough to look unscaled (its offset size is within a pixel of its client size)
+      await act(() => mockWidths(1.5));
+
+      expect(groupRef.current?.getLayout().left).toBe(40);
+    });
+
+    test("should measure panels in layout pixels when an ancestor is scaled (vertical)", async () => {
+      setOffsetSizeTransform((size) => Math.round(size / 2));
+      const mockHeights = (top: number, bottom: number) =>
+        setElementBoundsFunction((element: HTMLElement) => {
+          switch (element.id) {
+            case "group": {
+              return new DOMRect(0, 0, 50, top + bottom);
+            }
+            case "top": {
+              return new DOMRect(0, 0, 50, top);
+            }
+            case "bottom": {
+              return new DOMRect(0, top, 50, bottom);
+            }
+          }
+        });
+      mockHeights(800, 1200);
+
+      const groupRef = createRef<GroupImperativeHandle | null>();
+
+      render(
+        <Group groupRef={groupRef} id="group" orientation="vertical">
+          <Panel
+            defaultSize={400}
+            groupResizeBehavior="preserve-pixel-size"
+            id="top"
+          />
+          <Panel id="bottom" />
+        </Group>
+      );
+
+      expect(groupRef.current?.getLayout()).toEqual({ top: 40, bottom: 60 });
+
+      await act(() => mockHeights(801, 1199));
+
+      expect(groupRef.current?.getLayout()).toEqual({ top: 40, bottom: 60 });
+    });
+
+    // Bounding rects aren't layout sizes when an ancestor is rotated; offset sizes (which ignore transforms) are
+    test("should fall back to offset sizes when bounding rects don't match them (e.g. an ancestor is rotated)", () => {
+      // Rotated by 90deg, the group's (1000px wide) bounding rect is as wide as it is tall (300px), and so are its panels'
+      const offsetSizes = new Map([
+        [300, 1000],
+        [299, 400],
+        [301, 600]
+      ]);
+      setOffsetSizeTransform((size) => offsetSizes.get(size) ?? size);
+      setElementBoundsFunction((element: HTMLElement) => {
+        switch (element.id) {
+          case "group": {
+            return new DOMRect(0, 0, 300, 1000);
+          }
+          case "left": {
+            return new DOMRect(0, 0, 299, 400);
+          }
+          case "right": {
+            return new DOMRect(0, 400, 301, 600);
+          }
+        }
+      });
+
+      const groupRef = createRef<GroupImperativeHandle | null>();
+
+      render(
+        <Group groupRef={groupRef} id="group">
+          <Panel
+            defaultSize={400}
+            groupResizeBehavior="preserve-pixel-size"
+            id="left"
+          />
+          <Panel id="right" />
+        </Group>
+      );
+
+      expect(groupRef.current?.getLayout()).toEqual({ left: 40, right: 60 });
     });
 
     test("should restore the pixel size of preserve-pixel-size panels", async () => {
