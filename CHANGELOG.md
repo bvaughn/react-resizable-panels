@@ -4,6 +4,7 @@
 
 - Add `TabsetCollapseButton` and `TabsetMaximizeButton` components, which collapse (or expand) and maximize (or restore) the tabset they're rendered within, with `aria-expanded`/`aria-controls` and `aria-pressed`. They render nothing when the action isn't available (e.g. maximizing the only tabset).
 - The `children`, `className`, `style`, and `title` props of `TabCloseButton`, `TabsetDragHandle`, and the new buttons can be functions of the component's state, e.g. `{({ isCollapsed }) => (isCollapsed ? "▸" : "▾")}`.
+- Fix `groupResizeBehavior: "preserve-pixel-size"` panels drifting by a fraction of a pixel when panels have fractional sizes (e.g. at 150% display scaling): a `Group`'s size was measured as the sum of its panels' rounded sizes, which could be off by a pixel and looked like the `Group` being resized. - [#804](https://github.com/bvaughn/react-resizable-panels/issues/804)
 
 ## 4.20.0
 

@@ -7,7 +7,8 @@ import { moveSeparator } from "../../global/test/moveSeparator";
 import { assert } from "../../shared/utils/assert";
 import {
   setDefaultElementBounds,
-  setElementBoundsFunction
+  setElementBoundsFunction,
+  setOffsetSizeTransform
 } from "../../shared/utils/test/mockBoundingClientRect";
 import { Group } from "./Group";
 import type { GroupImperativeHandle } from "../types";
@@ -78,6 +79,38 @@ describe("Panel", () => {
         "function"
       );
       expect(items.find((item) => item.id === "b")?.onResize).toBeUndefined();
+    });
+
+    test("should report an exact percentage (and rounded pixels) for fractional sizes", () => {
+      setOffsetSizeTransform(Math.round);
+      setElementBoundsFunction((element) => {
+        switch (element.id) {
+          case "group": {
+            return new DOMRect(0, 0, 1000, 50);
+          }
+          case "a": {
+            return new DOMRect(0, 0, 400.4, 50);
+          }
+          case "b": {
+            return new DOMRect(400.4, 0, 599.6, 50);
+          }
+        }
+      });
+
+      const onResize = vi.fn();
+
+      render(
+        <Group id="group">
+          <Panel id="a" onResize={onResize} />
+          <Panel id="b" />
+        </Group>
+      );
+
+      expect(onResize).toHaveBeenCalledWith(
+        { asPercentage: 40.04, inPixels: 400 },
+        "a",
+        undefined
+      );
     });
   });
 
