@@ -1438,9 +1438,101 @@ export type TabRenderProps = Pick<
   [dataAttribute: `data-${string}`]: string | boolean | undefined;
 };
 
-export type TabCloseButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
+/**
+ * A prop that's either a value or a function that returns one, given the state of the component (e.g. whether a tabset is collapsed).
+ */
+export type ValueOrFunction<Value, State> = Value | ((state: State) => Value);
 
-export type TabsetDragHandleProps = HTMLAttributes<HTMLDivElement>;
+/**
+ * Props of the Workspace's buttons and handles (see `TabCloseButton`) whose values can depend on the component's state.
+ */
+export type StatefulProps<State> = {
+  /**
+   * Content of the element, or a function that returns it (given the component's state).
+   */
+  children?: ValueOrFunction<ReactNode, State>;
+
+  /**
+   * Class name of the element, or a function that returns it (given the component's state).
+   */
+  className?: ValueOrFunction<string | undefined, State>;
+
+  /**
+   * Inline styles of the element, or a function that returns them (given the component's state).
+   */
+  style?: ValueOrFunction<CSSProperties | undefined, State>;
+
+  /**
+   * Tooltip of the element, or a function that returns it (given the component's state).
+   */
+  title?: ValueOrFunction<string | undefined, State>;
+};
+
+type StatefulButtonProps<State> = Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  keyof StatefulProps<State>
+> &
+  StatefulProps<State>;
+
+/**
+ * State of a `TabCloseButton`, passed to its function props (see `StatefulProps`).
+ */
+export type TabCloseButtonState = {
+  /**
+   * The title of the tab the button closes (or its id, if it doesn't have one).
+   */
+  tabTitle: string;
+};
+
+export type TabCloseButtonProps = StatefulButtonProps<TabCloseButtonState>;
+
+/**
+ * State of a `TabsetDragHandle`, passed to its function props (see `StatefulProps`).
+ */
+export type TabsetDragHandleState = {
+  /**
+   * The tabset can't be dragged (see `ParentTabsetState.isDragDisabled`).
+   */
+  isDisabled: boolean;
+};
+
+export type TabsetDragHandleProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  keyof StatefulProps<TabsetDragHandleState>
+> &
+  StatefulProps<TabsetDragHandleState>;
+
+/**
+ * State of a `TabsetCollapseButton`, passed to its function props (see `StatefulProps`).
+ */
+export type TabsetCollapseButtonState = {
+  /**
+   * The tabset is collapsed to just its header (see `ParentTabsetState.isCollapsed`).
+   */
+  isCollapsed: boolean;
+
+  /**
+   * The tabset is collapsed only because it doesn't fit, so it can't be expanded until it does (see `ParentTabsetState.isCollapsedToFit`);
+   * the button is disabled (with `aria-disabled`) until then.
+   */
+  isCollapsedToFit: boolean;
+};
+
+export type TabsetCollapseButtonProps =
+  StatefulButtonProps<TabsetCollapseButtonState>;
+
+/**
+ * State of a `TabsetMaximizeButton`, passed to its function props (see `StatefulProps`).
+ */
+export type TabsetMaximizeButtonState = {
+  /**
+   * The tabset is maximized (see `ParentTabsetState.isMaximized`).
+   */
+  isMaximized: boolean;
+};
+
+export type TabsetMaximizeButtonProps =
+  StatefulButtonProps<TabsetMaximizeButtonState>;
 
 /**
  * Minimum size of a node, in pixels (used internally).

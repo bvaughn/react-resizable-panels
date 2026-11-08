@@ -9,7 +9,9 @@ await compileDocs({
     "Panel",
     "Separator",
     "TabCloseButton",
+    "TabsetCollapseButton",
     "TabsetDragHandle",
+    "TabsetMaximizeButton",
     "Workspace"
   ],
   // Components are organized by area (e.g. lib/flex/components and lib/grid/components)

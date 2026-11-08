@@ -1167,6 +1167,12 @@ The button renders nothing if closing is disabled (by the tab's `disableClose` f
 Its content defaults to "×" (e.g. it can be replaced with an icon),
 and its default `aria-label` is "Close" followed by the tab's title (or id).
 
+Its `children`, `className`, `style`, and `title` can also be functions of its state (see `TabCloseButtonState`):
+
+```tsx
+<TabCloseButton title={({ tabTitle }) => `Close ${tabTitle}`} />
+```
+
 To keep the tab open (e.g. to confirm unsaved changes first), call `event.preventDefault()` in an `onClick` handler:
 
 ```tsx
@@ -1192,5 +1198,36 @@ None
 #### Optional props
 
 <!-- TabCloseButton:optional-props:begin -->
-None
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>children</td>
+      <td><p>Content of the element, or a function that returns it (given the component&#39;s state).</p>
+</td>
+    </tr>
+    <tr>
+      <td>className</td>
+      <td><p>Class name of the element, or a function that returns it (given the component&#39;s state).</p>
+</td>
+    </tr>
+    <tr>
+      <td>style</td>
+      <td><p>Inline styles of the element, or a function that returns them (given the component&#39;s state).</p>
+</td>
+    </tr>
+    <tr>
+      <td>title</td>
+      <td><p>Tooltip of the element, or a function that returns it (given the component&#39;s state).</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
 <!-- TabCloseButton:optional-props:end -->

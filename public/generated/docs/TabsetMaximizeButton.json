@@ -1,0 +1,64 @@
+{
+  "description": [
+    {
+      "content": "<p>Maximizes (or restores) the tabset it is rendered within; render it within the content returned by the Workspace's <code>renderTabsetToolbar</code> prop.\nIts <code>children</code>, <code>className</code>, <code>style</code>, and <code>title</code> can be functions of its state (see <code>TabsetMaximizeButtonState</code>), e.g. to show a different icon while the tabset is maximized:</p>\n"
+    },
+    {
+      "code": true,
+      "content": "<div><span class=\"tok-variableName\">renderTabsetToolbar</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">TabsetMaximizeButton</span><span class=\"\"> </span><span class=\"tok-propertyName\">title</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-propertyName\">isMaximized</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName\">isMaximized</span><span class=\"\"> </span><span class=\"tok-operator\">?</span><span class=\"\"> </span><span class=\"tok-string\">\"Restore\"</span><span class=\"\"> </span><span class=\"tok-operator\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"Maximize\"</span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">&#62;</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-punctuation\">{</span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-propertyName\">isMaximized</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName\">isMaximized</span><span class=\"\"> </span><span class=\"tok-operator\">?</span><span class=\"\"> </span><span class=\"tok-string\">\"Restore\"</span><span class=\"\"> </span><span class=\"tok-operator\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"Maximize\"</span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">}</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">&#60;/</span><span class=\"tok-typeName\">TabsetMaximizeButton</span><span class=\"tok-punctuation\">&#62;</span><span class=\"\"></span></div>\n<div><span class=\"\"></span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">}</span></div>"
+    },
+    {
+      "content": "<p>The button renders nothing for the only tabset in a workspace (see <code>ParentTabsetState.isRoot</code>) and for floating tabsets, which can't be maximized.</p>\n"
+    },
+    {
+      "content": "<p>Its <code>aria-pressed</code> attribute reflects whether the tabset is maximized;\nits default <code>aria-label</code> (&quot;Maximize tabset&quot;) doesn't change, since <code>aria-pressed</code> describes the state.</p>\n"
+    },
+    {
+      "content": "<p>To keep the tabset as it is, call <code>event.preventDefault()</code> in an <code>onClick</code> handler.</p>\n"
+    }
+  ],
+  "filePath": "lib/workspace/components/TabsetMaximizeButton.tsx",
+  "name": "TabsetMaximizeButton",
+  "props": {
+    "children": {
+      "description": [
+        {
+          "content": "<p>Content of the element, or a function that returns it (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">children</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">ReactNode</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetMaximizeButtonState</span><span class=\"\">&#62;</span></div>",
+      "name": "children",
+      "required": false
+    },
+    "className": {
+      "description": [
+        {
+          "content": "<p>Class name of the element, or a function that returns it (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetMaximizeButtonState</span><span class=\"\">&#62;</span></div>",
+      "name": "className",
+      "required": false
+    },
+    "style": {
+      "description": [
+        {
+          "content": "<p>Inline styles of the element, or a function that returns them (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">CSSProperties</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetMaximizeButtonState</span><span class=\"\">&#62;</span></div>",
+      "name": "style",
+      "required": false
+    },
+    "title": {
+      "description": [
+        {
+          "content": "<p>Tooltip of the element, or a function that returns it (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">title</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetMaximizeButtonState</span><span class=\"\">&#62;</span></div>",
+      "name": "title",
+      "required": false
+    }
+  }
+}

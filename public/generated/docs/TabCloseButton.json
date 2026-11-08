@@ -11,6 +11,13 @@
       "content": "<p>The button renders nothing if closing is disabled (by the tab's <code>disableClose</code> flag or the Workspace's <code>disabled</code> prop).\nIts content defaults to &quot;×&quot; (e.g. it can be replaced with an icon),\nand its default <code>aria-label</code> is &quot;Close&quot; followed by the tab's title (or id).</p>\n"
     },
     {
+      "content": "<p>Its <code>children</code>, <code>className</code>, <code>style</code>, and <code>title</code> can also be functions of its state (see <code>TabCloseButtonState</code>):</p>\n"
+    },
+    {
+      "code": true,
+      "content": "<div><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">TabCloseButton</span><span class=\"\"> </span><span class=\"tok-propertyName\">title</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-propertyName\">tabTitle</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-string2\">`Close </span><span class=\"tok-punctuation\">${</span><span class=\"tok-variableName\">tabTitle</span><span class=\"tok-punctuation\">}</span><span class=\"tok-string2\">`</span><span class=\"tok-punctuation\">}</span><span class=\"\"> </span><span class=\"tok-punctuation\">/&#62;</span></div>"
+    },
+    {
       "content": "<p>To keep the tab open (e.g. to confirm unsaved changes first), call <code>event.preventDefault()</code> in an <code>onClick</code> handler:</p>\n"
     },
     {
@@ -24,5 +31,46 @@
   ],
   "filePath": "lib/workspace/components/TabCloseButton.tsx",
   "name": "TabCloseButton",
-  "props": {}
+  "props": {
+    "children": {
+      "description": [
+        {
+          "content": "<p>Content of the element, or a function that returns it (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">children</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">ReactNode</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabCloseButtonState</span><span class=\"\">&#62;</span></div>",
+      "name": "children",
+      "required": false
+    },
+    "className": {
+      "description": [
+        {
+          "content": "<p>Class name of the element, or a function that returns it (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabCloseButtonState</span><span class=\"\">&#62;</span></div>",
+      "name": "className",
+      "required": false
+    },
+    "style": {
+      "description": [
+        {
+          "content": "<p>Inline styles of the element, or a function that returns them (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">CSSProperties</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabCloseButtonState</span><span class=\"\">&#62;</span></div>",
+      "name": "style",
+      "required": false
+    },
+    "title": {
+      "description": [
+        {
+          "content": "<p>Tooltip of the element, or a function that returns it (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">title</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabCloseButtonState</span><span class=\"\">&#62;</span></div>",
+      "name": "title",
+      "required": false
+    }
+  }
 }

@@ -255,12 +255,12 @@
       {
         "id": "collapsing-tabsets",
         "title": "Collapsing tabsets",
-        "text": "Collapsing tabsets A tabset with the collapsible flag can be collapsed to just its header (e.g. a bottom panel or a sidebar). Like a collapsible Panel, it collapses when a separator is dragged past its minimum size, and expands when the separator is dragged back. Clicking one of its tabs (or the empty space in its header) also expands it, as does dropping a tab into it from another tabset. Its collapsed flag is part of the model, and its size is the size it expands to: Tabsets can also be collapsed and expanded with the collapseTabset and expandTabset methods, or from within a tabset (e.g. a button in its toolbar) with the useParentTabset hook: In the workspace below, the bottom tabset starts collapsed and the sidebar can be collapsed (with the − button in its toolbar, or by dragging the space beside it). While collapsed, a tabset's header runs along its split, so the sidebar collapses to a vertical strip. Reset layout The only tabset in a workspace can't be collapsed, and neither can a tabset whose siblings are all collapsed (something has to fill the space). Collapsing a tabset doesn't unmount its content. Floating tabsets can always be collapsed, without the collapsible flag (see collapsing floating tabsets)."
+        "text": "Collapsing tabsets A tabset with the collapsible flag can be collapsed to just its header (e.g. a bottom panel or a sidebar). Like a collapsible Panel, it collapses when a separator is dragged past its minimum size, and expands when the separator is dragged back. Clicking one of its tabs (or the empty space in its header) also expands it, as does dropping a tab into it from another tabset. Its collapsed flag is part of the model, and its size is the size it expands to: Tabsets can also be collapsed and expanded with the collapseTabset and expandTabset methods, or from within a tabset with the useParentTabset hook. The TabsetCollapseButton component does this from a tabset's toolbar, with the ARIA attributes a toggle needs (aria-expanded and aria-controls); its children, className, style, and title can be functions of the tabset's state: In the workspace below, the bottom tabset starts collapsed and the sidebar can be collapsed (with the − button in its toolbar, or by dragging the space beside it). While collapsed, a tabset's header runs along its split, so the sidebar collapses to a vertical strip. Reset layout The only tabset in a workspace can't be collapsed, and neither can a tabset whose siblings are all collapsed (something has to fill the space). Collapsing a tabset doesn't unmount its content. Floating tabsets can always be collapsed, without the collapsible flag (see collapsing floating tabsets)."
       },
       {
         "id": "maximizing-tabsets",
         "title": "Maximizing tabsets",
-        "text": "Maximizing tabsets A maximized tabset covers the rest of the workspace until it's restored. The maximizeTabset and restoreTabset methods do this from outside of the workspace, and the useParentTabset hook from within a tabset (e.g. a button in its toolbar): Which tabset is maximized is part of the model, so it's saved and restored with the rest of the model. While a tabset is maximized, tabs can only be dragged within it (or within floating tabsets, which are shown above it)."
+        "text": "Maximizing tabsets A maximized tabset covers the rest of the workspace until it's restored. The maximizeTabset and restoreTabset methods do this from outside of the workspace, and the useParentTabset hook from within a tabset. The TabsetMaximizeButton component does this from a tabset's toolbar (with aria-pressed): Which tabset is maximized is part of the model, so it's saved and restored with the rest of the model. While a tabset is maximized, tabs can only be dragged within it (or within floating tabsets, which are shown above it)."
       }
     ],
     "path": "/examples/workspace/managing-tabsets/sizing-tabsets",
@@ -1254,16 +1254,116 @@
     "title": "Separator component props"
   },
   {
+    "headings": [
+      {
+        "id": "children",
+        "title": "children",
+        "text": "Content of the element, or a function that returns it (given the component's state)."
+      },
+      {
+        "id": "className",
+        "title": "className",
+        "text": "Class name of the element, or a function that returns it (given the component's state)."
+      },
+      {
+        "id": "style",
+        "title": "style",
+        "text": "Inline styles of the element, or a function that returns them (given the component's state)."
+      },
+      {
+        "id": "title",
+        "title": "title",
+        "text": "Tooltip of the element, or a function that returns it (given the component's state)."
+      }
+    ],
     "path": "/props/tab-close-button",
     "section": "Props",
-    "text": "Closes the tab it is rendered within; render it within the element returned by the Workspace's renderTab prop:\n The button renders nothing if closing is disabled (by the tab's disableClose flag or the Workspace's disabled prop).\nIts content defaults to \"×\" (e.g. it can be replaced with an icon),\nand its default aria-label is \"Close\" followed by the tab's title (or id).\n To keep the tab open (e.g. to confirm unsaved changes first), call event.preventDefault() in an onClick handler:\n This button is not focusable by default (tabIndex={-1}), since tabs shouldn't contain focusable content;\nkeyboard users can close the focused tab with Delete or Backspace.",
+    "text": "Closes the tab it is rendered within; render it within the element returned by the Workspace's renderTab prop:\n The button renders nothing if closing is disabled (by the tab's disableClose flag or the Workspace's disabled prop).\nIts content defaults to \"×\" (e.g. it can be replaced with an icon),\nand its default aria-label is \"Close\" followed by the tab's title (or id).\n Its children, className, style, and title can also be functions of its state (see TabCloseButtonState):\n To keep the tab open (e.g. to confirm unsaved changes first), call event.preventDefault() in an onClick handler:\n This button is not focusable by default (tabIndex={-1}), since tabs shouldn't contain focusable content;\nkeyboard users can close the focused tab with Delete or Backspace.",
     "title": "TabCloseButton component props"
   },
   {
+    "headings": [
+      {
+        "id": "children",
+        "title": "children",
+        "text": "Content of the element, or a function that returns it (given the component's state)."
+      },
+      {
+        "id": "className",
+        "title": "className",
+        "text": "Class name of the element, or a function that returns it (given the component's state)."
+      },
+      {
+        "id": "style",
+        "title": "style",
+        "text": "Inline styles of the element, or a function that returns them (given the component's state)."
+      },
+      {
+        "id": "title",
+        "title": "title",
+        "text": "Tooltip of the element, or a function that returns it (given the component's state)."
+      }
+    ],
+    "path": "/props/tabset-collapse-button",
+    "section": "Props",
+    "text": "Collapses (or expands) the tabset it is rendered within; render it within the content returned by the Workspace's renderTabsetToolbar prop.\nIts children, className, style, and title can be functions of its state (see TabsetCollapseButtonState), e.g. to show a different icon while the tabset is collapsed:\n The button renders nothing if the tabset can't be collapsed (see ParentTabsetState.isCollapsible), or while it's maximized.\nWhile the tabset is collapsed only because it doesn't fit (see ParentTabsetState.isCollapsedToFit), it can't be expanded, so the button has aria-disabled=\"true\".\n Its aria-expanded attribute reflects whether the tabset is expanded, and its aria-controls attribute refers to the selected tab's panel;\nits default aria-label (\"Collapse tabset\") doesn't change, since aria-expanded describes the state.\n To keep the tabset as it is, call event.preventDefault() in an onClick handler.\n Clicking a tab of a collapsed tabset also expands it.",
+    "title": "TabsetCollapseButton component props"
+  },
+  {
+    "headings": [
+      {
+        "id": "children",
+        "title": "children",
+        "text": "Content of the element, or a function that returns it (given the component's state)."
+      },
+      {
+        "id": "className",
+        "title": "className",
+        "text": "Class name of the element, or a function that returns it (given the component's state)."
+      },
+      {
+        "id": "style",
+        "title": "style",
+        "text": "Inline styles of the element, or a function that returns them (given the component's state)."
+      },
+      {
+        "id": "title",
+        "title": "title",
+        "text": "Tooltip of the element, or a function that returns it (given the component's state)."
+      }
+    ],
     "path": "/props/tabset-drag-handle",
     "section": "Props",
-    "text": "Drags the tabset it is rendered within; render it within the content returned by the Workspace's renderTabsetToolbar prop:\n By default, a tabset is dragged by the empty space in its header;\nonce its header contains a drag handle, only the handle drags it.\nAny element with a data-tabset-drag-handle attribute is a drag handle;\nthis component also sets touch-action: none, so that it can be dragged by touch.\n The handle has a data-disabled attribute when the tabset can't be dragged (see useParentTabsetState), e.g. to hide it.",
+    "text": "Drags the tabset it is rendered within; render it within the content returned by the Workspace's renderTabsetToolbar prop:\n By default, a tabset is dragged by the empty space in its header;\nonce its header contains a drag handle, only the handle drags it.\nAny element with a data-tabset-drag-handle attribute is a drag handle;\nthis component also sets touch-action: none, so that it can be dragged by touch.\n The handle has a data-disabled attribute when the tabset can't be dragged (see useParentTabsetState), e.g. to hide it.\nIts children, className, style, and title can also be functions of its state (see TabsetDragHandleState):",
     "title": "TabsetDragHandle component props"
+  },
+  {
+    "headings": [
+      {
+        "id": "children",
+        "title": "children",
+        "text": "Content of the element, or a function that returns it (given the component's state)."
+      },
+      {
+        "id": "className",
+        "title": "className",
+        "text": "Class name of the element, or a function that returns it (given the component's state)."
+      },
+      {
+        "id": "style",
+        "title": "style",
+        "text": "Inline styles of the element, or a function that returns them (given the component's state)."
+      },
+      {
+        "id": "title",
+        "title": "title",
+        "text": "Tooltip of the element, or a function that returns it (given the component's state)."
+      }
+    ],
+    "path": "/props/tabset-maximize-button",
+    "section": "Props",
+    "text": "Maximizes (or restores) the tabset it is rendered within; render it within the content returned by the Workspace's renderTabsetToolbar prop.\nIts children, className, style, and title can be functions of its state (see TabsetMaximizeButtonState), e.g. to show a different icon while the tabset is maximized:\n The button renders nothing for the only tabset in a workspace (see ParentTabsetState.isRoot) and for floating tabsets, which can't be maximized.\n Its aria-pressed attribute reflects whether the tabset is maximized;\nits default aria-label (\"Maximize tabset\") doesn't change, since aria-pressed describes the state.\n To keep the tabset as it is, call event.preventDefault() in an onClick handler.",
+    "title": "TabsetMaximizeButton component props"
   },
   {
     "headings": [

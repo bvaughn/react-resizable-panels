@@ -1,0 +1,68 @@
+{
+  "description": [
+    {
+      "content": "<p>Collapses (or expands) the tabset it is rendered within; render it within the content returned by the Workspace's <code>renderTabsetToolbar</code> prop.\nIts <code>children</code>, <code>className</code>, <code>style</code>, and <code>title</code> can be functions of its state (see <code>TabsetCollapseButtonState</code>), e.g. to show a different icon while the tabset is collapsed:</p>\n"
+    },
+    {
+      "code": true,
+      "content": "<div><span class=\"tok-variableName\">renderTabsetToolbar</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">&#60;</span><span class=\"tok-typeName\">TabsetCollapseButton</span><span class=\"\"> </span><span class=\"tok-propertyName\">title</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-propertyName\">isCollapsed</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName\">isCollapsed</span><span class=\"\"> </span><span class=\"tok-operator\">?</span><span class=\"\"> </span><span class=\"tok-string\">\"Expand\"</span><span class=\"\"> </span><span class=\"tok-operator\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"Collapse\"</span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">&#62;</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-punctuation\">{</span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-propertyName\">isCollapsed</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName\">isCollapsed</span><span class=\"\"> </span><span class=\"tok-operator\">?</span><span class=\"\"> </span><span class=\"tok-string\">\"&#9656;\"</span><span class=\"\"> </span><span class=\"tok-operator\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"&#9662;\"</span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">}</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">&#60;/</span><span class=\"tok-typeName\">TabsetCollapseButton</span><span class=\"tok-punctuation\">&#62;</span><span class=\"\"></span></div>\n<div><span class=\"\"></span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">}</span></div>"
+    },
+    {
+      "content": "<p>The button renders nothing if the tabset can't be collapsed (see <code>ParentTabsetState.isCollapsible</code>), or while it's maximized.\nWhile the tabset is collapsed only because it doesn't fit (see <code>ParentTabsetState.isCollapsedToFit</code>), it can't be expanded, so the button has <code>aria-disabled=&quot;true&quot;</code>.</p>\n"
+    },
+    {
+      "content": "<p>Its <code>aria-expanded</code> attribute reflects whether the tabset is expanded, and its <code>aria-controls</code> attribute refers to the selected tab's panel;\nits default <code>aria-label</code> (&quot;Collapse tabset&quot;) doesn't change, since <code>aria-expanded</code> describes the state.</p>\n"
+    },
+    {
+      "content": "<p>To keep the tabset as it is, call <code>event.preventDefault()</code> in an <code>onClick</code> handler.</p>\n"
+    },
+    {
+      "content": "<p>Clicking a tab of a collapsed tabset also expands it.</p>\n",
+      "intent": "primary"
+    }
+  ],
+  "filePath": "lib/workspace/components/TabsetCollapseButton.tsx",
+  "name": "TabsetCollapseButton",
+  "props": {
+    "children": {
+      "description": [
+        {
+          "content": "<p>Content of the element, or a function that returns it (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">children</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">ReactNode</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetCollapseButtonState</span><span class=\"\">&#62;</span></div>",
+      "name": "children",
+      "required": false
+    },
+    "className": {
+      "description": [
+        {
+          "content": "<p>Class name of the element, or a function that returns it (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">className</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetCollapseButtonState</span><span class=\"\">&#62;</span></div>",
+      "name": "className",
+      "required": false
+    },
+    "style": {
+      "description": [
+        {
+          "content": "<p>Inline styles of the element, or a function that returns them (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">style</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">CSSProperties</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetCollapseButtonState</span><span class=\"\">&#62;</span></div>",
+      "name": "style",
+      "required": false
+    },
+    "title": {
+      "description": [
+        {
+          "content": "<p>Tooltip of the element, or a function that returns it (given the component's state).</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">title</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">ValueOrFunction</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetCollapseButtonState</span><span class=\"\">&#62;</span></div>",
+      "name": "title",
+      "required": false
+    }
+  }
+}

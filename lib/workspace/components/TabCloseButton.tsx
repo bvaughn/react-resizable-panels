@@ -6,13 +6,17 @@ import { ParentTabContext } from "../contexts/ParentTabContext";
 import { WorkspaceStoreContext } from "../contexts/WorkspaceStoreContext";
 import { closeTab } from "../models/closeTab";
 import type { TabCloseButtonProps } from "../types";
+import { resolveStatefulProps } from "../utils/resolveStatefulProps";
 import { useParentTabState } from "../hooks/useParentTabState";
 import { useWorkspaceStoreSelector } from "../hooks/useWorkspaceStoreSelector";
 
 function TabCloseButtonComponent({
   "aria-label": ariaLabel,
   children = "×",
+  className,
   onClick,
+  style,
+  title,
   ...rest
 }: TabCloseButtonProps) {
   // Read from the store (rather than WorkspaceContext), so that the button only re-renders when its tab's state (or title) changes
@@ -35,13 +39,22 @@ function TabCloseButtonComponent({
     return null;
   }
 
+  const tabTitle = tabLabel?.title ?? "tab";
+  const resolved = resolveStatefulProps(
+    { children, className, style, title },
+    { tabTitle }
+  );
+
   return (
     <button
-      aria-label={ariaLabel ?? `Close ${tabLabel?.title ?? "tab"}`}
+      aria-label={ariaLabel ?? `Close ${tabTitle}`}
       // Tabs shouldn't contain focusable content; the tab itself can be closed with Delete or Backspace
       tabIndex={-1}
       type="button"
       {...rest}
+      className={resolved.className}
+      style={resolved.style}
+      title={resolved.title}
       onClick={(event) => {
         onClick?.(event);
 
@@ -52,7 +65,7 @@ function TabCloseButtonComponent({
         }
       }}
     >
-      {children}
+      {resolved.children}
     </button>
   );
 }
@@ -72,6 +85,12 @@ function TabCloseButtonComponent({
  * The button renders nothing if closing is disabled (by the tab's `disableClose` flag or the Workspace's `disabled` prop).
  * Its content defaults to "×" (e.g. it can be replaced with an icon),
  * and its default `aria-label` is "Close" followed by the tab's title (or id).
+ *
+ * Its `children`, `className`, `style`, and `title` can also be functions of its state (see `TabCloseButtonState`):
+ *
+ * ```tsx
+ * <TabCloseButton title={({ tabTitle }) => `Close ${tabTitle}`} />
+ * ```
  *
  * To keep the tab open (e.g. to confirm unsaved changes first), call `event.preventDefault()` in an `onClick` handler:
  *

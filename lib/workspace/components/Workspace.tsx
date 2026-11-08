@@ -1013,8 +1013,11 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       modelIndex
     ]
   );
+  const getTabPanelId = useStableCallback(
+    (tabId: string) => getTabHost(tabId).panelId
+  );
   const [store] = useState(() =>
-    createWorkspaceStore(workspaceState, updateModel)
+    createWorkspaceStore(workspaceState, updateModel, getTabPanelId)
   );
   // Set while rendering so that children rendered in this pass don't read stale state (see createWorkspaceStore)
   store.setState(workspaceState);
