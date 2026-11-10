@@ -382,7 +382,7 @@
           "intent": "warning"
         },
         {
-          "content": "<p>Pointer and keyboard events from interactive descendants (<code>button</code> elements, <code>role=&quot;button&quot;</code>, or elements with a <code>data-tab-ignore</code> attribute) are ignored,\nso clicking a button within a tab doesn't select or drag it.</p>\n",
+          "content": "<p>Pointer and keyboard events from interactive descendants (<code>button</code> elements, <code>role=&quot;button&quot;</code>, form controls such as <code>input</code>, editable content, or elements with a <code>data-tab-ignore</code> attribute) are ignored,\nso clicking a button within a tab doesn't select or drag it, and pressing within an input (e.g. one used to rename the tab) doesn't start a drag.</p>\n",
           "intent": "primary"
         },
         {

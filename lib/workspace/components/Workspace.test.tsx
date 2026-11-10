@@ -752,6 +752,73 @@ describe("Workspace", () => {
       expect(getTab("2")).toHaveAttribute("aria-selected", "false");
     });
 
+    test.each([
+      ["input", <input data-testid="control" />],
+      ["select", <select data-testid="control" />],
+      ["textarea", <textarea data-testid="control" />],
+      ["editable content", <span contentEditable data-testid="control" />]
+    ])("%s descendants don't select the tab", (_, control) => {
+      renderWorkspace({
+        renderTab: (tab, props) => (
+          <div {...props}>
+            {tab.id}
+            {tab.id === "2" && control}
+          </div>
+        )
+      });
+
+      fireEvent.click(screen.getByTestId("control"));
+      expect(getTab("2")).toHaveAttribute("aria-selected", "false");
+    });
+
+    test("content that isn't editable selects the tab", () => {
+      renderWorkspace({
+        renderTab: (tab, props) => (
+          <div {...props}>
+            {tab.id}
+            <span contentEditable={false} data-testid={`static-${tab.id}`} />
+          </div>
+        )
+      });
+
+      fireEvent.click(screen.getByTestId("static-2"));
+      expect(getTab("2")).toHaveAttribute("aria-selected", "true");
+    });
+
+    test("pressing an input within a tab doesn't start dragging it", async () => {
+      // jsdom has no layout, so every edge between tabsets is at (0, 0), and pressing there would start resizing instead
+      const coords = { clientX: 100, clientY: 100 };
+
+      renderWorkspace({
+        // Mouse drags between workspaces in a group use HTML drag and drop, which makes the pressed tab draggable
+        dragGroup: "group",
+        renderTab: (tab, props) => (
+          <div {...props}>
+            {tab.id}
+            <input data-testid={`input-${tab.id}`} />
+          </div>
+        )
+      });
+
+      const input = screen.getByTestId("input-2");
+      await userEvent.pointer({ coords, keys: "[MouseLeft>]", target: input });
+      expect(getTab("2").draggable).toBe(false);
+      await userEvent.pointer({ coords, keys: "[/MouseLeft]", target: input });
+
+      // Pressing the tab itself does
+      await userEvent.pointer({
+        coords,
+        keys: "[MouseLeft>]",
+        target: getTab("2")
+      });
+      expect(getTab("2").draggable).toBe(true);
+      await userEvent.pointer({
+        coords,
+        keys: "[/MouseLeft]",
+        target: getTab("2")
+      });
+    });
+
     test("disableClose and disabled hide close buttons", () => {
       const model = createModel();
       const { rerender } = renderWorkspace({
@@ -828,6 +895,23 @@ describe("Workspace", () => {
       });
 
       fireEvent.keyDown(screen.getByTestId("input-1"), { key: "Backspace" });
+      expect(screen.getByTestId("input-1")).toBeInTheDocument();
+    });
+
+    test("keys typed in an input within a tab are ignored", () => {
+      renderWorkspace({
+        renderTab: (tab, props) => (
+          <div {...props}>
+            {tab.id}
+            <input data-testid={`input-${tab.id}`} />
+          </div>
+        )
+      });
+
+      act(() => screen.getByTestId("input-1").focus());
+      fireEvent.keyDown(screen.getByTestId("input-1"), { key: "ArrowRight" });
+      fireEvent.keyDown(screen.getByTestId("input-1"), { key: "Delete" });
+      expect(screen.getByTestId("input-1")).toHaveFocus();
       expect(screen.getByTestId("input-1")).toBeInTheDocument();
     });
 

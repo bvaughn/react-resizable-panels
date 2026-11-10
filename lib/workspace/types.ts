@@ -1649,8 +1649,8 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * ⚠️ Merge `className` and `style` rather than replacing them (e.g. `style={{ ...props.style, padding: 4 }}`):
    * they include the `tab` entries of the `classNames` and `styles` props, and `style` includes the `touch-action` that touch dragging depends on.
    *
-   * ℹ️ Pointer and keyboard events from interactive descendants (`button` elements, `role="button"`, or elements with a `data-tab-ignore` attribute) are ignored,
-   * so clicking a button within a tab doesn't select or drag it.
+   * ℹ️ Pointer and keyboard events from interactive descendants (`button` elements, `role="button"`, form controls such as `input`, editable content, or elements with a `data-tab-ignore` attribute) are ignored,
+   * so clicking a button within a tab doesn't select or drag it, and pressing within an input (e.g. one used to rename the tab) doesn't start a drag.
    *
    * ℹ️ When this prop is not provided, tabs show their title (or id) followed by a `TabCloseButton`.
    */

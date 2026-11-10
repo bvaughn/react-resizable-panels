@@ -1,7 +1,15 @@
 import type { SyntheticEvent } from "react";
 
-// Pointer and keyboard events from these descendants are left to them (e.g. a close button)
-const INTERACTIVE_SELECTOR = 'button, [role="button"], [data-tab-ignore]';
+// Pointer and keyboard events from these descendants are left to them (e.g. a close button, or an input to rename the tab)
+const INTERACTIVE_SELECTOR = [
+  "button",
+  '[role="button"]',
+  "input",
+  "select",
+  "textarea",
+  '[contenteditable]:not([contenteditable="false"])',
+  "[data-tab-ignore]"
+].join(", ");
 
 export function isFromInteractiveDescendant(
   event: SyntheticEvent<HTMLElement>
