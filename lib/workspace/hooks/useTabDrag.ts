@@ -1,5 +1,6 @@
 import {
   type PointerEvent as ReactPointerEvent,
+  type ReactNode,
   useCallback,
   useEffect,
   useRef,
@@ -8,6 +9,7 @@ import {
 import { getInteractionState } from "../../global/mutable-state/interactions";
 import { isActivePointerEvent } from "../../global/utils/isActivePointerEvent";
 import { suppressNextClick } from "../../global/utils/suppressNextClick";
+import { getModelIndex } from "../models/getModelIndex";
 import { createId } from "../models/createId";
 import {
   getNativeDrag,
@@ -21,11 +23,17 @@ import {
   reportNativeDragover,
   shareNativeDrag
 } from "../mutable-state/nativeDragChannel";
+import { warnOnce } from "../../shared/utils/warnOnce";
+import { isHTMLElement } from "../../shared/utils/isHTMLElement";
+import { WORKSPACE_DRAG_DATA_TYPE } from "../constants";
 import type {
   DragNode,
   DragPoint,
   DragSource,
+  ExternalDragOptions,
+  ExternalDragResult,
   TabDropTarget,
+  TabNode,
   WorkspaceModel
 } from "../types";
 import type { DragStore } from "../utils/createDragStore";
@@ -36,17 +44,14 @@ import { getEmptyDragImage } from "../utils/getEmptyDragImage";
 import { isNativeTearOff } from "../utils/isNativeTearOff";
 import { isOutsideOfWindow } from "../utils/isOutsideOfWindow";
 import { isSameDropTarget } from "../utils/isSameDropTarget";
+import { toPointerPress, type PointerPress } from "../utils/toPointerPress";
 
 // Pointer movement (in pixels) before a press becomes a drag; shorter presses on a tab select it
 const DRAG_THRESHOLD = 5;
 
-// Some browsers (e.g. Firefox) only start a drag that has data;
-// the dragged tab itself is shared through a module (or with other pages, through a channel) rather than the drag's data (see NativeDrag)
-const DATA_TYPE = "application/x-react-resizable-panels-workspace";
-
 // Identifies the drag too, so that a drag that was never shared (or an earlier one) isn't mistaken for a drag from another page whose end was missed;
 // drag data types can be read during the drag (and browsers lowercase them, as ids are)
-const getIdDataType = (id: string) => `${DATA_TYPE};id=${id}`;
+const getIdDataType = (id: string) => `${WORKSPACE_DRAG_DATA_TYPE};id=${id}`;
 
 /**
  * Drags tabs (or whole tabsets) using pointer events (rather than HTML drag and drop) so that touch input is supported.
@@ -69,7 +74,9 @@ export function useTabDrag({
   getRootElement,
   isDropDisabled,
   isExternalDropDisabled,
+  isNewTabDropDisabled,
   onDrop,
+  onNewTabDrop,
   onTearOff,
   onTransferIn,
   onTransferOut,
@@ -86,7 +93,10 @@ export function useTabDrag({
   getRootElement: () => HTMLElement | null;
   isDropDisabled: (source: DragSource, target: TabDropTarget) => boolean;
   isExternalDropDisabled: (node: DragNode, target: TabDropTarget) => boolean;
+  isNewTabDropDisabled: (tab: TabNode, target: TabDropTarget) => boolean;
   onDrop: (source: DragSource, target: TabDropTarget) => void;
+  /** Adds a tab dragged in from outside of the workspace (see startExternalDrag); returns whether it was added */
+  onNewTabDrop: (tab: TabNode, target: TabDropTarget) => boolean;
   onTearOff: (
     source: DragSource,
     point: { screenX: number; screenY: number }
@@ -107,6 +117,11 @@ export function useTabDrag({
   );
   const setDropTarget = dragStore.setDropTarget;
   const [isTearOff, setIsTearOff] = useState(false);
+
+  // A tab dragged in from outside of the workspace (see startExternalDrag), which isn't in the model yet
+  const [newTabPreview, setNewTabPreview] = useState<
+    { preview: ReactNode | undefined; tab: TabNode } | undefined
+  >();
 
   // While a drag uses HTML drag and drop, the preview is shown by one workspace in each document (rather than by the source),
   // since the drag can move into other windows; isNativeDragSource is set for the workspace the drag started in
@@ -191,7 +206,7 @@ export function useTabDrag({
 
         dataTransfer.effectAllowed = "move";
         const id = createId();
-        dataTransfer.setData(DATA_TYPE, "");
+        dataTransfer.setData(WORKSPACE_DRAG_DATA_TYPE, "");
         dataTransfer.setData(getIdDataType(id), "");
         dataTransfer.setDragImage(getEmptyDragImage(ownerDocument), 0, 0);
 
@@ -497,23 +512,22 @@ export function useTabDrag({
   ]);
 
   const startDrag = useCallback(
-    (source: DragSource, event: ReactPointerEvent<HTMLElement>) => {
+    (source: DragSource, press: PointerPress, newTab?: NewTabDrag) => {
       const rootElement = getRootElement();
-      if (!rootElement) {
-        return;
-      }
 
       // Without separators, pressing near the edge of a tabset (e.g. on its tabs or header) may have started resizing it instead,
       // since resizing handles "pointerdown" events first (during the capture phase); a press shouldn't do both
       const interactionState = getInteractionState();
       if (
-        interactionState.state === "active" &&
-        isActivePointerEvent(
-          interactionState,
-          event.currentTarget.ownerDocument,
-          event
-        )
+        !rootElement ||
+        (interactionState.state === "active" &&
+          isActivePointerEvent(
+            interactionState,
+            press.element.ownerDocument,
+            press
+          ))
       ) {
+        newTab?.onEnd(undefined);
         return;
       }
 
@@ -521,20 +535,23 @@ export function useTabDrag({
       cancelDragRef.current?.();
 
       // Pointer events can't follow the pointer into other windows, so mouse drags between workspaces use HTML drag and drop;
-      // touch input doesn't start those drags (in most browsers), so it still uses pointer events
+      // touch input doesn't start those drags (in most browsers), so it still uses pointer events.
+      // New tabs (see startExternalDrag) can't be dropped into other workspaces, so they always use pointer events.
       if (
+        !newTab &&
+        isHTMLElement(press.element) &&
         dragGroup !== undefined &&
-        event.pointerType !== "touch" &&
-        event.pointerType !== "pen"
+        press.pointerType !== "touch" &&
+        press.pointerType !== "pen"
       ) {
-        startNativeDrag(source, event.currentTarget, dragGroup);
+        startNativeDrag(source, press.element, dragGroup);
         return;
       }
 
-      // The pressed tab (or tabset header)
-      const sourceElement = event.currentTarget;
+      // The pressed tab (or tabset header, or the application's element for a new tab)
+      const sourceElement = press.element;
       const ownerDocument = sourceElement.ownerDocument;
-      const { clientX: startX, clientY: startY, pointerId } = event;
+      const { clientX: startX, clientY: startY, pointerId } = press;
 
       // Route all events for this pointer to the pressed element, even over iframes or outside of the window
       sourceElement.setPointerCapture?.(pointerId);
@@ -569,7 +586,13 @@ export function useTabDrag({
 
           isDragging = true;
           ownerDocument.body.style.userSelect = "none";
-          setDragSource(source);
+
+          // New tabs aren't in the model yet, so they're previewed directly (rather than looked up by the drag source)
+          if (newTab) {
+            setNewTabPreview({ preview: newTab.preview, tab: newTab.tab });
+          } else {
+            setDragSource(source);
+          }
         }
 
         previewPointRef.current = { clientX, clientY };
@@ -577,7 +600,7 @@ export function useTabDrag({
 
         // Nothing outside of the window can be hit (elementFromPoint returns null there), so the source can only be torn off
         const isOutside = isOutsideOfWindow(ownerWindow, clientX, clientY);
-        const nextIsTearOffTarget = isOutside && canTearOff(source);
+        const nextIsTearOffTarget = isOutside && !newTab && canTearOff(source);
         if (isTearOffTarget !== nextIsTearOffTarget) {
           isTearOffTarget = nextIsTearOffTarget;
           setIsTearOff(nextIsTearOffTarget);
@@ -588,6 +611,8 @@ export function useTabDrag({
           : getDropTarget({
               clientX,
               clientY,
+              // New tabs are inserted like tabs from other workspaces are
+              isExternal: !!newTab,
               model: getModel(),
               rootElement,
               source,
@@ -598,7 +623,9 @@ export function useTabDrag({
 
           const isRejected =
             nextRawTarget !== undefined &&
-            isDropDisabled(source, nextRawTarget);
+            (newTab
+              ? isNewTabDropDisabled(newTab.tab, nextRawTarget)
+              : isDropDisabled(source, nextRawTarget));
           target = isRejected ? undefined : nextRawTarget;
 
           setCursor(isRejected ? "not-allowed" : undefined);
@@ -622,12 +649,18 @@ export function useTabDrag({
         ownerDocument.removeEventListener("pointerup", onPointerUp);
         ownerDocument.removeEventListener("pointercancel", onPointerCancel);
         ownerDocument.removeEventListener("keydown", onKeyDown, true);
+        if (newTab) {
+          ownerDocument.removeEventListener("dragstart", onDragStart, true);
+        }
         ownerWindow?.removeEventListener("blur", onWindowBlur);
+
+        let droppedTarget: TabDropTarget | undefined = undefined;
 
         if (isDragging) {
           ownerDocument.body.style.userSelect = prevStyles.userSelect;
           setCursor(undefined);
           setDragSource(undefined);
+          setNewTabPreview(undefined);
           setDropTarget(undefined);
           setIsTearOff(false);
 
@@ -652,10 +685,30 @@ export function useTabDrag({
             if (isTearOffTarget && screenPoint) {
               onTearOff(source, screenPoint);
             } else if (target) {
-              onDrop(source, target);
+              if (!newTab) {
+                onDrop(source, target);
+              } else {
+                // onNewTabDrop reaches application code (onModelChanged), which may throw after the model was updated;
+                // the error is left to propagate, but the promise must still settle, and report whether the tab was added
+                // (its id wasn't in the model before, so being there means it landed)
+                try {
+                  if (onNewTabDrop(newTab.tab, target)) {
+                    droppedTarget = target;
+                  }
+                } catch (error) {
+                  newTab.onEnd(
+                    getModelIndex(getModel()).tabsetsByTabId.has(newTab.tab.id)
+                      ? target
+                      : undefined
+                  );
+                  throw error;
+                }
+              }
             }
           }
         }
+
+        newTab?.onEnd(droppedTarget);
       };
 
       const onPointerUp = (upEvent: PointerEvent) => {
@@ -688,6 +741,14 @@ export function useTabDrag({
       const ownerWindow = ownerDocument.defaultView;
       const onWindowBlur = () => stop(false);
 
+      // The application's element for a new tab may be draggable by default (e.g. a link or an image),
+      // and the browser's drag would cancel the pointer
+      const onDragStart = (dragEvent: DragEvent) => {
+        if (sourceElement.contains(dragEvent.target as Node | null)) {
+          dragEvent.preventDefault();
+        }
+      };
+
       cancelDragRef.current = () => stop(false);
 
       ownerDocument.addEventListener("pointermove", onPointerMove);
@@ -695,6 +756,9 @@ export function useTabDrag({
       ownerDocument.addEventListener("pointercancel", onPointerCancel);
       // Listen during the capture phase, so that Escape can be handled before other listeners (see onKeyDown)
       ownerDocument.addEventListener("keydown", onKeyDown, true);
+      if (newTab) {
+        ownerDocument.addEventListener("dragstart", onDragStart, true);
+      }
       ownerWindow?.addEventListener("blur", onWindowBlur);
     },
     [
@@ -703,7 +767,9 @@ export function useTabDrag({
       getModel,
       getRootElement,
       isDropDisabled,
+      isNewTabDropDisabled,
       onDrop,
+      onNewTabDrop,
       onTearOff,
       setDragSource,
       setDropTarget,
@@ -714,14 +780,64 @@ export function useTabDrag({
 
   const startTabDrag = useCallback(
     (tabId: string, event: ReactPointerEvent<HTMLElement>) =>
-      startDrag({ tabId, type: "tab" }, event),
+      startDrag({ tabId, type: "tab" }, toPointerPress(event)),
     [startDrag]
   );
 
   const startTabsetDrag = useCallback(
     (tabsetId: string, event: ReactPointerEvent<HTMLElement>) =>
-      startDrag({ tabsetId, type: "tabset" }, event),
+      startDrag({ tabsetId, type: "tabset" }, toPointerPress(event)),
     [startDrag]
+  );
+
+  // Drags a tab that isn't in the workspace yet, from an element of the application (see the imperative startExternalDrag method)
+  const startExternalDrag = useCallback(
+    (
+      event: PointerEvent | ReactPointerEvent<Element>,
+      { preview, tab }: ExternalDragOptions
+    ) =>
+      new Promise<ExternalDragResult>((resolve) => {
+        // isHTMLElement accepts any element (including SVG), which is fine since only style, pointer capture and containment are used
+        // currentTarget is only set while the event is dispatched, so the event's target is used if it's called later
+        const element = event.currentTarget ?? event.target;
+
+        // Pointer events can't be followed in other documents, and a pointer that isn't pressed (e.g. a click) can't drag
+        if (
+          !isHTMLElement(element) ||
+          element.ownerDocument !== getRootElement()?.ownerDocument
+        ) {
+          if (process.env.NODE_ENV !== "production") {
+            warnOnce(
+              "startExternalDrag requires an event for an element in the same document as the workspace"
+            );
+          }
+          resolve(null);
+          return;
+        }
+
+        // Like tabs, only the primary button (or touch/pen contact) starts a drag
+        if (event.button !== 0 || event.buttons === 0) {
+          resolve(null);
+          return;
+        }
+
+        startDrag(
+          { tabId: tab.id, type: "tab" },
+          {
+            clientX: event.clientX,
+            clientY: event.clientY,
+            element,
+            pointerId: event.pointerId,
+            pointerType: event.pointerType
+          },
+          {
+            onEnd: (target) => resolve(target ? { target } : null),
+            preview,
+            tab
+          }
+        );
+      }),
+    [getRootElement, startDrag]
   );
 
   return {
@@ -730,9 +846,19 @@ export function useTabDrag({
     isNativeDragSource,
     isTearOff,
     nativePreviewNode,
+    newTabPreview,
     previewElementRef,
     previewPointRef,
+    startExternalDrag,
     startTabDrag,
     startTabsetDrag
   };
 }
+
+// A tab dragged into the workspace from outside of it (see startExternalDrag)
+type NewTabDrag = {
+  /** Called once when the drag ends, with where the tab was added (or undefined) */
+  onEnd: (target: TabDropTarget | undefined) => void;
+  preview: ReactNode | undefined;
+  tab: TabNode;
+};

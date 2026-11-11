@@ -65,8 +65,11 @@ export type {
 } from "./flex/types";
 
 export type {
+  AcceptExternalDrop,
   DisableDropArgs,
   DragPreviewState,
+  ExternalDragOptions,
+  ExternalDragResult,
   FloatingTabsetNode,
   FloatingTabsetNodeInput,
   FloatingTabsetRect,

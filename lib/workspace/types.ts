@@ -2,6 +2,7 @@ import type {
   ButtonHTMLAttributes,
   CSSProperties,
   HTMLAttributes,
+  PointerEvent as ReactPointerEvent,
   ReactNode,
   Ref,
   RefCallback
@@ -483,8 +484,9 @@ export type DisableDropArgs<TabData = unknown, TabsetData = unknown> = {
    * Where the tab (or tabset) is dragged from:
    * - `"local"`: this workspace
    * - `"external"`: another workspace with the same `dragGroup` (e.g. in another window)
+   * - `"new"`: outside of any workspace, for a tab that's created when it's dropped (see the `startExternalDrag` method and the `acceptExternalDrop` prop)
    */
-  source: "external" | "local";
+  source: "external" | "local" | "new";
 
   /**
    * The tab being dropped.
@@ -721,6 +723,28 @@ export interface WorkspaceImperativeHandle<
   setModel: (
     model: WorkspaceModelInput<TabData, TabsetData>
   ) => WorkspaceModel<TabData, TabsetData>;
+
+  /**
+   * Start dragging a tab that isn't in the workspace yet, from an element outside of it (e.g. an item in a palette of widgets);
+   * call it from the element's `pointerdown` handler.
+   * The tab is dragged like tabs within the workspace are (with the same drop targets, drop indicator, and `disableDrop` checks, with the `"new"` source),
+   * and is added where it's dropped (reported to `onModelChanged` with the `"add"` reason).
+   *
+   * The drag starts once the pointer has moved a few pixels, so a press that doesn't move (e.g. a click) does nothing;
+   * the click that follows a drag is suppressed. Pressing Escape cancels the drag.
+   *
+   * ℹ️ Unlike other imperative methods, the drop is restricted by `disabled` and `disableDrop`, since the user chooses where it goes.
+   *
+   * ℹ️ The element must be in the same document as the workspace.
+   * Like tabs, it should have `touch-action: none` (e.g. with CSS), so that touch input drags it rather than scrolling the page.
+   *
+   * @param event The `pointerdown` event of the pressed element
+   * @return A promise that resolves when the drag ends: with where the tab was dropped, or `null` if it wasn't (e.g. the pointer isn't pressed or the press isn't the primary button, the drag was canceled, or it was released outside of the workspace)
+   */
+  startExternalDrag: (
+    event: PointerEvent | ReactPointerEvent<Element>,
+    options: ExternalDragOptions<TabData>
+  ) => Promise<ExternalDragResult>;
 
   /**
    * Subscribe to changes to the free space in a tabset's tab list (see `getTabListFreeSpace`),
@@ -1027,10 +1051,78 @@ export type ParentTabState = {
   tabsetId: string;
 };
 
+/**
+ * Options for the imperative `startExternalDrag` method.
+ */
+export type ExternalDragOptions<TabData = unknown> = {
+  /**
+   * Content of the element that follows the pointer while dragging.
+   * Defaults to what the Workspace's `renderDragPreview` prop renders for the tab (or the tab's title).
+   */
+  preview?: ReactNode | undefined;
+
+  /**
+   * The tab to add where it's dropped; it's only added if the drop is accepted.
+   *
+   * ℹ️ Like tabs dragged in from other workspaces, it can't be dropped into a workspace that already has a node with its id.
+   */
+  tab: TabNode<TabData>;
+};
+
+/**
+ * The result of the imperative `startExternalDrag` method: where the tab was dropped (as passed to `disableDrop`), or `null` if it wasn't.
+ */
+export type ExternalDragResult = { target: TabDropTarget } | null;
+
+/**
+ * Accepts drags that use the browser's drag and drop from outside of the workspace (e.g. elements with the `draggable` attribute, or files),
+ * creating a tab where they're dropped (see the Workspace's `acceptExternalDrop` prop).
+ */
+export type AcceptExternalDrop<TabData = unknown> = {
+  /**
+   * Creates the tab to add, when a drag is dropped.
+   * Returning `null` (or `undefined`) rejects the drop.
+   *
+   * ℹ️ The drag's data can be read here (e.g. with `dataTransfer.getData`), since browsers only let it be read when it's dropped.
+   *
+   * ℹ️ The tab can't be added to a workspace that already has a node with its id, and is checked by `disableDrop` (with the `"new"` source) before it's added.
+   *
+   * @param dataTransfer The drop event's `DataTransfer`
+   * @param target Where the drag was dropped
+   */
+  createTab: (
+    dataTransfer: DataTransfer,
+    target: TabDropTarget
+  ) => TabNode<TabData> | null | undefined;
+
+  /**
+   * Drag data types (e.g. `"application/x-my-widget"`, or `"Files"` for files) that are accepted; a drag is accepted if it has any of them.
+   *
+   * ℹ️ While a drag is in progress, browsers only let its types be read (not its data), so they decide where the drop indicator is shown.
+   * Data types are compared case-insensitively, since browsers lowercase them.
+   */
+  types: string[];
+};
+
 export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
   HTMLAttributes<HTMLDivElement>,
   "children" | "defaultValue"
 > & {
+  /**
+   * Lets the workspace accept drags that use the browser's drag and drop from outside of any workspace
+   * (e.g. an element of the application with the `draggable` attribute, a file, or a link from another application),
+   * showing the drop indicator while the drag is over the workspace, and creating a tab where it's dropped.
+   * The new tab is reported to `onModelChanged` with the `"add"` reason.
+   *
+   * ℹ️ `disableDrop` can't be called until the tab is created (when the drag is dropped), so a target it rejects is shown as accepted while dragging;
+   * the drop is ignored then. Drag sources within the application can use the imperative `startExternalDrag` method instead, which doesn't have this limitation.
+   *
+   * ℹ️ Elements within the workspace's tab content that handle the same drags themselves (by canceling the `dragover` and `drop` events) take precedence.
+   *
+   * ℹ️ This object is read when drag events are handled, so it doesn't need to be memoized.
+   */
+  acceptExternalDrop?: AcceptExternalDrop<TabData> | undefined;
+
   /**
    * CSS class name.
    */

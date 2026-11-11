@@ -2,7 +2,6 @@ import { Box, Callout, Code, Header, SectionHeader } from "react-lib-tools";
 import { useWorkspaceRef, type WorkspaceModel } from "react-resizable-panels";
 import { html as UseParentTabsetHTML } from "../../public/generated/examples/UseParentTabset.json";
 import { html as OpenTabHTML } from "../../public/generated/examples/WorkspaceOpenTab.json";
-import { html as TabRemovalSelectionHTML } from "../../public/generated/examples/WorkspaceTabRemovalSelection.json";
 import { html as UpdateTabHTML } from "../../public/generated/examples/WorkspaceUpdateTab.json";
 import { DemoButton } from "../components/DemoButton";
 import { Link } from "../components/Link";
@@ -19,21 +18,6 @@ const emptyModel: WorkspaceModel<TabData> = {
     id: "root",
     orientation: "horizontal",
     children: []
-  }
-};
-
-// Several tabs in one tabset, to show which tab is selected when the selected one is closed
-const tabRemovalModel: WorkspaceModel<TabData> = {
-  version: 1,
-  root: {
-    type: "tabset",
-    id: "tabs",
-    tabs: [
-      { id: "about", title: "About", data: { kind: "about" } },
-      { id: "counter", title: "Counter", data: { kind: "counter" } },
-      { id: "notes", title: "Notes", data: { kind: "notes" } },
-      { id: "nested", title: "Nested panels", data: { kind: "nested" } }
-    ]
   }
 };
 
@@ -121,41 +105,22 @@ export default function WorkspaceManagingTabsRoute() {
         changes), see{" "}
         <Link to="/examples/workspace/custom-tabsets">custom tabsets</Link>.
       </Callout>
-      <SectionHeader>Selecting a tab after one is closed</SectionHeader>
-      <div>
-        When the selected tab is closed (or dragged to another tabset), the tab
-        after it is selected by default. With the{" "}
-        <code>tabRemovalSelectionBehavior</code> prop set to{" "}
-        <code>"recent"</code>, the tab that was selected before it is selected
-        instead, like in an IDE:
-      </div>
-      <Code html={TabRemovalSelectionHTML} />
-      <div>
-        In the workspace below, select a few tabs and then close the selected
-        one.
-      </div>
-      <DemoWorkspace
-        className="h-50"
-        defaultModel={tabRemovalModel}
-        showResetButton
-        tabRemovalSelectionBehavior="recent"
-      />
-      <Callout>
-        Each tabset's recently selected tabs are saved in the model (as{" "}
-        <Link to="/model/tabset-node">
-          <code>recentTabIds</code>
-        </Link>
-        ), so they're restored with the rest of the model. If none of the
-        remaining tabs has been selected, the tab after the closed one is
-        selected.
-      </Callout>
       <Callout>
         Changes made with the imperative API are reported by{" "}
         <code>onModelChanged</code> (with <code>isUserInteraction</code> set to{" "}
         <code>false</code>), so they're saved like any other change.
       </Callout>
       <div>
-        To keep, move, resize, collapse, maximize, or float whole tabsets, see{" "}
+        Users can also{" "}
+        <Link to="/examples/workspace/managing-tabs/dragging-tabs-in">
+          drag new tabs in
+        </Link>{" "}
+        from outside of the workspace, and the tab that's selected when the
+        selected tab is closed can be{" "}
+        <Link to="/examples/workspace/managing-tabs/selecting-tabs">
+          customized
+        </Link>
+        . To keep, move, resize, collapse, maximize, or float whole tabsets, see{" "}
         <Link to="/examples/workspace/managing-tabsets">managing tabsets</Link>.
       </div>
     </Box>

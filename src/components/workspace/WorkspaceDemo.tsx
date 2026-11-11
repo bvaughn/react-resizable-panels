@@ -121,6 +121,7 @@ export function DemoWorkspace({
   ...rest
 }: Pick<
   WorkspaceProps<DemoTab>,
+  | "acceptExternalDrop"
   | "className"
   | "disabled"
   | "disableDrop"

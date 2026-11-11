@@ -186,18 +186,49 @@
       {
         "id": "updating-and-closing-tabs",
         "title": "Updating and closing tabs",
-        "text": "Updating and closing tabs The updateTab method changes a tab's title, data, or flags, and closeTab closes it. Within a tab's content, the useParentTab hook returns the tab, so content can update or close its own tab: A tab's data is replaced rather than merged when it is updated. To confirm before the user closes a tab (e.g. one with unsaved changes), see custom tabsets."
-      },
-      {
-        "id": "selecting-a-tab-after-one-is-closed",
-        "title": "Selecting a tab after one is closed",
-        "text": "Selecting a tab after one is closed When the selected tab is closed (or dragged to another tabset), the tab after it is selected by default. With the tabRemovalSelectionBehavior prop set to \"recent\", the tab that was selected before it is selected instead, like in an IDE: In the workspace below, select a few tabs and then close the selected one. About Counter Notes Nested panels Drag a tab onto another tab list to move it there. Drag a tab onto the edge of a tabset to split it, or onto its center to add the tab to it. Use the arrow keys to move between tabs, Enter to select one, and Delete to close one. Clicked 0 times Increment Reset layout Each tabset's recently selected tabs are saved in the model (as recentTabIds ), so they're restored with the rest of the model. If none of the remaining tabs has been selected, the tab after the closed one is selected. Changes made with the imperative API are reported by onModelChanged (with isUserInteraction set to false), so they're saved like any other change. To keep, move, resize, collapse, maximize, or float whole tabsets, see managing tabsets."
+        "text": "Updating and closing tabs The updateTab method changes a tab's title, data, or flags, and closeTab closes it. Within a tab's content, the useParentTab hook returns the tab, so content can update or close its own tab: A tab's data is replaced rather than merged when it is updated. To confirm before the user closes a tab (e.g. one with unsaved changes), see custom tabsets. Changes made with the imperative API are reported by onModelChanged (with isUserInteraction set to false), so they're saved like any other change. Users can also drag new tabs in from outside of the workspace, and the tab that's selected when the selected tab is closed can be customized. To keep, move, resize, collapse, maximize, or float whole tabsets, see managing tabsets."
       }
     ],
     "path": "/examples/workspace/managing-tabs",
     "section": "Workspace",
     "text": "Tabs are usually opened in response to something outside of the workspace (e.g. a file being selected in a tree). The imperative API's addTab method adds a tab to the active tabset (the one the user most recently interacted with) and selects it: If a tab with the same id is already open (anywhere in the workspace), it's selected instead, and addTab returns false. Options can add the tab to a specific tabset (tabsetId) or position (index), or add it without selecting it (select: false). Open Notes Open About Add content using the buttons above",
     "title": "Managing tabs"
+  },
+  {
+    "headings": [
+      {
+        "id": "starting-a-drag",
+        "title": "Starting a drag",
+        "text": "Starting a drag Call startExternalDrag from an element's pointerdown handler with the tab to add. The tab is dragged like the workspace's own tabs are, and added where it's dropped: The drag starts once the pointer moves, so clicking the element still works (e.g. to add the tab with addTab; see managing tabs), and the click that follows a drag is suppressed. Pressing Escape cancels the drag. startExternalDrag returns a promise that resolves with where the tab was dropped ({ target }), or null if it wasn't (e.g. it was dropped outside of the workspace, or the drag was canceled). The element that follows the pointer shows what the Workspace's renderDragPreview prop renders for the tab, unless a preview is passed. Set touch-action: none on the element, so that touch input drags it rather than scrolling the page. The element must be in the same document as the workspace; tabs dragged this way can't be dropped into a workspace in another window (see multiple windows)."
+      },
+      {
+        "id": "accepting-the-browser-s-drag-and-drop",
+        "title": "Accepting the browser's drag and drop",
+        "text": "Accepting the browser's drag and drop Browsers only let a drag's data be read when it's dropped, so the acceptExternalDrop prop has two parts: the data types that decide where the drop indicator is shown while the drag is over the workspace, and a createTab function that reads the data and creates the tab when it's dropped: createTab can return null to reject the drop. Files dragged from the operating system have the \"Files\" type: Elements within tabs' content that accept a drag themselves (by canceling its dragover event) take precedence over the workspace. Drags of the workspace's own tabs (see the dragGroup prop) are never passed to createTab."
+      },
+      {
+        "id": "restrictions",
+        "title": "Restrictions",
+        "text": "Restrictions Tabs dragged in either way are checked by the disableDrop prop with the \"new\" source, and can't be dropped into a workspace that already has a tab (or tabset) with the same id, so give each new tab a unique id. Neither works while the workspace is disabled. Unlike the rest of the imperative API, startExternalDrag is restricted by these, since the user decides where the tab goes (see restrictions). A drag's data can't be read until it's dropped, so for drags that use the browser's drag and drop, disableDrop is only called when it's dropped (with the tab createTab returned); the drop indicator may be shown over a target that ends up rejecting it. New tabs are reported to onModelChanged with the \"add\" reason (and isUserInteraction set to true)."
+      }
+    ],
+    "path": "/examples/workspace/managing-tabs/dragging-tabs-in",
+    "section": "Workspace",
+    "text": "Users can drag new tabs in from outside of the workspace (e.g. from a library of widgets), and drop them anywhere a tab could be dropped: into a tabset, beside one, or at an edge of the workspace. There are two ways to do this: The startExternalDrag method of the imperative API starts a drag that works like dragging one of the workspace's own tabs, including with touch input. The acceptExternalDrop prop accepts drags that use the browser's drag and drop, e.g. elements with the draggable attribute, files, or drags from another application. Drag the widgets below into the workspace. \"Counter\" and \"Notes\" use startExternalDrag, and \"About\" uses the browser's drag and drop. Widgets Counter Counts clicks Notes Jot things down About Native drag and drop Reset layout Drag widgets here",
+    "title": "Dragging tabs in"
+  },
+  {
+    "headings": [
+      {
+        "id": "selecting-a-tab-after-one-is-closed",
+        "title": "Selecting a tab after one is closed",
+        "text": "Selecting a tab after one is closed When the selected tab is closed (or dragged to another tabset), the tab after it is selected by default. With the tabRemovalSelectionBehavior prop set to \"recent\", the tab that was selected before it is selected instead, like in an IDE: In the workspace below, select a few tabs and then close the selected one. About Counter Notes Nested panels Drag a tab onto another tab list to move it there. Drag a tab onto the edge of a tabset to split it, or onto its center to add the tab to it. Use the arrow keys to move between tabs, Enter to select one, and Delete to close one. Clicked 0 times Increment Reset layout Each tabset's recently selected tabs are saved in the model (as recentTabIds ), so they're restored with the rest of the model. If none of the remaining tabs has been selected, the tab after the closed one is selected."
+      }
+    ],
+    "path": "/examples/workspace/managing-tabs/selecting-tabs",
+    "section": "Workspace",
+    "text": "Each tabset's selected tab is saved in the model as its selectedId . The imperative selectTab method selects a tab by id (in whichever tabset contains it):",
+    "title": "Selecting tabs"
   },
   {
     "headings": [
@@ -331,7 +362,7 @@
   {
     "path": "/examples/workspace/restrictions",
     "section": "Workspace",
-    "text": "By default, users can close and drag any tab, and drop it anywhere. Restrictions are opt-in: A tab's disableClose and disableDrag flags prevent the user from closing or dragging it. Other tabs can still be dropped around it. A tabset's disableDrag flag prevents the user from dragging the whole tabset (its tabs can still be dragged). Tabsets that contain a tab with the disableDrag flag can't be dragged either. The disableDrop prop rejects drop targets: either all of them, or the ones a function returns true for. While a tabset is dragged, the function is called for each of its tabs, so a tabset can only be dropped where all of its tabs could be. The disabled prop locks the arrangement: tabs can't be resized, dragged, dropped, or closed (but they can still be selected, and tabsets maximized). For example, a tab can opt out of being closed or dragged, and a tabset's data can be used to decide whether it accepts drops: None of these restrict the imperative API; it can still be used to add, remove, or re-arrange tabs. In the workspace below, the \"Pinned\" tab can't be closed or dragged, and other tabs can't be dropped into its tabset. Lock workspace (disabled) Prevent closing tabs (disableClose)",
+    "text": "By default, users can close and drag any tab, and drop it anywhere. Restrictions are opt-in: A tab's disableClose and disableDrag flags prevent the user from closing or dragging it. Other tabs can still be dropped around it. A tabset's disableDrag flag prevents the user from dragging the whole tabset (its tabs can still be dragged). Tabsets that contain a tab with the disableDrag flag can't be dragged either. The disableDrop prop rejects drop targets: either all of them, or the ones a function returns true for. While a tabset is dragged, the function is called for each of its tabs, so a tabset can only be dropped where all of its tabs could be. Tabs dragged in from outside of the workspace (see dragging tabs in) use source: \"new\". The disabled prop locks the arrangement: tabs can't be resized, dragged, dropped, or closed (but they can still be selected, and tabsets maximized). For example, a tab can opt out of being closed or dragged, and a tabset's data can be used to decide whether it accepts drops: None of these restrict the imperative API; it can still be used to add, remove, or re-arrange tabs. The exception is startExternalDrag , which starts a user drag and is checked like one. In the workspace below, the \"Pinned\" tab can't be closed or dragged, and other tabs can't be dropped into its tabset. Lock workspace (disabled) Prevent closing tabs (disableClose)",
     "title": "Restrictions"
   },
   {
@@ -814,6 +845,11 @@
         "id": "setModel",
         "title": "setModel",
         "text": "setModel Replace the model."
+      },
+      {
+        "id": "startExternalDrag",
+        "title": "startExternalDrag",
+        "text": "startExternalDrag Start dragging a tab that isn't in the workspace yet, from an element outside of it (e.g. an item in a palette of widgets);\ncall it from the element's pointerdown handler.\nThe tab is dragged like tabs within the workspace are (with the same drop targets, drop indicator, and disableDrop checks, with the \"new\" source),\nand is added where it's dropped (reported to onModelChanged with the \"add\" reason).\nThe drag starts once the pointer has moved a few pixels, so a press that doesn't move (e.g. a click) does nothing;\nthe click that follows a drag is suppressed. Pressing Escape cancels the drag.\n Unlike other imperative methods, the drop is restricted by disabled and disableDrop, since the user chooses where it goes.\n The element must be in the same document as the workspace.\nLike tabs, it should have touch-action: none (e.g. with CSS), so that touch input drags it rather than scrolling the page.\n \n event The pointerdown event of the pressed element"
       },
       {
         "id": "subscribeToTabListFreeSpace",
@@ -1376,6 +1412,11 @@
         "id": "renderTabContent",
         "title": "renderTabContent",
         "text": "Content of a tab.\n Content is only re-rendered when its tab changes or this function does;\na function created while rendering (e.g. an inline arrow function) re-renders the content of every tab whenever the Workspace's parent re-renders,\nso it should be memoized (e.g. with useCallback) when tab content is expensive to render."
+      },
+      {
+        "id": "acceptExternalDrop",
+        "title": "acceptExternalDrop",
+        "text": "Lets the workspace accept drags that use the browser's drag and drop from outside of any workspace\n(e.g. an element of the application with the draggable attribute, a file, or a link from another application),\nshowing the drop indicator while the drag is over the workspace, and creating a tab where it's dropped.\nThe new tab is reported to onModelChanged with the \"add\" reason.\n disableDrop can't be called until the tab is created (when the drag is dropped), so a target it rejects is shown as accepted while dragging;\nthe drop is ignored then. Drag sources within the application can use the imperative startExternalDrag method instead, which doesn't have this limitation.\n Elements within the workspace's tab content that handle the same drags themselves (by canceling the dragover and drop events) take precedence.\n This object is read when drag events are handled, so it doesn't need to be memoized."
       },
       {
         "id": "className",

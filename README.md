@@ -903,6 +903,18 @@ Falls back to <code>useId</code> when not provided.</p>
 </td>
     </tr>
     <tr>
+      <td>acceptExternalDrop</td>
+      <td><p>Lets the workspace accept drags that use the browser&#39;s drag and drop from outside of any workspace
+(e.g. an element of the application with the <code>draggable</code> attribute, a file, or a link from another application),
+showing the drop indicator while the drag is over the workspace, and creating a tab where it&#39;s dropped.
+The new tab is reported to <code>onModelChanged</code> with the <code>&quot;add&quot;</code> reason.</p>
+<p>ℹ️ <code>disableDrop</code> can&#39;t be called until the tab is created (when the drag is dropped), so a target it rejects is shown as accepted while dragging;
+the drop is ignored then. Drag sources within the application can use the imperative <code>startExternalDrag</code> method instead, which doesn&#39;t have this limitation.</p>
+<p>ℹ️ Elements within the workspace&#39;s tab content that handle the same drags themselves (by canceling the <code>dragover</code> and <code>drop</code> events) take precedence.</p>
+<p>ℹ️ This object is read when drag events are handled, so it doesn&#39;t need to be memoized.</p>
+</td>
+    </tr>
+    <tr>
       <td>classNames</td>
       <td><p>CSS class names for the elements the workspace renders within its root element:</p>
 <ul>
