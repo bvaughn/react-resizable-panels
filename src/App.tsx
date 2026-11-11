@@ -192,7 +192,17 @@ const nav: NavConfig<Path | DefaultPath> = [
           { path: "/examples/workspace/tab-content", title: "Tab content" },
           {
             path: "/examples/workspace/managing-tabs",
-            title: "Managing tabs"
+            title: "Managing tabs",
+            children: [
+              {
+                path: "/examples/workspace/managing-tabs/dragging-tabs-in",
+                title: "Dragging tabs in"
+              },
+              {
+                path: "/examples/workspace/managing-tabs/selecting-tabs",
+                title: "Selecting tabs"
+              }
+            ]
           },
           {
             path: "/examples/workspace/managing-tabsets",

@@ -228,6 +228,26 @@
     {
       "description": [
         {
+          "content": "<p>Start dragging a tab that isn't in the workspace yet, from an element outside of it (e.g. an item in a palette of widgets);\ncall it from the element's <code>pointerdown</code> handler.\nThe tab is dragged like tabs within the workspace are (with the same drop targets, drop indicator, and <code>disableDrop</code> checks, with the <code>&quot;new&quot;</code> source),\nand is added where it's dropped (reported to <code>onModelChanged</code> with the <code>&quot;add&quot;</code> reason).\nThe drag starts once the pointer has moved a few pixels, so a press that doesn't move (e.g. a click) does nothing;\nthe click that follows a drag is suppressed. Pressing Escape cancels the drag.</p>\n"
+        },
+        {
+          "content": "<p>Unlike other imperative methods, the drop is restricted by <code>disabled</code> and <code>disableDrop</code>, since the user chooses where it goes.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>The element must be in the same document as the workspace.\nLike tabs, it should have <code>touch-action: none</code> (e.g. with CSS), so that touch input drags it rather than scrolling the page.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<ul>\n<li><code>event</code> The <code>pointerdown</code> event of the pressed element</li>\n</ul>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">startExternalDrag</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">event</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">PointerEvent</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">ReactPointerEvent</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">Element</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">,</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">options</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">ExternalDragOptions</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">Promise</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">ExternalDragResult</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "startExternalDrag"
+    },
+    {
+      "description": [
+        {
           "content": "<p>Subscribe to changes to the free space in a tabset's tab list (see <code>getTabListFreeSpace</code>),\ne.g. from a toolbar rendered outside of the Workspace.</p>\n"
         },
         {

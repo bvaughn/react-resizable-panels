@@ -62,6 +62,8 @@ import { updateRecentTabIds } from "../models/updateRecentTabIds";
 import { updateTabset } from "../models/updateTabset";
 import { TabContent } from "./TabContent";
 import type {
+  AcceptExternalDrop,
+  DisableDropArgs,
   DragNode,
   DragSource,
   HiddenTabBehavior,
@@ -80,6 +82,7 @@ import type {
   WorkspaceProps
 } from "../types";
 import { useFloatingTabsetGesture } from "../hooks/useFloatingTabsetGesture";
+import { useExternalDrop } from "../hooks/useExternalDrop";
 import { useTabDrag } from "../hooks/useTabDrag";
 import { getDefaultFloatingRect } from "../utils/getDefaultFloatingRect";
 import { FloatingTabsets } from "./FloatingTabsets";
@@ -95,6 +98,7 @@ import { DragPreview } from "./DragPreview";
 import { DropIndicator } from "./DropIndicator";
 
 function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
+  acceptExternalDrop,
   className,
   classNames,
   defaultModel,
@@ -198,6 +202,11 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   // Read by imperative methods, e.g. to tell which side of the screen a drop region is on (see toModelDropTarget)
   const rootElementRef = useRef<HTMLDivElement | null>(null);
 
+  // Drags are started by useTabDrag (below), which needs the model's callbacks
+  const startExternalDragRef = useRef<
+    WorkspaceImperativeHandle["startExternalDrag"] | null
+  >(null);
+
   // Floating tabsets are positioned relative to the layout (see WorkspaceModel.floating);
   // while a tabset is maximized, the rest of the layout is covered (and shouldn't be focusable)
   const layoutRef = useRef<HTMLDivElement | null>(null);
@@ -294,6 +303,8 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
         return modelRef.current;
       },
+      startExternalDrag: (event, options) =>
+        startExternalDragRef.current?.(event, options) ?? Promise.resolve(null),
       subscribeToTabListFreeSpace: (tabsetId, listener) =>
         tabListFreeSpaceStore.subscribe(tabsetId, listener),
       updateTab: (tabId, changes) =>
@@ -667,7 +678,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   // when its tabs are moved into a tab list, each tab is inserted after the previous one
   const isDropDisabledByProp = (
     node: DragNode,
-    source: "external" | "local",
+    source: DisableDropArgs["source"],
     target: TabDropTarget
   ) => {
     if (typeof disableDrop !== "function") {
@@ -724,6 +735,24 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       (node.type === "tabset" && !!node.tabset.keepWhenEmpty) ||
       hasConflictingIds(modelRef.current, node, target) ||
       isDropDisabledByProp(node, "external", target)
+  );
+
+  // Tabs dragged in from outside of any workspace (see startExternalDrag and acceptExternalDrop) are checked like tabs from other workspaces
+  const isNewTabDropDisabled = useStableCallback(
+    (tab: TabNode, target: TabDropTarget) => {
+      const node: DragNode = { tab, type: "tab" };
+
+      return (
+        disabled ||
+        hasConflictingIds(modelRef.current, node, target) ||
+        isDropDisabledByProp(node, "new", target)
+      );
+    }
+  );
+
+  // Whether every tab dragged in from outside of any workspace would be rejected, before the tab is known (see useExternalDrop)
+  const areNewTabDropsDisabled = useStableCallback(
+    () => disabled || disableDrop === true
   );
 
   const onDrop = useCallback(
@@ -817,11 +846,12 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     }
   );
 
-  // Returns whether the tab (or tabset) was inserted, so that it's only removed from the workspace it was dragged from if it was
-  const handleTransferIn = useStableCallback(
-    (node: DragNode, target: TabDropTarget) => {
+  // Inserts a tab (or tabset) dragged in from another workspace, or a new tab dragged in from outside of any workspace;
+  // returns whether it was inserted (e.g. so that it's only removed from the workspace it was dragged from if it was)
+  const insertDropped = useStableCallback(
+    (reason: "add" | "transfer", node: DragNode, target: TabDropTarget) => {
       let isInserted = false;
-      updateModel("transfer", true, (prev) => {
+      updateModel(reason, true, (prev) => {
         const modelTarget = toModelDropTarget(
           target,
           isRightToLeft(rootElementRef.current)
@@ -837,6 +867,18 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
       return isInserted;
     }
+  );
+
+  const handleTransferIn = useCallback(
+    (node: DragNode, target: TabDropTarget) =>
+      insertDropped("transfer", node, target),
+    [insertDropped]
+  );
+
+  const handleNewTabDrop = useCallback(
+    (tab: TabNode, target: TabDropTarget) =>
+      insertDropped("add", { tab, type: "tab" }, target),
+    [insertDropped]
   );
 
   const handleTransferOut = useStableCallback((source: DragSource) =>
@@ -856,8 +898,10 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     isNativeDragSource,
     isTearOff,
     nativePreviewNode,
+    newTabPreview,
     previewElementRef,
     previewPointRef,
+    startExternalDrag,
     startTabDrag,
     startTabsetDrag
   } = useTabDrag({
@@ -870,10 +914,30 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     getRootElement,
     isDropDisabled,
     isExternalDropDisabled,
+    isNewTabDropDisabled,
     onDrop,
+    onNewTabDrop: handleNewTabDrop,
     onTearOff: handleTearOff,
     onTransferIn: handleTransferIn,
     onTransferOut: handleTransferOut,
+    rootElement,
+    tabsetElements
+  });
+  useIsomorphicLayoutEffect(() => {
+    startExternalDragRef.current = startExternalDrag;
+  }, [startExternalDrag]);
+
+  const getAcceptExternalDrop = useStableCallback(
+    () => acceptExternalDrop as AcceptExternalDrop | undefined
+  );
+  const isExternalDragOver = useExternalDrop({
+    areDropsDisabled: areNewTabDropsDisabled,
+    dragStore,
+    getAcceptExternalDrop,
+    getModel,
+    isEnabled: acceptExternalDrop !== undefined,
+    isNewTabDropDisabled,
+    onNewTabDrop: handleNewTabDrop,
     rootElement,
     tabsetElements
   });
@@ -1093,7 +1157,9 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   // Drags using HTML drag and drop (see the dragGroup prop) may come from other workspaces, so their previews show the dragged node as it was when the drag started
   let dragTab: TabNode | undefined;
   let dragTabset: TabsetNode | undefined;
-  if (nativePreviewNode) {
+  if (newTabPreview) {
+    dragTab = newTabPreview.tab;
+  } else if (nativePreviewNode) {
     if (nativePreviewNode.type === "tab") {
       dragTab = nativePreviewNode.tab;
     } else {
@@ -1120,7 +1186,9 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   };
 
   let dragPreview: ReactNode = null;
-  if (dragTab) {
+  if (newTabPreview && newTabPreview.preview !== undefined) {
+    dragPreview = newTabPreview.preview;
+  } else if (dragTab) {
     dragPreview = renderTabPreview(dragTab);
   } else if (dragTabset) {
     if (renderTabsetDragPreview) {
@@ -1161,7 +1229,10 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
             {maximizedOverlay}
             {floatingLayer}
             {/* Shown by every workspace in the document a drag is over (not just the one showing the preview), for the whole drag, so it can be animated between tabsets */}
-            {(dragSource !== undefined || isNativeDragOver) && (
+            {(dragSource !== undefined ||
+              newTabPreview !== undefined ||
+              isNativeDragOver ||
+              isExternalDragOver) && (
               <DropIndicator
                 className={classNames?.dropIndicator}
                 dragStore={dragStore}

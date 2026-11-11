@@ -1,6 +1,12 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { createRef, useEffect, useState } from "react";
+import {
+  createRef,
+  useEffect,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode
+} from "react";
 import { createPortal } from "react-dom";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { resetWarnOnceForTest } from "../../shared/utils/warnOnce";
@@ -3184,6 +3190,870 @@ describe("Workspace", () => {
           id: "only",
           tabs: [],
           type: "tabset"
+        });
+      });
+    });
+
+    describe("from outside of the workspace", () => {
+      describe("startExternalDrag", () => {
+        // Renders a workspace beside an element that starts dragging a new tab when pressed
+        function renderWithPalette({
+          onClick = vi.fn(),
+          preview,
+          props = {},
+          tabId = "new",
+          toEvent = (event) => event
+        }: {
+          onClick?: () => void;
+          toEvent?: (
+            event: ReactPointerEvent<HTMLElement>
+          ) => ReactPointerEvent<HTMLElement>;
+          preview?: ReactNode;
+          props?: Partial<WorkspaceProps<TabData>>;
+          tabId?: string;
+        } = {}) {
+          const workspaceRef = createRef<WorkspaceImperativeHandle<TabData>>();
+          const onModelChanged = vi.fn();
+          const results: Promise<unknown>[] = [];
+
+          const result = render(
+            <>
+              <button
+                onClick={onClick}
+                onPointerDown={(event) => {
+                  const promise = workspaceRef.current?.startExternalDrag(
+                    toEvent(event),
+                    {
+                      preview,
+                      tab: tab(tabId, { title: "New tab" })
+                    }
+                  );
+                  if (promise) {
+                    results.push(promise);
+                  }
+                }}
+              >
+                Palette item
+              </button>
+              <Workspace<TabData>
+                defaultModel={createModel()}
+                onModelChanged={onModelChanged}
+                renderTabContent={(tab) => <Content tab={tab} />}
+                workspaceRef={workspaceRef}
+                {...props}
+              />
+            </>
+          );
+
+          return {
+            ...result,
+            getResult: () => results[results.length - 1],
+            onModelChanged,
+            paletteItem: screen.getByRole("button", { name: "Palette item" }),
+            workspaceRef
+          };
+        }
+
+        test("dropping adds the tab where it was dropped", async () => {
+          const { container, getResult, onModelChanged, paletteItem } =
+            renderWithPalette();
+
+          await drag(paletteItem, getPanels(container, "right"));
+
+          expect(
+            container.querySelector('[data-tabset-id="right"]')
+          ).toContainElement(getTab("New tab"));
+          expect(onModelChanged).toHaveBeenCalledTimes(1);
+          expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+            isUserInteraction: true,
+            reason: "add"
+          });
+          await expect(getResult()).resolves.toEqual({
+            target: { region: "center", tabsetId: "right" }
+          });
+        });
+
+        test("the tab is previewed (with renderDragPreview, or the preview option) while dragging, and the drop indicator is shown", async () => {
+          const { container, paletteItem } = renderWithPalette({
+            props: {
+              renderDragPreview: (tab) => `Dragging ${tab.title}`
+            }
+          });
+
+          const user = userEvent.setup();
+          await user.pointer([
+            {
+              coords: { clientX: 100, clientY: 100 },
+              keys: "[MouseLeft>]",
+              target: paletteItem
+            },
+            {
+              coords: { clientX: 150, clientY: 150 },
+              target: getPanels(container, "right")
+            }
+          ]);
+
+          expect(
+            container.querySelector("[data-drag-preview]")
+          ).toHaveTextContent("Dragging New tab");
+          expect(
+            container.querySelector("[data-drop-indicator]")
+          ).not.toBeNull();
+
+          await user.pointer({
+            keys: "[/MouseLeft]",
+            target: getPanels(container, "right")
+          });
+          expect(container.querySelector("[data-drag-preview]")).toBeNull();
+          expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+        });
+
+        test("the preview option replaces the default preview", async () => {
+          const { container, paletteItem } = renderWithPalette({
+            preview: <span>Custom preview</span>
+          });
+
+          const user = userEvent.setup();
+          await user.pointer([
+            {
+              coords: { clientX: 100, clientY: 100 },
+              keys: "[MouseLeft>]",
+              target: paletteItem
+            },
+            {
+              coords: { clientX: 150, clientY: 150 },
+              target: getPanels(container, "right")
+            }
+          ]);
+
+          expect(
+            container.querySelector("[data-drag-preview]")
+          ).toHaveTextContent("Custom preview");
+        });
+
+        test("a press without dragging (e.g. a click) does nothing", async () => {
+          const onClick = vi.fn();
+          const { getResult, onModelChanged, paletteItem } = renderWithPalette({
+            onClick
+          });
+
+          await userEvent.click(paletteItem);
+
+          expect(onClick).toHaveBeenCalledTimes(1);
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+        });
+
+        test("the click that follows a drag is suppressed", async () => {
+          const onClick = vi.fn();
+          const { container, paletteItem } = renderWithPalette({ onClick });
+
+          // The pointer is released over the element it was pressed on, so the browser would dispatch a click
+          const user = userEvent.setup();
+          await user.pointer([
+            {
+              coords: { clientX: 100, clientY: 100 },
+              keys: "[MouseLeft>]",
+              target: paletteItem
+            },
+            {
+              coords: { clientX: 150, clientY: 150 },
+              target: getPanels(container, "right")
+            },
+            { coords: { clientX: 100, clientY: 100 }, target: paletteItem },
+            { keys: "[/MouseLeft]", target: paletteItem }
+          ]);
+
+          expect(onClick).not.toHaveBeenCalled();
+        });
+
+        test("Escape cancels the drag", async () => {
+          const { container, getResult, onModelChanged, paletteItem } =
+            renderWithPalette();
+
+          const user = userEvent.setup();
+          await user.pointer([
+            {
+              coords: { clientX: 100, clientY: 100 },
+              keys: "[MouseLeft>]",
+              target: paletteItem
+            },
+            {
+              coords: { clientX: 150, clientY: 150 },
+              target: getPanels(container, "right")
+            }
+          ]);
+          await user.keyboard("{Escape}");
+          await user.pointer({
+            keys: "[/MouseLeft]",
+            target: getPanels(container, "right")
+          });
+
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+        });
+
+        test("releasing outside of the workspace does nothing", async () => {
+          const { getResult, onModelChanged, paletteItem } =
+            renderWithPalette();
+
+          elementAtPoint = document.body;
+          await drag(paletteItem, document.body);
+
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+        });
+
+        test("disableDrop is called with the new tab (and the new source)", async () => {
+          const disableDrop = vi.fn(() => true);
+          const { container, getResult, onModelChanged, paletteItem } =
+            renderWithPalette({ props: { disableDrop } });
+
+          await drag(paletteItem, getPanels(container, "right"));
+
+          expect(disableDrop).toHaveBeenCalledWith({
+            model: expect.anything(),
+            source: "new",
+            tab: expect.objectContaining({ id: "new" }),
+            tabset: undefined,
+            target: { region: "center", tabsetId: "right" }
+          });
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+        });
+
+        test("disabled workspaces don't accept the tab", async () => {
+          const { container, getResult, onModelChanged, paletteItem } =
+            renderWithPalette({ props: { disabled: true } });
+
+          await drag(paletteItem, getPanels(container, "right"));
+
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+        });
+
+        test("a tab can't be dropped into a workspace that already has a node with its id", async () => {
+          const { container, getResult, onModelChanged, paletteItem } =
+            renderWithPalette({ tabId: "3" });
+
+          await drag(paletteItem, getPanels(container, "left"));
+
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+          // The existing tab with that id isn't shown as dragged
+          expect(getTab("3")).not.toHaveAttribute("data-tab-dragging");
+        });
+
+        test("pointer events are used even with a dragGroup", async () => {
+          const { container, paletteItem } = renderWithPalette({
+            props: { dragGroup: "group" }
+          });
+
+          await drag(paletteItem, getPanels(container, "right"));
+
+          expect(paletteItem).not.toHaveAttribute("draggable");
+          expect(
+            container.querySelector('[data-tabset-id="right"]')
+          ).toContainElement(getTab("New tab"));
+        });
+
+        test("a pointer that isn't pressed doesn't start a drag", async () => {
+          const { paletteItem, workspaceRef } = renderWithPalette();
+
+          // jsdom doesn't implement PointerEvent
+          let result: Promise<unknown> | undefined;
+          paletteItem.addEventListener("mousemove", (event) => {
+            result = workspaceRef.current!.startExternalDrag(
+              event as unknown as PointerEvent,
+              { tab: tab("new") }
+            );
+          });
+          fireEvent.mouseMove(paletteItem, { buttons: 0 });
+
+          await expect(result).resolves.toBeNull();
+        });
+
+        test("a non-primary button doesn't start a drag", async () => {
+          const { paletteItem, workspaceRef } = renderWithPalette();
+
+          // jsdom doesn't implement PointerEvent
+          let result: Promise<unknown> | undefined;
+          paletteItem.addEventListener("mousedown", (event) => {
+            result = workspaceRef.current!.startExternalDrag(
+              event as unknown as PointerEvent,
+              { tab: tab("new") }
+            );
+          });
+          fireEvent.mouseDown(paletteItem, { button: 2, buttons: 2 });
+
+          await expect(result).resolves.toBeNull();
+        });
+
+        // Presses the palette item, and (optionally) moves the pointer past the drag threshold
+        async function startPaletteDrag(
+          user: ReturnType<typeof userEvent.setup>,
+          paletteItem: HTMLElement,
+          moveTo?: HTMLElement
+        ) {
+          await user.pointer([
+            {
+              coords: { clientX: 100, clientY: 100 },
+              keys: "[MouseLeft>]",
+              target: paletteItem
+            },
+            ...(moveTo
+              ? [{ coords: { clientX: 150, clientY: 150 }, target: moveTo }]
+              : [])
+          ]);
+        }
+
+        test("unmounting before the drag starts resolves null, and releasing the pointer later adds nothing", async () => {
+          const { getResult, onModelChanged, paletteItem, unmount } =
+            renderWithPalette();
+
+          const user = userEvent.setup();
+          await startPaletteDrag(user, paletteItem);
+          unmount();
+          await user.pointer({ keys: "[/MouseLeft]", target: document.body });
+
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+        });
+
+        test("unmounting mid-drag resolves null, and releasing the pointer later adds nothing", async () => {
+          const { container, getResult, onModelChanged, paletteItem, unmount } =
+            renderWithPalette();
+
+          const user = userEvent.setup();
+          await startPaletteDrag(
+            user,
+            paletteItem,
+            getPanels(container, "right")
+          );
+          expect(container.querySelector("[data-drag-preview]")).not.toBeNull();
+
+          unmount();
+          await user.pointer({ keys: "[/MouseLeft]", target: document.body });
+
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+        });
+
+        test("starting another external drag settles the pending one with null", async () => {
+          const { container, getResult, paletteItem, workspaceRef } =
+            renderWithPalette();
+
+          const user = userEvent.setup();
+          await startPaletteDrag(
+            user,
+            paletteItem,
+            getPanels(container, "right")
+          );
+          const first = getResult();
+
+          // jsdom doesn't implement PointerEvent
+          const second = workspaceRef.current!.startExternalDrag(
+            {
+              button: 0,
+              buttons: 1,
+              clientX: 100,
+              clientY: 100,
+              currentTarget: paletteItem,
+              pointerId: 2,
+              pointerType: "mouse"
+            } as unknown as PointerEvent,
+            { tab: tab("other") }
+          );
+
+          await expect(first).resolves.toBeNull();
+
+          // Releasing the first pointer doesn't affect the second drag
+          await user.pointer({ keys: "[/MouseLeft]", target: document.body });
+          let settled = false;
+          void second.then(() => (settled = true));
+          await Promise.resolve();
+          expect(settled).toBe(false);
+        });
+
+        test("pressing a workspace tab settles the pending drag with null", async () => {
+          const { container, getResult, onModelChanged, paletteItem } =
+            renderWithPalette();
+
+          await startPaletteDrag(
+            userEvent.setup(),
+            paletteItem,
+            getPanels(container, "right")
+          );
+          const first = getResult();
+
+          await userEvent.setup().pointer({
+            coords: { clientX: 100, clientY: 100 },
+            keys: "[MouseLeft>]",
+            target: getTab("2")
+          });
+
+          await expect(first).resolves.toBeNull();
+          expect(onModelChanged).not.toHaveBeenCalled();
+        });
+
+        test("an element in another document is rejected (with a development warning)", async () => {
+          const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+          resetWarnOnceForTest();
+          const { onModelChanged, workspaceRef } = renderWithPalette();
+
+          const otherElement = document.implementation
+            .createHTMLDocument("other")
+            .createElement("div");
+          const result = workspaceRef.current!.startExternalDrag(
+            {
+              buttons: 1,
+              clientX: 100,
+              clientY: 100,
+              currentTarget: otherElement,
+              pointerId: 1,
+              pointerType: "mouse"
+            } as unknown as PointerEvent,
+            { tab: tab("new") }
+          );
+
+          await expect(result).resolves.toBeNull();
+          expect(onModelChanged).not.toHaveBeenCalled();
+          expect(warn).toHaveBeenCalledTimes(1);
+          warn.mockRestore();
+        });
+
+        test("the event's target is used if currentTarget isn't set (e.g. the event was dispatched already)", async () => {
+          const { container, getResult, paletteItem } = renderWithPalette({
+            toEvent: (event) =>
+              ({
+                button: event.button,
+                buttons: event.buttons,
+                clientX: event.clientX,
+                clientY: event.clientY,
+                currentTarget: null,
+                pointerId: event.pointerId,
+                pointerType: event.pointerType,
+                target: event.target
+              }) as never
+          });
+
+          await drag(paletteItem, getPanels(container, "right"));
+
+          await expect(getResult()).resolves.toEqual({
+            target: { region: "center", tabsetId: "right" }
+          });
+        });
+
+        test("the browser's drag of draggable elements (e.g. links) is prevented while dragging", async () => {
+          const { container, paletteItem } = renderWithPalette();
+
+          const dragStart = () => {
+            const event = new Event("dragstart", {
+              bubbles: true,
+              cancelable: true
+            });
+            paletteItem.dispatchEvent(event);
+            return event;
+          };
+
+          expect(dragStart().defaultPrevented).toBe(false);
+
+          const user = userEvent.setup();
+          await startPaletteDrag(
+            user,
+            paletteItem,
+            getPanels(container, "right")
+          );
+          expect(dragStart().defaultPrevented).toBe(true);
+
+          // Only the pressed element's drag is prevented
+          const otherEvent = new Event("dragstart", {
+            bubbles: true,
+            cancelable: true
+          });
+          getTab("2").dispatchEvent(otherEvent);
+          expect(otherEvent.defaultPrevented).toBe(false);
+
+          await user.pointer({
+            keys: "[/MouseLeft]",
+            target: getPanels(container, "right")
+          });
+          expect(dragStart().defaultPrevented).toBe(false);
+        });
+
+        test("the promise settles even if the application throws while the tab is added", async () => {
+          const { container, getResult, paletteItem } = renderWithPalette({
+            props: {
+              onModelChanged: () => {
+                throw new Error("expected");
+              }
+            }
+          });
+
+          // The error is reported by the browser, as it's thrown from an event listener
+          const onError = vi.fn((event: ErrorEvent) => event.preventDefault());
+          window.addEventListener("error", onError);
+          try {
+            await drag(paletteItem, getPanels(container, "right"));
+          } catch {
+            // jsdom may rethrow
+          } finally {
+            window.removeEventListener("error", onError);
+          }
+
+          await expect(getResult()).resolves.toEqual({
+            target: { region: "center", tabsetId: "right" }
+          });
+          expect(
+            container.querySelector('[data-tabset-id="right"]')
+          ).toContainElement(getTab("New tab"));
+        });
+      });
+
+      describe("acceptExternalDrop", () => {
+        const WIDGET_TYPE = "application/x-widget";
+
+        function createDataTransfer({
+          data = { [WIDGET_TYPE]: "chart" },
+          effectAllowed = "copy"
+        }: {
+          data?: Record<string, string>;
+          effectAllowed?: string;
+        } = {}) {
+          return {
+            dropEffect: "none",
+            effectAllowed,
+            getData: (type: string) => data[type] ?? "",
+            types: Object.keys(data)
+          };
+        }
+
+        // jsdom doesn't implement DragEvent, so drag events are mouse events with a DataTransfer stand-in
+        function fireDragEvent(
+          type: string,
+          target: Element,
+          dataTransfer: ReturnType<typeof createDataTransfer>
+        ) {
+          const event = new MouseEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            clientX: 150,
+            clientY: 150,
+            composed: true
+          });
+          Object.defineProperty(event, "dataTransfer", { value: dataTransfer });
+          act(() => {
+            target.dispatchEvent(event);
+          });
+
+          return event;
+        }
+
+        function renderAccepting(props: Partial<WorkspaceProps<TabData>> = {}) {
+          const createTab = vi.fn(
+            (dataTransfer: DataTransfer): TabNode<TabData> | null => {
+              const widget = dataTransfer.getData(WIDGET_TYPE);
+
+              return widget
+                ? { data: { label: widget }, id: "new", title: "New tab" }
+                : null;
+            }
+          );
+
+          return {
+            ...renderWorkspace({
+              acceptExternalDrop: { createTab, types: [WIDGET_TYPE] },
+              ...props
+            }),
+            createTab
+          };
+        }
+
+        test("drags with an accepted type show the drop indicator, and are added where they're dropped", () => {
+          const { container, createTab, onModelChanged } = renderAccepting();
+          const panels = getPanels(container, "right");
+          const dataTransfer = createDataTransfer();
+
+          const dragOver = fireDragEvent("dragover", panels, dataTransfer);
+          expect(dragOver.defaultPrevented).toBe(true);
+          expect(dataTransfer.dropEffect).toBe("copy");
+          expect(
+            container.querySelector("[data-drop-indicator]")
+          ).toHaveAttribute("data-region", "center");
+
+          const drop = fireDragEvent("drop", panels, dataTransfer);
+          expect(drop.defaultPrevented).toBe(true);
+          expect(createTab).toHaveBeenCalledWith(dataTransfer, {
+            region: "center",
+            tabsetId: "right"
+          });
+          expect(
+            container.querySelector('[data-tabset-id="right"]')
+          ).toContainElement(getTab("New tab"));
+          expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+            isUserInteraction: true,
+            reason: "add"
+          });
+          expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+        });
+
+        test("types are compared case-insensitively", () => {
+          const { container } = renderWorkspace({
+            acceptExternalDrop: {
+              createTab: () => null,
+              types: ["Application/X-Widget"]
+            }
+          });
+
+          const dragOver = fireDragEvent(
+            "dragover",
+            getPanels(container, "right"),
+            createDataTransfer()
+          );
+          expect(dragOver.defaultPrevented).toBe(true);
+        });
+
+        test("drags without an accepted type are ignored", () => {
+          const { container, createTab } = renderAccepting();
+          const panels = getPanels(container, "right");
+          const dataTransfer = createDataTransfer({
+            data: { "text/plain": "hello" }
+          });
+
+          expect(
+            fireDragEvent("dragover", panels, dataTransfer).defaultPrevented
+          ).toBe(false);
+          expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+          expect(
+            fireDragEvent("drop", panels, dataTransfer).defaultPrevented
+          ).toBe(false);
+          expect(createTab).not.toHaveBeenCalled();
+        });
+
+        test("drags whose source doesn't allow any effect are ignored", () => {
+          const { container } = renderAccepting();
+
+          const dragOver = fireDragEvent(
+            "dragover",
+            getPanels(container, "right"),
+            createDataTransfer({ effectAllowed: "none" })
+          );
+          expect(dragOver.defaultPrevented).toBe(false);
+        });
+
+        test("the drop effect is one the source allows", () => {
+          const { container } = renderAccepting();
+          const dataTransfer = createDataTransfer({ effectAllowed: "move" });
+
+          fireDragEvent(
+            "dragover",
+            getPanels(container, "right"),
+            dataTransfer
+          );
+          expect(dataTransfer.dropEffect).toBe("move");
+        });
+
+        test("nothing is added if createTab returns null", () => {
+          const { container, onModelChanged } = renderAccepting();
+          const panels = getPanels(container, "right");
+          const dataTransfer = createDataTransfer({
+            data: { [WIDGET_TYPE]: "" }
+          });
+
+          fireDragEvent("dragover", panels, dataTransfer);
+          const drop = fireDragEvent("drop", panels, dataTransfer);
+
+          // The drop was accepted, so the browser's default action is still prevented
+          expect(drop.defaultPrevented).toBe(true);
+          expect(onModelChanged).not.toHaveBeenCalled();
+        });
+
+        test("a created tab whose id is already in the model is rejected", () => {
+          const createTab = vi.fn((): TabNode<TabData> | null => ({
+            data: { label: "dupe" },
+            id: "3",
+            title: "Duplicate"
+          }));
+          const { container, onModelChanged } = renderAccepting({
+            acceptExternalDrop: { createTab, types: [WIDGET_TYPE] }
+          });
+          const panels = getPanels(container, "right");
+          const dataTransfer = createDataTransfer();
+
+          fireDragEvent("dragover", panels, dataTransfer);
+          fireDragEvent("drop", panels, dataTransfer);
+
+          expect(createTab).toHaveBeenCalled();
+          expect(screen.queryByText("Duplicate")).toBeNull();
+          expect(onModelChanged).not.toHaveBeenCalled();
+        });
+
+        test("disableDrop is called with the created tab when it's dropped", () => {
+          const disableDrop = vi.fn(() => true);
+          const { container, onModelChanged } = renderAccepting({
+            disableDrop
+          });
+          const panels = getPanels(container, "right");
+          const dataTransfer = createDataTransfer();
+
+          fireDragEvent("dragover", panels, dataTransfer);
+          expect(disableDrop).not.toHaveBeenCalled();
+
+          fireDragEvent("drop", panels, dataTransfer);
+          expect(disableDrop).toHaveBeenCalledWith({
+            model: expect.anything(),
+            source: "new",
+            tab: expect.objectContaining({ id: "new" }),
+            tabset: undefined,
+            target: { region: "center", tabsetId: "right" }
+          });
+          expect(onModelChanged).not.toHaveBeenCalled();
+        });
+
+        test("disabled workspaces (and disableDrop={true}) don't accept drags", () => {
+          for (const props of [{ disabled: true }, { disableDrop: true }]) {
+            const { container, createTab, unmount } = renderAccepting(props);
+            const panels = getPanels(container, "right");
+            const dataTransfer = createDataTransfer();
+
+            expect(
+              fireDragEvent("dragover", panels, dataTransfer).defaultPrevented
+            ).toBe(false);
+            fireDragEvent("drop", panels, dataTransfer);
+            expect(createTab).not.toHaveBeenCalled();
+
+            unmount();
+          }
+        });
+
+        test("elements within tab content that accept the drag themselves take precedence", () => {
+          const { container, createTab } = renderAccepting({
+            renderTabContent: (tab) => (
+              <div
+                data-testid={`content-${tab.id}`}
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={(event) => event.preventDefault()}
+              />
+            )
+          });
+          const content = screen.getByTestId("content-3");
+          elementAtPoint = content;
+          const dataTransfer = createDataTransfer();
+
+          fireDragEvent("dragover", content, dataTransfer);
+          expect(
+            container.querySelector("[data-drop-indicator]")
+          ).not.toHaveAttribute("data-region");
+
+          fireDragEvent("drop", content, dataTransfer);
+          expect(createTab).not.toHaveBeenCalled();
+        });
+
+        test("only the innermost workspace under the pointer accepts the drag", () => {
+          const innerCreateTab = vi.fn((): TabNode<TabData> | null => ({
+            data: { label: "inner" },
+            id: "inner-new",
+            title: "Inner new"
+          }));
+          const { container, createTab } = renderAccepting({
+            renderTabContent: (node) =>
+              node.id === "3" ? (
+                <Workspace<TabData>
+                  acceptExternalDrop={{
+                    createTab: innerCreateTab,
+                    types: [WIDGET_TYPE]
+                  }}
+                  defaultModel={{
+                    root: {
+                      id: "inner",
+                      selectedId: "i",
+                      tabs: [tab("i")],
+                      type: "tabset"
+                    },
+                    version: 1
+                  }}
+                  renderTabContent={(inner) => <Content tab={inner} />}
+                />
+              ) : null
+          });
+          const innerPanels = container.querySelector<HTMLElement>(
+            '[data-tabset-id="inner"] [data-tab-panels]'
+          )!;
+          elementAtPoint = innerPanels;
+          const dataTransfer = createDataTransfer();
+
+          fireDragEvent("dragover", innerPanels, dataTransfer);
+          fireDragEvent("drop", innerPanels, dataTransfer);
+
+          expect(innerCreateTab).toHaveBeenCalledTimes(1);
+          expect(createTab).not.toHaveBeenCalled();
+          expect(
+            container.querySelector('[data-tabset-id="inner"]')
+          ).toContainElement(getTab("Inner new"));
+        });
+
+        test("drags between workspaces aren't handled as external drags", () => {
+          const { container } = renderAccepting();
+
+          const dragOver = fireDragEvent(
+            "dragover",
+            getPanels(container, "right"),
+            createDataTransfer({
+              data: {
+                "application/x-react-resizable-panels-workspace": "",
+                [WIDGET_TYPE]: "chart"
+              }
+            })
+          );
+          expect(dragOver.defaultPrevented).toBe(false);
+        });
+
+        test("the drop indicator is hidden when the drag leaves (e.g. the window, or is canceled)", async () => {
+          const { container } = renderAccepting();
+          const panels = getPanels(container, "right");
+          const dataTransfer = createDataTransfer();
+
+          fireDragEvent("dragover", panels, dataTransfer);
+          expect(
+            container.querySelector("[data-drop-indicator]")
+          ).not.toBeNull();
+
+          vi.useFakeTimers();
+          try {
+            fireDragEvent("dragleave", panels, dataTransfer);
+            expect(
+              container.querySelector("[data-drop-indicator]")
+            ).not.toBeNull();
+
+            act(() => {
+              vi.runAllTimers();
+            });
+            expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+          } finally {
+            vi.useRealTimers();
+          }
+        });
+
+        test("moving between elements (dragleave followed by dragover) keeps the drop indicator", async () => {
+          const { container } = renderAccepting();
+          const panels = getPanels(container, "right");
+          const dataTransfer = createDataTransfer();
+
+          fireDragEvent("dragover", panels, dataTransfer);
+
+          vi.useFakeTimers();
+          try {
+            fireDragEvent("dragleave", panels, dataTransfer);
+            fireDragEvent("dragover", panels, dataTransfer);
+            act(() => {
+              vi.runAllTimers();
+            });
+            expect(
+              container.querySelector("[data-drop-indicator]")
+            ).not.toBeNull();
+          } finally {
+            vi.useRealTimers();
+          }
         });
       });
     });

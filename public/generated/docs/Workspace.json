@@ -59,6 +59,28 @@
       "name": "style",
       "required": false
     },
+    "acceptExternalDrop": {
+      "description": [
+        {
+          "content": "<p>Lets the workspace accept drags that use the browser's drag and drop from outside of any workspace\n(e.g. an element of the application with the <code>draggable</code> attribute, a file, or a link from another application),\nshowing the drop indicator while the drag is over the workspace, and creating a tab where it's dropped.\nThe new tab is reported to <code>onModelChanged</code> with the <code>&quot;add&quot;</code> reason.</p>\n"
+        },
+        {
+          "content": "<p><code>disableDrop</code> can't be called until the tab is created (when the drag is dropped), so a target it rejects is shown as accepted while dragging;\nthe drop is ignored then. Drag sources within the application can use the imperative <code>startExternalDrag</code> method instead, which doesn't have this limitation.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Elements within the workspace's tab content that handle the same drags themselves (by canceling the <code>dragover</code> and <code>drop</code> events) take precedence.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>This object is read when drag events are handled, so it doesn't need to be memoized.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">acceptExternalDrop</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">AcceptExternalDrop</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span></div>",
+      "name": "acceptExternalDrop",
+      "required": false
+    },
     "classNames": {
       "description": [
         {

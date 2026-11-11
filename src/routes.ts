@@ -58,6 +58,12 @@ export const routes = {
   "/examples/workspace/managing-tabs": lazy(
     () => import("./routes/WorkspaceManagingTabsRoute")
   ),
+  "/examples/workspace/managing-tabs/dragging-tabs-in": lazy(
+    () => import("./routes/WorkspaceDraggingTabsInRoute")
+  ),
+  "/examples/workspace/managing-tabs/selecting-tabs": lazy(
+    () => import("./routes/WorkspaceTabSelectionRoute")
+  ),
   "/examples/workspace/managing-tabsets": lazy(
     () => import("./routes/WorkspaceManagingTabsetsRoute")
   ),
