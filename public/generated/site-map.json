@@ -333,7 +333,7 @@
       {
         "id": "dragging-between-popout-windows",
         "title": "Dragging between popout windows",
-        "text": "Dragging between popout windows Workspaces with the same dragGroup prop can drag tabs (and tabsets) to each other, e.g. from a popout window back into the main window, or from one popout to another (see drag groups for how tabs move between workspaces). Dragging the last tab (or the only tabset) out of a popout window closes it, in the example above."
+        "text": "Dragging between popout windows Workspaces with the same dragGroup prop can drag tabs (and tabsets) to each other, e.g. from a popout window back into the main window, or from one popout to another (see drag groups for how tabs move between workspaces)."
       },
       {
         "id": "drag-previews",
@@ -343,12 +343,12 @@
       {
         "id": "rendering-into-popout-windows",
         "title": "Rendering into popout windows",
-        "text": "Rendering into popout windows Elements in a popout window should be created by that window's own document (e.g. the container the Workspace is rendered into), so that they belong to that window. The Workspace and its tabsets read the globals they need (e.g. ResizeObserver) from the window their elements are in."
+        "text": "Rendering into popout windows To open popout windows without usePopoutWindows, elements in a popout window should be created by that window's own document (e.g. the container the Workspace is rendered into), so that they belong to that window. The Workspace and its tabsets read the globals they need (e.g. ResizeObserver) from the window their elements are in."
       }
     ],
     "path": "/examples/workspace/multiple-windows/popout-windows",
     "section": "Workspace",
-    "text": "When a tab or tabset is dropped outside of the window it was rendered in, the Workspace calls its onTearOff prop with the tab and a detached model (containing just that tab) along with where the pointer was released and the size of the tabset it was dragged from. Returning true removes the tab from the workspace (reported to onModelChanged with the \"tear-off\" reason) Returning false leaves it where it was. Tabsets with the keepWhenEmpty flag can't be torn off, but their tabs can. In the example below, each torn-off tab is opened in a popout window with its own Workspace. When a popout window is closed, the tabs left in it are moved back: A new window starts out blank, so the example copies the app's stylesheets into it. It renders the popout's Workspace into an element created by the new window's document (rather than the app's), so the Workspace belongs to that window, e.g. for its event listeners and observers. Drag a tab (or a tabset) out of the window below and release it to open it in a new window. Tabs can also be dragged between this window and the popout windows (see dragGroup below). The \"Open in new window\" button in each tabset's toolbar opens its selected tab in a popout window too, for browsers that block popups opened by those drags (see below). Reset layout Browsers block popup windows that aren't opened in response to user input, and window.open returns null when that happens. The Workspace can't tell whether your popup opened, so onTearOff should check for null and return false to keep the tab (as the example above does); returning true removes the tab even if nothing shows it. onTearOff is called while the pointer's release is handled, which browsers treat as user input, so this mostly affects drags between workspaces (see below). Some browsers (e.g. Safari) block popup windows opened at the end of a drag. Opening popups from a click instead (e.g. a button, like in the example above) works in every browser.",
+    "text": "When a tab or tabset is dropped outside of the window it was rendered in, the Workspace calls its onTearOff prop with the tab and a detached model (containing just that tab) along with where the pointer was released and the size of the tabset it was dragged from. Returning true removes the tab from the workspace (reported to onModelChanged with the \"tear-off\" reason) Returning false leaves it where it was. Tabsets with the keepWhenEmpty flag can't be torn off, but their tabs can. The usePopoutWindows hook handles the rest: its onTearOff function opens each torn-off tab in a popout window (positioned where the pointer was released), and its render function renders a Workspace into each window. Give the popouts' Workspaces the same dragGroup as the main one so tabs can be dragged between windows: The page's stylesheets are copied into each popout window, which starts out blank. When the user closes a popout window, its tabs are moved back to the main workspace (see the onClose option). A popout window is closed once its last tab is dragged out of it. Popout windows are closed along with the page that opened them (or the component that uses the hook), since it renders their content. Drag a tab (or a tabset) out of the window below and release it to open it in a new window. Tabs can also be dragged between this window and the popout windows. The \"Open in new window\" button in each tabset's toolbar opens its selected tab with the hook's open function, for browsers that block popups opened by those drags (see below). Reset layout Browsers block popup windows that aren't opened in response to user input, and window.open returns null when that happens. The Workspace can't tell whether your popup opened, so onTearOff should check for null and return false to keep the tab (as usePopoutWindows does); returning true removes the tab even if nothing shows it. onTearOff is called while the pointer's release is handled, which browsers treat as user input, so this mostly affects drags between workspaces (see below). Some browsers (e.g. Safari) block popup windows opened at the end of a drag. Opening popups from a click instead (e.g. a button, like in the example above) works in every browser.",
     "title": "Popout windows"
   },
   {
@@ -631,6 +631,59 @@
     "section": "Hooks",
     "text": "The useParentWorkspace hook returns the nearest Workspace, including its imperative API. Components rendered within a Workspace (including tab content) can use it to open, close, and arrange tabs without passing refs or props down to them. For example, a link within a tab can open a file in another tab. addTab adds it to the active tabset (the one the user most recently interacted with), or selects its tab if it's already open: Returns null if the component isn't rendered within a Workspace. The returned value doesn't change when the Workspace's model changes, so this hook doesn't cause components to re-render.",
     "title": "useParentWorkspace"
+  },
+  {
+    "headings": [
+      {
+        "id": "customizing-popout-windows",
+        "title": "Customizing popout windows",
+        "text": "Customizing popout windows The onOpen option is called with each new window and the element its content is rendered into, before the content is rendered: Stylesheets are copied as they are when the window opens, including rules that CSS-in-JS libraries insert with insertRule, and stylesheets added to the page's head afterward are copied too. Rules inserted into an existing stylesheet afterward aren't; libraries that insert rules as components render can usually be configured (e.g. in onOpen) to insert them into the new window's document instead. Setting copyStyles to false stops all copying, including the page's plain stylesheets, so it's usually best left on. Stylesheets removed or edited in place after they're copied aren't updated in popout windows."
+      },
+      {
+        "id": "saving-and-restoring-popout-windows",
+        "title": "Saving and restoring popout windows",
+        "text": "Saving and restoring popout windows The onCloseAll option is called with each popout window's model and position when the page is closed (or reloaded) or the component that uses the hook unmounts (e.g. a route change), just before the popout windows are closed (this includes when the component is hidden by Activity, and Fast Refresh in development). Browsers won't open them again until the user interacts with the page, so restore them from a click. Windows that the browser blocks (open returns false) are kept so they can be reopened later (but are lost if the page is closed again first, since onCloseAll replaces the saved state). The main workspace's model must be saved too (see persistence), or restored popouts will duplicate tabs it shows again. Calling open with a model that has no tabs does nothing: Some browsers only open one popup window per click."
+      },
+      {
+        "id": "options",
+        "title": "Options",
+        "text": "Options usePopoutWindows : (options: UsePopoutWindowsOptions) => PopoutWindows See UsePopoutWindowsOptions and PopoutWindows (below)."
+      },
+      {
+        "id": "usepopoutwindowsoptions",
+        "title": "UsePopoutWindowsOptions",
+        "text": "UsePopoutWindowsOptions Options for usePopoutWindows.\n copyStyles ?: boolean | undefined Copy the page's stylesheets into each popout window when it's opened (and stylesheets added to the page's head afterward).\nDefaults to true; if false, none of the page's styles (including plain stylesheets) are copied.\n The rules of <style> elements are copied (including rules inserted with CSSStyleSheet.insertRule, e.g. by CSS-in-JS libraries)\nas they are when the window opens; rules inserted into them later (and stylesheets edited or removed afterward) aren't.\nLibraries that insert rules as components render (e.g. Emotion) can usually be configured to insert them into the popup's document instead.\n onCloseAll ?: | ((state: PopoutWindowState<TabData, TabsetData>[]) => void) | undefined Called with each popout window's model and position when the page that opened them is closed (or reloaded),\nor the component that uses the hook unmounts, just before the popout windows are closed;\ne.g. to save them (and open them again later with open).\nIt isn't called if there are no popout windows.\n onClose ?: | \"discard\" | \"dock\" | ((model: WorkspaceModel<TabData, TabsetData>) => void) | undefined What happens to the tabs in a popout window when the user closes it:\n\n \"dock\" (the default) adds them back to the main workspace (see workspaceRef)\n \"discard\" closes them\nA function is called with the popout's model instead (e.g. to save its tabs)\n\n When docking, a tab is skipped (with a development warning) if the main workspace already has a tab with the same id (its data is not updated, and it isn't selected),\nand only the selected tab of the popout's first tabset (that has one) is selected.\n It isn't called when the popout closes because its last tab was moved out of it, or when it's closed by closeAll\n(or because the page that opened it is closed, or the component that uses this hook unmounts; see onCloseAll).\n onOpen ?: ((popout: PopoutWindow) => void) | undefined Called when a popout window is opened, before its content is rendered, e.g. to set its title or style its container.\n workspaceRef : RefObject<WorkspaceImperativeHandle<TabData, TabsetData> | null> The main workspace, which tabs are added back to when a popout window is closed (see onClose)."
+      },
+      {
+        "id": "popoutwindows",
+        "title": "PopoutWindows",
+        "text": "PopoutWindows Returned by usePopoutWindows.\n closeAll : () => void Close every popout window (without moving their tabs back to the main workspace).\n getState : () => PopoutWindowState<TabData, TabsetData>[] Each popout window's current model and where it is on screen, e.g. to save them (and open them again later with open).\n onTearOff : (args: TearOffArgs<TabData, TabsetData>) => boolean Pass to the main Workspace's onTearOff prop, to open tabs (and tabsets) dropped outside of the window in popout windows.\n open : (model: WorkspaceModelInput<TabData, TabsetData>, rect: PopoutWindowRect) => boolean Open a popout window showing a model (e.g. from a button that pops out a tab, or to restore a saved popout).\n Browsers block popup windows that aren't opened in response to user input (e.g. a click),\nand some block all but the first one opened for each input.\n popouts : PopoutWindow[] The open popout windows.\n render : (renderWorkspace: (props: PopoutWorkspaceProps<TabData, TabsetData>, popout: PopoutWindow) => ReactNode) => ReactNode Render the popout windows' content (each into its window's container, with a portal); render the result alongside the main Workspace."
+      },
+      {
+        "id": "popoutwindow",
+        "title": "PopoutWindow",
+        "text": "PopoutWindow A popout window opened by usePopoutWindows.\n container : HTMLElement The element (created by the popup's document, within its body) that the popout's content is rendered into.\n id : string Unique id of the popout (e.g. a React key).\n window : Window The popup window."
+      },
+      {
+        "id": "popoutwindowrect",
+        "title": "PopoutWindowRect",
+        "text": "PopoutWindowRect Where a popout window is on screen (in screen coordinates) and how big its content is (in pixels); see usePopoutWindows.\n height : number Height of the window's content, in pixels\n screenX : number Horizontal position of the window on the screen\n screenY : number Vertical position of the window on the screen\n width : number Width of the window's content, in pixels"
+      },
+      {
+        "id": "popoutwindowstate",
+        "title": "PopoutWindowState",
+        "text": "PopoutWindowState A popout window's model and where it is on screen, e.g. to save the popouts and open them again later (see usePopoutWindows).\n model : WorkspaceModel<TabData, TabsetData> The popout's current model\n rect : PopoutWindowRect Where the popout is on screen, and its size"
+      },
+      {
+        "id": "popoutworkspaceprops",
+        "title": "PopoutWorkspaceProps",
+        "text": "PopoutWorkspaceProps Props for the Workspace rendered into a popout window (see PopoutWindows.render).\n The popout window is closed once its workspace has no tabs left (e.g. its last tab is dragged back to the main window);\nif the Workspace needs its own onModelChanged prop, call this one from it.\n defaultModel : WorkspaceModel<TabData, TabsetData> The popout's initial model\n onModelChanged : (model: WorkspaceModel<TabData, TabsetData>, meta: WorkspaceChangedMeta) => void Closes the popout window once its workspace has no tabs left\n workspaceRef : RefObject<WorkspaceImperativeHandle<TabData, TabsetData> | null> Used to read the popout's current model (e.g. when it's closed)"
+      }
+    ],
+    "path": "/hooks/use-popout-windows",
+    "section": "Hooks",
+    "text": "The usePopoutWindows hook opens tabs (and tabsets) dropped outside of the window in popout windows, each with its own Workspace. Pass its onTearOff function to the main Workspace, and render the Workspaces it returns from render alongside it (see popout windows for a demo): The page's stylesheets are copied into each new window. When the user closes a popout window, its tabs are moved back to the main workspace; a popout window is closed once its last tab is dragged out of it, and popout windows are closed along with the page that opened them (or the component that uses the hook). The open function opens a popout window for a model, e.g. from a button that pops out a tab. Browsers block popup windows that aren't opened in response to user input (and some block popups opened at the end of a drag), so call it from a click.",
+    "title": "usePopoutWindows"
   },
   {
     "headings": [

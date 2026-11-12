@@ -1,0 +1,73 @@
+{
+  "description": [
+    {
+      "content": "<p>Options for <code>usePopoutWindows</code>.</p>\n"
+    }
+  ],
+  "extends": [],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>Copy the page's stylesheets into each popout window when it's opened (and stylesheets added to the page's head afterward).\nDefaults to <code>true</code>; if <code>false</code>, none of the page's styles (including plain stylesheets) are copied.</p>\n"
+        },
+        {
+          "content": "<p>The rules of <code>&lt;style&gt;</code> elements are copied (including rules inserted with <code>CSSStyleSheet.insertRule</code>, e.g. by CSS-in-JS libraries)\nas they are when the window opens; rules inserted into them later (and stylesheets edited or removed afterward) aren't.\nLibraries that insert rules as components render (e.g. Emotion) can usually be configured to insert them into the popup's document instead.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "copyStyles",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Called with each popout window's model and position when the page that opened them is closed (or reloaded),\nor the component that uses the hook unmounts, just before the popout windows are closed;\ne.g. to save them (and open them again later with <code>open</code>).\nIt isn't called if there are no popout windows.</p>\n"
+        }
+      ],
+      "name": "onCloseAll",
+      "optional": true,
+      "type": "| ((state: PopoutWindowState<TabData, TabsetData>[]) => void) | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>What happens to the tabs in a popout window when the user closes it:</p>\n<ul>\n<li><code>&quot;dock&quot;</code> (the default) adds them back to the main workspace (see <code>workspaceRef</code>)</li>\n<li><code>&quot;discard&quot;</code> closes them</li>\n<li>A function is called with the popout's model instead (e.g. to save its tabs)</li>\n</ul>\n"
+        },
+        {
+          "content": "<p>When docking, a tab is skipped (with a development warning) if the main workspace already has a tab with the same id (its data is not updated, and it isn't selected),\nand only the selected tab of the popout's first tabset (that has one) is selected.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>It isn't called when the popout closes because its last tab was moved out of it, or when it's closed by <code>closeAll</code>\n(or because the page that opened it is closed, or the component that uses this hook unmounts; see <code>onCloseAll</code>).</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "onClose",
+      "optional": true,
+      "type": "| \"discard\" | \"dock\" | ((model: WorkspaceModel<TabData, TabsetData>) => void) | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Called when a popout window is opened, before its content is rendered, e.g. to set its title or style its container.</p>\n"
+        }
+      ],
+      "name": "onOpen",
+      "optional": true,
+      "type": "((popout: PopoutWindow) => void) | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The main workspace, which tabs are added back to when a popout window is closed (see <code>onClose</code>).</p>\n"
+        }
+      ],
+      "name": "workspaceRef",
+      "optional": false,
+      "type": "RefObject<WorkspaceImperativeHandle<TabData, TabsetData> | null>"
+    }
+  ],
+  "name": "UsePopoutWindowsOptions"
+}

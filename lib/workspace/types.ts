@@ -5,7 +5,8 @@ import type {
   PointerEvent as ReactPointerEvent,
   ReactNode,
   Ref,
-  RefCallback
+  RefCallback,
+  RefObject
 } from "react";
 import type { Orientation, ResizePreviewMode } from "../global/types";
 
@@ -501,6 +502,183 @@ export type DisableDropArgs<TabData = unknown, TabsetData = unknown> = {
   tabset: TabsetNode<TabData, TabsetData> | undefined;
 
   target: TabDropTarget;
+};
+
+/**
+ * Where a popout window is on screen (in screen coordinates) and how big its content is (in pixels); see `usePopoutWindows`.
+ */
+export type PopoutWindowRect = {
+  /** Height of the window's content, in pixels */
+  height: number;
+
+  /** Horizontal position of the window on the screen */
+  screenX: number;
+
+  /** Vertical position of the window on the screen */
+  screenY: number;
+
+  /** Width of the window's content, in pixels */
+  width: number;
+};
+
+/**
+ * A popout window opened by `usePopoutWindows`.
+ */
+export type PopoutWindow = {
+  /**
+   * The element (created by the popup's document, within its body) that the popout's content is rendered into.
+   */
+  container: HTMLElement;
+
+  /**
+   * Unique id of the popout (e.g. a React key).
+   */
+  id: string;
+
+  /**
+   * The popup window.
+   */
+  window: Window;
+};
+
+/**
+ * A popout window's model and where it is on screen, e.g. to save the popouts and open them again later (see `usePopoutWindows`).
+ */
+export type PopoutWindowState<TabData = unknown, TabsetData = unknown> = {
+  /** The popout's current model */
+  model: WorkspaceModel<TabData, TabsetData>;
+
+  /** Where the popout is on screen, and its size */
+  rect: PopoutWindowRect;
+};
+
+/**
+ * Props for the Workspace rendered into a popout window (see `PopoutWindows.render`).
+ *
+ * ℹ️ The popout window is closed once its workspace has no tabs left (e.g. its last tab is dragged back to the main window);
+ * if the Workspace needs its own `onModelChanged` prop, call this one from it.
+ */
+export type PopoutWorkspaceProps<TabData = unknown, TabsetData = unknown> = {
+  /** The popout's initial model */
+  defaultModel: WorkspaceModel<TabData, TabsetData>;
+
+  /** Closes the popout window once its workspace has no tabs left */
+  onModelChanged: (
+    model: WorkspaceModel<TabData, TabsetData>,
+    meta: WorkspaceChangedMeta
+  ) => void;
+
+  /** Used to read the popout's current model (e.g. when it's closed) */
+  workspaceRef: RefObject<WorkspaceImperativeHandle<
+    TabData,
+    TabsetData
+  > | null>;
+};
+
+/**
+ * Options for `usePopoutWindows`.
+ */
+export type UsePopoutWindowsOptions<TabData = unknown, TabsetData = unknown> = {
+  /**
+   * Copy the page's stylesheets into each popout window when it's opened (and stylesheets added to the page's head afterward).
+   * Defaults to `true`; if `false`, none of the page's styles (including plain stylesheets) are copied.
+   *
+   * ℹ️ The rules of `<style>` elements are copied (including rules inserted with `CSSStyleSheet.insertRule`, e.g. by CSS-in-JS libraries)
+   * as they are when the window opens; rules inserted into them later (and stylesheets edited or removed afterward) aren't.
+   * Libraries that insert rules as components render (e.g. Emotion) can usually be configured to insert them into the popup's document instead.
+   */
+  copyStyles?: boolean | undefined;
+
+  /**
+   * Called with each popout window's model and position when the page that opened them is closed (or reloaded),
+   * or the component that uses the hook unmounts, just before the popout windows are closed;
+   * e.g. to save them (and open them again later with `open`).
+   * It isn't called if there are no popout windows.
+   */
+  onCloseAll?:
+    | ((state: PopoutWindowState<TabData, TabsetData>[]) => void)
+    | undefined;
+
+  /**
+   * What happens to the tabs in a popout window when the user closes it:
+   * - `"dock"` (the default) adds them back to the main workspace (see `workspaceRef`)
+   * - `"discard"` closes them
+   * - A function is called with the popout's model instead (e.g. to save its tabs)
+   *
+   * ℹ️ When docking, a tab is skipped (with a development warning) if the main workspace already has a tab with the same id (its data is not updated, and it isn't selected),
+   * and only the selected tab of the popout's first tabset (that has one) is selected.
+   *
+   * ℹ️ It isn't called when the popout closes because its last tab was moved out of it, or when it's closed by `closeAll`
+   * (or because the page that opened it is closed, or the component that uses this hook unmounts; see `onCloseAll`).
+   */
+  onClose?:
+    | "discard"
+    | "dock"
+    | ((model: WorkspaceModel<TabData, TabsetData>) => void)
+    | undefined;
+
+  /**
+   * Called when a popout window is opened, before its content is rendered, e.g. to set its title or style its container.
+   */
+  onOpen?: ((popout: PopoutWindow) => void) | undefined;
+
+  /**
+   * The main workspace, which tabs are added back to when a popout window is closed (see `onClose`).
+   */
+  workspaceRef: RefObject<WorkspaceImperativeHandle<
+    TabData,
+    TabsetData
+  > | null>;
+};
+
+/**
+ * Returned by `usePopoutWindows`.
+ */
+export type PopoutWindows<TabData = unknown, TabsetData = unknown> = {
+  /**
+   * Close every popout window (without moving their tabs back to the main workspace).
+   */
+  closeAll: () => void;
+
+  /**
+   * Each popout window's current model and where it is on screen, e.g. to save them (and open them again later with `open`).
+   */
+  getState: () => PopoutWindowState<TabData, TabsetData>[];
+
+  /**
+   * Pass to the main Workspace's `onTearOff` prop, to open tabs (and tabsets) dropped outside of the window in popout windows.
+   */
+  onTearOff: (args: TearOffArgs<TabData, TabsetData>) => boolean;
+
+  /**
+   * Open a popout window showing a model (e.g. from a button that pops out a tab, or to restore a saved popout).
+   *
+   * ⚠️ Browsers block popup windows that aren't opened in response to user input (e.g. a click),
+   * and some block all but the first one opened for each input.
+   *
+   * @returns `true` if the window was opened, or `false` if it was blocked (or the model has no tabs, in which case no window is opened)
+   */
+  open: (
+    model: WorkspaceModelInput<TabData, TabsetData>,
+    rect: PopoutWindowRect
+  ) => boolean;
+
+  /**
+   * The open popout windows.
+   */
+  popouts: PopoutWindow[];
+
+  /**
+   * Render the popout windows' content (each into its window's container, with a portal); render the result alongside the main Workspace.
+   *
+   * @param renderWorkspace Renders a popout's Workspace; spread the given props onto it (along with the same `dragGroup` as the main Workspace, to drag tabs between windows)
+   */
+  render: (
+    renderWorkspace: (
+      props: PopoutWorkspaceProps<TabData, TabsetData>,
+      popout: PopoutWindow
+    ) => ReactNode
+  ) => ReactNode;
 };
 
 /**

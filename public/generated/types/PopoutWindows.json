@@ -1,0 +1,75 @@
+{
+  "description": [
+    {
+      "content": "<p>Returned by <code>usePopoutWindows</code>.</p>\n"
+    }
+  ],
+  "extends": [],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>Close every popout window (without moving their tabs back to the main workspace).</p>\n"
+        }
+      ],
+      "name": "closeAll",
+      "optional": false,
+      "type": "() => void"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Each popout window's current model and where it is on screen, e.g. to save them (and open them again later with <code>open</code>).</p>\n"
+        }
+      ],
+      "name": "getState",
+      "optional": false,
+      "type": "() => PopoutWindowState<TabData, TabsetData>[]"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Pass to the main Workspace's <code>onTearOff</code> prop, to open tabs (and tabsets) dropped outside of the window in popout windows.</p>\n"
+        }
+      ],
+      "name": "onTearOff",
+      "optional": false,
+      "type": "(args: TearOffArgs<TabData, TabsetData>) => boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Open a popout window showing a model (e.g. from a button that pops out a tab, or to restore a saved popout).</p>\n"
+        },
+        {
+          "content": "<p>Browsers block popup windows that aren't opened in response to user input (e.g. a click),\nand some block all but the first one opened for each input.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "name": "open",
+      "optional": false,
+      "type": "(model: WorkspaceModelInput<TabData, TabsetData>, rect: PopoutWindowRect) => boolean"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The open popout windows.</p>\n"
+        }
+      ],
+      "name": "popouts",
+      "optional": false,
+      "type": "PopoutWindow[]"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Render the popout windows' content (each into its window's container, with a portal); render the result alongside the main Workspace.</p>\n"
+        }
+      ],
+      "name": "render",
+      "optional": false,
+      "type": "(renderWorkspace: (props: PopoutWorkspaceProps<TabData, TabsetData>, popout: PopoutWindow) => ReactNode) => ReactNode"
+    }
+  ],
+  "name": "PopoutWindows"
+}

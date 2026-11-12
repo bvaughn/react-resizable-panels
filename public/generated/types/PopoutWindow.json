@@ -1,0 +1,41 @@
+{
+  "description": [
+    {
+      "content": "<p>A popout window opened by <code>usePopoutWindows</code>.</p>\n"
+    }
+  ],
+  "extends": [],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>The element (created by the popup's document, within its body) that the popout's content is rendered into.</p>\n"
+        }
+      ],
+      "name": "container",
+      "optional": false,
+      "type": "HTMLElement"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Unique id of the popout (e.g. a React key).</p>\n"
+        }
+      ],
+      "name": "id",
+      "optional": false,
+      "type": "string"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>The popup window.</p>\n"
+        }
+      ],
+      "name": "window",
+      "optional": false,
+      "type": "Window"
+    }
+  ],
+  "name": "PopoutWindow"
+}

@@ -107,16 +107,16 @@ const nav: NavConfig<Path | DefaultPath> = [
         title: "Hooks",
         links: [
           { path: "/hooks/use-default-layout", title: "useDefaultLayout" },
-          { path: "/hooks/use-group-ref", title: "useGroupRef" },
           {
             path: "/hooks/use-group-callback-ref",
             title: "useGroupCallbackRef"
           },
-          { path: "/hooks/use-panel-ref", title: "usePanelRef" },
+          { path: "/hooks/use-group-ref", title: "useGroupRef" },
           {
             path: "/hooks/use-panel-callback-ref",
             title: "usePanelCallbackRef"
           },
+          { path: "/hooks/use-panel-ref", title: "usePanelRef" },
           { path: "/hooks/use-parent-group", title: "useParentGroup" },
           { path: "/hooks/use-parent-panel", title: "useParentPanel" }
         ]
@@ -164,8 +164,8 @@ const nav: NavConfig<Path | DefaultPath> = [
             path: "/hooks/use-default-grid-layout",
             title: "useDefaultGridLayout"
           },
-          { path: "/hooks/use-grid-ref", title: "useGridRef" },
           { path: "/hooks/use-grid-callback-ref", title: "useGridCallbackRef" },
+          { path: "/hooks/use-grid-ref", title: "useGridRef" },
           { path: "/hooks/use-parent-grid", title: "useParentGrid" }
         ]
       },
@@ -268,27 +268,25 @@ const nav: NavConfig<Path | DefaultPath> = [
       {
         title: "Hooks",
         links: [
-          { path: "/hooks/use-workspace-ref", title: "useWorkspaceRef" },
-          {
-            path: "/hooks/use-workspace-callback-ref",
-            title: "useWorkspaceCallbackRef"
-          },
-          { path: "/hooks/use-parent-workspace", title: "useParentWorkspace" },
+          { path: "/hooks/use-parent-tab", title: "useParentTab" },
           { path: "/hooks/use-parent-tabset", title: "useParentTabset" },
           {
             path: "/hooks/use-parent-tabset-state",
             title: "useParentTabsetState"
           },
-          { path: "/hooks/use-parent-tab", title: "useParentTab" },
           { path: "/hooks/use-parent-tab-state", title: "useParentTabState" },
+          { path: "/hooks/use-parent-workspace", title: "useParentWorkspace" },
+          { path: "/hooks/use-popout-windows", title: "usePopoutWindows" },
           {
             path: "/hooks/use-tab-list-free-space",
             title: "useTabListFreeSpace"
           },
+          { path: "/hooks/use-tab-list-overflow", title: "useTabListOverflow" },
           {
-            path: "/hooks/use-tab-list-overflow",
-            title: "useTabListOverflow"
-          }
+            path: "/hooks/use-workspace-callback-ref",
+            title: "useWorkspaceCallbackRef"
+          },
+          { path: "/hooks/use-workspace-ref", title: "useWorkspaceRef" }
         ]
       },
       {
