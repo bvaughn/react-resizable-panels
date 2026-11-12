@@ -5,14 +5,12 @@ declare const initialModel: WorkspaceModel<{ kind: string }>;
 
 // <begin>
 
-// Any element (even in another application) can set this data when it starts a drag
 const WIDGET_TYPE = "application/x-my-widget";
 
 function App() {
   return (
     <Workspace
       acceptExternalDrop={{
-        // Decides where the drop indicator is shown, since a drag's data can't be read until it's dropped
         types: [WIDGET_TYPE],
         createTab: (dataTransfer) => {
           const kind = dataTransfer.getData(WIDGET_TYPE);

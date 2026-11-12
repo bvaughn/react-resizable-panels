@@ -9,10 +9,8 @@ declare const editor: {
 // <begin>
 
 function Editor() {
-  // Stable for the life of the tab; safe to use as an effect dependency
   const tab = useParentTab();
 
-  // Re-renders when the tab's state changes
   const tabState = useParentTabState();
   const isVisible = tabState?.isVisible;
 

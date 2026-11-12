@@ -131,6 +131,20 @@
     {
       "description": [
         {
+          "content": "<p>Select a tab within this tabset (e.g. from an overflow menu; see <code>useTabListOverflow</code>).</p>\n"
+        },
+        {
+          "content": "<p>This has no effect if the tab isn't in this tabset; use <code>WorkspaceImperativeHandle.selectTab</code> to select a tab in any tabset.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "selectTab",
+      "optional": false,
+      "type": "(tabId: string) => void"
+    },
+    {
+      "description": [
+        {
           "content": "<p>Id of the Workspace that contains the tabset.</p>\n"
         }
       ],

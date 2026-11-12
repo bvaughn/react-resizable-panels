@@ -27,7 +27,8 @@ export default function UseParentWorkspaceRoute() {
         . Components rendered within a Workspace (including tab content) can use
         it to open, close, and arrange tabs without passing refs or props down
         to them. For example, a link within a tab can open a file in another
-        tab:
+        tab. <code>addTab</code> adds it to the active tabset (the one the user
+        most recently interacted with), or selects its tab if it's already open:
       </div>
       <Code html={html} />
       <Callout intent="primary">

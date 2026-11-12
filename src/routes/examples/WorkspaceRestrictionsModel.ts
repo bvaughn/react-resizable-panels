@@ -20,7 +20,6 @@ const initialModel: WorkspaceModel<TabData, TabsetData> = {
         type: "tabset",
         id: "sidebar",
         size: 30,
-        // Other tabs can't be dropped into this tabset (see disableDrop below)
         data: { acceptsDrops: false },
         tabs: [
           {

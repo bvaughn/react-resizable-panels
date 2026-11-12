@@ -8,7 +8,6 @@ function Editor() {
   const ref = useRef<HTMLTextAreaElement>(null);
   const isVisible = useParentTabState()?.isVisible;
 
-  // Focus the editor whenever its tab is shown
   useEffect(() => {
     if (isVisible) {
       ref.current?.focus();

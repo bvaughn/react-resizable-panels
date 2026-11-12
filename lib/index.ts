@@ -26,6 +26,7 @@ export { useParentTabsetState } from "./workspace/hooks/useParentTabsetState";
 export { useParentTabState } from "./workspace/hooks/useParentTabState";
 export { useParentWorkspace } from "./workspace/hooks/useParentWorkspace";
 export { useTabListFreeSpace } from "./workspace/hooks/useTabListFreeSpace";
+export { useTabListOverflow } from "./workspace/hooks/useTabListOverflow";
 export { useWorkspaceCallbackRef } from "./workspace/hooks/useWorkspaceCallbackRef";
 export { useWorkspaceRef } from "./workspace/hooks/useWorkspaceRef";
 export { Workspace } from "./workspace/components/Workspace";
@@ -86,6 +87,7 @@ export type {
   TabCloseButtonState,
   TabDropRegion,
   TabDropTarget,
+  TabListOverflowOptions,
   TabNode,
   TabRemovalSelectionBehavior,
   TabRenderProps,

@@ -9,7 +9,6 @@ function App() {
   return (
     <Workspace
       acceptExternalDrop={{
-        // Browsers use the "Files" type for files dragged from the operating system
         types: ["Files"],
         createTab: (dataTransfer) => {
           const file = dataTransfer.files[0];

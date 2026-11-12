@@ -934,6 +934,134 @@ test.describe("Workspace", () => {
     await expect(freeSpace).toHaveText(String(-Math.round(overflow)));
   });
 
+  test.describe("tab list overflow", () => {
+    function createOverflowingModel(selectedId?: string): WorkspaceModel {
+      return {
+        root: {
+          children: [
+            {
+              id: "left",
+              selectedId,
+              tabs: Array.from({ length: 12 }, (_, index) => ({
+                data: null,
+                id: `t${index + 1}`
+              })),
+              type: "tabset"
+            },
+            { id: "right", tabs: [{ data: null, id: "c" }], type: "tabset" }
+          ],
+          id: "root",
+          orientation: "horizontal",
+          type: "split"
+        },
+        version: 1
+      };
+    }
+
+    async function renderOverflowing(
+      mainPage: Page,
+      selectedId?: string,
+      direction?: "rtl"
+    ) {
+      const page = await goToUrl(
+        mainPage,
+        <Workspace
+          defaultModel={createOverflowingModel(selectedId)}
+          renderTabContent={() => null}
+          // A test-only prop (see the test app's Workspace)
+          {...({ showTabListOverflow: true } as object)}
+          style={direction ? { direction } : undefined}
+        />
+      );
+      return page;
+    }
+
+    async function getHiddenIds(
+      page: Page,
+      kind: "overflow" | "overflow-clipped"
+    ) {
+      const text = await page.getByTestId(`${kind}-left`).textContent();
+      return text ? text.split(",") : [];
+    }
+
+    // Tabs that are out of view, measured by the test rather than by the library
+    async function measureTabs(page: Page) {
+      return getTabset(page, "left")
+        .locator("[data-tab-list]")
+        .evaluate((list) => {
+          const listRect = list.getBoundingClientRect();
+          const hidden: string[] = [];
+          const clipped: string[] = [];
+          for (const tab of list.querySelectorAll("[data-tab]")) {
+            const rect = tab.getBoundingClientRect();
+            const id = tab.getAttribute("data-tab-id")!;
+            if (
+              rect.right <= listRect.left + 1 ||
+              rect.left >= listRect.right - 1
+            ) {
+              hidden.push(id);
+            } else if (
+              rect.left < listRect.left - 1 ||
+              rect.right > listRect.right + 1
+            ) {
+              clipped.push(id);
+            }
+          }
+          return { clipped, hidden };
+        });
+    }
+
+    for (const direction of [undefined, "rtl"] as const) {
+      const name = direction ? "right-to-left" : "left-to-right";
+
+      test(`reports hidden tabs, and scrolls a clicked tab into view (${name})`, async ({
+        page: mainPage
+      }) => {
+        const page = await renderOverflowing(mainPage, undefined, direction);
+
+        await expect
+          .poll(async () => (await getHiddenIds(page, "overflow")).length)
+          .toBeGreaterThan(0);
+        const measured = await measureTabs(page);
+        expect(await getHiddenIds(page, "overflow")).toEqual(measured.hidden);
+        expect(await getHiddenIds(page, "overflow-clipped")).toEqual(
+          [...measured.clipped, ...measured.hidden].sort(
+            (a, b) => Number(a.slice(1)) - Number(b.slice(1))
+          )
+        );
+        expect(measured.hidden).toContain("t12");
+
+        // A tab that's cut off by the end of the list is scrolled fully into view when it's selected
+        const clippedId = measured.clipped[0];
+        expect(clippedId).toBeDefined();
+        await getTab(page, clippedId!).click();
+        await expect(getTab(page, clippedId!)).toHaveAttribute(
+          "aria-selected",
+          "true"
+        );
+        await expect
+          .poll(async () => (await measureTabs(page)).clipped)
+          .not.toContain(clippedId);
+        expect((await measureTabs(page)).hidden).not.toContain(clippedId);
+        expect(await getHiddenIds(page, "overflow")).toEqual(
+          (await measureTabs(page)).hidden
+        );
+      });
+    }
+
+    test("scrolls the selected tab into view when the workspace first renders", async ({
+      page: mainPage
+    }) => {
+      const page = await renderOverflowing(mainPage, "t12");
+
+      await expect
+        .poll(async () => (await measureTabs(page)).hidden)
+        .not.toContain("t12");
+      expect((await measureTabs(page)).clipped).not.toContain("t12");
+      expect(await getHiddenIds(page, "overflow")).toContain("t1");
+    });
+  });
+
   test("keeps measuring the free space once the tab list is squeezed to 0px", async ({
     page: mainPage
   }) => {

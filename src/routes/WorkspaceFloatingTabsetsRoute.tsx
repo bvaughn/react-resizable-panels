@@ -13,7 +13,9 @@ export default function WorkspaceFloatingTabsetsRoute() {
         A tabset can float above the layout, e.g. a notepad that can be moved
         out of the way of the content beneath it. Floating tabsets are listed in
         the model's <code>floating</code> field, in stacking order (the last one
-        is on top), with their positions and sizes in pixels:
+        is on top), with their positions and sizes in pixels. Positions are
+        relative to the top left corner of the layout, even in right-to-left
+        layouts:
       </div>
       <Code html={FloatingModelHTML} />
       <SectionHeader>Moving and resizing floating tabsets</SectionHeader>
@@ -43,7 +45,9 @@ export default function WorkspaceFloatingTabsetsRoute() {
         <code>float</code> functions of the <code>useParentTab</code> and{" "}
         <code>useParentTabset</code> hooks) move a tab or tabset into a new
         floating tabset; moving a floating tabset beside the others (e.g. with{" "}
-        <code>moveTabset</code>) docks it:
+        <code>moveTabset</code>) docks it. The only tabset in a workspace fills
+        it, so it can't float, which is why the button below renders nothing for
+        it:
       </div>
       <Code html={FloatButtonHTML} />
       <div>

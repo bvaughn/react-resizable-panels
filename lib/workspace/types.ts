@@ -675,6 +675,23 @@ export interface WorkspaceImperativeHandle<
   getTabListFreeSpace: (tabsetId: string) => number | undefined;
 
   /**
+   * Ids of a tabset's tabs that are out of view (scrolled out of its tab list, which overflows), in the order they're shown;
+   * e.g. to list them in an overflow menu.
+   *
+   * ℹ️ The same array is returned until the tabs out of view change.
+   * Tabs that aren't rendered at all (e.g. hidden with `display: none`) aren't included.
+   *
+   * ℹ️ Within a tabset (e.g. its toolbar), the `useTabListOverflow` hook returns this value (and re-renders when it changes).
+   *
+   * @returns The ids of the tabs that are out of view, or `undefined` if the tabset isn't rendered (or hasn't been measured yet, e.g. while server rendering,
+   * or right after the tabset is first rendered: it's measured after React commits, before the browser paints)
+   */
+  getTabListOverflow: (
+    tabsetId: string,
+    options?: TabListOverflowOptions
+  ) => string[] | undefined;
+
+  /**
    * Maximize a tabset, so that it covers the rest of the workspace.
    *
    * ℹ️ This has no effect on the only tabset in a workspace (the root), which already fills it, or on a floating tabset.
@@ -712,6 +729,8 @@ export interface WorkspaceImperativeHandle<
 
   /**
    * Select a tab within its tabset.
+   *
+   * ℹ️ Like a tab selected any other way, it's scrolled into view if its tab list overflows.
    */
   selectTab: (tabId: string) => void;
 
@@ -760,6 +779,23 @@ export interface WorkspaceImperativeHandle<
   subscribeToTabListFreeSpace: (
     tabsetId: string,
     listener: (freeSpace: number | undefined) => void
+  ) => () => void;
+
+  /**
+   * Subscribe to changes to which of a tabset's tabs are out of view (see `getTabListOverflow`),
+   * e.g. from an overflow menu rendered outside of the Workspace.
+   *
+   * ℹ️ The listener is called synchronously when the tab list is measured (when it's scrolled, when it or its tabs change size, or when tabs are added or removed),
+   * before the browser paints, except while the user scrolls the list (it's reported in the scroll event, and the browser may show the new position first).
+   *
+   * ℹ️ The listener is called with `undefined` when the tabset is removed (e.g. closed, or merged into another tabset).
+   *
+   * @returns A function that unsubscribes the listener
+   */
+  subscribeToTabListOverflow: (
+    tabsetId: string,
+    listener: (tabIds: string[] | undefined) => void,
+    options?: TabListOverflowOptions
   ) => () => void;
 
   /**
@@ -894,9 +930,27 @@ export type ParentTabset<TabData = unknown> = {
   restore: () => void;
 
   /**
+   * Select a tab within this tabset (e.g. from an overflow menu; see `useTabListOverflow`).
+   *
+   * ℹ️ This has no effect if the tab isn't in this tabset; use `WorkspaceImperativeHandle.selectTab` to select a tab in any tabset.
+   */
+  selectTab: (tabId: string) => void;
+
+  /**
    * Id of the Workspace that contains the tabset.
    */
   workspaceId: string;
+};
+
+/**
+ * Options for which tabs count as out of view (see `useTabListOverflow`).
+ */
+export type TabListOverflowOptions = {
+  /**
+   * Also include tabs that are only partly visible (cut off by an edge of the tab list), e.g. for an overflow menu that lists them too.
+   * By default, only tabs that are entirely out of view are included.
+   */
+  includePartiallyVisible?: boolean | undefined;
 };
 
 /**

@@ -16,7 +16,6 @@ declare const initialModel: WorkspaceModel<TabData>;
   defaultModel={initialModel}
   renderTabContent={(tab) => <TabContent kind={tab.data.kind} />}
   renderTabsetToolbar={() => (
-    // Has a data-disabled attribute when the tabset can't be dragged (e.g. to hide it)
     <TabsetDragHandle className="drag-handle">⠿</TabsetDragHandle>
   )}
 />

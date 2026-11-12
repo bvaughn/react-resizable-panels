@@ -35,6 +35,13 @@ export default function WorkspacePopoutWindowsRoute() {
       </div>
       <Code html={PopoutWindowsHTML} />
       <div>
+        A new window starts out blank, so the example copies the app's
+        stylesheets into it. It renders the popout's Workspace into an element
+        created by the new window's <code>document</code> (rather than the
+        app's), so the Workspace belongs to that window, e.g. for its event
+        listeners and observers.
+      </div>
+      <div>
         Drag a tab (or a tabset) out of the window below and release it to open
         it in a new window. Tabs can also be dragged between this window and the
         popout windows (see <code>dragGroup</code> below). The "Open in new

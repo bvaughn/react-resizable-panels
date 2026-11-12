@@ -27,7 +27,6 @@ const initialModel: WorkspaceModel<{ path: string }> = {
       {
         type: "tabset",
         id: "editors",
-        // Stays (as a drop target) after its last tab is closed
         keepWhenEmpty: true,
         tabs: [
           /* ... */
@@ -41,7 +40,6 @@ function CloseTabsetButton() {
   const tabset = useParentTabset();
   const isRoot = useParentTabsetState()?.isRoot;
 
-  // Closing the only tabset in a workspace would just close its tabs
   if (isRoot) {
     return null;
   }

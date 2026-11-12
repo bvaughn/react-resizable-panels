@@ -14,7 +14,6 @@ function Editor({ path }: { path: string }) {
   const workspace = useParentWorkspace();
   const { hasUnsavedChanges, isDeleted, name } = useFile(path);
 
-  // Show unsaved changes in the tab's title
   useEffect(() => {
     if (tab) {
       workspace?.updateTab(tab.id, {
@@ -23,7 +22,6 @@ function Editor({ path }: { path: string }) {
     }
   }, [hasUnsavedChanges, name, tab, workspace]);
 
-  // Close the tab if its file is deleted
   useEffect(() => {
     if (isDeleted) {
       tab?.close();
