@@ -95,7 +95,6 @@ describe("usePopoutWindows", () => {
         <>
           <Workspace<TabData>
             defaultModel={createModel("1", "2")}
-            onTearOff={popouts.onTearOff}
             renderTabContent={(tab) => tab.data.label}
             workspaceRef={workspaceRef}
           />
@@ -239,22 +238,6 @@ describe("usePopoutWindows", () => {
     expect(popups[0]!.close).toHaveBeenCalled();
     expect(popouts.current!.popouts).toHaveLength(0);
     expect(onClose).not.toHaveBeenCalled();
-  });
-
-  test("opens torn-off tabs in popout windows", () => {
-    const { popouts } = renderHook();
-
-    let result = false;
-    act(() => {
-      result = popouts.current!.onTearOff({
-        model: createModel("torn"),
-        tab: tab("torn"),
-        type: "tab",
-        ...RECT
-      });
-    });
-    expect(result).toBe(true);
-    expect(popouts.current!.popouts).toHaveLength(1);
   });
 
   test("closes popout windows (without moving their tabs) when the page is hidden, or the component unmounts", () => {
@@ -432,6 +415,27 @@ describe("usePopoutWindows", () => {
       popups[0]!.dispatchEvent(new Event("pagehide"));
     });
     expect(getTabIds(workspaceRef)).toEqual(["1", "popped"]);
+  });
+
+  test("getState reports where a popout was opened if the browser reports the opener's position as its own (e.g. Brave)", () => {
+    open.mockImplementation(() => {
+      const popup = createFakePopup();
+      Object.assign(popup, {
+        screenX: window.screenX,
+        screenY: window.screenY
+      });
+      popups.push(popup);
+      return popup;
+    });
+    const { popouts } = renderHook();
+    openPopout(popouts);
+
+    expect(popouts.current!.getState()[0]!.rect).toEqual({
+      height: 250,
+      screenX: 10,
+      screenY: 21,
+      width: 350
+    });
   });
 
   test("getState reports each popout's current model and position", () => {

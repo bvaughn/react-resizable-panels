@@ -184,10 +184,6 @@
         {
           "content": "<p>A tab dragged to another copy of the application is sent there with the structured clone algorithm (like <code>postMessage</code>), so its data must be cloneable (e.g. no functions);\ntabs whose data can't be cloned (and tabsets containing them) can only be dragged within their copy of the application.\nCopies loaded at different times may be running different versions of the application, so the other copy may need to handle tab data it doesn't recognize.</p>\n",
           "intent": "warning"
-        },
-        {
-          "content": "<p>Tabs (and tabsets) can still be torn off (see <code>onTearOff</code>), but some browsers (e.g. Safari) block popup windows opened at the end of a drag that uses the browser's drag and drop.</p>\n",
-          "intent": "warning"
         }
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">dragGroup</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
@@ -254,6 +250,14 @@
         {
           "content": "<p>This is called while the release of the pointer is being handled (which browsers treat as user input), so a popup can be opened from it.\nWith the <code>dragGroup</code> prop, a tab is torn off when it's dropped outside of every window in the group; the end of those drags isn't treated as user input,\nso browsers block popups opened then unless the drag started a few seconds earlier at most (and Safari blocks them always).</p>\n",
           "intent": "primary"
+        },
+        {
+          "content": "<p>Deprecated: browsers don't reliably report where a drag that leaves the window ends, and some block popups opened at the end of a drag.\nOpen popout windows from a button instead (see <code>usePopoutWindows</code>). This will be removed in the next major version.</p>\n",
+          "intent": "warning"
+        },
+        {
+          "content": "<p>This prop has been deprecated. Open popout windows from a button instead (see <code>usePopoutWindows</code>).</p>\n",
+          "intent": "danger"
         }
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onTearOff</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">args</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TearOffArgs</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"tok-punctuation\">)</span></div>",
@@ -266,7 +270,7 @@
           "content": "<p>Content of the element that follows the pointer while a tab is being dragged.\nDefaults to the tab's title (or id).</p>\n"
         },
         {
-          "content": "<p>The element has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tab (see <code>onTearOff</code>).</p>\n",
+          "content": "<p>The element has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tab (see the deprecated <code>onTearOff</code> prop).</p>\n",
           "intent": "primary"
         }
       ],
@@ -280,7 +284,7 @@
           "content": "<p>Content of the element that follows the pointer while a whole tabset is being dragged.\nDefaults to the title (or id) of its selected tab followed by the number of other tabs being dragged (e.g. &quot;One (+2)&quot;), or the selected tab's <code>renderDragPreview</code> when that prop is set, or the tabset's id if it has no tabs.</p>\n"
         },
         {
-          "content": "<p>The element has a <code>data-drag-type</code> attribute: <code>&quot;tabset&quot;</code> while a tabset is dragged, and <code>&quot;tab&quot;</code> while a tab is.\nIt also has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tabset (see <code>onTearOff</code>).</p>\n",
+          "content": "<p>The element has a <code>data-drag-type</code> attribute: <code>&quot;tabset&quot;</code> while a tabset is dragged, and <code>&quot;tab&quot;</code> while a tab is.\nIt also has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tabset (see the deprecated <code>onTearOff</code> prop).</p>\n",
           "intent": "primary"
         }
       ],

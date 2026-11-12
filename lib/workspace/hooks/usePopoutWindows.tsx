@@ -22,12 +22,15 @@ import type {
   WorkspaceModelInput
 } from "../types";
 import { copyStyleSheets } from "../utils/copyStyleSheets";
+import { getPopupPosition } from "../utils/getPopupPosition";
 
 type Entry<TabData, TabsetData> = {
   dispose: () => void;
   isClosed: boolean;
   // The popout's latest model, until its Workspace mounts (or after it unmounts)
   model: WorkspaceModel<TabData, TabsetData>;
+  // Where the popup was opened (see getState)
+  openedAt: { screenX: number; screenY: number };
   popout: PopoutWindow;
   props: PopoutWorkspaceProps<TabData, TabsetData>;
 };
@@ -37,8 +40,7 @@ type CloseReason = "app" | "empty" | "user";
 let nextPopoutId = 0;
 
 /**
- * Opens tabs (and tabsets) in popout windows: when they're dropped outside of the window (see the Workspace's `onTearOff` prop),
- * or with the returned `open` function (e.g. from a button).
+ * Opens tabs (and tabsets) in popout windows, with the returned `open` function (e.g. from a button that pops out a tab).
  * Each popout window shows its own Workspace, rendered by the returned `render` function.
  *
  * - The page's stylesheets are copied into each popout window (see `copyStyles`)
@@ -121,15 +123,24 @@ export function usePopoutWindows<TabData = unknown, TabsetData = unknown>(
 
   const getState = useCallback(
     () =>
-      Array.from(entriesRef.current.values(), (entry) => ({
-        model: entry.props.workspaceRef.current?.getModel() ?? entry.model,
-        rect: {
-          height: entry.popout.window.innerHeight,
-          screenX: entry.popout.window.screenX,
-          screenY: entry.popout.window.screenY,
-          width: entry.popout.window.innerWidth
-        }
-      })),
+      Array.from(entriesRef.current.values(), (entry) => {
+        const { window: popup } = entry.popout;
+        const { screenX, screenY } = getPopupPosition(
+          popup,
+          window,
+          entry.openedAt
+        );
+
+        return {
+          model: entry.props.workspaceRef.current?.getModel() ?? entry.model,
+          rect: {
+            height: popup.innerHeight,
+            screenX,
+            screenY,
+            width: popup.innerWidth
+          }
+        };
+      }),
     []
   );
 
@@ -167,14 +178,15 @@ export function usePopoutWindows<TabData = unknown, TabsetData = unknown>(
         return false;
       }
 
+      const { height, screenX, screenY, width } = rect;
       const popup = window.open(
         "",
         "",
         [
-          `left=${Math.round(rect.screenX)}`,
-          `top=${Math.round(rect.screenY)}`,
-          `width=${Math.round(rect.width)}`,
-          `height=${Math.round(rect.height)}`
+          `left=${Math.round(screenX)}`,
+          `top=${Math.round(screenY)}`,
+          `width=${Math.round(width)}`,
+          `height=${Math.round(height)}`
         ].join(",")
       );
       if (!popup) {
@@ -196,6 +208,10 @@ export function usePopoutWindows<TabData = unknown, TabsetData = unknown>(
         },
         isClosed: false,
         model: normalizedModel,
+        openedAt: {
+          screenX: Math.round(screenX),
+          screenY: Math.round(screenY)
+        },
         popout: { container, id: `popout-${nextPopoutId++}`, window: popup },
         props: {
           defaultModel: normalizedModel,
@@ -233,7 +249,6 @@ export function usePopoutWindows<TabData = unknown, TabsetData = unknown>(
     () => ({
       closeAll,
       getState,
-      onTearOff: ({ model, ...rect }) => open(model, rect),
       open,
       popouts: entries.map(({ popout }) => popout),
       render: (renderWorkspace) =>

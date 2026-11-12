@@ -37,9 +37,9 @@ export default function WorkspaceMultipleWindowsRoute() {
       </div>
       <SectionHeader>Tab content in other windows</SectionHeader>
       <div>
-        Unlike tabs moved within a workspace, a tab that gets "torn off" (or
-        dropped into another workspace) will be rendered inside of the new
-        Workspace. State that should survive the move belongs in the tab's{" "}
+        Unlike tabs moved within a workspace, a tab that's dropped into another
+        workspace (or opened in a popout window) will be rendered inside of the
+        new Workspace. State that should survive the move belongs in the tab's{" "}
         <code>data</code> then rather than component state.
       </div>
       <Callout>

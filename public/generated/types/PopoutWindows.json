@@ -20,21 +20,15 @@
       "description": [
         {
           "content": "<p>Each popout window's current model and where it is on screen, e.g. to save them (and open them again later with <code>open</code>).</p>\n"
+        },
+        {
+          "content": "<p>A popup that reports the opener's exact position as its own (e.g. in Brave) is reported where it was opened instead.</p>\n",
+          "intent": "primary"
         }
       ],
       "name": "getState",
       "optional": false,
       "type": "() => PopoutWindowState<TabData, TabsetData>[]"
-    },
-    {
-      "description": [
-        {
-          "content": "<p>Pass to the main Workspace's <code>onTearOff</code> prop, to open tabs (and tabsets) dropped outside of the window in popout windows.</p>\n"
-        }
-      ],
-      "name": "onTearOff",
-      "optional": false,
-      "type": "(args: TearOffArgs<TabData, TabsetData>) => boolean"
     },
     {
       "description": [

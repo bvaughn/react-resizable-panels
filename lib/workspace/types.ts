@@ -411,6 +411,8 @@ export type TabDropTarget =
  * Which change caused `onModelChanged` to be called.
  *
  * ⚠️ New reasons may be added in later versions.
+ *
+ * ℹ️ `"tear-off"` is only reported with the deprecated `onTearOff` prop, and will be removed along with it.
  */
 export type WorkspaceChangeReason =
   | "add"
@@ -642,13 +644,10 @@ export type PopoutWindows<TabData = unknown, TabsetData = unknown> = {
 
   /**
    * Each popout window's current model and where it is on screen, e.g. to save them (and open them again later with `open`).
+   *
+   * ℹ️ A popup that reports the opener's exact position as its own (e.g. in Brave) is reported where it was opened instead.
    */
   getState: () => PopoutWindowState<TabData, TabsetData>[];
-
-  /**
-   * Pass to the main Workspace's `onTearOff` prop, to open tabs (and tabsets) dropped outside of the window in popout windows.
-   */
-  onTearOff: (args: TearOffArgs<TabData, TabsetData>) => boolean;
 
   /**
    * Open a popout window showing a model (e.g. from a button that pops out a tab, or to restore a saved popout).
@@ -684,6 +683,10 @@ export type PopoutWindows<TabData = unknown, TabsetData = unknown> = {
 /**
  * Arguments passed to the Workspace's `onTearOff` prop: the tab (or whole tabset) dropped outside of the window,
  * and a model for showing it in a new workspace (e.g. in a popup window).
+ *
+ * @deprecated Browsers don't reliably report where a drag that leaves the window ends (so a popup can't be opened where the tab was released),
+ * and some block popups opened at the end of a drag. Open popout windows from a button instead (see `usePopoutWindows`).
+ * This will be removed in the next major version.
  */
 export type TearOffArgs<TabData = unknown, TabsetData = unknown> = (
   | {
@@ -738,6 +741,8 @@ export type DragPreviewState = {
    * only when the Workspace has an `onTearOff` prop.
    *
    * ℹ️ This is never set for mouse drags when the Workspace has a `dragGroup` prop, since the pointer can't be followed outside of the window then.
+   *
+   * @deprecated Along with the Workspace's `onTearOff` prop; this will be removed in the next major version.
    */
   isTearOff: boolean;
 };
@@ -1446,8 +1451,6 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * ⚠️ A tab dragged to another copy of the application is sent there with the structured clone algorithm (like `postMessage`), so its data must be cloneable (e.g. no functions);
    * tabs whose data can't be cloned (and tabsets containing them) can only be dragged within their copy of the application.
    * Copies loaded at different times may be running different versions of the application, so the other copy may need to handle tab data it doesn't recognize.
-   *
-   * ⚠️ Tabs (and tabsets) can still be torn off (see `onTearOff`), but some browsers (e.g. Safari) block popup windows opened at the end of a drag that uses the browser's drag and drop.
    */
   dragGroup?: string | undefined;
 
@@ -1510,6 +1513,11 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * ℹ️ This is called while the release of the pointer is being handled (which browsers treat as user input), so a popup can be opened from it.
    * With the `dragGroup` prop, a tab is torn off when it's dropped outside of every window in the group; the end of those drags isn't treated as user input,
    * so browsers block popups opened then unless the drag started a few seconds earlier at most (and Safari blocks them always).
+   *
+   * ⚠️ Deprecated: browsers don't reliably report where a drag that leaves the window ends, and some block popups opened at the end of a drag.
+   * Open popout windows from a button instead (see `usePopoutWindows`). This will be removed in the next major version.
+   *
+   * @deprecated Open popout windows from a button instead (see `usePopoutWindows`).
    */
   onTearOff?: ((args: TearOffArgs<TabData, TabsetData>) => boolean) | undefined;
 
@@ -1517,7 +1525,7 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * Content of the element that follows the pointer while a tab is being dragged.
    * Defaults to the tab's title (or id).
    *
-   * ℹ️ The element has a `data-tear-off` attribute while releasing the pointer would tear off the tab (see `onTearOff`).
+   * ℹ️ The element has a `data-tear-off` attribute while releasing the pointer would tear off the tab (see the deprecated `onTearOff` prop).
    */
   renderDragPreview?:
     | ((tab: TabNode<TabData>, state: DragPreviewState) => ReactNode)
@@ -1528,7 +1536,7 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * Defaults to the title (or id) of its selected tab followed by the number of other tabs being dragged (e.g. "One (+2)"), or the selected tab's `renderDragPreview` when that prop is set, or the tabset's id if it has no tabs.
    *
    * ℹ️ The element has a `data-drag-type` attribute: `"tabset"` while a tabset is dragged, and `"tab"` while a tab is.
-   * It also has a `data-tear-off` attribute while releasing the pointer would tear off the tabset (see `onTearOff`).
+   * It also has a `data-tear-off` attribute while releasing the pointer would tear off the tabset (see the deprecated `onTearOff` prop).
    */
   renderTabsetDragPreview?:
     | ((

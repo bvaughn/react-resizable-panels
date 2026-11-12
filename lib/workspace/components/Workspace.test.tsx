@@ -119,6 +119,30 @@ function isShown(element: HTMLElement) {
   );
 }
 
+const TEAR_OFF_DEPRECATION = "The Workspace onTearOff prop is deprecated";
+
+// The deprecated onTearOff prop logs a warning (in development); other warnings still fail the test (see vitest.setup.ts)
+function allowTearOffDeprecationWarning() {
+  let restore: (() => void) | undefined;
+  beforeEach(() => {
+    const spy = vi.spyOn(console, "warn");
+    const prevImplementation = spy.getMockImplementation();
+    spy.mockImplementation((message: unknown, ...rest: unknown[]) => {
+      if (!String(message).includes(TEAR_OFF_DEPRECATION)) {
+        prevImplementation?.(message, ...rest);
+      }
+    });
+    restore = () => {
+      if (prevImplementation) {
+        spy.mockImplementation(prevImplementation);
+      }
+    };
+  });
+  afterEach(() => {
+    restore?.();
+  });
+}
+
 describe("Workspace", () => {
   beforeEach(() => {
     resetWarnOnceForTest();
@@ -2490,6 +2514,8 @@ describe("Workspace", () => {
     });
 
     describe("between workspaces (dragGroup)", () => {
+      allowTearOffDeprecationWarning();
+
       // Includes the type that identifies the drag from another page posted below (with the id "remote")
       function createDataTransfer(id = "remote") {
         return {
@@ -3361,6 +3387,26 @@ describe("Workspace", () => {
     });
 
     describe("tearing off", () => {
+      allowTearOffDeprecationWarning();
+
+      test("warns (once) that the onTearOff prop is deprecated", () => {
+        const warn = vi.spyOn(console, "warn");
+        warn.mockClear();
+        const { rerender } = renderWorkspace({ onTearOff: () => true });
+        rerender(
+          <Workspace<TabData>
+            defaultModel={createModel()}
+            onTearOff={() => false}
+            renderTabContent={(tab) => <Content tab={tab} />}
+          />
+        );
+
+        const calls = warn.mock.calls.filter(([message]) =>
+          String(message).includes(TEAR_OFF_DEPRECATION)
+        );
+        expect(calls).toHaveLength(1);
+      });
+
       // jsdom's window is 1024x768; the pointer is moved past its left edge
       const outside = {
         clientX: -10,

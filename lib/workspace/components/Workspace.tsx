@@ -18,6 +18,7 @@ import { useId } from "../../shared/hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../shared/hooks/useMergedRefs";
 import { useStableCallback } from "../../shared/hooks/useStableCallback";
+import { warnOnce } from "../../shared/utils/warnOnce";
 import { getTestId } from "../../shared/utils/getTestId";
 import { ParentGridContext } from "../../grid/contexts/ParentGridContext";
 import { ParentGroupContext } from "../../flex/contexts/ParentGroupContext";
@@ -806,6 +807,15 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       }),
     [updateModel]
   );
+
+  const hasOnTearOff = !!onTearOff;
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production" && hasOnTearOff) {
+      warnOnce(
+        "The Workspace onTearOff prop is deprecated and will be removed in the next major version; open popout windows from a button instead (see usePopoutWindows)"
+      );
+    }
+  }, [hasOnTearOff]);
 
   // Sources removed during the drag (e.g. by the imperative API) can't be torn off;
   // neither can tabsets with the keepWhenEmpty flag, which applications anchor in place

@@ -49,7 +49,6 @@ function App() {
           localStorage.setItem("model", JSON.stringify(model))
         }
         dragGroup="editor"
-        onTearOff={popouts.onTearOff}
         renderTabContent={(tab) => <Editor path={tab.data.path} />}
         workspaceRef={workspaceRef}
       />
