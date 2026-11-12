@@ -11,13 +11,11 @@ function FloatButton() {
   const tabset = useParentTabset();
   const state = useParentTabsetState();
 
-  // The only tabset in a workspace fills it, so it can't float
   if (!workspace || !tabset || !state || state.isRoot) {
     return null;
   }
 
   return state.isFloating ? (
-    // Moving a floating tabset beside the others docks it
     <button onClick={() => workspace.moveTabset(tabset.id, { edge: "right" })}>
       Dock
     </button>

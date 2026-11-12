@@ -25,8 +25,6 @@ const floatingModel: WorkspaceModel<TabData> = {
       }
     ]
   },
-  // Floats above the layout; positions and sizes are in pixels,
-  // relative to the top left corner of the layout
   floating: [
     {
       type: "tabset",

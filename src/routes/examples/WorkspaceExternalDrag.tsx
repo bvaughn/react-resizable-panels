@@ -19,7 +19,6 @@ function App({ widgets }: { widgets: Widget[] }) {
           key={widget.kind}
           onPointerDown={(event) =>
             workspaceRef.current?.startExternalDrag(event, {
-              // Added where it's dropped (if it's dropped within the workspace)
               tab: {
                 data: { kind: widget.kind },
                 id: crypto.randomUUID(),
@@ -27,7 +26,6 @@ function App({ widgets }: { widgets: Widget[] }) {
               }
             })
           }
-          // So that touch input drags the button, rather than scrolling the page
           style={{ touchAction: "none" }}
         >
           {widget.title}

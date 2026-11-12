@@ -143,6 +143,9 @@ export const routes = {
   "/hooks/use-tab-list-free-space": lazy(
     () => import("./routes/UseTabListFreeSpaceRoute")
   ),
+  "/hooks/use-tab-list-overflow": lazy(
+    () => import("./routes/UseTabListOverflowRoute")
+  ),
   "/hooks/use-workspace-callback-ref": lazy(
     () => import("./routes/UseWorkspaceCallbackRefRoute")
   ),

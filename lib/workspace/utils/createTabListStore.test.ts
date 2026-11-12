@@ -1,9 +1,9 @@
 import { describe, expect, test, vi } from "vitest";
-import { createTabListFreeSpaceStore } from "./createTabListFreeSpaceStore";
+import { createTabListStore } from "./createTabListStore";
 
-describe("createTabListFreeSpaceStore", () => {
+describe("createTabListStore", () => {
   test("notifies a tabset's subscribers when its free space changes", () => {
-    const store = createTabListFreeSpaceStore();
+    const store = createTabListStore();
     const listener = vi.fn();
     const otherListener = vi.fn();
     store.subscribe("a", listener);
@@ -23,7 +23,7 @@ describe("createTabListFreeSpaceStore", () => {
   });
 
   test("clears a tabset's free space once its tab list is removed (unless another one is rendered)", async () => {
-    const store = createTabListFreeSpaceStore();
+    const store = createTabListStore();
     const listener = vi.fn();
     store.subscribe("a", listener);
 
@@ -44,7 +44,7 @@ describe("createTabListFreeSpaceStore", () => {
   });
 
   test("stops notifying unsubscribed listeners", () => {
-    const store = createTabListFreeSpaceStore();
+    const store = createTabListStore();
     const listener = vi.fn();
     const unsubscribe = store.subscribe("a", listener);
 
@@ -60,7 +60,7 @@ describe("createTabListFreeSpaceStore", () => {
       "hasOwnProperty",
       "toString"
     ]) {
-      const store = createTabListFreeSpaceStore();
+      const store = createTabListStore();
       const listener = vi.fn();
       store.subscribe(tabsetId, listener);
 
@@ -71,7 +71,7 @@ describe("createTabListFreeSpaceStore", () => {
   });
 
   test("calls every listener even if one throws", () => {
-    const store = createTabListFreeSpaceStore();
+    const store = createTabListStore();
     const listener = vi.fn();
     store.subscribe("a", () => {
       throw Error("listener error");
@@ -80,5 +80,24 @@ describe("createTabListFreeSpaceStore", () => {
 
     expect(() => store.set("a", 100)).toThrow("listener error");
     expect(listener).toHaveBeenCalledWith(100);
+  });
+
+  test("compares values with the given function", () => {
+    const store = createTabListStore<string[]>((a, b) => a.join() === b.join());
+    const listener = vi.fn();
+    store.subscribe("a", listener);
+
+    // An equal (but not identical) value doesn't notify subscribers
+    for (let index = 0; index < 2; index++) {
+      store.set("a", ["1"]);
+    }
+    expect(listener).toHaveBeenCalledTimes(1);
+
+    store.set("a", ["1", "2"]);
+    expect(listener).toHaveBeenCalledTimes(2);
+
+    store.set("a", undefined);
+    expect(listener).toHaveBeenCalledTimes(3);
+    expect(listener).toHaveBeenLastCalledWith(undefined);
   });
 });

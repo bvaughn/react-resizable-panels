@@ -32,7 +32,9 @@ import {
 import { WorkspaceStoreContext } from "../contexts/WorkspaceStoreContext";
 import { calculateSizeLimits } from "../utils/calculateSizeLimits";
 import { createDragStore } from "../utils/createDragStore";
-import { createTabListFreeSpaceStore } from "../utils/createTabListFreeSpaceStore";
+import { createTabListStore } from "../utils/createTabListStore";
+import { getHiddenTabIds } from "../utils/getHiddenTabIds";
+import type { TabListOverflowState } from "../utils/measureTabListOverflow";
 import { createTabsetElementRegistry } from "../utils/createTabsetElementRegistry";
 import {
   createWorkspaceStore,
@@ -191,7 +193,13 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   );
 
   // Tab lists report their free space here (rather than in React state), so that it can be read synchronously, e.g. from outside the Workspace
-  const [tabListFreeSpaceStore] = useState(createTabListFreeSpaceStore);
+  const [tabListFreeSpaceStore] = useState(() => createTabListStore<number>());
+  const [tabListOverflowStore] = useState(() =>
+    // Measured lists are reused while they're the same (see measureTabListOverflow), so they're compared by reference
+    createTabListStore<TabListOverflowState>(
+      (a, b) => a.hidden === b.hidden && a.hiddenOrClipped === b.hiddenOrClipped
+    )
+  );
 
   // The tab (or tabset) being dragged, and where it would be dropped (see createDragStore)
   const [dragStore] = useState(createDragStore);
@@ -272,6 +280,8 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       getActiveTabsetId,
       getModel: () => modelRef.current,
       getTabListFreeSpace: (tabsetId) => tabListFreeSpaceStore.get(tabsetId),
+      getTabListOverflow: (tabsetId, options) =>
+        getHiddenTabIds(tabListOverflowStore.get(tabsetId), options),
       maximizeTabset: (tabsetId) =>
         updateModel("maximize", false, (prev) =>
           maximizeTabset(prev, tabsetId)
@@ -307,6 +317,20 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         startExternalDragRef.current?.(event, options) ?? Promise.resolve(null),
       subscribeToTabListFreeSpace: (tabsetId, listener) =>
         tabListFreeSpaceStore.subscribe(tabsetId, listener),
+      subscribeToTabListOverflow: (tabsetId, listener, options) => {
+        // Only changes to the requested list are reported
+        let prevTabIds = getHiddenTabIds(
+          tabListOverflowStore.get(tabsetId),
+          options
+        );
+        return tabListOverflowStore.subscribe(tabsetId, (state) => {
+          const tabIds = getHiddenTabIds(state, options);
+          if (tabIds !== prevTabIds) {
+            prevTabIds = tabIds;
+            listener(tabIds);
+          }
+        });
+      },
       updateTab: (tabId, changes) =>
         updateModel("update", false, (prev) => updateTab(prev, tabId, changes)),
       updateTabset: (tabsetId, changes) =>
@@ -314,7 +338,12 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
           updateTabset(prev, tabsetId, changes)
         )
     };
-  }, [tabListFreeSpaceStore, tabsetElements, updateModel]);
+  }, [
+    tabListFreeSpaceStore,
+    tabListOverflowStore,
+    tabsetElements,
+    updateModel
+  ]);
 
   useImperativeHandle(
     workspaceRef as Ref<WorkspaceImperativeHandle> | undefined,
@@ -379,6 +408,14 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
           restore: () => {
             if (modelRef.current.maximizedTabsetId === tabsetId) {
               handle.restoreTabset();
+            }
+          },
+          selectTab: (tabId) => {
+            if (
+              getModelIndex(modelRef.current).tabsetsByTabId.get(tabId)?.id ===
+              tabsetId
+            ) {
+              handle.selectTab(tabId);
             }
           },
           workspaceId: id
@@ -1003,6 +1040,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       startTabsetDrag,
       styles,
       tabListFreeSpaceStore,
+      tabListOverflowStore,
       tabPlacement,
       tabsetElements,
       takeFocusRequest,
@@ -1049,6 +1087,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       startTabsetDrag,
       styles,
       tabListFreeSpaceStore,
+      tabListOverflowStore,
       tabPlacement,
       tabsetElements,
       takeFocusRequest,

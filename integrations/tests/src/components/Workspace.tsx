@@ -10,7 +10,8 @@ import {
   type WorkspaceModel,
   type WorkspaceProps,
   useParentTabsetState,
-  useTabListFreeSpace
+  useTabListFreeSpace,
+  useTabListOverflow
 } from "react-resizable-panels";
 
 // Props that can be serialized for tests (render functions are provided by this component)
@@ -33,6 +34,8 @@ export type TestWorkspaceProps = Omit<
   // Renders a toolbar that shows each tabset's tab list free space (and makes tab lists fill their headers);
   // a "responsive" toolbar shrinks when there's little free space (like a toolbar that moves items into an overflow menu)
   showTabListFreeSpace?: boolean | "responsive" | undefined;
+  // Renders a toolbar that shows the ids of each tabset's tabs that are out of view (and makes tab lists fill their headers)
+  showTabListOverflow?: boolean | undefined;
   // Renders a toolbar that shows each tabset's state (see useParentTabsetState) as data attributes
   showTabsetState?: boolean | undefined;
   // Adds an onTearOff prop that records its arguments and accepts (or rejects) each tear off
@@ -49,6 +52,7 @@ const NARROW_TOOLBAR_WIDTH = 20;
 
 export function Workspace({
   showTabListFreeSpace,
+  showTabListOverflow,
   showTabsetState,
   style,
   tearOff,
@@ -90,9 +94,11 @@ export function Workspace({
                   tabsetId={tabset.id}
                 />
               )
-            : showTabsetState
-              ? (tabset) => <TabsetState tabsetId={tabset.id} />
-              : undefined
+            : showTabListOverflow
+              ? (tabset) => <Overflow tabsetId={tabset.id} />
+              : showTabsetState
+                ? (tabset) => <TabsetState tabsetId={tabset.id} />
+                : undefined
         }
         style={{ height: 400, width: 808, ...style }}
         styles={{
@@ -103,14 +109,15 @@ export function Workspace({
             gap: 4,
             padding: "0 10px"
           },
-          tabList: showTabListFreeSpace
-            ? {
-                display: "flex",
-                flex: "1 1 0",
-                minWidth: 0,
-                overflow: "hidden"
-              }
-            : { display: "flex" },
+          tabList:
+            showTabListFreeSpace || showTabListOverflow
+              ? {
+                  display: "flex",
+                  flex: "1 1 0",
+                  minWidth: 0,
+                  overflow: "hidden"
+                }
+              : { display: "flex" },
           tabPanels: { flex: "1 1 0", minHeight: 0 },
           tabset: {
             background: "#020617",
@@ -184,6 +191,20 @@ function FreeSpace({
       }}
     >
       {String(freeSpace)}
+    </div>
+  );
+}
+
+function Overflow({ tabsetId }: { tabsetId: string }) {
+  const hidden = useTabListOverflow();
+  const hiddenOrClipped = useTabListOverflow({ includePartiallyVisible: true });
+
+  return (
+    <div style={{ overflow: "hidden", width: FREE_SPACE_TOOLBAR_WIDTH }}>
+      <span data-testid={`overflow-${tabsetId}`}>{hidden.join(",")}</span>
+      <span data-testid={`overflow-clipped-${tabsetId}`}>
+        {hiddenOrClipped.join(",")}
+      </span>
     </div>
   );
 }

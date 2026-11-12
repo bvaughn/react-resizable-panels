@@ -4,6 +4,8 @@
 
 - Add the `Workspace` `startExternalDrag` method, which drags a new tab in from outside of the workspace (e.g. from a palette of widgets). - [#808](https://github.com/bvaughn/react-resizable-panels/issues/808)
 - Add the `Workspace` `acceptExternalDrop` prop, which creates tabs from the browser's drag and drop (e.g. `draggable` elements or files). - [#808](https://github.com/bvaughn/react-resizable-panels/issues/808)
+- Add the `useTabListOverflow` hook, which returns the ids of a tabset's tabs that are scrolled out of view (e.g. for an overflow menu), and the `getTabListOverflow` and `subscribeToTabListOverflow` methods. - [#816](https://github.com/bvaughn/react-resizable-panels/issues/816)
+- A selected `Workspace` tab is scrolled into view if its tab list overflows, and `useParentTabset` has a new `selectTab` method. - [#816](https://github.com/bvaughn/react-resizable-panels/issues/816)
 
 ## 4.21.0
 

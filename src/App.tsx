@@ -284,6 +284,10 @@ const nav: NavConfig<Path | DefaultPath> = [
           {
             path: "/hooks/use-tab-list-free-space",
             title: "useTabListFreeSpace"
+          },
+          {
+            path: "/hooks/use-tab-list-overflow",
+            title: "useTabListOverflow"
           }
         ]
       },

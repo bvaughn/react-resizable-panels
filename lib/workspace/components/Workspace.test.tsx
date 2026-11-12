@@ -18,6 +18,7 @@ import { TabsetDragHandle } from "./TabsetDragHandle";
 import type {
   DisableDropArgs,
   ParentTab,
+  ParentTabset,
   ParentTabsetState,
   ParentTabState,
   SplitNode,
@@ -33,8 +34,10 @@ import { useParentTabsetState } from "../hooks/useParentTabsetState";
 import { useParentTabState } from "../hooks/useParentTabState";
 import { useParentWorkspace } from "../hooks/useParentWorkspace";
 import { useTabListFreeSpace } from "../hooks/useTabListFreeSpace";
+import { useTabListOverflow } from "../hooks/useTabListOverflow";
 import { getRegisteredAxis } from "../../global/mutable-state/axes";
 import { updateInteractionState } from "../../global/mutable-state/interactions";
+import { emitter } from "../../shared/utils/test/mockBoundingClientRect";
 import { Workspace } from "./Workspace";
 
 type TabData = { label: string };
@@ -1663,6 +1666,410 @@ describe("Workspace", () => {
       );
 
       unsubscribe();
+    });
+  });
+
+  describe("tab list overflow", () => {
+    // jsdom doesn't lay out elements; tab lists are 150px wide, and their tabs are 100px wide, side by side (offset by how far the list is scrolled)
+    const scrollOffsets = new Map<Element, number>();
+    let listWidth = 150;
+
+    function getRect(element: HTMLElement): DOMRect | undefined {
+      if (element.hasAttribute("data-tab-list")) {
+        return DOMRect.fromRect({ height: 30, width: listWidth, x: 0, y: 0 });
+      }
+
+      const list = element.closest("[data-tab-list]");
+      if (element.hasAttribute("data-tab") && list) {
+        const index = Array.from(list.querySelectorAll("[data-tab]")).indexOf(
+          element
+        );
+        return DOMRect.fromRect({
+          height: 30,
+          width: 100,
+          x: index * 100 - (scrollOffsets.get(list) ?? 0),
+          y: 0
+        });
+      }
+    }
+
+    // Scrolls a list (as the user would), and dispatches its scroll event
+    function scrollList(list: Element, offset: number) {
+      act(() => {
+        scrollOffsets.set(list, offset);
+        list.dispatchEvent(new Event("scroll"));
+      });
+    }
+
+    beforeEach(() => {
+      const getBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
+      vi.spyOn(
+        HTMLElement.prototype,
+        "getBoundingClientRect"
+      ).mockImplementation(function (this: HTMLElement) {
+        return getRect(this) ?? getBoundingClientRect.call(this);
+      });
+      const getClientRects = HTMLElement.prototype.getClientRects;
+      vi.spyOn(HTMLElement.prototype, "getClientRects").mockImplementation(
+        function (this: HTMLElement) {
+          const rect = getRect(this);
+          return rect
+            ? ([rect] as unknown as DOMRectList)
+            : getClientRects.call(this);
+        }
+      );
+      const offsetWidth = Object.getOwnPropertyDescriptor(
+        HTMLElement.prototype,
+        "offsetWidth"
+      )!.get!;
+      vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(
+        function (this: HTMLElement) {
+          return this.hasAttribute("data-tab-list")
+            ? listWidth
+            : offsetWidth.call(this);
+        }
+      );
+      Element.prototype.scrollBy = function (
+        this: Element,
+        options?: ScrollToOptions | number
+      ) {
+        const left = typeof options === "object" ? (options.left ?? 0) : 0;
+        scrollOffsets.set(this, (scrollOffsets.get(this) ?? 0) + left);
+        this.dispatchEvent(new Event("scroll"));
+      } as Element["scrollBy"];
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+      scrollOffsets.clear();
+      listWidth = 150;
+      delete (Element.prototype as Partial<Element>).scrollBy;
+    });
+
+    function createOverflowingModel(): WorkspaceModel<TabData> {
+      return {
+        root: {
+          children: [
+            {
+              id: "left",
+              selectedId: "1",
+              tabs: [tab("1"), tab("2"), tab("3"), tab("4")],
+              type: "tabset"
+            },
+            {
+              id: "right",
+              selectedId: "5",
+              tabs: [tab("5")],
+              type: "tabset"
+            }
+          ],
+          id: "root",
+          orientation: "horizontal",
+          type: "split"
+        },
+        version: 1
+      };
+    }
+
+    function Overflow() {
+      const tabset = useParentTabset();
+      const hiddenTabIds = useTabListOverflow();
+      const partlyHiddenTabIds = useTabListOverflow({
+        includePartiallyVisible: true
+      });
+      return (
+        <div data-testid={`overflow-${tabset?.id}`}>
+          {hiddenTabIds.join(",")}|{partlyHiddenTabIds.join(",")}
+        </div>
+      );
+    }
+
+    function getTabList(container: HTMLElement, tabsetId: string) {
+      return container.querySelector<HTMLElement>(
+        `[data-tabset-id="${tabsetId}"] [data-tab-list]`
+      )!;
+    }
+
+    test("is reported by the imperative API and useTabListOverflow", async () => {
+      const { workspaceRef } = renderWorkspace({
+        defaultModel: createOverflowingModel(),
+        renderTabsetToolbar: () => <Overflow />
+      });
+
+      // Tab lists are first measured after the commit (but before the browser paints)
+      expect(workspaceRef.current!.getTabListOverflow("left")).toBe(undefined);
+      expect(screen.getByTestId("overflow-left")).toHaveTextContent("|");
+      await act(async () => {});
+
+      // Tab 2 is cut off by the end of the list, and tabs 3 and 4 are beyond it
+      expect(workspaceRef.current!.getTabListOverflow("left")).toEqual([
+        "3",
+        "4"
+      ]);
+      expect(
+        workspaceRef.current!.getTabListOverflow("left", {
+          includePartiallyVisible: true
+        })
+      ).toEqual(["2", "3", "4"]);
+      expect(screen.getByTestId("overflow-left")).toHaveTextContent(
+        "3,4|2,3,4"
+      );
+      expect(screen.getByTestId("overflow-right")).toHaveTextContent("|");
+      expect(workspaceRef.current!.getTabListOverflow("missing")).toBe(
+        undefined
+      );
+    });
+
+    test("is updated when the tab list is scrolled", async () => {
+      const { container } = renderWorkspace({
+        defaultModel: createOverflowingModel(),
+        renderTabsetToolbar: () => <Overflow />
+      });
+      await act(async () => {});
+
+      scrollList(getTabList(container, "left"), 200);
+      expect(screen.getByTestId("overflow-left")).toHaveTextContent(
+        "1,2|1,2,4"
+      );
+    });
+
+    test("the selected tab is scrolled into view when it's selected", async () => {
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: createOverflowingModel(),
+        renderTabsetToolbar: () => <Overflow />
+      });
+      await act(async () => {});
+
+      // Scrolled just far enough to show all of tab 4
+      act(() => {
+        workspaceRef.current!.selectTab("4");
+      });
+      expect(scrollOffsets.get(getTabList(container, "left"))).toBe(250);
+      expect(screen.getByTestId("overflow-left")).toHaveTextContent(
+        "1,2|1,2,3"
+      );
+
+      // A tab that's already visible doesn't scroll the list
+      act(() => {
+        workspaceRef.current!.selectTab("3");
+      });
+      expect(scrollOffsets.get(getTabList(container, "left"))).toBe(200);
+    });
+
+    test("the selected tab is scrolled into view when the tab list is first rendered", () => {
+      const defaultModel = createOverflowingModel();
+      (defaultModel.root as SplitNode<TabData>).children[0] = {
+        ...((defaultModel.root as SplitNode<TabData>)
+          .children[0] as TabsetNode<TabData>),
+        selectedId: "3"
+      };
+
+      const { container } = renderWorkspace({ defaultModel });
+      expect(scrollOffsets.get(getTabList(container, "left"))).toBe(150);
+    });
+
+    test("the selected tab is scrolled into view once a tab list that had no size is measured", async () => {
+      const defaultModel = createOverflowingModel();
+      (defaultModel.root as SplitNode<TabData>).children[0] = {
+        ...((defaultModel.root as SplitNode<TabData>)
+          .children[0] as TabsetNode<TabData>),
+        selectedId: "3"
+      };
+
+      listWidth = 0;
+      const { container } = renderWorkspace({ defaultModel });
+      await act(async () => {});
+      expect(scrollOffsets.get(getTabList(container, "left"))).toBe(undefined);
+
+      // The list is resized (e.g. its container is shown)
+      listWidth = 150;
+      act(() => {
+        emitter.emit("change");
+      });
+      expect(scrollOffsets.get(getTabList(container, "left"))).toBe(150);
+
+      // The list isn't scrolled again when it's resized afterward
+      scrollList(getTabList(container, "left"), 0);
+      act(() => {
+        emitter.emit("change");
+      });
+      expect(scrollOffsets.get(getTabList(container, "left"))).toBe(0);
+    });
+
+    test("overflow survives the tabset being maximized and restored", async () => {
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: createOverflowingModel()
+      });
+      await act(async () => {});
+      expect(workspaceRef.current!.getTabListOverflow("left")).toEqual([
+        "3",
+        "4"
+      ]);
+
+      const listener = vi.fn();
+      const unsubscribe = workspaceRef.current!.subscribeToTabListOverflow(
+        "left",
+        listener
+      );
+
+      // The tab list is rendered again in the overlay
+      act(() => {
+        workspaceRef.current!.maximizeTabset("left");
+      });
+      await act(async () => {});
+      expect(workspaceRef.current!.getTabListOverflow("left")).toEqual([
+        "3",
+        "4"
+      ]);
+
+      act(() => {
+        workspaceRef.current!.selectTab("4");
+      });
+      const maximized = container.querySelector("[data-workspace-maximized]")!;
+      const overlayList =
+        maximized.querySelector<HTMLElement>("[data-tab-list]")!;
+      expect(scrollOffsets.get(overlayList)).toBe(250);
+      expect(workspaceRef.current!.getTabListOverflow("left")).toEqual([
+        "1",
+        "2"
+      ]);
+
+      act(() => {
+        workspaceRef.current!.restoreTabset();
+      });
+      await act(async () => {});
+      expect(container.querySelector("[data-workspace-maximized]")).toBeNull();
+      expect(scrollOffsets.get(getTabList(container, "left"))).toBe(250);
+      expect(workspaceRef.current!.getTabListOverflow("left")).toEqual([
+        "1",
+        "2"
+      ]);
+      expect(listener).not.toHaveBeenCalledWith(undefined);
+      unsubscribe();
+    });
+
+    test("ParentTabset.selectTab selects tabs within the tabset", async () => {
+      let parentTabset: ParentTabset | null = null;
+      function Toolbar() {
+        const tabset = useParentTabset();
+        if (tabset?.id === "left") {
+          parentTabset = tabset;
+        }
+        return null;
+      }
+
+      const { onModelChanged } = renderWorkspace({
+        defaultModel: createOverflowingModel(),
+        renderTabsetToolbar: () => <Toolbar />
+      });
+
+      // Tabs in other tabsets aren't selected
+      act(() => {
+        parentTabset!.selectTab("5");
+        parentTabset!.selectTab("missing");
+      });
+      expect(onModelChanged).not.toHaveBeenCalled();
+
+      act(() => {
+        parentTabset!.selectTab("4");
+      });
+      expect(getTab("4")).toHaveAttribute("aria-selected", "true");
+      expect(onModelChanged).toHaveBeenLastCalledWith(
+        expect.anything(),
+        expect.objectContaining({ reason: "select" })
+      );
+    });
+
+    test("notifies subscribers when the requested tabs change, and when the tabset is removed", async () => {
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: createOverflowingModel()
+      });
+      await act(async () => {});
+      const listener = vi.fn();
+      const unsubscribe = workspaceRef.current!.subscribeToTabListOverflow(
+        "left",
+        listener
+      );
+      const partialListener = vi.fn();
+      const unsubscribePartial =
+        workspaceRef.current!.subscribeToTabListOverflow(
+          "left",
+          partialListener,
+          { includePartiallyVisible: true }
+        );
+
+      // Tab 1 is cut off once the list is scrolled at all, but tabs 3 and 4 are still the only ones entirely out of view
+      scrollList(getTabList(container, "left"), 25);
+      expect(listener).not.toHaveBeenCalled();
+      expect(partialListener).toHaveBeenCalledTimes(1);
+      expect(partialListener).toHaveBeenLastCalledWith(["1", "2", "3", "4"]);
+
+      // Scrolling further without changing which tabs are out of view doesn't notify subscribers again
+      scrollList(getTabList(container, "left"), 40);
+      expect(partialListener).toHaveBeenCalledTimes(1);
+
+      scrollList(getTabList(container, "left"), 100);
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenLastCalledWith(["1", "4"]);
+      expect(partialListener).toHaveBeenCalledTimes(2);
+      expect(partialListener).toHaveBeenLastCalledWith(["1", "3", "4"]);
+
+      act(() => {
+        workspaceRef.current!.closeTabset("left");
+      });
+      await act(async () => {});
+      expect(listener).toHaveBeenLastCalledWith(undefined);
+      expect(partialListener).toHaveBeenLastCalledWith(undefined);
+      expect(workspaceRef.current!.getTabListOverflow("left")).toBe(undefined);
+
+      unsubscribe();
+      unsubscribePartial();
+    });
+
+    test("useTabListOverflow returns the same array until the requested tabs change", async () => {
+      const renders: string[][] = [];
+      function Overflow() {
+        const tabset = useParentTabset();
+        const hiddenTabIds = useTabListOverflow();
+        if (tabset?.id === "left") {
+          renders.push(hiddenTabIds);
+        }
+        return null;
+      }
+
+      const { container } = renderWorkspace({
+        defaultModel: createOverflowingModel(),
+        renderTabsetToolbar: () => <Overflow />
+      });
+      await act(async () => {});
+      const renderCount = renders.length;
+      const lastTabIds = renders[renders.length - 1];
+
+      // Only partly visible tabs change
+      scrollList(getTabList(container, "left"), 25);
+      expect(renders.length).toBe(renderCount);
+      expect(lastTabIds).toEqual(["3", "4"]);
+
+      scrollList(getTabList(container, "left"), 100);
+      expect(renders.length).toBe(renderCount + 1);
+      expect(renders[renders.length - 1]).toEqual(["1", "4"]);
+    });
+
+    test("useTabListOverflow reports no tabs outside of a tabset", () => {
+      function Overflow() {
+        const hiddenTabIds = useTabListOverflow();
+        const partlyHiddenTabIds = useTabListOverflow({
+          includePartiallyVisible: true
+        });
+        return (
+          <div data-testid="overflow">
+            {hiddenTabIds.length}|{partlyHiddenTabIds.length}
+          </div>
+        );
+      }
+
+      render(<Overflow />);
+      expect(screen.getByTestId("overflow")).toHaveTextContent("0|0");
     });
   });
 

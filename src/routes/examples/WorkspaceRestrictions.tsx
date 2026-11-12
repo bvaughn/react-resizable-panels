@@ -11,7 +11,6 @@ declare const isLocked: boolean;
   defaultModel={initialModel}
   disabled={isLocked}
   disableDrop={({ model, target }) => {
-    // Drops at the edges of the workspace (beside all of the tabsets) have no tabset
     if ("edge" in target) {
       return false;
     }

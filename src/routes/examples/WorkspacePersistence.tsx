@@ -14,7 +14,7 @@ function loadModel(): WorkspaceModel<TabData> | undefined {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : undefined;
   } catch {
-    // Fall back to the initial model (e.g. if the saved model is corrupt)
+    return undefined;
   }
 }
 

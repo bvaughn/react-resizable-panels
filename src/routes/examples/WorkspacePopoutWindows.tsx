@@ -26,7 +26,6 @@ function App() {
   const workspaceRef = useWorkspaceRef<TabData>();
   const [popouts, setPopouts] = useState<Popout[]>([]);
 
-  // Tabs left in a popout window when it's closed are moved back
   const closePopout = ({ id, popup }: Popout, tabs: TabNode<TabData>[]) => {
     setPopouts((prev) => prev.filter((popout) => popout.id !== id));
     tabs.forEach((tab) => workspaceRef.current?.addTab(tab));
@@ -38,25 +37,21 @@ function App() {
       <Workspace
         defaultModel={initialModel}
         onTearOff={({ height, model, screenX, screenY, width }) => {
-          // Opened while the pointer's release is handled, so it isn't blocked as an unrequested popup
           const popup = window.open(
             "",
             "",
             `left=${screenX},top=${screenY},width=${width},height=${height}`
           );
           if (!popup) {
-            // Blocked anyway; keep the tab where it was
             return false;
           }
 
-          // The popup starts out blank, so the app's styles are copied into it
           for (const element of document.querySelectorAll(
             "link[rel=stylesheet], style"
           )) {
             popup.document.head.append(element.cloneNode(true));
           }
 
-          // Created by the popup's document, so that the workspace belongs to the popup window
           const container = popup.document.createElement("div");
           popup.document.body.append(container);
 
@@ -104,7 +99,6 @@ function PopoutWindow({
     <Workspace
       defaultModel={model}
       onModelChanged={(model) => {
-        // Closed once its last tab is closed
         if (getAllTabs(model.root).length === 0) {
           onClose([]);
         }

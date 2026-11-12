@@ -82,6 +82,18 @@ export default function WorkspaceRestrictionsRoute() {
       </div>
       <Code html={ModelHTML} />
       <Code html={html} />
+      <div>
+        Drops at the{" "}
+        <Link
+          anchor="dropping-at-the-edges-of-the-workspace"
+          to="/examples/workspace/managing-tabsets"
+        >
+          edges of the workspace
+        </Link>{" "}
+        (beside all of the tabsets) don't have a <code>tabsetId</code>, so the
+        function checks for an <code>edge</code> before looking up the target
+        tabset.
+      </div>
       <Callout>
         None of these restrict the{" "}
         <Link to="/imperative-api/workspace">imperative API</Link>; it can still

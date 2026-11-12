@@ -5,8 +5,6 @@ declare const initialModel: WorkspaceModel<{ path: string }>;
 
 // <begin>
 
-// The server reads the saved model (e.g. from a cookie) and passes it to the app,
-// so the server and client render the same layout
 function App({
   savedModel
 }: {

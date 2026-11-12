@@ -8,7 +8,6 @@ function FileLink({ path }: { path: string }) {
   return (
     <button
       onClick={() =>
-        // Opens the file in the active tabset (or selects its tab if it's already open)
         workspace?.addTab({ data: { path }, id: path, title: path })
       }
     >

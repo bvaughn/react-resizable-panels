@@ -9,7 +9,8 @@ import type { ParentGroup, ParentPanel } from "../../flex/types";
 import type { ParentGrid } from "../../grid/types";
 import type { ModelIndex } from "../models/indexModel";
 import type { DragStore } from "../utils/createDragStore";
-import type { TabListFreeSpaceStore } from "../utils/createTabListFreeSpaceStore";
+import type { TabListStore } from "../utils/createTabListStore";
+import type { TabListOverflowState } from "../utils/measureTabListOverflow";
 import type { TabsetElementRegistry } from "../utils/createTabsetElementRegistry";
 import type {
   HiddenTabBehavior,
@@ -117,7 +118,8 @@ export type WorkspaceContextType = {
     event: ReactPointerEvent<HTMLElement>
   ) => void;
   styles: WorkspaceStyles | undefined;
-  tabListFreeSpaceStore: TabListFreeSpaceStore;
+  tabListFreeSpaceStore: TabListStore<number>;
+  tabListOverflowStore: TabListStore<TabListOverflowState>;
   tabPlacement: "bottom" | "left" | "right" | "top";
   // Elements of the workspace's tabsets (see TabsetSlot), e.g. for hit testing drags
   tabsetElements: TabsetElementRegistry;

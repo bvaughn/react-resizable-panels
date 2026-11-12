@@ -11,7 +11,6 @@ import { useWorkspaceRef } from "react-resizable-panels";
 function App() {
   const workspaceRef = useWorkspaceRef<{ path: string }>();
 
-  // Files are identified by their path, so opening a file that's already open selects its tab
   const openFile = (path: string) =>
     workspaceRef.current?.addTab({
       data: { path },

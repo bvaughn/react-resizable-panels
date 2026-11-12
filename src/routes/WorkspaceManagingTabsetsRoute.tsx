@@ -58,7 +58,9 @@ export default function WorkspaceManagingTabsetsRoute() {
         (e.g. an editor area that should remain as a drop target), showing the
         Workspace's <code>renderEmptyTabset</code> content, until it's closed
         with the <code>closeTabset</code> method or the{" "}
-        <code>useParentTabset</code> hook's <code>close</code> function:
+        <code>useParentTabset</code> hook's <code>close</code> function. The
+        example hides its close button in the only tabset in the workspace,
+        since closing it would just close its tabs:
       </div>
       <Code html={KeepWhenEmptyHTML} />
       <div>
@@ -93,7 +95,9 @@ export default function WorkspaceManagingTabsetsRoute() {
         </Link>{" "}
         (or any element with a <code>data-tabset-drag-handle</code> attribute)
         within a tabset's header replaces its empty space: once a header has a
-        handle, only the handle drags the tabset.
+        handle, only the handle drags the tabset. The handle has a{" "}
+        <code>data-disabled</code> attribute while the tabset can't be dragged
+        (e.g. to hide or dim it).
       </div>
       <Code html={TabsetDragHandleHTML} />
       <DemoWorkspace
