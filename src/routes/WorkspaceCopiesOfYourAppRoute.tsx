@@ -1,4 +1,5 @@
-import { Box, Callout, Header } from "react-lib-tools";
+import { Box, Callout, Code, Header } from "react-lib-tools";
+import { html as CopiesOfYourAppHTML } from "../../public/generated/examples/WorkspaceCopiesOfYourApp.json";
 import { Link } from "../components/Link";
 import { BrowserFrame } from "../components/workspace/BrowserFrame";
 
@@ -11,8 +12,10 @@ export default function WorkspaceCopiesOfYourAppRoute() {
         app loaded in another browser window or tab) are part of the same{" "}
         <Link to="/examples/workspace/multiple-windows">drag group</Link>. A tab
         dropped into another copy will be handed off using a structured clone
-        algorithm (like <code>postMessage</code>).
+        algorithm (like <code>postMessage</code>). Each copy renders its
+        Workspace with the same <code>dragGroup</code>:
       </div>
+      <Code html={CopiesOfYourAppHTML} />
       <div>
         Each frame below loads its own copy of a small app with a workspace, so
         tabs dragged between them are sent between copies.

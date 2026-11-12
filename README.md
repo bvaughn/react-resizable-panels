@@ -980,7 +980,6 @@ A tab dragged to another workspace is rendered by that workspace, so its content
 <p>⚠️ A tab dragged to another copy of the application is sent there with the structured clone algorithm (like <code>postMessage</code>), so its data must be cloneable (e.g. no functions);
 tabs whose data can&#39;t be cloned (and tabsets containing them) can only be dragged within their copy of the application.
 Copies loaded at different times may be running different versions of the application, so the other copy may need to handle tab data it doesn&#39;t recognize.</p>
-<p>⚠️ Tabs (and tabsets) can still be torn off (see <code>onTearOff</code>), but some browsers (e.g. Safari) block popup windows opened at the end of a drag that uses the browser&#39;s drag and drop.</p>
 </td>
     </tr>
     <tr>
@@ -1022,13 +1021,16 @@ and return <code>false</code> then to keep the tab; returning <code>true</code> 
 <p>ℹ️ This is called while the release of the pointer is being handled (which browsers treat as user input), so a popup can be opened from it.
 With the <code>dragGroup</code> prop, a tab is torn off when it&#39;s dropped outside of every window in the group; the end of those drags isn&#39;t treated as user input,
 so browsers block popups opened then unless the drag started a few seconds earlier at most (and Safari blocks them always).</p>
+<p>⚠️ Deprecated: browsers don&#39;t reliably report where a drag that leaves the window ends, and some block popups opened at the end of a drag.
+Open popout windows from a button instead (see <code>usePopoutWindows</code>). This will be removed in the next major version.
+@deprecated Open popout windows from a button instead (see <code>usePopoutWindows</code>).</p>
 </td>
     </tr>
     <tr>
       <td>renderDragPreview</td>
       <td><p>Content of the element that follows the pointer while a tab is being dragged.
 Defaults to the tab&#39;s title (or id).</p>
-<p>ℹ️ The element has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tab (see <code>onTearOff</code>).</p>
+<p>ℹ️ The element has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tab (see the deprecated <code>onTearOff</code> prop).</p>
 </td>
     </tr>
     <tr>
@@ -1036,7 +1038,7 @@ Defaults to the tab&#39;s title (or id).</p>
       <td><p>Content of the element that follows the pointer while a whole tabset is being dragged.
 Defaults to the title (or id) of its selected tab followed by the number of other tabs being dragged (e.g. &quot;One (+2)&quot;), or the selected tab&#39;s <code>renderDragPreview</code> when that prop is set, or the tabset&#39;s id if it has no tabs.</p>
 <p>ℹ️ The element has a <code>data-drag-type</code> attribute: <code>&quot;tabset&quot;</code> while a tabset is dragged, and <code>&quot;tab&quot;</code> while a tab is.
-It also has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tabset (see <code>onTearOff</code>).</p>
+It also has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tabset (see the deprecated <code>onTearOff</code> prop).</p>
 </td>
     </tr>
     <tr>

@@ -29,11 +29,10 @@ export default function UsePopoutWindowsRoute() {
         title="usePopoutWindows"
       />
       <div>
-        The <code>usePopoutWindows</code> hook opens tabs (and tabsets) dropped
-        outside of the window in popout windows, each with its own Workspace.
-        Pass its <code>onTearOff</code> function to the main Workspace, and
-        render the Workspaces it returns from <code>render</code> alongside it
-        (see{" "}
+        The <code>usePopoutWindows</code> hook opens tabs in popout windows,
+        each with its own Workspace. Call its <code>open</code> function (e.g.
+        from a button that pops out a tab), and render the Workspaces it returns
+        from <code>render</code> alongside the main one (see{" "}
         <Link to="/examples/workspace/multiple-windows/popout-windows">
           popout windows
         </Link>{" "}
@@ -48,10 +47,9 @@ export default function UsePopoutWindowsRoute() {
         component that uses the hook).
       </div>
       <Callout intent="primary">
-        The <code>open</code> function opens a popout window for a model, e.g.
-        from a button that pops out a tab. Browsers block popup windows that
-        aren't opened in response to user input (and some block popups opened at
-        the end of a drag), so call it from a click.
+        Browsers block popup windows that aren't opened in response to user
+        input, so call <code>open</code> from a click (or another user action).
+        It returns <code>false</code> if the window was blocked.
       </Callout>
       <SectionHeader>Customizing popout windows</SectionHeader>
       <div>

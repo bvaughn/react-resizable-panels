@@ -65,14 +65,19 @@ export function PopoutWindowsDemo() {
         defaultModel={initialModel}
         // Tabs can be dragged between this window and the popups
         dragGroup={DRAG_GROUP}
-        onPopOut={(tabset, tab) => {
-          // Opened by a click (rather than at the end of a drag), which every browser allows
+        onPopOut={(tabset) => {
           const rect = document
             .querySelector(`[data-tabset-id="${tabset.id}"]`)
             ?.getBoundingClientRect();
           const isOpened = popouts.open(
             {
-              root: { selectedId: tab.id, tabs: [tab], type: "tabset" },
+              // A new id is assigned, so the tabset can be dragged back without conflicting with the one it was popped out of
+              root: {
+                data: tabset.data,
+                selectedId: tabset.selectedId,
+                tabs: tabset.tabs,
+                type: "tabset"
+              },
               version: 1
             },
             {
@@ -83,13 +88,9 @@ export function PopoutWindowsDemo() {
             }
           );
           if (isOpened) {
-            workspaceRef.current?.closeTab(tab.id);
+            workspaceRef.current?.closeTabset(tabset.id);
           }
         }}
-        onTearOff={popouts.onTearOff}
-        renderDragPreview={(tab, { isTearOff }) =>
-          isTearOff ? `Open ${tab.title} in a new window` : tab.title
-        }
         showResetButton
         workspaceRef={workspaceRef}
       />
