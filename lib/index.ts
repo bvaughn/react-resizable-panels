@@ -25,6 +25,7 @@ export { useParentTabset } from "./workspace/hooks/useParentTabset";
 export { useParentTabsetState } from "./workspace/hooks/useParentTabsetState";
 export { useParentTabState } from "./workspace/hooks/useParentTabState";
 export { useParentWorkspace } from "./workspace/hooks/useParentWorkspace";
+export { usePopoutWindows } from "./workspace/hooks/usePopoutWindows";
 export { useTabListFreeSpace } from "./workspace/hooks/useTabListFreeSpace";
 export { useTabListOverflow } from "./workspace/hooks/useTabListOverflow";
 export { useWorkspaceCallbackRef } from "./workspace/hooks/useWorkspaceCallbackRef";
@@ -80,6 +81,11 @@ export type {
   ParentTabsetState,
   ParentTabState,
   ParentWorkspace,
+  PopoutWindow,
+  PopoutWindowRect,
+  PopoutWindows,
+  PopoutWindowState,
+  PopoutWorkspaceProps,
   SplitNode,
   SplitNodeInput,
   StatefulProps,
@@ -100,6 +106,7 @@ export type {
   TabsetNode,
   TabsetNodeInput,
   TearOffArgs,
+  UsePopoutWindowsOptions,
   ValueOrFunction,
   WorkspaceChangedMeta,
   WorkspaceChangeReason,

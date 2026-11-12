@@ -140,6 +140,9 @@ export const routes = {
   "/hooks/use-parent-workspace": lazy(
     () => import("./routes/UseParentWorkspaceRoute")
   ),
+  "/hooks/use-popout-windows": lazy(
+    () => import("./routes/UsePopoutWindowsRoute")
+  ),
   "/hooks/use-tab-list-free-space": lazy(
     () => import("./routes/UseTabListFreeSpaceRoute")
   ),

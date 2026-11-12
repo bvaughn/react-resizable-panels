@@ -1,0 +1,45 @@
+{
+  "description": [
+    {
+      "content": "<p>Props for the Workspace rendered into a popout window (see <code>PopoutWindows.render</code>).</p>\n"
+    },
+    {
+      "content": "<p>The popout window is closed once its workspace has no tabs left (e.g. its last tab is dragged back to the main window);\nif the Workspace needs its own <code>onModelChanged</code> prop, call this one from it.</p>\n",
+      "intent": "primary"
+    }
+  ],
+  "extends": [],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>The popout's initial model</p>\n"
+        }
+      ],
+      "name": "defaultModel",
+      "optional": false,
+      "type": "WorkspaceModel<TabData, TabsetData>"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Closes the popout window once its workspace has no tabs left</p>\n"
+        }
+      ],
+      "name": "onModelChanged",
+      "optional": false,
+      "type": "(model: WorkspaceModel<TabData, TabsetData>, meta: WorkspaceChangedMeta) => void"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Used to read the popout's current model (e.g. when it's closed)</p>\n"
+        }
+      ],
+      "name": "workspaceRef",
+      "optional": false,
+      "type": "RefObject<WorkspaceImperativeHandle<TabData, TabsetData> | null>"
+    }
+  ],
+  "name": "PopoutWorkspaceProps"
+}

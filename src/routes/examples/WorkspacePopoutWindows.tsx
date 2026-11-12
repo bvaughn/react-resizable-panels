@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import {
+  usePopoutWindows,
   useWorkspaceRef,
   Workspace,
-  type TabNode,
   type WorkspaceModel
 } from "react-resizable-panels";
 
@@ -13,106 +11,30 @@ declare const initialModel: WorkspaceModel<{ path: string }>;
 // <begin>
 
 type TabData = { path: string };
-type Popout = {
-  container: HTMLElement;
-  id: number;
-  model: WorkspaceModel<TabData>;
-  popup: Window;
-};
-
-let nextPopoutId = 0;
 
 function App() {
   const workspaceRef = useWorkspaceRef<TabData>();
-  const [popouts, setPopouts] = useState<Popout[]>([]);
-
-  const closePopout = ({ id, popup }: Popout, tabs: TabNode<TabData>[]) => {
-    setPopouts((prev) => prev.filter((popout) => popout.id !== id));
-    tabs.forEach((tab) => workspaceRef.current?.addTab(tab));
-    popup.close();
-  };
+  const popouts = usePopoutWindows({ workspaceRef });
 
   return (
     <>
       <Workspace
         defaultModel={initialModel}
-        onTearOff={({ height, model, screenX, screenY, width }) => {
-          const popup = window.open(
-            "",
-            "",
-            `left=${screenX},top=${screenY},width=${width},height=${height}`
-          );
-          if (!popup) {
-            return false;
-          }
-
-          for (const element of document.querySelectorAll(
-            "link[rel=stylesheet], style"
-          )) {
-            popup.document.head.append(element.cloneNode(true));
-          }
-
-          const container = popup.document.createElement("div");
-          popup.document.body.append(container);
-
-          const id = nextPopoutId++;
-          setPopouts((prev) => [...prev, { container, id, model, popup }]);
-          return true;
-        }}
-        renderDragPreview={(tab, { isTearOff }) =>
-          isTearOff ? `Open ${tab.title} in a new window` : tab.title
-        }
+        dragGroup="editor"
+        onTearOff={popouts.onTearOff}
         renderTabContent={(tab) => <Editor path={tab.data.path} />}
         workspaceRef={workspaceRef}
       />
-      {popouts.map((popout) => (
-        <PopoutWindow
-          key={popout.id}
-          onClose={(tabs) => closePopout(popout, tabs)}
-          popout={popout}
+      {popouts.render((props) => (
+        <Workspace
+          {...props}
+          dragGroup="editor"
+          renderTabContent={(tab) => <Editor path={tab.data.path} />}
+          style={{ height: "100vh" }}
         />
       ))}
     </>
   );
-}
-
-function PopoutWindow({
-  onClose,
-  popout: { container, model, popup }
-}: {
-  onClose: (tabs: TabNode<TabData>[]) => void;
-  popout: Popout;
-}) {
-  const workspaceRef = useWorkspaceRef<TabData>();
-
-  useEffect(() => {
-    const onPageHide = () => {
-      const model = workspaceRef.current?.getModel();
-      onClose(model ? getAllTabs(model.root) : []);
-    };
-
-    popup.addEventListener("pagehide", onPageHide);
-    return () => popup.removeEventListener("pagehide", onPageHide);
-  });
-
-  return createPortal(
-    <Workspace
-      defaultModel={model}
-      onModelChanged={(model) => {
-        if (getAllTabs(model.root).length === 0) {
-          onClose([]);
-        }
-      }}
-      renderTabContent={(tab) => <Editor path={tab.data.path} />}
-      style={{ height: "100vh" }}
-      workspaceRef={workspaceRef}
-    />,
-    container
-  );
-}
-
-function getAllTabs(node: WorkspaceModel<TabData>["root"]): TabNode<TabData>[] {
-  return node.type === "tabset" ? node.tabs : node.children.flatMap(getAllTabs);
 }
 
 // <end>
