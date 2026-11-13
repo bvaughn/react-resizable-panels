@@ -32,6 +32,7 @@ import type { RegisteredResizeAxis } from "./types";
 import { getDefaultLayout } from "./utils/getDefaultLayout";
 import { normalizeLayout } from "./utils/normalizeLayout";
 import { notifyItemOnResize } from "./utils/notifyItemOnResize";
+import { preserveFixedItemSizes } from "./utils/preserveFixedItemSizes";
 import { syncAxisStateToCurrentSize } from "./utils/syncAxisStateToCurrentSize";
 import { validateAxisLayout } from "./utils/validateAxisLayout";
 
@@ -119,12 +120,19 @@ export function mountAxis(axis: RegisteredResizeAxis) {
 
   // Calculate initial layout for the new Panel configuration
   const derivedItemConstraints = calculateItemConstraints(axis, axisSize);
-  const defaultLayoutUnsafe = getDefaultLayout({
-    axis,
-    itemConstraints: derivedItemConstraints
-  });
+  const { axisSize: requestedAxisSize, layout: defaultLayoutUnsafe } =
+    getDefaultLayout({
+      axis,
+      axisSize,
+      itemConstraints: derivedItemConstraints
+    });
   const defaultLayoutSafe = validateAxisLayout({
-    layout: defaultLayoutUnsafe,
+    layout: preserveFixedItemSizes({
+      axis,
+      nextAxisSize: axisSize,
+      prevAxisSize: requestedAxisSize,
+      prevLayout: defaultLayoutUnsafe
+    }),
     itemConstraints: derivedItemConstraints
   });
 
@@ -152,7 +160,7 @@ export function mountAxis(axis: RegisteredResizeAxis) {
     derivedItemConstraints,
     axisSize,
     layout: defaultLayoutSafe,
-    requestedAxisSize: axisSize,
+    requestedAxisSize,
     requestedLayout: normalizeLayout({
       itemIds: axis.items.map(({ id }) => id),
       layout: defaultLayoutUnsafe

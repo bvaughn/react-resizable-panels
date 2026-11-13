@@ -132,7 +132,11 @@ export type RegisteredResizeAxis = Readonly<{
       [itemId: string]: number;
     };
     layouts: {
-      [itemIds: string]: Layout;
+      [itemIds: string]: {
+        axisSize: number;
+        layout: Layout;
+        resizeBehaviors: GroupResizeBehavior[];
+      };
     };
   };
   orientation: Orientation;

@@ -67,7 +67,7 @@ type NormalizedTrack = GridTrackProps & { id: string };
 
 type AxisValues = {
   expandedItemSizes: { [trackId: string]: number };
-  layouts: { [trackIds: string]: Layout };
+  layouts: RegisteredResizeAxis["mutableState"]["layouts"];
 };
 
 const EMPTY_GRID_LAYOUT: GridLayout = { columns: {}, rows: {} };
@@ -514,6 +514,7 @@ function GridComponent({
           defaultLayoutDeferred,
           derivedItemConstraints,
           layout,
+          requestedAxisSize,
           requestedLayout
         } = event.next;
 
@@ -526,6 +527,7 @@ function GridComponent({
           axis,
           layout,
           prevLayout: event.prev?.layout,
+          requestedAxisSize,
           requestedLayout
         });
 

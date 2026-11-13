@@ -840,6 +840,133 @@ describe("Group", () => {
       });
     }
 
+    test.each([false, true])(
+      "preserves pixel sizes when minSize changes after a resize (collapsed: %s)",
+      async (collapsed) => {
+        resizeGroup(212.6);
+
+        const groupRef = createRef<GroupImperativeHandle>();
+        const onLayoutChanged = vi.fn();
+        const size = collapsed ? 64 : 120;
+        const ui = (minSize: string) => (
+          <Group
+            groupRef={groupRef}
+            id="group"
+            onLayoutChanged={onLayoutChanged}
+          >
+            <Panel
+              collapsedSize="64px"
+              collapsible
+              defaultSize={size}
+              groupResizeBehavior="preserve-pixel-size"
+              id="left"
+              minSize={minSize}
+            />
+            <Panel id="right" />
+          </Group>
+        );
+        const { rerender } = render(ui(collapsed ? "100%" : "80px"));
+        expect((groupRef.current!.getLayout().left / 100) * 212.6).toBeCloseTo(
+          size,
+          1
+        );
+
+        await act(() => resizeGroup(600));
+        expect((groupRef.current!.getLayout().left / 100) * 600).toBeCloseTo(
+          size,
+          1
+        );
+        onLayoutChanged.mockClear();
+
+        rerender(ui(collapsed ? "220px" : "100px"));
+        expect((groupRef.current!.getLayout().left / 100) * 600).toBeCloseTo(
+          size,
+          1
+        );
+        expect(onLayoutChanged).not.toHaveBeenCalled();
+      }
+    );
+
+    test.each(["preserve-pixel-size", "preserve-relative-size"] as const)(
+      "restores a requested %s layout after re-registering while constrained",
+      async (groupResizeBehavior) => {
+        resizeGroup(1000);
+
+        const groupRef = createRef<GroupImperativeHandle>();
+        const ui = (minSize: number) => (
+          <Group groupRef={groupRef} id="group">
+            <Panel
+              defaultSize={400}
+              groupResizeBehavior={groupResizeBehavior}
+              id="left"
+              minSize={minSize}
+            />
+            <Panel id="right" />
+          </Group>
+        );
+        const { rerender } = render(ui(220));
+        expect(groupRef.current!.getLayout()).toEqual({ left: 40, right: 60 });
+
+        await act(() => resizeGroup(250));
+        rerender(ui(200));
+
+        await act(() => resizeGroup(1000));
+        expect(groupRef.current!.getLayout()).toEqual({ left: 40, right: 60 });
+      }
+    );
+
+    test("restores pixel sizes when a re-registered hidden group becomes visible", async () => {
+      resizeGroup(1000);
+
+      const groupRef = createRef<GroupImperativeHandle>();
+      const ui = (minSize: number) => (
+        <Group groupRef={groupRef} id="group">
+          <Panel
+            defaultSize={400}
+            groupResizeBehavior="preserve-pixel-size"
+            id="left"
+            minSize={minSize}
+          />
+          <Panel id="right" />
+        </Group>
+      );
+      const { rerender } = render(ui(100));
+      await act(() => resizeGroup(600));
+
+      await act(() => resizeGroup(0));
+      rerender(ui(200));
+
+      await act(() => resizeGroup(800));
+      expect(groupRef.current!.getLayout()).toEqual({ left: 50, right: 50 });
+    });
+
+    test("changing from relative to pixel resize behavior keeps the current size", async () => {
+      resizeGroup(400);
+
+      const groupRef = createRef<GroupImperativeHandle>();
+      const ui = (
+        groupResizeBehavior: "preserve-pixel-size" | "preserve-relative-size"
+      ) => (
+        <Group groupRef={groupRef} id="group">
+          <Panel
+            defaultSize="50%"
+            groupResizeBehavior={groupResizeBehavior}
+            id="left"
+          />
+          <Panel id="right" />
+        </Group>
+      );
+      const { rerender } = render(ui("preserve-relative-size"));
+      await act(() => resizeGroup(600));
+      expect(groupRef.current!.getLayout()).toEqual({ left: 50, right: 50 });
+
+      rerender(ui("preserve-pixel-size"));
+      expect(groupRef.current!.getLayout()).toEqual({ left: 50, right: 50 });
+
+      await act(() => resizeGroup(1000));
+      expect(groupRef.current!.getLayout()).toEqual({ left: 30, right: 70 });
+    });
+
     test("should round the requested layout the same way as the validated layout", () => {
       resizeGroup(1000);
 

@@ -41,13 +41,15 @@ export function syncAxisStateToCurrentSize({
   let requestedAxisSize = axisState.requestedAxisSize;
   let requestedLayout = axisState.requestedLayout;
   if (axisState.defaultLayoutDeferred) {
-    requestedAxisSize = axisSize;
+    const defaultLayout = getDefaultLayout({
+      axis,
+      axisSize,
+      itemConstraints: derivedItemConstraints
+    });
+    requestedAxisSize = defaultLayout.axisSize;
     requestedLayout = normalizeLayout({
       itemIds: axis.items.map(({ id }) => id),
-      layout: getDefaultLayout({
-        axis,
-        itemConstraints: derivedItemConstraints
-      })
+      layout: defaultLayout.layout
     });
   }
 

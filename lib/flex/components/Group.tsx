@@ -94,7 +94,7 @@ function GroupComponent({
 
   const inMemoryValuesRef = useRef<{
     lastExpandedPanelSizes: { [panelIds: string]: number };
-    layouts: { [panelIds: string]: Layout };
+    layouts: RegisteredResizeAxis["mutableState"]["layouts"];
     panels: RegisteredResizeItem[];
     separators: RegisteredSeparator[];
   }>({
@@ -337,6 +337,7 @@ function GroupComponent({
         defaultLayoutDeferred,
         derivedItemConstraints: derivedPanelConstraints,
         layout,
+        requestedAxisSize,
         requestedLayout
       } = event.next;
 
@@ -352,6 +353,7 @@ function GroupComponent({
         axis: group,
         layout,
         prevLayout: event.prev?.layout,
+        requestedAxisSize,
         requestedLayout
       });
 
