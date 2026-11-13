@@ -27,10 +27,21 @@ function RenamableTab({ props, tab }: { props: TabRenderProps; tab: TabNode }) {
   const title = tab.title ?? tab.id;
 
   return (
-    <div {...props} onDoubleClick={() => setIsEditing(true)}>
+    <div
+      {...props}
+      onDoubleClick={() => setIsEditing(true)}
+      onKeyDown={(event) => {
+        if (event.key === "F2" && event.target === event.currentTarget) {
+          setIsEditing(true);
+        } else {
+          props.onKeyDown?.(event);
+        }
+      }}
+    >
       {isEditing ? (
         // Inputs within a tab don't select or drag it
         <input
+          aria-label="Tab title"
           autoFocus
           defaultValue={title}
           onBlur={(event) => {

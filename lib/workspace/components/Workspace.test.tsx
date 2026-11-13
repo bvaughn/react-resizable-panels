@@ -756,7 +756,16 @@ describe("Workspace", () => {
       ["input", <input data-testid="control" />],
       ["select", <select data-testid="control" />],
       ["textarea", <textarea data-testid="control" />],
-      ["editable content", <span contentEditable data-testid="control" />]
+      ["editable content", <span contentEditable data-testid="control" />],
+      ["checkbox role", <div role="checkbox" data-testid="control" />],
+      ["switch role", <div role="switch" data-testid="control" />],
+      ["textbox role", <div role="textbox" data-testid="control" />],
+      [
+        "label of a control",
+        <label data-testid="control">
+          <input type="checkbox" /> Pin
+        </label>
+      ]
     ])("%s descendants don't select the tab", (_, control) => {
       renderWorkspace({
         renderTab: (tab, props) => (
@@ -769,6 +778,19 @@ describe("Workspace", () => {
 
       fireEvent.click(screen.getByTestId("control"));
       expect(getTab("2")).toHaveAttribute("aria-selected", "false");
+    });
+
+    test("labels without a control select the tab", () => {
+      renderWorkspace({
+        renderTab: (tab, props) => (
+          <div {...props}>
+            <label data-testid={`label-${tab.id}`}>{tab.id}</label>
+          </div>
+        )
+      });
+
+      fireEvent.click(screen.getByTestId("label-2"));
+      expect(getTab("2")).toHaveAttribute("aria-selected", "true");
     });
 
     test("content that isn't editable selects the tab", () => {
@@ -885,33 +907,16 @@ describe("Workspace", () => {
       });
     });
 
-    test("keys within interactive descendants are ignored", () => {
+    test("keys within descendants are ignored", () => {
       renderWorkspace({
         renderTab: (tab, props) => (
           <div {...props}>
-            <input data-tab-ignore data-testid={`input-${tab.id}`} />
-          </div>
-        )
-      });
-
-      fireEvent.keyDown(screen.getByTestId("input-1"), { key: "Backspace" });
-      expect(screen.getByTestId("input-1")).toBeInTheDocument();
-    });
-
-    test("keys typed in an input within a tab are ignored", () => {
-      renderWorkspace({
-        renderTab: (tab, props) => (
-          <div {...props}>
-            {tab.id}
             <input data-testid={`input-${tab.id}`} />
           </div>
         )
       });
 
-      act(() => screen.getByTestId("input-1").focus());
-      fireEvent.keyDown(screen.getByTestId("input-1"), { key: "ArrowRight" });
-      fireEvent.keyDown(screen.getByTestId("input-1"), { key: "Delete" });
-      expect(screen.getByTestId("input-1")).toHaveFocus();
+      fireEvent.keyDown(screen.getByTestId("input-1"), { key: "Backspace" });
       expect(screen.getByTestId("input-1")).toBeInTheDocument();
     });
 

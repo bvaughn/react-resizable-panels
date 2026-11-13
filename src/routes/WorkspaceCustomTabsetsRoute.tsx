@@ -59,8 +59,9 @@ export default function WorkspaceCustomTabsetsRoute() {
         component closes the tab it's rendered within.
       </div>
       <Callout>
-        Buttons, form controls (e.g. <code>input</code>), editable content, and
-        elements with <code>role="button"</code> or a{" "}
+        Buttons, form controls (e.g. <code>input</code>) the labels of form
+        controls, editable content, and elements with a button or form control
+        role (e.g. <code>role="checkbox"</code>) or a{" "}
         <code>data-tab-ignore</code> attribute within a tab don't select or drag
         it.
       </Callout>
@@ -73,11 +74,11 @@ export default function WorkspaceCustomTabsetsRoute() {
       <SectionHeader>Renaming tabs</SectionHeader>
       <div>
         A tab can show an input in place of its title, e.g. after it's
-        double-clicked, and save the new title with the <code>updateTab</code>{" "}
-        method of the <Link to="/imperative-api/workspace">imperative API</Link>
-        . Pressing Enter or moving focus away saves the title, and Escape
-        cancels. Keys typed in the input don't move focus between tabs or close
-        the tab.
+        double-clicked or F2 is pressed, and save the new title with the{" "}
+        <code>updateTab</code> method of the{" "}
+        <Link to="/imperative-api/workspace">imperative API</Link>. Pressing
+        Enter or moving focus away saves the title, and Escape cancels. Keys
+        typed in the input don't move focus between tabs or close the tab.
       </div>
       <Code html={RenamableTabHTML} />
       <SectionHeader>Toolbars that run out of room</SectionHeader>
