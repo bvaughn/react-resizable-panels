@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.22.0
 
 - Add the `Workspace` `startExternalDrag` method, which drags a new tab in from outside of the workspace (e.g. from a palette of widgets). - [#808](https://github.com/bvaughn/react-resizable-panels/issues/808)
 - Add the `Workspace` `acceptExternalDrop` prop, which creates tabs from the browser's drag and drop (e.g. `draggable` elements or files). - [#808](https://github.com/bvaughn/react-resizable-panels/issues/808)
