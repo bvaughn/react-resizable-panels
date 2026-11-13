@@ -62,7 +62,12 @@ export default function WorkspaceRestrictionsRoute() {
           The <code>disableDrop</code> prop rejects drop targets: either all of
           them, or the ones a function returns <code>true</code> for. While a
           tabset is dragged, the function is called for each of its tabs, so a
-          tabset can only be dropped where all of its tabs could be.
+          tabset can only be dropped where all of its tabs could be. Tabs
+          dragged in from outside of the workspace (see{" "}
+          <Link to="/examples/workspace/managing-tabs/dragging-tabs-in">
+            dragging tabs in
+          </Link>
+          ) use <code>source: "new"</code>.
         </li>
         <li>
           The <code>disabled</code> prop locks the arrangement: tabs can't be
@@ -77,10 +82,26 @@ export default function WorkspaceRestrictionsRoute() {
       </div>
       <Code html={ModelHTML} />
       <Code html={html} />
+      <div>
+        Drops at the{" "}
+        <Link
+          anchor="dropping-at-the-edges-of-the-workspace"
+          to="/examples/workspace/managing-tabsets"
+        >
+          edges of the workspace
+        </Link>{" "}
+        (beside all of the tabsets) don't have a <code>tabsetId</code>, so the
+        function checks for an <code>edge</code> before looking up the target
+        tabset.
+      </div>
       <Callout>
         None of these restrict the{" "}
         <Link to="/imperative-api/workspace">imperative API</Link>; it can still
-        be used to add, remove, or re-arrange tabs.
+        be used to add, remove, or re-arrange tabs. The exception is{" "}
+        <Link to="/examples/workspace/managing-tabs/dragging-tabs-in">
+          <code>startExternalDrag</code>
+        </Link>
+        , which starts a user drag and is checked like one.
       </Callout>
       <div>
         In the workspace below, the "Pinned" tab can't be closed or dragged, and

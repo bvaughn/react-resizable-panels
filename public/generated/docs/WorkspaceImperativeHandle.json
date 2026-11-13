@@ -154,6 +154,23 @@
     {
       "description": [
         {
+          "content": "<p>Ids of a tabset's tabs that are out of view (scrolled out of its tab list, which overflows), in the order they're shown;\ne.g. to list them in an overflow menu.</p>\n"
+        },
+        {
+          "content": "<p>The same array is returned until the tabs out of view change.\nTabs that aren't rendered at all (e.g. hidden with <code>display: none</code>) aren't included.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Within a tabset (e.g. its toolbar), the <code>useTabListOverflow</code> hook returns this value (and re-renders when it changes).</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">getTabListOverflow</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">tabsetId</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">,</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">options</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabListOverflowOptions</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"tok-punctuation\">[</span><span class=\"tok-punctuation\">]</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "getTabListOverflow"
+    },
+    {
+      "description": [
+        {
           "content": "<p>Maximize a tabset, so that it covers the rest of the workspace.</p>\n"
         },
         {
@@ -211,6 +228,10 @@
       "description": [
         {
           "content": "<p>Select a tab within its tabset.</p>\n"
+        },
+        {
+          "content": "<p>Like a tab selected any other way, it's scrolled into view if its tab list overflows.</p>\n",
+          "intent": "primary"
         }
       ],
       "html": "<div><span class=\"tok-labelName\">selectTab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tabId</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
@@ -228,6 +249,26 @@
     {
       "description": [
         {
+          "content": "<p>Start dragging a tab that isn't in the workspace yet, from an element outside of it (e.g. an item in a palette of widgets);\ncall it from the element's <code>pointerdown</code> handler.\nThe tab is dragged like tabs within the workspace are (with the same drop targets, drop indicator, and <code>disableDrop</code> checks, with the <code>&quot;new&quot;</code> source),\nand is added where it's dropped (reported to <code>onModelChanged</code> with the <code>&quot;add&quot;</code> reason).\nThe drag starts once the pointer has moved a few pixels, so a press that doesn't move (e.g. a click) does nothing;\nthe click that follows a drag is suppressed. Pressing Escape cancels the drag.</p>\n"
+        },
+        {
+          "content": "<p>Unlike other imperative methods, the drop is restricted by <code>disabled</code> and <code>disableDrop</code>, since the user chooses where it goes.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>The element must be in the same document as the workspace.\nLike tabs, it should have <code>touch-action: none</code> (e.g. with CSS), so that touch input drags it rather than scrolling the page.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<ul>\n<li><code>event</code> The <code>pointerdown</code> event of the pressed element</li>\n</ul>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">startExternalDrag</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">event</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">PointerEvent</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">ReactPointerEvent</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">Element</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">,</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">options</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">ExternalDragOptions</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">Promise</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">ExternalDragResult</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "startExternalDrag"
+    },
+    {
+      "description": [
+        {
           "content": "<p>Subscribe to changes to the free space in a tabset's tab list (see <code>getTabListFreeSpace</code>),\ne.g. from a toolbar rendered outside of the Workspace.</p>\n"
         },
         {
@@ -241,6 +282,23 @@
       ],
       "html": "<div><span class=\"tok-labelName\">subscribeToTabListFreeSpace</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">tabsetId</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">,</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">listener</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">freeSpace</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
       "name": "subscribeToTabListFreeSpace"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Subscribe to changes to which of a tabset's tabs are out of view (see <code>getTabListOverflow</code>),\ne.g. from an overflow menu rendered outside of the Workspace.</p>\n"
+        },
+        {
+          "content": "<p>The listener is called synchronously when the tab list is measured (when it's scrolled, when it or its tabs change size, or when tabs are added or removed),\nbefore the browser paints, except while the user scrolls the list (it's reported in the scroll event, and the browser may show the new position first).</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>The listener is called with <code>undefined</code> when the tabset is removed (e.g. closed, or merged into another tabset).</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">subscribeToTabListOverflow</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">tabsetId</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">,</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">listener</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tabIds</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">[</span><span class=\"tok-punctuation\">]</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-typeName\">undefined</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">,</span><span class=\"\"></span></div>\n<div><span class=\"\">    </span><span class=\"tok-variableName tok-definition\">options</span><span class=\"\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabListOverflowOptions</span><span class=\"\"></span></div>\n<div><span class=\"\">  </span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "subscribeToTabListOverflow"
     },
     {
       "description": [

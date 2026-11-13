@@ -1,0 +1,31 @@
+{
+  "description": [
+    {
+      "content": "<p>A popout window's model and where it is on screen, e.g. to save the popouts and open them again later (see <code>usePopoutWindows</code>).</p>\n"
+    }
+  ],
+  "extends": [],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>The popout's current model</p>\n"
+        }
+      ],
+      "name": "model",
+      "optional": false,
+      "type": "WorkspaceModel<TabData, TabsetData>"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Where the popout is on screen, and its size</p>\n"
+        }
+      ],
+      "name": "rect",
+      "optional": false,
+      "type": "PopoutWindowRect"
+    }
+  ],
+  "name": "PopoutWindowState"
+}

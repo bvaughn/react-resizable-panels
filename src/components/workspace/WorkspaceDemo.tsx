@@ -121,14 +121,17 @@ export function DemoWorkspace({
   ...rest
 }: Pick<
   WorkspaceProps<DemoTab>,
+  | "acceptExternalDrop"
   | "className"
+  | "copyTab"
+  | "copyTabset"
   | "disabled"
   | "disableDrop"
   | "dragGroup"
   | "onModelChanged"
-  | "onTearOff"
   | "renderDragPreview"
   | "renderEmptyTabset"
+  | "renderTabsetDragPreview"
   | "renderTabsetToolbar"
   | "tabRemovalSelectionBehavior"
 > & {
@@ -137,8 +140,8 @@ export function DemoWorkspace({
   defaultModel: WorkspaceModel<DemoTab>;
   // Use the Workspace's default (unstyled) separators, rather than the docs' styled ones
   defaultSeparators?: boolean;
-  // Shows a button that opens the tabset's selected tab in a new window
-  onPopOut?: (tabset: TabsetNode<DemoTab>, tab: TabNode<DemoTab>) => void;
+  // Shows a button that moves the tabset to a new window
+  onPopOut?: (tabset: TabsetNode<DemoTab>) => void;
   // Tabsets are dragged by a handle in their toolbars, rather than by the empty space in their headers
   showDragHandles?: boolean;
   // Shows a button that floats the tabset above the layout (or docks it, if it's floating)
@@ -255,24 +258,24 @@ function AddTabButton() {
   );
 }
 
-// Hidden when the selected tab can't be dragged (so it couldn't be torn off either)
+// Hidden when the tabset (or any of its tabs) can't be dragged, since it couldn't be dragged to a popout window either
 function PopOutButton({
   onPopOut,
   tabset
 }: {
-  onPopOut: (tabset: TabsetNode<DemoTab>, tab: TabNode<DemoTab>) => void;
+  onPopOut: (tabset: TabsetNode<DemoTab>) => void;
   tabset: TabsetNode<DemoTab>;
 }) {
-  const tab = tabset.tabs.find(({ id }) => id === tabset.selectedId);
-  if (!tab || tab.disableDrag) {
+  if (
+    tabset.tabs.length === 0 ||
+    tabset.disableDrag ||
+    tabset.tabs.some(({ disableDrag }) => disableDrag)
+  ) {
     return null;
   }
 
   return (
-    <TabsetButton
-      onClick={() => onPopOut(tabset, tab)}
-      title="Open in new window"
-    >
+    <TabsetButton onClick={() => onPopOut(tabset)} title="Open in new window">
       <ArrowTopRightOnSquareIcon className="w-4 h-4" />
     </TabsetButton>
   );
@@ -443,9 +446,9 @@ function renderTabContent(tab: TabNode<DemoTab>) {
       return (
         <div className="p-3 text-sm flex flex-col gap-2">
           <p>
-            Drag a tab (or a tabset) out of the window to open it in a popup
-            window, or use the "Open in new window" button in a tabset's
-            toolbar. Tabs can be dragged between this window and the popups.
+            Use the "Open in new window" button in a tabset's toolbar to move
+            the tabset to a popup window. Tabs can be dragged between this
+            window and the popups.
           </p>
           <p>
             Closing a popup moves its tabs back here. The counter and scratchpad

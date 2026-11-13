@@ -1,5 +1,6 @@
 import {
   type PointerEvent as ReactPointerEvent,
+  type ReactNode,
   useCallback,
   useEffect,
   useRef,
@@ -8,6 +9,7 @@ import {
 import { getInteractionState } from "../../global/mutable-state/interactions";
 import { isActivePointerEvent } from "../../global/utils/isActivePointerEvent";
 import { suppressNextClick } from "../../global/utils/suppressNextClick";
+import { getModelIndex } from "../models/getModelIndex";
 import { createId } from "../models/createId";
 import {
   getNativeDrag,
@@ -21,32 +23,37 @@ import {
   reportNativeDragover,
   shareNativeDrag
 } from "../mutable-state/nativeDragChannel";
+import { warnOnce } from "../../shared/utils/warnOnce";
+import { isHTMLElement } from "../../shared/utils/isHTMLElement";
+import { WORKSPACE_DRAG_DATA_TYPE } from "../constants";
 import type {
   DragNode,
   DragPoint,
   DragSource,
+  ExternalDragOptions,
+  ExternalDragResult,
   TabDropTarget,
+  TabNode,
   WorkspaceModel
 } from "../types";
 import type { DragStore } from "../utils/createDragStore";
 import type { TabsetElementRegistry } from "../utils/createTabsetElementRegistry";
 import { positionPreview } from "../utils/positionPreview";
 import { getDropTarget } from "../utils/getDropTarget";
+import { getCopyModifierKey } from "../utils/getCopyModifierKey";
 import { getEmptyDragImage } from "../utils/getEmptyDragImage";
+import { isCopyModifierPressed } from "../utils/isCopyModifierPressed";
 import { isNativeTearOff } from "../utils/isNativeTearOff";
 import { isOutsideOfWindow } from "../utils/isOutsideOfWindow";
 import { isSameDropTarget } from "../utils/isSameDropTarget";
+import { toPointerPress, type PointerPress } from "../utils/toPointerPress";
 
 // Pointer movement (in pixels) before a press becomes a drag; shorter presses on a tab select it
 const DRAG_THRESHOLD = 5;
 
-// Some browsers (e.g. Firefox) only start a drag that has data;
-// the dragged tab itself is shared through a module (or with other pages, through a channel) rather than the drag's data (see NativeDrag)
-const DATA_TYPE = "application/x-react-resizable-panels-workspace";
-
 // Identifies the drag too, so that a drag that was never shared (or an earlier one) isn't mistaken for a drag from another page whose end was missed;
 // drag data types can be read during the drag (and browsers lowercase them, as ids are)
-const getIdDataType = (id: string) => `${DATA_TYPE};id=${id}`;
+const getIdDataType = (id: string) => `${WORKSPACE_DRAG_DATA_TYPE};id=${id}`;
 
 /**
  * Drags tabs (or whole tabsets) using pointer events (rather than HTML drag and drop) so that touch input is supported.
@@ -60,6 +67,7 @@ const getIdDataType = (id: string) => `${DATA_TYPE};id=${id}`;
  * These drags are shared with workspaces in other pages from the same origin too (see nativeDragChannel), unless `disableDragBetweenApps` is set.
  */
 export function useTabDrag({
+  canCopy,
   canTearOff,
   disableDragBetweenApps,
   dragGroup,
@@ -69,13 +77,17 @@ export function useTabDrag({
   getRootElement,
   isDropDisabled,
   isExternalDropDisabled,
+  isNewTabDropDisabled,
   onDrop,
+  onNewTabDrop,
   onTearOff,
   onTransferIn,
   onTransferOut,
   rootElement,
   tabsetElements
 }: {
+  /** Whether a tab (or tabset) dropped into this workspace can be copied (see the copyTab and copyTabset props), rather than moved, while the copy modifier key is held */
+  canCopy: (node: DragNode) => boolean;
   canTearOff: (source: DragSource) => boolean;
   disableDragBetweenApps: boolean;
   dragGroup: string | undefined;
@@ -84,14 +96,37 @@ export function useTabDrag({
   getDragNode: (source: DragSource) => DragNode | undefined;
   getModel: () => WorkspaceModel;
   getRootElement: () => HTMLElement | null;
-  isDropDisabled: (source: DragSource, target: TabDropTarget) => boolean;
-  isExternalDropDisabled: (node: DragNode, target: TabDropTarget) => boolean;
-  onDrop: (source: DragSource, target: TabDropTarget) => void;
+  isDropDisabled: (
+    source: DragSource,
+    target: TabDropTarget,
+    isCopy: boolean
+  ) => boolean;
+  isExternalDropDisabled: (
+    node: DragNode,
+    target: TabDropTarget,
+    isCopy: boolean
+  ) => boolean;
+  isNewTabDropDisabled: (tab: TabNode, target: TabDropTarget) => boolean;
+  /** Moves (or copies) a tab (or tabset) dropped within this workspace */
+  /** canMove is false for copies that would not be valid moves (e.g. onto the source's own tabset), so they're canceled rather than moved if the copy fails */
+  onDrop: (
+    source: DragSource,
+    target: TabDropTarget,
+    isCopy: boolean,
+    canMove: boolean
+  ) => void;
+  /** Adds a tab dragged in from outside of the workspace (see startExternalDrag); returns whether it was added */
+  onNewTabDrop: (tab: TabNode, target: TabDropTarget) => boolean;
   onTearOff: (
     source: DragSource,
     point: { screenX: number; screenY: number }
   ) => void;
-  onTransferIn: (node: DragNode, target: TabDropTarget) => boolean;
+  /** Adds (or copies) a tab (or tabset) dropped in from another workspace; returns whether it should be removed from that workspace (i.e. it was moved) */
+  onTransferIn: (
+    node: DragNode,
+    target: TabDropTarget,
+    isCopy: boolean
+  ) => boolean;
   onTransferOut: (source: DragSource) => void;
   rootElement: HTMLElement | null;
   tabsetElements: TabsetElementRegistry;
@@ -107,6 +142,14 @@ export function useTabDrag({
   );
   const setDropTarget = dragStore.setDropTarget;
   const [isTearOff, setIsTearOff] = useState(false);
+
+  // Set while dropping would add a copy of the dragged tab (or tabset), rather than moving it (see canCopy)
+  const [isCopy, setIsCopy] = useState(false);
+
+  // A tab dragged in from outside of the workspace (see startExternalDrag), which isn't in the model yet
+  const [newTabPreview, setNewTabPreview] = useState<
+    { preview: ReactNode | undefined; tab: TabNode } | undefined
+  >();
 
   // While a drag uses HTML drag and drop, the preview is shown by one workspace in each document (rather than by the source),
   // since the drag can move into other windows; isNativeDragSource is set for the workspace the drag started in
@@ -189,9 +232,10 @@ export function useTabDrag({
           return;
         }
 
-        dataTransfer.effectAllowed = "move";
+        // Workspaces with the copyTab (or copyTabset) prop copy drops while the copy modifier key is held (see onDragOver)
+        dataTransfer.effectAllowed = "copyMove";
         const id = createId();
-        dataTransfer.setData(DATA_TYPE, "");
+        dataTransfer.setData(WORKSPACE_DRAG_DATA_TYPE, "");
         dataTransfer.setData(getIdDataType(id), "");
         dataTransfer.setDragImage(getEmptyDragImage(ownerDocument), 0, 0);
 
@@ -202,6 +246,7 @@ export function useTabDrag({
           isDropped: false,
           isRemote: false,
           isShared: false,
+          lastCopyEvent: undefined,
           lastDocument: ownerDocument,
           lastDragover: undefined,
           lastMoveStep: 0,
@@ -332,6 +377,7 @@ export function useTabDrag({
     // so whether a target is disabled is only checked again when the target (or the drag, or the model) changes
     let lastTarget: {
       drag: NativeDrag;
+      isCopy: boolean;
       isDisabled: boolean;
       model: WorkspaceModel;
       target: TabDropTarget;
@@ -347,12 +393,16 @@ export function useTabDrag({
         return undefined;
       }
 
+      // A copy is dropped like a tab (or tabset) from another workspace, since the one dragged stays where it is
+      const isExternal = drag.sourceOwner !== owner;
+      const isCopy =
+        isCopyModifierPressed(event, ownerWindow) && canCopy(drag.node);
       const model = getModel();
       const target = getDropTarget({
         clientX: event.clientX,
         clientY: event.clientY,
         model,
-        isExternal: drag.sourceOwner !== owner,
+        isExternal: isExternal || isCopy,
         rootElement,
         source: drag.source,
         tabsetElements
@@ -363,22 +413,46 @@ export function useTabDrag({
 
       if (
         lastTarget?.drag !== drag ||
+        lastTarget.isCopy !== isCopy ||
         lastTarget.model !== model ||
         !isSameDropTarget(lastTarget.target, target)
       ) {
         lastTarget = {
           drag,
-          isDisabled:
-            drag.sourceOwner === owner
-              ? isDropDisabled(drag.source, target)
-              : isExternalDropDisabled(drag.node, target),
+          isCopy,
+          isDisabled: isExternal
+            ? isExternalDropDisabled(drag.node, target, isCopy)
+            : isDropDisabled(drag.source, target, isCopy),
           model,
           target
         };
       }
 
-      return lastTarget.isDisabled ? undefined : lastTarget.target;
+      if (lastTarget.isDisabled) {
+        return undefined;
+      }
+
+      // Copies the application declines are moved instead, but only where the drag could move (see getDropTarget)
+      const moveTarget =
+        isCopy && !isExternal
+          ? getDropTarget({
+              clientX: event.clientX,
+              clientY: event.clientY,
+              model,
+              rootElement,
+              source: drag.source,
+              tabsetElements
+            })
+          : undefined;
+      const canMove = isCopy
+        ? isExternal || (!!moveTarget && isSameDropTarget(moveTarget, target))
+        : true;
+
+      return { ...lastTarget, canMove };
     };
+
+    let lastPassEvent: DragEvent | undefined = undefined;
+    let passTimer: ReturnType<typeof setTimeout> | undefined = undefined;
 
     const onDragOver = (event: DragEvent) => {
       const drag = getActiveDrag(event);
@@ -424,22 +498,44 @@ export function useTabDrag({
         setNativePreviewNode(drag.node);
       }
 
-      const target = getTarget(event, drag);
-      if (target) {
-        // Accepts the drop
+      const result = getTarget(event, drag);
+      if (result) {
+        // Accepts the drop (and shows the system's copy cursor for copies)
         event.preventDefault();
         if (event.dataTransfer) {
-          event.dataTransfer.dropEffect = "move";
+          event.dataTransfer.dropEffect = result.isCopy ? "copy" : "move";
+        }
+
+        // Read by every workspace in the document once the event has reached them all (see onDragOverEnd)
+        if (result.isCopy) {
+          drag.lastCopyEvent = event;
         }
       }
 
-      setDropTarget(target);
+      setDropTarget(result?.target);
+
+      // Content that stops the event from propagating keeps it from reaching the window (see onDragOverEnd),
+      // so copy state it would have updated is reset rather than left stale
+      clearTimeout(passTimer);
+      passTimer = setTimeout(() => {
+        if (lastPassEvent !== event) {
+          setIsCopy(false);
+        }
+      }, 0);
+    };
+
+    // Whether the workspace that accepted the event (if any) would copy is only known once every workspace in the document has handled it,
+    // and the workspace showing the drag preview may not be that one
+    const onDragOverEnd = (event: DragEvent) => {
+      lastPassEvent = event;
+      const drag = getActiveDrag(event);
+      setIsCopy(!!drag && drag.lastCopyEvent === event);
     };
 
     const onDropEvent = (event: DragEvent) => {
       const drag = getActiveDrag(event);
-      const target = drag ? getTarget(event, drag) : undefined;
-      if (!drag || !target) {
+      const result = drag ? getTarget(event, drag) : undefined;
+      if (!drag || !result) {
         return;
       }
 
@@ -447,9 +543,10 @@ export function useTabDrag({
       drag.isDropped = true;
       setNativeDrag(null);
 
+      const { canMove, isCopy, target } = result;
       if (drag.sourceOwner === owner) {
-        onDrop(drag.source, target);
-      } else if (onTransferIn(drag.node, target)) {
+        onDrop(drag.source, target, isCopy, canMove);
+      } else if (onTransferIn(drag.node, target, isCopy)) {
         drag.removeFromSource();
       }
     };
@@ -459,11 +556,13 @@ export function useTabDrag({
       if (drag?.dragGroup !== dragGroup) {
         setDragSource(undefined);
         setDropTarget(undefined);
+        setIsCopy(false);
         setIsNativeDragOver(false);
         setIsNativeDragSource(false);
         setNativePreviewNode(undefined);
       } else if (drag.lastDocument !== ownerDocument) {
         setDropTarget(undefined);
+        setIsCopy(false);
         setIsNativeDragOver(false);
         setNativePreviewNode(undefined);
       }
@@ -473,15 +572,21 @@ export function useTabDrag({
     ownerDocument.addEventListener("dragenter", onDragOver);
     ownerDocument.addEventListener("dragover", onDragOver);
     ownerDocument.addEventListener("drop", onDropEvent);
+    ownerWindow?.addEventListener("dragenter", onDragOverEnd);
+    ownerWindow?.addEventListener("dragover", onDragOverEnd);
 
     return () => {
+      clearTimeout(passTimer);
       disconnect?.();
       unsubscribe();
       ownerDocument.removeEventListener("dragenter", onDragOver);
       ownerDocument.removeEventListener("dragover", onDragOver);
       ownerDocument.removeEventListener("drop", onDropEvent);
+      ownerWindow?.removeEventListener("dragenter", onDragOverEnd);
+      ownerWindow?.removeEventListener("dragover", onDragOverEnd);
     };
   }, [
+    canCopy,
     disableDragBetweenApps,
     dragGroup,
     getModel,
@@ -497,23 +602,22 @@ export function useTabDrag({
   ]);
 
   const startDrag = useCallback(
-    (source: DragSource, event: ReactPointerEvent<HTMLElement>) => {
+    (source: DragSource, press: PointerPress, newTab?: NewTabDrag) => {
       const rootElement = getRootElement();
-      if (!rootElement) {
-        return;
-      }
 
       // Without separators, pressing near the edge of a tabset (e.g. on its tabs or header) may have started resizing it instead,
       // since resizing handles "pointerdown" events first (during the capture phase); a press shouldn't do both
       const interactionState = getInteractionState();
       if (
-        interactionState.state === "active" &&
-        isActivePointerEvent(
-          interactionState,
-          event.currentTarget.ownerDocument,
-          event
-        )
+        !rootElement ||
+        (interactionState.state === "active" &&
+          isActivePointerEvent(
+            interactionState,
+            press.element.ownerDocument,
+            press
+          ))
       ) {
+        newTab?.onEnd(undefined);
         return;
       }
 
@@ -521,20 +625,23 @@ export function useTabDrag({
       cancelDragRef.current?.();
 
       // Pointer events can't follow the pointer into other windows, so mouse drags between workspaces use HTML drag and drop;
-      // touch input doesn't start those drags (in most browsers), so it still uses pointer events
+      // touch input doesn't start those drags (in most browsers), so it still uses pointer events.
+      // New tabs (see startExternalDrag) can't be dropped into other workspaces, so they always use pointer events.
       if (
+        !newTab &&
+        isHTMLElement(press.element) &&
         dragGroup !== undefined &&
-        event.pointerType !== "touch" &&
-        event.pointerType !== "pen"
+        press.pointerType !== "touch" &&
+        press.pointerType !== "pen"
       ) {
-        startNativeDrag(source, event.currentTarget, dragGroup);
+        startNativeDrag(source, press.element, dragGroup);
         return;
       }
 
-      // The pressed tab (or tabset header)
-      const sourceElement = event.currentTarget;
+      // The pressed tab (or tabset header, or the application's element for a new tab)
+      const sourceElement = press.element;
       const ownerDocument = sourceElement.ownerDocument;
-      const { clientX: startX, clientY: startY, pointerId } = event;
+      const { clientX: startX, clientY: startY, pointerId } = press;
 
       // Route all events for this pointer to the pressed element, even over iframes or outside of the window
       sourceElement.setPointerCapture?.(pointerId);
@@ -543,6 +650,12 @@ export function useTabDrag({
       let isTearOffTarget = false;
       let target: TabDropTarget | undefined = undefined;
       let rawTarget: TabDropTarget | undefined = undefined;
+
+      // Whether the copy modifier key is held, and whether the drop would be a copy (see updateTarget)
+      let isCopyKeyPressed = false;
+      let isCopyTarget = false;
+      let canMoveTarget = true;
+      let lastPoint = { clientX: startX, clientY: startY };
 
       // Inline styles changed while dragging are restored afterward
       const prevStyles = {
@@ -569,40 +682,86 @@ export function useTabDrag({
 
           isDragging = true;
           ownerDocument.body.style.userSelect = "none";
-          setDragSource(source);
+
+          // New tabs aren't in the model yet, so they're previewed directly (rather than looked up by the drag source)
+          if (newTab) {
+            setNewTabPreview({ preview: newTab.preview, tab: newTab.tab });
+          } else {
+            setDragSource(source);
+          }
         }
 
         previewPointRef.current = { clientX, clientY };
         positionPreview(previewElementRef.current, previewPointRef.current);
 
+        lastPoint = { clientX, clientY };
+        isCopyKeyPressed = isCopyModifierPressed(moveEvent, ownerWindow);
+        updateTarget();
+      };
+
+      const updateTarget = () => {
+        const { clientX, clientY } = lastPoint;
+
         // Nothing outside of the window can be hit (elementFromPoint returns null there), so the source can only be torn off
         const isOutside = isOutsideOfWindow(ownerWindow, clientX, clientY);
-        const nextIsTearOffTarget = isOutside && canTearOff(source);
+        const nextIsTearOffTarget = isOutside && !newTab && canTearOff(source);
         if (isTearOffTarget !== nextIsTearOffTarget) {
           isTearOffTarget = nextIsTearOffTarget;
           setIsTearOff(nextIsTearOffTarget);
         }
+
+        // New tabs (see startExternalDrag) aren't in the workspace yet, so they're added rather than copied
+        const node =
+          newTab || !isCopyKeyPressed ? undefined : getDragNode(source);
+        const isCopy = !!node && canCopy(node);
 
         const nextRawTarget = isOutside
           ? undefined
           : getDropTarget({
               clientX,
               clientY,
+              // New tabs (and copies) are inserted like tabs from other workspaces are
+              isExternal: !!newTab || isCopy,
               model: getModel(),
               rootElement,
               source,
               tabsetElements
             });
-        if (!isSameDropTarget(rawTarget, nextRawTarget)) {
+        if (
+          isCopyTarget !== isCopy ||
+          !isSameDropTarget(rawTarget, nextRawTarget)
+        ) {
           rawTarget = nextRawTarget;
+          isCopyTarget = isCopy;
+
+          // Copies the application declines are moved instead, but only where the drag could move (see getDropTarget)
+          canMoveTarget =
+            !isCopy ||
+            (!!nextRawTarget &&
+              isSameDropTarget(
+                nextRawTarget,
+                getDropTarget({
+                  clientX,
+                  clientY,
+                  model: getModel(),
+                  rootElement,
+                  source,
+                  tabsetElements
+                })
+              ));
 
           const isRejected =
             nextRawTarget !== undefined &&
-            isDropDisabled(source, nextRawTarget);
+            (newTab
+              ? isNewTabDropDisabled(newTab.tab, nextRawTarget)
+              : isDropDisabled(source, nextRawTarget, isCopy));
           target = isRejected ? undefined : nextRawTarget;
 
-          setCursor(isRejected ? "not-allowed" : undefined);
+          setCursor(
+            isRejected ? "not-allowed" : target && isCopy ? "copy" : undefined
+          );
           setDropTarget(target);
+          setIsCopy(isCopy && target !== undefined);
         }
       };
 
@@ -622,14 +781,22 @@ export function useTabDrag({
         ownerDocument.removeEventListener("pointerup", onPointerUp);
         ownerDocument.removeEventListener("pointercancel", onPointerCancel);
         ownerDocument.removeEventListener("keydown", onKeyDown, true);
+        ownerDocument.removeEventListener("keyup", onKeyUp, true);
+        if (newTab) {
+          ownerDocument.removeEventListener("dragstart", onDragStart, true);
+        }
         ownerWindow?.removeEventListener("blur", onWindowBlur);
+
+        let droppedTarget: TabDropTarget | undefined = undefined;
 
         if (isDragging) {
           ownerDocument.body.style.userSelect = prevStyles.userSelect;
           setCursor(undefined);
           setDragSource(undefined);
+          setNewTabPreview(undefined);
           setDropTarget(undefined);
           setIsTearOff(false);
+          setIsCopy(false);
 
           // A click shouldn't also be handled (e.g. selecting the tab after a canceled drag)
           if (isPointerDown) {
@@ -652,10 +819,30 @@ export function useTabDrag({
             if (isTearOffTarget && screenPoint) {
               onTearOff(source, screenPoint);
             } else if (target) {
-              onDrop(source, target);
+              if (!newTab) {
+                onDrop(source, target, isCopyTarget, canMoveTarget);
+              } else {
+                // onNewTabDrop reaches application code (onModelChanged), which may throw after the model was updated;
+                // the error is left to propagate, but the promise must still settle, and report whether the tab was added
+                // (its id wasn't in the model before, so being there means it landed)
+                try {
+                  if (onNewTabDrop(newTab.tab, target)) {
+                    droppedTarget = target;
+                  }
+                } catch (error) {
+                  newTab.onEnd(
+                    getModelIndex(getModel()).tabsetsByTabId.has(newTab.tab.id)
+                      ? target
+                      : undefined
+                  );
+                  throw error;
+                }
+              }
             }
           }
         }
+
+        newTab?.onEnd(droppedTarget);
       };
 
       const onPointerUp = (upEvent: PointerEvent) => {
@@ -680,6 +867,25 @@ export function useTabDrag({
           }
 
           stop(false, { isPointerDown: true });
+        } else {
+          onCopyKeyChange(keyEvent, true);
+        }
+      };
+
+      const onKeyUp = (keyEvent: KeyboardEvent) =>
+        onCopyKeyChange(keyEvent, false);
+
+      // Pressing (or releasing) the copy modifier key switches between moving and copying, without moving the pointer
+      const copyModifierKey = getCopyModifierKey(ownerDocument.defaultView);
+      const onCopyKeyChange = (keyEvent: KeyboardEvent, isPressed: boolean) => {
+        if (
+          keyEvent.key === copyModifierKey &&
+          isCopyKeyPressed !== isPressed
+        ) {
+          isCopyKeyPressed = isPressed;
+          if (isDragging) {
+            updateTarget();
+          }
         }
       };
 
@@ -688,6 +894,14 @@ export function useTabDrag({
       const ownerWindow = ownerDocument.defaultView;
       const onWindowBlur = () => stop(false);
 
+      // The application's element for a new tab may be draggable by default (e.g. a link or an image),
+      // and the browser's drag would cancel the pointer
+      const onDragStart = (dragEvent: DragEvent) => {
+        if (sourceElement.contains(dragEvent.target as Node | null)) {
+          dragEvent.preventDefault();
+        }
+      };
+
       cancelDragRef.current = () => stop(false);
 
       ownerDocument.addEventListener("pointermove", onPointerMove);
@@ -695,15 +909,23 @@ export function useTabDrag({
       ownerDocument.addEventListener("pointercancel", onPointerCancel);
       // Listen during the capture phase, so that Escape can be handled before other listeners (see onKeyDown)
       ownerDocument.addEventListener("keydown", onKeyDown, true);
+      ownerDocument.addEventListener("keyup", onKeyUp, true);
+      if (newTab) {
+        ownerDocument.addEventListener("dragstart", onDragStart, true);
+      }
       ownerWindow?.addEventListener("blur", onWindowBlur);
     },
     [
+      canCopy,
       canTearOff,
       dragGroup,
+      getDragNode,
       getModel,
       getRootElement,
       isDropDisabled,
+      isNewTabDropDisabled,
       onDrop,
+      onNewTabDrop,
       onTearOff,
       setDragSource,
       setDropTarget,
@@ -714,25 +936,86 @@ export function useTabDrag({
 
   const startTabDrag = useCallback(
     (tabId: string, event: ReactPointerEvent<HTMLElement>) =>
-      startDrag({ tabId, type: "tab" }, event),
+      startDrag({ tabId, type: "tab" }, toPointerPress(event)),
     [startDrag]
   );
 
   const startTabsetDrag = useCallback(
     (tabsetId: string, event: ReactPointerEvent<HTMLElement>) =>
-      startDrag({ tabsetId, type: "tabset" }, event),
+      startDrag({ tabsetId, type: "tabset" }, toPointerPress(event)),
     [startDrag]
+  );
+
+  // Drags a tab that isn't in the workspace yet, from an element of the application (see the imperative startExternalDrag method)
+  const startExternalDrag = useCallback(
+    (
+      event: PointerEvent | ReactPointerEvent<Element>,
+      { preview, tab }: ExternalDragOptions
+    ) =>
+      new Promise<ExternalDragResult>((resolve) => {
+        // isHTMLElement accepts any element (including SVG), which is fine since only style, pointer capture and containment are used
+        // currentTarget is only set while the event is dispatched, so the event's target is used if it's called later
+        const element = event.currentTarget ?? event.target;
+
+        // Pointer events can't be followed in other documents, and a pointer that isn't pressed (e.g. a click) can't drag
+        if (
+          !isHTMLElement(element) ||
+          element.ownerDocument !== getRootElement()?.ownerDocument
+        ) {
+          if (process.env.NODE_ENV !== "production") {
+            warnOnce(
+              "startExternalDrag requires an event for an element in the same document as the workspace"
+            );
+          }
+          resolve(null);
+          return;
+        }
+
+        // Like tabs, only the primary button (or touch/pen contact) starts a drag
+        if (event.button !== 0 || event.buttons === 0) {
+          resolve(null);
+          return;
+        }
+
+        startDrag(
+          { tabId: tab.id, type: "tab" },
+          {
+            clientX: event.clientX,
+            clientY: event.clientY,
+            element,
+            pointerId: event.pointerId,
+            pointerType: event.pointerType
+          },
+          {
+            onEnd: (target) => resolve(target ? { target } : null),
+            preview,
+            tab
+          }
+        );
+      }),
+    [getRootElement, startDrag]
   );
 
   return {
     dragSource,
+    isCopy,
     isNativeDragOver,
     isNativeDragSource,
     isTearOff,
     nativePreviewNode,
+    newTabPreview,
     previewElementRef,
     previewPointRef,
+    startExternalDrag,
     startTabDrag,
     startTabsetDrag
   };
 }
+
+// A tab dragged into the workspace from outside of it (see startExternalDrag)
+type NewTabDrag = {
+  /** Called once when the drag ends, with where the tab was added (or undefined) */
+  onEnd: (target: TabDropTarget | undefined) => void;
+  preview: ReactNode | undefined;
+  tab: TabNode;
+};

@@ -13,7 +13,6 @@ declare const popouts: {
 
 <>
   <Workspace
-    // Workspaces with the same group can drag tabs to each other
     dragGroup="editor"
     defaultModel={initialModel}
     renderTabContent={(tab) => <Editor path={tab.data.path} />}

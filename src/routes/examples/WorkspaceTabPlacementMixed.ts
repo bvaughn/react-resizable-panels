@@ -22,7 +22,6 @@ const model: WorkspaceModel = {
       {
         type: "tabset",
         id: "editors",
-        // Tabsets without a tabPlacement use the Workspace's tabPlacement prop
         tabs: editorTabs
       }
     ]

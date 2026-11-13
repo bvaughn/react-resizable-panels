@@ -12,6 +12,7 @@ function DragPreviewComponent({
   className,
   dragType,
   elementRef,
+  isCopy,
   isTearOff,
   pointRef,
   style
@@ -20,6 +21,7 @@ function DragPreviewComponent({
   className: string | undefined;
   dragType: "tab" | "tabset";
   elementRef: RefObject<HTMLElement | null>;
+  isCopy: boolean;
   isTearOff: boolean;
   pointRef: RefObject<{ clientX: number; clientY: number }>;
   style: CSSProperties | undefined;
@@ -38,6 +40,7 @@ function DragPreviewComponent({
   return (
     <div
       className={className}
+      data-drag-copy={isCopy || undefined}
       data-drag-preview
       data-drag-type={dragType}
       data-tear-off={isTearOff || undefined}

@@ -15,6 +15,7 @@ import {
 function DropIndicatorComponent({
   className,
   dragStore,
+  isCopy,
   layoutElementRef,
   model,
   style,
@@ -22,6 +23,8 @@ function DropIndicatorComponent({
 }: {
   className: string | undefined;
   dragStore: DragStore;
+  /** Set while dropping would add a copy, which leaves the dragged tab (or tabset) where it is */
+  isCopy: boolean;
   /** Contains the workspace's tabsets; drops at its edges are shown within it */
   layoutElementRef: RefObject<HTMLElement | null>;
   model: WorkspaceModel;
@@ -65,7 +68,8 @@ function DropIndicatorComponent({
       ? getWorkspaceEdgeShare(
           model,
           edge,
-          dragSource,
+          // A copy leaves the dragged tab (or tabset) where it is, like a tab dragged in from another workspace (which is estimated)
+          isCopy ? undefined : dragSource,
           isRightToLeft(layoutElementRef.current)
         )
       : undefined;
@@ -102,6 +106,7 @@ function DropIndicatorComponent({
   }, [
     dragSource,
     edge,
+    isCopy,
     layoutElementRef,
     model,
     region,
@@ -122,6 +127,7 @@ function DropIndicatorComponent({
     >
       <div
         className={className}
+        data-drag-copy={isCopy || undefined}
         data-drop-indicator
         data-edge={edge}
         data-region={region}

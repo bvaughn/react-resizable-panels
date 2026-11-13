@@ -21,7 +21,6 @@ declare const initialModel: WorkspaceModel<{ path: string }>;
       <div
         {...props}
         onKeyDown={(event) => {
-          // Delete and Backspace close the focused tab
           if ((event.key === "Delete" || event.key === "Backspace") && !confirmClose()) {
             return;
           }

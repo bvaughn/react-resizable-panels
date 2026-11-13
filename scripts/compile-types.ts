@@ -23,9 +23,15 @@ const sources = [
       "ParentTabsetState",
       "ParentTabState",
       "ParentWorkspace",
+      "PopoutWindow",
+      "PopoutWindowRect",
+      "PopoutWindows",
+      "PopoutWindowState",
+      "PopoutWorkspaceProps",
       "SplitNode",
       "TabNode",
       "TabsetNode",
+      "UsePopoutWindowsOptions",
       "WorkspaceModel"
     ]
   }

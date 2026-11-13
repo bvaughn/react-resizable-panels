@@ -14,11 +14,9 @@ const maxSizeModel: WorkspaceModel<TabData> = {
       {
         type: "tabset",
         id: "sidebar",
-        // The sidebar can be resized, but only within these limits
         minWidth: "150px",
         maxWidth: "300px",
         size: "200px",
-        // Neither the sidebar nor its tab can be dragged or closed
         disableDrag: true,
         tabs: [
           {

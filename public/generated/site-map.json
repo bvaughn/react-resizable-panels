@@ -168,12 +168,17 @@
       {
         "id": "toolbars-that-run-out-of-room",
         "title": "Toolbars that run out of room",
-        "text": "Toolbars that run out of room A tabset's tab list fills the space its tabs and toolbar don't use, so a toolbar can't tell how much room it has by measuring itself. The useTabListFreeSpace hook returns the space in the tab list that its tabs don't use (negative once they overflow). A toolbar can use that space in addition to its own, e.g. to move items into a \"…\" menu once they no longer fit: Place items only when the free space changes. Each value is measured with the toolbar as it's shown at the time, so it pairs with the toolbar's current size. Placing items again after the toolbar changes (but before the free space is measured again) counts the change twice, and the toolbar can keep switching between two layouts. Resize the tabsets below (or add tabs) to see their toolbars' items move into and out of their menus. Reset layout The hook (like the --tab-list-free-space custom property on the tab list) is updated before the browser paints, so moved items are never shown in the wrong place. To read it outside of a tabset (e.g. a toolbar rendered elsewhere and portaled into the tabset), use the getTabListFreeSpace and subscribeToTabListFreeSpace methods of the imperative API; listeners are called synchronously, before the browser paints. Like the rest of the library, tabsets are unstyled; see styling."
+        "text": "Toolbars that run out of room A tabset's tab list fills the space its tabs and toolbar don't use, so a toolbar can't tell how much room it has by measuring itself. The useTabListFreeSpace hook returns the space in the tab list that its tabs don't use (negative once they overflow). A toolbar can use that space in addition to its own, e.g. to move items into a \"…\" menu once they no longer fit: Place items only when the free space changes. Each value is measured with the toolbar as it's shown at the time, so it pairs with the toolbar's current size. Placing items again after the toolbar changes (but before the free space is measured again) counts the change twice, and the toolbar can keep switching between two layouts. Resize the tabsets below (or add tabs) to see their toolbars' items move into and out of their menus. Reset layout The hook (like the --tab-list-free-space custom property on the tab list) is updated before the browser paints, so moved items are never shown in the wrong place. To read it outside of a tabset (e.g. a toolbar rendered elsewhere and portaled into the tabset), use the getTabListFreeSpace and subscribeToTabListFreeSpace methods of the imperative API; listeners are called synchronously, before the browser paints."
+      },
+      {
+        "id": "tabs-that-don-t-fit",
+        "title": "Tabs that don't fit",
+        "text": "Tabs that don't fit When a tabset has more tabs than fit, its tab list scrolls. The useTabListOverflow hook returns which of its tabs are out of view (and which are only partly visible), e.g. for a menu that lists them: A selected tab is scrolled into view, however it's selected (e.g. from the menu, or with the selectTab method). In the workspace below, scroll the tab list (or make the tabset narrower) and select tabs from the menu. Reset layout To read which tabs are out of view outside of a tabset, use the getTabListOverflow and subscribeToTabListOverflow methods of the imperative API. Like the rest of the library, tabsets are unstyled; see styling."
       }
     ],
     "path": "/examples/workspace/custom-tabsets",
     "section": "Workspace",
-    "text": "By default, each tabset shows a list of tabs (with close buttons) above its content. The tabPlacement prop moves the list to another side, and these props customize what a tabset contains: renderTab renders each tab. renderTabsetToolbar renders content after the tabs (e.g. buttons to add a tab or maximize the tabset). renderEmptyTabset renders content in tabsets without tabs. renderTab receives the props that make an element a tab (its role and ARIA attributes, keyboard and pointer handling, data attributes, and a ref); spread them onto the element it returns. The TabCloseButton component closes the tab it's rendered within. Buttons (and other elements with role=\"button\" or a data-tab-ignore attribute) within a tab don't select or drag it. Props can be overridden or wrapped. For example, to confirm before closing a tab with unsaved changes (whether by its close button or the Delete key):",
+    "text": "By default, each tabset shows a list of tabs (with close buttons) above its content. The tabPlacement prop moves the list to another side, and these props customize what a tabset contains: renderTab renders each tab. renderTabsetToolbar renders content after the tabs (e.g. buttons to add a tab or maximize the tabset). renderEmptyTabset renders content in tabsets without tabs. renderTab receives the props that make an element a tab (its role and ARIA attributes, keyboard and pointer handling, data attributes, and a ref); spread them onto the element it returns. The TabCloseButton component closes the tab it's rendered within. Buttons (and other elements with role=\"button\" or a data-tab-ignore attribute) within a tab don't select or drag it. Props can be overridden or wrapped. For example, to confirm before closing a tab with unsaved changes (whether by its close button or the Delete or Backspace key):",
     "title": "Custom tabsets"
   },
   {
@@ -186,12 +191,7 @@
       {
         "id": "updating-and-closing-tabs",
         "title": "Updating and closing tabs",
-        "text": "Updating and closing tabs The updateTab method changes a tab's title, data, or flags, and closeTab closes it. Within a tab's content, the useParentTab hook returns the tab, so content can update or close its own tab: A tab's data is replaced rather than merged when it is updated. To confirm before the user closes a tab (e.g. one with unsaved changes), see custom tabsets."
-      },
-      {
-        "id": "selecting-a-tab-after-one-is-closed",
-        "title": "Selecting a tab after one is closed",
-        "text": "Selecting a tab after one is closed When the selected tab is closed (or dragged to another tabset), the tab after it is selected by default. With the tabRemovalSelectionBehavior prop set to \"recent\", the tab that was selected before it is selected instead, like in an IDE: In the workspace below, select a few tabs and then close the selected one. About Counter Notes Nested panels Drag a tab onto another tab list to move it there. Drag a tab onto the edge of a tabset to split it, or onto its center to add the tab to it. Use the arrow keys to move between tabs, Enter to select one, and Delete to close one. Clicked 0 times Increment Reset layout Each tabset's recently selected tabs are saved in the model (as recentTabIds ), so they're restored with the rest of the model. If none of the remaining tabs has been selected, the tab after the closed one is selected. Changes made with the imperative API are reported by onModelChanged (with isUserInteraction set to false), so they're saved like any other change. To keep, move, resize, collapse, maximize, or float whole tabsets, see managing tabsets."
+        "text": "Updating and closing tabs The updateTab method changes a tab's title, data, or flags, and closeTab closes it. Within a tab's content, the useParentTab hook returns the tab, so content can update or close its own tab: A tab's data is replaced rather than merged when it is updated. To confirm before the user closes a tab (e.g. one with unsaved changes), see custom tabsets. Changes made with the imperative API are reported by onModelChanged (with isUserInteraction set to false), so they're saved like any other change. Users can also drag new tabs in from outside of the workspace, and the tab that's selected when the selected tab is closed can be customized. To keep, move, resize, collapse, maximize, or float whole tabsets, see managing tabsets."
       }
     ],
     "path": "/examples/workspace/managing-tabs",
@@ -202,14 +202,73 @@
   {
     "headings": [
       {
+        "id": "making-copies",
+        "title": "Making copies",
+        "text": "Making copies A copy needs an id that isn't used by any other tab or tabset in the workspace. Copies with ids that are already in use are rejected (with a warning during development), and the tab is moved instead, as it is when copyTab returns null. Both props are called with where the copy will be dropped, so some targets can move tabs rather than copy them. copyTabset returns the whole copy, including its tabs; its copyTab argument copies a tab with the copyTab prop (or, without it, as a shallow copy with a new id). The copy's selected tab is the copy of the dragged tabset's selected tab. Copies are reported to onModelChanged with the \"copy\" reason, and the disableDrop prop is told whether a copy would be dropped (isCopy), e.g. to only allow copies in some tabsets (see restrictions)."
+      },
+      {
+        "id": "showing-that-a-drag-copies",
+        "title": "Showing that a drag copies",
+        "text": "Showing that a drag copies The renderDragPreview and renderTabsetDragPreview props are told whether dropping would add a copy (isCopy): The drag preview and the drop indicator also have a data-drag-copy attribute then, for styling."
+      },
+      {
+        "id": "between-workspaces",
+        "title": "Between workspaces",
+        "text": "Between workspaces Tabs dragged between workspaces with the same drag group are copied by the workspace they're dropped into, so it needs the copyTab prop (the workspace they're dragged from doesn't change). In other copies of your app, the copy is made from the tab data that was sent there. These drags use the browser's drag and drop, which shows the system's copy cursor while the copy key is held over a workspace that would copy."
+      }
+    ],
+    "path": "/examples/workspace/managing-tabs/copying-tabs",
+    "section": "Workspace",
+    "text": "Dragging a tab moves it. With the copyTab prop, users can drop a copy instead (e.g. a second chart with the same settings) by holding the copy key while dragging. The copyTabset prop does the same for tabsets (dragged by their headers): Reset layout The copy key is ⌥ on macOS and ctrl on other platforms.",
+    "title": "Copying tabs"
+  },
+  {
+    "headings": [
+      {
+        "id": "starting-a-drag",
+        "title": "Starting a drag",
+        "text": "Starting a drag Call startExternalDrag from an element's pointerdown handler with the tab to add. The tab is dragged like the workspace's own tabs are, and added where it's dropped: The drag starts once the pointer moves, so clicking the element still works (e.g. to add the tab with addTab; see managing tabs), and the click that follows a drag is suppressed. Pressing Escape cancels the drag. startExternalDrag returns a promise that resolves with where the tab was dropped ({ target }), or null if it wasn't (e.g. it was dropped outside of the workspace, or the drag was canceled). The element that follows the pointer shows what the Workspace's renderDragPreview prop renders for the tab, unless a preview is passed. Set touch-action: none on the element, so that touch input drags it rather than scrolling the page. The element must be in the same document as the workspace; tabs dragged this way can't be dropped into a workspace in another window (see multiple windows)."
+      },
+      {
+        "id": "accepting-the-browser-s-drag-and-drop",
+        "title": "Accepting the browser's drag and drop",
+        "text": "Accepting the browser's drag and drop Browsers only let a drag's data be read when it's dropped, so the acceptExternalDrop prop has two parts: the data types that decide where the drop indicator is shown while the drag is over the workspace, and a createTab function that reads the data and creates the tab when it's dropped: createTab can return null to reject the drop. Files dragged from the operating system have the \"Files\" type: Elements within tabs' content that accept a drag themselves (by canceling its dragover event) take precedence over the workspace. Drags of the workspace's own tabs (see the dragGroup prop) are never passed to createTab."
+      },
+      {
+        "id": "restrictions",
+        "title": "Restrictions",
+        "text": "Restrictions Tabs dragged in either way are checked by the disableDrop prop with the \"new\" source, and can't be dropped into a workspace that already has a tab (or tabset) with the same id, so give each new tab a unique id. Neither works while the workspace is disabled. Unlike the rest of the imperative API, startExternalDrag is restricted by these, since the user decides where the tab goes (see restrictions). A drag's data can't be read until it's dropped, so for drags that use the browser's drag and drop, disableDrop is only called when it's dropped (with the tab createTab returned); the drop indicator may be shown over a target that ends up rejecting it. New tabs are reported to onModelChanged with the \"add\" reason (and isUserInteraction set to true)."
+      }
+    ],
+    "path": "/examples/workspace/managing-tabs/dragging-tabs-in",
+    "section": "Workspace",
+    "text": "Users can drag new tabs in from outside of the workspace (e.g. from a library of widgets), and drop them anywhere a tab could be dropped: into a tabset, beside one, or at an edge of the workspace. There are two ways to do this: The startExternalDrag method of the imperative API starts a drag that works like dragging one of the workspace's own tabs, including with touch input. The acceptExternalDrop prop accepts drags that use the browser's drag and drop, e.g. elements with the draggable attribute, files, or drags from another application. Drag the widgets below into the workspace. \"Counter\" and \"Notes\" use startExternalDrag, and \"About\" uses the browser's drag and drop. Widgets Counter Counts clicks Notes Jot things down About Native drag and drop Reset layout Drag widgets here",
+    "title": "Dragging tabs in"
+  },
+  {
+    "headings": [
+      {
+        "id": "selecting-a-tab-after-one-is-closed",
+        "title": "Selecting a tab after one is closed",
+        "text": "Selecting a tab after one is closed When the selected tab is closed (or dragged to another tabset), the tab after it is selected by default. With the tabRemovalSelectionBehavior prop set to \"recent\", the tab that was selected before it is selected instead, like in an IDE: In the workspace below, select a few tabs and then close the selected one. About Counter Notes Nested panels Drag a tab onto another tab list to move it there. Drag a tab onto the edge of a tabset to split it, or onto its center to add the tab to it. Use the arrow keys to move between tabs, Enter to select one, and Delete to close one. Clicked 0 times Increment Reset layout Each tabset's recently selected tabs are saved in the model (as recentTabIds ), so they're restored with the rest of the model. If none of the remaining tabs has been selected, the tab after the closed one is selected."
+      }
+    ],
+    "path": "/examples/workspace/managing-tabs/selecting-tabs",
+    "section": "Workspace",
+    "text": "Each tabset's selected tab is saved in the model as its selectedId . The imperative selectTab method selects a tab by id (in whichever tabset contains it):",
+    "title": "Selecting tabs"
+  },
+  {
+    "headings": [
+      {
         "id": "empty-tabsets",
         "title": "Empty tabsets",
-        "text": "Empty tabsets By default, a tabset is removed when its last tab is closed or dragged away. A tabset with the keepWhenEmpty flag stays instead (e.g. an editor area that should remain as a drop target), showing the Workspace's renderEmptyTabset content, until it's closed with the closeTabset method or the useParentTabset hook's close function: In the workspace below, the tabset on the right has the keepWhenEmpty flag. Close its tabs (or drag them into the tabset on the left) and it stays, as a place to drop them again. Each tabset's close button (×) removes it, along with any tabs it still has. Reset layout Closing a tabset also closes any tabs it contains. Like the rest of the imperative API, it isn't restricted by tabs' disableClose flags."
+        "text": "Empty tabsets By default, a tabset is removed when its last tab is closed or dragged away. A tabset with the keepWhenEmpty flag stays instead (e.g. an editor area that should remain as a drop target), showing the Workspace's renderEmptyTabset content, until it's closed with the closeTabset method or the useParentTabset hook's close function. The example hides its close button in the only tabset in the workspace, since closing it would just close its tabs: In the workspace below, the tabset on the right has the keepWhenEmpty flag. Close its tabs (or drag them into the tabset on the left) and it stays, as a place to drop them again. Each tabset's close button (×) removes it, along with any tabs it still has. Reset layout Closing a tabset also closes any tabs it contains. Like the rest of the imperative API, it isn't restricted by tabs' disableClose flags."
       },
       {
         "id": "moving-tabsets",
         "title": "Moving tabsets",
-        "text": "Moving tabsets Users can drag a whole tabset by the empty space in its header (e.g. after its last tab). Dropping it onto the edge of another tabset moves it there; dropping it onto the center of another tabset (or into its list of tabs) moves its tabs into that tabset instead. A TabsetDragHandle (or any element with a data-tabset-drag-handle attribute) within a tabset's header replaces its empty space: once a header has a handle, only the handle drags the tabset. Reset layout Tabsets with the keepWhenEmpty flag can be moved, but their tabs can't be dropped into another tabset with them (which would leave the tabset behind, empty). Tabsets can't be dragged when they (or any of their tabs) have the disableDrag flag (see restrictions), when they're the only tabset, or while a tabset is maximized. The moveTabset method moves a tabset from outside of the workspace (e.g. a \"Move to bottom\" menu item); it accepts the same targets as moveTab."
+        "text": "Moving tabsets Users can drag a whole tabset by the empty space in its header (e.g. after its last tab). Dropping it onto the edge of another tabset moves it there; dropping it onto the center of another tabset (or into its list of tabs) moves its tabs into that tabset instead. A TabsetDragHandle (or any element with a data-tabset-drag-handle attribute) within a tabset's header replaces its empty space: once a header has a handle, only the handle drags the tabset. The handle has a data-disabled attribute while the tabset can't be dragged (e.g. to hide or dim it). Reset layout Tabsets with the keepWhenEmpty flag can be moved, but their tabs can't be dropped into another tabset with them (which would leave the tabset behind, empty). Tabsets can't be dragged when they (or any of their tabs) have the disableDrag flag (see restrictions), when they're the only tabset, or while a tabset is maximized. The moveTabset method moves a tabset from outside of the workspace (e.g. a \"Move to bottom\" menu item); it accepts the same targets as moveTab."
       },
       {
         "id": "dropping-at-the-edges-of-the-workspace",
@@ -237,12 +296,12 @@
       {
         "id": "floating-and-docking-tabsets",
         "title": "Floating and docking tabsets",
-        "text": "Floating and docking tabsets The floatTab and floatTabset methods (and the float functions of the useParentTab and useParentTabset hooks) move a tab or tabset into a new floating tabset; moving a floating tabset beside the others (e.g. with moveTabset) docks it: In the workspace below, drag the notepad by its header, or use the buttons in each tabset's toolbar to float, collapse, and dock it. Notes Reset layout Floating tabsets can't be split or maximized: tabs dropped anywhere on one are added to it, and they're shown above a maximized tabset. Their elements have data-floating-tabset attributes (and data-tabset-collapsed attributes while collapsed; their tabsets have data-tabset-floating attributes), and the floatingTabset and floatingResizeHandle keys of the classNames prop style them. Changes made with the imperative API are reported by onModelChanged (with isUserInteraction set to false), so they're saved like any other change."
+        "text": "Floating and docking tabsets The floatTab and floatTabset methods (and the float functions of the useParentTab and useParentTabset hooks) move a tab or tabset into a new floating tabset; moving a floating tabset beside the others (e.g. with moveTabset) docks it. The only tabset in a workspace fills it, so it can't float, which is why the button below renders nothing for it: In the workspace below, drag the notepad by its header, or use the buttons in each tabset's toolbar to float, collapse, and dock it. Notes Reset layout Floating tabsets can't be split or maximized: tabs dropped anywhere on one are added to it, and they're shown above a maximized tabset. Their elements have data-floating-tabset attributes (and data-tabset-collapsed attributes while collapsed; their tabsets have data-tabset-floating attributes), and the floatingTabset and floatingResizeHandle keys of the classNames prop style them. Changes made with the imperative API are reported by onModelChanged (with isUserInteraction set to false), so they're saved like any other change."
       }
     ],
     "path": "/examples/workspace/managing-tabsets/floating-tabsets",
     "section": "Workspace",
-    "text": "A tabset can float above the layout, e.g. a notepad that can be moved out of the way of the content beneath it. Floating tabsets are listed in the model's floating field, in stacking order (the last one is on top), with their positions and sizes in pixels:",
+    "text": "A tabset can float above the layout, e.g. a notepad that can be moved out of the way of the content beneath it. Floating tabsets are listed in the model's floating field, in stacking order (the last one is on top), with their positions and sizes in pixels. Positions are relative to the top left corner of the layout, even in right-to-left layouts:",
     "title": "Floating tabsets"
   },
   {
@@ -278,7 +337,7 @@
       {
         "id": "tab-content-in-other-windows",
         "title": "Tab content in other windows",
-        "text": "Tab content in other windows Unlike tabs moved within a workspace, a tab that gets \"torn off\" (or dropped into another workspace) will be rendered inside of the new Workspace. State that should survive the move belongs in the tab's data then rather than component state. The workspace a tab is dropped into renders it with its own renderTab and renderTabContent props, so workspaces in a group should be able to render each other's tabs."
+        "text": "Tab content in other windows Unlike tabs moved within a workspace, a tab that's dropped into another workspace (or opened in a popout window) will be rendered inside of the new Workspace. State that should survive the move belongs in the tab's data then rather than component state. The workspace a tab is dropped into renders it with its own renderTab and renderTabContent props, so workspaces in a group should be able to render each other's tabs."
       }
     ],
     "path": "/examples/workspace/multiple-windows",
@@ -289,7 +348,7 @@
   {
     "path": "/examples/workspace/multiple-windows/copies-of-your-app",
     "section": "Workspace",
-    "text": "Workspaces in other copies of your app from the same origin (e.g. your app loaded in another browser window or tab) are part of the same drag group. A tab dropped into another copy will be handed off using a structured clone algorithm (like postMessage). Each frame below loads its own copy of a small app with a workspace, so tabs dragged between them are sent between copies. localhost:3200/embed/app?copy=a localhost:3200/embed/app?copy=b Tab data must be cloneable (e.g. no functions); tabs whose data can't be cloned can only be dragged within their copy of your app. Copies loaded at different times may be running different versions of your app, so the other copy may get tab data it doesn't recognize. Set the disableDragBetweenApps prop to keep a workspace's drags within its copy of your app. Workspaces in popout windows rendered by that copy are still part of the group.",
+    "text": "Workspaces in other copies of your app from the same origin (e.g. your app loaded in another browser window or tab) are part of the same drag group. A tab dropped into another copy will be handed off using a structured clone algorithm (like postMessage). Each copy renders its Workspace with the same dragGroup: Each frame below loads its own copy of a small app with a workspace, so tabs dragged between them are sent between copies. localhost:3200/embed/app?copy=a localhost:3200/embed/app?copy=b Tab data must be cloneable (e.g. no functions); tabs whose data can't be cloned can only be dragged within their copy of your app. Copies loaded at different times may be running different versions of your app, so the other copy may get tab data it doesn't recognize. Set the disableDragBetweenApps prop to keep a workspace's drags within its copy of your app. Workspaces in popout windows rendered by that copy are still part of the group.",
     "title": "Copies of your app"
   },
   {
@@ -297,22 +356,17 @@
       {
         "id": "dragging-between-popout-windows",
         "title": "Dragging between popout windows",
-        "text": "Dragging between popout windows Workspaces with the same dragGroup prop can drag tabs (and tabsets) to each other, e.g. from a popout window back into the main window, or from one popout to another (see drag groups for how tabs move between workspaces). Dragging the last tab (or the only tabset) out of a popout window closes it, in the example above."
-      },
-      {
-        "id": "drag-previews",
-        "title": "Drag previews",
-        "text": "Drag previews The renderDragPreview and renderTabsetDragPreview props are passed an isTearOff flag, which is true while releasing the pointer would tear off the tab (or tabset), e.g. to show \"Open in a new window\". The preview element also has a data-tear-off attribute then. The preview can only be shown within the window, so only the part of it near the edge of the window is visible."
+        "text": "Dragging between popout windows Workspaces with the same dragGroup prop can drag tabs (and tabsets) to each other, e.g. from a popout window back into the main window, or from one popout to another (see drag groups for how tabs move between workspaces)."
       },
       {
         "id": "rendering-into-popout-windows",
         "title": "Rendering into popout windows",
-        "text": "Rendering into popout windows Elements in a popout window should be created by that window's own document (e.g. the container the Workspace is rendered into), so that they belong to that window. The Workspace and its tabsets read the globals they need (e.g. ResizeObserver) from the window their elements are in."
+        "text": "Rendering into popout windows To open popout windows without usePopoutWindows, elements in a popout window should be created by that window's own document (e.g. the container the Workspace is rendered into), so that they belong to that window. The Workspace and its tabsets read the globals they need (e.g. ResizeObserver) from the window their elements are in."
       }
     ],
     "path": "/examples/workspace/multiple-windows/popout-windows",
     "section": "Workspace",
-    "text": "When a tab or tabset is dropped outside of the window it was rendered in, the Workspace calls its onTearOff prop with the tab and a detached model (containing just that tab) along with where the pointer was released and the size of the tabset it was dragged from. Returning true removes the tab from the workspace (reported to onModelChanged with the \"tear-off\" reason) Returning false leaves it where it was. Tabsets with the keepWhenEmpty flag can't be torn off, but their tabs can. In the example below, each torn-off tab is opened in a popout window with its own Workspace. When a popout window is closed, the tabs left in it are moved back: Drag a tab (or a tabset) out of the window below and release it to open it in a new window. Tabs can also be dragged between this window and the popout windows (see dragGroup below). The \"Open in new window\" button in each tabset's toolbar opens its selected tab in a popout window too, for browsers that block popups opened by those drags (see below). Reset layout Browsers block popup windows that aren't opened in response to user input, and window.open returns null when that happens. The Workspace can't tell whether your popup opened, so onTearOff should check for null and return false to keep the tab (as the example above does); returning true removes the tab even if nothing shows it. onTearOff is called while the pointer's release is handled, which browsers treat as user input, so this mostly affects drags between workspaces (see below). Some browsers (e.g. Safari) block popup windows opened at the end of a drag. Opening popups from a click instead (e.g. a button, like in the example above) works in every browser.",
+    "text": "The usePopoutWindows hook opens tabs in popout windows, each with its own Workspace. Its open function opens a window for a model (e.g. from a button in a tabset's toolbar that pops out the tabset), and its render function renders a Workspace into each window. Give the popouts' Workspaces the same dragGroup as the main one so tabs can be dragged between windows: The page's stylesheets are copied into each popout window, which starts out blank. When the user closes a popout window, its tabs are moved back to the main workspace (see the onClose option). A popout window is closed once its last tab is dragged out of it. Popout windows are closed along with the page that opened them (or the component that uses the hook), since it renders their content. Use the \"Open in new window\" button in a tabset's toolbar below to move the tabset to a new window, then drag tabs between this window and the popout windows. Reset layout Browsers block popup windows that aren't opened in response to user input (e.g. a click), and window.open returns null when that happens; open returns false then, so the tab can be kept where it was.",
     "title": "Popout windows"
   },
   {
@@ -331,7 +385,7 @@
   {
     "path": "/examples/workspace/restrictions",
     "section": "Workspace",
-    "text": "By default, users can close and drag any tab, and drop it anywhere. Restrictions are opt-in: A tab's disableClose and disableDrag flags prevent the user from closing or dragging it. Other tabs can still be dropped around it. A tabset's disableDrag flag prevents the user from dragging the whole tabset (its tabs can still be dragged). Tabsets that contain a tab with the disableDrag flag can't be dragged either. The disableDrop prop rejects drop targets: either all of them, or the ones a function returns true for. While a tabset is dragged, the function is called for each of its tabs, so a tabset can only be dropped where all of its tabs could be. The disabled prop locks the arrangement: tabs can't be resized, dragged, dropped, or closed (but they can still be selected, and tabsets maximized). For example, a tab can opt out of being closed or dragged, and a tabset's data can be used to decide whether it accepts drops: None of these restrict the imperative API; it can still be used to add, remove, or re-arrange tabs. In the workspace below, the \"Pinned\" tab can't be closed or dragged, and other tabs can't be dropped into its tabset. Lock workspace (disabled) Prevent closing tabs (disableClose)",
+    "text": "By default, users can close and drag any tab, and drop it anywhere. Restrictions are opt-in: A tab's disableClose and disableDrag flags prevent the user from closing or dragging it. Other tabs can still be dropped around it. A tabset's disableDrag flag prevents the user from dragging the whole tabset (its tabs can still be dragged). Tabsets that contain a tab with the disableDrag flag can't be dragged either. The disableDrop prop rejects drop targets: either all of them, or the ones a function returns true for. While a tabset is dragged, the function is called for each of its tabs, so a tabset can only be dropped where all of its tabs could be. Tabs dragged in from outside of the workspace (see dragging tabs in) use source: \"new\". The disabled prop locks the arrangement: tabs can't be resized, dragged, dropped, or closed (but they can still be selected, and tabsets maximized). For example, a tab can opt out of being closed or dragged, and a tabset's data can be used to decide whether it accepts drops: Drops at the edges of the workspace (beside all of the tabsets) don't have a tabsetId, so the function checks for an edge before looking up the target tabset. None of these restrict the imperative API; it can still be used to add, remove, or re-arrange tabs. The exception is startExternalDrag , which starts a user drag and is checked like one. In the workspace below, the \"Pinned\" tab can't be closed or dragged, and other tabs can't be dropped into its tabset. Lock workspace (disabled) Prevent closing tabs (disableClose)",
     "title": "Restrictions"
   },
   {
@@ -552,7 +606,7 @@
       {
         "id": "parenttabset",
         "title": "ParentTabset",
-        "text": "ParentTabset The nearest ancestor tabset (returned by useParentTabset).\n This value does not change for the life of the tabset, so it is safe to use as an effect dependency.\nUse useParentTabsetState for values that should trigger a re-render.\n addTab : (tab: TabNode<TabData>, options?: {index?: number | undefined; select?: boolean | undefined}) => boolean Add a tab to this tabset.\n close : () => void Close the tabset, along with any tabs it contains (see WorkspaceImperativeHandle.closeTabset).\n collapse : () => void Collapse the tabset to just its header (see WorkspaceImperativeHandle.collapseTabset).\n expand : () => void Expand the tabset if it is collapsed (see WorkspaceImperativeHandle.expandTabset).\n float : (rect?: Partial<FloatingTabsetRect>) => void Move the tabset out of the layout, to float above it (see WorkspaceImperativeHandle.floatTabset).\n id : string Id of the tabset.\n isCollapsed : () => boolean The tabset is currently collapsed (in the model).\n A tabset may be shown collapsed (or expanded) unlike the model: while a separator is being dragged (before the model changes),\nand when it's collapsed to fit (see TabsetNode.collapsible); useParentTabsetState().isCollapsed reflects how it's shown.\n isFloating : () => boolean The tabset currently floats above the layout (see WorkspaceModel.floating).\n isMaximized : () => boolean The tabset is currently maximized.\n maximize : () => void Maximize the tabset.\n This has no effect on the only tabset in a workspace (see ParentTabsetState.isRoot).\n restore : () => void Restore the tabset if it is maximized.\n workspaceId : string Id of the Workspace that contains the tabset."
+        "text": "ParentTabset The nearest ancestor tabset (returned by useParentTabset).\n This value does not change for the life of the tabset, so it is safe to use as an effect dependency.\nUse useParentTabsetState for values that should trigger a re-render.\n addTab : (tab: TabNode<TabData>, options?: {index?: number | undefined; select?: boolean | undefined}) => boolean Add a tab to this tabset.\n close : () => void Close the tabset, along with any tabs it contains (see WorkspaceImperativeHandle.closeTabset).\n collapse : () => void Collapse the tabset to just its header (see WorkspaceImperativeHandle.collapseTabset).\n expand : () => void Expand the tabset if it is collapsed (see WorkspaceImperativeHandle.expandTabset).\n float : (rect?: Partial<FloatingTabsetRect>) => void Move the tabset out of the layout, to float above it (see WorkspaceImperativeHandle.floatTabset).\n id : string Id of the tabset.\n isCollapsed : () => boolean The tabset is currently collapsed (in the model).\n A tabset may be shown collapsed (or expanded) unlike the model: while a separator is being dragged (before the model changes),\nand when it's collapsed to fit (see TabsetNode.collapsible); useParentTabsetState().isCollapsed reflects how it's shown.\n isFloating : () => boolean The tabset currently floats above the layout (see WorkspaceModel.floating).\n isMaximized : () => boolean The tabset is currently maximized.\n maximize : () => void Maximize the tabset.\n This has no effect on the only tabset in a workspace (see ParentTabsetState.isRoot).\n restore : () => void Restore the tabset if it is maximized.\n selectTab : (tabId: string) => void Select a tab within this tabset (e.g. from an overflow menu; see useTabListOverflow).\n This has no effect if the tab isn't in this tabset; use WorkspaceImperativeHandle.selectTab to select a tab in any tabset.\n workspaceId : string Id of the Workspace that contains the tabset."
       }
     ],
     "path": "/hooks/use-parent-tabset",
@@ -593,8 +647,61 @@
     ],
     "path": "/hooks/use-parent-workspace",
     "section": "Hooks",
-    "text": "The useParentWorkspace hook returns the nearest Workspace, including its imperative API. Components rendered within a Workspace (including tab content) can use it to open, close, and arrange tabs without passing refs or props down to them. For example, a link within a tab can open a file in another tab: Returns null if the component isn't rendered within a Workspace. The returned value doesn't change when the Workspace's model changes, so this hook doesn't cause components to re-render.",
+    "text": "The useParentWorkspace hook returns the nearest Workspace, including its imperative API. Components rendered within a Workspace (including tab content) can use it to open, close, and arrange tabs without passing refs or props down to them. For example, a link within a tab can open a file in another tab. addTab adds it to the active tabset (the one the user most recently interacted with), or selects its tab if it's already open: Returns null if the component isn't rendered within a Workspace. The returned value doesn't change when the Workspace's model changes, so this hook doesn't cause components to re-render.",
     "title": "useParentWorkspace"
+  },
+  {
+    "headings": [
+      {
+        "id": "customizing-popout-windows",
+        "title": "Customizing popout windows",
+        "text": "Customizing popout windows The onOpen option is called with each new window and the element its content is rendered into, before the content is rendered: Stylesheets are copied as they are when the window opens, including rules that CSS-in-JS libraries insert with insertRule, and stylesheets added to the page's head afterward are copied too. Rules inserted into an existing stylesheet afterward aren't; libraries that insert rules as components render can usually be configured (e.g. in onOpen) to insert them into the new window's document instead. Setting copyStyles to false stops all copying, including the page's plain stylesheets, so it's usually best left on. Stylesheets removed or edited in place after they're copied aren't updated in popout windows."
+      },
+      {
+        "id": "saving-and-restoring-popout-windows",
+        "title": "Saving and restoring popout windows",
+        "text": "Saving and restoring popout windows The onCloseAll option is called with each popout window's model and position when the page is closed (or reloaded) or the component that uses the hook unmounts (e.g. a route change), just before the popout windows are closed (this includes when the component is hidden by Activity, and Fast Refresh in development). Browsers won't open them again until the user interacts with the page, so restore them from a click. Windows that the browser blocks (open returns false) are kept so they can be reopened later (but are lost if the page is closed again first, since onCloseAll replaces the saved state). The main workspace's model must be saved too (see persistence), or restored popouts will duplicate tabs it shows again. Calling open with a model that has no tabs does nothing: Some browsers only open one popup window per click."
+      },
+      {
+        "id": "options",
+        "title": "Options",
+        "text": "Options usePopoutWindows : (options: UsePopoutWindowsOptions) => PopoutWindows See UsePopoutWindowsOptions and PopoutWindows (below)."
+      },
+      {
+        "id": "usepopoutwindowsoptions",
+        "title": "UsePopoutWindowsOptions",
+        "text": "UsePopoutWindowsOptions Options for usePopoutWindows.\n copyStyles ?: boolean | undefined Copy the page's stylesheets into each popout window when it's opened (and stylesheets added to the page's head afterward).\nDefaults to true; if false, none of the page's styles (including plain stylesheets) are copied.\n The rules of <style> elements are copied (including rules inserted with CSSStyleSheet.insertRule, e.g. by CSS-in-JS libraries)\nas they are when the window opens; rules inserted into them later (and stylesheets edited or removed afterward) aren't.\nLibraries that insert rules as components render (e.g. Emotion) can usually be configured to insert them into the popup's document instead.\n onCloseAll ?: | ((state: PopoutWindowState<TabData, TabsetData>[]) => void) | undefined Called with each popout window's model and position when the page that opened them is closed (or reloaded),\nor the component that uses the hook unmounts, just before the popout windows are closed;\ne.g. to save them (and open them again later with open).\nIt isn't called if there are no popout windows.\n onClose ?: | \"discard\" | \"dock\" | ((model: WorkspaceModel<TabData, TabsetData>) => void) | undefined What happens to the tabs in a popout window when the user closes it:\n\n \"dock\" (the default) adds them back to the main workspace (see workspaceRef)\n \"discard\" closes them\nA function is called with the popout's model instead (e.g. to save its tabs)\n\n When docking, a tab is skipped (with a development warning) if the main workspace already has a tab with the same id (its data is not updated, and it isn't selected),\nand only the selected tab of the popout's first tabset (that has one) is selected.\n It isn't called when the popout closes because its last tab was moved out of it, or when it's closed by closeAll\n(or because the page that opened it is closed, or the component that uses this hook unmounts; see onCloseAll).\n onOpen ?: ((popout: PopoutWindow) => void) | undefined Called when a popout window is opened, before its content is rendered, e.g. to set its title or style its container.\n workspaceRef : RefObject<WorkspaceImperativeHandle<TabData, TabsetData> | null> The main workspace, which tabs are added back to when a popout window is closed (see onClose)."
+      },
+      {
+        "id": "popoutwindows",
+        "title": "PopoutWindows",
+        "text": "PopoutWindows Returned by usePopoutWindows.\n closeAll : () => void Close every popout window (without moving their tabs back to the main workspace).\n getState : () => PopoutWindowState<TabData, TabsetData>[] Each popout window's current model and where it is on screen, e.g. to save them (and open them again later with open).\n A popup that reports the opener's exact position as its own (e.g. in Brave) is reported where it was opened instead.\n open : (model: WorkspaceModelInput<TabData, TabsetData>, rect: PopoutWindowRect) => boolean Open a popout window showing a model (e.g. from a button that pops out a tab, or to restore a saved popout).\n Browsers block popup windows that aren't opened in response to user input (e.g. a click),\nand some block all but the first one opened for each input.\n popouts : PopoutWindow[] The open popout windows.\n render : (renderWorkspace: (props: PopoutWorkspaceProps<TabData, TabsetData>, popout: PopoutWindow) => ReactNode) => ReactNode Render the popout windows' content (each into its window's container, with a portal); render the result alongside the main Workspace."
+      },
+      {
+        "id": "popoutwindow",
+        "title": "PopoutWindow",
+        "text": "PopoutWindow A popout window opened by usePopoutWindows.\n container : HTMLElement The element (created by the popup's document, within its body) that the popout's content is rendered into.\n id : string Unique id of the popout (e.g. a React key).\n window : Window The popup window."
+      },
+      {
+        "id": "popoutwindowrect",
+        "title": "PopoutWindowRect",
+        "text": "PopoutWindowRect Where a popout window is on screen (in screen coordinates) and how big its content is (in pixels); see usePopoutWindows.\n height : number Height of the window's content, in pixels\n screenX : number Horizontal position of the window on the screen\n screenY : number Vertical position of the window on the screen\n width : number Width of the window's content, in pixels"
+      },
+      {
+        "id": "popoutwindowstate",
+        "title": "PopoutWindowState",
+        "text": "PopoutWindowState A popout window's model and where it is on screen, e.g. to save the popouts and open them again later (see usePopoutWindows).\n model : WorkspaceModel<TabData, TabsetData> The popout's current model\n rect : PopoutWindowRect Where the popout is on screen, and its size"
+      },
+      {
+        "id": "popoutworkspaceprops",
+        "title": "PopoutWorkspaceProps",
+        "text": "PopoutWorkspaceProps Props for the Workspace rendered into a popout window (see PopoutWindows.render).\n The popout window is closed once its workspace has no tabs left (e.g. its last tab is dragged back to the main window);\nif the Workspace needs its own onModelChanged prop, call this one from it.\n defaultModel : WorkspaceModel<TabData, TabsetData> The popout's initial model\n onModelChanged : (model: WorkspaceModel<TabData, TabsetData>, meta: WorkspaceChangedMeta) => void Closes the popout window once its workspace has no tabs left\n workspaceRef : RefObject<WorkspaceImperativeHandle<TabData, TabsetData> | null> Used to read the popout's current model (e.g. when it's closed)"
+      }
+    ],
+    "path": "/hooks/use-popout-windows",
+    "section": "Hooks",
+    "text": "The usePopoutWindows hook opens tabs in popout windows, each with its own Workspace. Call its open function (e.g. from a button that pops out a tab), and render the Workspaces it returns from render alongside the main one (see popout windows for a demo): The page's stylesheets are copied into each new window. When the user closes a popout window, its tabs are moved back to the main workspace; a popout window is closed once its last tab is dragged out of it, and popout windows are closed along with the page that opened them (or the component that uses the hook). Browsers block popup windows that aren't opened in response to user input, so call open from a click (or another user action). It returns false if the window was blocked.",
+    "title": "usePopoutWindows"
   },
   {
     "headings": [
@@ -608,6 +715,24 @@
     "section": "Hooks",
     "text": "The useTabListFreeSpace hook returns the space in the nearest tabset's tab list that its tabs don't use. Components that use it re-render when it changes (e.g. when the tabset is resized, or tabs are added or removed), before the browser paints. For example, a toolbar can move items into a \"…\" menu once they no longer fit (see custom tabsets for a demo): Returns undefined if the component isn't rendered within a tabset (or the tab list hasn't been measured yet, e.g. while server rendering, or before the component re-renders right after the tabset is first rendered; that re-render happens before the browser paints). To read the free space outside of a tabset (e.g. from a toolbar that's rendered elsewhere and portaled into the tabset), use the getTabListFreeSpace and subscribeToTabListFreeSpace methods of the imperative API.",
     "title": "useTabListFreeSpace"
+  },
+  {
+    "headings": [
+      {
+        "id": "parameters",
+        "title": "Parameters",
+        "text": "Parameters includePartiallyVisible : boolean | undefined Also include tabs that are only partly visible (cut off by an edge of the tab list), e.g. for a menu that lists them too. By default, only tabs that are entirely out of view are included."
+      },
+      {
+        "id": "return-value",
+        "title": "Return value",
+        "text": "Return value useTabListOverflow : (options?: { includePartiallyVisible?: boolean }) => string[] Ids of the tabs that are out of view, in the order they're shown. The same array is returned until they change, so it can be used as an effect dependency. Tabs that aren't rendered at all (e.g. hidden with display: none) aren't included."
+      }
+    ],
+    "path": "/hooks/use-tab-list-overflow",
+    "section": "Hooks",
+    "text": "The useTabListOverflow hook returns which of the nearest tabset's tabs are out of view, because its tab list overflows and is scrolled. Components that use it re-render when they change (e.g. when the tab list is scrolled or resized, or tabs are added or removed); apart from scrolling by the user, that happens before the browser paints. For example, a tabset's toolbar can list them in a menu (see custom tabsets for a demo): A tab is scrolled into view whenever it's selected (e.g. with the selectTab method of useParentTabset ), so a menu like this one only needs to select it. No tabs are reported if the component isn't rendered within a tabset (or the tab list hasn't been measured yet, e.g. while server rendering, or before the component re-renders right after the tabset is first rendered; that re-render happens before the browser paints). To read them outside of a tabset, use the getTabListOverflow and subscribeToTabListOverflow methods of the imperative API.",
+    "title": "useTabListOverflow"
   },
   {
     "path": "/hooks/use-workspace-callback-ref",
@@ -786,6 +911,11 @@
         "text": "getTabListFreeSpace Space (in pixels) in a tabset's tab list that its tabs don't use, e.g. how much a toolbar beside the tabs could grow\nbefore they overflow (and how much space an overflow menu needs to free up, once it's negative).\n The space is measured along the tab list: its width, or its height if its tabs are placed on the left or right\n(or the tabset is collapsed to a vertical strip).\nIf the tab list can't shrink any further (e.g. it's 0px wide, beside a toolbar that doesn't shrink), the amount the header's content\noverflows the header is subtracted too, so it's still how much space a toolbar needs to free up.\n The tab list's --tab-list-free-space custom property has the same value (e.g. \"120px\").\n Within a tabset (e.g. its toolbar), the useTabListFreeSpace hook returns this value (and re-renders when it changes)."
       },
       {
+        "id": "getTabListOverflow",
+        "title": "getTabListOverflow",
+        "text": "getTabListOverflow Ids of a tabset's tabs that are out of view (scrolled out of its tab list, which overflows), in the order they're shown;\ne.g. to list them in an overflow menu.\n The same array is returned until the tabs out of view change.\nTabs that aren't rendered at all (e.g. hidden with display: none) aren't included.\n Within a tabset (e.g. its toolbar), the useTabListOverflow hook returns this value (and re-renders when it changes)."
+      },
+      {
         "id": "maximizeTabset",
         "title": "maximizeTabset",
         "text": "maximizeTabset Maximize a tabset, so that it covers the rest of the workspace.\n This has no effect on the only tabset in a workspace (the root), which already fills it, or on a floating tabset.\nA maximized tabset is restored if it becomes the only one (e.g. after the other tabsets are closed)."
@@ -808,7 +938,7 @@
       {
         "id": "selectTab",
         "title": "selectTab",
-        "text": "selectTab Select a tab within its tabset."
+        "text": "selectTab Select a tab within its tabset.\n Like a tab selected any other way, it's scrolled into view if its tab list overflows."
       },
       {
         "id": "setModel",
@@ -816,9 +946,19 @@
         "text": "setModel Replace the model."
       },
       {
+        "id": "startExternalDrag",
+        "title": "startExternalDrag",
+        "text": "startExternalDrag Start dragging a tab that isn't in the workspace yet, from an element outside of it (e.g. an item in a palette of widgets);\ncall it from the element's pointerdown handler.\nThe tab is dragged like tabs within the workspace are (with the same drop targets, drop indicator, and disableDrop checks, with the \"new\" source),\nand is added where it's dropped (reported to onModelChanged with the \"add\" reason).\nThe drag starts once the pointer has moved a few pixels, so a press that doesn't move (e.g. a click) does nothing;\nthe click that follows a drag is suppressed. Pressing Escape cancels the drag.\n Unlike other imperative methods, the drop is restricted by disabled and disableDrop, since the user chooses where it goes.\n The element must be in the same document as the workspace.\nLike tabs, it should have touch-action: none (e.g. with CSS), so that touch input drags it rather than scrolling the page.\n \n event The pointerdown event of the pressed element"
+      },
+      {
         "id": "subscribeToTabListFreeSpace",
         "title": "subscribeToTabListFreeSpace",
         "text": "subscribeToTabListFreeSpace Subscribe to changes to the free space in a tabset's tab list (see getTabListFreeSpace),\ne.g. from a toolbar rendered outside of the Workspace.\n The listener is called synchronously when the tab list is measured (when it or its tabs change size, or tabs are added or removed),\nbefore the browser paints; changes it makes to the DOM (e.g. with flushSync) are shown in the same frame.\n The listener is called with undefined when the tabset is removed (e.g. closed, or merged into another tabset)."
+      },
+      {
+        "id": "subscribeToTabListOverflow",
+        "title": "subscribeToTabListOverflow",
+        "text": "subscribeToTabListOverflow Subscribe to changes to which of a tabset's tabs are out of view (see getTabListOverflow),\ne.g. from an overflow menu rendered outside of the Workspace.\n The listener is called synchronously when the tab list is measured (when it's scrolled, when it or its tabs change size, or when tabs are added or removed),\nbefore the browser paints, except while the user scrolls the list (it's reported in the scroll event, and the browser may show the new position first).\n The listener is called with undefined when the tabset is removed (e.g. closed, or merged into another tabset)."
       },
       {
         "id": "updateTab",
@@ -1378,6 +1518,11 @@
         "text": "Content of a tab.\n Content is only re-rendered when its tab changes or this function does;\na function created while rendering (e.g. an inline arrow function) re-renders the content of every tab whenever the Workspace's parent re-renders,\nso it should be memoized (e.g. with useCallback) when tab content is expensive to render."
       },
       {
+        "id": "acceptExternalDrop",
+        "title": "acceptExternalDrop",
+        "text": "Lets the workspace accept drags that use the browser's drag and drop from outside of any workspace\n(e.g. an element of the application with the draggable attribute, a file, or a link from another application),\nshowing the drop indicator while the drag is over the workspace, and creating a tab where it's dropped.\nThe new tab is reported to onModelChanged with the \"add\" reason.\n disableDrop can't be called until the tab is created (when the drag is dropped), so a target it rejects is shown as accepted while dragging;\nthe drop is ignored then. Drag sources within the application can use the imperative startExternalDrag method instead, which doesn't have this limitation.\n Elements within the workspace's tab content that handle the same drags themselves (by canceling the dragover and drop events) take precedence.\n This object is read when drag events are handled, so it doesn't need to be memoized."
+      },
+      {
         "id": "className",
         "title": "className",
         "text": "CSS class name."
@@ -1386,6 +1531,16 @@
         "id": "classNames",
         "title": "classNames",
         "text": "CSS class names for the elements the workspace renders within its root element:\n\n tabset: root element of a tabset (data-tabset)\n header: contains a tabset's tab list and toolbar (data-tabset-header)\n tabList: contains a tabset's tabs (data-tab-list)\n tab: passed to renderTab with the rest of a tab's props (data-tab)\n toolbar: contains the content returned by renderTabsetToolbar (data-tabset-toolbar)\n tabPanels: contains a tabset's tab content (data-tab-panels)\n tabContent: the element each tab's content is rendered into (data-tab-content)\n dropIndicator: shows where a dragged tab will be dropped within a tabset's panels, or at an edge of the workspace (data-drop-indicator)\n dragPreview: follows the pointer while a tab or tabset is dragged (data-drag-preview)\n\n Elements expose their state as data attributes (e.g. data-tab-selected, or data-tabset-dragging while a tabset is dragged), which can be used for styling.\nElements within a collapsed tabset have a data-tabset-collapsed attribute.\nElements within a tabset also have a data-tab-placement attribute (see tabPlacement).\n The drop indicator is the same element for the whole drag (rendered within the workspace's root element),\nso it can be animated between regions and tabsets (e.g. transition: inset 250ms).\nIts data-region attribute is the region of a tabset's panels it covers, or its data-edge attribute is the edge of the workspace it's at;\nwhile a tab isn't over either, it has neither and isn't shown (opacity: 0).\n Like the render props, this object is part of what tabsets re-render for;\nin large workspaces, define it outside of the component (or memoize it) rather than inline."
+      },
+      {
+        "id": "copyTab",
+        "title": "copyTab",
+        "text": "Lets tabs be copied by dragging them: a tab dropped while the copy modifier key is held (Option on macOS, Ctrl elsewhere) adds the copy this function returns,\nleaving the dragged tab where it was. The change is reported to onModelChanged with the \"copy\" reason.\n Returning null (or undefined) moves the dragged tab instead. If that move isn't allowed either (the disableDrop prop rejects it, the ids conflict, or it isn't a valid place to move the tab), nothing happens.\n The copy needs an id that isn't used by any other node of the workspace (e.g. crypto.randomUUID()); copies with ids that are in use are rejected (and the tab is moved instead).\n The workspace the tab is dropped into makes the copy, so a tab dragged from another workspace (see the dragGroup prop) is copied by the workspace it's dropped into\n(and is only copied if that workspace has this prop).\n\n tab The tab being dragged\n target Where the copy will be dropped"
+      },
+      {
+        "id": "copyTabset",
+        "title": "copyTabset",
+        "text": "Lets tabsets be copied by dragging them (by their headers), like the copyTab prop does for tabs: a tabset dropped while the copy modifier key is held adds the copy this function returns,\nleaving the dragged tabset where it was. The change is reported to onModelChanged with the \"copy\" reason.\n The copy includes its tabs, which need ids that aren't used by any other node of the workspace too; the copyTab argument copies a tab:\n Returning null (or undefined) moves the dragged tabset instead. If that move isn't allowed either (the disableDrop prop rejects it, the ids conflict, a keepWhenEmpty tabset is dropped into another workspace, or it isn't a valid place to move the tabset), nothing happens.\n The copy's selected tab is the copy of the dragged tabset's selected tab (matched by position), unless the copy selects one of its own tabs.\n A copy dropped into a tab list (or onto the center of another tabset) only adds its tabs; its id and data are only used where it's added as a tabset.\n\n tabset The tabset being dragged\n copyTab Copies a tab with the copyTab prop (and the same drop target); without that prop (or if it returns null), the copy is a shallow copy of the tab with a new id\n target Where the copy will be dropped"
       },
       {
         "id": "disabled",
@@ -1405,7 +1560,7 @@
       {
         "id": "dragGroup",
         "title": "dragGroup",
-        "text": "Lets tabs (and tabsets) be dragged between workspaces with the same dragGroup,\nincluding workspaces in popout windows (opened by the application and rendered into with a portal)\nand in other copies of the application from the same origin, e.g. the application loaded in another browser window or tab (see disableDragBetweenApps).\nDropping one into another workspace moves it there, keeping its id and data;\nboth workspaces report the change to onModelChanged with the \"transfer\" reason.\n Mouse drags use the browser's drag and drop when this prop is set, since pointer events can't follow the pointer into another window.\nTouch drags still use pointer events, so they can't leave the window.\n Tab ids must be unique within the group; a tab can't be dropped into a workspace that already has a tab with its id (and a tabset with the keepWhenEmpty flag can't be dragged to another workspace).\nA tab dragged to another workspace is rendered by that workspace, so its content is mounted again.\n A tab dragged to another copy of the application is sent there with the structured clone algorithm (like postMessage), so its data must be cloneable (e.g. no functions);\ntabs whose data can't be cloned (and tabsets containing them) can only be dragged within their copy of the application.\nCopies loaded at different times may be running different versions of the application, so the other copy may need to handle tab data it doesn't recognize.\n Tabs (and tabsets) can still be torn off (see onTearOff), but some browsers (e.g. Safari) block popup windows opened at the end of a drag that uses the browser's drag and drop."
+        "text": "Lets tabs (and tabsets) be dragged between workspaces with the same dragGroup,\nincluding workspaces in popout windows (opened by the application and rendered into with a portal)\nand in other copies of the application from the same origin, e.g. the application loaded in another browser window or tab (see disableDragBetweenApps).\nDropping one into another workspace moves it there, keeping its id and data;\nboth workspaces report the change to onModelChanged with the \"transfer\" reason.\n Mouse drags use the browser's drag and drop when this prop is set, since pointer events can't follow the pointer into another window.\nTouch drags still use pointer events, so they can't leave the window.\n Tab ids must be unique within the group; a tab can't be dropped into a workspace that already has a tab with its id (and a tabset with the keepWhenEmpty flag can't be dragged to another workspace).\nA tab dragged to another workspace is rendered by that workspace, so its content is mounted again.\n A tab dragged to another copy of the application is sent there with the structured clone algorithm (like postMessage), so its data must be cloneable (e.g. no functions);\ntabs whose data can't be cloned (and tabsets containing them) can only be dragged within their copy of the application.\nCopies loaded at different times may be running different versions of the application, so the other copy may need to handle tab data it doesn't recognize."
       },
       {
         "id": "elementRef",
@@ -1430,12 +1585,12 @@
       {
         "id": "onTearOff",
         "title": "onTearOff",
-        "text": "Called when a tab (or a whole tabset) is dropped outside of the window, e.g. to open it in a popup window.\nReturn true to accept it, which removes it from this workspace (reported to onModelChanged with the \"tear-off\" reason);\notherwise nothing changes.\n Tabs and tabsets can only be torn off if they could be dragged, and tabsets with the keepWhenEmpty flag can't be torn off.\nWithout this prop, dropping a tab outside of the window does nothing.\n The Workspace can't tell whether the application showed the tab, so check whether window.open returned null (because the popup was blocked)\nand return false then to keep the tab; returning true removes it even if nothing shows it.\n This is called while the release of the pointer is being handled (which browsers treat as user input), so a popup can be opened from it.\nWith the dragGroup prop, a tab is torn off when it's dropped outside of every window in the group; the end of those drags isn't treated as user input,\nso browsers block popups opened then unless the drag started a few seconds earlier at most (and Safari blocks them always)."
+        "text": "Called when a tab (or a whole tabset) is dropped outside of the window, e.g. to open it in a popup window.\nReturn true to accept it, which removes it from this workspace (reported to onModelChanged with the \"tear-off\" reason);\notherwise nothing changes.\n Tabs and tabsets can only be torn off if they could be dragged, and tabsets with the keepWhenEmpty flag can't be torn off.\nWithout this prop, dropping a tab outside of the window does nothing.\n The Workspace can't tell whether the application showed the tab, so check whether window.open returned null (because the popup was blocked)\nand return false then to keep the tab; returning true removes it even if nothing shows it.\n This is called while the release of the pointer is being handled (which browsers treat as user input), so a popup can be opened from it.\nWith the dragGroup prop, a tab is torn off when it's dropped outside of every window in the group; the end of those drags isn't treated as user input,\nso browsers block popups opened then unless the drag started a few seconds earlier at most (and Safari blocks them always).\n Deprecated: browsers don't reliably report where a drag that leaves the window ends, and some block popups opened at the end of a drag.\nOpen popout windows from a button instead (see usePopoutWindows). This will be removed in the next major version.\n This prop has been deprecated. Open popout windows from a button instead (see usePopoutWindows)."
       },
       {
         "id": "renderDragPreview",
         "title": "renderDragPreview",
-        "text": "Content of the element that follows the pointer while a tab is being dragged.\nDefaults to the tab's title (or id).\n The element has a data-tear-off attribute while releasing the pointer would tear off the tab (see onTearOff)."
+        "text": "Content of the element that follows the pointer while a tab is being dragged.\nDefaults to the tab's title (or id).\n The element has a data-tear-off attribute while releasing the pointer would tear off the tab (see the deprecated onTearOff prop)."
       },
       {
         "id": "renderEmptyTabset",
@@ -1455,7 +1610,7 @@
       {
         "id": "renderTabsetDragPreview",
         "title": "renderTabsetDragPreview",
-        "text": "Content of the element that follows the pointer while a whole tabset is being dragged.\nDefaults to the title (or id) of its selected tab followed by the number of other tabs being dragged (e.g. \"One (+2)\"), or the selected tab's renderDragPreview when that prop is set, or the tabset's id if it has no tabs.\n The element has a data-drag-type attribute: \"tabset\" while a tabset is dragged, and \"tab\" while a tab is.\nIt also has a data-tear-off attribute while releasing the pointer would tear off the tabset (see onTearOff)."
+        "text": "Content of the element that follows the pointer while a whole tabset is being dragged.\nDefaults to the title (or id) of its selected tab followed by the number of other tabs being dragged (e.g. \"One (+2)\"), or the selected tab's renderDragPreview when that prop is set, or the tabset's id if it has no tabs.\n The element has a data-drag-type attribute: \"tabset\" while a tabset is dragged, and \"tab\" while a tab is.\nIt also has a data-tear-off attribute while releasing the pointer would tear off the tabset (see the deprecated onTearOff prop)."
       },
       {
         "id": "renderTabsetToolbar",

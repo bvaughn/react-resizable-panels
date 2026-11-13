@@ -1,10 +1,20 @@
 # Changelog
 
+## Unreleased
+
+- Add the `Workspace` `startExternalDrag` method, which drags a new tab in from outside of the workspace (e.g. from a palette of widgets). - [#808](https://github.com/bvaughn/react-resizable-panels/issues/808)
+- Add the `Workspace` `acceptExternalDrop` prop, which creates tabs from the browser's drag and drop (e.g. `draggable` elements or files). - [#808](https://github.com/bvaughn/react-resizable-panels/issues/808)
+- Add the `useTabListOverflow` hook, which returns the ids of a tabset's tabs that are scrolled out of view (e.g. for an overflow menu), and the `getTabListOverflow` and `subscribeToTabListOverflow` methods. - [#816](https://github.com/bvaughn/react-resizable-panels/issues/816)
+- A selected `Workspace` tab is scrolled into view if its tab list overflows, and `useParentTabset` has a new `selectTab` method. - [#816](https://github.com/bvaughn/react-resizable-panels/issues/816)
+- Add the `usePopoutWindows` hook, which opens `Workspace` tabs in popup windows (e.g. from a "pop out" button), copying the page's styles, and docks them back when the windows are closed. - [#821](https://github.com/bvaughn/react-resizable-panels/issues/821)
+- Deprecate the `Workspace` `onTearOff` prop (and `TearOffArgs` and the drag preview's `isTearOff`): browsers don't reliably report where a drag outside of the window ends, and some block popups opened then. Open popout windows from a button instead; it will be removed in the next major version. - [#826](https://github.com/bvaughn/react-resizable-panels/issues/826)
+- Add the `Workspace` `copyTab` and `copyTabset` props: tabs (and tabsets) dropped while Option (macOS) or Ctrl is held are copied rather than moved, and reported with the new `"copy"` reason. - [#809](https://github.com/bvaughn/react-resizable-panels/issues/809)
+
 ## 4.21.0
 
-- Add `TabsetCollapseButton` and `TabsetMaximizeButton` components, which collapse (or expand) and maximize (or restore) the tabset they're rendered within, with `aria-expanded`/`aria-controls` and `aria-pressed`. They render nothing when the action isn't available (e.g. maximizing the only tabset). - [#805](https://github.com/bvaughn/react-resizable-panels/pull/805)
-- The `children`, `className`, `style`, and `title` props of `TabCloseButton`, `TabsetDragHandle`, and the new buttons can be functions of the component's state, e.g. `{({ isCollapsed }) => (isCollapsed ? "▸" : "▾")}`. - [#805](https://github.com/bvaughn/react-resizable-panels/pull/805)
-- Fix `groupResizeBehavior: "preserve-pixel-size"` panels drifting by a fraction of a pixel when panels have fractional sizes (e.g. at 150% display scaling): a `Group`'s size was measured as the sum of its panels' rounded sizes, which could be off by a pixel and looked like the `Group` being resized. - [#804](https://github.com/bvaughn/react-resizable-panels/issues/804)
+- Add `TabsetCollapseButton` and `TabsetMaximizeButton` components, which collapse and maximize the tabset they're rendered within. - [#805](https://github.com/bvaughn/react-resizable-panels/pull/805)
+- The `children`, `className`, `style`, and `title` props of `TabCloseButton`, `TabsetDragHandle`, and the new buttons can be functions of the component's state. - [#805](https://github.com/bvaughn/react-resizable-panels/pull/805)
+- Fix `groupResizeBehavior: "preserve-pixel-size"` panels drifting by a fraction of a pixel at fractional display scaling (e.g. 150%). - [#804](https://github.com/bvaughn/react-resizable-panels/issues/804)
 
 ## 4.20.0
 

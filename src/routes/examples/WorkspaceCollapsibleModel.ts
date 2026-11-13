@@ -36,7 +36,6 @@ const collapsibleModel: WorkspaceModel<TabData> = {
             type: "tabset",
             id: "bottom",
             collapsible: true,
-            // Starts collapsed; expands to 35% of its split
             collapsed: true,
             size: 35,
             tabs: [

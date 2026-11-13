@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../shared/hooks/useMergedRefs";
 import { isHTMLElement } from "../../shared/utils/isHTMLElement";
@@ -11,7 +11,10 @@ import {
   useWorkspaceContext
 } from "../hooks/useWorkspaceContext";
 import { isTabsetDragDisabled } from "../utils/isTabsetDragDisabled";
+import { getTabListTabElements } from "../utils/getTabListTabElements";
 import { measureTabListFreeSpace } from "../utils/measureTabListFreeSpace";
+import { measureTabListOverflow } from "../utils/measureTabListOverflow";
+import { scrollTabIntoView } from "../utils/scrollTabIntoView";
 
 function TabListComponent({ children }: { children: ReactNode }) {
   const {
@@ -20,7 +23,8 @@ function TabListComponent({ children }: { children: ReactNode }) {
     dragGroup,
     model,
     styles,
-    tabListFreeSpaceStore
+    tabListFreeSpaceStore,
+    tabListOverflowStore
   } = useWorkspaceContext("TabList");
   const { isCollapsed, setTabListElement, tabPlacement, tabset } =
     useTabsetContext("TabList");
@@ -36,8 +40,34 @@ function TabListComponent({ children }: { children: ReactNode }) {
   // Tabs let the list be scrolled by touch while it overflows (see Tab)
   const [isOverflowing, setIsOverflowing] = useState(false);
 
+  // The selected tab is scrolled into view when it's selected (however it's selected, e.g. from an overflow menu, or with the imperative API),
+  // and when the list is first rendered (e.g. with a model that was saved while a tab at the end of the list was selected);
+  // not when the list is resized or scrolled afterward, which would fight the user scrolling it.
+  // A list that has no size when that's attempted (e.g. it's in a hidden container, or content that's moved into a popup after its effects run)
+  // can't be scrolled yet, so the scroll is pending until the list is first measured with a size (see the observers below).
+  const selectedTabId = tabset.selectedId;
+  const selectedTabIdRef = useRef(selectedTabId);
+  selectedTabIdRef.current = selectedTabId;
+  const isScrollPendingRef = useRef(true);
+  const scrollSelectedTabIntoView = useCallback(() => {
+    const element = elementRef.current;
+    const tabId = selectedTabIdRef.current;
+    if (!element || tabId === undefined) {
+      isScrollPendingRef.current = false;
+      return;
+    }
+
+    const tab = getTabListTabElements(element).find(
+      (child) => child.dataset.tabId === tabId
+    );
+    if (!tab || scrollTabIntoView(element, tab)) {
+      isScrollPendingRef.current = false;
+    }
+  }, []);
+
   // The list overflows (and its free space changes) when it or its tabs change size, or when tabs are added or removed;
-  // its free space also changes when the header or its children change size, or when header children are added or removed
+  // its free space also changes when the header or its children change size, or when header children are added or removed,
+  // and which of its tabs are out of view also changes when it's scrolled
   const tabsetId = tabset.id;
   useIsomorphicLayoutEffect(() => {
     const element = elementRef.current;
@@ -65,9 +95,22 @@ function TabListComponent({ children }: { children: ReactNode }) {
 
     // Free space is reported synchronously from ResizeObserver and MutationObserver callbacks (which run before the browser paints),
     // so that e.g. a toolbar can move items into an overflow menu without showing them in the wrong place for a frame
+    // (Tabs out of view are reported to the store the same way, and also when the list is scrolled)
+    const updateTabsOutOfView = () => {
+      tabListOverflowStore.set(
+        tabsetId,
+        measureTabListOverflow(element, tabListOverflowStore.get(tabsetId))
+      );
+    };
+
     let lastFreeSpace: number | undefined;
     const update = () => {
+      if (isScrollPendingRef.current) {
+        scrollSelectedTabIntoView();
+      }
+
       updateOverflow();
+      updateTabsOutOfView();
 
       const freeSpace = measureTabListFreeSpace(element);
       if (freeSpace !== lastFreeSpace) {
@@ -169,21 +212,41 @@ function TabListComponent({ children }: { children: ReactNode }) {
 
       update();
     });
-    element.addEventListener("scroll", updateOverflow, { passive: true });
+    // Scroll events are dispatched before the browser paints (but never while React is committing)
+    const onScroll = () => {
+      updateOverflow();
+      updateTabsOutOfView();
+    };
+    element.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
       isDisposed = true;
       resizeObserver?.disconnect();
       mutationObserver?.disconnect();
-      element.removeEventListener("scroll", updateOverflow);
+      element.removeEventListener("scroll", onScroll);
     };
-  }, [orientation, tabListFreeSpaceStore, tabsetId]);
+  }, [
+    orientation,
+    scrollSelectedTabIntoView,
+    tabListFreeSpaceStore,
+    tabListOverflowStore,
+    tabsetId
+  ]);
 
   // Cleared when the list is removed (e.g. the tabset is closed), rather than when it's measured again (e.g. its orientation changes)
   useIsomorphicLayoutEffect(
     () => tabListFreeSpaceStore.retain(tabsetId),
     [tabListFreeSpaceStore, tabsetId]
   );
+  useIsomorphicLayoutEffect(
+    () => tabListOverflowStore.retain(tabsetId),
+    [tabListOverflowStore, tabsetId]
+  );
+
+  useIsomorphicLayoutEffect(() => {
+    isScrollPendingRef.current = true;
+    scrollSelectedTabIntoView();
+  }, [orientation, scrollSelectedTabIntoView, selectedTabId]);
 
   // The list's empty space drags the tabset (see TabsetView), so it handles touch drags itself like tabs do (see Tab)
   let touchAction = styles?.tabList?.touchAction;
@@ -228,6 +291,8 @@ function TabListComponent({ children }: { children: ReactNode }) {
  *
  * ℹ️ The `--tab-list-free-space` custom property is set to the space the list's tabs don't use (negative once they overflow);
  * see `WorkspaceImperativeHandle.getTabListFreeSpace`.
+ *
+ * ℹ️ While the list overflows, the selected tab is scrolled into view whenever it's selected (see `useTabListOverflow` for the tabs that are out of view).
  *
  * ℹ️ While the list overflows, it can be scrolled by swiping along it on touch devices;
  * tabs are then dragged by first moving across the list (e.g. downward from tabs placed at the top).

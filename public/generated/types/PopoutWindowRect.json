@@ -1,0 +1,51 @@
+{
+  "description": [
+    {
+      "content": "<p>Where a popout window is on screen (in screen coordinates) and how big its content is (in pixels); see <code>usePopoutWindows</code>.</p>\n"
+    }
+  ],
+  "extends": [],
+  "fields": [
+    {
+      "description": [
+        {
+          "content": "<p>Height of the window's content, in pixels</p>\n"
+        }
+      ],
+      "name": "height",
+      "optional": false,
+      "type": "number"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Horizontal position of the window on the screen</p>\n"
+        }
+      ],
+      "name": "screenX",
+      "optional": false,
+      "type": "number"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Vertical position of the window on the screen</p>\n"
+        }
+      ],
+      "name": "screenY",
+      "optional": false,
+      "type": "number"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Width of the window's content, in pixels</p>\n"
+        }
+      ],
+      "name": "width",
+      "optional": false,
+      "type": "number"
+    }
+  ],
+  "name": "PopoutWindowRect"
+}

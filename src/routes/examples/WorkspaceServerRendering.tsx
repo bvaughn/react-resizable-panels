@@ -18,6 +18,5 @@ declare const initialModel: WorkspaceModel<TabData>;
       <Editor path={tab.data.path} />
     )
   }
-  // Server render static documentation, but not editors
   serverRenderTabContent={(tab) => tab.data.kind === "docs"}
 />

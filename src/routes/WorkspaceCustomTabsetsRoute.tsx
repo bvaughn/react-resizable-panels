@@ -13,12 +13,14 @@ import {
 } from "react-resizable-panels";
 import { html as ConfirmCloseHTML } from "../../public/generated/examples/WorkspaceCustomTabConfirmClose.json";
 import { html as CustomTabsetHTML } from "../../public/generated/examples/WorkspaceCustomTabset.json";
+import { html as HiddenTabsMenuHTML } from "../../public/generated/examples/WorkspaceHiddenTabsMenu.json";
 import { html as OverflowToolbarHTML } from "../../public/generated/examples/WorkspaceOverflowToolbar.json";
 import { Link } from "../components/Link";
 import {
   DemoWorkspace,
   type DemoTab
 } from "../components/workspace/WorkspaceDemo";
+import { HiddenTabsMenu } from "./examples/WorkspaceHiddenTabsMenu";
 import { OverflowToolbar } from "./examples/WorkspaceOverflowToolbar";
 
 export default function WorkspaceCustomTabsetsRoute() {
@@ -63,7 +65,7 @@ export default function WorkspaceCustomTabsetsRoute() {
       <div>
         Props can be overridden or wrapped. For example, to confirm before
         closing a tab with unsaved changes (whether by its close button or the
-        Delete key):
+        Delete or Backspace key):
       </div>
       <Code html={ConfirmCloseHTML} />
       <SectionHeader>Toolbars that run out of room</SectionHeader>
@@ -105,6 +107,34 @@ export default function WorkspaceCustomTabsetsRoute() {
         <Link to="/imperative-api/workspace">imperative API</Link>; listeners
         are called synchronously, before the browser paints.
       </Callout>
+      <SectionHeader>Tabs that don't fit</SectionHeader>
+      <div>
+        When a tabset has more tabs than fit, its tab list scrolls. The{" "}
+        <Link to="/hooks/use-tab-list-overflow">
+          <code>useTabListOverflow</code>
+        </Link>{" "}
+        hook returns which of its tabs are out of view (and which are only
+        partly visible), e.g. for a menu that lists them:
+      </div>
+      <Code html={HiddenTabsMenuHTML} />
+      <div>
+        A selected tab is scrolled into view, however it's selected (e.g. from
+        the menu, or with the <code>selectTab</code> method). In the workspace
+        below, scroll the tab list (or make the tabset narrower) and select tabs
+        from the menu.
+      </div>
+      <DemoWorkspace
+        className="h-60"
+        defaultModel={manyTabsModel}
+        renderTabsetToolbar={(tabset) => <HiddenTabsMenu tabset={tabset} />}
+        showResetButton
+      />
+      <Callout>
+        To read which tabs are out of view outside of a tabset, use the{" "}
+        <code>getTabListOverflow</code> and{" "}
+        <code>subscribeToTabListOverflow</code> methods of the{" "}
+        <Link to="/imperative-api/workspace">imperative API</Link>.
+      </Callout>
       <div>
         Like the rest of the library, tabsets are unstyled; see{" "}
         <Link to="/examples/workspace/styling">styling</Link>.
@@ -133,6 +163,43 @@ const overflowModel: WorkspaceModel<DemoTab> = {
         type: "tabset",
         id: "right",
         size: 50,
+        tabs: [{ id: "about", title: "About", data: { kind: "about" } }]
+      }
+    ]
+  }
+};
+
+// One tabset with more tabs than fit (in the demo's width)
+const manyTabsModel: WorkspaceModel<DemoTab> = {
+  version: 1,
+  root: {
+    type: "split",
+    id: "root",
+    orientation: "horizontal",
+    children: [
+      {
+        type: "tabset",
+        id: "tabs",
+        size: 55,
+        tabs: (
+          [
+            ["orders", "Orders", "notes"],
+            ["trades", "Trades", "counter"],
+            ["positions", "Positions", "notes"],
+            ["risk", "Risk", "counter"],
+            ["alerts", "Alerts", "notes"],
+            ["log", "Log", "about"],
+            ["settings", "Settings", "about"],
+            ["watchlist", "Watchlist", "notes"],
+            ["reports", "Reports", "counter"],
+            ["history", "History", "notes"]
+          ] as const
+        ).map(([id, title, kind]) => ({ data: { kind }, id, title }))
+      },
+      {
+        type: "tabset",
+        id: "about",
+        size: 45,
         tabs: [{ id: "about", title: "About", data: { kind: "about" } }]
       }
     ]

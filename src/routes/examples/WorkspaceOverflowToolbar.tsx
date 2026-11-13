@@ -6,7 +6,6 @@ type ToolbarItem = { icon: ReactNode; label: string; onClick: () => void };
 
 // <begin>
 
-// Each item (and the "…" button) is a fixed-size icon button
 const ITEM_SIZE = 28;
 
 function getToolbarSize(visibleCount: number, itemCount: number) {
@@ -17,9 +16,6 @@ function getToolbarSize(visibleCount: number, itemCount: number) {
 function OverflowToolbar({ items }: { items: ToolbarItem[] }) {
   const freeSpace = useTabListFreeSpace();
 
-  // Items are placed when the free space changes; it was measured with the toolbar as it's currently shown,
-  // so the toolbar can use the free space plus its current size
-  // (and showing or hiding items, which changes the free space by the same amount, doesn't change how many fit)
   const [placement, setPlacement] = useState({
     freeSpace: undefined as number | undefined,
     visibleCount: items.length

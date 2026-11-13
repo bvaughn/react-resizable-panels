@@ -59,6 +59,28 @@
       "name": "style",
       "required": false
     },
+    "acceptExternalDrop": {
+      "description": [
+        {
+          "content": "<p>Lets the workspace accept drags that use the browser's drag and drop from outside of any workspace\n(e.g. an element of the application with the <code>draggable</code> attribute, a file, or a link from another application),\nshowing the drop indicator while the drag is over the workspace, and creating a tab where it's dropped.\nThe new tab is reported to <code>onModelChanged</code> with the <code>&quot;add&quot;</code> reason.</p>\n"
+        },
+        {
+          "content": "<p><code>disableDrop</code> can't be called until the tab is created (when the drag is dropped), so a target it rejects is shown as accepted while dragging;\nthe drop is ignored then. Drag sources within the application can use the imperative <code>startExternalDrag</code> method instead, which doesn't have this limitation.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Elements within the workspace's tab content that handle the same drags themselves (by canceling the <code>dragover</code> and <code>drop</code> events) take precedence.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>This object is read when drag events are handled, so it doesn't need to be memoized.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">acceptExternalDrop</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">AcceptExternalDrop</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span></div>",
+      "name": "acceptExternalDrop",
+      "required": false
+    },
     "classNames": {
       "description": [
         {
@@ -98,6 +120,55 @@
       "html": "<div><span class=\"tok-labelName\"><span class=\"tok-propertyName\">defaultModel</span></span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">WorkspaceModelInput</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span></div>",
       "name": "defaultModel",
       "required": true
+    },
+    "copyTab": {
+      "description": [
+        {
+          "content": "<p>Lets tabs be copied by dragging them: a tab dropped while the copy modifier key is held (Option on macOS, Ctrl elsewhere) adds the copy this function returns,\nleaving the dragged tab where it was. The change is reported to <code>onModelChanged</code> with the <code>&quot;copy&quot;</code> reason.</p>\n"
+        },
+        {
+          "content": "<p>Returning <code>null</code> (or <code>undefined</code>) moves the dragged tab instead. If that move isn't allowed either (the <code>disableDrop</code> prop rejects it, the ids conflict, or it isn't a valid place to move the tab), nothing happens.</p>\n"
+        },
+        {
+          "content": "<p>The copy needs an id that isn't used by any other node of the workspace (e.g. <code>crypto.randomUUID()</code>); copies with ids that are in use are rejected (and the tab is moved instead).</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>The workspace the tab is dropped into makes the copy, so a tab dragged from another workspace (see the <code>dragGroup</code> prop) is copied by the workspace it's dropped into\n(and is only copied if that workspace has this prop).</p>\n<ul>\n<li><code>tab</code> The tab being dragged</li>\n<li><code>target</code> Where the copy will be dropped</li>\n</ul>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">copyTab</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">target</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabDropTarget</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62; </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-keyword\">null</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "copyTab",
+      "required": false
+    },
+    "copyTabset": {
+      "description": [
+        {
+          "content": "<p>Lets tabsets be copied by dragging them (by their headers), like the <code>copyTab</code> prop does for tabs: a tabset dropped while the copy modifier key is held adds the copy this function returns,\nleaving the dragged tabset where it was. The change is reported to <code>onModelChanged</code> with the <code>&quot;copy&quot;</code> reason.</p>\n"
+        },
+        {
+          "content": "<p>The copy includes its tabs, which need ids that aren't used by any other node of the workspace too; the <code>copyTab</code> argument copies a tab:</p>\n"
+        },
+        {
+          "code": true,
+          "content": "<div><span class=\"tok-variableName\">copyTabset</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName\">tabset</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName\">copyTab</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-punctuation\">...</span><span class=\"tok-variableName\">tabset</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-propertyName tok-definition\">id</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">crypto</span><span class=\"tok-operator\">.</span><span class=\"tok-propertyName\">randomUUID</span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-propertyName tok-definition\">tabs</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">tabset</span><span class=\"tok-operator\">.</span><span class=\"tok-propertyName\">tabs</span><span class=\"tok-operator\">.</span><span class=\"tok-propertyName\">map</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName\">copyTab</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">}</span></div>"
+        },
+        {
+          "content": "<p>Returning <code>null</code> (or <code>undefined</code>) moves the dragged tabset instead. If that move isn't allowed either (the <code>disableDrop</code> prop rejects it, the ids conflict, a <code>keepWhenEmpty</code> tabset is dropped into another workspace, or it isn't a valid place to move the tabset), nothing happens.</p>\n"
+        },
+        {
+          "content": "<p>The copy's selected tab is the copy of the dragged tabset's selected tab (matched by position), unless the copy selects one of its own tabs.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>A copy dropped into a tab list (or onto the center of another tabset) only adds its tabs; its id and data are only used where it's added as a tabset.</p>\n<ul>\n<li><code>tabset</code> The tabset being dragged</li>\n<li><code>copyTab</code> Copies a tab with the <code>copyTab</code> prop (and the same drop target); without that prop (or if it returns <code>null</code>), the copy is a shallow copy of the tab with a new id</li>\n<li><code>target</code> Where the copy will be dropped</li>\n</ul>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">copyTabset</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tabset</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">copyTab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">target</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabDropTarget</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">TabsetNode</span><span class=\"tok-operator\">&#60;</span><span class=\"tok-punctuation\">...</span><span class=\"tok-operator\">&#62;</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-punctuation\">...</span><span class=\"\"> </span><span class=\"tok-number\">1</span><span class=\"\"> more </span><span class=\"tok-operator\">.</span><span class=\"tok-operator\">.</span><span class=\"tok-operator\">.</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "copyTabset",
+      "required": false
     },
     "disabled": {
       "description": [
@@ -161,10 +232,6 @@
         },
         {
           "content": "<p>A tab dragged to another copy of the application is sent there with the structured clone algorithm (like <code>postMessage</code>), so its data must be cloneable (e.g. no functions);\ntabs whose data can't be cloned (and tabsets containing them) can only be dragged within their copy of the application.\nCopies loaded at different times may be running different versions of the application, so the other copy may need to handle tab data it doesn't recognize.</p>\n",
-          "intent": "warning"
-        },
-        {
-          "content": "<p>Tabs (and tabsets) can still be torn off (see <code>onTearOff</code>), but some browsers (e.g. Safari) block popup windows opened at the end of a drag that uses the browser's drag and drop.</p>\n",
           "intent": "warning"
         }
       ],
@@ -232,6 +299,14 @@
         {
           "content": "<p>This is called while the release of the pointer is being handled (which browsers treat as user input), so a popup can be opened from it.\nWith the <code>dragGroup</code> prop, a tab is torn off when it's dropped outside of every window in the group; the end of those drags isn't treated as user input,\nso browsers block popups opened then unless the drag started a few seconds earlier at most (and Safari blocks them always).</p>\n",
           "intent": "primary"
+        },
+        {
+          "content": "<p>Deprecated: browsers don't reliably report where a drag that leaves the window ends, and some block popups opened at the end of a drag.\nOpen popout windows from a button instead (see <code>usePopoutWindows</code>). This will be removed in the next major version.</p>\n",
+          "intent": "warning"
+        },
+        {
+          "content": "<p>This prop has been deprecated. Open popout windows from a button instead (see <code>usePopoutWindows</code>).</p>\n",
+          "intent": "danger"
         }
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onTearOff</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">args</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TearOffArgs</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"tok-punctuation\">)</span></div>",
@@ -244,7 +319,7 @@
           "content": "<p>Content of the element that follows the pointer while a tab is being dragged.\nDefaults to the tab's title (or id).</p>\n"
         },
         {
-          "content": "<p>The element has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tab (see <code>onTearOff</code>).</p>\n",
+          "content": "<p>The element has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tab (see the deprecated <code>onTearOff</code> prop).</p>\n",
           "intent": "primary"
         }
       ],
@@ -258,7 +333,7 @@
           "content": "<p>Content of the element that follows the pointer while a whole tabset is being dragged.\nDefaults to the title (or id) of its selected tab followed by the number of other tabs being dragged (e.g. &quot;One (+2)&quot;), or the selected tab's <code>renderDragPreview</code> when that prop is set, or the tabset's id if it has no tabs.</p>\n"
         },
         {
-          "content": "<p>The element has a <code>data-drag-type</code> attribute: <code>&quot;tabset&quot;</code> while a tabset is dragged, and <code>&quot;tab&quot;</code> while a tab is.\nIt also has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tabset (see <code>onTearOff</code>).</p>\n",
+          "content": "<p>The element has a <code>data-drag-type</code> attribute: <code>&quot;tabset&quot;</code> while a tabset is dragged, and <code>&quot;tab&quot;</code> while a tab is.\nIt also has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tabset (see the deprecated <code>onTearOff</code> prop).</p>\n",
           "intent": "primary"
         }
       ],

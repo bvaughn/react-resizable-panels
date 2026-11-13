@@ -58,6 +58,15 @@ export const routes = {
   "/examples/workspace/managing-tabs": lazy(
     () => import("./routes/WorkspaceManagingTabsRoute")
   ),
+  "/examples/workspace/managing-tabs/copying-tabs": lazy(
+    () => import("./routes/WorkspaceCopyingTabsRoute")
+  ),
+  "/examples/workspace/managing-tabs/dragging-tabs-in": lazy(
+    () => import("./routes/WorkspaceDraggingTabsInRoute")
+  ),
+  "/examples/workspace/managing-tabs/selecting-tabs": lazy(
+    () => import("./routes/WorkspaceTabSelectionRoute")
+  ),
   "/examples/workspace/managing-tabsets": lazy(
     () => import("./routes/WorkspaceManagingTabsetsRoute")
   ),
@@ -134,8 +143,14 @@ export const routes = {
   "/hooks/use-parent-workspace": lazy(
     () => import("./routes/UseParentWorkspaceRoute")
   ),
+  "/hooks/use-popout-windows": lazy(
+    () => import("./routes/UsePopoutWindowsRoute")
+  ),
   "/hooks/use-tab-list-free-space": lazy(
     () => import("./routes/UseTabListFreeSpaceRoute")
+  ),
+  "/hooks/use-tab-list-overflow": lazy(
+    () => import("./routes/UseTabListOverflowRoute")
   ),
   "/hooks/use-workspace-callback-ref": lazy(
     () => import("./routes/UseWorkspaceCallbackRefRoute")

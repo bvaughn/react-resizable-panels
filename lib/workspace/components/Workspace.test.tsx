@@ -1,6 +1,12 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { createRef, useEffect, useState } from "react";
+import {
+  createRef,
+  useEffect,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode
+} from "react";
 import { createPortal } from "react-dom";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { resetWarnOnceForTest } from "../../shared/utils/warnOnce";
@@ -12,6 +18,7 @@ import { TabsetDragHandle } from "./TabsetDragHandle";
 import type {
   DisableDropArgs,
   ParentTab,
+  ParentTabset,
   ParentTabsetState,
   ParentTabState,
   SplitNode,
@@ -27,8 +34,10 @@ import { useParentTabsetState } from "../hooks/useParentTabsetState";
 import { useParentTabState } from "../hooks/useParentTabState";
 import { useParentWorkspace } from "../hooks/useParentWorkspace";
 import { useTabListFreeSpace } from "../hooks/useTabListFreeSpace";
+import { useTabListOverflow } from "../hooks/useTabListOverflow";
 import { getRegisteredAxis } from "../../global/mutable-state/axes";
 import { updateInteractionState } from "../../global/mutable-state/interactions";
+import { emitter } from "../../shared/utils/test/mockBoundingClientRect";
 import { Workspace } from "./Workspace";
 
 type TabData = { label: string };
@@ -108,6 +117,30 @@ function isShown(element: HTMLElement) {
     element.closest<HTMLElement>("[data-tab-content]")?.parentElement?.style
       .display !== "none"
   );
+}
+
+const TEAR_OFF_DEPRECATION = "The Workspace onTearOff prop is deprecated";
+
+// The deprecated onTearOff prop logs a warning (in development); other warnings still fail the test (see vitest.setup.ts)
+function allowTearOffDeprecationWarning() {
+  let restore: (() => void) | undefined;
+  beforeEach(() => {
+    const spy = vi.spyOn(console, "warn");
+    const prevImplementation = spy.getMockImplementation();
+    spy.mockImplementation((message: unknown, ...rest: unknown[]) => {
+      if (!String(message).includes(TEAR_OFF_DEPRECATION)) {
+        prevImplementation?.(message, ...rest);
+      }
+    });
+    restore = () => {
+      if (prevImplementation) {
+        spy.mockImplementation(prevImplementation);
+      }
+    };
+  });
+  afterEach(() => {
+    restore?.();
+  });
 }
 
 describe("Workspace", () => {
@@ -1660,6 +1693,410 @@ describe("Workspace", () => {
     });
   });
 
+  describe("tab list overflow", () => {
+    // jsdom doesn't lay out elements; tab lists are 150px wide, and their tabs are 100px wide, side by side (offset by how far the list is scrolled)
+    const scrollOffsets = new Map<Element, number>();
+    let listWidth = 150;
+
+    function getRect(element: HTMLElement): DOMRect | undefined {
+      if (element.hasAttribute("data-tab-list")) {
+        return DOMRect.fromRect({ height: 30, width: listWidth, x: 0, y: 0 });
+      }
+
+      const list = element.closest("[data-tab-list]");
+      if (element.hasAttribute("data-tab") && list) {
+        const index = Array.from(list.querySelectorAll("[data-tab]")).indexOf(
+          element
+        );
+        return DOMRect.fromRect({
+          height: 30,
+          width: 100,
+          x: index * 100 - (scrollOffsets.get(list) ?? 0),
+          y: 0
+        });
+      }
+    }
+
+    // Scrolls a list (as the user would), and dispatches its scroll event
+    function scrollList(list: Element, offset: number) {
+      act(() => {
+        scrollOffsets.set(list, offset);
+        list.dispatchEvent(new Event("scroll"));
+      });
+    }
+
+    beforeEach(() => {
+      const getBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
+      vi.spyOn(
+        HTMLElement.prototype,
+        "getBoundingClientRect"
+      ).mockImplementation(function (this: HTMLElement) {
+        return getRect(this) ?? getBoundingClientRect.call(this);
+      });
+      const getClientRects = HTMLElement.prototype.getClientRects;
+      vi.spyOn(HTMLElement.prototype, "getClientRects").mockImplementation(
+        function (this: HTMLElement) {
+          const rect = getRect(this);
+          return rect
+            ? ([rect] as unknown as DOMRectList)
+            : getClientRects.call(this);
+        }
+      );
+      const offsetWidth = Object.getOwnPropertyDescriptor(
+        HTMLElement.prototype,
+        "offsetWidth"
+      )!.get!;
+      vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(
+        function (this: HTMLElement) {
+          return this.hasAttribute("data-tab-list")
+            ? listWidth
+            : offsetWidth.call(this);
+        }
+      );
+      Element.prototype.scrollBy = function (
+        this: Element,
+        options?: ScrollToOptions | number
+      ) {
+        const left = typeof options === "object" ? (options.left ?? 0) : 0;
+        scrollOffsets.set(this, (scrollOffsets.get(this) ?? 0) + left);
+        this.dispatchEvent(new Event("scroll"));
+      } as Element["scrollBy"];
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+      scrollOffsets.clear();
+      listWidth = 150;
+      delete (Element.prototype as Partial<Element>).scrollBy;
+    });
+
+    function createOverflowingModel(): WorkspaceModel<TabData> {
+      return {
+        root: {
+          children: [
+            {
+              id: "left",
+              selectedId: "1",
+              tabs: [tab("1"), tab("2"), tab("3"), tab("4")],
+              type: "tabset"
+            },
+            {
+              id: "right",
+              selectedId: "5",
+              tabs: [tab("5")],
+              type: "tabset"
+            }
+          ],
+          id: "root",
+          orientation: "horizontal",
+          type: "split"
+        },
+        version: 1
+      };
+    }
+
+    function Overflow() {
+      const tabset = useParentTabset();
+      const hiddenTabIds = useTabListOverflow();
+      const partlyHiddenTabIds = useTabListOverflow({
+        includePartiallyVisible: true
+      });
+      return (
+        <div data-testid={`overflow-${tabset?.id}`}>
+          {hiddenTabIds.join(",")}|{partlyHiddenTabIds.join(",")}
+        </div>
+      );
+    }
+
+    function getTabList(container: HTMLElement, tabsetId: string) {
+      return container.querySelector<HTMLElement>(
+        `[data-tabset-id="${tabsetId}"] [data-tab-list]`
+      )!;
+    }
+
+    test("is reported by the imperative API and useTabListOverflow", async () => {
+      const { workspaceRef } = renderWorkspace({
+        defaultModel: createOverflowingModel(),
+        renderTabsetToolbar: () => <Overflow />
+      });
+
+      // Tab lists are first measured after the commit (but before the browser paints)
+      expect(workspaceRef.current!.getTabListOverflow("left")).toBe(undefined);
+      expect(screen.getByTestId("overflow-left")).toHaveTextContent("|");
+      await act(async () => {});
+
+      // Tab 2 is cut off by the end of the list, and tabs 3 and 4 are beyond it
+      expect(workspaceRef.current!.getTabListOverflow("left")).toEqual([
+        "3",
+        "4"
+      ]);
+      expect(
+        workspaceRef.current!.getTabListOverflow("left", {
+          includePartiallyVisible: true
+        })
+      ).toEqual(["2", "3", "4"]);
+      expect(screen.getByTestId("overflow-left")).toHaveTextContent(
+        "3,4|2,3,4"
+      );
+      expect(screen.getByTestId("overflow-right")).toHaveTextContent("|");
+      expect(workspaceRef.current!.getTabListOverflow("missing")).toBe(
+        undefined
+      );
+    });
+
+    test("is updated when the tab list is scrolled", async () => {
+      const { container } = renderWorkspace({
+        defaultModel: createOverflowingModel(),
+        renderTabsetToolbar: () => <Overflow />
+      });
+      await act(async () => {});
+
+      scrollList(getTabList(container, "left"), 200);
+      expect(screen.getByTestId("overflow-left")).toHaveTextContent(
+        "1,2|1,2,4"
+      );
+    });
+
+    test("the selected tab is scrolled into view when it's selected", async () => {
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: createOverflowingModel(),
+        renderTabsetToolbar: () => <Overflow />
+      });
+      await act(async () => {});
+
+      // Scrolled just far enough to show all of tab 4
+      act(() => {
+        workspaceRef.current!.selectTab("4");
+      });
+      expect(scrollOffsets.get(getTabList(container, "left"))).toBe(250);
+      expect(screen.getByTestId("overflow-left")).toHaveTextContent(
+        "1,2|1,2,3"
+      );
+
+      // A tab that's already visible doesn't scroll the list
+      act(() => {
+        workspaceRef.current!.selectTab("3");
+      });
+      expect(scrollOffsets.get(getTabList(container, "left"))).toBe(200);
+    });
+
+    test("the selected tab is scrolled into view when the tab list is first rendered", () => {
+      const defaultModel = createOverflowingModel();
+      (defaultModel.root as SplitNode<TabData>).children[0] = {
+        ...((defaultModel.root as SplitNode<TabData>)
+          .children[0] as TabsetNode<TabData>),
+        selectedId: "3"
+      };
+
+      const { container } = renderWorkspace({ defaultModel });
+      expect(scrollOffsets.get(getTabList(container, "left"))).toBe(150);
+    });
+
+    test("the selected tab is scrolled into view once a tab list that had no size is measured", async () => {
+      const defaultModel = createOverflowingModel();
+      (defaultModel.root as SplitNode<TabData>).children[0] = {
+        ...((defaultModel.root as SplitNode<TabData>)
+          .children[0] as TabsetNode<TabData>),
+        selectedId: "3"
+      };
+
+      listWidth = 0;
+      const { container } = renderWorkspace({ defaultModel });
+      await act(async () => {});
+      expect(scrollOffsets.get(getTabList(container, "left"))).toBe(undefined);
+
+      // The list is resized (e.g. its container is shown)
+      listWidth = 150;
+      act(() => {
+        emitter.emit("change");
+      });
+      expect(scrollOffsets.get(getTabList(container, "left"))).toBe(150);
+
+      // The list isn't scrolled again when it's resized afterward
+      scrollList(getTabList(container, "left"), 0);
+      act(() => {
+        emitter.emit("change");
+      });
+      expect(scrollOffsets.get(getTabList(container, "left"))).toBe(0);
+    });
+
+    test("overflow survives the tabset being maximized and restored", async () => {
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: createOverflowingModel()
+      });
+      await act(async () => {});
+      expect(workspaceRef.current!.getTabListOverflow("left")).toEqual([
+        "3",
+        "4"
+      ]);
+
+      const listener = vi.fn();
+      const unsubscribe = workspaceRef.current!.subscribeToTabListOverflow(
+        "left",
+        listener
+      );
+
+      // The tab list is rendered again in the overlay
+      act(() => {
+        workspaceRef.current!.maximizeTabset("left");
+      });
+      await act(async () => {});
+      expect(workspaceRef.current!.getTabListOverflow("left")).toEqual([
+        "3",
+        "4"
+      ]);
+
+      act(() => {
+        workspaceRef.current!.selectTab("4");
+      });
+      const maximized = container.querySelector("[data-workspace-maximized]")!;
+      const overlayList =
+        maximized.querySelector<HTMLElement>("[data-tab-list]")!;
+      expect(scrollOffsets.get(overlayList)).toBe(250);
+      expect(workspaceRef.current!.getTabListOverflow("left")).toEqual([
+        "1",
+        "2"
+      ]);
+
+      act(() => {
+        workspaceRef.current!.restoreTabset();
+      });
+      await act(async () => {});
+      expect(container.querySelector("[data-workspace-maximized]")).toBeNull();
+      expect(scrollOffsets.get(getTabList(container, "left"))).toBe(250);
+      expect(workspaceRef.current!.getTabListOverflow("left")).toEqual([
+        "1",
+        "2"
+      ]);
+      expect(listener).not.toHaveBeenCalledWith(undefined);
+      unsubscribe();
+    });
+
+    test("ParentTabset.selectTab selects tabs within the tabset", async () => {
+      let parentTabset: ParentTabset | null = null;
+      function Toolbar() {
+        const tabset = useParentTabset();
+        if (tabset?.id === "left") {
+          parentTabset = tabset;
+        }
+        return null;
+      }
+
+      const { onModelChanged } = renderWorkspace({
+        defaultModel: createOverflowingModel(),
+        renderTabsetToolbar: () => <Toolbar />
+      });
+
+      // Tabs in other tabsets aren't selected
+      act(() => {
+        parentTabset!.selectTab("5");
+        parentTabset!.selectTab("missing");
+      });
+      expect(onModelChanged).not.toHaveBeenCalled();
+
+      act(() => {
+        parentTabset!.selectTab("4");
+      });
+      expect(getTab("4")).toHaveAttribute("aria-selected", "true");
+      expect(onModelChanged).toHaveBeenLastCalledWith(
+        expect.anything(),
+        expect.objectContaining({ reason: "select" })
+      );
+    });
+
+    test("notifies subscribers when the requested tabs change, and when the tabset is removed", async () => {
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: createOverflowingModel()
+      });
+      await act(async () => {});
+      const listener = vi.fn();
+      const unsubscribe = workspaceRef.current!.subscribeToTabListOverflow(
+        "left",
+        listener
+      );
+      const partialListener = vi.fn();
+      const unsubscribePartial =
+        workspaceRef.current!.subscribeToTabListOverflow(
+          "left",
+          partialListener,
+          { includePartiallyVisible: true }
+        );
+
+      // Tab 1 is cut off once the list is scrolled at all, but tabs 3 and 4 are still the only ones entirely out of view
+      scrollList(getTabList(container, "left"), 25);
+      expect(listener).not.toHaveBeenCalled();
+      expect(partialListener).toHaveBeenCalledTimes(1);
+      expect(partialListener).toHaveBeenLastCalledWith(["1", "2", "3", "4"]);
+
+      // Scrolling further without changing which tabs are out of view doesn't notify subscribers again
+      scrollList(getTabList(container, "left"), 40);
+      expect(partialListener).toHaveBeenCalledTimes(1);
+
+      scrollList(getTabList(container, "left"), 100);
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenLastCalledWith(["1", "4"]);
+      expect(partialListener).toHaveBeenCalledTimes(2);
+      expect(partialListener).toHaveBeenLastCalledWith(["1", "3", "4"]);
+
+      act(() => {
+        workspaceRef.current!.closeTabset("left");
+      });
+      await act(async () => {});
+      expect(listener).toHaveBeenLastCalledWith(undefined);
+      expect(partialListener).toHaveBeenLastCalledWith(undefined);
+      expect(workspaceRef.current!.getTabListOverflow("left")).toBe(undefined);
+
+      unsubscribe();
+      unsubscribePartial();
+    });
+
+    test("useTabListOverflow returns the same array until the requested tabs change", async () => {
+      const renders: string[][] = [];
+      function Overflow() {
+        const tabset = useParentTabset();
+        const hiddenTabIds = useTabListOverflow();
+        if (tabset?.id === "left") {
+          renders.push(hiddenTabIds);
+        }
+        return null;
+      }
+
+      const { container } = renderWorkspace({
+        defaultModel: createOverflowingModel(),
+        renderTabsetToolbar: () => <Overflow />
+      });
+      await act(async () => {});
+      const renderCount = renders.length;
+      const lastTabIds = renders[renders.length - 1];
+
+      // Only partly visible tabs change
+      scrollList(getTabList(container, "left"), 25);
+      expect(renders.length).toBe(renderCount);
+      expect(lastTabIds).toEqual(["3", "4"]);
+
+      scrollList(getTabList(container, "left"), 100);
+      expect(renders.length).toBe(renderCount + 1);
+      expect(renders[renders.length - 1]).toEqual(["1", "4"]);
+    });
+
+    test("useTabListOverflow reports no tabs outside of a tabset", () => {
+      function Overflow() {
+        const hiddenTabIds = useTabListOverflow();
+        const partlyHiddenTabIds = useTabListOverflow({
+          includePartiallyVisible: true
+        });
+        return (
+          <div data-testid="overflow">
+            {hiddenTabIds.length}|{partlyHiddenTabIds.length}
+          </div>
+        );
+      }
+
+      render(<Overflow />);
+      expect(screen.getByTestId("overflow")).toHaveTextContent("0|0");
+    });
+  });
+
   describe("dragging", () => {
     let elementAtPoint: Element | null = null;
 
@@ -1692,6 +2129,14 @@ describe("Workspace", () => {
       )!;
       elementAtPoint = panels;
       return panels;
+    }
+
+    function getTabIds(container: HTMLElement, tabsetId: string) {
+      return Array.from(
+        container.querySelectorAll<HTMLElement>(
+          `[data-tabset-id="${tabsetId}"] [data-tab]`
+        )
+      ).map((element) => element.dataset.tabId);
     }
 
     function getHeader(container: HTMLElement, tabsetId: string) {
@@ -1756,6 +2201,7 @@ describe("Workspace", () => {
       await drag(getTab("2"), getPanels(container, "right"));
 
       expect(disableDrop).toHaveBeenCalledWith({
+        isCopy: false,
         model: expect.anything(),
         source: "local",
         tab: expect.objectContaining({ id: "2" }),
@@ -2076,7 +2522,321 @@ describe("Workspace", () => {
       expect(getIndicator()).toBeNull();
     });
 
+    describe("copying (copyTab and copyTabset)", () => {
+      const copyTab = (tab: TabNode<TabData>) => ({
+        ...tab,
+        id: `${tab.id}-copy`
+      });
+
+      // Drags with the copy modifier key (Ctrl, since jsdom's platform isn't an Apple one) held
+      async function copyDrag(from: HTMLElement, to: HTMLElement) {
+        const user = userEvent.setup();
+        await user.keyboard("{Control>}");
+        await user.pointer([
+          {
+            coords: { clientX: 100, clientY: 100 },
+            keys: "[MouseLeft>]",
+            target: from
+          },
+          { coords: { clientX: 150, clientY: 150 }, target: to },
+          { keys: "[/MouseLeft]", target: to }
+        ]);
+        await user.keyboard("{/Control}");
+      }
+
+      test("dropping a tab while the copy modifier key is held adds the copy, leaving the tab where it was", async () => {
+        const spy = vi.fn(copyTab);
+        const { container, onModelChanged } = renderWorkspace({
+          copyTab: spy
+        });
+
+        await copyDrag(getTab("2"), getPanels(container, "right"));
+
+        expect(spy).toHaveBeenCalledWith(expect.objectContaining({ id: "2" }), {
+          region: "center",
+          tabsetId: "right"
+        });
+        expect(getTabIds(container, "left")).toEqual(["1", "2"]);
+        expect(getTabIds(container, "right")).toEqual(["3", "2-copy"]);
+        expect(onModelChanged).toHaveBeenCalledTimes(1);
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: true,
+          reason: "copy"
+        });
+      });
+
+      test("a copy can be dropped where a move would leave the layout unchanged (e.g. its own tabset)", async () => {
+        const { container } = renderWorkspace({ copyTab });
+
+        await copyDrag(getTab("2"), getPanels(container, "left"));
+
+        expect(getTabIds(container, "left")).toEqual(["1", "2", "2-copy"]);
+      });
+
+      test("without the copyTab prop, tabs are moved", async () => {
+        const { container, onModelChanged } = renderWorkspace();
+
+        await copyDrag(getTab("2"), getPanels(container, "right"));
+
+        expect(getTabIds(container, "left")).toEqual(["1"]);
+        expect(getTabIds(container, "right")).toEqual(["3", "2"]);
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: true,
+          reason: "move"
+        });
+      });
+
+      test("the tab is moved if copyTab returns null", async () => {
+        const { container, onModelChanged } = renderWorkspace({
+          copyTab: () => null
+        });
+
+        await copyDrag(getTab("2"), getPanels(container, "right"));
+
+        expect(getTabIds(container, "right")).toEqual(["3", "2"]);
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: true,
+          reason: "move"
+        });
+      });
+
+      test("a copy with an id that's in use is rejected (with a development warning), and the tab is moved", async () => {
+        const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+        resetWarnOnceForTest();
+        const { container } = renderWorkspace({ copyTab: (tab) => tab });
+
+        await copyDrag(getTab("2"), getPanels(container, "right"));
+
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining("copyTab returned a tab with an id")
+        );
+        expect(getTabIds(container, "left")).toEqual(["1"]);
+        expect(getTabIds(container, "right")).toEqual(["3", "2"]);
+      });
+
+      test("disableDrop is told whether a copy would be dropped", async () => {
+        const disableDrop = vi.fn(() => false);
+        const { container } = renderWorkspace({ copyTab, disableDrop });
+
+        await copyDrag(getTab("2"), getPanels(container, "right"));
+
+        expect(disableDrop).toHaveBeenCalledWith(
+          expect.objectContaining({ isCopy: true, source: "local" })
+        );
+      });
+
+      test("pressing (and releasing) the copy modifier key mid-drag switches between copying and moving", async () => {
+        const renderDragPreview = vi.fn(
+          (tab: TabNode<TabData>, { isCopy }: { isCopy: boolean }) =>
+            `${tab.id}${isCopy ? " (copy)" : ""}`
+        );
+        const { container } = renderWorkspace({ copyTab, renderDragPreview });
+
+        const user = userEvent.setup();
+        await user.pointer([
+          {
+            coords: { clientX: 100, clientY: 100 },
+            keys: "[MouseLeft>]",
+            target: getTab("2")
+          },
+          {
+            coords: { clientX: 150, clientY: 150 },
+            target: getPanels(container, "right")
+          }
+        ]);
+        const preview = () =>
+          document.querySelector<HTMLElement>("[data-drag-preview]")!;
+        expect(preview()).not.toHaveAttribute("data-drag-copy");
+        expect(preview()).toHaveTextContent(/^2$/);
+
+        await user.keyboard("{Control>}");
+        expect(preview()).toHaveAttribute("data-drag-copy");
+        expect(preview()).toHaveTextContent("2 (copy)");
+        expect(document.querySelector("[data-drop-indicator]")).toHaveAttribute(
+          "data-drag-copy"
+        );
+
+        await user.keyboard("{/Control}");
+        expect(preview()).not.toHaveAttribute("data-drag-copy");
+
+        await user.keyboard("{Control>}");
+        await user.pointer({
+          keys: "[/MouseLeft]",
+          target: getPanels(container, "right")
+        });
+        await user.keyboard("{/Control}");
+        expect(getTabIds(container, "left")).toEqual(["1", "2"]);
+        expect(getTabIds(container, "right")).toEqual(["3", "2-copy"]);
+      });
+
+      test("a rejected copy isn't moved onto its own tabset's center (where a move is not valid)", async () => {
+        const { container, onModelChanged } = renderWorkspace({
+          copyTab: () => null
+        });
+
+        await copyDrag(getTab("2"), getPanels(container, "left"));
+
+        expect(getTabIds(container, "left")).toEqual(["1", "2"]);
+        expect(onModelChanged).not.toHaveBeenCalled();
+      });
+
+      test("a keepWhenEmpty tabset whose copy is declined isn't merged into another tabset", async () => {
+        const model = createModel();
+        (model.root as SplitNode<TabData>).children[0] = {
+          ...((model.root as SplitNode<TabData>)
+            .children[0] as TabsetNode<TabData>),
+          keepWhenEmpty: true
+        };
+        const { container, onModelChanged } = renderWorkspace({
+          copyTabset: () => null,
+          defaultModel: model
+        });
+
+        await copyDrag(
+          getHeader(container, "left"),
+          container.querySelector<HTMLElement>(
+            '[data-tabset-id="right"] [data-tab-list]'
+          )!
+        );
+
+        expect(getTabIds(container, "left")).toEqual(["1", "2"]);
+        expect(getTabIds(container, "right")).toEqual(["3"]);
+        expect(onModelChanged).not.toHaveBeenCalled();
+      });
+
+      test("Escape cancels a drag while the copy modifier key is held", async () => {
+        const { container, onModelChanged } = renderWorkspace({ copyTab });
+
+        const user = userEvent.setup();
+        await user.keyboard("{Control>}");
+        await user.pointer([
+          {
+            coords: { clientX: 100, clientY: 100 },
+            keys: "[MouseLeft>]",
+            target: getTab("2")
+          },
+          {
+            coords: { clientX: 150, clientY: 150 },
+            target: getPanels(container, "right")
+          }
+        ]);
+        expect(document.querySelector("[data-drag-preview]")).toHaveAttribute(
+          "data-drag-copy"
+        );
+
+        await user.keyboard("{Escape}");
+        expect(document.querySelector("[data-drag-preview]")).toBeNull();
+        await user.keyboard("{/Control}");
+        await user.pointer({
+          keys: "[/MouseLeft]",
+          target: getPanels(container, "right")
+        });
+
+        expect(getTabIds(container, "left")).toEqual(["1", "2"]);
+        expect(getTabIds(container, "right")).toEqual(["3"]);
+        expect(onModelChanged).not.toHaveBeenCalled();
+      });
+
+      describe("tabsets", () => {
+        test("dropping a tabset while the copy modifier key is held adds the copy", async () => {
+          const { container, onModelChanged } = renderWorkspace({
+            copyTab,
+            copyTabset: (tabset, copyTab) => ({
+              ...tabset,
+              id: "left-copy",
+              tabs: tabset.tabs.map(copyTab)
+            })
+          });
+
+          // The left edge of the right tabset's panels (jsdom has no layout, so every point is otherwise at the center)
+          const panels = getPanels(container, "right");
+          panels.getBoundingClientRect = () =>
+            ({ height: 1000, left: 0, top: 0, width: 1000 }) as DOMRect;
+          await copyDrag(getHeader(container, "left"), panels);
+
+          expect(getTabIds(container, "left")).toEqual(["1", "2"]);
+          expect(getTabIds(container, "left-copy")).toEqual([
+            "1-copy",
+            "2-copy"
+          ]);
+          expect(onModelChanged).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+              root: expect.objectContaining({
+                children: [
+                  expect.objectContaining({ id: "left" }),
+                  expect.objectContaining({
+                    id: "left-copy",
+                    // The copy of the selected tab is selected
+                    selectedId: "1-copy"
+                  }),
+                  expect.objectContaining({ id: "right" })
+                ]
+              })
+            }),
+            { isUserInteraction: true, reason: "copy" }
+          );
+        });
+
+        test("tabs are copied with new ids by copyTabset's copyTab argument without the copyTab prop", async () => {
+          const { container } = renderWorkspace({
+            copyTabset: (tabset, copyTab) => ({
+              ...tabset,
+              id: "left-copy",
+              tabs: tabset.tabs.map(copyTab)
+            })
+          });
+
+          await copyDrag(
+            getHeader(container, "left"),
+            getPanels(container, "right")
+          );
+
+          const ids = getTabIds(container, "right");
+          expect(ids).toHaveLength(3);
+          expect(ids[0]).toBe("3");
+          expect(ids.slice(1)).not.toContain("1");
+          expect(ids.slice(1)).not.toContain("2");
+          expect(screen.getAllByRole("tab", { name: /^One/ }).length).toBe(2);
+        });
+
+        test("a copy with duplicate ids is rejected (with a development warning), and the tabset is moved", async () => {
+          const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+          resetWarnOnceForTest();
+          const { container } = renderWorkspace({
+            copyTabset: (tabset) => ({
+              ...tabset,
+              id: "left-copy",
+              tabs: tabset.tabs.map((tab) => ({ ...tab, id: "same" }))
+            })
+          });
+
+          await copyDrag(
+            getHeader(container, "left"),
+            getPanels(container, "right")
+          );
+
+          expect(warn).toHaveBeenCalledWith(
+            expect.stringContaining("duplicate ids")
+          );
+          expect(getTabIds(container, "right")).toEqual(["3", "1", "2"]);
+        });
+
+        test("without the copyTabset prop, tabsets are moved", async () => {
+          const { container } = renderWorkspace({ copyTab });
+
+          await copyDrag(
+            getHeader(container, "left"),
+            getPanels(container, "right")
+          );
+
+          expect(getTabIds(container, "right")).toEqual(["3", "1", "2"]);
+        });
+      });
+    });
+
     describe("between workspaces (dragGroup)", () => {
+      allowTearOffDeprecationWarning();
+
       // Includes the type that identifies the drag from another page posted below (with the id "remote")
       function createDataTransfer(id = "remote") {
         return {
@@ -2187,7 +2947,7 @@ describe("Workspace", () => {
 
         const dataTransfer = createDataTransfer();
         fireDragEvent("dragstart", getTab("2"), {}, dataTransfer);
-        expect(dataTransfer.effectAllowed).toBe("move");
+        expect(dataTransfer.effectAllowed).toBe("copyMove");
         expect(dataTransfer.setDragImage).toHaveBeenCalledTimes(1);
         expect(getTab("2")).toHaveAttribute("data-tab-dragging");
 
@@ -2200,6 +2960,210 @@ describe("Workspace", () => {
         expect(getTab("2")).not.toHaveAttribute("draggable");
         expect(getTab("2")).not.toHaveAttribute("data-tab-dragging");
         expect(document.querySelector("[data-drag-preview]")).toBeNull();
+      });
+
+      describe("copying (copyTab)", () => {
+        const copyTab = (tab: TabNode<TabData>) => ({
+          ...tab,
+          id: `${tab.id}-copy`
+        });
+
+        // Drops onto an element with the copy modifier key (Ctrl, since jsdom's platform isn't an Apple one) held
+        function copyOnto(element: HTMLElement) {
+          elementAtPoint = element;
+          const dataTransfer = createDataTransfer();
+          fireDragEvent("dragover", element, { ctrlKey: true }, dataTransfer);
+          const { dropEffect } = dataTransfer;
+          const isPreviewCopy = document
+            .querySelector("[data-drag-preview]")
+            ?.hasAttribute("data-drag-copy");
+          fireDragEvent("drop", element, { ctrlKey: true }, dataTransfer);
+
+          return { dropEffect, isPreviewCopy };
+        }
+
+        test("a tab dropped into another workspace while the copy modifier key is held is copied by that workspace", async () => {
+          const { container, onModelChanged, onOtherModelChanged } =
+            renderWorkspaces({}, { copyTab });
+
+          await startDrag(getTab("2"));
+          const { dropEffect, isPreviewCopy } = copyOnto(
+            container.querySelector<HTMLElement>(
+              '[data-tabset-id="other"] [data-tab-panels]'
+            )!
+          );
+
+          // The preview is shown by the workspace the drag started in, which doesn't copy itself
+          expect(dropEffect).toBe("copy");
+          expect(isPreviewCopy).toBe(true);
+          expect(
+            container.querySelector('[data-tabset-id="other"]')
+          ).toContainElement(getTab("2-copy"));
+          expect(
+            container.querySelector('[data-tabset-id="left"]')
+          ).toContainElement(
+            container.querySelector<HTMLElement>('[data-tab-id="2"]')
+          );
+          expect(onOtherModelChanged).toHaveBeenLastCalledWith(
+            expect.anything(),
+            { isUserInteraction: true, reason: "copy" }
+          );
+          expect(onModelChanged).not.toHaveBeenCalled();
+        });
+
+        test("a workspace without the copyTab prop moves the tab instead", async () => {
+          const { container, onModelChanged, onOtherModelChanged } =
+            renderWorkspaces({ copyTab });
+
+          await startDrag(getTab("2"));
+          const { dropEffect, isPreviewCopy } = copyOnto(
+            container.querySelector<HTMLElement>(
+              '[data-tabset-id="other"] [data-tab-panels]'
+            )!
+          );
+
+          expect(dropEffect).toBe("move");
+          expect(isPreviewCopy).toBe(false);
+          expect(
+            container.querySelector('[data-tabset-id="other"]')
+          ).toContainElement(getTab("2"));
+          expect(onOtherModelChanged).toHaveBeenLastCalledWith(
+            expect.anything(),
+            { isUserInteraction: true, reason: "transfer" }
+          );
+          expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+            isUserInteraction: true,
+            reason: "transfer"
+          });
+        });
+
+        test("a workspace whose copyTab declines the copy moves the tab instead", async () => {
+          const { container, onModelChanged, onOtherModelChanged } =
+            renderWorkspaces({}, { copyTab: () => null });
+
+          await startDrag(getTab("2"));
+          copyOnto(
+            container.querySelector<HTMLElement>(
+              '[data-tabset-id="other"] [data-tab-panels]'
+            )!
+          );
+
+          expect(
+            container.querySelector('[data-tabset-id="other"]')
+          ).toContainElement(getTab("2"));
+          expect(
+            container.querySelector('[data-tabset-id="left"]')
+          ).not.toContainElement(
+            container.querySelector<HTMLElement>('[data-tab-id="2"]')
+          );
+          expect(onOtherModelChanged).toHaveBeenLastCalledWith(
+            expect.anything(),
+            { isUserInteraction: true, reason: "transfer" }
+          );
+          expect(onModelChanged).toHaveBeenCalledTimes(1);
+        });
+
+        test("nothing changes if the move a declined copy falls back to is rejected too", async () => {
+          const { container, onModelChanged, onOtherModelChanged } =
+            renderWorkspaces(
+              {},
+              {
+                copyTab: () => null,
+                defaultModel: {
+                  root: {
+                    id: "other",
+                    selectedId: "2",
+                    tabs: [tab("2")],
+                    type: "tabset"
+                  },
+                  version: 1
+                }
+              }
+            );
+
+          await startDrag(
+            container.querySelector<HTMLElement>(
+              '[data-tabset-id="left"] [data-tab-id="2"]'
+            )!
+          );
+          copyOnto(
+            container.querySelector<HTMLElement>(
+              '[data-tabset-id="other"] [data-tab-panels]'
+            )!
+          );
+
+          expect(getTabIds(container, "left")).toEqual(["1", "2"]);
+          expect(onModelChanged).not.toHaveBeenCalled();
+          expect(onOtherModelChanged).not.toHaveBeenCalled();
+        });
+
+        test("a tabset with the keepWhenEmpty flag can be copied into another workspace", async () => {
+          const model = createModel();
+          (model.root as SplitNode<TabData>).children[0] = {
+            ...((model.root as SplitNode<TabData>)
+              .children[0] as TabsetNode<TabData>),
+            keepWhenEmpty: true
+          };
+          const { container, onModelChanged, onOtherModelChanged } =
+            renderWorkspaces(
+              { defaultModel: model },
+              {
+                copyTabset: (tabset, copyTab) => ({
+                  ...tabset,
+                  id: "left-copy",
+                  tabs: tabset.tabs.map(copyTab)
+                })
+              }
+            );
+
+          await startDrag(getHeader(container, "left"));
+          const { dropEffect } = copyOnto(
+            container.querySelector<HTMLElement>(
+              '[data-tabset-id="other"] [data-tab-panels]'
+            )!
+          );
+
+          expect(dropEffect).toBe("copy");
+          // The copy's tabs are merged into the tabset it's dropped on, and the kept tabset stays where it was
+          expect(
+            container.querySelectorAll('[data-tabset-id="other"] [data-tab]')
+          ).toHaveLength(3);
+          expect(
+            container.querySelector('[data-tabset-id="left"]')
+          ).toContainElement(
+            container.querySelector<HTMLElement>('[data-tab-id="1"]')
+          );
+          expect(onOtherModelChanged).toHaveBeenLastCalledWith(
+            expect.anything(),
+            { isUserInteraction: true, reason: "copy" }
+          );
+          expect(onModelChanged).not.toHaveBeenCalled();
+        });
+
+        test("a tab dropped within its own workspace while the copy modifier key is held is copied", async () => {
+          const { container, onModelChanged } = renderWorkspaces({ copyTab });
+
+          await startDrag(getTab("2"));
+          const { dropEffect } = copyOnto(
+            container.querySelector<HTMLElement>(
+              '[data-tabset-id="left"] [data-tab-panels]'
+            )!
+          );
+
+          expect(dropEffect).toBe("copy");
+          expect(
+            container.querySelector('[data-tabset-id="left"]')
+          ).toContainElement(getTab("2-copy"));
+          expect(
+            container.querySelector('[data-tabset-id="left"]')
+          ).toContainElement(
+            container.querySelector<HTMLElement>('[data-tab-id="2"]')
+          );
+          expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+            isUserInteraction: true,
+            reason: "copy"
+          });
+        });
       });
 
       test("drags started by elements within the tab (e.g. images) drag the tab", async () => {
@@ -2418,6 +3382,7 @@ describe("Workspace", () => {
         );
 
         expect(disableDrop).toHaveBeenCalledWith({
+          isCopy: false,
           model: expect.anything(),
           source: "external",
           tab: tab("2"),
@@ -2739,6 +3704,39 @@ describe("Workspace", () => {
           });
         });
 
+        test("a tab dragged from another page and copied here isn't removed from that page", async () => {
+          const { container, onOtherModelChanged } = renderWorkspaces(
+            {},
+            { copyTab: (tab) => ({ ...tab, id: `${tab.id}-copy` }) }
+          );
+
+          postFromOtherPage({
+            dragGroup: "group",
+            id: "remote",
+            node: { tab: tab("9"), type: "tab" },
+            source: { tabId: "9", type: "tab" },
+            type: "start"
+          });
+          await deliverMessages();
+
+          const panels = getOtherPanels(container);
+          elementAtPoint = panels;
+          fireDragEvent("dragover", panels, { ctrlKey: true });
+          fireDragEvent("drop", panels, { ctrlKey: true });
+          expect(
+            container.querySelector('[data-tabset-id="other"]')
+          ).toContainElement(getTab("9-copy"));
+          expect(onOtherModelChanged).toHaveBeenLastCalledWith(
+            expect.anything(),
+            { isUserInteraction: true, reason: "copy" }
+          );
+
+          await deliverMessages();
+          expect(messages).not.toContainEqual(
+            expect.objectContaining({ type: "remove" })
+          );
+        });
+
         test("a tab dropped into another page is removed even if the drag ended first", async () => {
           const { onModelChanged } = renderWorkspaces();
 
@@ -2948,6 +3946,26 @@ describe("Workspace", () => {
     });
 
     describe("tearing off", () => {
+      allowTearOffDeprecationWarning();
+
+      test("warns (once) that the onTearOff prop is deprecated", () => {
+        const warn = vi.spyOn(console, "warn");
+        warn.mockClear();
+        const { rerender } = renderWorkspace({ onTearOff: () => true });
+        rerender(
+          <Workspace<TabData>
+            defaultModel={createModel()}
+            onTearOff={() => false}
+            renderTabContent={(tab) => <Content tab={tab} />}
+          />
+        );
+
+        const calls = warn.mock.calls.filter(([message]) =>
+          String(message).includes(TEAR_OFF_DEPRECATION)
+        );
+        expect(calls).toHaveLength(1);
+      });
+
       // jsdom's window is 1024x768; the pointer is moved past its left edge
       const outside = {
         clientX: -10,
@@ -3188,6 +4206,872 @@ describe("Workspace", () => {
       });
     });
 
+    describe("from outside of the workspace", () => {
+      describe("startExternalDrag", () => {
+        // Renders a workspace beside an element that starts dragging a new tab when pressed
+        function renderWithPalette({
+          onClick = vi.fn(),
+          preview,
+          props = {},
+          tabId = "new",
+          toEvent = (event) => event
+        }: {
+          onClick?: () => void;
+          toEvent?: (
+            event: ReactPointerEvent<HTMLElement>
+          ) => ReactPointerEvent<HTMLElement>;
+          preview?: ReactNode;
+          props?: Partial<WorkspaceProps<TabData>>;
+          tabId?: string;
+        } = {}) {
+          const workspaceRef = createRef<WorkspaceImperativeHandle<TabData>>();
+          const onModelChanged = vi.fn();
+          const results: Promise<unknown>[] = [];
+
+          const result = render(
+            <>
+              <button
+                onClick={onClick}
+                onPointerDown={(event) => {
+                  const promise = workspaceRef.current?.startExternalDrag(
+                    toEvent(event),
+                    {
+                      preview,
+                      tab: tab(tabId, { title: "New tab" })
+                    }
+                  );
+                  if (promise) {
+                    results.push(promise);
+                  }
+                }}
+              >
+                Palette item
+              </button>
+              <Workspace<TabData>
+                defaultModel={createModel()}
+                onModelChanged={onModelChanged}
+                renderTabContent={(tab) => <Content tab={tab} />}
+                workspaceRef={workspaceRef}
+                {...props}
+              />
+            </>
+          );
+
+          return {
+            ...result,
+            getResult: () => results[results.length - 1],
+            onModelChanged,
+            paletteItem: screen.getByRole("button", { name: "Palette item" }),
+            workspaceRef
+          };
+        }
+
+        test("dropping adds the tab where it was dropped", async () => {
+          const { container, getResult, onModelChanged, paletteItem } =
+            renderWithPalette();
+
+          await drag(paletteItem, getPanels(container, "right"));
+
+          expect(
+            container.querySelector('[data-tabset-id="right"]')
+          ).toContainElement(getTab("New tab"));
+          expect(onModelChanged).toHaveBeenCalledTimes(1);
+          expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+            isUserInteraction: true,
+            reason: "add"
+          });
+          await expect(getResult()).resolves.toEqual({
+            target: { region: "center", tabsetId: "right" }
+          });
+        });
+
+        test("the tab is previewed (with renderDragPreview, or the preview option) while dragging, and the drop indicator is shown", async () => {
+          const { container, paletteItem } = renderWithPalette({
+            props: {
+              renderDragPreview: (tab) => `Dragging ${tab.title}`
+            }
+          });
+
+          const user = userEvent.setup();
+          await user.pointer([
+            {
+              coords: { clientX: 100, clientY: 100 },
+              keys: "[MouseLeft>]",
+              target: paletteItem
+            },
+            {
+              coords: { clientX: 150, clientY: 150 },
+              target: getPanels(container, "right")
+            }
+          ]);
+
+          expect(
+            container.querySelector("[data-drag-preview]")
+          ).toHaveTextContent("Dragging New tab");
+          expect(
+            container.querySelector("[data-drop-indicator]")
+          ).not.toBeNull();
+
+          await user.pointer({
+            keys: "[/MouseLeft]",
+            target: getPanels(container, "right")
+          });
+          expect(container.querySelector("[data-drag-preview]")).toBeNull();
+          expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+        });
+
+        test("the preview option replaces the default preview", async () => {
+          const { container, paletteItem } = renderWithPalette({
+            preview: <span>Custom preview</span>
+          });
+
+          const user = userEvent.setup();
+          await user.pointer([
+            {
+              coords: { clientX: 100, clientY: 100 },
+              keys: "[MouseLeft>]",
+              target: paletteItem
+            },
+            {
+              coords: { clientX: 150, clientY: 150 },
+              target: getPanels(container, "right")
+            }
+          ]);
+
+          expect(
+            container.querySelector("[data-drag-preview]")
+          ).toHaveTextContent("Custom preview");
+        });
+
+        test("a press without dragging (e.g. a click) does nothing", async () => {
+          const onClick = vi.fn();
+          const { getResult, onModelChanged, paletteItem } = renderWithPalette({
+            onClick
+          });
+
+          await userEvent.click(paletteItem);
+
+          expect(onClick).toHaveBeenCalledTimes(1);
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+        });
+
+        test("the click that follows a drag is suppressed", async () => {
+          const onClick = vi.fn();
+          const { container, paletteItem } = renderWithPalette({ onClick });
+
+          // The pointer is released over the element it was pressed on, so the browser would dispatch a click
+          const user = userEvent.setup();
+          await user.pointer([
+            {
+              coords: { clientX: 100, clientY: 100 },
+              keys: "[MouseLeft>]",
+              target: paletteItem
+            },
+            {
+              coords: { clientX: 150, clientY: 150 },
+              target: getPanels(container, "right")
+            },
+            { coords: { clientX: 100, clientY: 100 }, target: paletteItem },
+            { keys: "[/MouseLeft]", target: paletteItem }
+          ]);
+
+          expect(onClick).not.toHaveBeenCalled();
+        });
+
+        test("Escape cancels the drag", async () => {
+          const { container, getResult, onModelChanged, paletteItem } =
+            renderWithPalette();
+
+          const user = userEvent.setup();
+          await user.pointer([
+            {
+              coords: { clientX: 100, clientY: 100 },
+              keys: "[MouseLeft>]",
+              target: paletteItem
+            },
+            {
+              coords: { clientX: 150, clientY: 150 },
+              target: getPanels(container, "right")
+            }
+          ]);
+          await user.keyboard("{Escape}");
+          await user.pointer({
+            keys: "[/MouseLeft]",
+            target: getPanels(container, "right")
+          });
+
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+        });
+
+        test("releasing outside of the workspace does nothing", async () => {
+          const { getResult, onModelChanged, paletteItem } =
+            renderWithPalette();
+
+          elementAtPoint = document.body;
+          await drag(paletteItem, document.body);
+
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+        });
+
+        test("disableDrop is called with the new tab (and the new source)", async () => {
+          const disableDrop = vi.fn(() => true);
+          const { container, getResult, onModelChanged, paletteItem } =
+            renderWithPalette({ props: { disableDrop } });
+
+          await drag(paletteItem, getPanels(container, "right"));
+
+          expect(disableDrop).toHaveBeenCalledWith({
+            isCopy: false,
+            model: expect.anything(),
+            source: "new",
+            tab: expect.objectContaining({ id: "new" }),
+            tabset: undefined,
+            target: { region: "center", tabsetId: "right" }
+          });
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+        });
+
+        test("disabled workspaces don't accept the tab", async () => {
+          const { container, getResult, onModelChanged, paletteItem } =
+            renderWithPalette({ props: { disabled: true } });
+
+          await drag(paletteItem, getPanels(container, "right"));
+
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+        });
+
+        test("a tab can't be dropped into a workspace that already has a node with its id", async () => {
+          const { container, getResult, onModelChanged, paletteItem } =
+            renderWithPalette({ tabId: "3" });
+
+          await drag(paletteItem, getPanels(container, "left"));
+
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+          // The existing tab with that id isn't shown as dragged
+          expect(getTab("3")).not.toHaveAttribute("data-tab-dragging");
+        });
+
+        test("pointer events are used even with a dragGroup", async () => {
+          const { container, paletteItem } = renderWithPalette({
+            props: { dragGroup: "group" }
+          });
+
+          await drag(paletteItem, getPanels(container, "right"));
+
+          expect(paletteItem).not.toHaveAttribute("draggable");
+          expect(
+            container.querySelector('[data-tabset-id="right"]')
+          ).toContainElement(getTab("New tab"));
+        });
+
+        test("a pointer that isn't pressed doesn't start a drag", async () => {
+          const { paletteItem, workspaceRef } = renderWithPalette();
+
+          // jsdom doesn't implement PointerEvent
+          let result: Promise<unknown> | undefined;
+          paletteItem.addEventListener("mousemove", (event) => {
+            result = workspaceRef.current!.startExternalDrag(
+              event as unknown as PointerEvent,
+              { tab: tab("new") }
+            );
+          });
+          fireEvent.mouseMove(paletteItem, { buttons: 0 });
+
+          await expect(result).resolves.toBeNull();
+        });
+
+        test("a non-primary button doesn't start a drag", async () => {
+          const { paletteItem, workspaceRef } = renderWithPalette();
+
+          // jsdom doesn't implement PointerEvent
+          let result: Promise<unknown> | undefined;
+          paletteItem.addEventListener("mousedown", (event) => {
+            result = workspaceRef.current!.startExternalDrag(
+              event as unknown as PointerEvent,
+              { tab: tab("new") }
+            );
+          });
+          fireEvent.mouseDown(paletteItem, { button: 2, buttons: 2 });
+
+          await expect(result).resolves.toBeNull();
+        });
+
+        // Presses the palette item, and (optionally) moves the pointer past the drag threshold
+        async function startPaletteDrag(
+          user: ReturnType<typeof userEvent.setup>,
+          paletteItem: HTMLElement,
+          moveTo?: HTMLElement
+        ) {
+          await user.pointer([
+            {
+              coords: { clientX: 100, clientY: 100 },
+              keys: "[MouseLeft>]",
+              target: paletteItem
+            },
+            ...(moveTo
+              ? [{ coords: { clientX: 150, clientY: 150 }, target: moveTo }]
+              : [])
+          ]);
+        }
+
+        test("unmounting before the drag starts resolves null, and releasing the pointer later adds nothing", async () => {
+          const { getResult, onModelChanged, paletteItem, unmount } =
+            renderWithPalette();
+
+          const user = userEvent.setup();
+          await startPaletteDrag(user, paletteItem);
+          unmount();
+          await user.pointer({ keys: "[/MouseLeft]", target: document.body });
+
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+        });
+
+        test("unmounting mid-drag resolves null, and releasing the pointer later adds nothing", async () => {
+          const { container, getResult, onModelChanged, paletteItem, unmount } =
+            renderWithPalette();
+
+          const user = userEvent.setup();
+          await startPaletteDrag(
+            user,
+            paletteItem,
+            getPanels(container, "right")
+          );
+          expect(container.querySelector("[data-drag-preview]")).not.toBeNull();
+
+          unmount();
+          await user.pointer({ keys: "[/MouseLeft]", target: document.body });
+
+          expect(onModelChanged).not.toHaveBeenCalled();
+          await expect(getResult()).resolves.toBeNull();
+        });
+
+        test("starting another external drag settles the pending one with null", async () => {
+          const { container, getResult, paletteItem, workspaceRef } =
+            renderWithPalette();
+
+          const user = userEvent.setup();
+          await startPaletteDrag(
+            user,
+            paletteItem,
+            getPanels(container, "right")
+          );
+          const first = getResult();
+
+          // jsdom doesn't implement PointerEvent
+          const second = workspaceRef.current!.startExternalDrag(
+            {
+              button: 0,
+              buttons: 1,
+              clientX: 100,
+              clientY: 100,
+              currentTarget: paletteItem,
+              pointerId: 2,
+              pointerType: "mouse"
+            } as unknown as PointerEvent,
+            { tab: tab("other") }
+          );
+
+          await expect(first).resolves.toBeNull();
+
+          // Releasing the first pointer doesn't affect the second drag
+          await user.pointer({ keys: "[/MouseLeft]", target: document.body });
+          let settled = false;
+          void second.then(() => (settled = true));
+          await Promise.resolve();
+          expect(settled).toBe(false);
+        });
+
+        test("pressing a workspace tab settles the pending drag with null", async () => {
+          const { container, getResult, onModelChanged, paletteItem } =
+            renderWithPalette();
+
+          await startPaletteDrag(
+            userEvent.setup(),
+            paletteItem,
+            getPanels(container, "right")
+          );
+          const first = getResult();
+
+          await userEvent.setup().pointer({
+            coords: { clientX: 100, clientY: 100 },
+            keys: "[MouseLeft>]",
+            target: getTab("2")
+          });
+
+          await expect(first).resolves.toBeNull();
+          expect(onModelChanged).not.toHaveBeenCalled();
+        });
+
+        test("an element in another document is rejected (with a development warning)", async () => {
+          const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+          resetWarnOnceForTest();
+          const { onModelChanged, workspaceRef } = renderWithPalette();
+
+          const otherElement = document.implementation
+            .createHTMLDocument("other")
+            .createElement("div");
+          const result = workspaceRef.current!.startExternalDrag(
+            {
+              buttons: 1,
+              clientX: 100,
+              clientY: 100,
+              currentTarget: otherElement,
+              pointerId: 1,
+              pointerType: "mouse"
+            } as unknown as PointerEvent,
+            { tab: tab("new") }
+          );
+
+          await expect(result).resolves.toBeNull();
+          expect(onModelChanged).not.toHaveBeenCalled();
+          expect(warn).toHaveBeenCalledTimes(1);
+          warn.mockRestore();
+        });
+
+        test("the event's target is used if currentTarget isn't set (e.g. the event was dispatched already)", async () => {
+          const { container, getResult, paletteItem } = renderWithPalette({
+            toEvent: (event) =>
+              ({
+                button: event.button,
+                buttons: event.buttons,
+                clientX: event.clientX,
+                clientY: event.clientY,
+                currentTarget: null,
+                pointerId: event.pointerId,
+                pointerType: event.pointerType,
+                target: event.target
+              }) as never
+          });
+
+          await drag(paletteItem, getPanels(container, "right"));
+
+          await expect(getResult()).resolves.toEqual({
+            target: { region: "center", tabsetId: "right" }
+          });
+        });
+
+        test("the browser's drag of draggable elements (e.g. links) is prevented while dragging", async () => {
+          const { container, paletteItem } = renderWithPalette();
+
+          const dragStart = () => {
+            const event = new Event("dragstart", {
+              bubbles: true,
+              cancelable: true
+            });
+            paletteItem.dispatchEvent(event);
+            return event;
+          };
+
+          expect(dragStart().defaultPrevented).toBe(false);
+
+          const user = userEvent.setup();
+          await startPaletteDrag(
+            user,
+            paletteItem,
+            getPanels(container, "right")
+          );
+          expect(dragStart().defaultPrevented).toBe(true);
+
+          // Only the pressed element's drag is prevented
+          const otherEvent = new Event("dragstart", {
+            bubbles: true,
+            cancelable: true
+          });
+          getTab("2").dispatchEvent(otherEvent);
+          expect(otherEvent.defaultPrevented).toBe(false);
+
+          await user.pointer({
+            keys: "[/MouseLeft]",
+            target: getPanels(container, "right")
+          });
+          expect(dragStart().defaultPrevented).toBe(false);
+        });
+
+        test("the promise settles even if the application throws while the tab is added", async () => {
+          const { container, getResult, paletteItem } = renderWithPalette({
+            props: {
+              onModelChanged: () => {
+                throw new Error("expected");
+              }
+            }
+          });
+
+          // The error is reported by the browser, as it's thrown from an event listener
+          const onError = vi.fn((event: ErrorEvent) => event.preventDefault());
+          window.addEventListener("error", onError);
+          try {
+            await drag(paletteItem, getPanels(container, "right"));
+          } catch {
+            // jsdom may rethrow
+          } finally {
+            window.removeEventListener("error", onError);
+          }
+
+          await expect(getResult()).resolves.toEqual({
+            target: { region: "center", tabsetId: "right" }
+          });
+          expect(
+            container.querySelector('[data-tabset-id="right"]')
+          ).toContainElement(getTab("New tab"));
+        });
+      });
+
+      describe("acceptExternalDrop", () => {
+        const WIDGET_TYPE = "application/x-widget";
+
+        function createDataTransfer({
+          data = { [WIDGET_TYPE]: "chart" },
+          effectAllowed = "copy"
+        }: {
+          data?: Record<string, string>;
+          effectAllowed?: string;
+        } = {}) {
+          return {
+            dropEffect: "none",
+            effectAllowed,
+            getData: (type: string) => data[type] ?? "",
+            types: Object.keys(data)
+          };
+        }
+
+        // jsdom doesn't implement DragEvent, so drag events are mouse events with a DataTransfer stand-in
+        function fireDragEvent(
+          type: string,
+          target: Element,
+          dataTransfer: ReturnType<typeof createDataTransfer>
+        ) {
+          const event = new MouseEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            clientX: 150,
+            clientY: 150,
+            composed: true
+          });
+          Object.defineProperty(event, "dataTransfer", { value: dataTransfer });
+          act(() => {
+            target.dispatchEvent(event);
+          });
+
+          return event;
+        }
+
+        function renderAccepting(props: Partial<WorkspaceProps<TabData>> = {}) {
+          const createTab = vi.fn(
+            (dataTransfer: DataTransfer): TabNode<TabData> | null => {
+              const widget = dataTransfer.getData(WIDGET_TYPE);
+
+              return widget
+                ? { data: { label: widget }, id: "new", title: "New tab" }
+                : null;
+            }
+          );
+
+          return {
+            ...renderWorkspace({
+              acceptExternalDrop: { createTab, types: [WIDGET_TYPE] },
+              ...props
+            }),
+            createTab
+          };
+        }
+
+        test("drags with an accepted type show the drop indicator, and are added where they're dropped", () => {
+          const { container, createTab, onModelChanged } = renderAccepting();
+          const panels = getPanels(container, "right");
+          const dataTransfer = createDataTransfer();
+
+          const dragOver = fireDragEvent("dragover", panels, dataTransfer);
+          expect(dragOver.defaultPrevented).toBe(true);
+          expect(dataTransfer.dropEffect).toBe("copy");
+          expect(
+            container.querySelector("[data-drop-indicator]")
+          ).toHaveAttribute("data-region", "center");
+
+          const drop = fireDragEvent("drop", panels, dataTransfer);
+          expect(drop.defaultPrevented).toBe(true);
+          expect(createTab).toHaveBeenCalledWith(dataTransfer, {
+            region: "center",
+            tabsetId: "right"
+          });
+          expect(
+            container.querySelector('[data-tabset-id="right"]')
+          ).toContainElement(getTab("New tab"));
+          expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+            isUserInteraction: true,
+            reason: "add"
+          });
+          expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+        });
+
+        test("types are compared case-insensitively", () => {
+          const { container } = renderWorkspace({
+            acceptExternalDrop: {
+              createTab: () => null,
+              types: ["Application/X-Widget"]
+            }
+          });
+
+          const dragOver = fireDragEvent(
+            "dragover",
+            getPanels(container, "right"),
+            createDataTransfer()
+          );
+          expect(dragOver.defaultPrevented).toBe(true);
+        });
+
+        test("drags without an accepted type are ignored", () => {
+          const { container, createTab } = renderAccepting();
+          const panels = getPanels(container, "right");
+          const dataTransfer = createDataTransfer({
+            data: { "text/plain": "hello" }
+          });
+
+          expect(
+            fireDragEvent("dragover", panels, dataTransfer).defaultPrevented
+          ).toBe(false);
+          expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+          expect(
+            fireDragEvent("drop", panels, dataTransfer).defaultPrevented
+          ).toBe(false);
+          expect(createTab).not.toHaveBeenCalled();
+        });
+
+        test("drags whose source doesn't allow any effect are ignored", () => {
+          const { container } = renderAccepting();
+
+          const dragOver = fireDragEvent(
+            "dragover",
+            getPanels(container, "right"),
+            createDataTransfer({ effectAllowed: "none" })
+          );
+          expect(dragOver.defaultPrevented).toBe(false);
+        });
+
+        test("the drop effect is one the source allows", () => {
+          const { container } = renderAccepting();
+          const dataTransfer = createDataTransfer({ effectAllowed: "move" });
+
+          fireDragEvent(
+            "dragover",
+            getPanels(container, "right"),
+            dataTransfer
+          );
+          expect(dataTransfer.dropEffect).toBe("move");
+        });
+
+        test("nothing is added if createTab returns null", () => {
+          const { container, onModelChanged } = renderAccepting();
+          const panels = getPanels(container, "right");
+          const dataTransfer = createDataTransfer({
+            data: { [WIDGET_TYPE]: "" }
+          });
+
+          fireDragEvent("dragover", panels, dataTransfer);
+          const drop = fireDragEvent("drop", panels, dataTransfer);
+
+          // The drop was accepted, so the browser's default action is still prevented
+          expect(drop.defaultPrevented).toBe(true);
+          expect(onModelChanged).not.toHaveBeenCalled();
+        });
+
+        test("a created tab whose id is already in the model is rejected", () => {
+          const createTab = vi.fn((): TabNode<TabData> | null => ({
+            data: { label: "dupe" },
+            id: "3",
+            title: "Duplicate"
+          }));
+          const { container, onModelChanged } = renderAccepting({
+            acceptExternalDrop: { createTab, types: [WIDGET_TYPE] }
+          });
+          const panels = getPanels(container, "right");
+          const dataTransfer = createDataTransfer();
+
+          fireDragEvent("dragover", panels, dataTransfer);
+          fireDragEvent("drop", panels, dataTransfer);
+
+          expect(createTab).toHaveBeenCalled();
+          expect(screen.queryByText("Duplicate")).toBeNull();
+          expect(onModelChanged).not.toHaveBeenCalled();
+        });
+
+        test("disableDrop is called with the created tab when it's dropped", () => {
+          const disableDrop = vi.fn(() => true);
+          const { container, onModelChanged } = renderAccepting({
+            disableDrop
+          });
+          const panels = getPanels(container, "right");
+          const dataTransfer = createDataTransfer();
+
+          fireDragEvent("dragover", panels, dataTransfer);
+          expect(disableDrop).not.toHaveBeenCalled();
+
+          fireDragEvent("drop", panels, dataTransfer);
+          expect(disableDrop).toHaveBeenCalledWith({
+            isCopy: false,
+            model: expect.anything(),
+            source: "new",
+            tab: expect.objectContaining({ id: "new" }),
+            tabset: undefined,
+            target: { region: "center", tabsetId: "right" }
+          });
+          expect(onModelChanged).not.toHaveBeenCalled();
+        });
+
+        test("disabled workspaces (and disableDrop={true}) don't accept drags", () => {
+          for (const props of [{ disabled: true }, { disableDrop: true }]) {
+            const { container, createTab, unmount } = renderAccepting(props);
+            const panels = getPanels(container, "right");
+            const dataTransfer = createDataTransfer();
+
+            expect(
+              fireDragEvent("dragover", panels, dataTransfer).defaultPrevented
+            ).toBe(false);
+            fireDragEvent("drop", panels, dataTransfer);
+            expect(createTab).not.toHaveBeenCalled();
+
+            unmount();
+          }
+        });
+
+        test("elements within tab content that accept the drag themselves take precedence", () => {
+          const { container, createTab } = renderAccepting({
+            renderTabContent: (tab) => (
+              <div
+                data-testid={`content-${tab.id}`}
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={(event) => event.preventDefault()}
+              />
+            )
+          });
+          const content = screen.getByTestId("content-3");
+          elementAtPoint = content;
+          const dataTransfer = createDataTransfer();
+
+          fireDragEvent("dragover", content, dataTransfer);
+          expect(
+            container.querySelector("[data-drop-indicator]")
+          ).not.toHaveAttribute("data-region");
+
+          fireDragEvent("drop", content, dataTransfer);
+          expect(createTab).not.toHaveBeenCalled();
+        });
+
+        test("only the innermost workspace under the pointer accepts the drag", () => {
+          const innerCreateTab = vi.fn((): TabNode<TabData> | null => ({
+            data: { label: "inner" },
+            id: "inner-new",
+            title: "Inner new"
+          }));
+          const { container, createTab } = renderAccepting({
+            renderTabContent: (node) =>
+              node.id === "3" ? (
+                <Workspace<TabData>
+                  acceptExternalDrop={{
+                    createTab: innerCreateTab,
+                    types: [WIDGET_TYPE]
+                  }}
+                  defaultModel={{
+                    root: {
+                      id: "inner",
+                      selectedId: "i",
+                      tabs: [tab("i")],
+                      type: "tabset"
+                    },
+                    version: 1
+                  }}
+                  renderTabContent={(inner) => <Content tab={inner} />}
+                />
+              ) : null
+          });
+          const innerPanels = container.querySelector<HTMLElement>(
+            '[data-tabset-id="inner"] [data-tab-panels]'
+          )!;
+          elementAtPoint = innerPanels;
+          const dataTransfer = createDataTransfer();
+
+          fireDragEvent("dragover", innerPanels, dataTransfer);
+          fireDragEvent("drop", innerPanels, dataTransfer);
+
+          expect(innerCreateTab).toHaveBeenCalledTimes(1);
+          expect(createTab).not.toHaveBeenCalled();
+          expect(
+            container.querySelector('[data-tabset-id="inner"]')
+          ).toContainElement(getTab("Inner new"));
+        });
+
+        test("drags between workspaces aren't handled as external drags", () => {
+          const { container } = renderAccepting();
+
+          const dragOver = fireDragEvent(
+            "dragover",
+            getPanels(container, "right"),
+            createDataTransfer({
+              data: {
+                "application/x-react-resizable-panels-workspace": "",
+                [WIDGET_TYPE]: "chart"
+              }
+            })
+          );
+          expect(dragOver.defaultPrevented).toBe(false);
+        });
+
+        test("the drop indicator is hidden when the drag leaves (e.g. the window, or is canceled)", async () => {
+          const { container } = renderAccepting();
+          const panels = getPanels(container, "right");
+          const dataTransfer = createDataTransfer();
+
+          fireDragEvent("dragover", panels, dataTransfer);
+          expect(
+            container.querySelector("[data-drop-indicator]")
+          ).not.toBeNull();
+
+          vi.useFakeTimers();
+          try {
+            fireDragEvent("dragleave", panels, dataTransfer);
+            expect(
+              container.querySelector("[data-drop-indicator]")
+            ).not.toBeNull();
+
+            act(() => {
+              vi.runAllTimers();
+            });
+            expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+          } finally {
+            vi.useRealTimers();
+          }
+        });
+
+        test("moving between elements (dragleave followed by dragover) keeps the drop indicator", async () => {
+          const { container } = renderAccepting();
+          const panels = getPanels(container, "right");
+          const dataTransfer = createDataTransfer();
+
+          fireDragEvent("dragover", panels, dataTransfer);
+
+          vi.useFakeTimers();
+          try {
+            fireDragEvent("dragleave", panels, dataTransfer);
+            fireDragEvent("dragover", panels, dataTransfer);
+            act(() => {
+              vi.runAllTimers();
+            });
+            expect(
+              container.querySelector("[data-drop-indicator]")
+            ).not.toBeNull();
+          } finally {
+            vi.useRealTimers();
+          }
+        });
+      });
+    });
+
     describe("tabsets", () => {
       function getTabList(container: HTMLElement, tabsetId: string) {
         const tabList = container.querySelector<HTMLElement>(
@@ -3195,14 +5079,6 @@ describe("Workspace", () => {
         )!;
         elementAtPoint = tabList;
         return tabList;
-      }
-
-      function getTabIds(container: HTMLElement, tabsetId: string) {
-        return Array.from(
-          container.querySelectorAll<HTMLElement>(
-            `[data-tabset-id="${tabsetId}"] [data-tab]`
-          )
-        ).map((element) => element.dataset.tabId);
       }
 
       // Points at the left edge of a tabset's panels (jsdom has no layout, so every point is otherwise at the center)
@@ -3406,6 +5282,7 @@ describe("Workspace", () => {
         const target = { region: "center", tabsetId: "right" };
         const tabset = expect.objectContaining({ id: "left" });
         expect(disableDrop).toHaveBeenCalledWith({
+          isCopy: false,
           model: expect.anything(),
           source: "local",
           tab: expect.objectContaining({ id: "1" }),
@@ -3413,6 +5290,7 @@ describe("Workspace", () => {
           target
         });
         expect(disableDrop).toHaveBeenCalledWith({
+          isCopy: false,
           model: expect.anything(),
           source: "local",
           tab: expect.objectContaining({ id: "2" }),
@@ -3452,6 +5330,7 @@ describe("Workspace", () => {
         );
 
         expect(disableDrop).toHaveBeenCalledWith({
+          isCopy: false,
           model: expect.anything(),
           source: "local",
           tab: undefined,
