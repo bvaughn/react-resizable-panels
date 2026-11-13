@@ -18,10 +18,12 @@ function calculate(
   {
     chrome = { height: 0, width: 0 },
     collapsedSize = 0,
+    growDirection,
     separators = 0
   }: {
     chrome?: { height: number; width: number };
     collapsedSize?: number;
+    growDirection?: "horizontal" | "vertical";
     separators?: number;
   } = {}
 ) {
@@ -34,7 +36,8 @@ function calculate(
     }),
     // Maximum sizes don't depend on minimum sizes
     getContentMinimumSize: () => ({ height: 0, width: 0 }),
-    getSeparatorsSize: () => separators
+    getSeparatorsSize: () => separators,
+    growDirection
   }).maximumSizes;
 }
 
@@ -241,5 +244,62 @@ describe("calculateSizeLimits (maximum sizes)", () => {
 
     expect(sizes.get("column")).toEqual({ height: 224, width: Infinity });
     expect(sizes.get("b")).toEqual({ height: 300, width: Infinity });
+  });
+
+  describe("growDirection", () => {
+    test("applies every row's maximum along the grow direction", () => {
+      const sizes = calculate(
+        {
+          children: [
+            tabset("a", undefined, "200px"),
+            tabset("b", undefined, "300px")
+          ],
+          id: "root",
+          orientation: "vertical",
+          type: "split"
+        },
+        { growDirection: "vertical" }
+      );
+
+      expect(sizes.get("a")).toEqual({ height: 200, width: Infinity });
+      expect(sizes.get("b")).toEqual({ height: 300, width: Infinity });
+      expect(warn).not.toHaveBeenCalled();
+    });
+
+    test("applies the maximum of a root that is the only row", () => {
+      const sizes = calculate(tabset("only", undefined, "200px"), {
+        growDirection: "vertical"
+      });
+
+      expect(sizes.get("only")).toEqual({ height: 200, width: Infinity });
+      expect(warn).not.toHaveBeenCalled();
+    });
+
+    test("applies grow-axis maximums of a cross-axis split row's children", () => {
+      const sizes = calculate(
+        {
+          children: [
+            tabset("a", undefined, "200px"),
+            tabset("b", undefined, "300px")
+          ],
+          id: "root",
+          orientation: "horizontal",
+          type: "split"
+        },
+        { growDirection: "vertical" }
+      );
+
+      expect(sizes.get("a")).toEqual({ height: 200, width: Infinity });
+      expect(sizes.get("b")).toEqual({ height: 300, width: Infinity });
+      expect(warn).not.toHaveBeenCalled();
+    });
+
+    test("doesn't apply maximums across the grow direction", () => {
+      const sizes = calculate(tabset("only", "200px"), {
+        growDirection: "vertical"
+      });
+
+      expect(sizes.get("only")).toEqual({ height: Infinity, width: Infinity });
+    });
   });
 });

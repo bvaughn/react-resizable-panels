@@ -368,6 +368,29 @@
   {
     "headings": [
       {
+        "id": "resizing-rows",
+        "title": "Resizing rows",
+        "text": "Resizing rows The handle after each row (including the last one) resizes only that row, within its tabsets' minimum and maximum sizes. Handles can be focused and resized with the arrow keys (by 10px, or 50px with Shift), and Home and End resize a row to its minimum and maximum. Collapsed rows are as tall as their headers, and don't have handles. Handles are transparent; style them with the growHandle entries of the classNames and styles props, or with their data-grow-handle attribute (like the demo above, which highlights them when they're hovered or focused)."
+      },
+      {
+        "id": "dragging-tabs",
+        "title": "Dragging tabs",
+        "text": "Dragging tabs Tabs (and tabsets) are dropped as usual, except at the workspace's edges: dropping at its top or bottom edge adds a row there, and its left and right edges (beside every row) don't accept drops. While a tab is dragged near the edge of what the workspace scrolls within (e.g. the page, or the box around the demo above), it's scrolled, so rows that are scrolled out of view can be reached."
+      },
+      {
+        "id": "maximized-tabsets",
+        "title": "Maximized tabsets",
+        "text": "Maximized tabsets A maximized tabset covers the part of the workspace that's visible (rather than the whole workspace), and stays there as it's scrolled. growDirection shouldn't change after the workspace mounts, since the model's sizes mean different things with and without it; render a new workspace (e.g. with a different key) instead. The workspace's root element has a data-grow-direction attribute, e.g. to style it (or the element it scrolls within)."
+      }
+    ],
+    "path": "/examples/workspace/scrolling-layouts",
+    "section": "Workspace",
+    "text": "By default, a workspace fills its container, and its tabsets share the space. With the growDirection prop, it grows instead, like a dashboard: the root split's children are rows (or columns, with \"horizontal\"), each as large as its size, and the workspace is as tall as its rows. Your app decides what scrolls, e.g. the page, or an element around the workspace: Drag the handle below a row to resize it; the rows after it move down. Drop a tab at the top or bottom edge of the workspace (or of a row) to add a row. Notes Nested panels Reset layout Only the root split grows; everything within a row fits it, as usual. Each row's size is a length (e.g. \"300px\"). A tabset moved to a new row keeps its size, and a tab moved out of a tabset takes that tabset's size; other new rows (e.g. tabs dragged in from another workspace) are defaultGrowSize (300px by default).",
+    "title": "Scrolling layouts"
+  },
+  {
+    "headings": [
+      {
         "id": "keyboard-and-accessibility",
         "title": "Keyboard and accessibility",
         "text": "Keyboard and accessibility Tabsets follow the ARIA tabs pattern: each tab list has role=\"tablist\", each tab has role=\"tab\", and each tab's content has role=\"tabpanel\", linked to its tab. Only one tab per list (normally the selected one) is in the page's tab order; within a list, focus moves with the arrow keys: ← and → (or ↑ and ↓ when tabs are placed on the left or right) move focus to the previous or next tab, wrapping at the ends Home and End move focus to the first or last tab Enter or Space selects the focused tab Delete or Backspace closes the focused tab (unless closing is disabled) and moves focus to its neighbor Tabs use manual activation: moving focus doesn't select a tab, so arrowing past a tab doesn't mount its content. Separators between tabsets can be resized with the keyboard like any other Separator ."
@@ -1510,6 +1533,11 @@
         "text": "CSS class names for the elements the workspace renders within its root element:\n\n tabset: root element of a tabset (data-tabset)\n header: contains a tabset's tab list and toolbar (data-tabset-header)\n tabList: contains a tabset's tabs (data-tab-list)\n tab: passed to renderTab with the rest of a tab's props (data-tab)\n toolbar: contains the content returned by renderTabsetToolbar (data-tabset-toolbar)\n tabPanels: contains a tabset's tab content (data-tab-panels)\n tabContent: the element each tab's content is rendered into (data-tab-content)\n dropIndicator: shows where a dragged tab will be dropped within a tabset's panels, or at an edge of the workspace (data-drop-indicator)\n dragPreview: follows the pointer while a tab or tabset is dragged (data-drag-preview)\n\n Elements expose their state as data attributes (e.g. data-tab-selected, or data-tabset-dragging while a tabset is dragged), which can be used for styling.\nElements within a collapsed tabset have a data-tabset-collapsed attribute.\nElements within a tabset also have a data-tab-placement attribute (see tabPlacement).\n The drop indicator is the same element for the whole drag (rendered within the workspace's root element),\nso it can be animated between regions and tabsets (e.g. transition: inset 250ms).\nIts data-region attribute is the region of a tabset's panels it covers, or its data-edge attribute is the edge of the workspace it's at;\nwhile a tab isn't over either, it has neither and isn't shown (opacity: 0).\n Like the render props, this object is part of what tabsets re-render for;\nin large workspaces, define it outside of the component (or memoize it) rather than inline."
       },
       {
+        "id": "defaultGrowSize",
+        "title": "defaultGrowSize",
+        "text": "Size of a new row (or column) along growDirection, when it doesn't take its size from where it came from (see growDirection).\nDefaults to \"300px\".\n Interpretation rules:\n\nStrings must specify a unit: \"px\", \"em\", \"rem\", \"vh\", or \"vw\" (e.g. defaultGrowSize: \"20rem\")\nPercentages (and strings without units) are not allowed"
+      },
+      {
         "id": "disabled",
         "title": "disabled",
         "text": "Locks the arrangement: tabs cannot be resized, dragged, dropped, or closed by the user.\nSelecting tabs and maximizing tabsets still work.\n This prop overrides the disableClose and disableDrag flags of individual tabs."
@@ -1533,6 +1561,11 @@
         "id": "elementRef",
         "title": "elementRef",
         "text": "Ref attached to the root HTMLDivElement."
+      },
+      {
+        "id": "growDirection",
+        "title": "growDirection",
+        "text": "The workspace grows along this direction (rather than fitting its container), like a dashboard:\nwith \"vertical\", the root split's children are rows, each as tall as its size, and the workspace is as tall as its rows;\nwith \"horizontal\", they're columns, and the workspace is as wide as its columns.\nThe application decides what scrolls (e.g. the page, or an element around the workspace with overflow: auto).\n Only the root split grows, and only when its orientation matches (a root tabset, or a root split in the other direction, is a single row or column).\nEverything within a row (or column) fits it, as usual.\n Each row's size (see TabsetNode.size and SplitNode.size) is a length, e.g. \"300px\".\nRows without one (e.g. in a model saved without this prop) are given one when the model changes:\na tabset moved to its own row keeps the size it had, a tab moved out of a tabset takes that tabset's size,\nand anything else (e.g. a tab dragged in from another workspace) is defaultGrowSize.\n The separator after each row resizes only that row; the rows after it move rather than giving up space.\nDropping at the workspace's start or end along this direction (e.g. its top or bottom edge) adds a row there;\nits edges in the other direction don't accept drops.\n A maximized tabset covers the part of the workspace that is visible (within what it scrolls), and stays there as it's scrolled.\n This should not change after the Workspace mounts (rows' sizes would be stale); give the Workspace a new key to change it."
       },
       {
         "id": "hiddenTabBehavior",

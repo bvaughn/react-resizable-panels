@@ -190,6 +190,17 @@ function getEdgeDropTarget({
         rootElement
       })
     : undefined;
+  // A workspace that grows (see the growDirection prop) adds rows at its start or end along that direction;
+  // its edges in the other direction (beside every row) don't accept drops
+  const growDirection = rootElement.dataset.growDirection;
+  if (
+    edge &&
+    growDirection &&
+    (edge === "left" || edge === "right") !== (growDirection === "horizontal")
+  ) {
+    return undefined;
+  }
+
   if (!edge || isExternal) {
     return edge;
   }

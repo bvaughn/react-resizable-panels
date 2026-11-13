@@ -2,7 +2,12 @@ import { act, useEffect, type ReactElement } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { afterAll, afterEach, beforeAll, describe, expect, test } from "vitest";
-import type { TabNode, WorkspaceModel, WorkspaceProps } from "../types";
+import type {
+  SplitNode,
+  TabNode,
+  WorkspaceModel,
+  WorkspaceProps
+} from "../types";
 import { Workspace } from "./Workspace";
 
 const model: WorkspaceModel<{ kind: string }> = {
@@ -105,6 +110,30 @@ describe("Workspace server rendering", () => {
     );
     expect(hasContent(html, "1")).toBe(true);
     expect(hasContent(html, "3")).toBe(false);
+  });
+
+  test("renders the rows of a workspace that grows", () => {
+    const html = renderToString(
+      createWorkspace({
+        defaultModel: {
+          root: {
+            children: (model.root as SplitNode<{ kind: string }>).children,
+            id: "root",
+            orientation: "vertical",
+            type: "split"
+          },
+          version: 1
+        },
+        growDirection: "vertical"
+      })
+    );
+
+    expect(html).toContain('data-grow-direction="vertical"');
+    expect(html).not.toContain("data-grow-item");
+    expect(html.match(/data-panel/g)).toHaveLength(2);
+    expect(html).toContain("data-workspace-grow-content");
+    expect(html).toContain("height:calc(");
+    expect(html).toContain("data-grow-handle");
   });
 
   test("hydrates server-rendered content, then moves it into a portal", async () => {

@@ -55,6 +55,9 @@ export const routes = {
   ),
   "/examples/the-basics": lazy(() => import("./routes/LayoutBasicsRoute")),
   "/examples/workspace": lazy(() => import("./routes/WorkspaceRoute")),
+  "/examples/workspace/scrolling-layouts": lazy(
+    () => import("./routes/WorkspaceScrollingLayoutsRoute")
+  ),
   "/examples/workspace/managing-tabs": lazy(
     () => import("./routes/WorkspaceManagingTabsRoute")
   ),

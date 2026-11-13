@@ -2097,6 +2097,449 @@ describe("Workspace", () => {
     });
   });
 
+  describe("growDirection", () => {
+    function createGrowingModel(): WorkspaceModel<TabData> {
+      return {
+        root: {
+          children: [
+            {
+              id: "top",
+              size: "200px",
+              tabs: [tab("1"), tab("2")],
+              type: "tabset"
+            },
+            { id: "middle", tabs: [tab("3")], type: "tabset" }
+          ],
+          id: "rows",
+          orientation: "vertical",
+          type: "split"
+        },
+        version: 1
+      };
+    }
+
+    function getContent(container: HTMLElement) {
+      return container.querySelector<HTMLElement>(
+        "[data-workspace-grow-content]"
+      )!;
+    }
+
+    function getContentSize(container: HTMLElement) {
+      const content = getContent(container);
+      return content.style.height || content.style.width;
+    }
+
+    function getHandles(container: HTMLElement) {
+      return Array.from(
+        container.querySelectorAll<HTMLElement>("[data-grow-handle]")
+      );
+    }
+
+    function getSizes(workspaceRef: {
+      current: { getModel: () => WorkspaceModel<TabData> } | null;
+    }) {
+      const { root } = workspaceRef.current!.getModel();
+      return root.type === "split" && root.children.map(({ size }) => size);
+    }
+
+    // jsdom doesn't lay out elements; the last row's Panel is 300px, and tabsets are 150px
+    beforeEach(() => {
+      const offsetHeight = Object.getOwnPropertyDescriptor(
+        HTMLElement.prototype,
+        "offsetHeight"
+      )!.get!;
+      vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(
+        function (this: HTMLElement) {
+          if (this.hasAttribute("data-panel")) {
+            return 300;
+          } else if (this.hasAttribute("data-tabset")) {
+            return 150;
+          }
+          return offsetHeight.call(this);
+        }
+      );
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    test("the layout is as large as its rows, and rows without lengths get defaultGrowSize", () => {
+      const { container, workspaceRef } = renderWorkspace({
+        defaultGrowSize: "250px",
+        defaultModel: createGrowingModel(),
+        growDirection: "vertical"
+      });
+
+      expect(container.querySelector("[data-workspace]")).toHaveAttribute(
+        "data-grow-direction",
+        "vertical"
+      );
+      expect(container.querySelectorAll("[data-grow-item]")).toHaveLength(0);
+      expect(container.querySelector("[data-panel]")).not.toBeNull();
+      expect(getContentSize(container)).toBe("calc(450px)");
+      expect(getSizes(workspaceRef)).toEqual(["200px", "250px"]);
+    });
+
+    test("the handle resizes only the last row", () => {
+      const { container, onModelChanged, workspaceRef } = renderWorkspace({
+        defaultModel: createGrowingModel(),
+        growDirection: "vertical"
+      });
+
+      const handles = getHandles(container);
+      expect(handles).toHaveLength(1);
+      const [handle] = handles;
+      expect(handle).toHaveAttribute("role", "separator");
+      expect(handle).not.toHaveAttribute("data-separator");
+      expect(handle).toHaveAttribute("aria-valuenow", "300");
+
+      fireEvent.keyDown(handle!, { key: "ArrowDown" });
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: true,
+        reason: "resize"
+      });
+      expect(getSizes(workspaceRef)).toEqual(["200px", "310px"]);
+      expect(getContentSize(container)).toBe("calc(510px)");
+
+      fireEvent.keyDown(handle!, { key: "ArrowUp", shiftKey: true });
+      expect(getSizes(workspaceRef)).toEqual(["200px", "250px"]);
+    });
+
+    test("a new row takes the size of the tabset its tab came from", () => {
+      const { workspaceRef } = renderWorkspace({
+        defaultModel: createGrowingModel(),
+        growDirection: "vertical"
+      });
+
+      act(() => {
+        workspaceRef.current!.moveTab("2", { edge: "bottom" });
+      });
+
+      const { root } = workspaceRef.current!.getModel();
+      expect(root.type === "split" && root.children).toHaveLength(3);
+      expect(root.type === "split" && root.children[2]!.size).toBe("150px");
+    });
+
+    // jsdom has no PointerEvent, so mouse events are given the pointer's id
+    function firePointer(
+      element: HTMLElement,
+      type: "pointercancel" | "pointerdown" | "pointermove" | "pointerup",
+      clientY: number,
+      clientX = 0
+    ) {
+      const event = new MouseEvent(type, {
+        bubbles: true,
+        button: 0,
+        clientX,
+        clientY
+      });
+      Object.defineProperty(event, "pointerId", { value: 1 });
+      act(() => {
+        element.dispatchEvent(event);
+      });
+    }
+
+    test("applies the maximum of the last row to the handle", () => {
+      const { container } = renderWorkspace({
+        defaultModel: {
+          root: {
+            children: [
+              {
+                id: "a",
+                maxHeight: "200px",
+                size: "100px",
+                tabs: [tab("1")],
+                type: "tabset"
+              },
+              {
+                id: "b",
+                maxHeight: "350px",
+                size: "100px",
+                tabs: [tab("2")],
+                type: "tabset"
+              }
+            ],
+            id: "rows",
+            orientation: "vertical",
+            type: "split"
+          },
+          version: 1
+        },
+        growDirection: "vertical"
+      });
+
+      const [handle] = getHandles(container);
+      expect(handle).toHaveAttribute("aria-valuemax", "350");
+
+      fireEvent.keyDown(handle!, { key: "ArrowDown", shiftKey: true });
+      fireEvent.keyDown(handle!, { key: "ArrowDown", shiftKey: true });
+      expect(handle).toHaveAttribute("aria-valuenow", "350");
+    });
+
+    test("dragging the handle resizes the last row, and canceling doesn't resize", () => {
+      const { container, onModelChanged, workspaceRef } = renderWorkspace({
+        defaultModel: createGrowingModel(),
+        growDirection: "vertical"
+      });
+      const [handle] = getHandles(container);
+      handle!.setPointerCapture = vi.fn();
+
+      firePointer(handle!, "pointerdown", 100);
+      expect(handle).toHaveAttribute("data-active");
+      firePointer(handle!, "pointermove", 150);
+      expect(getContentSize(container)).toBe("calc(550px)");
+      expect(onModelChanged).not.toHaveBeenCalled();
+
+      firePointer(handle!, "pointercancel", 150);
+      expect(handle).not.toHaveAttribute("data-active");
+      expect(getContentSize(container)).toBe("calc(500px)");
+      expect(onModelChanged).not.toHaveBeenCalled();
+
+      firePointer(handle!, "pointerdown", 100);
+      firePointer(handle!, "pointermove", 150);
+      firePointer(handle!, "pointerup", 150);
+      expect(getSizes(workspaceRef)).toEqual(["200px", "350px"]);
+    });
+
+    test("disabled blocks the handle", () => {
+      const { container, onModelChanged } = renderWorkspace({
+        defaultModel: createGrowingModel(),
+        disabled: true,
+        growDirection: "vertical"
+      });
+      const [handle] = getHandles(container);
+      handle!.setPointerCapture = vi.fn();
+
+      expect(handle).toHaveAttribute("aria-disabled", "true");
+      expect(handle).not.toHaveAttribute("tabindex");
+
+      fireEvent.keyDown(handle!, { key: "ArrowDown" });
+      firePointer(handle!, "pointerdown", 100);
+      firePointer(handle!, "pointermove", 150);
+      firePointer(handle!, "pointerup", 150);
+      expect(getContentSize(container)).toBe("calc(500px)");
+      expect(onModelChanged).not.toHaveBeenCalled();
+    });
+
+    test("disabling the workspace mid-drag ends the drag without resizing", () => {
+      const { container, onModelChanged, rerender } = renderWorkspace({
+        defaultModel: createGrowingModel(),
+        growDirection: "vertical"
+      });
+      const [handle] = getHandles(container);
+      handle!.setPointerCapture = vi.fn();
+
+      firePointer(handle!, "pointerdown", 100);
+      firePointer(handle!, "pointermove", 150);
+      expect(getContentSize(container)).toBe("calc(550px)");
+
+      rerender(
+        <Workspace<TabData>
+          defaultModel={createGrowingModel()}
+          disabled
+          growDirection="vertical"
+          renderTabContent={(tab) => <Content tab={tab} />}
+        />
+      );
+      expect(getContentSize(container)).toBe("calc(500px)");
+
+      firePointer(handle!, "pointerup", 150);
+      expect(onModelChanged).not.toHaveBeenCalled();
+    });
+
+    test("collapsing the last row mid-drag drops its preview and its handle", () => {
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: {
+          root: {
+            children: [
+              { id: "top", size: "200px", tabs: [tab("1")], type: "tabset" },
+              {
+                collapsible: true,
+                id: "middle",
+                size: "250px",
+                tabs: [tab("3")],
+                type: "tabset"
+              }
+            ],
+            id: "rows",
+            orientation: "vertical",
+            type: "split"
+          },
+          version: 1
+        },
+        growDirection: "vertical"
+      });
+      const [handle] = getHandles(container);
+      handle!.setPointerCapture = vi.fn();
+
+      firePointer(handle!, "pointerdown", 100);
+      firePointer(handle!, "pointermove", 150);
+      expect(getContentSize(container)).toBe("calc(550px)");
+
+      act(() => workspaceRef.current!.collapseTabset("middle"));
+      expect(getHandles(container)).toHaveLength(0);
+      // A collapsed row is as large as its header, which jsdom measures as 0
+      expect(getContentSize(container)).toBe("calc(200px)");
+    });
+
+    test("a collapsed last row has no handle, and is as large as its header", () => {
+      const { container } = renderWorkspace({
+        defaultModel: {
+          root: {
+            children: [
+              { id: "top", size: "200px", tabs: [tab("1")], type: "tabset" },
+              {
+                collapsed: true,
+                collapsible: true,
+                id: "middle",
+                size: "250px",
+                tabs: [tab("3")],
+                type: "tabset"
+              }
+            ],
+            id: "rows",
+            orientation: "vertical",
+            type: "split"
+          },
+          version: 1
+        },
+        growDirection: "vertical"
+      });
+
+      expect(getHandles(container)).toHaveLength(0);
+      expect(getContentSize(container)).toBe("calc(200px)");
+    });
+
+    test("a collapsed row that isn't last counts at its header size, and the last row has a handle", () => {
+      const { container } = renderWorkspace({
+        defaultModel: {
+          root: {
+            children: [
+              {
+                collapsed: true,
+                collapsible: true,
+                id: "top",
+                size: "200px",
+                tabs: [tab("1")],
+                type: "tabset"
+              },
+              { id: "middle", size: "250px", tabs: [tab("3")], type: "tabset" }
+            ],
+            id: "rows",
+            orientation: "vertical",
+            type: "split"
+          },
+          version: 1
+        },
+        growDirection: "vertical"
+      });
+
+      expect(getHandles(container)).toHaveLength(1);
+      expect(getContentSize(container)).toBe("calc(250px)");
+    });
+
+    test("reverses the pointer and arrow keys of columns in right-to-left text", () => {
+      vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(
+        function (this: HTMLElement) {
+          return this.hasAttribute("data-panel") ? 300 : 0;
+        }
+      );
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: {
+          root: {
+            children: [
+              { id: "a", size: "200px", tabs: [tab("1")], type: "tabset" },
+              { id: "b", size: "300px", tabs: [tab("2")], type: "tabset" }
+            ],
+            id: "columns",
+            orientation: "horizontal",
+            type: "split"
+          },
+          version: 1
+        },
+        growDirection: "horizontal",
+        style: { direction: "rtl" }
+      });
+      const [handle] = getHandles(container);
+      handle!.setPointerCapture = vi.fn();
+
+      // Columns start at the right, so moving the pointer left makes the last one larger
+      firePointer(handle!, "pointerdown", 0, 100);
+      firePointer(handle!, "pointermove", 0, 70);
+      firePointer(handle!, "pointerup", 0, 70);
+      expect(getSizes(workspaceRef)).toEqual(["200px", "330px"]);
+
+      fireEvent.keyDown(handle!, { key: "ArrowLeft" });
+      // (the mocked column is always 300px wide)
+      expect(getSizes(workspaceRef)).toEqual(["200px", "310px"]);
+      fireEvent.keyDown(handle!, { key: "ArrowRight" });
+      expect(getSizes(workspaceRef)).toEqual(["200px", "290px"]);
+    });
+
+    test("falls back to the default grow size, with a warning, if defaultGrowSize isn't a length", () => {
+      resetWarnOnceForTest();
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      const { container } = renderWorkspace({
+        defaultGrowSize: "50%",
+        defaultModel: createGrowingModel(),
+        growDirection: "vertical"
+      });
+
+      expect(getContentSize(container)).toBe("calc(500px)");
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining("defaultGrowSize")
+      );
+    });
+
+    test("warns if growDirection changes", () => {
+      resetWarnOnceForTest();
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      const { rerender } = renderWorkspace({
+        defaultModel: createGrowingModel(),
+        growDirection: "vertical"
+      });
+      expect(warn).not.toHaveBeenCalled();
+
+      rerender(
+        <Workspace<TabData>
+          defaultModel={createGrowingModel()}
+          growDirection="horizontal"
+          renderTabContent={(tab) => <Content tab={tab} />}
+        />
+      );
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining("growDirection")
+      );
+    });
+
+    test("a root that isn't a split in the same direction is a single row", () => {
+      const { container } = renderWorkspace({
+        defaultGrowSize: "320px",
+        growDirection: "vertical"
+      });
+
+      expect(getContentSize(container)).toBe("calc(320px)");
+      expect(getHandles(container)).toHaveLength(1);
+    });
+
+    test("renderGrowHandle content is rendered inside the handle", () => {
+      const { container } = renderWorkspace({
+        defaultModel: createGrowingModel(),
+        growDirection: "vertical",
+        renderGrowHandle: (orientation) => (
+          <span data-testid="grip">{orientation}</span>
+        )
+      });
+
+      const [handle] = getHandles(container);
+      expect(handle).toContainElement(screen.getByTestId("grip"));
+      expect(screen.getByTestId("grip")).toHaveTextContent("vertical");
+    });
+  });
+
   describe("dragging", () => {
     let elementAtPoint: Element | null = null;
 
@@ -2511,6 +2954,118 @@ describe("Workspace", () => {
 
       await user.pointer({ keys: "[/MouseLeft]", target: panels });
       expect(getIndicator()).toBeNull();
+    });
+
+    describe("auto-scrolling workspaces that grow", () => {
+      let frames: Array<() => void>;
+      let scrollBy: ReturnType<typeof vi.fn>;
+
+      beforeEach(() => {
+        frames = [];
+        vi.spyOn(window, "requestAnimationFrame").mockImplementation(
+          (callback) => {
+            frames.push(() => callback(0));
+            return frames.length;
+          }
+        );
+        scrollBy = vi.fn();
+      });
+
+      afterEach(() => {
+        vi.restoreAllMocks();
+      });
+
+      // A source workspace that doesn't grow, and one that does, scrolling within a 300px tall container
+      function renderGrowing({ growingDragGroup = "group" } = {}) {
+        const result = render(
+          <>
+            <Workspace<TabData>
+              defaultModel={createModel()}
+              dragGroup="group"
+              id="source"
+              renderTabContent={(tab) => <Content tab={tab} />}
+            />
+            <div data-testid="scroller" style={{ overflowY: "auto" }}>
+              <Workspace<TabData>
+                defaultModel={{
+                  root: {
+                    id: "rows",
+                    tabs: [tab("4")],
+                    type: "tabset"
+                  },
+                  version: 1
+                }}
+                dragGroup={growingDragGroup}
+                growDirection="vertical"
+                id="growing"
+                renderTabContent={(tab) => <Content tab={tab} />}
+              />
+            </div>
+          </>
+        );
+
+        const scroller = screen.getByTestId("scroller");
+        Object.defineProperty(scroller, "scrollHeight", { value: 1000 });
+        Object.defineProperty(scroller, "offsetHeight", { value: 300 });
+        scroller.getBoundingClientRect = () => new DOMRect(0, 0, 300, 300);
+        scroller.scrollBy = scrollBy as never;
+
+        return result;
+      }
+
+      // Touch input drags with pointer events, even between workspaces in a drag group
+      async function dragTouch(from: HTMLElement, clientY: number) {
+        await userEvent.pointer([
+          {
+            coords: { clientX: 100, clientY: 100 },
+            keys: "[TouchA>]",
+            target: from
+          },
+          { coords: { clientX: 150, clientY }, pointerName: "TouchA" }
+        ]);
+      }
+
+      function runFrames() {
+        act(() => {
+          frames.splice(0).forEach((frame) => frame());
+        });
+      }
+
+      test("scrolls the workspace under the pointer, in the drag group", async () => {
+        const { container } = renderGrowing();
+        elementAtPoint = container.querySelector(
+          "[data-workspace][data-grow-direction] [data-tab-panels]"
+        );
+
+        await dragTouch(getTab("One"), 290);
+        runFrames();
+
+        expect(scrollBy).toHaveBeenCalled();
+      });
+
+      test("doesn't scroll a workspace that isn't under the pointer", async () => {
+        const { container } = renderGrowing();
+        elementAtPoint = container.querySelector(
+          '[data-tabset-id="right"] [data-tab-panels]'
+        );
+
+        await dragTouch(getTab("One"), 290);
+        runFrames();
+
+        expect(scrollBy).not.toHaveBeenCalled();
+      });
+
+      test("doesn't scroll a workspace in another drag group", async () => {
+        const { container } = renderGrowing({ growingDragGroup: "other" });
+        elementAtPoint = container.querySelector(
+          "[data-workspace][data-grow-direction] [data-tab-panels]"
+        );
+
+        await dragTouch(getTab("One"), 290);
+        runFrames();
+
+        expect(scrollBy).not.toHaveBeenCalled();
+      });
     });
 
     describe("between workspaces (dragGroup)", () => {
