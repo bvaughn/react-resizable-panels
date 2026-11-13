@@ -15,6 +15,7 @@ import { html as ConfirmCloseHTML } from "../../public/generated/examples/Worksp
 import { html as CustomTabsetHTML } from "../../public/generated/examples/WorkspaceCustomTabset.json";
 import { html as HiddenTabsMenuHTML } from "../../public/generated/examples/WorkspaceHiddenTabsMenu.json";
 import { html as OverflowToolbarHTML } from "../../public/generated/examples/WorkspaceOverflowToolbar.json";
+import { html as RenamableTabHTML } from "../../public/generated/examples/WorkspaceRenamableTab.json";
 import { Link } from "../components/Link";
 import {
   DemoWorkspace,
@@ -58,9 +59,11 @@ export default function WorkspaceCustomTabsetsRoute() {
         component closes the tab it's rendered within.
       </div>
       <Callout>
-        Buttons (and other elements with <code>role="button"</code> or a{" "}
-        <code>data-tab-ignore</code> attribute) within a tab don't select or
-        drag it.
+        Buttons, form controls (e.g. <code>input</code>) the labels of form
+        controls, editable content, and elements with a button or form control
+        role (e.g. <code>role="checkbox"</code>) or a{" "}
+        <code>data-tab-ignore</code> attribute within a tab don't select or drag
+        it.
       </Callout>
       <div>
         Props can be overridden or wrapped. For example, to confirm before
@@ -68,6 +71,16 @@ export default function WorkspaceCustomTabsetsRoute() {
         Delete or Backspace key):
       </div>
       <Code html={ConfirmCloseHTML} />
+      <SectionHeader>Renaming tabs</SectionHeader>
+      <div>
+        A tab can show an input in place of its title, e.g. after it's
+        double-clicked or F2 is pressed, and save the new title with the{" "}
+        <code>updateTab</code> method of the{" "}
+        <Link to="/imperative-api/workspace">imperative API</Link>. Pressing
+        Enter or moving focus away saves the title, and Escape cancels. Keys
+        typed in the input don't move focus between tabs or close the tab.
+      </div>
+      <Code html={RenamableTabHTML} />
       <SectionHeader>Toolbars that run out of room</SectionHeader>
       <div>
         A tabset's tab list fills the space its tabs and toolbar don't use, so a

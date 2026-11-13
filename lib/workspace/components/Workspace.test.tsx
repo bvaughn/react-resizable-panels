@@ -752,6 +752,95 @@ describe("Workspace", () => {
       expect(getTab("2")).toHaveAttribute("aria-selected", "false");
     });
 
+    test.each([
+      ["input", <input data-testid="control" />],
+      ["select", <select data-testid="control" />],
+      ["textarea", <textarea data-testid="control" />],
+      ["editable content", <span contentEditable data-testid="control" />],
+      ["checkbox role", <div role="checkbox" data-testid="control" />],
+      ["switch role", <div role="switch" data-testid="control" />],
+      ["textbox role", <div role="textbox" data-testid="control" />],
+      [
+        "label of a control",
+        <label data-testid="control">
+          <input type="checkbox" /> Pin
+        </label>
+      ]
+    ])("%s descendants don't select the tab", (_, control) => {
+      renderWorkspace({
+        renderTab: (tab, props) => (
+          <div {...props}>
+            {tab.id}
+            {tab.id === "2" && control}
+          </div>
+        )
+      });
+
+      fireEvent.click(screen.getByTestId("control"));
+      expect(getTab("2")).toHaveAttribute("aria-selected", "false");
+    });
+
+    test("labels without a control select the tab", () => {
+      renderWorkspace({
+        renderTab: (tab, props) => (
+          <div {...props}>
+            <label data-testid={`label-${tab.id}`}>{tab.id}</label>
+          </div>
+        )
+      });
+
+      fireEvent.click(screen.getByTestId("label-2"));
+      expect(getTab("2")).toHaveAttribute("aria-selected", "true");
+    });
+
+    test("content that isn't editable selects the tab", () => {
+      renderWorkspace({
+        renderTab: (tab, props) => (
+          <div {...props}>
+            {tab.id}
+            <span contentEditable={false} data-testid={`static-${tab.id}`} />
+          </div>
+        )
+      });
+
+      fireEvent.click(screen.getByTestId("static-2"));
+      expect(getTab("2")).toHaveAttribute("aria-selected", "true");
+    });
+
+    test("pressing an input within a tab doesn't start dragging it", async () => {
+      // jsdom has no layout, so every edge between tabsets is at (0, 0), and pressing there would start resizing instead
+      const coords = { clientX: 100, clientY: 100 };
+
+      renderWorkspace({
+        // Mouse drags between workspaces in a group use HTML drag and drop, which makes the pressed tab draggable
+        dragGroup: "group",
+        renderTab: (tab, props) => (
+          <div {...props}>
+            {tab.id}
+            <input data-testid={`input-${tab.id}`} />
+          </div>
+        )
+      });
+
+      const input = screen.getByTestId("input-2");
+      await userEvent.pointer({ coords, keys: "[MouseLeft>]", target: input });
+      expect(getTab("2").draggable).toBe(false);
+      await userEvent.pointer({ coords, keys: "[/MouseLeft]", target: input });
+
+      // Pressing the tab itself does
+      await userEvent.pointer({
+        coords,
+        keys: "[MouseLeft>]",
+        target: getTab("2")
+      });
+      expect(getTab("2").draggable).toBe(true);
+      await userEvent.pointer({
+        coords,
+        keys: "[/MouseLeft]",
+        target: getTab("2")
+      });
+    });
+
     test("disableClose and disabled hide close buttons", () => {
       const model = createModel();
       const { rerender } = renderWorkspace({
@@ -818,11 +907,11 @@ describe("Workspace", () => {
       });
     });
 
-    test("keys within interactive descendants are ignored", () => {
+    test("keys within descendants are ignored", () => {
       renderWorkspace({
         renderTab: (tab, props) => (
           <div {...props}>
-            <input data-tab-ignore data-testid={`input-${tab.id}`} />
+            <input data-testid={`input-${tab.id}`} />
           </div>
         )
       });

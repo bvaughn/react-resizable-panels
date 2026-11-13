@@ -1301,8 +1301,9 @@ and attach a <code>ref</code> that dragging and keyboard focus depend on.</p>
 (call <code>props.onKeyDown</code> for other keys).</p>
 <p>⚠️ Merge <code>className</code> and <code>style</code> rather than replacing them (e.g. <code>style={{ ...props.style, padding: 4 }}</code>):
 they include the <code>tab</code> entries of the <code>classNames</code> and <code>styles</code> props, and <code>style</code> includes the <code>touch-action</code> that touch dragging depends on.</p>
-<p>ℹ️ Pointer and keyboard events from interactive descendants (<code>button</code> elements, <code>role=&quot;button&quot;</code>, or elements with a <code>data-tab-ignore</code> attribute) are ignored,
-so clicking a button within a tab doesn&#39;t select or drag it.</p>
+<p>ℹ️ Pointer events from interactive descendants (<code>button</code> elements, form controls such as <code>input</code> (and the <code>label</code> elements of form controls), editable content, elements with a <code>button</code> or form control role such as <code>role=&quot;checkbox&quot;</code>, or elements with a <code>data-tab-ignore</code> attribute) are ignored,
+so clicking a button within a tab doesn&#39;t select or drag it, and pressing within an input (e.g. one used to rename the tab) doesn&#39;t start a drag.
+Keys pressed within any descendant (rather than the tab itself) are left to it, so they don&#39;t move focus between tabs or close the tab.</p>
 <p>ℹ️ When this prop is not provided, tabs show their title (or id) followed by a <code>TabCloseButton</code>.</p>
 </td>
     </tr>

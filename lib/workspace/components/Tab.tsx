@@ -223,9 +223,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
       }
     },
     onKeyDown: (event) => {
-      if (!isFromInteractiveDescendant(event)) {
-        onTabKeyDown(event);
-      }
+      onTabKeyDown(event);
     },
     onPointerDown: (event) => {
       if (
