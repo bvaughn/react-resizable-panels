@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.22.1
 
 - Form controls (`input`, `select`, and `textarea` elements, the labels of form controls, editable content, and elements with a form control role such as `role="checkbox"`) within a `Workspace` tab no longer select the tab or start dragging it when pressed, like buttons within a tab (e.g. so a tab can show an input to rename it). Use the `data-tab-ignore` attribute to opt other elements out. - [#822](https://github.com/bvaughn/react-resizable-panels/issues/822)
 - Fix `groupResizeBehavior: "preserve-pixel-size"` panels and `Grid` tracks resizing (e.g. a collapsed panel expanding) when their constraints or `groupResizeBehavior` change after the group has been resized. - [#832](https://github.com/bvaughn/react-resizable-panels/issues/832)
