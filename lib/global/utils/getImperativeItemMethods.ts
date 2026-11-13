@@ -9,6 +9,7 @@ import type {
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { compareLayoutNumbers } from "./compareLayoutNumbers";
 import { formatLayoutNumber } from "./formatLayoutNumber";
+import { getExpandedItemSize } from "./getExpandedItemSize";
 import { layoutNumbersEqual } from "./layoutNumbersEqual";
 import { layoutsEqual } from "./layoutsEqual";
 import { syncAxisStateToCurrentSize } from "./syncAxisStateToCurrentSize";
@@ -330,7 +331,7 @@ export function getImperativeItemMethods({
 
       if (collapsible && size !== collapsedSize) {
         // Store previous size in order to restore it if expand() is called
-        mutableValues.expandToSize = size;
+        mutableValues.expandToSize = { axisSize: synced.state.axisSize, size };
 
         setItemSize(collapsedSize, synced);
       }
@@ -343,7 +344,14 @@ export function getImperativeItemMethods({
 
       if (collapsible && size === collapsedSize) {
         // Restore pre-collapse size, fallback to minSize
-        let nextSize = mutableValues.expandToSize ?? minSize;
+        const { expandToSize } = mutableValues;
+        let nextSize = expandToSize
+          ? getExpandedItemSize({
+              axisSize: synced.state.axisSize,
+              expanded: expandToSize,
+              groupResizeBehavior: getItem().constraintProps.groupResizeBehavior
+            })
+          : minSize;
 
         // Edge case: if minSize is 0, pick something meaningful to expand the panel to
         if (nextSize === 0) {

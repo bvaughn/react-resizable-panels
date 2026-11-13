@@ -57,7 +57,7 @@ export type RegisteredResizeItem = {
   idIsStable: boolean;
   element: HTMLElement;
   mutableValues: {
-    expandToSize: number | undefined;
+    expandToSize: { axisSize: number; size: number } | undefined;
     prevSize: PanelSize | undefined;
   };
   onResize: OnPanelResize | undefined;
@@ -129,10 +129,17 @@ export type RegisteredResizeAxis = Readonly<{
     defaultLayout: Readonly<Layout> | undefined;
     disableCursor: boolean;
     expandedItemSizes: {
-      [itemId: string]: number;
+      [itemId: string]: {
+        axisSize: number;
+        size: number;
+      };
     };
     layouts: {
-      [itemIds: string]: Layout;
+      [itemIds: string]: {
+        axisSize: number;
+        layout: Layout;
+        resizeBehaviors: GroupResizeBehavior[];
+      };
     };
   };
   orientation: Orientation;

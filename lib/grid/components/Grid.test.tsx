@@ -469,6 +469,102 @@ describe("Grid", () => {
   });
 
   describe("imperative API", () => {
+    test.each(["column", "row"] as const)(
+      "keeps a collapsed %s collapsed when its minimum changes after a resize",
+      (axis) => {
+        const gridRef = createRef<GridImperativeHandle>();
+        mockGridLayout({ gridRef, width: 200, height: 200 });
+        const ui = (minSize: string, explicitDefault = false) => {
+          const tracks: GridTrackProps[] = [
+            {
+              collapsedSize: 64,
+              collapsible: true,
+              defaultSize: 64,
+              groupResizeBehavior: "preserve-pixel-size",
+              minSize
+            },
+            explicitDefault
+              ? { groupResizeBehavior: "preserve-relative-size" }
+              : {}
+          ];
+          return (
+            <Grid
+              columns={axis === "column" ? tracks : 2}
+              gridRef={gridRef}
+              rows={axis === "row" ? tracks : 2}
+            >
+              <TestCell column={0} row={0} />
+              <TestCell column={1} row={0} />
+              <TestCell column={0} row={1} />
+              <TestCell column={1} row={1} />
+            </Grid>
+          );
+        };
+        const { rerender } = render(ui("100%"));
+        const track = () => gridRef.current!.getTrackByIndex(axis, 0);
+        expect(track().getSize().inPixels).toBeCloseTo(64, 1);
+
+        act(() => mockGridLayout({ gridRef, width: 600, height: 600 }));
+        expect(track().getSize().inPixels).toBeCloseTo(64, 1);
+
+        // Explicitly setting the other track's default resize behavior should not reset the layout either.
+        rerender(ui("220px", true));
+        expect(track().getSize().inPixels).toBeCloseTo(64, 1);
+        expect(track().isCollapsed()).toBe(true);
+      }
+    );
+
+    test.each(["column", "row"] as const)(
+      "keyboard expand restores a collapsed preserve-pixel-size %s to its pre-collapse size after a resize",
+      (axis) => {
+        const gridRef = createRef<GridImperativeHandle>();
+        const gridlineRef = createRef<HTMLDivElement>();
+        mockGridLayout({ gridRef, width: 400, height: 400 });
+        const tracks: GridTrackProps[] = [
+          {
+            collapsedSize: 0,
+            collapsible: true,
+            defaultSize: 100,
+            groupResizeBehavior: "preserve-pixel-size",
+            minSize: 50
+          },
+          {}
+        ];
+        render(
+          <Grid
+            columns={axis === "column" ? tracks : 2}
+            gridRef={gridRef}
+            rows={axis === "row" ? tracks : 2}
+          >
+            <TestCell column={0} row={0} />
+            <TestCell column={1} row={0} />
+            <TestCell column={0} row={1} />
+            <TestCell column={1} row={1} />
+            {axis === "column" ? (
+              <Gridline type="column" column={1} elementRef={gridlineRef} />
+            ) : (
+              <Gridline type="row" row={1} elementRef={gridlineRef} />
+            )}
+          </Grid>
+        );
+        const track = () => gridRef.current!.getTrackByIndex(axis, 0);
+        expect(track().getSize().inPixels).toBeCloseTo(100, 1);
+
+        act(() => {
+          fireEvent.keyDown(gridlineRef.current!, { key: "Enter" });
+        });
+        expect(track().isCollapsed()).toBe(true);
+
+        act(() => mockGridLayout({ gridRef, width: 800, height: 800 }));
+
+        act(() => {
+          fireEvent.keyDown(gridlineRef.current!, { key: "Enter" });
+        });
+        act(() => mockGridLayout({ gridRef, width: 800, height: 800 }));
+        expect(track().getSize().inPixels).toBeCloseTo(100, 1);
+      }
+    );
+
     test("getLayout and setLayout", () => {
       const onLayoutChanged = vi.fn();
       const { gridRef } = renderTwoByTwoGrid({ onLayoutChanged });

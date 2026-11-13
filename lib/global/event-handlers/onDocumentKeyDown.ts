@@ -3,6 +3,7 @@ import { getMountedAxisState } from "../mutable-state/axes";
 import { adjustLayoutForSeparator } from "../utils/adjustLayoutForSeparator";
 import { findSeparatorAxis } from "../utils/findSeparatorAxis";
 import { getEnabledSeparators } from "../utils/getEnabledSeparators";
+import { getExpandedItemSize } from "../utils/getExpandedItemSize";
 
 export function onDocumentKeyDown(event: KeyboardEvent) {
   if (event.defaultPrevented) {
@@ -95,11 +96,18 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
 
       if (constraints.collapsible) {
         const prevSize = layout[primaryItem.id];
+        const expanded = axis.mutableState.expandedItemSizes[primaryItem.id];
 
         const nextSize =
           constraints.collapsedSize === prevSize
-            ? (axis.mutableState.expandedItemSizes[primaryItem.id] ??
-              constraints.minSize)
+            ? expanded
+              ? getExpandedItemSize({
+                  axisSize: axisState.axisSize,
+                  expanded,
+                  groupResizeBehavior:
+                    primaryItem.constraintProps.groupResizeBehavior
+                })
+              : constraints.minSize
             : constraints.collapsedSize;
 
         adjustLayoutForSeparator({
