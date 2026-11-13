@@ -58,8 +58,12 @@ export type WorkspaceContextType = {
   // Tabsets a split's Group collapsed to fit, which the model has expanded (one kind of collapseOverrides)
   collapseToFit: { [tabsetId: string]: boolean };
 
+  // Size of rows (or columns) without lengths in a workspace with the growDirection prop
+  defaultGrowSize: string;
   disabled: boolean;
   dragGroup: string | undefined;
+  // The root split, if it grows (see the growDirection prop), so that its sizes are applied as they change (see SplitView)
+  growingSplitId: string | undefined;
   // The tab (or tabset) being dragged, and where it would be dropped; kept in a store (rather than in this context), since it changes often during a drag
   dragStore: DragStore;
   getHiddenTabBehavior: (tab: TabNode) => HiddenTabBehavior;

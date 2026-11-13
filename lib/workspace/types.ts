@@ -1455,6 +1455,42 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
   dragGroup?: string | undefined;
 
   /**
+   * The workspace grows along this direction (rather than fitting its container), like a dashboard:
+   * with `"vertical"`, the root split's children are rows, each as tall as its size, and the workspace is as tall as its rows;
+   * with `"horizontal"`, they're columns, and the workspace is as wide as its columns.
+   * The application decides what scrolls (e.g. the page, or an element around the workspace with `overflow: auto`).
+   *
+   * ℹ️ Only the root split grows, and only when its orientation matches (a root tabset, or a root split in the other direction, is a single row or column).
+   * Everything within a row (or column) fits it, as usual.
+   *
+   * ℹ️ Each row's size (see `TabsetNode.size` and `SplitNode.size`) is a length, e.g. "300px".
+   * Rows without one (e.g. in a model saved without this prop) are given one when the model changes:
+   * a tabset moved to its own row keeps the size it had, a tab moved out of a tabset takes that tabset's size,
+   * and anything else (e.g. a tab dragged in from another workspace) is `defaultGrowSize`.
+   *
+   * ℹ️ The separators between rows are the workspace's usual separators (see `renderSeparator`): they move space between the rows beside them,
+   * and the workspace stays the same size. The workspace grows (or shrinks) as rows are added (or removed),
+   * and the grow handle after the last row resizes that row, and the workspace with it (see `renderGrowHandle`).
+   * Dropping at the workspace's start or end along this direction (e.g. its top or bottom edge) adds a row there;
+   * its edges in the other direction don't accept drops.
+   *
+   * ℹ️ A maximized tabset covers the part of the workspace that is visible (within what it scrolls), and stays there as it's scrolled.
+   *
+   * ⚠️ This should not change after the Workspace mounts (rows' sizes would be stale); give the Workspace a new `key` to change it.
+   */
+  growDirection?: "horizontal" | "vertical" | undefined;
+
+  /**
+   * Size of a new row (or column) along `growDirection`, when it doesn't take its size from where it came from (see `growDirection`).
+   * Defaults to "300px".
+   *
+   * ℹ️ Interpretation rules:
+   * - Strings must specify a unit: "px", "em", "rem", "vh", or "vw" (e.g. `defaultGrowSize: "20rem"`)
+   * - Percentages (and strings without units) are not allowed
+   */
+  defaultGrowSize?: string | undefined;
+
+  /**
    * Ref attached to the root `HTMLDivElement`.
    */
   elementRef?: Ref<HTMLDivElement | null> | undefined;
@@ -1544,6 +1580,16 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
         state: DragPreviewState
       ) => ReactNode)
     | undefined;
+
+  /**
+   * Content of the handle after the last row (or column) of a workspace with the `growDirection` prop, which resizes that row and the workspace with it,
+   * e.g. a grip icon; it's styled with the `growHandle` entries of the `classNames` and `styles` props.
+   *
+   * ℹ️ Unlike the separators between rows (see `renderSeparator`), it doesn't move space between rows, so it can be styled differently (or hidden).
+   *
+   * @param orientation The `growDirection`
+   */
+  renderGrowHandle?: ((orientation: Orientation) => ReactNode) | undefined;
 
   /**
    * Content shown in the panels of a tabset that has no tabs (e.g. "Drag a tab here"):
@@ -1728,6 +1774,14 @@ export type WorkspaceClassNames = {
    * ℹ️ The handles are positioned (and given resize cursors) by the workspace, but they're transparent.
    */
   floatingResizeHandle?: string | undefined;
+  /**
+   * The handle after the last row (or column) of a workspace with the `growDirection` prop, which resizes that row and the workspace with it
+   * (with a `data-grow-handle` attribute, and `data-active` while it's dragged); see `renderGrowHandle`.
+   *
+   * ℹ️ The handle is given a resize cursor by the workspace, and a default size along the `growDirection` (6px) unless this class (or style) is set;
+   * it's transparent. Hide it (e.g. `display: none`) if the last row shouldn't be resizable.
+   */
+  growHandle?: string | undefined;
   header?: string | undefined;
   /**
    * Each split (a Group with `data-split` and `data-split-id` attributes); for example, its `gap` adds space between tabsets.

@@ -218,6 +218,10 @@ const nav: NavConfig<Path | DefaultPath> = [
               }
             ]
           },
+          {
+            path: "/examples/workspace/scrolling-layouts",
+            title: "Scrolling layouts"
+          },
           { path: "/examples/workspace/restrictions", title: "Restrictions" },
           {
             path: "/examples/workspace/multiple-windows",

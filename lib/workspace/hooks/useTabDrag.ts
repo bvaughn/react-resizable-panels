@@ -40,6 +40,7 @@ import type { DragStore } from "../utils/createDragStore";
 import type { TabsetElementRegistry } from "../utils/createTabsetElementRegistry";
 import { positionPreview } from "../utils/positionPreview";
 import { getDropTarget } from "../utils/getDropTarget";
+import { createAutoScroller } from "../utils/createAutoScroller";
 import { getEmptyDragImage } from "../utils/getEmptyDragImage";
 import { isNativeTearOff } from "../utils/isNativeTearOff";
 import { isOutsideOfWindow } from "../utils/isOutsideOfWindow";
@@ -558,6 +559,49 @@ export function useTabDrag({
 
       let isDragging = false;
       let isTearOffTarget = false;
+
+      // Workspaces that grow (see the growDirection prop) are scrolled while the pointer is near the edge of what they scroll within,
+      // which includes dragging into one from another workspace in the drag group; the scroller follows the workspace under the pointer
+      // (and is created once the drag starts)
+      let lastPoint: { clientX: number; clientY: number } | null = null;
+      let autoScroller: ReturnType<typeof createAutoScroller> | null = null;
+      let autoScrollerRoot: HTMLElement | null = null;
+      const updateAutoScroller = (clientX: number, clientY: number) => {
+        const hit = ownerDocument.elementFromPoint?.(clientX, clientY);
+        const hitRoot = hit?.closest("[data-workspace][data-grow-direction]");
+        // Only workspaces that would accept the drag are scrolled: this one, or one in the same drag group
+        const isAccepted =
+          hitRoot &&
+          isHTMLElement(hitRoot) &&
+          (hitRoot === rootElement ||
+            (dragGroup !== undefined &&
+              hitRoot.dataset.dragGroup === dragGroup));
+        const nextRoot = isAccepted
+          ? hitRoot
+          : rootElement.dataset.growDirection
+            ? rootElement
+            : null;
+
+        if (nextRoot !== autoScrollerRoot) {
+          autoScroller?.stop();
+          autoScroller = null;
+          autoScrollerRoot = nextRoot;
+
+          const growDirection = nextRoot?.dataset.growDirection;
+          if (
+            nextRoot &&
+            (growDirection === "horizontal" || growDirection === "vertical")
+          ) {
+            autoScroller = createAutoScroller(nextRoot, growDirection, () => {
+              if (lastPoint) {
+                updateTarget(lastPoint.clientX, lastPoint.clientY);
+              }
+            });
+          }
+        }
+
+        autoScroller?.update(clientX, clientY);
+      };
       let target: TabDropTarget | undefined = undefined;
       let rawTarget: TabDropTarget | undefined = undefined;
 
@@ -598,6 +642,13 @@ export function useTabDrag({
         previewPointRef.current = { clientX, clientY };
         positionPreview(previewElementRef.current, previewPointRef.current);
 
+        lastPoint = { clientX, clientY };
+        updateAutoScroller(clientX, clientY);
+        updateTarget(clientX, clientY);
+      };
+
+      // Finds the drop target under the pointer (also after a workspace that grows is scrolled; see createAutoScroller)
+      const updateTarget = (clientX: number, clientY: number) => {
         // Nothing outside of the window can be hit (elementFromPoint returns null there), so the source can only be torn off
         const isOutside = isOutsideOfWindow(ownerWindow, clientX, clientY);
         const nextIsTearOffTarget = isOutside && !newTab && canTearOff(source);
@@ -644,6 +695,7 @@ export function useTabDrag({
         } = {}
       ) => {
         cancelDragRef.current = null;
+        autoScroller?.stop();
 
         ownerDocument.removeEventListener("pointermove", onPointerMove);
         ownerDocument.removeEventListener("pointerup", onPointerUp);

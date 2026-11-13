@@ -190,6 +190,50 @@
       "name": "dragGroup",
       "required": false
     },
+    "growDirection": {
+      "description": [
+        {
+          "content": "<p>The workspace grows along this direction (rather than fitting its container), like a dashboard:\nwith <code>&quot;vertical&quot;</code>, the root split's children are rows, each as tall as its size, and the workspace is as tall as its rows;\nwith <code>&quot;horizontal&quot;</code>, they're columns, and the workspace is as wide as its columns.\nThe application decides what scrolls (e.g. the page, or an element around the workspace with <code>overflow: auto</code>).</p>\n"
+        },
+        {
+          "content": "<p>Only the root split grows, and only when its orientation matches (a root tabset, or a root split in the other direction, is a single row or column).\nEverything within a row (or column) fits it, as usual.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Each row's size (see <code>TabsetNode.size</code> and <code>SplitNode.size</code>) is a length, e.g. &quot;300px&quot;.\nRows without one (e.g. in a model saved without this prop) are given one when the model changes:\na tabset moved to its own row keeps the size it had, a tab moved out of a tabset takes that tabset's size,\nand anything else (e.g. a tab dragged in from another workspace) is <code>defaultGrowSize</code>.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>The separators between rows are the workspace's usual separators (see <code>renderSeparator</code>): they move space between the rows beside them,\nand the workspace stays the same size. The workspace grows (or shrinks) as rows are added (or removed),\nand the grow handle after the last row resizes that row, and the workspace with it (see <code>renderGrowHandle</code>).\nDropping at the workspace's start or end along this direction (e.g. its top or bottom edge) adds a row there;\nits edges in the other direction don't accept drops.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>A maximized tabset covers the part of the workspace that is visible (within what it scrolls), and stays there as it's scrolled.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>This should not change after the Workspace mounts (rows' sizes would be stale); give the Workspace a new <code>key</code> to change it.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">growDirection</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-string\">\"horizontal\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"vertical\"</span></div>",
+      "name": "growDirection",
+      "required": false
+    },
+    "defaultGrowSize": {
+      "description": [
+        {
+          "content": "<p>Size of a new row (or column) along <code>growDirection</code>, when it doesn't take its size from where it came from (see <code>growDirection</code>).\nDefaults to &quot;300px&quot;.</p>\n"
+        },
+        {
+          "content": "<p>Interpretation rules:</p>\n<ul>\n<li>Strings must specify a unit: &quot;px&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot; (e.g. <code>defaultGrowSize: &quot;20rem&quot;</code>)</li>\n<li>Percentages (and strings without units) are not allowed</li>\n</ul>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">defaultGrowSize</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span></div>",
+      "name": "defaultGrowSize",
+      "required": false
+    },
     "elementRef": {
       "description": [
         {
@@ -290,6 +334,20 @@
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">renderTabsetDragPreview</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tabset</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">state</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">DragPreviewState</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span><span class=\"tok-punctuation\">)</span></div>",
       "name": "renderTabsetDragPreview",
+      "required": false
+    },
+    "renderGrowHandle": {
+      "description": [
+        {
+          "content": "<p>Content of the handle after the last row (or column) of a workspace with the <code>growDirection</code> prop, which resizes that row and the workspace with it,\ne.g. a grip icon; it's styled with the <code>growHandle</code> entries of the <code>classNames</code> and <code>styles</code> props.</p>\n"
+        },
+        {
+          "content": "<p>Unlike the separators between rows (see <code>renderSeparator</code>), it doesn't move space between rows, so it can be styled differently (or hidden).</p>\n<ul>\n<li><code>orientation</code> The <code>growDirection</code></li>\n</ul>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">renderGrowHandle</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">orientation</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">Orientation</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">ReactNode</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "renderGrowHandle",
       "required": false
     },
     "renderEmptyTabset": {

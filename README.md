@@ -29,9 +29,371 @@ Frequently asked questions can be found [here](https://react-resizable-panels.ve
 
 Documentation for this project is available at [react-resizable-panels.vercel.app](https://react-resizable-panels.vercel.app/).
 
+<!-- react-lib-tools:api:begin -->
+
+## Components
+
+### Cell
+
+A Cell occupies one or more tracks (columns and rows) within a Grid.
+Cells are resized along with the tracks they occupy.
+
+Cell elements always include the following attributes:
+
+```html
+<div data-cell data-testid="cell-id-prop" id="cell-id-prop">
+```
+
+ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+
+⚠️ Cell elements must be direct DOM children of their parent Grid elements.
+
+#### Required props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>column</td>
+      <td><p>Index of the (first) column this cell occupies.</p>
+</td>
+    </tr>
+    <tr>
+      <td>row</td>
+      <td><p>Index of the (first) row this cell occupies.</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Optional props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>className</td>
+      <td><p>CSS class name.</p>
+</td>
+    </tr>
+    <tr>
+      <td>id</td>
+      <td><p>Uniquely identifies this cell within the parent grid.
+Falls back to <code>useId</code> when not provided.</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes (an explicit <code>data-testid</code> prop will take precedence).</p>
+</td>
+    </tr>
+    <tr>
+      <td>style</td>
+      <td><p>CSS properties.</p>
+<p>⚠️ Grid placement properties are managed by the Cell and cannot be overridden.</p>
+</td>
+    </tr>
+    <tr>
+      <td>children</td>
+      <td><p>Cell contents.</p>
+</td>
+    </tr>
+    <tr>
+      <td>columnSpan</td>
+      <td><p>Number of columns this cell spans; defaults to 1.</p>
+</td>
+    </tr>
+    <tr>
+      <td>elementRef</td>
+      <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
+</td>
+    </tr>
+    <tr>
+      <td>rowSpan</td>
+      <td><p>Number of rows this cell spans; defaults to 1.</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+### Grid
+
+A Grid arranges resizable Cells in two dimensions.
+Columns can be resized horizontally and rows can be resized vertically;
+dragging the point where a column boundary and a row boundary intersect resizes both.
+
+Size constraints (e.g. min/max size, collapsible) are specified per track (column or row),
+using the same format as Panel props.
+
+Cells can span multiple columns and/or rows.
+Track boundaries cannot be resized alongside of a cell that spans across them.
+
+Grid elements always include the following attributes:
+
+```html
+<div data-grid data-testid="grid-id-prop" id="grid-id-prop">
+```
+
+ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+
+#### Required props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>columns</td>
+      <td><p>Grid columns; either the number of columns or an array of size constraints (one per column).</p>
+</td>
+    </tr>
+    <tr>
+      <td>rows</td>
+      <td><p>Grid rows; either the number of rows or an array of size constraints (one per row).</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Optional props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>className</td>
+      <td><p>CSS class name.</p>
+</td>
+    </tr>
+    <tr>
+      <td>id</td>
+      <td><p>Uniquely identifies this grid within an application.
+Falls back to <code>useId</code> when not provided.</p>
+<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes (an explicit <code>data-testid</code> prop will take precedence).</p>
+</td>
+    </tr>
+    <tr>
+      <td>style</td>
+      <td><p>CSS properties.</p>
+<p>⚠️ Grid template and display properties are managed by the Grid and cannot be overridden.</p>
+</td>
+    </tr>
+    <tr>
+      <td>children</td>
+      <td><p>Cell and Gridline components that comprise this grid.</p>
+<p>⚠️ Cell and Gridline elements must be direct DOM children of their parent Grid element.</p>
+</td>
+    </tr>
+    <tr>
+      <td>defaultLayout</td>
+      <td><p>Default layout for either or both of the Grid&#39;s axes.</p>
+<p>ℹ️ This value allows layouts to be remembered between page reloads.</p>
+</td>
+    </tr>
+    <tr>
+      <td>disableCursor</td>
+      <td><p>This library sets custom mouse cursor styles to indicate drag state.
+Use this prop to disable that behavior for this grid.</p>
+</td>
+    </tr>
+    <tr>
+      <td>disabled</td>
+      <td><p>Disable resize functionality.</p>
+</td>
+    </tr>
+    <tr>
+      <td>elementRef</td>
+      <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
+</td>
+    </tr>
+    <tr>
+      <td>gridRef</td>
+      <td><p>Exposes the following imperative API:</p>
+<ul>
+<li><code>getLayout(): GridLayout</code></li>
+<li><code>getTrackById(axis: &quot;column&quot; | &quot;row&quot;, id: string | number): GridTrackImperativeHandle</code></li>
+<li><code>getTrackByIndex(axis: &quot;column&quot; | &quot;row&quot;, index: number): GridTrackImperativeHandle</code></li>
+<li><code>setLayout(layout: Partial&lt;GridLayout&gt;): GridLayout</code></li>
+</ul>
+<p>ℹ️ The <code>useGridRef</code> and <code>useGridCallbackRef</code> hooks are exported for convenience in TypeScript projects.</p>
+</td>
+    </tr>
+    <tr>
+      <td>onLayoutChange</td>
+      <td><p>Called when the Grid&#39;s layout is changing.</p>
+<p>⚠️ For layout changes caused by pointer events, this method is called each time the pointer is moved.
+For most cases, it is recommended to use the <code>onLayoutChanged</code> callback instead.</p>
+</td>
+    </tr>
+    <tr>
+      <td>onLayoutChanged</td>
+      <td><p>Called after the Grid&#39;s layout has been changed.</p>
+<p>ℹ️ For layout changes caused by pointer events, this callback is not called until the pointer has been released.
+This callback is recommended for saving layouts to storage.</p>
+</td>
+    </tr>
+    <tr>
+      <td>resizeTargetMinimumSize</td>
+      <td><p>Minimum size of the resizable hit target area (either a <code>Gridline</code> or a <code>Cell</code> edge).
+This threshold ensures targets are large enough to avoid mis-clicks.</p>
+<p>ℹ️ Refer to the <code>Group</code> prop of the same name for more information.</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+### Gridline
+
+Resizes the columns (or rows) of a Grid.
+
+For example:
+
+```tsx
+// Rendered between columns 0 and 1 and spans all rows
+<Gridline type="column" column={1} />
+```
+
+```tsx
+// Rendered between rows 0 and 1 and spans all columns
+<Gridline type="row" row={1} />
+```
+
+```tsx
+// Rendered between columns 0 and 1 alongside of row 2 only
+<Gridline type="column" column={1} row={2} rowSpan={1} />
+```
+
+A gridline should not be rendered alongside of a Cell that spans across its boundary
+(this includes disabled gridlines; in development builds, an error will be logged to the console);
+render multiple gridlines along the same boundary instead (e.g. before and after the spanning Cell).
+
+ℹ️ Once a boundary contains a gridline, it can only be resized using gridlines;
+the parts of the boundary that aren't alongside of a gridline can't be dragged.
+
+Where column and row gridlines intersect, dragging resizes both axes.
+
+Gridlines are not _required_ but they are _recommended_ as they improve keyboard accessibility.
+
+Gridline elements always include the following attributes:
+
+```html
+<div aria-orientation="vertical" data-separator role="separator">
+```
+
+ℹ️ Column gridlines are vertical (`aria-orientation="vertical"`) and row gridlines are horizontal (`aria-orientation="horizontal"`).
+
+ℹ️ In addition to the attributes shown above, gridlines also render all required [WAI-ARIA properties](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/separator_role#associated_wai-aria_roles_states_and_properties).
+
+⚠️ Gridline elements must be direct DOM children of their parent Grid elements.
+
+ℹ️ Gridlines rendered by another component (rather than directly within the Grid) aren't detected until they mount, so server-rendered layouts may shift slightly during hydration.
+
+#### Required props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>type</td>
+      <td><p>Column gridlines are vertical; they resize the columns on either side of them.
+Row gridlines are horizontal; they resize the rows on either side of them.</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Optional props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>children</td>
+      <td><p>Gridline contents (e.g. a drag handle icon).</p>
+</td>
+    </tr>
+    <tr>
+      <td>className</td>
+      <td><p>CSS class name.</p>
+<p>ℹ️ Use the <code>data-separator</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>
+</td>
+    </tr>
+    <tr>
+      <td>disabled</td>
+      <td><p>When disabled, the gridline cannot be used to resize its neighboring tracks.</p>
+<p>ℹ️ The tracks may still be resized indirectly (e.g. by an intersecting gridline or another boundary).
+To prevent a track from being resized at all, it needs to also be disabled.</p>
+</td>
+    </tr>
+    <tr>
+      <td>elementRef</td>
+      <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
+</td>
+    </tr>
+    <tr>
+      <td>style</td>
+      <td><p>CSS properties.</p>
+<p>⚠️ Grid placement properties are managed by the gridline and cannot be overridden.</p>
+</td>
+    </tr>
+    <tr>
+      <td>column</td>
+      <td><p>When <code>type</code> is &quot;column&quot;, the gridline is rendered along the leading (left) edge of this column
+(between it and the previous column); must be greater than 0 and less than the number of columns.
+When <code>type</code> is &quot;row&quot;, index of the first column the gridline is rendered alongside of; defaults to 0.</p>
+</td>
+    </tr>
+    <tr>
+      <td>row</td>
+      <td><p>When <code>type</code> is &quot;column&quot;, index of the first row the gridline is rendered alongside of; defaults to 0.
+When <code>type</code> is &quot;row&quot;, the gridline is rendered along the leading (top) edge of this row
+(between it and the previous row); must be greater than 0 and less than the number of rows.</p>
+</td>
+    </tr>
+    <tr>
+      <td>rowSpan</td>
+      <td><p>Number of rows a column gridline spans; defaults to all rows (starting from <code>row</code>).</p>
+<p>ℹ️ Gridlines can span a subset of rows in order to avoid cells that span across the boundary they sit on;
+multiple gridlines can be rendered along the same boundary (e.g. above and below a spanning cell).</p>
+</td>
+    </tr>
+    <tr>
+      <td>columnSpan</td>
+      <td><p>Number of columns a row gridline spans; defaults to all columns (starting from <code>column</code>).</p>
+<p>ℹ️ Gridlines can span a subset of columns in order to avoid cells that span across the boundary they sit on;
+multiple gridlines can be rendered along the same boundary (e.g. before and after a spanning cell).</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
 ### Group
 
-<!-- Group:description:begin -->
 A Group wraps a set of resizable Panel components.
 Group content can be resized _horizontally_ or _vertically_.
 
@@ -42,17 +404,12 @@ Group elements always include the following attributes:
 ```
 
 ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
-<!-- Group:description:end -->
 
 #### Required props
 
-<!-- Group:required-props:begin -->
 None
-<!-- Group:required-props:end -->
 
 #### Optional props
-
-<!-- Group:optional-props:begin -->
 
 <table>
   <thead>
@@ -168,11 +525,8 @@ In practice this seems to be much larger than many of their own applications use
   </tbody>
 </table>
 
-<!-- Group:optional-props:end -->
-
 ### Panel
 
-<!-- Panel:description:begin -->
 A Panel wraps resizable content and can be configured with min/max size constraints and collapsible behavior.
 
 Panel size props can be in the following formats:
@@ -196,17 +550,12 @@ Panel elements always include the following attributes:
 ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
 
 ⚠️ Panel elements must be direct DOM children of their parent Group elements.
-<!-- Panel:description:end -->
 
 #### Required props
 
-<!-- Panel:required-props:begin -->
 None
-<!-- Panel:required-props:end -->
 
 #### Optional props
-
-<!-- Panel:optional-props:begin -->
 
 <table>
   <thead>
@@ -321,10 +670,12 @@ Defaults to <code>preserve-relative-size</code>.</p>
     </tr>
     <tr>
       <td>onResize</td>
-      <td><p>Called when panel sizes change.
-@param panelSize Panel size (both as a percentage of the parent Group and in pixels)
-@param id Panel id (if one was provided as a prop)
-@param prevPanelSize Previous panel size (will be undefined on mount)</p>
+      <td><p>Called when panel sizes change.</p>
+<ul>
+<li><code>panelSize</code> Panel size (both as a percentage of the parent Group and in pixels)</li>
+<li><code>id</code> Panel id (if one was provided as a prop)</li>
+<li><code>prevPanelSize</code> Previous panel size (will be undefined on mount)</li>
+</ul>
 </td>
     </tr>
     <tr>
@@ -343,11 +694,8 @@ Defaults to <code>preserve-relative-size</code>.</p>
   </tbody>
 </table>
 
-<!-- Panel:optional-props:end -->
-
 ### Separator
 
-<!-- Separator:description:begin -->
 Separators are not _required_ but they are _recommended_ as they improve keyboard accessibility.
 
 ⚠️ Separator elements must be direct DOM children of their parent Group elements.
@@ -361,17 +709,12 @@ Separator elements always include the following attributes:
 ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
 
 ℹ️ In addition to the attributes shown above, separator also renders all required [WAI-ARIA properties](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/separator_role#associated_wai-aria_roles_states_and_properties).
-<!-- Separator:description:end -->
 
 #### Required props
 
-<!-- Separator:required-props:begin -->
 None
-<!-- Separator:required-props:end -->
 
 #### Optional props
-
-<!-- Separator:optional-props:begin -->
 
 <table>
   <thead>
@@ -427,326 +770,49 @@ To prevent a panel from being resized at all, it needs to also be disabled.</p>
   </tbody>
 </table>
 
-<!-- Separator:optional-props:end -->
+### TabCloseButton
 
-### Grid
+Closes the tab it is rendered within; render it within the element returned by the Workspace's `renderTab` prop:
 
-<!-- Grid:description:begin -->
-A Grid arranges resizable Cells in two dimensions.
-Columns can be resized horizontally and rows can be resized vertically;
-dragging the point where a column boundary and a row boundary intersect resizes both.
-
-Size constraints (e.g. min/max size, collapsible) are specified per track (column or row),
-using the same format as Panel props.
-
-Cells can span multiple columns and/or rows.
-Track boundaries cannot be resized alongside of a cell that spans across them.
-
-Grid elements always include the following attributes:
-
-```html
-<div data-grid data-testid="grid-id-prop" id="grid-id-prop">
+```tsx
+renderTab={(tab, props) => (
+  <div {...props}>
+    {tab.title}
+    <TabCloseButton>×</TabCloseButton>
+  </div>
+)}
 ```
 
-ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
-<!-- Grid:description:end -->
+The button renders nothing if closing is disabled (by the tab's `disableClose` flag or the Workspace's `disabled` prop).
+Its content defaults to "×" (e.g. it can be replaced with an icon),
+and its default `aria-label` is "Close" followed by the tab's title (or id).
+
+Its `children`, `className`, `style`, and `title` can also be functions of its state (see `TabCloseButtonState`):
+
+```tsx
+<TabCloseButton title={({ tabTitle }) => `Close ${tabTitle}`} />
+```
+
+To keep the tab open (e.g. to confirm unsaved changes first), call `event.preventDefault()` in an `onClick` handler:
+
+```tsx
+<TabCloseButton
+  onClick={(event) => {
+    if (hasUnsavedChanges && !confirm("Discard unsaved changes?")) {
+      event.preventDefault();
+    }
+  }}
+/>
+```
+
+ℹ️ This button is not focusable by default (`tabIndex={-1}`), since tabs shouldn't contain focusable content;
+keyboard users can close the focused tab with Delete or Backspace.
 
 #### Required props
 
-<!-- Grid:required-props:begin -->
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>columns</td>
-      <td><p>Grid columns; either the number of columns or an array of size constraints (one per column).</p>
-</td>
-    </tr>
-    <tr>
-      <td>rows</td>
-      <td><p>Grid rows; either the number of rows or an array of size constraints (one per row).</p>
-</td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- Grid:required-props:end -->
+None
 
 #### Optional props
-
-<!-- Grid:optional-props:begin -->
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>className</td>
-      <td><p>CSS class name.</p>
-</td>
-    </tr>
-    <tr>
-      <td>id</td>
-      <td><p>Uniquely identifies this grid within an application.
-Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes (an explicit <code>data-testid</code> prop will take precedence).</p>
-</td>
-    </tr>
-    <tr>
-      <td>style</td>
-      <td><p>CSS properties.</p>
-<p>⚠️ Grid template and display properties are managed by the Grid and cannot be overridden.</p>
-</td>
-    </tr>
-    <tr>
-      <td>children</td>
-      <td><p>Cell and Gridline components that comprise this grid.</p>
-<p>⚠️ Cell and Gridline elements must be direct DOM children of their parent Grid element.</p>
-</td>
-    </tr>
-    <tr>
-      <td>defaultLayout</td>
-      <td><p>Default layout for either or both of the Grid&#39;s axes.</p>
-<p>ℹ️ This value allows layouts to be remembered between page reloads.</p>
-</td>
-    </tr>
-    <tr>
-      <td>disableCursor</td>
-      <td><p>This library sets custom mouse cursor styles to indicate drag state.
-Use this prop to disable that behavior for this grid.</p>
-</td>
-    </tr>
-    <tr>
-      <td>disabled</td>
-      <td><p>Disable resize functionality.</p>
-</td>
-    </tr>
-    <tr>
-      <td>elementRef</td>
-      <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
-</td>
-    </tr>
-    <tr>
-      <td>gridRef</td>
-      <td><p>Exposes the following imperative API:</p>
-<ul>
-<li><code>getLayout(): GridLayout</code></li>
-<li><code>getTrackById(axis: &quot;column&quot; | &quot;row&quot;, id: string | number): GridTrackImperativeHandle</code></li>
-<li><code>getTrackByIndex(axis: &quot;column&quot; | &quot;row&quot;, index: number): GridTrackImperativeHandle</code></li>
-<li><code>setLayout(layout: Partial&lt;GridLayout&gt;): GridLayout</code></li>
-</ul>
-<p>ℹ️ The <code>useGridRef</code> and <code>useGridCallbackRef</code> hooks are exported for convenience in TypeScript projects.</p>
-</td>
-    </tr>
-    <tr>
-      <td>onLayoutChange</td>
-      <td><p>Called when the Grid&#39;s layout is changing.</p>
-<p>⚠️ For layout changes caused by pointer events, this method is called each time the pointer is moved.
-For most cases, it is recommended to use the <code>onLayoutChanged</code> callback instead.</p>
-</td>
-    </tr>
-    <tr>
-      <td>onLayoutChanged</td>
-      <td><p>Called after the Grid&#39;s layout has been changed.</p>
-<p>ℹ️ For layout changes caused by pointer events, this callback is not called until the pointer has been released.
-This callback is recommended for saving layouts to storage.</p>
-</td>
-    </tr>
-    <tr>
-      <td>resizeTargetMinimumSize</td>
-      <td><p>Minimum size of the resizable hit target area (either a <code>Gridline</code> or a <code>Cell</code> edge).
-This threshold ensures targets are large enough to avoid mis-clicks.</p>
-<p>ℹ️ Refer to the <code>Group</code> prop of the same name for more information.</p>
-</td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- Grid:optional-props:end -->
-
-### Cell
-
-<!-- Cell:description:begin -->
-A Cell occupies one or more tracks (columns and rows) within a Grid.
-Cells are resized along with the tracks they occupy.
-
-Cell elements always include the following attributes:
-
-```html
-<div data-cell data-testid="cell-id-prop" id="cell-id-prop">
-```
-
-ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
-
-⚠️ Cell elements must be direct DOM children of their parent Grid elements.
-<!-- Cell:description:end -->
-
-#### Required props
-
-<!-- Cell:required-props:begin -->
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>column</td>
-      <td><p>Index of the (first) column this cell occupies.</p>
-</td>
-    </tr>
-    <tr>
-      <td>row</td>
-      <td><p>Index of the (first) row this cell occupies.</p>
-</td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- Cell:required-props:end -->
-
-#### Optional props
-
-<!-- Cell:optional-props:begin -->
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>className</td>
-      <td><p>CSS class name.</p>
-</td>
-    </tr>
-    <tr>
-      <td>id</td>
-      <td><p>Uniquely identifies this cell within the parent grid.
-Falls back to <code>useId</code> when not provided.</p>
-<p>ℹ️ This value will also be assigned to the <code>id</code> and <code>data-testid</code> attributes (an explicit <code>data-testid</code> prop will take precedence).</p>
-</td>
-    </tr>
-    <tr>
-      <td>style</td>
-      <td><p>CSS properties.</p>
-<p>⚠️ Grid placement properties are managed by the Cell and cannot be overridden.</p>
-</td>
-    </tr>
-    <tr>
-      <td>children</td>
-      <td><p>Cell contents.</p>
-</td>
-    </tr>
-    <tr>
-      <td>columnSpan</td>
-      <td><p>Number of columns this cell spans; defaults to 1.</p>
-</td>
-    </tr>
-    <tr>
-      <td>elementRef</td>
-      <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
-</td>
-    </tr>
-    <tr>
-      <td>rowSpan</td>
-      <td><p>Number of rows this cell spans; defaults to 1.</p>
-</td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- Cell:optional-props:end -->
-
-### Gridline
-
-<!-- Gridline:description:begin -->
-Resizes the columns (or rows) of a Grid.
-
-For example:
-
-```tsx
-// Rendered between columns 0 and 1 and spans all rows
-<Gridline type="column" column={1} />
-```
-
-```tsx
-// Rendered between rows 0 and 1 and spans all columns
-<Gridline type="row" row={1} />
-```
-
-```tsx
-// Rendered between columns 0 and 1 alongside of row 2 only
-<Gridline type="column" column={1} row={2} rowSpan={1} />
-```
-
-A gridline should not be rendered alongside of a Cell that spans across its boundary
-(this includes disabled gridlines; in development builds, an error will be logged to the console);
-render multiple gridlines along the same boundary instead (e.g. before and after the spanning Cell).
-
-ℹ️ Once a boundary contains a gridline, it can only be resized using gridlines;
-the parts of the boundary that aren't alongside of a gridline can't be dragged.
-
-Where column and row gridlines intersect, dragging resizes both axes.
-
-Gridlines are not _required_ but they are _recommended_ as they improve keyboard accessibility.
-
-Gridline elements always include the following attributes:
-
-```html
-<div aria-orientation="vertical" data-separator role="separator">
-```
-
-ℹ️ Column gridlines are vertical (`aria-orientation="vertical"`) and row gridlines are horizontal (`aria-orientation="horizontal"`).
-
-ℹ️ In addition to the attributes shown above, gridlines also render all required [WAI-ARIA properties](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/separator_role#associated_wai-aria_roles_states_and_properties).
-
-⚠️ Gridline elements must be direct DOM children of their parent Grid elements.
-
-ℹ️ Gridlines rendered by another component (rather than directly within the Grid) aren't detected until they mount, so server-rendered layouts may shift slightly during hydration.
-<!-- Gridline:description:end -->
-
-#### Required props
-
-<!-- Gridline:required-props:begin -->
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>type</td>
-      <td><p>Column gridlines are vertical; they resize the columns on either side of them.
-Row gridlines are horizontal; they resize the rows on either side of them.</p>
-</td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- Gridline:required-props:end -->
-
-#### Optional props
-
-<!-- Gridline:optional-props:begin -->
 
 <table>
   <thead>
@@ -758,69 +824,207 @@ Row gridlines are horizontal; they resize the rows on either side of them.</p>
   <tbody>
     <tr>
       <td>children</td>
-      <td><p>Gridline contents (e.g. a drag handle icon).</p>
+      <td><p>Content of the element, or a function that returns it (given the component&#39;s state).</p>
 </td>
     </tr>
     <tr>
       <td>className</td>
-      <td><p>CSS class name.</p>
-<p>ℹ️ Use the <code>data-separator</code> attribute for custom <em>hover</em> and <em>active</em> styles</p>
-</td>
-    </tr>
-    <tr>
-      <td>disabled</td>
-      <td><p>When disabled, the gridline cannot be used to resize its neighboring tracks.</p>
-<p>ℹ️ The tracks may still be resized indirectly (e.g. by an intersecting gridline or another boundary).
-To prevent a track from being resized at all, it needs to also be disabled.</p>
-</td>
-    </tr>
-    <tr>
-      <td>elementRef</td>
-      <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
+      <td><p>Class name of the element, or a function that returns it (given the component&#39;s state).</p>
 </td>
     </tr>
     <tr>
       <td>style</td>
-      <td><p>CSS properties.</p>
-<p>⚠️ Grid placement properties are managed by the gridline and cannot be overridden.</p>
+      <td><p>Inline styles of the element, or a function that returns them (given the component&#39;s state).</p>
 </td>
     </tr>
     <tr>
-      <td>column</td>
-      <td><p>When <code>type</code> is &quot;column&quot;, the gridline is rendered along the leading (left) edge of this column
-(between it and the previous column); must be greater than 0 and less than the number of columns.
-When <code>type</code> is &quot;row&quot;, index of the first column the gridline is rendered alongside of; defaults to 0.</p>
-</td>
-    </tr>
-    <tr>
-      <td>row</td>
-      <td><p>When <code>type</code> is &quot;column&quot;, index of the first row the gridline is rendered alongside of; defaults to 0.
-When <code>type</code> is &quot;row&quot;, the gridline is rendered along the leading (top) edge of this row
-(between it and the previous row); must be greater than 0 and less than the number of rows.</p>
-</td>
-    </tr>
-    <tr>
-      <td>rowSpan</td>
-      <td><p>Number of rows a column gridline spans; defaults to all rows (starting from <code>row</code>).</p>
-<p>ℹ️ Gridlines can span a subset of rows in order to avoid cells that span across the boundary they sit on;
-multiple gridlines can be rendered along the same boundary (e.g. above and below a spanning cell).</p>
-</td>
-    </tr>
-    <tr>
-      <td>columnSpan</td>
-      <td><p>Number of columns a row gridline spans; defaults to all columns (starting from <code>column</code>).</p>
-<p>ℹ️ Gridlines can span a subset of columns in order to avoid cells that span across the boundary they sit on;
-multiple gridlines can be rendered along the same boundary (e.g. before and after a spanning cell).</p>
+      <td>title</td>
+      <td><p>Tooltip of the element, or a function that returns it (given the component&#39;s state).</p>
 </td>
     </tr>
   </tbody>
 </table>
 
-<!-- Gridline:optional-props:end -->
+### TabsetCollapseButton
+
+Collapses (or expands) the tabset it is rendered within; render it within the content returned by the Workspace's `renderTabsetToolbar` prop.
+Its `children`, `className`, `style`, and `title` can be functions of its state (see `TabsetCollapseButtonState`), e.g. to show a different icon while the tabset is collapsed:
+
+```tsx
+renderTabsetToolbar={() => (
+  <TabsetCollapseButton title={({ isCollapsed }) => (isCollapsed ? "Expand" : "Collapse")}>
+    {({ isCollapsed }) => (isCollapsed ? "▸" : "▾")}
+  </TabsetCollapseButton>
+)}
+```
+
+The button renders nothing if the tabset can't be collapsed (see `ParentTabsetState.isCollapsible`), or while it's maximized.
+While the tabset is collapsed only because it doesn't fit (see `ParentTabsetState.isCollapsedToFit`), it can't be expanded, so the button has `aria-disabled="true"`.
+
+Its `aria-expanded` attribute reflects whether the tabset is expanded, and its `aria-controls` attribute refers to the selected tab's panel;
+its default `aria-label` ("Collapse tabset") doesn't change, since `aria-expanded` describes the state.
+
+To keep the tabset as it is, call `event.preventDefault()` in an `onClick` handler.
+
+ℹ️ Clicking a tab of a collapsed tabset also expands it.
+
+#### Required props
+
+None
+
+#### Optional props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>children</td>
+      <td><p>Content of the element, or a function that returns it (given the component&#39;s state).</p>
+</td>
+    </tr>
+    <tr>
+      <td>className</td>
+      <td><p>Class name of the element, or a function that returns it (given the component&#39;s state).</p>
+</td>
+    </tr>
+    <tr>
+      <td>style</td>
+      <td><p>Inline styles of the element, or a function that returns them (given the component&#39;s state).</p>
+</td>
+    </tr>
+    <tr>
+      <td>title</td>
+      <td><p>Tooltip of the element, or a function that returns it (given the component&#39;s state).</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+### TabsetDragHandle
+
+Drags the tabset it is rendered within; render it within the content returned by the Workspace's `renderTabsetToolbar` prop:
+
+```tsx
+renderTabsetToolbar={() => (
+  <TabsetDragHandle>⠿</TabsetDragHandle>
+)}
+```
+
+By default, a tabset is dragged by the empty space in its header;
+once its header contains a drag handle, only the handle drags it.
+Any element with a `data-tabset-drag-handle` attribute is a drag handle;
+this component also sets `touch-action: none`, so that it can be dragged by touch.
+
+The handle has a `data-disabled` attribute when the tabset can't be dragged (see `useParentTabsetState`), e.g. to hide it.
+Its `children`, `className`, `style`, and `title` can also be functions of its state (see `TabsetDragHandleState`):
+
+```tsx
+<TabsetDragHandle title={({ isDisabled }) => (isDisabled ? undefined : "Drag tabset")}>
+  ⠿
+</TabsetDragHandle>
+```
+
+#### Required props
+
+None
+
+#### Optional props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>children</td>
+      <td><p>Content of the element, or a function that returns it (given the component&#39;s state).</p>
+</td>
+    </tr>
+    <tr>
+      <td>className</td>
+      <td><p>Class name of the element, or a function that returns it (given the component&#39;s state).</p>
+</td>
+    </tr>
+    <tr>
+      <td>style</td>
+      <td><p>Inline styles of the element, or a function that returns them (given the component&#39;s state).</p>
+</td>
+    </tr>
+    <tr>
+      <td>title</td>
+      <td><p>Tooltip of the element, or a function that returns it (given the component&#39;s state).</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+### TabsetMaximizeButton
+
+Maximizes (or restores) the tabset it is rendered within; render it within the content returned by the Workspace's `renderTabsetToolbar` prop.
+Its `children`, `className`, `style`, and `title` can be functions of its state (see `TabsetMaximizeButtonState`), e.g. to show a different icon while the tabset is maximized:
+
+```tsx
+renderTabsetToolbar={() => (
+  <TabsetMaximizeButton title={({ isMaximized }) => (isMaximized ? "Restore" : "Maximize")}>
+    {({ isMaximized }) => (isMaximized ? "Restore" : "Maximize")}
+  </TabsetMaximizeButton>
+)}
+```
+
+The button renders nothing for the only tabset in a workspace (see `ParentTabsetState.isRoot`) and for floating tabsets, which can't be maximized.
+
+Its `aria-pressed` attribute reflects whether the tabset is maximized;
+its default `aria-label` ("Maximize tabset") doesn't change, since `aria-pressed` describes the state.
+
+To keep the tabset as it is, call `event.preventDefault()` in an `onClick` handler.
+
+#### Required props
+
+None
+
+#### Optional props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>children</td>
+      <td><p>Content of the element, or a function that returns it (given the component&#39;s state).</p>
+</td>
+    </tr>
+    <tr>
+      <td>className</td>
+      <td><p>Class name of the element, or a function that returns it (given the component&#39;s state).</p>
+</td>
+    </tr>
+    <tr>
+      <td>style</td>
+      <td><p>Inline styles of the element, or a function that returns them (given the component&#39;s state).</p>
+</td>
+    </tr>
+    <tr>
+      <td>title</td>
+      <td><p>Tooltip of the element, or a function that returns it (given the component&#39;s state).</p>
+</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Workspace
 
-<!-- Workspace:description:begin -->
 A Workspace arranges tabsets that users can rearrange by dragging tabs:
 between tabsets, within a tabset's list of tabs, or onto the edge of a tabset to split it.
 Tabsets can be resized and maximized.
@@ -839,11 +1043,8 @@ Workspace elements always include the following attributes:
 ```
 
 ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
-<!-- Workspace:description:end -->
 
 #### Required props
-
-<!-- Workspace:required-props:begin -->
 
 <table>
   <thead>
@@ -871,11 +1072,7 @@ so it should be memoized (e.g. with <code>useCallback</code>) when tab content i
   </tbody>
 </table>
 
-<!-- Workspace:required-props:end -->
-
 #### Optional props
-
-<!-- Workspace:optional-props:begin -->
 
 <table>
   <thead>
@@ -983,6 +1180,38 @@ Copies loaded at different times may be running different versions of the applic
 </td>
     </tr>
     <tr>
+      <td>growDirection</td>
+      <td><p>The workspace grows along this direction (rather than fitting its container), like a dashboard:
+with <code>&quot;vertical&quot;</code>, the root split&#39;s children are rows, each as tall as its size, and the workspace is as tall as its rows;
+with <code>&quot;horizontal&quot;</code>, they&#39;re columns, and the workspace is as wide as its columns.
+The application decides what scrolls (e.g. the page, or an element around the workspace with <code>overflow: auto</code>).</p>
+<p>ℹ️ Only the root split grows, and only when its orientation matches (a root tabset, or a root split in the other direction, is a single row or column).
+Everything within a row (or column) fits it, as usual.</p>
+<p>ℹ️ Each row&#39;s size (see <code>TabsetNode.size</code> and <code>SplitNode.size</code>) is a length, e.g. &quot;300px&quot;.
+Rows without one (e.g. in a model saved without this prop) are given one when the model changes:
+a tabset moved to its own row keeps the size it had, a tab moved out of a tabset takes that tabset&#39;s size,
+and anything else (e.g. a tab dragged in from another workspace) is <code>defaultGrowSize</code>.</p>
+<p>ℹ️ The separators between rows are the workspace&#39;s usual separators (see <code>renderSeparator</code>): they move space between the rows beside them,
+and the workspace stays the same size. The workspace grows (or shrinks) as rows are added (or removed),
+and the grow handle after the last row resizes that row, and the workspace with it (see <code>renderGrowHandle</code>).
+Dropping at the workspace&#39;s start or end along this direction (e.g. its top or bottom edge) adds a row there;
+its edges in the other direction don&#39;t accept drops.</p>
+<p>ℹ️ A maximized tabset covers the part of the workspace that is visible (within what it scrolls), and stays there as it&#39;s scrolled.</p>
+<p>⚠️ This should not change after the Workspace mounts (rows&#39; sizes would be stale); give the Workspace a new <code>key</code> to change it.</p>
+</td>
+    </tr>
+    <tr>
+      <td>defaultGrowSize</td>
+      <td><p>Size of a new row (or column) along <code>growDirection</code>, when it doesn&#39;t take its size from where it came from (see <code>growDirection</code>).
+Defaults to &quot;300px&quot;.</p>
+<p>ℹ️ Interpretation rules:</p>
+<ul>
+<li>Strings must specify a unit: &quot;px&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot; (e.g. <code>defaultGrowSize: &quot;20rem&quot;</code>)</li>
+<li>Percentages (and strings without units) are not allowed</li>
+</ul>
+</td>
+    </tr>
+    <tr>
       <td>elementRef</td>
       <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
 </td>
@@ -1022,8 +1251,8 @@ and return <code>false</code> then to keep the tab; returning <code>true</code> 
 With the <code>dragGroup</code> prop, a tab is torn off when it&#39;s dropped outside of every window in the group; the end of those drags isn&#39;t treated as user input,
 so browsers block popups opened then unless the drag started a few seconds earlier at most (and Safari blocks them always).</p>
 <p>⚠️ Deprecated: browsers don&#39;t reliably report where a drag that leaves the window ends, and some block popups opened at the end of a drag.
-Open popout windows from a button instead (see <code>usePopoutWindows</code>). This will be removed in the next major version.
-@deprecated Open popout windows from a button instead (see <code>usePopoutWindows</code>).</p>
+Open popout windows from a button instead (see <code>usePopoutWindows</code>). This will be removed in the next major version.</p>
+<p>❌ This prop has been deprecated. Open popout windows from a button instead (see <code>usePopoutWindows</code>).</p>
 </td>
     </tr>
     <tr>
@@ -1039,6 +1268,16 @@ Defaults to the tab&#39;s title (or id).</p>
 Defaults to the title (or id) of its selected tab followed by the number of other tabs being dragged (e.g. &quot;One (+2)&quot;), or the selected tab&#39;s <code>renderDragPreview</code> when that prop is set, or the tabset&#39;s id if it has no tabs.</p>
 <p>ℹ️ The element has a <code>data-drag-type</code> attribute: <code>&quot;tabset&quot;</code> while a tabset is dragged, and <code>&quot;tab&quot;</code> while a tab is.
 It also has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tabset (see the deprecated <code>onTearOff</code> prop).</p>
+</td>
+    </tr>
+    <tr>
+      <td>renderGrowHandle</td>
+      <td><p>Content of the handle after the last row (or column) of a workspace with the <code>growDirection</code> prop, which resizes that row and the workspace with it,
+e.g. a grip icon; it&#39;s styled with the <code>growHandle</code> entries of the <code>classNames</code> and <code>styles</code> props.</p>
+<p>ℹ️ Unlike the separators between rows (see <code>renderSeparator</code>), it doesn&#39;t move space between rows, so it can be styled differently (or hidden).</p>
+<ul>
+<li><code>orientation</code> The <code>growDirection</code></li>
+</ul>
 </td>
     </tr>
     <tr>
@@ -1161,57 +1400,14 @@ so they&#39;re restored with the rest of the layout.</p>
   </tbody>
 </table>
 
-<!-- Workspace:optional-props:end -->
+## Hooks
 
-### TabCloseButton
+### useDefaultGridLayout
 
-<!-- TabCloseButton:description:begin -->
-Closes the tab it is rendered within; render it within the element returned by the Workspace's `renderTab` prop:
+Saves and restores Grid layouts between page loads.
+It can be configured to store values using `localStorage`, `sessionStorage`, cookies, or any other persistence layer that makes sense for your application.
 
-```tsx
-renderTab={(tab, props) => (
-  <div {...props}>
-    {tab.title}
-    <TabCloseButton>×</TabCloseButton>
-  </div>
-)}
-```
-
-The button renders nothing if closing is disabled (by the tab's `disableClose` flag or the Workspace's `disabled` prop).
-Its content defaults to "×" (e.g. it can be replaced with an icon),
-and its default `aria-label` is "Close" followed by the tab's title (or id).
-
-Its `children`, `className`, `style`, and `title` can also be functions of its state (see `TabCloseButtonState`):
-
-```tsx
-<TabCloseButton title={({ tabTitle }) => `Close ${tabTitle}`} />
-```
-
-To keep the tab open (e.g. to confirm unsaved changes first), call `event.preventDefault()` in an `onClick` handler:
-
-```tsx
-<TabCloseButton
-  onClick={(event) => {
-    if (hasUnsavedChanges && !confirm("Discard unsaved changes?")) {
-      event.preventDefault();
-    }
-  }}
-/>
-```
-
-ℹ️ This button is not focusable by default (`tabIndex={-1}`), since tabs shouldn't contain focusable content;
-keyboard users can close the focused tab with Delete or Backspace.
-<!-- TabCloseButton:description:end -->
-
-#### Required props
-
-<!-- TabCloseButton:required-props:begin -->
-None
-<!-- TabCloseButton:required-props:end -->
-
-#### Optional props
-
-<!-- TabCloseButton:optional-props:begin -->
+#### Parameters
 
 <table>
   <thead>
@@ -1222,26 +1418,635 @@ None
   </thead>
   <tbody>
     <tr>
-      <td>children</td>
-      <td><p>Content of the element, or a function that returns it (given the component&#39;s state).</p>
+      <td>id</td>
+      <td><p>Uniquely identifies a specific grid/layout.</p>
 </td>
     </tr>
     <tr>
-      <td>className</td>
-      <td><p>Class name of the element, or a function that returns it (given the component&#39;s state).</p>
+      <td>onlySaveAfterUserInteractions?</td>
+      <td><p>Only auto-save layouts that were directly caused by user input (e.g. keyboard or mouse events).
+Ignore layout changes resulting from imperative API calls or window resize events.</p>
 </td>
     </tr>
     <tr>
-      <td>style</td>
-      <td><p>Inline styles of the element, or a function that returns them (given the component&#39;s state).</p>
-</td>
-    </tr>
-    <tr>
-      <td>title</td>
-      <td><p>Tooltip of the element, or a function that returns it (given the component&#39;s state).</p>
+      <td>storage?</td>
+      <td><p>Storage implementation; supports localStorage, sessionStorage, and custom implementations
+Refer to documentation site for example integrations.</p>
 </td>
     </tr>
   </tbody>
 </table>
 
-<!-- TabCloseButton:optional-props:end -->
+### useDefaultLayout
+
+Saves and restores group layouts between page loads.
+It can be configured to store values using `localStorage`, `sessionStorage`, cookies, or any other persistence layer that makes sense for your application.
+
+#### Parameters
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>debounceSaveMs?</td>
+      <td><p>Debounce save operation by the specified number of milliseconds; defaults to 100ms</p>
+</td>
+    </tr>
+    <tr>
+      <td>onlySaveAfterUserInteractions?</td>
+      <td><p>Only auto-save layouts that were directly caused by user input (e.g. keyboard or mouse events).
+Ignore layout changes resulting from imperative API calls or window resize events.</p>
+</td>
+    </tr>
+    <tr>
+      <td>panelIds?</td>
+      <td><p>For Groups that contain conditionally-rendered Panels, this prop can be used to save and restore multiple layouts.</p>
+<p>ℹ️ This prevents layout shift for server-rendered apps.</p>
+<p>⚠️ Panel ids must match the Panels rendered within the Group during mount or the initial layout will be incorrect.</p>
+</td>
+    </tr>
+    <tr>
+      <td>storage?</td>
+      <td><p>Storage implementation; supports localStorage, sessionStorage, and custom implementations
+Refer to documentation site for example integrations.</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+### useGridCallbackRef
+
+Convenience hook to return a properly typed ref callback for the Grid component.
+
+Use this hook when you need to share the ref with another component or hook.
+
+### useGridRef
+
+Convenience hook to return a properly typed ref for the Grid component.
+
+### useGroupCallbackRef
+
+Convenience hook to return a properly typed ref callback for the Group component.
+
+Use this hook when you need to share the ref with another component or hook.
+
+### useGroupRef
+
+Convenience hook to return a properly typed ref for the Group component.
+
+### usePanelCallbackRef
+
+Convenience hook to return a properly typed ref callback for the Panel component.
+
+Use this hook when you need to share the ref with another component or hook.
+
+### usePanelRef
+
+Convenience hook to return a properly typed ref for the Panel component.
+
+### useParentGrid
+
+Returns the nearest ancestor Grid (or null if the component is not rendered within a Grid).
+
+ℹ️ The returned value includes the Grid's imperative API; it does not change when the Grid's layout changes.
+
+### useParentGroup
+
+Returns the nearest ancestor Group (or null if the component is not rendered within a Group).
+
+ℹ️ The returned value includes the Group's imperative API; it does not change when the Group's layout changes.
+
+### useParentPanel
+
+Returns the nearest ancestor Panel (or null if the component is not rendered within a Panel).
+
+ℹ️ The returned value includes the Panel's imperative API; it does not change when the Panel is resized.
+
+### useParentTab
+
+Returns the nearest ancestor tab (or null if the component is not rendered within a tab (see `renderTab`) or the content of a tab).
+
+ℹ️ The returned value does not change for the life of the tab, so it is safe to use as an effect dependency.
+Use `useParentTabState` for values that should trigger a re-render.
+
+### useParentTabset
+
+Returns the nearest ancestor tabset (or null if the component is not rendered within a tabset or the content of a tab).
+
+ℹ️ The returned value does not change for the life of the tabset, so it is safe to use as an effect dependency.
+Use `useParentTabsetState` for values that should trigger a re-render.
+
+### useParentTabsetState
+
+Returns the state of the nearest ancestor tabset (or null if the component is not rendered within a tabset or the content of a tab).
+
+ℹ️ Components that use this hook only re-render when the tabset's state changes.
+
+### useParentTabState
+
+Returns the state of the nearest ancestor tab (or null if the component is not rendered within a tab (see `renderTab`) or the content of a tab).
+
+ℹ️ Components that use this hook only re-render when the tab's state changes.
+
+### useParentWorkspace
+
+Returns the nearest ancestor Workspace (or null if the component is not rendered within a Workspace).
+
+ℹ️ The returned value includes the Workspace's imperative API; it does not change when the Workspace's model changes.
+
+### usePopoutWindows
+
+Opens tabs (and tabsets) in popout windows, with the returned `open` function (e.g. from a button that pops out a tab).
+Each popout window shows its own Workspace, rendered by the returned `render` function.
+
+- The page's stylesheets are copied into each popout window (see `copyStyles`)
+- When the user closes a popout window, its tabs are moved back to the main workspace (see `onClose`)
+- A popout window is closed once its last tab is moved out of it (e.g. dragged back to the main window; see the Workspace's `dragGroup` prop)
+- Popout windows are closed when the page that opened them is closed, or the component that uses this hook unmounts (since it renders their content); see `onCloseAll`
+
+#### Parameters
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>options</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+### useTabListFreeSpace
+
+Returns the space (in pixels) in the nearest ancestor tabset's tab list that its tabs don't use (negative once they overflow),
+e.g. for a toolbar (see `renderTabsetToolbar`) that moves items into an overflow menu when the tabset's header runs out of room;
+see `WorkspaceImperativeHandle.getTabListFreeSpace`.
+
+ℹ️ The component re-renders when the free space changes, before the browser paints.
+
+**Returns:** The free space, or `undefined` if the component is not rendered within a tabset (or the tab list hasn't been measured yet, e.g. while server rendering, or right after the tabset is first rendered)
+
+### useTabListOverflow
+
+Returns the ids of the nearest ancestor tabset's tabs that are out of view (scrolled out of its tab list, which overflows),
+in the order they're shown; e.g. for an overflow menu in its toolbar (see `renderTabsetToolbar`) that lists them.
+See `WorkspaceImperativeHandle.getTabListOverflow`.
+
+ℹ️ The component re-renders when they change (e.g. when the tab list is scrolled or resized, or tabs are added or removed), before the browser paints.
+The same array is returned until then.
+
+**Returns:** The ids of the tabs that are out of view; none if the component is not rendered within a tabset (or the tab list hasn't been measured yet, e.g. while server rendering, or right after the tabset is first rendered)
+
+#### Parameters
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>includePartiallyVisible?</td>
+      <td><p>Also include tabs that are only partly visible (cut off by an edge of the tab list), e.g. for an overflow menu that lists them too.
+By default, only tabs that are entirely out of view are included.</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+### useWorkspaceCallbackRef
+
+Convenience hook to return a properly typed ref callback for the Workspace component.
+
+Use this hook when you need to share the ref with another component or hook.
+
+### useWorkspaceRef
+
+Convenience hook to return a properly typed ref for the Workspace component.
+
+## Imperative APIs
+
+### GridImperativeHandle
+
+Imperative Grid API.
+
+ℹ️ The `useGridRef` and `useGridCallbackRef` hooks are exported for convenience in TypeScript projects.
+
+#### Methods
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>getLayout</td>
+      <td><p>Get the Grid&#39;s current layout: maps of column and row ids to percentages (0..100)</p>
+</td>
+    </tr>
+    <tr>
+      <td>getTrackById</td>
+      <td><p>Imperative API for the column or row with the specified id (see <code>GridTrackImperativeHandle</code>).</p>
+<p>ℹ️ Tracks without an explicit <code>id</code> use their index (e.g. <code>&quot;0&quot;</code>) as their id.</p>
+<p>⚠️ An error will be thrown if the Grid does not contain a matching track.</p>
+<ul>
+<li><code>axis</code> &quot;column&quot; or &quot;row&quot;</li>
+<li><code>id</code> Track id</li>
+</ul>
+</td>
+    </tr>
+    <tr>
+      <td>getTrackByIndex</td>
+      <td><p>Imperative API for the column or row at the specified index (see <code>GridTrackImperativeHandle</code>).</p>
+<p>ℹ️ The index is resolved to a track id when this method is called; the returned API continues to refer to that id.
+Tracks without an explicit <code>id</code> use their index as their id,
+so specify ids if the API needs to refer to the same track after tracks are added or removed before it.</p>
+<p>⚠️ An error will be thrown if the index is out of range.</p>
+<ul>
+<li><code>axis</code> &quot;column&quot; or &quot;row&quot;</li>
+<li><code>index</code> Track index (starting at 0)</li>
+</ul>
+</td>
+    </tr>
+    <tr>
+      <td>setLayout</td>
+      <td><p>Set a new layout for one or both of the Grid&#39;s axes.</p>
+<ul>
+<li><code>layout</code> Map of column and/or row ids to percentages (numbers between 0..100)</li>
+</ul>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+### GridTrackImperativeHandle
+
+Imperative API for an individual Grid track (column or row); returned by `GridImperativeHandle.getTrackById` and `GridImperativeHandle.getTrackByIndex`.
+
+ℹ️ Sizes are relative to the space available to the track's axis
+(e.g. the width of the Grid, minus gaps and gridlines, for a column).
+
+#### Methods
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>collapse</td>
+      <td><p>Collapse the track to its <code>collapsedSize</code>.</p>
+<p>⚠️ This method will do nothing if the track is not <code>collapsible</code> or if it is already collapsed.</p>
+</td>
+    </tr>
+    <tr>
+      <td>expand</td>
+      <td><p>Expand a collapsed track to its most recent size.</p>
+<p>ℹ️ If restoring that size would require collapsing another track, the track expands to the largest size that fits instead (as long as that is at least its <code>minSize</code>).</p>
+<p>⚠️ This method will do nothing if the track is not currently collapsed.</p>
+</td>
+    </tr>
+    <tr>
+      <td>getSize</td>
+      <td><p>Get the current size of the track in pixels as well as a percentage of its axis (0..100).</p>
+</td>
+    </tr>
+    <tr>
+      <td>isCollapsed</td>
+      <td><p>The track is currently collapsed.</p>
+</td>
+    </tr>
+    <tr>
+      <td>resize</td>
+      <td><p>Update the track&#39;s size.
+Size can be in the following formats:</p>
+<ul>
+<li>Percentage of the axis (0..100)</li>
+<li>Pixels</li>
+<li>Relative font units (em, rem)</li>
+<li>Viewport relative units (vh, vw)</li>
+</ul>
+<p>ℹ️ Numeric values are assumed to be pixels.
+Strings without explicit units are assumed to be percentages (0%..100%).
+Percentages may also be specified as strings ending with &quot;%&quot; (e.g. &quot;33%&quot;)
+Pixels may also be specified as strings ending with the unit &quot;px&quot;.
+Other units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)</p>
+<ul>
+<li><code>size</code> New track size</li>
+</ul>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+### GroupImperativeHandle
+
+Imperative Group API.
+
+ℹ️ The `useGroupRef` and `useGroupCallbackRef` hooks are exported for convenience in TypeScript projects.
+
+#### Methods
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>getLayout</td>
+      <td><p>Get the Group&#39;s current layout as a map of Panel id to percentage (0..100)</p>
+</td>
+    </tr>
+    <tr>
+      <td>setLayout</td>
+      <td><p>Set a new layout for the Group</p>
+<ul>
+<li><code>layout</code> Map of Panel id to percentage (a number between 0..100)</li>
+</ul>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+### PanelImperativeHandle
+
+Imperative Panel API
+
+ℹ️ The `usePanelRef` and `usePanelCallbackRef` hooks are exported for convenience in TypeScript projects.
+
+#### Methods
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>collapse</td>
+      <td><p>Collapse the Panel to its <code>collapsedSize</code>.</p>
+<p>⚠️ This method will do nothing if the Panel is not <code>collapsible</code> or if it is already collapsed.</p>
+</td>
+    </tr>
+    <tr>
+      <td>expand</td>
+      <td><p>Expand a collapsed Panel to its most recent size.</p>
+<p>ℹ️ If restoring that size would require collapsing another Panel, the Panel expands to the largest size that fits instead (as long as that is at least its <code>minSize</code>).</p>
+<p>⚠️ This method will do nothing if the Panel is not currently collapsed.</p>
+</td>
+    </tr>
+    <tr>
+      <td>getSize</td>
+      <td><p>Get the current size of the Panel in pixels as well as a percentage of the parent group (0..100).</p>
+</td>
+    </tr>
+    <tr>
+      <td>isCollapsed</td>
+      <td><p>The Panel is currently collapsed.</p>
+</td>
+    </tr>
+    <tr>
+      <td>resize</td>
+      <td><p>Update the Panel&#39;s size.
+Size can be in the following formats:</p>
+<ul>
+<li>Percentage of the parent Group (0..100)</li>
+<li>Pixels</li>
+<li>Relative font units (em, rem)</li>
+<li>Viewport relative units (vh, vw)</li>
+</ul>
+<p>ℹ️ Numeric values are assumed to be pixels.
+Strings without explicit units are assumed to be percentages (0%..100%).
+Percentages may also be specified as strings ending with &quot;%&quot; (e.g. &quot;33%&quot;)
+Pixels may also be specified as strings ending with the unit &quot;px&quot;.
+Other units should be specified as strings ending with their CSS property units (e.g. 1rem, 50vh)</p>
+<ul>
+<li><code>size</code> New panel size</li>
+</ul>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+### WorkspaceImperativeHandle
+
+Imperative Workspace API.
+The easiest way to interact with this API is to use the `useWorkspaceRef` and `useWorkspaceCallbackRef` hooks.
+
+ℹ️ These methods are not restricted by `disabled`, `disableClose`, `disableDrag`, or `disableDrop`.
+
+#### Methods
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>addTab</td>
+      <td><p>Add a tab to a tabset.</p>
+<p>ℹ️ If a tab with the same id already exists, it is selected instead (and its data is not changed).</p>
+<ul>
+<li><code>tab</code> Tab to add</li>
+<li><code>options</code> .tabsetId Tabset to add the tab to; defaults to the active tabset</li>
+<li><code>options</code> .index Position within the tabset; defaults to the end</li>
+<li><code>options</code> .select Select the new tab; defaults to true</li>
+</ul>
+</td>
+    </tr>
+    <tr>
+      <td>closeTab</td>
+      <td><p>Close a tab.</p>
+</td>
+    </tr>
+    <tr>
+      <td>closeTabset</td>
+      <td><p>Close a tabset, along with any tabs it contains (e.g. to remove an empty tabset with the <code>keepWhenEmpty</code> flag).</p>
+<p>ℹ️ Like the rest of the imperative API, this isn&#39;t restricted by tabs&#39; <code>disableClose</code> flags.
+If the root tabset is closed, the workspace is left with an empty root tabset.</p>
+</td>
+    </tr>
+    <tr>
+      <td>collapseTabset</td>
+      <td><p>Collapse a tabset to just its header.</p>
+<p>ℹ️ This has no effect unless the tabset has the <code>collapsible</code> flag (or is floating; see <code>FloatingTabsetNode</code>);
+the only tabset in a workspace, and tabsets whose siblings are all collapsed, can&#39;t be collapsed.</p>
+</td>
+    </tr>
+    <tr>
+      <td>expandTabset</td>
+      <td><p>Expand a collapsed tabset to its previous size.</p>
+<p>ℹ️ Tabsets are shown at least at their minimum sizes (if they fit), even if the model&#39;s sizes are smaller (see <code>TabsetNode.size</code>).</p>
+<p>ℹ️ This has no effect on a tabset that&#39;s only collapsed to fit, which is expanded once it fits (see <code>TabsetNode.collapsible</code>).</p>
+</td>
+    </tr>
+    <tr>
+      <td>floatTab</td>
+      <td><p>Move a tab into a new floating tabset (see <code>WorkspaceModel.floating</code>), on top of any other floating tabsets.</p>
+<p>ℹ️ Parts of the position and size that aren&#39;t specified default to those of the tab&#39;s tabset, offset slightly down and to the right
+(and moved, if needed, to fit within the workspace).</p>
+<p>ℹ️ This has no effect on the only tab of a floating tabset (unless the tabset has the <code>keepWhenEmpty</code> flag).</p>
+</td>
+    </tr>
+    <tr>
+      <td>floatTabset</td>
+      <td><p>Move a tabset out of the layout, to float above it (see <code>WorkspaceModel.floating</code>), on top of any other floating tabsets.</p>
+<p>ℹ️ Parts of the position and size that aren&#39;t specified default to those of the tabset, offset slightly down and to the right
+(and moved, if needed, to fit within the workspace).</p>
+<p>ℹ️ This has no effect on the root tabset (which fills the workspace) or a tabset that&#39;s already floating.
+A maximized tabset is restored first.</p>
+</td>
+    </tr>
+    <tr>
+      <td>getActiveTabsetId</td>
+      <td><p>Id of the tabset the user most recently interacted with (by pointer or focus).</p>
+</td>
+    </tr>
+    <tr>
+      <td>getModel</td>
+      <td><p>Get the current model.</p>
+</td>
+    </tr>
+    <tr>
+      <td>getTabListFreeSpace</td>
+      <td><p>Space (in pixels) in a tabset&#39;s tab list that its tabs don&#39;t use, e.g. how much a toolbar beside the tabs could grow
+before they overflow (and how much space an overflow menu needs to free up, once it&#39;s negative).</p>
+<p>ℹ️ The space is measured along the tab list: its width, or its height if its tabs are placed on the left or right
+(or the tabset is collapsed to a vertical strip).
+If the tab list can&#39;t shrink any further (e.g. it&#39;s 0px wide, beside a toolbar that doesn&#39;t shrink), the amount the header&#39;s content
+overflows the header is subtracted too, so it&#39;s still how much space a toolbar needs to free up.</p>
+<p>ℹ️ The tab list&#39;s <code>--tab-list-free-space</code> custom property has the same value (e.g. &quot;120px&quot;).</p>
+<p>ℹ️ Within a tabset (e.g. its toolbar), the <code>useTabListFreeSpace</code> hook returns this value (and re-renders when it changes).</p>
+</td>
+    </tr>
+    <tr>
+      <td>getTabListOverflow</td>
+      <td><p>Ids of a tabset&#39;s tabs that are out of view (scrolled out of its tab list, which overflows), in the order they&#39;re shown;
+e.g. to list them in an overflow menu.</p>
+<p>ℹ️ The same array is returned until the tabs out of view change.
+Tabs that aren&#39;t rendered at all (e.g. hidden with <code>display: none</code>) aren&#39;t included.</p>
+<p>ℹ️ Within a tabset (e.g. its toolbar), the <code>useTabListOverflow</code> hook returns this value (and re-renders when it changes).</p>
+</td>
+    </tr>
+    <tr>
+      <td>maximizeTabset</td>
+      <td><p>Maximize a tabset, so that it covers the rest of the workspace.</p>
+<p>ℹ️ This has no effect on the only tabset in a workspace (the root), which already fills it, or on a floating tabset.
+A maximized tabset is restored if it becomes the only one (e.g. after the other tabsets are closed).</p>
+</td>
+    </tr>
+    <tr>
+      <td>moveTab</td>
+      <td><p>Move a tab to a position within a tabset&#39;s tab list, to a region of a tabset&#39;s content area,
+or to an <code>edge</code> of the workspace (in a new tabset beside all of the other tabsets).</p>
+<p>ℹ️ The <code>&quot;left&quot;</code> and <code>&quot;right&quot;</code> regions (and edges) are sides of the screen (so they&#39;re mirrored in right-to-left layouts).</p>
+<p>ℹ️ Floating tabsets can&#39;t be split, so a tab moved to an edge region of one is added to it instead (like the <code>&quot;center&quot;</code> region).</p>
+</td>
+    </tr>
+    <tr>
+      <td>moveTabset</td>
+      <td><p>Move a tabset beside another tabset (by dropping it onto a region at the edge of that tabset&#39;s content area),
+or beside all of the other tabsets (at an <code>edge</code> of the workspace),
+or move its tabs into another tabset (at an <code>index</code> within its tab list, or onto the <code>&quot;center&quot;</code> of its content area).
+The <code>&quot;left&quot;</code> and <code>&quot;right&quot;</code> regions (and edges) are sides of the screen (so they&#39;re mirrored in right-to-left layouts).</p>
+<p>ℹ️ When its tabs are moved, the emptied tabset is removed (unless it has the <code>keepWhenEmpty</code> flag).</p>
+<p>ℹ️ A floating tabset moved beside another tabset (or to an edge of the workspace) is docked: it&#39;s moved into the layout, and stops floating.
+Floating tabsets can&#39;t be split, so a tabset moved to an edge region of one has its tabs moved into it instead (like the <code>&quot;center&quot;</code> region).</p>
+</td>
+    </tr>
+    <tr>
+      <td>restoreTabset</td>
+      <td><p>Restore the maximized tabset (if there is one).</p>
+</td>
+    </tr>
+    <tr>
+      <td>selectTab</td>
+      <td><p>Select a tab within its tabset.</p>
+<p>ℹ️ Like a tab selected any other way, it&#39;s scrolled into view if its tab list overflows.</p>
+</td>
+    </tr>
+    <tr>
+      <td>setModel</td>
+      <td><p>Replace the model.</p>
+</td>
+    </tr>
+    <tr>
+      <td>startExternalDrag</td>
+      <td><p>Start dragging a tab that isn&#39;t in the workspace yet, from an element outside of it (e.g. an item in a palette of widgets);
+call it from the element&#39;s <code>pointerdown</code> handler.
+The tab is dragged like tabs within the workspace are (with the same drop targets, drop indicator, and <code>disableDrop</code> checks, with the <code>&quot;new&quot;</code> source),
+and is added where it&#39;s dropped (reported to <code>onModelChanged</code> with the <code>&quot;add&quot;</code> reason).
+The drag starts once the pointer has moved a few pixels, so a press that doesn&#39;t move (e.g. a click) does nothing;
+the click that follows a drag is suppressed. Pressing Escape cancels the drag.</p>
+<p>ℹ️ Unlike other imperative methods, the drop is restricted by <code>disabled</code> and <code>disableDrop</code>, since the user chooses where it goes.</p>
+<p>ℹ️ The element must be in the same document as the workspace.
+Like tabs, it should have <code>touch-action: none</code> (e.g. with CSS), so that touch input drags it rather than scrolling the page.</p>
+<ul>
+<li><code>event</code> The <code>pointerdown</code> event of the pressed element</li>
+</ul>
+</td>
+    </tr>
+    <tr>
+      <td>subscribeToTabListFreeSpace</td>
+      <td><p>Subscribe to changes to the free space in a tabset&#39;s tab list (see <code>getTabListFreeSpace</code>),
+e.g. from a toolbar rendered outside of the Workspace.</p>
+<p>ℹ️ The listener is called synchronously when the tab list is measured (when it or its tabs change size, or tabs are added or removed),
+before the browser paints; changes it makes to the DOM (e.g. with <code>flushSync</code>) are shown in the same frame.</p>
+<p>ℹ️ The listener is called with <code>undefined</code> when the tabset is removed (e.g. closed, or merged into another tabset).</p>
+</td>
+    </tr>
+    <tr>
+      <td>subscribeToTabListOverflow</td>
+      <td><p>Subscribe to changes to which of a tabset&#39;s tabs are out of view (see <code>getTabListOverflow</code>),
+e.g. from an overflow menu rendered outside of the Workspace.</p>
+<p>ℹ️ The listener is called synchronously when the tab list is measured (when it&#39;s scrolled, when it or its tabs change size, or when tabs are added or removed),
+before the browser paints, except while the user scrolls the list (it&#39;s reported in the scroll event, and the browser may show the new position first).</p>
+<p>ℹ️ The listener is called with <code>undefined</code> when the tabset is removed (e.g. closed, or merged into another tabset).</p>
+</td>
+    </tr>
+    <tr>
+      <td>updateTab</td>
+      <td><p>Update a tab; fields that are not specified are not changed.</p>
+<p>ℹ️ <code>data</code> is replaced rather than merged.</p>
+</td>
+    </tr>
+    <tr>
+      <td>updateTabset</td>
+      <td><p>Update a tabset; fields that are not specified are not changed.</p>
+<p>ℹ️ <code>data</code> is replaced rather than merged.</p>
+<p>ℹ️ Setting <code>minHeight</code>, <code>minWidth</code>, or <code>tabPlacement</code> to <code>undefined</code> removes the tabset&#39;s override,
+so the corresponding Workspace prop is used; setting <code>maxHeight</code> or <code>maxWidth</code> to <code>undefined</code> removes the maximum.</p>
+<p>ℹ️ The position and size (<code>x</code>, <code>y</code>, <code>width</code>, and <code>height</code>) of a floating tabset can be changed too (and are ignored for other tabsets),
+as can be its <code>collapsible</code> flag (which is ignored for floating tabsets).</p>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- react-lib-tools:api:end -->
