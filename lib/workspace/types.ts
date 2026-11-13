@@ -418,6 +418,7 @@ export type WorkspaceChangeReason =
   | "add"
   | "close"
   | "collapse"
+  | "copy"
   | "expand"
   | "float"
   | "maximize"
@@ -450,6 +451,9 @@ export type WorkspaceChangedMeta = {
    * ℹ️ A tab (or tabset) dragged to another workspace (see the `dragGroup` prop) is reported as `"transfer"` by both workspaces:
    * the one it was dropped into (which added it) and the one it was dragged from (which removed it).
    *
+   * ℹ️ A copy of a tab (or tabset) dropped while the copy modifier key was held (see the `copyTab` and `copyTabset` props) is reported as `"copy"` by the workspace it was dropped into;
+   * the workspace it was dragged from (if that's another one) doesn't change.
+   *
    * ℹ️ Floating tabsets (see `WorkspaceModel.floating`) are reported as `"float"` when they're created, `"move"` and `"resize"` when they're dragged by their headers and edges,
    * and `"raise"` when they're brought to the front (e.g. by pressing one that's behind another).
    *
@@ -481,6 +485,13 @@ export type TabRemovalSelectionBehavior = "adjacent" | "recent";
  * and the target is rejected if any call returns `true`.
  */
 export type DisableDropArgs<TabData = unknown, TabsetData = unknown> = {
+  /**
+   * `true` if a copy would be dropped (rather than the tab or tabset itself), since the copy modifier key is held; see the `copyTab` and `copyTabset` props.
+   *
+   * ℹ️ The tab (or tabset) passed is the one being dragged, since the copy is only made when it's dropped.
+   */
+  isCopy: boolean;
+
   model: WorkspaceModel<TabData, TabsetData>;
 
   /**
@@ -736,6 +747,11 @@ export type TearOffArgs<TabData = unknown, TabsetData = unknown> = (
  * State passed to the Workspace's `renderDragPreview` and `renderTabsetDragPreview` props.
  */
 export type DragPreviewState = {
+  /**
+   * `true` while dropping would add a copy of the tab (or tabset), rather than moving it, since the copy modifier key is held; see the `copyTab` and `copyTabset` props.
+   */
+  isCopy: boolean;
+
   /**
    * `true` while the pointer is outside of the window and releasing it would tear off the tab (or tabset);
    * only when the Workspace has an `onTearOff` prop.
@@ -1399,6 +1415,55 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * ℹ️ This value is only used when the Workspace mounts; use the imperative `setModel` method to replace it later.
    */
   defaultModel: WorkspaceModelInput<TabData, TabsetData>;
+
+  /**
+   * Lets tabs be copied by dragging them: a tab dropped while the copy modifier key is held (Option on macOS, Ctrl elsewhere) adds the copy this function returns,
+   * leaving the dragged tab where it was. The change is reported to `onModelChanged` with the `"copy"` reason.
+   *
+   * Returning `null` (or `undefined`) moves the dragged tab instead. If that move isn't allowed either (the `disableDrop` prop rejects it, the ids conflict, or it isn't a valid place to move the tab), nothing happens.
+   *
+   * ℹ️ The copy needs an id that isn't used by any other node of the workspace (e.g. `crypto.randomUUID()`); copies with ids that are in use are rejected (and the tab is moved instead).
+   *
+   * ℹ️ The workspace the tab is dropped into makes the copy, so a tab dragged from another workspace (see the `dragGroup` prop) is copied by the workspace it's dropped into
+   * (and is only copied if that workspace has this prop).
+   *
+   * @param tab The tab being dragged
+   * @param target Where the copy will be dropped
+   */
+  copyTab?:
+    | ((
+        tab: TabNode<TabData>,
+        target: TabDropTarget
+      ) => TabNode<TabData> | null | undefined)
+    | undefined;
+
+  /**
+   * Lets tabsets be copied by dragging them (by their headers), like the `copyTab` prop does for tabs: a tabset dropped while the copy modifier key is held adds the copy this function returns,
+   * leaving the dragged tabset where it was. The change is reported to `onModelChanged` with the `"copy"` reason.
+   *
+   * The copy includes its tabs, which need ids that aren't used by any other node of the workspace too; the `copyTab` argument copies a tab:
+   *
+   * ```tsx
+   * copyTabset={(tabset, copyTab) => ({ ...tabset, id: crypto.randomUUID(), tabs: tabset.tabs.map(copyTab) })}
+   * ```
+   *
+   * Returning `null` (or `undefined`) moves the dragged tabset instead. If that move isn't allowed either (the `disableDrop` prop rejects it, the ids conflict, a `keepWhenEmpty` tabset is dropped into another workspace, or it isn't a valid place to move the tabset), nothing happens.
+   *
+   * ℹ️ The copy's selected tab is the copy of the dragged tabset's selected tab (matched by position), unless the copy selects one of its own tabs.
+   *
+   * ℹ️ A copy dropped into a tab list (or onto the center of another tabset) only adds its tabs; its id and data are only used where it's added as a tabset.
+   *
+   * @param tabset The tabset being dragged
+   * @param copyTab Copies a tab with the `copyTab` prop (and the same drop target); without that prop (or if it returns `null`), the copy is a shallow copy of the tab with a new id
+   * @param target Where the copy will be dropped
+   */
+  copyTabset?:
+    | ((
+        tabset: TabsetNode<TabData, TabsetData>,
+        copyTab: (tab: TabNode<TabData>) => TabNode<TabData>,
+        target: TabDropTarget
+      ) => TabsetNode<TabData, TabsetData> | null | undefined)
+    | undefined;
 
   /**
    * Locks the arrangement: tabs cannot be resized, dragged, dropped, or closed by the user.

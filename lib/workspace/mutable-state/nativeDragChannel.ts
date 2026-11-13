@@ -86,6 +86,7 @@ function onMessage(event: MessageEvent) {
         isDropped: false,
         isRemote: true,
         isShared: true,
+        lastCopyEvent: undefined,
         lastDocument: undefined,
         lastDragover: undefined,
         lastMoveStep: 0,

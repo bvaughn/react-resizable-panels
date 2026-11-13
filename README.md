@@ -1137,6 +1137,37 @@ in large workspaces, define it outside of the component (or memoize it) rather t
 </td>
     </tr>
     <tr>
+      <td>copyTab</td>
+      <td><p>Lets tabs be copied by dragging them: a tab dropped while the copy modifier key is held (Option on macOS, Ctrl elsewhere) adds the copy this function returns,
+leaving the dragged tab where it was. The change is reported to <code>onModelChanged</code> with the <code>&quot;copy&quot;</code> reason.</p>
+<p>Returning <code>null</code> (or <code>undefined</code>) moves the dragged tab instead. If that move isn&#39;t allowed either (the <code>disableDrop</code> prop rejects it, the ids conflict, or it isn&#39;t a valid place to move the tab), nothing happens.</p>
+<p>ℹ️ The copy needs an id that isn&#39;t used by any other node of the workspace (e.g. <code>crypto.randomUUID()</code>); copies with ids that are in use are rejected (and the tab is moved instead).</p>
+<p>ℹ️ The workspace the tab is dropped into makes the copy, so a tab dragged from another workspace (see the <code>dragGroup</code> prop) is copied by the workspace it&#39;s dropped into
+(and is only copied if that workspace has this prop).</p>
+<ul>
+<li><code>tab</code> The tab being dragged</li>
+<li><code>target</code> Where the copy will be dropped</li>
+</ul>
+</td>
+    </tr>
+    <tr>
+      <td>copyTabset</td>
+      <td><p>Lets tabsets be copied by dragging them (by their headers), like the <code>copyTab</code> prop does for tabs: a tabset dropped while the copy modifier key is held adds the copy this function returns,
+leaving the dragged tabset where it was. The change is reported to <code>onModelChanged</code> with the <code>&quot;copy&quot;</code> reason.</p>
+<p>The copy includes its tabs, which need ids that aren&#39;t used by any other node of the workspace too; the <code>copyTab</code> argument copies a tab:</p>
+<pre><code class="language-tsx">copyTabset={(tabset, copyTab) =&gt; ({ ...tabset, id: crypto.randomUUID(), tabs: tabset.tabs.map(copyTab) })}
+</code></pre>
+<p>Returning <code>null</code> (or <code>undefined</code>) moves the dragged tabset instead. If that move isn&#39;t allowed either (the <code>disableDrop</code> prop rejects it, the ids conflict, a <code>keepWhenEmpty</code> tabset is dropped into another workspace, or it isn&#39;t a valid place to move the tabset), nothing happens.</p>
+<p>ℹ️ The copy&#39;s selected tab is the copy of the dragged tabset&#39;s selected tab (matched by position), unless the copy selects one of its own tabs.</p>
+<p>ℹ️ A copy dropped into a tab list (or onto the center of another tabset) only adds its tabs; its id and data are only used where it&#39;s added as a tabset.</p>
+<ul>
+<li><code>tabset</code> The tabset being dragged</li>
+<li><code>copyTab</code> Copies a tab with the <code>copyTab</code> prop (and the same drop target); without that prop (or if it returns <code>null</code>), the copy is a shallow copy of the tab with a new id</li>
+<li><code>target</code> Where the copy will be dropped</li>
+</ul>
+</td>
+    </tr>
+    <tr>
       <td>disabled</td>
       <td><p>Locks the arrangement: tabs cannot be resized, dragged, dropped, or closed by the user.
 Selecting tabs and maximizing tabsets still work.</p>

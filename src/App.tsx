@@ -199,6 +199,10 @@ const nav: NavConfig<Path | DefaultPath> = [
                 title: "Dragging tabs in"
               },
               {
+                path: "/examples/workspace/managing-tabs/copying-tabs",
+                title: "Copying tabs"
+              },
+              {
                 path: "/examples/workspace/managing-tabs/selecting-tabs",
                 title: "Selecting tabs"
               }
