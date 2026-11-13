@@ -1,4 +1,4 @@
-import { act, render } from "@testing-library/react";
+import { act, fireEvent, render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   createRef,
@@ -965,6 +965,147 @@ describe("Group", () => {
 
       await act(() => resizeGroup(1000));
       expect(groupRef.current!.getLayout()).toEqual({ left: 30, right: 70 });
+    });
+
+    test("changing from pixel to relative resize behavior keeps the current size", async () => {
+      resizeGroup(400);
+
+      const groupRef = createRef<GroupImperativeHandle>();
+      const ui = (
+        groupResizeBehavior: "preserve-pixel-size" | "preserve-relative-size"
+      ) => (
+        <Group groupRef={groupRef} id="group">
+          <Panel
+            defaultSize={100}
+            groupResizeBehavior={groupResizeBehavior}
+            id="left"
+          />
+          <Panel id="right" />
+        </Group>
+      );
+      const { rerender } = render(ui("preserve-pixel-size"));
+      await act(() => resizeGroup(800));
+      expect(groupRef.current!.getLayout()).toEqual({
+        left: 12.5,
+        right: 87.5
+      });
+
+      rerender(ui("preserve-relative-size"));
+      expect(groupRef.current!.getLayout()).toEqual({
+        left: 12.5,
+        right: 87.5
+      });
+
+      await act(() => resizeGroup(1600));
+      expect(groupRef.current!.getLayout()).toEqual({
+        left: 12.5,
+        right: 87.5
+      });
+    });
+
+    test.each([
+      ["preserve-pixel-size", 12.5],
+      ["preserve-relative-size", 25]
+    ] as const)(
+      "keyboard expand restores a %s panel collapsed before the group was resized",
+      async (groupResizeBehavior, expandedSize) => {
+        resizeGroup(400);
+
+        const groupRef = createRef<GroupImperativeHandle>();
+        const separatorRef = createRef<HTMLDivElement>();
+        render(
+          <Group groupRef={groupRef} id="group">
+            <Panel
+              collapsedSize={0}
+              collapsible
+              defaultSize={100}
+              groupResizeBehavior={groupResizeBehavior}
+              id="left"
+              minSize={50}
+            />
+            <Separator elementRef={separatorRef} id="separator" />
+            <Panel id="right" />
+          </Group>
+        );
+        expect(groupRef.current!.getLayout()).toEqual({ left: 25, right: 75 });
+
+        act(() => {
+          fireEvent.keyDown(separatorRef.current!, { key: "Enter" });
+        });
+        expect(groupRef.current!.getLayout()).toEqual({ left: 0, right: 100 });
+
+        await act(() => resizeGroup(800));
+
+        act(() => {
+          fireEvent.keyDown(separatorRef.current!, { key: "Enter" });
+        });
+        expect(groupRef.current!.getLayout().left).toBeCloseTo(expandedSize, 1);
+      }
+    );
+
+    test.each([
+      ["preserve-pixel-size", 12.5],
+      ["preserve-relative-size", 25]
+    ] as const)(
+      "imperative expand restores a %s panel collapsed before the group was resized",
+      async (groupResizeBehavior, expandedSize) => {
+        resizeGroup(400);
+
+        const panelRef = createRef<PanelImperativeHandle>();
+        const groupRef = createRef<GroupImperativeHandle>();
+        render(
+          <Group groupRef={groupRef} id="group">
+            <Panel
+              collapsedSize={0}
+              collapsible
+              defaultSize={100}
+              groupResizeBehavior={groupResizeBehavior}
+              id="left"
+              minSize={50}
+              panelRef={panelRef}
+            />
+            <Panel id="right" />
+          </Group>
+        );
+        expect(groupRef.current!.getLayout()).toEqual({ left: 25, right: 75 });
+
+        act(() => panelRef.current!.collapse());
+        expect(groupRef.current!.getLayout()).toEqual({ left: 0, right: 100 });
+
+        await act(() => resizeGroup(800));
+
+        act(() => panelRef.current!.expand());
+        expect(groupRef.current!.getLayout().left).toBeCloseTo(expandedSize, 1);
+      }
+    );
+
+    test("keyboard expand restores the pre-collapse size when the group has not been resized", () => {
+      resizeGroup(400);
+
+      const groupRef = createRef<GroupImperativeHandle>();
+      const separatorRef = createRef<HTMLDivElement>();
+      render(
+        <Group groupRef={groupRef} id="group">
+          <Panel
+            collapsedSize={0}
+            collapsible
+            defaultSize={100}
+            groupResizeBehavior="preserve-pixel-size"
+            id="left"
+            minSize={50}
+          />
+          <Separator elementRef={separatorRef} id="separator" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      act(() => {
+        fireEvent.keyDown(separatorRef.current!, { key: "Enter" });
+      });
+      act(() => {
+        fireEvent.keyDown(separatorRef.current!, { key: "Enter" });
+      });
+      expect(groupRef.current!.getLayout()).toEqual({ left: 25, right: 75 });
     });
 
     test("should round the requested layout the same way as the validated layout", () => {

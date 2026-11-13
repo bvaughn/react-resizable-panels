@@ -66,7 +66,7 @@ import { gridLayoutsEqual } from "../utils/gridLayoutsEqual";
 type NormalizedTrack = GridTrackProps & { id: string };
 
 type AxisValues = {
-  expandedItemSizes: { [trackId: string]: number };
+  expandedItemSizes: RegisteredResizeAxis["mutableState"]["expandedItemSizes"];
   layouts: RegisteredResizeAxis["mutableState"]["layouts"];
 };
 
@@ -522,11 +522,15 @@ function GridComponent({
           return;
         }
 
+        // A deferred previous state has not been validated (and has no axis size) so nothing should be recorded from it
+        const prev = event.prev?.defaultLayoutDeferred ? undefined : event.prev;
+
         recordAxisLayoutChange({
           derivedItemConstraints,
           axis,
           layout,
-          prevLayout: event.prev?.layout,
+          prevAxisSize: prev?.axisSize,
+          prevLayout: prev?.layout,
           requestedAxisSize,
           requestedLayout
         });

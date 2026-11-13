@@ -1,3 +1,4 @@
+import { getItemResizeBehaviors } from "./getItemResizeBehaviors";
 import { layoutNumbersEqual } from "./layoutNumbersEqual";
 import type {
   Layout,
@@ -10,12 +11,13 @@ import type {
  * - Cache the requested layout and its axis size (keyed by panel ids) so they persist when the panel configuration changes.
  *   This improves UX for conditionally rendered panels without requiring defaultLayout.
  * - Record the pre-collapse size of any collapsible panel that was just collapsed,
- *   so that it can be restored when the panel is expanded (e.g. via the keyboard)
+ *   (and the axis size it was measured at) so that it can be restored when the panel is expanded (e.g. via the keyboard)
  */
 export function recordAxisLayoutChange({
   derivedItemConstraints,
   axis,
   layout,
+  prevAxisSize,
   prevLayout,
   requestedAxisSize,
   requestedLayout
@@ -23,6 +25,7 @@ export function recordAxisLayoutChange({
   derivedItemConstraints: ResizeItemConstraints[];
   axis: RegisteredResizeAxis;
   layout: Layout;
+  prevAxisSize: number | undefined;
   prevLayout: Layout | undefined;
   requestedAxisSize: number;
   requestedLayout: Layout;
@@ -31,13 +34,10 @@ export function recordAxisLayoutChange({
   axis.mutableState.layouts[itemIdsKey] = {
     axisSize: requestedAxisSize,
     layout: requestedLayout,
-    resizeBehaviors: axis.items.map(
-      ({ constraintProps }) =>
-        constraintProps.groupResizeBehavior ?? "preserve-relative-size"
-    )
+    resizeBehaviors: getItemResizeBehaviors(axis)
   };
 
-  if (prevLayout) {
+  if (prevLayout && prevAxisSize !== undefined) {
     derivedItemConstraints.forEach((constraints) => {
       if (constraints.collapsible) {
         const isCollapsed = layoutNumbersEqual(
@@ -49,8 +49,10 @@ export function recordAxisLayoutChange({
           prevLayout[constraints.itemId]
         );
         if (isCollapsed && !wasCollapsed) {
-          axis.mutableState.expandedItemSizes[constraints.itemId] =
-            prevLayout[constraints.itemId];
+          axis.mutableState.expandedItemSizes[constraints.itemId] = {
+            axisSize: prevAxisSize,
+            size: prevLayout[constraints.itemId]
+          };
         }
       }
     });

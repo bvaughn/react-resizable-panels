@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Fix `groupResizeBehavior: "preserve-pixel-size"` panels and `Grid` tracks resizing (e.g. a collapsed panel expanding) when their constraints or `groupResizeBehavior` change after the group has been resized. - [#832](https://github.com/bvaughn/react-resizable-panels/issues/832)
+- Fix `groupResizeBehavior: "preserve-pixel-size"` panels and `Grid` tracks collapsed (with the keyboard or the imperative `collapse()` method) expanding to the wrong size (rather than their pre-collapse pixel size) if the group was resized while they were collapsed. - [#832](https://github.com/bvaughn/react-resizable-panels/issues/832)
+
 ## 4.22.0
 
 - Add the `Workspace` `startExternalDrag` method, which drags a new tab in from outside of the workspace (e.g. from a palette of widgets). - [#808](https://github.com/bvaughn/react-resizable-panels/issues/808)
