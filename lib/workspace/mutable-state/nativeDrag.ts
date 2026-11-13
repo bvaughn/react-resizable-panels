@@ -26,6 +26,9 @@ export type NativeDrag = {
   /** Set for drags that other pages know about (see nativeDragChannel) */
   isShared: boolean;
 
+  /** The most recent event that a workspace accepted as a copy (see the copyTab prop), so that every workspace in its document can tell once it has been handled */
+  lastCopyEvent: Event | undefined;
+
   /**
    * The document the pointer was over most recently; workspaces in other documents hide their drop indicators and drag previews.
    * `undefined` while the pointer is over another page.

@@ -202,6 +202,29 @@
   {
     "headings": [
       {
+        "id": "making-copies",
+        "title": "Making copies",
+        "text": "Making copies A copy needs an id that isn't used by any other tab or tabset in the workspace. Copies with ids that are already in use are rejected (with a warning during development), and the tab is moved instead, as it is when copyTab returns null. Both props are called with where the copy will be dropped, so some targets can move tabs rather than copy them. copyTabset returns the whole copy, including its tabs; its copyTab argument copies a tab with the copyTab prop (or, without it, as a shallow copy with a new id). The copy's selected tab is the copy of the dragged tabset's selected tab. Copies are reported to onModelChanged with the \"copy\" reason, and the disableDrop prop is told whether a copy would be dropped (isCopy), e.g. to only allow copies in some tabsets (see restrictions)."
+      },
+      {
+        "id": "showing-that-a-drag-copies",
+        "title": "Showing that a drag copies",
+        "text": "Showing that a drag copies The renderDragPreview and renderTabsetDragPreview props are told whether dropping would add a copy (isCopy): The drag preview and the drop indicator also have a data-drag-copy attribute then, for styling."
+      },
+      {
+        "id": "between-workspaces",
+        "title": "Between workspaces",
+        "text": "Between workspaces Tabs dragged between workspaces with the same drag group are copied by the workspace they're dropped into, so it needs the copyTab prop (the workspace they're dragged from doesn't change). In other copies of your app, the copy is made from the tab data that was sent there. These drags use the browser's drag and drop, which shows the system's copy cursor while the copy key is held over a workspace that would copy."
+      }
+    ],
+    "path": "/examples/workspace/managing-tabs/copying-tabs",
+    "section": "Workspace",
+    "text": "Dragging a tab moves it. With the copyTab prop, users can drop a copy instead (e.g. a second chart with the same settings) by holding the copy key while dragging. The copyTabset prop does the same for tabsets (dragged by their headers): Reset layout The copy key is ⌥ on macOS and ctrl on other platforms.",
+    "title": "Copying tabs"
+  },
+  {
+    "headings": [
+      {
         "id": "starting-a-drag",
         "title": "Starting a drag",
         "text": "Starting a drag Call startExternalDrag from an element's pointerdown handler with the tab to add. The tab is dragged like the workspace's own tabs are, and added where it's dropped: The drag starts once the pointer moves, so clicking the element still works (e.g. to add the tab with addTab; see managing tabs), and the click that follows a drag is suppressed. Pressing Escape cancels the drag. startExternalDrag returns a promise that resolves with where the tab was dropped ({ target }), or null if it wasn't (e.g. it was dropped outside of the workspace, or the drag was canceled). The element that follows the pointer shows what the Workspace's renderDragPreview prop renders for the tab, unless a preview is passed. Set touch-action: none on the element, so that touch input drags it rather than scrolling the page. The element must be in the same document as the workspace; tabs dragged this way can't be dropped into a workspace in another window (see multiple windows)."
@@ -1508,6 +1531,16 @@
         "id": "classNames",
         "title": "classNames",
         "text": "CSS class names for the elements the workspace renders within its root element:\n\n tabset: root element of a tabset (data-tabset)\n header: contains a tabset's tab list and toolbar (data-tabset-header)\n tabList: contains a tabset's tabs (data-tab-list)\n tab: passed to renderTab with the rest of a tab's props (data-tab)\n toolbar: contains the content returned by renderTabsetToolbar (data-tabset-toolbar)\n tabPanels: contains a tabset's tab content (data-tab-panels)\n tabContent: the element each tab's content is rendered into (data-tab-content)\n dropIndicator: shows where a dragged tab will be dropped within a tabset's panels, or at an edge of the workspace (data-drop-indicator)\n dragPreview: follows the pointer while a tab or tabset is dragged (data-drag-preview)\n\n Elements expose their state as data attributes (e.g. data-tab-selected, or data-tabset-dragging while a tabset is dragged), which can be used for styling.\nElements within a collapsed tabset have a data-tabset-collapsed attribute.\nElements within a tabset also have a data-tab-placement attribute (see tabPlacement).\n The drop indicator is the same element for the whole drag (rendered within the workspace's root element),\nso it can be animated between regions and tabsets (e.g. transition: inset 250ms).\nIts data-region attribute is the region of a tabset's panels it covers, or its data-edge attribute is the edge of the workspace it's at;\nwhile a tab isn't over either, it has neither and isn't shown (opacity: 0).\n Like the render props, this object is part of what tabsets re-render for;\nin large workspaces, define it outside of the component (or memoize it) rather than inline."
+      },
+      {
+        "id": "copyTab",
+        "title": "copyTab",
+        "text": "Lets tabs be copied by dragging them: a tab dropped while the copy modifier key is held (Option on macOS, Ctrl elsewhere) adds the copy this function returns,\nleaving the dragged tab where it was. The change is reported to onModelChanged with the \"copy\" reason.\n Returning null (or undefined) moves the dragged tab instead.\n The copy needs an id that isn't used by any other node of the workspace (e.g. crypto.randomUUID()); copies with ids that are in use are rejected (and the tab is moved instead).\n The workspace the tab is dropped into makes the copy, so a tab dragged from another workspace (see the dragGroup prop) is copied by the workspace it's dropped into\n(and is only copied if that workspace has this prop).\n\n tab The tab being dragged\n target Where the copy will be dropped"
+      },
+      {
+        "id": "copyTabset",
+        "title": "copyTabset",
+        "text": "Lets tabsets be copied by dragging them (by their headers), like the copyTab prop does for tabs: a tabset dropped while the copy modifier key is held adds the copy this function returns,\nleaving the dragged tabset where it was. The change is reported to onModelChanged with the \"copy\" reason.\n The copy includes its tabs, which need ids that aren't used by any other node of the workspace too; the copyTab argument copies a tab:\n Returning null (or undefined) moves the dragged tabset instead.\n The copy's selected tab is the copy of the dragged tabset's selected tab (matched by position), unless the copy selects one of its own tabs.\n A copy dropped into a tab list (or onto the center of another tabset) only adds its tabs; its id and data are only used where it's added as a tabset.\n\n tabset The tabset being dragged\n copyTab Copies a tab with the copyTab prop (and the same drop target); without that prop (or if it returns null), the copy is a shallow copy of the tab with a new id\n target Where the copy will be dropped"
       },
       {
         "id": "disabled",

@@ -8,6 +8,7 @@
 - A selected `Workspace` tab is scrolled into view if its tab list overflows, and `useParentTabset` has a new `selectTab` method. - [#816](https://github.com/bvaughn/react-resizable-panels/issues/816)
 - Add the `usePopoutWindows` hook, which opens `Workspace` tabs in popup windows (e.g. from a "pop out" button), copying the page's styles, and docks them back when the windows are closed. - [#821](https://github.com/bvaughn/react-resizable-panels/issues/821)
 - Deprecate the `Workspace` `onTearOff` prop (and `TearOffArgs` and the drag preview's `isTearOff`): browsers don't reliably report where a drag outside of the window ends, and some block popups opened then. Open popout windows from a button instead; it will be removed in the next major version. - [#826](https://github.com/bvaughn/react-resizable-panels/issues/826)
+- Add the `Workspace` `copyTab` and `copyTabset` props: tabs (and tabsets) dropped while Option (macOS) or Ctrl is held are copied rather than moved, and reported with the new `"copy"` reason. - [#809](https://github.com/bvaughn/react-resizable-panels/issues/809)
 
 ## 4.21.0
 

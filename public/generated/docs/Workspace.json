@@ -121,6 +121,55 @@
       "name": "defaultModel",
       "required": true
     },
+    "copyTab": {
+      "description": [
+        {
+          "content": "<p>Lets tabs be copied by dragging them: a tab dropped while the copy modifier key is held (Option on macOS, Ctrl elsewhere) adds the copy this function returns,\nleaving the dragged tab where it was. The change is reported to <code>onModelChanged</code> with the <code>&quot;copy&quot;</code> reason.</p>\n"
+        },
+        {
+          "content": "<p>Returning <code>null</code> (or <code>undefined</code>) moves the dragged tab instead. If that move isn't allowed either (the <code>disableDrop</code> prop rejects it, the ids conflict, or it isn't a valid place to move the tab), nothing happens.</p>\n"
+        },
+        {
+          "content": "<p>The copy needs an id that isn't used by any other node of the workspace (e.g. <code>crypto.randomUUID()</code>); copies with ids that are in use are rejected (and the tab is moved instead).</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>The workspace the tab is dropped into makes the copy, so a tab dragged from another workspace (see the <code>dragGroup</code> prop) is copied by the workspace it's dropped into\n(and is only copied if that workspace has this prop).</p>\n<ul>\n<li><code>tab</code> The tab being dragged</li>\n<li><code>target</code> Where the copy will be dropped</li>\n</ul>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">copyTab</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">target</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabDropTarget</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62; </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-keyword\">null</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "copyTab",
+      "required": false
+    },
+    "copyTabset": {
+      "description": [
+        {
+          "content": "<p>Lets tabsets be copied by dragging them (by their headers), like the <code>copyTab</code> prop does for tabs: a tabset dropped while the copy modifier key is held adds the copy this function returns,\nleaving the dragged tabset where it was. The change is reported to <code>onModelChanged</code> with the <code>&quot;copy&quot;</code> reason.</p>\n"
+        },
+        {
+          "content": "<p>The copy includes its tabs, which need ids that aren't used by any other node of the workspace too; the <code>copyTab</code> argument copies a tab:</p>\n"
+        },
+        {
+          "code": true,
+          "content": "<div><span class=\"tok-variableName\">copyTabset</span><span class=\"tok-operator\">=</span><span class=\"tok-punctuation\">{</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName\">tabset</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName\">copyTab</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">{</span><span class=\"\"> </span><span class=\"tok-punctuation\">...</span><span class=\"tok-variableName\">tabset</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-propertyName tok-definition\">id</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">crypto</span><span class=\"tok-operator\">.</span><span class=\"tok-propertyName\">randomUUID</span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-propertyName tok-definition\">tabs</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">tabset</span><span class=\"tok-operator\">.</span><span class=\"tok-propertyName\">tabs</span><span class=\"tok-operator\">.</span><span class=\"tok-propertyName\">map</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName\">copyTab</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">}</span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">}</span></div>"
+        },
+        {
+          "content": "<p>Returning <code>null</code> (or <code>undefined</code>) moves the dragged tabset instead. If that move isn't allowed either (the <code>disableDrop</code> prop rejects it, the ids conflict, a <code>keepWhenEmpty</code> tabset is dropped into another workspace, or it isn't a valid place to move the tabset), nothing happens.</p>\n"
+        },
+        {
+          "content": "<p>The copy's selected tab is the copy of the dragged tabset's selected tab (matched by position), unless the copy selects one of its own tabs.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>A copy dropped into a tab list (or onto the center of another tabset) only adds its tabs; its id and data are only used where it's added as a tabset.</p>\n<ul>\n<li><code>tabset</code> The tabset being dragged</li>\n<li><code>copyTab</code> Copies a tab with the <code>copyTab</code> prop (and the same drop target); without that prop (or if it returns <code>null</code>), the copy is a shallow copy of the tab with a new id</li>\n<li><code>target</code> Where the copy will be dropped</li>\n</ul>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">copyTabset</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tabset</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">copyTab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-variableName tok-definition\">target</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabDropTarget</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">TabsetNode</span><span class=\"tok-operator\">&#60;</span><span class=\"tok-punctuation\">...</span><span class=\"tok-operator\">&#62;</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-punctuation\">...</span><span class=\"\"> </span><span class=\"tok-number\">1</span><span class=\"\"> more </span><span class=\"tok-operator\">.</span><span class=\"tok-operator\">.</span><span class=\"tok-operator\">.</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">undefined</span></div>",
+      "name": "copyTabset",
+      "required": false
+    },
     "disabled": {
       "description": [
         {

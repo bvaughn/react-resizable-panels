@@ -58,6 +58,9 @@ export const routes = {
   "/examples/workspace/managing-tabs": lazy(
     () => import("./routes/WorkspaceManagingTabsRoute")
   ),
+  "/examples/workspace/managing-tabs/copying-tabs": lazy(
+    () => import("./routes/WorkspaceCopyingTabsRoute")
+  ),
   "/examples/workspace/managing-tabs/dragging-tabs-in": lazy(
     () => import("./routes/WorkspaceDraggingTabsInRoute")
   ),

@@ -96,6 +96,11 @@ import { pruneRemovedNodes } from "../utils/pruneRemovedNodes";
 import { updateCollapseOverrides } from "../utils/updateCollapseOverrides";
 import { sizeToPixels } from "../utils/sizeToPixels";
 import { toModelDropTarget } from "../utils/toModelDropTarget";
+import {
+  createCopiedNode,
+  type CopyTab,
+  type CopyTabset
+} from "../utils/createCopiedNode";
 import { subscribeToNothing } from "../../shared/utils/subscribeToNothing";
 import { DragPreview } from "./DragPreview";
 import { DropIndicator } from "./DropIndicator";
@@ -104,6 +109,8 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   acceptExternalDrop,
   className,
   classNames,
+  copyTab,
+  copyTabset,
   defaultModel,
   disabled = false,
   disableDragBetweenApps = false,
@@ -717,7 +724,8 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   const isDropDisabledByProp = (
     node: DragNode,
     source: DisableDropArgs["source"],
-    target: TabDropTarget
+    target: TabDropTarget,
+    isCopy: boolean
   ) => {
     if (typeof disableDrop !== "function") {
       return !!disableDrop;
@@ -726,6 +734,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     const model = modelRef.current as WorkspaceModel<TabData, TabsetData>;
     if (node.type === "tab") {
       return disableDrop({
+        isCopy,
         model,
         source,
         tab: node.tab as TabNode<TabData>,
@@ -737,9 +746,10 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     const tabset = node.tabset as TabsetNode<TabData, TabsetData>;
 
     return tabset.tabs.length === 0
-      ? disableDrop({ model, source, tab: undefined, tabset, target })
+      ? disableDrop({ isCopy, model, source, tab: undefined, tabset, target })
       : tabset.tabs.some((tab, index) =>
           disableDrop({
+            isCopy,
             model,
             source,
             tab,
@@ -753,7 +763,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   };
 
   const isDropDisabled = useStableCallback(
-    (source: DragSource, target: TabDropTarget) => {
+    (source: DragSource, target: TabDropTarget, isCopy: boolean) => {
       if (typeof disableDrop !== "function") {
         return !!disableDrop;
       }
@@ -761,18 +771,26 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       // Sources removed during the drag (e.g. by the imperative API) can't be dropped
       const node = getDragNode(source);
 
-      return node ? isDropDisabledByProp(node, "local", target) : true;
+      return node ? isDropDisabledByProp(node, "local", target, isCopy) : true;
     }
   );
 
   // Tabs (and tabsets) dragged from other workspaces in the group (see the dragGroup prop) keep their ids, so they can't be dropped beside nodes with the same ids;
-  // tabsets with the keepWhenEmpty flag stay in their own workspaces (like they aren't torn off); disabled workspaces don't accept drops
+  // tabsets with the keepWhenEmpty flag stay in their own workspaces (like they aren't torn off); disabled workspaces don't accept drops.
+  // Copies get their own ids (and leave the dragged tabset where it was), so neither applies to them
   const isExternalDropDisabled = useStableCallback(
-    (node: DragNode, target: TabDropTarget) =>
+    (node: DragNode, target: TabDropTarget, isCopy: boolean) =>
       disabled ||
-      (node.type === "tabset" && !!node.tabset.keepWhenEmpty) ||
-      hasConflictingIds(modelRef.current, node, target) ||
-      isDropDisabledByProp(node, "external", target)
+      (!isCopy &&
+        ((node.type === "tabset" && !!node.tabset.keepWhenEmpty) ||
+          hasConflictingIds(modelRef.current, node, target))) ||
+      isDropDisabledByProp(node, "external", target, isCopy)
+  );
+
+  // Dropping while the copy modifier key is held copies tabs (and tabsets) when there's a prop to copy them with
+  const canCopy = useStableCallback(
+    (node: DragNode) =>
+      !disabled && (node.type === "tab" ? !!copyTab : !!copyTabset)
   );
 
   // Tabs dragged in from outside of any workspace (see startExternalDrag and acceptExternalDrop) are checked like tabs from other workspaces
@@ -783,7 +801,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       return (
         disabled ||
         hasConflictingIds(modelRef.current, node, target) ||
-        isDropDisabledByProp(node, "new", target)
+        isDropDisabledByProp(node, "new", target, false)
       );
     }
   );
@@ -793,8 +811,25 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     () => disabled || disableDrop === true
   );
 
-  const onDrop = useCallback(
-    (source: DragSource, target: TabDropTarget) =>
+  const onDrop = useStableCallback(
+    (
+      source: DragSource,
+      target: TabDropTarget,
+      isCopy: boolean,
+      canMove: boolean
+    ) => {
+      // Copies that the application declines (or that can't be added) are moved instead, where they can be
+      if (isCopy) {
+        const node = getDragNode(source);
+        if (
+          (node && insertCopy(node, target)) ||
+          !canMove ||
+          isDropDisabled(source, target, false)
+        ) {
+          return;
+        }
+      }
+
       updateModel("move", true, (prev) => {
         const modelTarget = toModelDropTarget(
           target,
@@ -804,8 +839,8 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         return source.type === "tab"
           ? moveTab(prev, source.tabId, modelTarget)
           : moveTabset(prev, source.tabsetId, modelTarget);
-      }),
-    [updateModel]
+      });
+    }
   );
 
   const hasOnTearOff = !!onTearOff;
@@ -896,7 +931,11 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   // Inserts a tab (or tabset) dragged in from another workspace, or a new tab dragged in from outside of any workspace;
   // returns whether it was inserted (e.g. so that it's only removed from the workspace it was dragged from if it was)
   const insertDropped = useStableCallback(
-    (reason: "add" | "transfer", node: DragNode, target: TabDropTarget) => {
+    (
+      reason: "add" | "copy" | "transfer",
+      node: DragNode,
+      target: TabDropTarget
+    ) => {
       let isInserted = false;
       updateModel(reason, true, (prev) => {
         const modelTarget = toModelDropTarget(
@@ -916,10 +955,37 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     }
   );
 
-  const handleTransferIn = useCallback(
-    (node: DragNode, target: TabDropTarget) =>
-      insertDropped("transfer", node, target),
-    [insertDropped]
+  // Inserts a copy of a dragged tab (or tabset) made by the application (see the copyTab and copyTabset props); returns whether it was inserted
+  const insertCopy = useStableCallback(
+    (node: DragNode, target: TabDropTarget) => {
+      const copy = createCopiedNode({
+        copyTab: copyTab as CopyTab | undefined,
+        copyTabset: copyTabset as CopyTabset | undefined,
+        model: modelRef.current,
+        node,
+        target
+      });
+
+      return !!copy && insertDropped("copy", copy, target);
+    }
+  );
+
+  // Returns whether the tab (or tabset) was moved here, so that it's removed from the workspace it was dragged from (unlike a copy)
+  const handleTransferIn = useStableCallback(
+    (node: DragNode, target: TabDropTarget, isCopy: boolean) => {
+      if (isCopy) {
+        if (insertCopy(node, target)) {
+          return false;
+        }
+
+        // Copies that the application declines (or that can't be added) are moved instead, where they can be
+        if (isExternalDropDisabled(node, target, false)) {
+          return false;
+        }
+      }
+
+      return insertDropped("transfer", node, target);
+    }
   );
 
   const handleNewTabDrop = useCallback(
@@ -941,6 +1007,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
   const {
     dragSource,
+    isCopy,
     isNativeDragOver,
     isNativeDragSource,
     isTearOff,
@@ -952,6 +1019,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     startTabDrag,
     startTabsetDrag
   } = useTabDrag({
+    canCopy,
     canTearOff,
     disableDragBetweenApps,
     dragGroup,
@@ -1228,7 +1296,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   // The default preview also shows how many other tabs are being dragged along with the tab (when its tabset is dragged)
   const renderTabPreview = (tab: TabNode, otherTabCount = 0) => {
     if (renderDragPreview) {
-      return renderDragPreview(tab as TabNode<TabData>, { isTearOff });
+      return renderDragPreview(tab as TabNode<TabData>, { isCopy, isTearOff });
     }
     const title = tab.title ?? tab.id;
     return otherTabCount > 0 ? `${title} (+${otherTabCount})` : title;
@@ -1243,7 +1311,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     if (renderTabsetDragPreview) {
       dragPreview = renderTabsetDragPreview(
         dragTabset as TabsetNode<TabData, TabsetData>,
-        { isTearOff }
+        { isCopy, isTearOff }
       );
     } else {
       const selectedTab = dragTabset.tabs.find(
@@ -1284,6 +1352,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
               isExternalDragOver) && (
               <DropIndicator
                 className={classNames?.dropIndicator}
+                isCopy={isCopy}
                 dragStore={dragStore}
                 layoutElementRef={layoutRef}
                 model={model}
@@ -1296,6 +1365,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
                 className={classNames?.dragPreview}
                 dragType={dragTab ? "tab" : "tabset"}
                 elementRef={previewElementRef}
+                isCopy={isCopy}
                 isTearOff={isTearOff}
                 pointRef={previewPointRef}
                 style={styles?.dragPreview}

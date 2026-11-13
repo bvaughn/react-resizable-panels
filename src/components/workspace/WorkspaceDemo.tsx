@@ -123,12 +123,15 @@ export function DemoWorkspace({
   WorkspaceProps<DemoTab>,
   | "acceptExternalDrop"
   | "className"
+  | "copyTab"
+  | "copyTabset"
   | "disabled"
   | "disableDrop"
   | "dragGroup"
   | "onModelChanged"
   | "renderDragPreview"
   | "renderEmptyTabset"
+  | "renderTabsetDragPreview"
   | "renderTabsetToolbar"
   | "tabRemovalSelectionBehavior"
 > & {

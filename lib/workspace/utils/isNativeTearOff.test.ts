@@ -15,6 +15,7 @@ function createDrag(
     isDropped,
     isRemote: false,
     isShared: false,
+    lastCopyEvent: undefined,
     lastDocument: undefined,
     lastDragover: lastDragover && { ...lastDragover, view },
     lastMoveStep,
