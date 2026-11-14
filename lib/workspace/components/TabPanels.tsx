@@ -4,22 +4,27 @@ import { useRef } from "react";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../shared/hooks/useMergedRefs";
 import { TabContent } from "./TabContent";
+import type { ParentTabsetState, TabsetNode } from "../types";
+import { getTabsetState } from "../utils/getTabsetState";
+import { resolveElementValue } from "../utils/resolveElementValue";
 import {
   useTabsetContext,
   useWorkspaceContext
 } from "../hooks/useWorkspaceContext";
 
 function TabPanelsComponent() {
+  const workspace = useWorkspaceContext("TabPanels");
   const {
     classNames,
     getHiddenTabBehavior,
     getTabHost,
     isHydrating,
+    isTabContentLazy,
     renderEmptyTabset,
     renderTabContent,
     shouldServerRenderTabContent,
     styles
-  } = useWorkspaceContext("TabPanels");
+  } = workspace;
   const { isCollapsed, setPanelsElement, tabPlacement, tabset } =
     useTabsetContext("TabPanels");
 
@@ -52,17 +57,22 @@ function TabPanelsComponent() {
       ? selectedTab
       : undefined;
 
+  const getArgs = (): [TabsetNode, ParentTabsetState] => [
+    tabset,
+    getTabsetState(workspace, tabset)
+  ];
+
   return (
     <div
-      className={classNames?.tabPanels}
+      className={resolveElementValue(classNames?.tabPanels, getArgs)}
       data-tab-panels
       data-tab-placement={tabPlacement}
       data-tabset-collapsed={isCollapsed || undefined}
       ref={mergedRef}
-      // A collapsed tabset only shows its header; its content stays mounted
+      // A collapsed tabset only shows its header; what happens to its content is up to the hiddenTabBehavior prop
       style={{
         position: "relative",
-        ...styles?.tabPanels,
+        ...resolveElementValue(styles?.tabPanels, getArgs),
         ...(isCollapsed && { display: "none" })
       }}
     >
@@ -71,6 +81,7 @@ function TabPanelsComponent() {
         <div style={{ display: "contents" }}>
           <TabContent
             hiddenTabBehavior={getHiddenTabBehavior(inlineTab)}
+            isLazy={isTabContentLazy(inlineTab)}
             renderTabContent={renderTabContent}
             tab={inlineTab}
           />

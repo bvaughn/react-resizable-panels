@@ -25,6 +25,9 @@ type Message = { version: number } & (
       id: string;
       node: DragNode;
       source: DragSource;
+      // Missing from pages that use an earlier release with the same protocol version
+      sourceInfo?: unknown;
+      sourceWorkspaceId?: string | undefined;
       type: "start";
     }
   | { id: string; type: "end" | "over" | "remove" }
@@ -78,7 +81,8 @@ function onMessage(event: MessageEvent) {
   const current = getNativeDrag();
   switch (message.type) {
     case "start": {
-      const { dragGroup, id, node, source } = message;
+      const { dragGroup, id, node, source, sourceInfo, sourceWorkspaceId } =
+        message;
       setNativeDrag({
         dragGroup,
         hasSource: () => true,
@@ -96,8 +100,10 @@ function onMessage(event: MessageEvent) {
         removeFromSource: () =>
           post({ id, type: "remove", version: PROTOCOL_VERSION }),
         source,
+        sourceInfo,
         // Not the owner of any workspace in this page, so drops are handled as transfers from another workspace
-        sourceOwner: {}
+        sourceOwner: {},
+        sourceWorkspaceId
       });
       break;
     }
@@ -166,13 +172,15 @@ export function connectNativeDragChannel() {
 export function shareNativeDrag(drag: NativeDrag) {
   endActiveDrag();
 
-  const { dragGroup, id, node, source } = drag;
+  const { dragGroup, id, node, source, sourceInfo, sourceWorkspaceId } = drag;
   if (
     !post({
       dragGroup,
       id,
       node,
       source,
+      sourceInfo,
+      sourceWorkspaceId,
       type: "start",
       version: PROTOCOL_VERSION
     })

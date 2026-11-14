@@ -24,7 +24,9 @@ function createDrag(
     previewOwners: new Map(),
     removeFromSource: () => {},
     source: { tabId: "1", type: "tab" },
-    sourceOwner: {}
+    sourceInfo: undefined,
+    sourceOwner: {},
+    sourceWorkspaceId: "workspace"
   };
 }
 

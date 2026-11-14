@@ -210,6 +210,29 @@ describe("floating tabsets", () => {
       ).toHaveClass("handle");
     });
 
+    test("classNames and styles for floating tabsets can be functions of the tabset", () => {
+      const { container } = renderWorkspace({
+        classNames: {
+          floatingResizeHandle: (tabset) => `handle-${tabset.id}`,
+          floatingTabset: (tabset, { isFloating }) =>
+            isFloating ? `frame-${tabset.width}` : undefined
+        },
+        defaultModel: createModel([floating("f", ["4"])]),
+        styles: {
+          floatingTabset: (tabset) => ({ opacity: tabset.x === 0 ? 0.5 : 1 })
+        }
+      });
+
+      const element = getFloating(container, "f");
+      expect(element).toHaveClass("frame-300");
+      expect(element.style.opacity).toBe("0.5");
+      // Positioning isn't overridden
+      expect(element.style.position).toBe("absolute");
+      expect(
+        element.querySelector('[data-floating-resize-handle="left"]')
+      ).toHaveClass("handle-f");
+    });
+
     test("doesn't render resize handles for disabled workspaces, or tabsets that can't be dragged", () => {
       const { container, rerender } = renderWorkspace({
         defaultModel: createModel([
@@ -605,6 +628,66 @@ describe("floating tabsets", () => {
       expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
         isUserInteraction: true,
         reason: "move"
+      });
+    });
+
+    test("a move blocked by onBeforeModelChange puts the tabset back", async () => {
+      const node = floating("f", ["4"], { x: 10, y: 20 });
+      const { container, onModelChanged, workspaceRef } = renderWorkspace({
+        defaultModel: createModel([node]),
+        onBeforeModelChange: ({ reason }) => reason !== "move"
+      });
+      const element = getFloating(container, "f");
+      mockLayout(element, node);
+      const { left, top } = element.style;
+
+      await press(getHeader(container, "f"), [
+        { clientX: 120, clientY: 110 },
+        { clientX: 150, clientY: 130 }
+      ]);
+
+      expect(workspaceRef.current!.getModel().floating?.[0]).toMatchObject({
+        x: 10,
+        y: 20
+      });
+      expect(element.style.left).toBe(left);
+      expect(element.style.top).toBe(top);
+      expect(onModelChanged).not.toHaveBeenCalledWith(expect.anything(), {
+        isUserInteraction: true,
+        reason: "move"
+      });
+    });
+
+    test("a resize blocked by onBeforeModelChange puts the tabset back", async () => {
+      const node = floating("f", ["4"], { x: 10, y: 20 });
+      const { container, onModelChanged, workspaceRef } = renderWorkspace({
+        defaultModel: createModel([node]),
+        onBeforeModelChange: ({ reason }) => reason !== "resize"
+      });
+      const element = getFloating(container, "f");
+      mockLayout(element, node);
+      const { height, left, top, width } = element.style;
+
+      await press(
+        element.querySelector<HTMLElement>(
+          '[data-floating-resize-handle="top-left"]'
+        )!,
+        [{ clientX: 80, clientY: 90 }]
+      );
+
+      expect(workspaceRef.current!.getModel().floating?.[0]).toMatchObject({
+        height: 200,
+        width: 300,
+        x: 10,
+        y: 20
+      });
+      expect(element.style.height).toBe(height);
+      expect(element.style.left).toBe(left);
+      expect(element.style.top).toBe(top);
+      expect(element.style.width).toBe(width);
+      expect(onModelChanged).not.toHaveBeenCalledWith(expect.anything(), {
+        isUserInteraction: true,
+        reason: "resize"
       });
     });
 

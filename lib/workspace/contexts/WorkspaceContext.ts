@@ -13,6 +13,7 @@ import type { TabListStore } from "../utils/createTabListStore";
 import type { TabListOverflowState } from "../utils/measureTabListOverflow";
 import type { TabsetElementRegistry } from "../utils/createTabsetElementRegistry";
 import type {
+  DragOrigin,
   HiddenTabBehavior,
   MaximumSize,
   MinimumSize,
@@ -27,11 +28,27 @@ import type {
   WorkspaceStyles
 } from "../types";
 
+/**
+ * Changes the model, and reports the change (see the onModelChanged prop);
+ * returns whether the model changed, i.e. the update changed it and the change wasn't blocked (see the onBeforeModelChange prop).
+ */
 export type UpdateModel = (
   reason: WorkspaceChangeReason,
   isUserInteraction: boolean,
-  update: (prev: WorkspaceModel) => WorkspaceModel
-) => void;
+  update: (prev: WorkspaceModel) => WorkspaceModel,
+  options?: UpdateModelOptions
+) => boolean;
+
+export type UpdateModelOptions = {
+  /**
+   * Changes that can't be blocked by onBeforeModelChange (e.g. removing a tab that another workspace has already accepted) set this to `false`
+   * @default true
+   */
+  canBlock?: boolean | undefined;
+
+  /** For tabs (and tabsets) dropped in from another workspace, where they were dragged from (reported to onModelChanged) */
+  origin?: DragOrigin | undefined;
+};
 
 export type TabHost = {
   // Not available during server rendering
@@ -67,6 +84,8 @@ export type WorkspaceContextType = {
   getTabHost: (tabId: string) => TabHost;
   getTabsetHandle: (tabsetId: string) => ParentTabset;
   id: string;
+  // Whether a tab's content isn't mounted until the tab is first visible (see the lazyTabContent prop)
+  isTabContentLazy: (tab: TabNode) => boolean;
 
   // True while server rendering and hydrating (when portals can't be rendered)
   isHydrating: boolean;

@@ -17,6 +17,7 @@ import { canCollapseTabset } from "../models/canCollapseTabset";
 import { setSplitLayout } from "../models/setSplitLayout";
 import type { SplitNode } from "../types";
 import { calculateSplitLayout } from "../utils/calculateSplitLayout";
+import { resolveElementValue } from "../utils/resolveElementValue";
 import { getResizeReason } from "../utils/getResizeReason";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { NodeView } from "./NodeView";
@@ -39,6 +40,15 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
     styles,
     updateModel
   } = useWorkspaceContext("SplitView");
+
+  const getArgs = (): [SplitNode] => [split];
+  const className = resolveElementValue(classNames?.split, getArgs);
+  const style = resolveElementValue(styles?.split, getArgs);
+  // Functions return new objects each render, so the separators are measured again only when the styles' values change
+  const styleKey =
+    typeof styles?.split === "function" && style
+      ? JSON.stringify(style)
+      : style;
 
   // Group and Panel ids are rendered as element ids, so they must be unique within the page (not just the workspace);
   // Panel ids use a different separator so that they can't match the id of a nested split's Group
@@ -421,17 +431,17 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
       mutationObserver?.disconnect();
     };
   }, [
-    classNames?.split,
+    className,
     groupElement,
     reportSeparatorsSize,
     split.id,
     split.orientation,
-    styles?.split
+    styleKey
   ]);
 
   return (
     <Group
-      className={classNames?.split}
+      className={className}
       data-split=""
       data-split-id={split.id}
       disabled={disabled}
@@ -463,15 +473,24 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
           }
 
           const reason = getResizeReason(split.children, collapsedIds);
-          updateModel(reason, true, (prev) =>
-            setSplitLayout(
+          let isUpdated = false;
+          const isChanged = updateModel(reason, true, (prev) => {
+            const next = setSplitLayout(
               prev,
               split.id,
               nodeLayout,
               collapsedIds,
               collapsedToFitIds
-            )
-          );
+            );
+            isUpdated = next !== prev;
+
+            return next;
+          });
+          if (isUpdated && !isChanged) {
+            // The resize was blocked (see the onBeforeModelChange prop), so the model's layout is shown again
+            appliedKeyRef.current = null;
+            requestLayoutCheck((count) => count + 1);
+          }
         } else {
           const appliedKey = getAppliedKey();
           if (appliedKey !== null && appliedKeyRef.current === appliedKey) {
@@ -483,7 +502,7 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
       }}
       orientation={split.orientation}
       resizePreviewMode={resizePreviewMode}
-      style={styles?.split}
+      style={style}
     >
       {split.children.map((child, index) => {
         const minimumSize = minimumSizes.get(child.id);

@@ -9,11 +9,15 @@ import {
 } from "../hooks/useWorkspaceContext";
 import { useDragState } from "../hooks/useDragState";
 import { expandTabset } from "../models/expandTabset";
+import type { ParentTabsetState, TabsetNode } from "../types";
+import { getTabsetState } from "../utils/getTabsetState";
 import { isHeaderEmptySpace } from "../utils/isHeaderEmptySpace";
+import { resolveElementValue } from "../utils/resolveElementValue";
 import { isTabsetDragDisabled } from "../utils/isTabsetDragDisabled";
 import { isTabsetDragStart } from "../utils/isTabsetDragStart";
 
 function TabsetViewComponent() {
+  const workspace = useWorkspaceContext("TabsetView");
   const {
     activeTabsetId,
     classNames,
@@ -28,7 +32,7 @@ function TabsetViewComponent() {
     startTabsetDrag,
     styles,
     updateModel
-  } = useWorkspaceContext("TabsetView");
+  } = workspace;
   const {
     isCollapsed,
     setHeaderElement,
@@ -53,9 +57,17 @@ function TabsetViewComponent() {
     dragGroup
   );
 
+  // Computed once (and only if one of the classNames or styles is a function) for all of the tabset's elements
+  let state: ParentTabsetState | undefined;
+  const getArgs = (): [TabsetNode, ParentTabsetState] => {
+    state ??= getTabsetState(workspace, tabset);
+
+    return [tabset, state];
+  };
+
   const header = (
     <div
-      className={classNames?.header}
+      className={resolveElementValue(classNames?.header, getArgs)}
       data-tab-placement={tabPlacement}
       data-tabset-collapsed={isCollapsed || undefined}
       data-tabset-header
@@ -83,7 +95,7 @@ function TabsetViewComponent() {
         }
       }}
       ref={setHeaderElement}
-      style={styles?.header}
+      style={resolveElementValue(styles?.header, getArgs)}
     >
       <TabList>
         {tabset.tabs.map((tab) => (
@@ -92,11 +104,11 @@ function TabsetViewComponent() {
       </TabList>
       {renderTabsetToolbar && (
         <div
-          className={classNames?.toolbar}
+          className={resolveElementValue(classNames?.toolbar, getArgs)}
           data-tab-placement={tabPlacement}
           data-tabset-collapsed={isCollapsed || undefined}
           data-tabset-toolbar
-          style={styles?.toolbar}
+          style={resolveElementValue(styles?.toolbar, getArgs)}
         >
           {renderTabsetToolbar(tabset)}
         </div>
@@ -106,7 +118,7 @@ function TabsetViewComponent() {
 
   return (
     <div
-      className={classNames?.tabset}
+      className={resolveElementValue(classNames?.tabset, getArgs)}
       data-tab-placement={tabPlacement}
       data-tabset
       data-tabset-active={activeTabsetId === tabset.id || undefined}
@@ -118,7 +130,7 @@ function TabsetViewComponent() {
       onFocusCapture={() => setActiveTabsetId(tabset.id)}
       onPointerDownCapture={() => setActiveTabsetId(tabset.id)}
       ref={setTabsetElement}
-      style={styles?.tabset}
+      style={resolveElementValue(styles?.tabset, getArgs)}
     >
       {tabPlacement === "bottom" || tabPlacement === "right" ? (
         <>

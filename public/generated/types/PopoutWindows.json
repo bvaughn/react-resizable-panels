@@ -38,6 +38,9 @@
         {
           "content": "<p>Browsers block popup windows that aren't opened in response to user input (e.g. a click),\nand some block all but the first one opened for each input.</p>\n",
           "intent": "warning"
+        },
+        {
+          "content": "<p><strong>Returns:</strong> <code>true</code> if the window was opened, or <code>false</code> if it was blocked (or the model has no tabs, in which case no window is opened)</p>\n"
         }
       ],
       "name": "open",
@@ -58,6 +61,9 @@
       "description": [
         {
           "content": "<p>Render the popout windows' content (each into its window's container, with a portal); render the result alongside the main Workspace.</p>\n"
+        },
+        {
+          "content": "<ul>\n<li><code>renderWorkspace</code> Renders a popout's Workspace; spread the given props onto it (along with the same <code>dragGroup</code> as the main Workspace, to drag tabs between windows)</li>\n</ul>\n"
         }
       ],
       "name": "render",
