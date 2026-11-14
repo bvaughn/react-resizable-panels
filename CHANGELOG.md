@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.23.0
 
 - `Workspace`:
   - Add the `onBeforeModelChange` prop, which can block changes the user makes (e.g. closing a tab with unsaved changes). - [#819](https://github.com/bvaughn/react-resizable-panels/issues/819), [#836](https://github.com/bvaughn/react-resizable-panels/pull/836)
