@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   Separator,
+  useWorkspaceRef,
   Workspace as WorkspaceExternal,
   type TabNode,
   type TearOffArgs,
@@ -20,6 +21,7 @@ export type TestWorkspaceProps = Omit<
   | "disableDrop"
   | "elementRef"
   | "hiddenTabBehavior"
+  | "onBeforeModelChange"
   | "onModelChanged"
   | "onTearOff"
   | "renderDragPreview"
@@ -30,6 +32,8 @@ export type TestWorkspaceProps = Omit<
   | "renderTabsetToolbar"
   | "workspaceRef"
 > & {
+  // Changes made by the user with these reasons are blocked (see onBeforeModelChange)
+  blockedReasons?: string[] | undefined;
   hiddenTabBehavior?: "activity" | "keep-mounted" | "unmount" | undefined;
   // Renders a toolbar that shows each tabset's tab list free space (and makes tab lists fill their headers);
   // a "responsive" toolbar shrinks when there's little free space (like a toolbar that moves items into an overflow menu)
@@ -40,6 +44,10 @@ export type TestWorkspaceProps = Omit<
   showTabsetState?: boolean | undefined;
   // Adds an onTearOff prop that records its arguments and accepts (or rejects) each tear off
   tearOff?: "accept" | "reject" | undefined;
+  // Renders a button that calls resizeSplit with these arguments
+  resizeSplit?:
+    | { sizes: Record<string, number | string>; splitId: string }
+    | undefined;
 };
 
 // Geometry is specified with inline styles (rather than CSS classes) so that tests can make exact assertions:
@@ -51,6 +59,8 @@ export const FREE_SPACE_TOOLBAR_WIDTH = 60;
 const NARROW_TOOLBAR_WIDTH = 20;
 
 export function Workspace({
+  blockedReasons,
+  resizeSplit,
   showTabListFreeSpace,
   showTabListOverflow,
   showTabsetState,
@@ -62,12 +72,18 @@ export function Workspace({
     { meta: WorkspaceChangedMeta; model: WorkspaceModel }[]
   >([]);
   const [tearOffs, setTearOffs] = useState<TearOffArgs[]>([]);
+  const workspaceRef = useWorkspaceRef();
 
   return (
     <>
       <WorkspaceExternal
         className="bg-slate-950 text-slate-300"
         classNames={{ tabContent: "h-full" }}
+        onBeforeModelChange={
+          blockedReasons
+            ? ({ reason }) => !blockedReasons.includes(reason)
+            : undefined
+        }
         onModelChanged={(model, meta) =>
           setChanges((prev) => [...prev, { meta, model }])
         }
@@ -126,8 +142,22 @@ export function Workspace({
             height: "100%"
           }
         }}
+        workspaceRef={workspaceRef}
         {...rest}
       />
+      {resizeSplit && (
+        <button
+          data-testid="resize-split"
+          onClick={() =>
+            workspaceRef.current?.resizeSplit(
+              resizeSplit.splitId,
+              resizeSplit.sizes
+            )
+          }
+        >
+          Resize split
+        </button>
+      )}
       <pre data-testid="workspace-changes" hidden>
         {JSON.stringify(changes)}
       </pre>

@@ -1211,13 +1211,23 @@ Copies loaded at different times may be running different versions of the applic
 </td>
     </tr>
     <tr>
+      <td>dragSourceInfo</td>
+      <td><p>Information about this workspace that&#39;s sent with the tabs (and tabsets) dragged from it (see the <code>dragGroup</code> prop),
+so that the workspaces they&#39;re dragged into can tell where they came from (see <code>DisableDropArgs.sourceInfo</code> and <code>WorkspaceChangedMeta.sourceInfo</code>),
+e.g. <code>{ app: &quot;reports&quot;, schemaVersion: 3 }</code>.</p>
+<p>⚠️ It&#39;s sent to other copies of the application with the structured clone algorithm (like tab data; see <code>dragGroup</code>), so it must be cloneable;
+drags whose source info can&#39;t be cloned can only be dropped within their copy of the application.
+It&#39;s read when a drag starts, so changes during a drag don&#39;t apply to it.</p>
+</td>
+    </tr>
+    <tr>
       <td>elementRef</td>
       <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
 </td>
     </tr>
     <tr>
       <td>hiddenTabBehavior</td>
-      <td><p>What happens to the content of tabs that are not selected.
+      <td><p>What happens to the content of tabs that aren&#39;t visible, once it has been mounted (see <code>lazyTabContent</code>).
 Can be a function to choose per tab (e.g. based on its data).</p>
 <ul>
 <li><code>&quot;keep-mounted&quot;</code>: content stays mounted (and its effects keep running)</li>
@@ -1225,9 +1235,38 @@ Can be a function to choose per tab (e.g. based on its data).</p>
 requires React 19.2 (falls back to <code>&quot;keep-mounted&quot;</code> otherwise)</li>
 <li><code>&quot;unmount&quot;</code>: content is unmounted</li>
 </ul>
-<p>ℹ️ Moving a tab never remounts its content.</p>
+<p>ℹ️ A tab is visible when it&#39;s selected, in a tabset that isn&#39;t collapsed or covered by a maximized tabset (floating tabsets aren&#39;t covered);
+so e.g. collapsing a tabset hides its selected tab&#39;s content, and maximizing one hides the others&#39;.
+Temporary collapsed states (e.g. while dragging a separator, or when collapsed to fit) don&#39;t hide content.</p>
+<p>ℹ️ Moving a tab never remounts its content (unless the move hides it and <code>hiddenTabBehavior</code> is <code>&quot;unmount&quot;</code>).</p>
 <p>⚠️ Its React state is preserved, but its elements are moved within the document, which resets some browser state:
 iframes are reloaded, playing media is paused, and focused elements are blurred.</p>
+</td>
+    </tr>
+    <tr>
+      <td>lazyTabContent</td>
+      <td><p>Don&#39;t mount a tab&#39;s content until the tab is first visible (e.g. for expensive content in tabsets with many tabs, or in tabsets that start collapsed);
+otherwise every tab&#39;s content is mounted along with the workspace.
+Can be a function to choose per tab (e.g. based on its data), e.g. <code>(tab) =&gt; tab.data.isExpensive</code>.</p>
+<p>Once mounted, content that isn&#39;t visible is kept mounted, hidden in an <code>Activity</code>, or unmounted, as <code>hiddenTabBehavior</code> says.</p>
+<p>ℹ️ A tab is visible when it&#39;s selected, in a tabset that isn&#39;t collapsed or covered by a maximized tabset (floating tabsets aren&#39;t covered).</p>
+</td>
+    </tr>
+    <tr>
+      <td>onBeforeModelChange</td>
+      <td><p>Called before a change the user makes (e.g. closing a tab, or dropping a tab that was dragged) is applied to the model;
+return <code>false</code> to block it, which leaves the model as it is (and <code>onModelChanged</code> isn&#39;t called).</p>
+<p>e.g. to lock the layout while only allowing some interactions (selecting a tab in a collapsed tabset is an &quot;expand&quot; change, and pressing a floating tabset is a &quot;raise&quot; change):
+<code>onBeforeModelChange={({ reason }) =&gt; !isLocked || [&quot;select&quot;, &quot;expand&quot;, &quot;raise&quot;, &quot;maximize&quot;, &quot;restore&quot;].includes(reason)}</code></p>
+<p>Or to keep tabs with unsaved changes from being closed (however they&#39;re closed, e.g. with their close buttons or the Delete key):
+<code>onBeforeModelChange={({ reason, removedTabs }) =&gt; reason !== &quot;close&quot; || !removedTabs.some((tab) =&gt; tab.data.isDirty)}</code></p>
+<p>ℹ️ It&#39;s called synchronously; to ask the user first (e.g. &quot;Save changes before closing?&quot;), block the change and then make it with the imperative API (e.g. <code>closeTab</code>) if they confirm.</p>
+<p>ℹ️ Changes made with the imperative API (including the handles returned by hooks like <code>useParentTab</code>, e.g. from a custom close button) aren&#39;t passed to it, since the application makes those itself.
+Neither is the removal of a tab (or tabset) that another workspace has accepted (see the <code>dragGroup</code> prop), or one that was torn off (see <code>onTearOff</code>),
+since it has already been added elsewhere; use <code>disableDrop</code> (or the <code>disableDrag</code> flags) to keep tabs from being dragged out instead.
+A workspace that a tab is dropped into can block the drop, in which case it stays in the workspace it was dragged from.</p>
+<p>ℹ️ Blocked resizes are undone (e.g. a separator dragged by the user moves back). Drops are blocked when the pointer is released,
+so use <code>disableDrop</code> to show while dragging that a target doesn&#39;t accept drops.</p>
 </td>
     </tr>
     <tr>
@@ -1624,13 +1663,20 @@ The easiest way to interact with this API is to use the `useWorkspaceRef` and `u
   <tbody>
     <tr>
       <td>addTab</td>
-      <td><p>Add a tab to a tabset.</p>
+      <td><p>Add a tab to a tabset, or in a new tabset at any target <code>moveTab</code> accepts (e.g. in a new split below a tabset, or at an edge of the workspace).</p>
 <p>ℹ️ If a tab with the same id already exists, it is selected instead (and its data is not changed).</p>
+<p>ℹ️ A tab added in a new tabset is that tabset&#39;s selected tab (so <code>select</code> doesn&#39;t apply); like a moved tab, it&#39;s added to a floating tabset rather than splitting it.</p>
 <ul>
 <li><code>tab</code> Tab to add</li>
-<li><code>options</code> .tabsetId Tabset to add the tab to; defaults to the active tabset</li>
-<li><code>options</code> .index Position within the tabset; defaults to the end</li>
-<li><code>options</code> .select Select the new tab; defaults to true</li>
+<li><code>options.tabsetId</code> Tabset to add the tab to; defaults to the active tabset</li>
+<li><code>options.index</code> Position within the tabset; defaults to the end</li>
+<li><code>options.select</code> Select the new tab; defaults to true</li>
+<li><code>options.target</code> Where to add the tab (see <code>TabDropTarget</code>); takes precedence over <code>tabsetId</code> and <code>index</code></li>
+<li><code>options.size</code> Size of the new tabset, when <code>target</code> creates one (an edge region of a tabset, or an edge of the workspace), as its share of the split it&#39;s in.
+Numbers are percentages (as in the model, see <code>TabsetNode.size</code>); strings may have units (e.g. <code>&quot;200px&quot;</code>), and are converted to percentages of the split&#39;s current size.
+For an edge region, the new tabset takes its space from the tabset it splits (so its siblings keep their sizes); if that tabset doesn&#39;t have enough room, its siblings shrink in proportion to their sizes instead.
+Defaults to half of the tabset it splits; at an edge of the workspace, an equal share of the root split (if it&#39;s in the same direction), or else half of the workspace.
+Invalid sizes (e.g. <code>NaN</code> or <code>&quot;abc&quot;</code>) are ignored, with a warning in development.</li>
 </ul>
 </td>
     </tr>
@@ -1733,6 +1779,10 @@ The <code>&quot;left&quot;</code> and <code>&quot;right&quot;</code> regions (an
 <p>ℹ️ A floating tabset moved beside another tabset (or to an edge of the workspace) is docked: it&#39;s moved into the layout, and stops floating.
 Floating tabsets can&#39;t be split, so a tabset moved to an edge region of one has its tabs moved into it instead (like the <code>&quot;center&quot;</code> region).</p>
 </td>
+    </tr>
+    <tr>
+      <td>resizeSplit</td>
+      <td></td>
     </tr>
     <tr>
       <td>restoreTabset</td>

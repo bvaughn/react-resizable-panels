@@ -13,9 +13,11 @@ import {
 } from "../hooks/useFloatingTabsetGesture";
 import { useWorkspaceContext } from "../hooks/useWorkspaceContext";
 import { raiseFloatingTabset } from "../models/raiseFloatingTabset";
-import type { FloatingTabsetNode } from "../types";
+import type { FloatingTabsetNode, ParentTabsetState } from "../types";
 import { clampFloatingPosition } from "../utils/clampFloatingPosition";
 import { getFloatingTabsetHeaderBox } from "../utils/getFloatingTabsetHeaderBox";
+import { getTabsetState } from "../utils/getTabsetState";
+import { resolveElementValue } from "../utils/resolveElementValue";
 import { TabsetSlot } from "./TabsetSlot";
 
 type LayoutBox = { height: number; left: number; top: number; width: number };
@@ -140,6 +142,7 @@ function FloatingTabset({
   stackIndex: number;
   tabset: FloatingTabsetNode;
 }) {
+  const workspace = useWorkspaceContext("FloatingTabset");
   const {
     classNames,
     disabled,
@@ -147,7 +150,7 @@ function FloatingTabset({
     styles,
     tabPlacement: defaultTabPlacement,
     updateModel
-  } = useWorkspaceContext("FloatingTabset");
+  } = workspace;
 
   const isMoveDisabled = disabled || !!tabset.disableDrag;
 
@@ -215,14 +218,29 @@ function FloatingTabset({
     };
   }, [tabsetId, updateModel]);
 
+  let state: ParentTabsetState | undefined;
+  const getArgs = (): [FloatingTabsetNode, ParentTabsetState] => {
+    state ??= getTabsetState(workspace, tabset);
+
+    return [tabset, state];
+  };
+  const handleClassName = resolveElementValue(
+    classNames?.floatingResizeHandle,
+    getArgs
+  );
+  const handleStyle = resolveElementValue(
+    styles?.floatingResizeHandle,
+    getArgs
+  );
+
   return (
     <div
-      className={classNames?.floatingTabset}
+      className={resolveElementValue(classNames?.floatingTabset, getArgs)}
       data-floating-tabset={tabset.id}
       data-tabset-collapsed={isCollapsed || undefined}
       ref={elementRef}
       style={{
-        ...styles?.floatingTabset,
+        ...resolveElementValue(styles?.floatingTabset, getArgs),
         height: isCollapsed && !isHeaderVertical ? "auto" : tabset.height,
         left: tabset.x,
         pointerEvents: "auto",
@@ -236,7 +254,7 @@ function FloatingTabset({
       {!isMoveDisabled &&
         resizeEdges.map((edge) => (
           <div
-            className={classNames?.floatingResizeHandle}
+            className={handleClassName}
             data-floating-resize-handle={edge}
             key={edge}
             onPointerDown={(event) => {
@@ -245,7 +263,7 @@ function FloatingTabset({
               }
             }}
             style={{
-              ...styles?.floatingResizeHandle,
+              ...handleStyle,
               ...getHandleStyle(edge)
             }}
           />

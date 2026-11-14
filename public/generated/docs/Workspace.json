@@ -99,7 +99,7 @@
           "intent": "primary"
         }
       ],
-      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">classNames</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">WorkspaceClassNames</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">classNames</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">WorkspaceClassNames</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span></div>",
       "name": "classNames",
       "required": false
     },
@@ -239,6 +239,20 @@
       "name": "dragGroup",
       "required": false
     },
+    "dragSourceInfo": {
+      "description": [
+        {
+          "content": "<p>Information about this workspace that's sent with the tabs (and tabsets) dragged from it (see the <code>dragGroup</code> prop),\nso that the workspaces they're dragged into can tell where they came from (see <code>DisableDropArgs.sourceInfo</code> and <code>WorkspaceChangedMeta.sourceInfo</code>),\ne.g. <code>{ app: &quot;reports&quot;, schemaVersion: 3 }</code>.</p>\n"
+        },
+        {
+          "content": "<p>It's sent to other copies of the application with the structured clone algorithm (like tab data; see <code>dragGroup</code>), so it must be cloneable;\ndrags whose source info can't be cloned can only be dropped within their copy of the application.\nIt's read when a drag starts, so changes during a drag don't apply to it.</p>\n",
+          "intent": "warning"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">dragSourceInfo</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">unknown</span></div>",
+      "name": "dragSourceInfo",
+      "required": false
+    },
     "elementRef": {
       "description": [
         {
@@ -252,13 +266,17 @@
     "hiddenTabBehavior": {
       "description": [
         {
-          "content": "<p>What happens to the content of tabs that are not selected.\nCan be a function to choose per tab (e.g. based on its data).</p>\n"
+          "content": "<p>What happens to the content of tabs that aren't visible, once it has been mounted (see <code>lazyTabContent</code>).\nCan be a function to choose per tab (e.g. based on its data).</p>\n"
         },
         {
           "content": "<ul>\n<li><code>&quot;keep-mounted&quot;</code>: content stays mounted (and its effects keep running)</li>\n<li><code>&quot;activity&quot;</code>: content stays mounted but is rendered within a hidden React <code>&lt;Activity&gt;</code> boundary, so its effects are unmounted;\nrequires React 19.2 (falls back to <code>&quot;keep-mounted&quot;</code> otherwise)</li>\n<li><code>&quot;unmount&quot;</code>: content is unmounted</li>\n</ul>\n"
         },
         {
-          "content": "<p>Moving a tab never remounts its content.</p>\n",
+          "content": "<p>A tab is visible when it's selected, in a tabset that isn't collapsed or covered by a maximized tabset (floating tabsets aren't covered);\nso e.g. collapsing a tabset hides its selected tab's content, and maximizing one hides the others'.\nTemporary collapsed states (e.g. while dragging a separator, or when collapsed to fit) don't hide content.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Moving a tab never remounts its content (unless the move hides it and <code>hiddenTabBehavior</code> is <code>&quot;unmount&quot;</code>).</p>\n",
           "intent": "primary"
         },
         {
@@ -268,6 +286,51 @@
       ],
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">hiddenTabBehavior</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">HiddenTabBehavior</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">HiddenTabBehavior</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"keep-mounted\"</span></div>",
       "name": "hiddenTabBehavior",
+      "required": false
+    },
+    "lazyTabContent": {
+      "description": [
+        {
+          "content": "<p>Don't mount a tab's content until the tab is first visible (e.g. for expensive content in tabsets with many tabs, or in tabsets that start collapsed);\notherwise every tab's content is mounted along with the workspace.\nCan be a function to choose per tab (e.g. based on its data), e.g. <code>(tab) =&gt; tab.data.isExpensive</code>.</p>\n"
+        },
+        {
+          "content": "<p>Once mounted, content that isn't visible is kept mounted, hidden in an <code>Activity</code>, or unmounted, as <code>hiddenTabBehavior</code> says.</p>\n"
+        },
+        {
+          "content": "<p>A tab is visible when it's selected, in a tabset that isn't collapsed or covered by a maximized tabset (floating tabsets aren't covered).</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">lazyTabContent</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">TabNode</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-bool\">false</span></div>",
+      "name": "lazyTabContent",
+      "required": false
+    },
+    "onBeforeModelChange": {
+      "description": [
+        {
+          "content": "<p>Called before a change the user makes (e.g. closing a tab, or dropping a tab that was dragged) is applied to the model;\nreturn <code>false</code> to block it, which leaves the model as it is (and <code>onModelChanged</code> isn't called).</p>\n"
+        },
+        {
+          "content": "<p>e.g. to lock the layout while only allowing some interactions (selecting a tab in a collapsed tabset is an &quot;expand&quot; change, and pressing a floating tabset is a &quot;raise&quot; change):\n<code>onBeforeModelChange={({ reason }) =&gt; !isLocked || [&quot;select&quot;, &quot;expand&quot;, &quot;raise&quot;, &quot;maximize&quot;, &quot;restore&quot;].includes(reason)}</code></p>\n"
+        },
+        {
+          "content": "<p>Or to keep tabs with unsaved changes from being closed (however they're closed, e.g. with their close buttons or the Delete key):\n<code>onBeforeModelChange={({ reason, removedTabs }) =&gt; reason !== &quot;close&quot; || !removedTabs.some((tab) =&gt; tab.data.isDirty)}</code></p>\n"
+        },
+        {
+          "content": "<p>It's called synchronously; to ask the user first (e.g. &quot;Save changes before closing?&quot;), block the change and then make it with the imperative API (e.g. <code>closeTab</code>) if they confirm.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Changes made with the imperative API (including the handles returned by hooks like <code>useParentTab</code>, e.g. from a custom close button) aren't passed to it, since the application makes those itself.\nNeither is the removal of a tab (or tabset) that another workspace has accepted (see the <code>dragGroup</code> prop), or one that was torn off (see <code>onTearOff</code>),\nsince it has already been added elsewhere; use <code>disableDrop</code> (or the <code>disableDrag</code> flags) to keep tabs from being dragged out instead.\nA workspace that a tab is dropped into can block the drop, in which case it stays in the workspace it was dragged from.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Blocked resizes are undone (e.g. a separator dragged by the user moves back). Drops are blocked when the pointer is released,\nso use <code>disableDrop</code> to show while dragging that a target doesn't accept drops.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">onBeforeModelChange</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">args</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">BeforeModelChangeArgs</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "onBeforeModelChange",
       "required": false
     },
     "onModelChanged": {
@@ -459,7 +522,7 @@
           "content": "<p>CSS properties for the elements the workspace renders within its root element (see <code>classNames</code>).</p>\n"
         }
       ],
-      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">styles</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">WorkspaceStyles</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">styles</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">WorkspaceStyles</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span></div>",
       "name": "styles",
       "required": false
     },

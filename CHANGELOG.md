@@ -1,20 +1,32 @@
 # Changelog
 
+## Unreleased
+
+- `Workspace`:
+  - Add the `onBeforeModelChange` prop, which can block changes the user makes (e.g. closing a tab with unsaved changes). - [#819](https://github.com/bvaughn/react-resizable-panels/issues/819), [#836](https://github.com/bvaughn/react-resizable-panels/pull/836)
+  - Add the `resizeSplit` method, which sets the sizes of a split's children by id (e.g. to apply a saved preset). - [#810](https://github.com/bvaughn/react-resizable-panels/issues/810), [#836](https://github.com/bvaughn/react-resizable-panels/pull/836)
+  - Add the `dragSourceInfo` prop, which tells the workspace a tab is dragged into where it came from (passed to its `disableDrop` and `onModelChanged`). - [#815](https://github.com/bvaughn/react-resizable-panels/issues/815), [#836](https://github.com/bvaughn/react-resizable-panels/pull/836)
+  - Add the `target` and `size` options to the `addTab` method (and `region` and `size` to `ParentTabset.addTab`), e.g. to add a tab in a new tabset below another one. - [#811](https://github.com/bvaughn/react-resizable-panels/issues/811)
+  - The `classNames` and `styles` props can have functions of the tabset, tab, or split being styled (and its state), e.g. to style tabsets by their `data`. - [#812](https://github.com/bvaughn/react-resizable-panels/issues/812)
+  - Add the `lazyTabContent` prop, which doesn't mount a tab's content until the tab is first shown. - [#817](https://github.com/bvaughn/react-resizable-panels/issues/817)
+  - `hiddenTabBehavior` now applies to tabs that aren't visible, not just to tabs that aren't selected: the selected tabs of collapsed tabsets (and of tabsets covered by a maximized tabset) are unmounted (`"unmount"`) or hidden (`"activity"`) too. - [#817](https://github.com/bvaughn/react-resizable-panels/issues/817)
+
 ## 4.22.1
 
-- Form controls (`input`, `select`, and `textarea` elements, the labels of form controls, editable content, and elements with a form control role such as `role="checkbox"`) within a `Workspace` tab no longer select the tab or start dragging it when pressed, like buttons within a tab (e.g. so a tab can show an input to rename it). Use the `data-tab-ignore` attribute to opt other elements out. - [#822](https://github.com/bvaughn/react-resizable-panels/issues/822)
-- Fix `groupResizeBehavior: "preserve-pixel-size"` panels and `Grid` tracks resizing (e.g. a collapsed panel expanding) when their constraints or `groupResizeBehavior` change after the group has been resized. - [#832](https://github.com/bvaughn/react-resizable-panels/issues/832)
-- Fix `groupResizeBehavior: "preserve-pixel-size"` panels and `Grid` tracks collapsed (with the keyboard or the imperative `collapse()` method) expanding to the wrong size (rather than their pre-collapse pixel size) if the group was resized while they were collapsed. - [#832](https://github.com/bvaughn/react-resizable-panels/issues/832)
+- Form controls within a `Workspace` tab (e.g. an input to rename it) no longer select or drag the tab when pressed, like buttons. Opt other elements out with `data-tab-ignore`. - [#822](https://github.com/bvaughn/react-resizable-panels/issues/822)
+- Fix `groupResizeBehavior: "preserve-pixel-size"` panels and `Grid` tracks resizing when their constraints (or `groupResizeBehavior`) change after the group was resized. - [#832](https://github.com/bvaughn/react-resizable-panels/issues/832)
+- Fix collapsed `groupResizeBehavior: "preserve-pixel-size"` panels and `Grid` tracks expanding to the wrong size if the group was resized while they were collapsed. - [#832](https://github.com/bvaughn/react-resizable-panels/issues/832)
 
 ## 4.22.0
 
-- Add the `Workspace` `startExternalDrag` method, which drags a new tab in from outside of the workspace (e.g. from a palette of widgets). - [#808](https://github.com/bvaughn/react-resizable-panels/issues/808)
-- Add the `Workspace` `acceptExternalDrop` prop, which creates tabs from the browser's drag and drop (e.g. `draggable` elements or files). - [#808](https://github.com/bvaughn/react-resizable-panels/issues/808)
-- Add the `useTabListOverflow` hook, which returns the ids of a tabset's tabs that are scrolled out of view (e.g. for an overflow menu), and the `getTabListOverflow` and `subscribeToTabListOverflow` methods. - [#816](https://github.com/bvaughn/react-resizable-panels/issues/816)
-- A selected `Workspace` tab is scrolled into view if its tab list overflows, and `useParentTabset` has a new `selectTab` method. - [#816](https://github.com/bvaughn/react-resizable-panels/issues/816)
-- Add the `usePopoutWindows` hook, which opens `Workspace` tabs in popup windows (e.g. from a "pop out" button), copying the page's styles, and docks them back when the windows are closed. - [#821](https://github.com/bvaughn/react-resizable-panels/issues/821)
-- Deprecate the `Workspace` `onTearOff` prop (and `TearOffArgs` and the drag preview's `isTearOff`): browsers don't reliably report where a drag outside of the window ends, and some block popups opened then. Open popout windows from a button instead; it will be removed in the next major version. - [#826](https://github.com/bvaughn/react-resizable-panels/issues/826)
-- Add the `Workspace` `copyTab` and `copyTabset` props: tabs (and tabsets) dropped while Option (macOS) or Ctrl is held are copied rather than moved, and reported with the new `"copy"` reason. - [#809](https://github.com/bvaughn/react-resizable-panels/issues/809)
+- `Workspace`:
+  - Add the `startExternalDrag` method, which drags a new tab in from outside of the workspace (e.g. from a palette of widgets). - [#808](https://github.com/bvaughn/react-resizable-panels/issues/808)
+  - Add the `acceptExternalDrop` prop, which creates tabs from the browser's drag and drop (e.g. `draggable` elements or files). - [#808](https://github.com/bvaughn/react-resizable-panels/issues/808)
+  - Add the `useTabListOverflow` hook, which returns the ids of a tabset's tabs that are scrolled out of view (e.g. for an overflow menu), and the `getTabListOverflow` and `subscribeToTabListOverflow` methods. - [#816](https://github.com/bvaughn/react-resizable-panels/issues/816)
+  - A selected tab is scrolled into view if its tab list overflows, and `useParentTabset` has a new `selectTab` method. - [#816](https://github.com/bvaughn/react-resizable-panels/issues/816)
+  - Add the `usePopoutWindows` hook, which opens tabs in popup windows (e.g. from a "pop out" button), copying the page's styles, and docks them back when the windows are closed. - [#821](https://github.com/bvaughn/react-resizable-panels/issues/821)
+  - Deprecate the `onTearOff` prop (and `TearOffArgs` and the drag preview's `isTearOff`), since browsers don't reliably report where a drag outside of the window ends. Open popout windows from a button instead. - [#826](https://github.com/bvaughn/react-resizable-panels/issues/826)
+  - Add the `copyTab` and `copyTabset` props: tabs (and tabsets) dropped while Option (macOS) or Ctrl is held are copied rather than moved, and reported with the new `"copy"` reason. - [#809](https://github.com/bvaughn/react-resizable-panels/issues/809)
 
 ## 4.21.0
 
@@ -24,7 +36,7 @@
 
 ## 4.20.0
 
-- Add floating tabsets to `Workspace`: tabsets that float above the layout, listed in the model's new `floating` field. Users move them by their headers, resize them by their edges, and drag tabs into and out of them. The new `floatTab` and `floatTabset` methods create them, `collapseTabset` collapses them to their headers, and `moveTabset` docks them. - [#799](https://github.com/bvaughn/react-resizable-panels/issues/799)
+- Add floating `Workspace` tabsets (the model's new `floating` field), which users can move, resize, and drag tabs into and out of. The new `floatTab` and `floatTabset` methods create them, and `moveTabset` docks them. - [#799](https://github.com/bvaughn/react-resizable-panels/issues/799)
 - `Workspace` tabs (and tabsets) can be dropped at the edges of the workspace, beside all of the other tabsets (e.g. as a sidebar or bottom panel). These targets are on by default; turn them off with `disableDrop={({ target }) => "edge" in target}`. - [#800](https://github.com/bvaughn/react-resizable-panels/issues/800)
 
 > [!WARNING]
@@ -32,9 +44,9 @@
 
 ## 4.19.1
 
-- Improve resizing and dragging performance, e.g. `Panel`s without an `onResize` prop are no longer observed, and dragging a `Workspace` tab only re-renders what changes.
-- Remove development-only warnings from production builds.
-- With a `dragGroup`, `disableDrop` is now called when the drop target changes, rather than on every `dragover` event.
+- Improve resizing and dragging performance, e.g. `Panel`s without an `onResize` prop are no longer observed, and dragging a `Workspace` tab only re-renders what changes. - [#798](https://github.com/bvaughn/react-resizable-panels/pull/798)
+- Remove development-only warnings from production builds. - [#798](https://github.com/bvaughn/react-resizable-panels/pull/798)
+- With a `dragGroup`, `disableDrop` is now called when the drop target changes, rather than on every `dragover` event. - [#798](https://github.com/bvaughn/react-resizable-panels/pull/798)
 
 > [!WARNING]
 > The library now reads `process.env.NODE_ENV` (like React does), so it must be loaded with a bundler (or a CDN like esm.sh) that defines it.
@@ -42,7 +54,7 @@
 ## 4.19.0
 
 - Add the `Workspace` `onTearOff` prop, called when a tab (or tabset) is dropped outside of the window (e.g. to open it in a popup). Returning `true` removes it, reported with the new `"tear-off"` reason. - [#794](https://github.com/bvaughn/react-resizable-panels/pull/794)
-- Add the `Workspace` `dragGroup` prop, which lets tabs be dragged between workspaces in the same group, including workspaces in popup windows and in other copies of the app (opt out with `disableDragBetweenApps`). Both workspaces report the new `"transfer"` reason, and `disableDrop` is passed a new `source` argument. - [#794](https://github.com/bvaughn/react-resizable-panels/pull/794)
+- Add the `Workspace` `dragGroup` prop, which lets tabs be dragged between workspaces (including in popup windows and other copies of the app), reported with the new `"transfer"` reason. `disableDrop` is passed a new `source` argument. - [#794](https://github.com/bvaughn/react-resizable-panels/pull/794)
 - Fix the drop indicator for an empty `Workspace`. - [#796](https://github.com/bvaughn/react-resizable-panels/pull/796)
 - The `Workspace` drop indicator is now a single element for the whole drag, so it can be animated between tabsets (e.g. `transition: inset 250ms`). - [#793](https://github.com/bvaughn/react-resizable-panels/pull/793)
 
@@ -51,15 +63,15 @@
 
 ## 4.18.1
 
-- Fix the free space in a `Workspace` tab list not going down once the tab list is squeezed to 0px.
+- Fix the free space in a `Workspace` tab list not going down once the tab list is squeezed to 0px. - [#792](https://github.com/bvaughn/react-resizable-panels/pull/792)
 - Fix `Workspace` interactions in right-to-left layouts (dragging tabs within tab lists, arrow keys, and the left and right drop regions). - [#791](https://github.com/bvaughn/react-resizable-panels/issues/791)
 
 ## 4.18.0
 
-- Add `normalizeWorkspaceModel`, which checks and tidies a saved model (returning `null` if it isn't valid); its `mapTab` option updates saved tabs.
-- Add the free space in each `Workspace` tab list (e.g. for an overflow menu): the `useTabListFreeSpace` hook, the `getTabListFreeSpace` and `subscribeToTabListFreeSpace` methods, and the `--tab-list-free-space` custom property.
-- Add `maxWidth` and `maxHeight` to `Workspace` tabsets.
-- Fix `Workspace` tabsets that don't fit their minimum sizes being shown collapsed with their content still rendered. They're now collapsed to fit (see `useParentTabsetState().isCollapsedToFit`) without changing the model.
+- Add `normalizeWorkspaceModel`, which checks and tidies a saved model (returning `null` if it isn't valid); its `mapTab` option updates saved tabs. - [#790](https://github.com/bvaughn/react-resizable-panels/pull/790)
+- Add the free space in each `Workspace` tab list (e.g. for an overflow menu): the `useTabListFreeSpace` hook, the `getTabListFreeSpace` and `subscribeToTabListFreeSpace` methods, and the `--tab-list-free-space` custom property. - [#790](https://github.com/bvaughn/react-resizable-panels/pull/790)
+- Add `maxWidth` and `maxHeight` to `Workspace` tabsets. - [#790](https://github.com/bvaughn/react-resizable-panels/pull/790)
+- Fix `Workspace` tabsets that don't fit their minimum sizes being shown collapsed with their content rendered; they're now collapsed to fit (see `useParentTabsetState().isCollapsedToFit`) without changing the model. - [#790](https://github.com/bvaughn/react-resizable-panels/pull/790)
 - The default tabset drag preview shows how many other tabs are being dragged (e.g. "One (+2)"). - [#789](https://github.com/bvaughn/react-resizable-panels/pull/789)
 
 ## 4.17.0
@@ -87,27 +99,27 @@
 
 ## 4.15.3
 
-- Fix unused components not being removed by some bundlers (e.g. esbuild), so an application that only imports `Group` no longer includes `Grid`. Components now set their `displayName` within a pure-annotated expression, and `package.json` declares `"sideEffects": false`. - [#779](https://github.com/bvaughn/react-resizable-panels/pull/779)
+- Fix unused components (e.g. `Grid`) not being removed by some bundlers (e.g. esbuild). - [#779](https://github.com/bvaughn/react-resizable-panels/pull/779)
 
 ## 4.15.2
 
-- Fix `vh`, `vw`, and `em` panel sizes (e.g. `defaultSize="25vw"`) being resolved against the global `window` instead of the panel's own window, so a `Group` rendered into another window (e.g. a `window.open` popout via a portal, or an iframe) was sized against the opener's viewport. - [#777](https://github.com/bvaughn/react-resizable-panels/pull/777)
+- Fix `vh`, `vw`, and `em` panel sizes being resolved against the global `window` rather than the panel's own window (e.g. a popup or iframe). - [#777](https://github.com/bvaughn/react-resizable-panels/pull/777)
 
 ## 4.15.1
 
-- Declare `@types/react` as an optional peer dependency. Under strict package linkers (e.g. pnpm with a global virtual store, Yarn PnP, or Bun isolated installs), TypeScript could fail to resolve it from this package, silently typing props built on React types as `any`. - [#776](https://github.com/bvaughn/react-resizable-panels/pull/776)
+- Declare `@types/react` as an optional peer dependency, so that strict package linkers (e.g. pnpm, Yarn PnP) can resolve it. - [#776](https://github.com/bvaughn/react-resizable-panels/pull/776)
 
 ## 4.15.0
 
-- Add `useParentGroup`, `useParentPanel`, and `useParentGrid` hooks. Components rendered within a `Group`, `Panel`, or `Grid` can use them to access the nearest one (including its imperative API) without passing refs down; they return `null` outside of a matching component. Within a `Cell`, `useParentGroup` returns the nearest `Group` outside of the `Grid`. - [#775](https://github.com/bvaughn/react-resizable-panels/pull/775)
-- Imperative `Panel` and `GridTrack` `resize()`, `collapse()`, and `expand()` calls (and double-clicking a separator to reset a panel's size) now take space from, or give it to, the nearest panels that can absorb it, on either side of the panel being resized. Previously only the panels on one side were used, starting with the adjacent panel, so these calls could silently do nothing (e.g. when the next panel was collapsed) or unexpectedly collapse or expand other panels. Changes that don't collapse or expand other panels are now preferred. - [#774](https://github.com/bvaughn/react-resizable-panels/pull/774)
-- `expand()` still restores a panel's most recent size, but if that would require collapsing another panel, it now expands to the largest size that fits instead (as long as that's at least its `minSize`). - [#774](https://github.com/bvaughn/react-resizable-panels/pull/774)
-- Fix releasing the pointer after dragging the boundary between panels that don't have a `Separator` "clicking" the element under the pointer (e.g. a button in a panel header). - [#774](https://github.com/bvaughn/react-resizable-panels/pull/774)
+- Add `useParentGroup`, `useParentPanel`, and `useParentGrid` hooks, which return the nearest `Group`, `Panel`, or `Grid` (including its imperative API). - [#775](https://github.com/bvaughn/react-resizable-panels/pull/775)
+- Imperative `Panel` and `GridTrack` `resize()`, `collapse()`, and `expand()` calls (and double-clicking a separator) now take space from the nearest panels that can absorb it on either side, rather than only the adjacent panel, so they no longer silently do nothing or collapse other panels. - [#774](https://github.com/bvaughn/react-resizable-panels/pull/774)
+- `expand()` expands to the largest size that fits (if at least `minSize`) when restoring the panel's most recent size would collapse another panel. - [#774](https://github.com/bvaughn/react-resizable-panels/pull/774)
+- Fix releasing the pointer after dragging between panels without a `Separator` clicking the element under it. - [#774](https://github.com/bvaughn/react-resizable-panels/pull/774)
 
 ## 4.14.8
 
-- Fix "Stacking order can only be calculated for elements with a common ancestor" error thrown by the document `pointermove` handler when the event target is removed from the DOM during dispatch. Detached targets are now treated as viable hit targets. - [#771](https://github.com/bvaughn/react-resizable-panels/pull/771)
-- Fix `Group` and `Grid` `setLayout()` and `Panel` `resize()`, `collapse()`, and `expand()` validating against pixel-based constraints for the previous group size when called before the group's `ResizeObserver` ran (e.g. from an application's own `ResizeObserver`). - [#770](https://github.com/bvaughn/react-resizable-panels/issues/770)
+- Fix a "Stacking order can only be calculated for elements with a common ancestor" error when a `pointermove` event's target is removed from the DOM. - [#771](https://github.com/bvaughn/react-resizable-panels/pull/771)
+- Fix `setLayout()`, `resize()`, `collapse()`, and `expand()` using the previous group size's pixel constraints when called before the group's `ResizeObserver` ran. - [#770](https://github.com/bvaughn/react-resizable-panels/issues/770)
 
 ## 4.14.7
 
@@ -143,12 +155,12 @@
 
 ## 4.14.0
 
-- Add `Grid`, `Cell`, and `Gridline` components for resizable two-dimensional layouts:
+- Add `Grid`, `Cell`, and `Gridline` components for resizable two-dimensional layouts: - [#756](https://github.com/bvaughn/react-resizable-panels/pull/756)
   - Columns and rows support the same size constraints as `Panel`s (e.g. min/max size, collapsible).
   - Cells can span multiple columns and/or rows.
   - Dragging where column and row boundaries intersect resizes both axes.
   - `Gridline`s (optional, like `Separator`s) can span a subset of tracks to avoid spanning cells.
-- Add `useDefaultGridLayout`, `useGridRef`, and `useGridCallbackRef` hooks.
+- Add `useDefaultGridLayout`, `useGridRef`, and `useGridCallbackRef` hooks. - [#756](https://github.com/bvaughn/react-resizable-panels/pull/756)
 
 ## 4.13.3
 
@@ -195,7 +207,7 @@
 ## 4.12.0
 
 - Pass meta info to the `onLayoutChanged` callback indicating whether the resize was triggered by direct user input (keyboard or mouse). - [#716](https://github.com/bvaughn/react-resizable-panels/pull/716)
-- Add an `onlySaveAfterUserInteractions` option to the `useDefaultLayout` hook to only save layouts when directly triggered by user interactions.
+- Add an `onlySaveAfterUserInteractions` option to the `useDefaultLayout` hook to only save layouts when directly triggered by user interactions. - [#721](https://github.com/bvaughn/react-resizable-panels/pull/721)
 
 ## 4.11.2
 
@@ -262,7 +274,7 @@
 
 ## 4.6.3
 
-- Fix the project logo not displaying in the README in Firefox.
+- Fix the project logo not displaying in the README in Firefox. - [a33b189](https://github.com/bvaughn/react-resizable-panels/commit/a33b189)
 
 ## 4.6.2
 
@@ -326,7 +338,7 @@
 
 ## 4.5.0
 
-- Replace `Separator` and `Panel` edge hit-area padding with a minimum size threshold based on [Apple's user interface guidelines](https://developer.apple.com/design/human-interface-guidelines/accessibility). Separators that are large enough will no longer be padded; separators that are too small (or panels without separators) will more or less function like before. This should not have much of a user-facing impact other than an increase in the click target area. (Previously I was not padding enough, as per Apple's guidelines.) - [#616](https://github.com/bvaughn/react-resizable-panels/pull/616)
+- Replace `Separator` and `Panel` edge hit-area padding with a minimum hit target size (per [Apple's user interface guidelines](https://developer.apple.com/design/human-interface-guidelines/accessibility)), which increases the click target of small separators. - [#616](https://github.com/bvaughn/react-resizable-panels/pull/616)
 - Reset a `Panel` to its default size when its associated `Separator` is double-clicked (see video below). Double-clicking has no effect on panels without default sizes. - [#615](https://github.com/bvaughn/react-resizable-panels/pull/615), [#620](https://github.com/bvaughn/react-resizable-panels/pull/620)
 - Fix sizing of panels within vertical groups in Safari. - [#622](https://github.com/bvaughn/react-resizable-panels/pull/622)
 - Fix `adoptedStyleSheets` being overridden. - [#618](https://github.com/bvaughn/react-resizable-panels/pull/618)
@@ -360,7 +372,7 @@ The `useDefaultLayout` hook has also been updated to use this callback (though i
 
 ## 4.3.2
 
-- Move the `flex-grow` `Panel` style to an inline value instead of a CSS variable defined on the parent `Group` to improve rendering performance. This significantly reduces the negative impact from forced reflow.
+- Move the `flex-grow` `Panel` style to an inline value instead of a CSS variable defined on the parent `Group` to improve rendering performance. This significantly reduces the negative impact from forced reflow. - [#592](https://github.com/bvaughn/react-resizable-panels/pull/592)
 
 ## 4.3.1
 
@@ -372,13 +384,13 @@ The `useDefaultLayout` hook has also been updated to use this callback (though i
 
 - Set default `width`, `height`, and `overflow` styles on `Group` (these can be overridden using the `style` prop). - [#583](https://github.com/bvaughn/react-resizable-panels/pull/583)
 - Only call `event.preventDefault` for drag interactions with the primary button. - [#582](https://github.com/bvaughn/react-resizable-panels/pull/582)
-- Refine TS types for `useGroupRef` and `usePanelRef` to include `| null` to increase compatibility with older React versions.
-- Update TSDoc comments for `Panel` and `Separator` components.
+- Refine TS types for `useGroupRef` and `usePanelRef` to include `| null` to increase compatibility with older React versions. - [#583](https://github.com/bvaughn/react-resizable-panels/pull/583)
+- Update TSDoc comments for `Panel` and `Separator` components. - [#583](https://github.com/bvaughn/react-resizable-panels/pull/583)
 
 ## 4.2.2
 
-- Default the `useDefaultLayout` hook `storage` param to `localStorage` if undefined.
-- Fix ambiguous type for `Panel` prop `onResize` that impacted certain TypeScript versions.
+- Default the `useDefaultLayout` hook `storage` param to `localStorage` if undefined. - [#578](https://github.com/bvaughn/react-resizable-panels/pull/578)
+- Fix ambiguous type for `Panel` prop `onResize` that impacted certain TypeScript versions. - [#578](https://github.com/bvaughn/react-resizable-panels/pull/578)
 
 ## 4.2.1
 
@@ -413,7 +425,7 @@ The `useDefaultLayout` hook has also been updated to use this callback (though i
 
 ## 4.0.13
 
-- Deprecate the `useDefaultLayout` `groupId` param in favor of `id` to avoid confusion (there is no actual requirement for the `Group` to have a matching id).
+- Deprecate the `useDefaultLayout` `groupId` param in favor of `id` to avoid confusion (there is no actual requirement for the `Group` to have a matching id). - [#553](https://github.com/bvaughn/react-resizable-panels/pull/553)
 
 ## 4.0.12
 
@@ -472,11 +484,11 @@ useDefaultLayout({
 
 ## 4.0.3
 
-- Fix TS type for `defaultLayout` value returned from `useDefaultLayout`.
+- Fix TS type for `defaultLayout` value returned from `useDefaultLayout`. - [cdcce44](https://github.com/bvaughn/react-resizable-panels/commit/cdcce44)
 
 ## 4.0.2
 
-- Export `GroupImperativeHandle` and `PanelImperativeHandle` types.
+- Export `GroupImperativeHandle` and `PanelImperativeHandle` types. - [7c56dd4](https://github.com/bvaughn/react-resizable-panels/commit/7c56dd4)
 
 ## 4.0.1
 
@@ -706,7 +718,7 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 
 ## 3.0.2
 
-- Add a fallback for the `HTMLElement` type to better support portal edge cases.
+- Add a fallback for the `HTMLElement` type to better support portal edge cases. - [#484](https://github.com/bvaughn/react-resizable-panels/pull/484)
 
 ## 3.0.1
 
@@ -738,12 +750,12 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 
 ## 2.1.6
 
-- Replace the `"engines"` block with `"packageManager"`.
-- Don't read `document.direction` for RTL detection; use inherited style instead.
+- Replace the `"engines"` block with `"packageManager"`. - [95d2f21](https://github.com/bvaughn/react-resizable-panels/commit/95d2f21)
+- Don't read `document.direction` for RTL detection; use inherited style instead. - [#424](https://github.com/bvaughn/react-resizable-panels/pull/424)
 
 ## 2.1.5
 
-- Add React v19 to peer deps.
+- Add React v19 to peer deps. - [#422](https://github.com/bvaughn/react-resizable-panels/pull/422)
 
 ## 2.1.4
 
@@ -787,7 +799,7 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 
 ## 2.0.19
 
-- Add optional `minSize` override param to panel `expand` imperative API.
+- Add optional `minSize` override param to panel `expand` imperative API. - [#347](https://github.com/bvaughn/react-resizable-panels/pull/347)
 
 ## 2.0.18
 
@@ -857,11 +869,11 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 
 ## 2.0.2
 
-- Fix an issue where size might not be re-initialized correctly after a panel was hidden by the `unstable_Activity` (previously "Offscreen") API.
+- Fix an issue where size might not be re-initialized correctly after a panel was hidden by the `unstable_Activity` (previously "Offscreen") API. - [77aca6d](https://github.com/bvaughn/react-resizable-panels/commit/77aca6d)
 
 ## 2.0.1
 
-- Fix a regression introduced in 2.0.0 that caused React `onClick` and `onMouseUp` handlers not to fire.
+- Fix a regression introduced in 2.0.0 that caused React `onClick` and `onMouseUp` handlers not to fire. - [9e8a17b](https://github.com/bvaughn/react-resizable-panels/commit/9e8a17b)
 
 # 2.0.0
 
@@ -889,15 +901,15 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 
 ## 1.0.6
 
-- Export internal DOM helper methods.
+- Export internal DOM helper methods. - [e64fe95](https://github.com/bvaughn/react-resizable-panels/commit/e64fe95)
 
 ## 1.0.5
 
-- Fix a server rendering regression. Panels now render with their `defaultSize` during initial mount (if one is specified). This allows server-rendered components to store the most recent size in a cookie and use that value as the default for subsequent page visits. - [#240](https://github.com/bvaughn/react-resizable-panels/issues/240)
+- Fix a server rendering regression: panels render with their `defaultSize` during the initial mount again (e.g. so a size saved in a cookie can be used). - [#240](https://github.com/bvaughn/react-resizable-panels/issues/240)
 
 ## 1.0.4
 
-- Fix an edge case for the `isCollapsed` panel method. Previously an uninitialized `collapsedSize` value was not being initialized to `0`, which caused `isCollapsed` to incorrectly report `false` in some cases.
+- Fix the `isCollapsed` panel method returning `false` in some cases because an uninitialized `collapsedSize` wasn't treated as `0`. - [097f71c](https://github.com/bvaughn/react-resizable-panels/commit/097f71c)
 
 ## 1.0.3
 
@@ -909,16 +921,16 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 
 ## 1.0.1
 
-- Guard against saving an incorrect panel layout to local storage.
+- Guard against saving an incorrect panel layout to local storage. - [ab496d8](https://github.com/bvaughn/react-resizable-panels/commit/ab496d8)
 
 # 1.0.0
 
-- Remove support for pixel-based `Panel` constraints (props like `defaultSizePercentage` should now be `defaultSize`).
-- Replace `dataAttributes` prop with `...rest` prop that supports all HTML attributes.
+- Remove support for pixel-based `Panel` constraints (props like `defaultSizePercentage` should now be `defaultSize`). - [#230](https://github.com/bvaughn/react-resizable-panels/pull/230)
+- Replace `dataAttributes` prop with `...rest` prop that supports all HTML attributes. - [#230](https://github.com/bvaughn/react-resizable-panels/pull/230)
 
 ## 0.0.63
 
-- Change default (not-yet-registered) `Panel` `flex-grow` style from 0 to 1.
+- Change default (not-yet-registered) `Panel` `flex-grow` style from 0 to 1. - [9e9dd82](https://github.com/bvaughn/react-resizable-panels/commit/9e9dd82)
 
 ## 0.0.62
 
@@ -926,26 +938,26 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 
 ## 0.0.61
 
-- Better support the unstable Offscreen/Activity API.
+- Better support the unstable Offscreen/Activity API. - [46cab02](https://github.com/bvaughn/react-resizable-panels/commit/46cab02)
 
 ## 0.0.60
 
-- Better support imperative API usage from mount effects.
-- Better support strict effects mode.
-- Better guard against calling `onResize` or `onLayout` more than once.
+- Better support imperative API usage from mount effects. - [#219](https://github.com/bvaughn/react-resizable-panels/pull/219)
+- Better support strict effects mode. - [#219](https://github.com/bvaughn/react-resizable-panels/pull/219)
+- Better guard against calling `onResize` or `onLayout` more than once. - [#219](https://github.com/bvaughn/react-resizable-panels/pull/219)
 
 ## 0.0.59
 
-- Support imperative panel API usage on-mount.
+- Support imperative panel API usage on-mount. - [#216](https://github.com/bvaughn/react-resizable-panels/pull/216)
 - Make `PanelGroup` bailout condition smarter (don't bail out for empty groups unless pixel constraints are used).
-- Improve window splitter compatibility by better handling `"Enter"` key.
+- Improve window splitter compatibility by better handling `"Enter"` key. - [4c01bf2](https://github.com/bvaughn/react-resizable-panels/commit/4c01bf2)
 
 ## 0.0.58
 
-- Change group layout to more thoroughly distribute resize delta to support more flexible group size configurations.
-- Add data attribute support to `Panel`, `PanelGroup`, and `PanelResizeHandle`.
-- Update API documentation to reflect changed imperative API method names.
-- Update `PanelOnResize` TypeScript def to reflect that the previous size param is `undefined` the first time it is called.
+- Change group layout to more thoroughly distribute resize delta to support more flexible group size configurations. - [#215](https://github.com/bvaughn/react-resizable-panels/pull/215)
+- Add data attribute support to `Panel`, `PanelGroup`, and `PanelResizeHandle`. - [#215](https://github.com/bvaughn/react-resizable-panels/pull/215)
+- Update API documentation to reflect changed imperative API method names. - [#215](https://github.com/bvaughn/react-resizable-panels/pull/215)
+- Update `PanelOnResize` TypeScript def to reflect that the previous size param is `undefined` the first time it is called. - [#212](https://github.com/bvaughn/react-resizable-panels/pull/212)
 
 ## 0.0.57
 
@@ -1038,7 +1050,7 @@ For a complete list of supported properties and example usage, refer to the docs
 
 ## 0.0.55
 
-- Add `units` prop to `PanelGroup` to support pixel-based panel size constraints.
+- Add `units` prop to `PanelGroup` to support pixel-based panel size constraints. - [#176](https://github.com/bvaughn/react-resizable-panels/pull/176)
 
 This prop defaults to "percentage" but can be set to "pixels" for static, pixel based layout constraints.
 
@@ -1075,7 +1087,7 @@ const layout = panelGroupRef.getLayout("pixels");
 
 ## 0.0.53
 
-- Fix edge case race condition for `onResize` callbacks during initial mount.
+- Fix edge case race condition for `onResize` callbacks during initial mount. - [3bf394a](https://github.com/bvaughn/react-resizable-panels/commit/3bf394a)
 
 ## 0.0.52
 
@@ -1089,11 +1101,11 @@ const layout = panelGroupRef.getLayout("pixels");
 
 ## 0.0.50
 
-- Improve panel size validation in `PanelGroup`.
+- Improve panel size validation in `PanelGroup`. - [65c64e7](https://github.com/bvaughn/react-resizable-panels/commit/65c64e7)
 
 ## 0.0.49
 
-- Improve development warnings and props validation checks in `PanelGroup`.
+- Improve development warnings and props validation checks in `PanelGroup`. - [3780fd3](https://github.com/bvaughn/react-resizable-panels/commit/3780fd3)
 
 ## 0.0.48
 
@@ -1101,16 +1113,16 @@ const layout = panelGroupRef.getLayout("pixels");
 
 ## 0.0.47
 
-- Mimic VS Code behavior by collapsing a panel if it's smaller than half of its min-size.
+- Mimic VS Code behavior by collapsing a panel if it's smaller than half of its min-size. - [20ed050](https://github.com/bvaughn/react-resizable-panels/commit/20ed050)
 
 ## 0.0.46
 
-- Avoid accessing default storage (`localStorage`) during server rendering initialization, and avoid throwing an error in browsers that have 3rd party cookies/storage disabled.
+- Avoid accessing default storage (`localStorage`) during server rendering initialization, and avoid throwing an error in browsers that have 3rd party cookies/storage disabled. - [5c5a4be](https://github.com/bvaughn/react-resizable-panels/commit/5c5a4be)
 
 ## 0.0.45
 
-- Avoid server rendering layout shift by using `defaultSize` to set initial `flex-grow` style.
-- Warn if `Panel` is server-rendered without a `defaultSize` prop.
+- Avoid server rendering layout shift by using `defaultSize` to set initial `flex-grow` style. - [259d794](https://github.com/bvaughn/react-resizable-panels/commit/259d794)
+- Warn if `Panel` is server-rendered without a `defaultSize` prop. - [264f4c5](https://github.com/bvaughn/react-resizable-panels/commit/264f4c5)
 - Support RTL layouts. - [#135](https://github.com/bvaughn/react-resizable-panels/issues/135)
 
 ## 0.0.44
@@ -1119,16 +1131,16 @@ const layout = panelGroupRef.getLayout("pixels");
 
 ## 0.0.43
 
-- Add imperative `getLayout` API to `PanelGroup`.
+- Add imperative `getLayout` API to `PanelGroup`. - [02e2a50](https://github.com/bvaughn/react-resizable-panels/commit/02e2a50)
 - Fix edge case bug where simultaneous `localStorage` updates to multiple saved groups would drop some values. - [#139](https://github.com/bvaughn/react-resizable-panels/pull/139)
 
 ## 0.0.42
 
-- Change cursor style from `col-resize`/`row-resize` to `ew-resize`/`ns-resize` to better match cursor style at edges of a panel.
+- Change cursor style from `col-resize`/`row-resize` to `ew-resize`/`ns-resize` to better match cursor style at edges of a panel. - [d5d6fb4](https://github.com/bvaughn/react-resizable-panels/commit/d5d6fb4)
 
 ## 0.0.41
 
-- Add imperative `setLayout` API for `PanelGroup`.
+- Add imperative `setLayout` API for `PanelGroup`. - [#127](https://github.com/bvaughn/react-resizable-panels/pull/127)
 
 ## 0.0.40
 
@@ -1142,7 +1154,7 @@ const layout = panelGroupRef.getLayout("pixels");
 
 - Improve `Panel` collapse behavior near viewport edges. - [#117](https://github.com/bvaughn/react-resizable-panels/issues/117)
 - Call `event.preventDefault` for events handled by `PanelResizeHandle`. - [#115](https://github.com/bvaughn/react-resizable-panels/pull/115)
-- Change the `useId` import to avoid triggering errors with older versions of React. (Note this may have an impact on tree-shaking though it is presumed to be minimal, given the small `"react"` package size.) - [#82](https://github.com/bvaughn/react-resizable-panels/issues/82)
+- Change the `useId` import to avoid errors with older versions of React. - [#82](https://github.com/bvaughn/react-resizable-panels/issues/82)
 
 ## 0.0.37
 
@@ -1161,12 +1173,12 @@ const layout = panelGroupRef.getLayout("pixels");
 - Add optional `storage` prop to `PanelGroup` to make it easier to persist layouts somewhere other than `localStorage` (e.g. a cookie). - [#85](https://github.com/bvaughn/react-resizable-panels/issues/85)
 - Store some initial state when resizing via mouse/touch events so that any panels that contract will also expand if drag direction is reversed. - [#70](https://github.com/bvaughn/react-resizable-panels/issues/70)
 - Don't change the global cursor for layout changes triggered by the keyboard. - [#86](https://github.com/bvaughn/react-resizable-panels/issues/86)
-- Fix a small cursor regression introduced in 0.0.33.
+- Fix a small cursor regression introduced in 0.0.33. - [#89](https://github.com/bvaughn/react-resizable-panels/pull/89)
 
 ## 0.0.33
 
-- Always call `onCollapse` for collapsible `Panel`s on mount regardless of their collapsed state.
-- Fix a regression in b5d3ec1 where arrow keys may fail to expand a collapsed panel.
+- Always call `onCollapse` for collapsible `Panel`s on mount regardless of their collapsed state. - [5f90e2a](https://github.com/bvaughn/react-resizable-panels/commit/5f90e2a)
+- Fix a regression in b5d3ec1 where arrow keys may fail to expand a collapsed panel. - [e2ad7b6](https://github.com/bvaughn/react-resizable-panels/commit/e2ad7b6)
 
 ## 0.0.32
 
@@ -1176,12 +1188,12 @@ const layout = panelGroupRef.getLayout("pixels");
 
 - Add `getSize` and `getCollapsed` to the imperative API exposed by `Panel`. - [#71](https://github.com/bvaughn/react-resizable-panels/issues/71)
 - Remove nullish coalescing operator (`??`) because it caused problems with default create-react-app configuration. - [#67](https://github.com/bvaughn/react-resizable-panels/issues/67), [#72](https://github.com/bvaughn/react-resizable-panels/issues/72)
-- Fix edge case when expanding a panel via imperative API that was collapsed by user drag.
+- Fix edge case when expanding a panel via imperative API that was collapsed by user drag. - [da5c8ab](https://github.com/bvaughn/react-resizable-panels/commit/da5c8ab)
 
 ## 0.0.30
 
 - Reduce volume/frequency of local storage writes for `PanelGroup`s configured to _auto-save_. - [#68](https://github.com/bvaughn/react-resizable-panels/pull/68)
-- Add `onLayout` prop to `PanelGroup` to be called when group layout changes. Note that some form of debouncing is recommended before processing these values (e.g. saving to a database).
+- Add `onLayout` prop to `PanelGroup` to be called when group layout changes (debouncing is recommended before e.g. saving to a database). - [#69](https://github.com/bvaughn/react-resizable-panels/pull/69)
 
 ## 0.0.29
 
@@ -1199,11 +1211,11 @@ const layout = panelGroupRef.getLayout("pixels");
 
 ## 0.0.26
 
-- Reduce style recalculation from the resize-in-progress cursor style.
+- Reduce style recalculation from the resize-in-progress cursor style. - [2bd3e9d](https://github.com/bvaughn/react-resizable-panels/commit/2bd3e9d)
 
 ## 0.0.25
 
-- Make the global cursor style reliably override per-element styles while a resize is active (to avoid flickering if you drag over e.g. an anchor element).
+- Make the global cursor style reliably override per-element styles while a resize is active (to avoid flickering if you drag over e.g. an anchor element). - [93fded2](https://github.com/bvaughn/react-resizable-panels/commit/93fded2)
 
 ## 0.0.24
 
@@ -1217,7 +1229,7 @@ const layout = panelGroupRef.getLayout("pixels");
 
 ## 0.0.22
 
-- Replace the `"ew-resize"` and `"ns-resize"` cursor styles with `"col-resize"` and `"row-resize"`.
+- Replace the `"ew-resize"` and `"ns-resize"` cursor styles with `"col-resize"` and `"row-resize"`. - [0a255a5](https://github.com/bvaughn/react-resizable-panels/commit/0a255a5)
 
 ## 0.0.21
 
@@ -1225,20 +1237,20 @@ const layout = panelGroupRef.getLayout("pixels");
 
 ## 0.0.20
 
-- Add `displayName` to `Panel`, `PanelGroup`, `PanelGroupContext`, and `PanelResizeHandle` to work around ParcelJS scope hoisting renaming.
+- Add `displayName` to `Panel`, `PanelGroup`, `PanelGroupContext`, and `PanelResizeHandle` to work around ParcelJS scope hoisting renaming. - [df32754](https://github.com/bvaughn/react-resizable-panels/commit/df32754)
 
 ## 0.0.19
 
-- Add optional `style` and `tagName` props to `Panel`, `PanelGroup`, and `PanelResizeHandle` to simplify custom styling.
+- Add optional `style` and `tagName` props to `Panel`, `PanelGroup`, and `PanelResizeHandle` to simplify custom styling. - [f92e041](https://github.com/bvaughn/react-resizable-panels/commit/f92e041)
 - Add `data-panel-group-direction` attribute to `PanelGroup` and `PanelResizeHandle` to simplify custom drag handle styling.
 
 ## 0.0.18
 
-- Use `overflow: hidden` style by default for `Panel` and `PanelGroup` to avoid potential scrollbar flickers while resizing.
+- Use `overflow: hidden` style by default for `Panel` and `PanelGroup` to avoid potential scrollbar flickers while resizing. - [dd9b820](https://github.com/bvaughn/react-resizable-panels/commit/dd9b820)
 
 ## 0.0.17
 
-- Fix `Panel` styles to include `flex-basis`, `flex-shrink`, and `overflow` so that their sizes are not unintentionally impacted by their content.
+- Fix `Panel` styles to include `flex-basis`, `flex-shrink`, and `overflow` so that their sizes are not unintentionally impacted by their content. - [2f3f11f](https://github.com/bvaughn/react-resizable-panels/commit/2f3f11f)
 
 ## 0.0.16
 
@@ -1257,7 +1269,7 @@ const layout = panelGroupRef.getLayout("pixels");
 ## 0.0.13
 
 - Support server-side rendering (e.g. Next JS) by using `useId` (when available). `Panel` components no longer _require_ a user-provided `id` prop and will also fall back to using `useId` when none is provided. - [#18](https://github.com/bvaughn/react-resizable-panels/issues/18)
-- Set `position: relative` style on `PanelGroup` by default, as well as an explicit `height` and `width` style.
+- Set `position: relative` style on `PanelGroup` by default, as well as an explicit `height` and `width` style. - [59c3bd5](https://github.com/bvaughn/react-resizable-panels/commit/59c3bd5)
 
 ## 0.0.12
 
@@ -1284,7 +1296,7 @@ const layout = panelGroupRef.getLayout("pixels");
 
 ## 0.0.7
 
-- Add `PanelContext` with an `activeHandleId` property identifying the resize handle currently being dragged (or `null`). This enables more customized UI/UX when resizing is in progress.
+- Add `PanelContext` with an `activeHandleId` property identifying the resize handle currently being dragged (or `null`). This enables more customized UI/UX when resizing is in progress. - [8aed257](https://github.com/bvaughn/react-resizable-panels/commit/8aed257)
 
 ## 0.0.6
 

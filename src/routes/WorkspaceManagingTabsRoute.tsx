@@ -1,6 +1,7 @@
 import { Box, Callout, Code, Header, SectionHeader } from "react-lib-tools";
 import { useWorkspaceRef, type WorkspaceModel } from "react-resizable-panels";
 import { html as UseParentTabsetHTML } from "../../public/generated/examples/UseParentTabset.json";
+import { html as AddTabAtTargetHTML } from "../../public/generated/examples/WorkspaceAddTabAtTarget.json";
 import { html as OpenTabHTML } from "../../public/generated/examples/WorkspaceOpenTab.json";
 import { html as UpdateTabHTML } from "../../public/generated/examples/WorkspaceUpdateTab.json";
 import { DemoButton } from "../components/DemoButton";
@@ -51,6 +52,15 @@ export default function WorkspaceManagingTabsRoute() {
         <code>tabsetId</code>) or position (<code>index</code>), or add it
         without selecting it (<code>select: false</code>).
       </div>
+      <div>
+        The <code>target</code> option adds the tab anywhere a tab can be
+        dropped, including in a new tabset beside another tabset or along an
+        edge of the workspace (the same targets <code>moveTab</code> accepts),
+        and <code>size</code> sets the new tabset's share of its split. For
+        example, in a new tabset below the "grid" tabset taking 30% of its
+        split, or along the bottom of the workspace, 200 pixels tall:
+      </div>
+      <Code html={AddTabAtTargetHTML} />
       <div className="flex flex-wrap gap-2">
         {FILES.map(({ id, kind, title }) => (
           <DemoButton

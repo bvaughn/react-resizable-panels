@@ -183,17 +183,19 @@ export function useFloatingTabsetGesture({
         // A click shouldn't also be handled (e.g. selecting a tab the gesture ended over)
         suppressNextClick(ownerDocument);
 
-        if (shouldCommit) {
-          const changes = Object.fromEntries(
-            fields.map((field) => [field, Math.round(rect[field])])
-          );
-          // The tabset may have been docked (or closed) during the gesture (e.g. by app code), in which case there's nothing to change
+        const changes = Object.fromEntries(
+          fields.map((field) => [field, Math.round(rect[field])])
+        );
+        // The tabset may have been docked (or closed) during the gesture (e.g. by app code), in which case there's nothing to change;
+        // gestures that are canceled (or blocked; see the onBeforeModelChange prop) move the frame back
+        const isChanged =
+          shouldCommit &&
           updateModel(gesture === "move" ? "move" : "resize", true, (prev) =>
             getModelIndex(prev).floatingTabsetIds.has(tabsetId)
               ? updateTabset(prev, tabsetId, changes)
               : prev
           );
-        } else {
+        if (!isChanged) {
           for (const field of fields) {
             frame.style[STYLE_PROPERTIES[field]] = prevFrameStyles[field] ?? "";
           }

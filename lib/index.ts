@@ -68,6 +68,7 @@ export type {
 
 export type {
   AcceptExternalDrop,
+  BeforeModelChangeArgs,
   DisableDropArgs,
   DragPreviewState,
   ExternalDragOptions,
@@ -112,6 +113,7 @@ export type {
   WorkspaceChangeReason,
   WorkspaceClassNames,
   WorkspaceDropEdge,
+  WorkspaceElementValue,
   WorkspaceImperativeHandle,
   WorkspaceModel,
   WorkspaceModelInput,

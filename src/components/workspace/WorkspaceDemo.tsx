@@ -128,6 +128,7 @@ export function DemoWorkspace({
   | "disabled"
   | "disableDrop"
   | "dragGroup"
+  | "onBeforeModelChange"
   | "onModelChanged"
   | "renderDragPreview"
   | "renderEmptyTabset"

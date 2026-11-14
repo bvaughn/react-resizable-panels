@@ -113,7 +113,7 @@ for (const source of sources) {
                 .replace(/\s+/g, " ")
                 .replace(/([([{<]) /g, "$1")
                 .replace(/ ([)\]}>])/g, "$1")
-                .replace(/; ([)\]}>])/g, "$1")
+                .replace(/;\s*([)\]}>])/g, "$1")
             });
           }
         }
@@ -131,12 +131,30 @@ for (const source of sources) {
 }
 
 function getComment(node: ts.Node, label: string) {
-  const comment = ts
+  const jsDoc = ts
     .getJSDocCommentsAndTags(node)
-    .find((jsDoc): jsDoc is ts.JSDoc => ts.isJSDoc(jsDoc))?.comment;
-  if (!comment) {
+    .find((jsDoc): jsDoc is ts.JSDoc => ts.isJSDoc(jsDoc));
+  if (!jsDoc?.comment) {
     throw Error(`Missing JSDoc comment for ${label}`);
   }
 
-  return ts.getTextOfJSDocComment(comment) ?? "";
+  let text = ts.getTextOfJSDocComment(jsDoc.comment) ?? "";
+
+  // TypeScript separates @param and @returns tags from the comment; add them back so they're displayed
+  // (like react-lib-tools does for imperative handles; see compileImperativeHandle)
+  const tags = (jsDoc.tags ?? []).flatMap((tag) => {
+    const tagText = ts.getTextOfJSDocComment(tag.comment) ?? "";
+    if (ts.isJSDocParameterTag(tag)) {
+      return [`@param ${tag.name.getText()} ${tagText}`.trim()];
+    } else if (ts.isJSDocReturnTag(tag)) {
+      return [`@returns ${tagText}`.trim()];
+    }
+
+    return [];
+  });
+  if (tags.length > 0) {
+    text += `\n\n${tags.join("\n")}`;
+  }
+
+  return text;
 }

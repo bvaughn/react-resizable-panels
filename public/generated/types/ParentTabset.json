@@ -13,12 +13,18 @@
     {
       "description": [
         {
-          "content": "<p>Add a tab to this tabset.</p>\n"
+          "content": "<p>Add a tab to this tabset, or (with <code>region</code>) in a new tabset beside it.</p>\n"
+        },
+        {
+          "content": "<ul>\n<li><code>options.region</code> Where to add the tab (see <code>TabDropRegion</code>): <code>&quot;center&quot;</code> adds it to this tabset, and edge regions split this tabset</li>\n<li><code>options.size</code> Size of the new tabset, for edge regions (see <code>WorkspaceImperativeHandle.addTab</code>); its space comes from this tabset, by default half of it</li>\n</ul>\n"
+        },
+        {
+          "content": "<p><strong>Returns:</strong> <code>true</code> if the tab was added (see <code>WorkspaceImperativeHandle.addTab</code>)</p>\n"
         }
       ],
       "name": "addTab",
       "optional": false,
-      "type": "(tab: TabNode<TabData>, options?: {index?: number | undefined; select?: boolean | undefined}) => boolean"
+      "type": "(tab: TabNode<TabData>, options?: {index?: number | undefined; region?: TabDropRegion | undefined; select?: boolean | undefined; size?: number | string | undefined}) => boolean"
     },
     {
       "description": [
