@@ -1224,8 +1224,10 @@ Can be a function to choose per tab (e.g. based on its data).</p>
 <li><code>&quot;activity&quot;</code>: content stays mounted but is rendered within a hidden React <code>&lt;Activity&gt;</code> boundary, so its effects are unmounted;
 requires React 19.2 (falls back to <code>&quot;keep-mounted&quot;</code> otherwise)</li>
 <li><code>&quot;unmount&quot;</code>: content is unmounted</li>
+<li><code>&quot;mount-on-show&quot;</code>: content isn&#39;t mounted until the tab is first visible (e.g. for expensive content in tabsets with many tabs, or in tabsets that start collapsed), then stays mounted (like <code>&quot;keep-mounted&quot;</code>);
+a selected tab isn&#39;t visible while its tabset is collapsed, or covered by a maximized tabset (floating tabsets aren&#39;t covered). A function can return it for some tabs, e.g. <code>(tab) =&gt; (tab.data.isExpensive ? &quot;mount-on-show&quot; : &quot;keep-mounted&quot;)</code>.</li>
 </ul>
-<p>ℹ️ Moving a tab never remounts its content.</p>
+<p>ℹ️ Moving a tab never remounts its content (and a tab that has been shown stays mounted when it&#39;s moved).</p>
 <p>⚠️ Its React state is preserved, but its elements are moved within the document, which resets some browser state:
 iframes are reloaded, playing media is paused, and focused elements are blurred.</p>
 </td>
@@ -1624,13 +1626,20 @@ The easiest way to interact with this API is to use the `useWorkspaceRef` and `u
   <tbody>
     <tr>
       <td>addTab</td>
-      <td><p>Add a tab to a tabset.</p>
+      <td><p>Add a tab to a tabset, or in a new tabset at any target <code>moveTab</code> accepts (e.g. in a new split below a tabset, or at an edge of the workspace).</p>
 <p>ℹ️ If a tab with the same id already exists, it is selected instead (and its data is not changed).</p>
+<p>ℹ️ A tab added in a new tabset is that tabset&#39;s selected tab (so <code>select</code> doesn&#39;t apply); like a moved tab, it&#39;s added to a floating tabset rather than splitting it.</p>
 <ul>
 <li><code>tab</code> Tab to add</li>
-<li><code>options</code> .tabsetId Tabset to add the tab to; defaults to the active tabset</li>
-<li><code>options</code> .index Position within the tabset; defaults to the end</li>
-<li><code>options</code> .select Select the new tab; defaults to true</li>
+<li><code>options.tabsetId</code> Tabset to add the tab to; defaults to the active tabset</li>
+<li><code>options.index</code> Position within the tabset; defaults to the end</li>
+<li><code>options.select</code> Select the new tab; defaults to true</li>
+<li><code>options.target</code> Where to add the tab (see <code>TabDropTarget</code>); takes precedence over <code>tabsetId</code> and <code>index</code></li>
+<li><code>options.size</code> Size of the new tabset, when <code>target</code> creates one (an edge region of a tabset, or an edge of the workspace), as its share of the split it&#39;s in.
+Numbers are percentages (as in the model, see <code>TabsetNode.size</code>); strings may have units (e.g. <code>&quot;200px&quot;</code>), and are converted to percentages of the split&#39;s current size.
+For an edge region, the new tabset takes its space from the tabset it splits (so its siblings keep their sizes); if that tabset doesn&#39;t have enough room, its siblings shrink in proportion to their sizes instead.
+Defaults to half of the tabset it splits; at an edge of the workspace, an equal share of the root split (if it&#39;s in the same direction), or else half of the workspace.
+Invalid sizes (e.g. <code>NaN</code> or <code>&quot;abc&quot;</code>) are ignored, with a warning in development.</li>
 </ul>
 </td>
     </tr>

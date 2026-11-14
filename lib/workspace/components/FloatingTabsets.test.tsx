@@ -210,6 +210,29 @@ describe("floating tabsets", () => {
       ).toHaveClass("handle");
     });
 
+    test("classNames and styles for floating tabsets can be functions of the tabset", () => {
+      const { container } = renderWorkspace({
+        classNames: {
+          floatingResizeHandle: (tabset) => `handle-${tabset.id}`,
+          floatingTabset: (tabset, { isFloating }) =>
+            isFloating ? `frame-${tabset.width}` : undefined
+        },
+        defaultModel: createModel([floating("f", ["4"])]),
+        styles: {
+          floatingTabset: (tabset) => ({ opacity: tabset.x === 0 ? 0.5 : 1 })
+        }
+      });
+
+      const element = getFloating(container, "f");
+      expect(element).toHaveClass("frame-300");
+      expect(element.style.opacity).toBe("0.5");
+      // Positioning isn't overridden
+      expect(element.style.position).toBe("absolute");
+      expect(
+        element.querySelector('[data-floating-resize-handle="left"]')
+      ).toHaveClass("handle-f");
+    });
+
     test("doesn't render resize handles for disabled workspaces, or tabsets that can't be dragged", () => {
       const { container, rerender } = renderWorkspace({
         defaultModel: createModel([

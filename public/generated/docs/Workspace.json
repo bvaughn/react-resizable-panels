@@ -99,7 +99,7 @@
           "intent": "primary"
         }
       ],
-      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">classNames</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">WorkspaceClassNames</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">classNames</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">WorkspaceClassNames</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span></div>",
       "name": "classNames",
       "required": false
     },
@@ -255,10 +255,10 @@
           "content": "<p>What happens to the content of tabs that are not selected.\nCan be a function to choose per tab (e.g. based on its data).</p>\n"
         },
         {
-          "content": "<ul>\n<li><code>&quot;keep-mounted&quot;</code>: content stays mounted (and its effects keep running)</li>\n<li><code>&quot;activity&quot;</code>: content stays mounted but is rendered within a hidden React <code>&lt;Activity&gt;</code> boundary, so its effects are unmounted;\nrequires React 19.2 (falls back to <code>&quot;keep-mounted&quot;</code> otherwise)</li>\n<li><code>&quot;unmount&quot;</code>: content is unmounted</li>\n</ul>\n"
+          "content": "<ul>\n<li><code>&quot;keep-mounted&quot;</code>: content stays mounted (and its effects keep running)</li>\n<li><code>&quot;activity&quot;</code>: content stays mounted but is rendered within a hidden React <code>&lt;Activity&gt;</code> boundary, so its effects are unmounted;\nrequires React 19.2 (falls back to <code>&quot;keep-mounted&quot;</code> otherwise)</li>\n<li><code>&quot;unmount&quot;</code>: content is unmounted</li>\n<li><code>&quot;mount-on-show&quot;</code>: content isn't mounted until the tab is first visible (e.g. for expensive content in tabsets with many tabs, or in tabsets that start collapsed), then stays mounted (like <code>&quot;keep-mounted&quot;</code>);\na selected tab isn't visible while its tabset is collapsed, or covered by a maximized tabset (floating tabsets aren't covered). A function can return it for some tabs, e.g. <code>(tab) =&gt; (tab.data.isExpensive ? &quot;mount-on-show&quot; : &quot;keep-mounted&quot;)</code>.</li>\n</ul>\n"
         },
         {
-          "content": "<p>Moving a tab never remounts its content.</p>\n",
+          "content": "<p>Moving a tab never remounts its content (and a tab that has been shown stays mounted when it's moved).</p>\n",
           "intent": "primary"
         },
         {
@@ -459,7 +459,7 @@
           "content": "<p>CSS properties for the elements the workspace renders within its root element (see <code>classNames</code>).</p>\n"
         }
       ],
-      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">styles</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">WorkspaceStyles</span></div>",
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">styles</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">WorkspaceStyles</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span></div>",
       "name": "styles",
       "required": false
     },

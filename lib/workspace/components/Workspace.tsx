@@ -79,10 +79,12 @@ import type {
   TabRenderProps,
   TabsetNode,
   TearOffArgs,
+  WorkspaceClassNames,
   WorkspaceImperativeHandle,
   WorkspaceModel,
   WorkspaceModelInput,
-  WorkspaceProps
+  WorkspaceProps,
+  WorkspaceStyles
 } from "../types";
 import { useFloatingTabsetGesture } from "../hooks/useFloatingTabsetGesture";
 import { useExternalDrop } from "../hooks/useExternalDrop";
@@ -92,6 +94,7 @@ import { FloatingTabsets } from "./FloatingTabsets";
 import { NodeView } from "./NodeView";
 import { TabsetSlot } from "./TabsetSlot";
 import { isRightToLeft } from "../utils/isRightToLeft";
+import { measureAddedTabsetSize } from "../utils/measureAddedTabsetSize";
 import { pruneRemovedNodes } from "../utils/pruneRemovedNodes";
 import { updateCollapseOverrides } from "../utils/updateCollapseOverrides";
 import { sizeToPixels } from "../utils/sizeToPixels";
@@ -239,9 +242,27 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
     return {
       addTab: (tab, options = {}) => {
+        const target =
+          options.target &&
+          toModelDropTarget(
+            options.target,
+            isRightToLeft(rootElementRef.current)
+          );
+
         const result = addTab(modelRef.current, tab, {
           ...options,
-          tabsetId: options.tabsetId ?? getActiveTabsetId()
+          size:
+            target &&
+            measureAddedTabsetSize(
+              modelRef.current,
+              target,
+              options.size,
+              layoutRef.current,
+              id,
+              (tabsetId) => tabsetElements.get(tabsetId)?.tabset
+            ),
+          tabsetId: options.tabsetId ?? getActiveTabsetId(),
+          target
         });
         updateModel(result.added ? "add" : "select", false, () => result.model);
 
@@ -347,6 +368,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         )
     };
   }, [
+    id,
     tabListFreeSpaceStore,
     tabListOverflowStore,
     tabsetElements,
@@ -399,8 +421,12 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       let parentTabset = handles.tabsets.get(tabsetId);
       if (!parentTabset) {
         parentTabset = {
-          addTab: (tab, options = {}) =>
-            handle.addTab(tab, { ...options, tabsetId }),
+          addTab: (tab, { region, ...options } = {}) =>
+            handle.addTab(tab, {
+              ...options,
+              tabsetId,
+              target: region === undefined ? undefined : { region, tabsetId }
+            }),
           close: () => handle.closeTabset(tabsetId),
           collapse: () => handle.collapseTabset(tabsetId),
           expand: () => handle.expandTabset(tabsetId),
@@ -1091,7 +1117,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       model,
       modelIndex,
       outerParents,
-      classNames,
+      classNames: classNames as WorkspaceClassNames | undefined,
       renderEmptyTabset: renderEmptyTabset as
         | ((tabset: TabsetNode) => ReactNode)
         | undefined,
@@ -1116,7 +1142,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       startFloatingGesture,
       startTabDrag,
       startTabsetDrag,
-      styles,
+      styles: styles as WorkspaceStyles | undefined,
       tabListFreeSpaceStore,
       tabListOverflowStore,
       tabPlacement,

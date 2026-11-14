@@ -468,8 +468,13 @@ export type WorkspaceChangedMeta = {
  * - `"activity"`: content stays mounted but is rendered within a hidden React `<Activity>` boundary, so its effects are unmounted;
  *   requires React 19.2 (falls back to `"keep-mounted"` otherwise)
  * - `"unmount"`: content is unmounted
+ * - `"mount-on-show"`: content isn't mounted until the tab is first visible (selected, in a tabset that isn't collapsed or covered by a maximized tabset; floating tabsets aren't covered), then stays mounted (like `"keep-mounted"`)
  */
-export type HiddenTabBehavior = "activity" | "keep-mounted" | "unmount";
+export type HiddenTabBehavior =
+  | "activity"
+  | "keep-mounted"
+  | "mount-on-show"
+  | "unmount";
 
 /**
  * Which tab is selected when a tabset's selected tab is removed (closed, or dragged to another tabset):
@@ -775,14 +780,22 @@ export interface WorkspaceImperativeHandle<
   TabsetData = unknown
 > {
   /**
-   * Add a tab to a tabset.
+   * Add a tab to a tabset, or in a new tabset at any target `moveTab` accepts (e.g. in a new split below a tabset, or at an edge of the workspace).
    *
    * ℹ️ If a tab with the same id already exists, it is selected instead (and its data is not changed).
+   *
+   * ℹ️ A tab added in a new tabset is that tabset's selected tab (so `select` doesn't apply); like a moved tab, it's added to a floating tabset rather than splitting it.
    *
    * @param tab Tab to add
    * @param options.tabsetId Tabset to add the tab to; defaults to the active tabset
    * @param options.index Position within the tabset; defaults to the end
    * @param options.select Select the new tab; defaults to true
+   * @param options.target Where to add the tab (see `TabDropTarget`); takes precedence over `tabsetId` and `index`
+   * @param options.size Size of the new tabset, when `target` creates one (an edge region of a tabset, or an edge of the workspace), as its share of the split it's in.
+   * Numbers are percentages (as in the model, see `TabsetNode.size`); strings may have units (e.g. `"200px"`), and are converted to percentages of the split's current size.
+   * For an edge region, the new tabset takes its space from the tabset it splits (so its siblings keep their sizes); if that tabset doesn't have enough room, its siblings shrink in proportion to their sizes instead.
+   * Defaults to half of the tabset it splits; at an edge of the workspace, an equal share of the root split (if it's in the same direction), or else half of the workspace.
+   * Invalid sizes (e.g. `NaN` or `"abc"`) are ignored, with a warning in development.
    * @return `true` if the tab was added
    */
   addTab: (
@@ -790,7 +803,9 @@ export interface WorkspaceImperativeHandle<
     options?: {
       index?: number | undefined;
       select?: boolean | undefined;
+      size?: number | string | undefined;
       tabsetId?: string | undefined;
+      target?: TabDropTarget | undefined;
     }
   ) => boolean;
 
@@ -1064,13 +1079,20 @@ export type ParentWorkspace<
  */
 export type ParentTabset<TabData = unknown> = {
   /**
-   * Add a tab to this tabset.
+   * Add a tab to this tabset, or (with `region`) in a new tabset beside it.
    *
+   * @param options.region Where to add the tab (see `TabDropRegion`): `"center"` adds it to this tabset, and edge regions split this tabset
+   * @param options.size Size of the new tabset, for edge regions (see `WorkspaceImperativeHandle.addTab`); its space comes from this tabset, by default half of it
    * @return `true` if the tab was added (see `WorkspaceImperativeHandle.addTab`)
    */
   addTab: (
     tab: TabNode<TabData>,
-    options?: { index?: number | undefined; select?: boolean | undefined }
+    options?: {
+      index?: number | undefined;
+      region?: TabDropRegion | undefined;
+      select?: boolean | undefined;
+      size?: number | string | undefined;
+    }
   ) => boolean;
 
   /**
@@ -1289,7 +1311,7 @@ export type ParentTabState = {
   isSelected: boolean;
 
   /**
-   * The tab is selected, and its tabset is neither collapsed nor covered by another, maximized tabset.
+   * The tab is selected, and its tabset is neither collapsed nor covered by another, maximized tabset (floating tabsets are shown above a maximized tabset, so they're never covered).
    *
    * ℹ️ While a separator is being dragged, this reflects how the tab's tabset is shown (e.g. collapsed as soon as it reaches its collapsed size),
    * which the model only reflects once the drag ends; it also reflects tabsets that are collapsed to fit (see `TabsetNode.collapsible`).
@@ -1405,7 +1427,7 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * ℹ️ Like the render props, this object is part of what tabsets re-render for;
    * in large workspaces, define it outside of the component (or memoize it) rather than inline.
    */
-  classNames?: WorkspaceClassNames | undefined;
+  classNames?: WorkspaceClassNames<TabData, TabsetData> | undefined;
 
   /**
    * Initial layout of the workspace.
@@ -1532,8 +1554,10 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * - `"activity"`: content stays mounted but is rendered within a hidden React `<Activity>` boundary, so its effects are unmounted;
    *   requires React 19.2 (falls back to `"keep-mounted"` otherwise)
    * - `"unmount"`: content is unmounted
+   * - `"mount-on-show"`: content isn't mounted until the tab is first visible (e.g. for expensive content in tabsets with many tabs, or in tabsets that start collapsed), then stays mounted (like `"keep-mounted"`);
+   *   a selected tab isn't visible while its tabset is collapsed, or covered by a maximized tabset (floating tabsets aren't covered). A function can return it for some tabs, e.g. `(tab) => (tab.data.isExpensive ? "mount-on-show" : "keep-mounted")`.
    *
-   * ℹ️ Moving a tab never remounts its content.
+   * ℹ️ Moving a tab never remounts its content (and a tab that has been shown stays mounted when it's moved).
    *
    * ⚠️ Its React state is preserved, but its elements are moved within the document, which resets some browser state:
    * iframes are reloaded, playing media is paused, and focused elements are blurred.
@@ -1712,7 +1736,7 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
   /**
    * CSS properties for the elements the workspace renders within its root element (see `classNames`).
    */
-  styles?: WorkspaceStyles | undefined;
+  styles?: WorkspaceStyles<TabData, TabsetData> | undefined;
 
   /**
    * Where tabs are placed relative to tab content.
@@ -1778,43 +1802,137 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
 };
 
 /**
- * CSS class names for the elements a Workspace renders (see the Workspace's `classNames` prop).
+ * An entry of the Workspace's `classNames` or `styles` props: a value, or a function that returns one, given the node the element belongs to.
  */
-export type WorkspaceClassNames = {
+export type WorkspaceElementValue<Value, Args extends unknown[]> =
+  | Value
+  | ((...args: Args) => Value);
+
+/**
+ * CSS class names for the elements a Workspace renders (see the Workspace's `classNames` prop).
+ *
+ * Entries for the elements of a tabset, tab, or split can be functions of it (and its state), e.g. to style tabsets by their `data`:
+ *
+ * ```tsx
+ * classNames={{
+ *   header: (tabset) => (tabset.data?.compact ? "compact-header" : undefined),
+ *   tab: (tab, { isSelected }) => (tab.data.isDirty && !isSelected ? "dirty-tab" : undefined)
+ * }}
+ * ```
+ *
+ * ℹ️ Functions are called when the element renders (which, for tabs, includes when their tabset re-renders);
+ * keep them cheap, and (like the rest of this object) define them outside of the component or memoize them.
+ */
+export type WorkspaceClassNames<TabData = unknown, TabsetData = unknown> = {
   dragPreview?: string | undefined;
   dropIndicator?: string | undefined;
   /**
    * The element that positions each floating tabset (with a `data-floating-tabset` attribute, and a `data-tabset-collapsed` attribute while its tabset is collapsed), around the tabset itself, e.g. for a shadow.
    */
-  floatingTabset?: string | undefined;
+  floatingTabset?:
+    | WorkspaceElementValue<
+        string | undefined,
+        [
+          tabset: FloatingTabsetNode<TabData, TabsetData>,
+          state: ParentTabsetState
+        ]
+      >
+    | undefined;
   /**
    * Each of the handles along the edges (and at the corners) of a floating tabset that resize it,
    * with a `data-floating-resize-handle` attribute naming its edge (e.g. "bottom" or "bottom-right").
    *
    * ℹ️ The handles are positioned (and given resize cursors) by the workspace, but they're transparent.
    */
-  floatingResizeHandle?: string | undefined;
-  header?: string | undefined;
+  floatingResizeHandle?:
+    | WorkspaceElementValue<
+        string | undefined,
+        [
+          tabset: FloatingTabsetNode<TabData, TabsetData>,
+          state: ParentTabsetState
+        ]
+      >
+    | undefined;
+  header?: TabsetElementValue<string | undefined, TabData, TabsetData>;
   /**
    * Each split (a Group with `data-split` and `data-split-id` attributes); for example, its `gap` adds space between tabsets.
    *
    * ℹ️ Gaps count toward the split's minimum size, like its separators.
    */
-  split?: string | undefined;
-  tab?: string | undefined;
-  tabContent?: string | undefined;
-  tabList?: string | undefined;
-  tabPanels?: string | undefined;
-  tabset?: string | undefined;
-  toolbar?: string | undefined;
+  split?:
+    | WorkspaceElementValue<
+        string | undefined,
+        [split: SplitNode<TabData, TabsetData>]
+      >
+    | undefined;
+  tab?: TabElementValue<string | undefined, TabData>;
+  tabContent?: TabElementValue<string | undefined, TabData>;
+  tabList?: TabsetElementValue<string | undefined, TabData, TabsetData>;
+  tabPanels?: TabsetElementValue<string | undefined, TabData, TabsetData>;
+  tabset?: TabsetElementValue<string | undefined, TabData, TabsetData>;
+  toolbar?: TabsetElementValue<string | undefined, TabData, TabsetData>;
 };
 
 /**
- * CSS properties for the elements a Workspace renders (see the Workspace's `classNames` prop).
+ * CSS properties for the elements a Workspace renders (see the Workspace's `classNames` prop);
+ * like class names, entries for the elements of a tabset, tab, or split can be functions of it (and its state).
+ *
+ * ```tsx
+ * styles={{
+ *   tabset: (tabset) => ({ "--accent": tabset.data?.accent } as CSSProperties)
+ * }}
+ * ```
  */
-export type WorkspaceStyles = {
-  [Element in keyof WorkspaceClassNames]?: CSSProperties | undefined;
+export type WorkspaceStyles<TabData = unknown, TabsetData = unknown> = {
+  dragPreview?: CSSProperties | undefined;
+  dropIndicator?: CSSProperties | undefined;
+  floatingTabset?:
+    | WorkspaceElementValue<
+        CSSProperties | undefined,
+        [
+          tabset: FloatingTabsetNode<TabData, TabsetData>,
+          state: ParentTabsetState
+        ]
+      >
+    | undefined;
+  floatingResizeHandle?:
+    | WorkspaceElementValue<
+        CSSProperties | undefined,
+        [
+          tabset: FloatingTabsetNode<TabData, TabsetData>,
+          state: ParentTabsetState
+        ]
+      >
+    | undefined;
+  header?: TabsetElementValue<CSSProperties | undefined, TabData, TabsetData>;
+  split?:
+    | WorkspaceElementValue<
+        CSSProperties | undefined,
+        [split: SplitNode<TabData, TabsetData>]
+      >
+    | undefined;
+  tab?: TabElementValue<CSSProperties | undefined, TabData>;
+  tabContent?: TabElementValue<CSSProperties | undefined, TabData>;
+  tabList?: TabsetElementValue<CSSProperties | undefined, TabData, TabsetData>;
+  tabPanels?: TabsetElementValue<
+    CSSProperties | undefined,
+    TabData,
+    TabsetData
+  >;
+  tabset?: TabsetElementValue<CSSProperties | undefined, TabData, TabsetData>;
+  toolbar?: TabsetElementValue<CSSProperties | undefined, TabData, TabsetData>;
 };
+
+type TabsetElementValue<Value, TabData, TabsetData> =
+  | WorkspaceElementValue<
+      Value,
+      [tabset: TabsetNode<TabData, TabsetData>, state: ParentTabsetState]
+    >
+  | undefined;
+
+type TabElementValue<Value, TabData> =
+  | WorkspaceElementValue<Value, [tab: TabNode<TabData>, state: ParentTabState]>
+  | undefined;
 
 /**
  * Props passed to the Workspace's `renderTab` prop, to be spread onto the element it returns.

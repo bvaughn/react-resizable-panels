@@ -1,5 +1,7 @@
 import { Box, Callout, Code, Header } from "react-lib-tools";
 import { html as ClassNamesHTML } from "../../public/generated/examples/WorkspaceClassNames.json";
+import { html as ClassNamesFunctionsHTML } from "../../public/generated/examples/WorkspaceClassNamesFunctions.json";
+import { html as EventHandlersHTML } from "../../public/generated/examples/WorkspaceTabsetEventHandlers.json";
 import { html as StylesHTML } from "../../public/generated/examples/WorkspaceStyles.json";
 import { Link } from "../components/Link";
 
@@ -18,6 +20,15 @@ export default function WorkspaceStylingRoute() {
         large workspaces define them outside of the component (or memoize them)
         rather than inline.
       </Callout>
+      <div>
+        Entries for the elements of a tabset, tab, or split can also be
+        functions of it (and its state, like{" "}
+        <Link to="/hooks/use-parent-tabset-state">
+          <code>useParentTabsetState</code>
+        </Link>{" "}
+        returns), e.g. to style tabsets and tabs by their <code>data</code>:
+      </div>
+      <Code html={ClassNamesFunctionsHTML} />
       <div>
         Each element also has a data attribute (e.g. <code>data-tab</code>), and
         exposes its state as data attributes, which can be used for styling:
@@ -62,6 +73,12 @@ export default function WorkspaceStylingRoute() {
           a <code>data-tabset-dragging</code> attribute.
         </li>
       </ul>
+      <div>
+        Event handlers for tabsets (e.g. a context menu for tabset headers) can
+        be attached to the <code>Workspace</code> itself, and find the tabset
+        from the event's target:
+      </div>
+      <Code html={EventHandlersHTML} />
       <Callout intent="warning">
         A maximized tabset is rendered above the rest of the workspace, so it
         should have a background.

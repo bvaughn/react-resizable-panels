@@ -11,15 +11,18 @@ import { getReplacementTabId } from "../models/getReplacementTabId";
 import { selectTab } from "../models/selectTab";
 import { TabCloseButton } from "./TabCloseButton";
 import { useDragState } from "../hooks/useDragState";
-import type { TabNode, TabRenderProps } from "../types";
+import type { ParentTabState, TabNode, TabRenderProps } from "../types";
 import {
   useTabsetContext,
   useWorkspaceContext
 } from "../hooks/useWorkspaceContext";
 import { isFromInteractiveDescendant } from "../utils/isFromInteractiveDescendant";
+import { getTabState } from "../utils/getTabState";
 import { isRightToLeft } from "../utils/isRightToLeft";
+import { resolveElementValue } from "../utils/resolveElementValue";
 
 function TabComponent({ tab: tabProp }: { tab: TabNode }) {
+  const workspace = useWorkspaceContext("Tab");
   const {
     classNames,
     disabled,
@@ -33,7 +36,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     styles,
     takeFocusRequest,
     updateModel
-  } = useWorkspaceContext("Tab");
+  } = workspace;
   const {
     isCollapsed,
     tabPlacement,
@@ -54,9 +57,16 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
   const isCloseDisabled = disabled || !!tab.disableClose;
   const isDragDisabled = disabled || !!tab.disableDrag;
 
+  const getArgs = (): [TabNode, ParentTabState] => [
+    tab,
+    getTabState(workspace, tabset, tab)
+  ];
+  const className = resolveElementValue(classNames?.tab, getArgs);
+  const style = resolveElementValue(styles?.tab, getArgs);
+
   // Tabs handle touch drags themselves, except that a list that overflows can be scrolled by swiping along it
   // (in which case a tab is dragged by first moving across the list)
-  let touchAction = styles?.tab?.touchAction;
+  let touchAction = style?.touchAction;
   if (!isDragDisabled) {
     if (isOverflowing) {
       touchAction = orientation === "horizontal" ? "pan-x" : "pan-y";
@@ -207,7 +217,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
   const props: TabRenderProps = {
     "aria-controls": panelId,
     "aria-selected": isSelected,
-    className: classNames?.tab,
+    className,
     "data-drop-after": dropPosition === "after" || undefined,
     "data-drop-before": dropPosition === "before" || undefined,
     "data-tab": "",
@@ -237,7 +247,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     ref: setElement,
     role: "tab",
     style: {
-      ...styles?.tab,
+      ...style,
 
       touchAction,
 

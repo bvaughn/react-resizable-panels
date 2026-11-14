@@ -29,6 +29,7 @@ import type {
   WorkspaceProps
 } from "../types";
 import { useParentTab } from "../hooks/useParentTab";
+import { useWorkspaceContext } from "../hooks/useWorkspaceContext";
 import { useParentTabset } from "../hooks/useParentTabset";
 import { useParentTabsetState } from "../hooks/useParentTabsetState";
 import { useParentTabState } from "../hooks/useParentTabState";
@@ -425,6 +426,104 @@ describe("Workspace", () => {
       expect(isShown(screen.getByTestId("content-2"))).toBe(false);
     });
 
+    test("classNames and styles can be functions of their tabset or tab", () => {
+      const { container } = renderWorkspace({
+        classNames: {
+          header: (tabset) => `header-${tabset.id}`,
+          tab: (tab, { isSelected }) =>
+            isSelected ? `selected-${tab.id}` : `tab-${tab.data.label}`,
+          tabContent: (tab, { tabsetId }) => `content-${tabsetId}-${tab.id}`,
+          tabList: (tabset) => `tab-list-${tabset.id}`,
+          tabPanels: (tabset) => `tab-panels-${tabset.id}`,
+          tabset: (tabset, { isRoot }) =>
+            `tabset-${tabset.id}-${isRoot ? "root" : "child"}`,
+          toolbar: (tabset, { selectedTabId }) =>
+            `toolbar-${tabset.id}-${selectedTabId}`
+        },
+        renderTabsetToolbar: () => null,
+        styles: {
+          tab: (tab) => (tab.id === "2" ? { color: "red" } : undefined),
+          tabList: (tabset) =>
+            tabset.id === "right" ? { color: "blue" } : undefined,
+          tabset: (tabset) =>
+            tabset.id === "left" ? { color: "green" } : undefined
+        }
+      });
+
+      const left = container.querySelector('[data-tabset-id="left"]')!;
+      expect(left).toHaveClass("tabset-left-child");
+      expect(left).toHaveStyle({ color: "rgb(0, 128, 0)" });
+      expect(left.querySelector("[data-tabset-header]")).toHaveClass(
+        "header-left"
+      );
+      expect(left.querySelector("[data-tab-list]")).toHaveClass(
+        "tab-list-left"
+      );
+      expect(left.querySelector("[data-tabset-toolbar]")).toHaveClass(
+        "toolbar-left-1"
+      );
+      expect(left.querySelector("[data-tab-panels]")).toHaveClass(
+        "tab-panels-left"
+      );
+      expect(
+        container.querySelector('[data-tabset-id="right"] [data-tab-list]')
+      ).toHaveStyle({ color: "rgb(0, 0, 255)" });
+
+      expect(getTab("One")).toHaveClass("selected-1");
+      expect(getTab("2")).toHaveClass("tab-content 2");
+      expect(getTab("2")).toHaveStyle({ color: "rgb(255, 0, 0)" });
+      // Tabs handle touch drags themselves, whatever their styles
+      expect(getTab("2").style.touchAction).toBe("none");
+
+      expect(
+        screen
+          .getByTestId("content-2")
+          .closest<HTMLElement>("[data-tab-content]")
+      ).toHaveClass("content-left-2");
+
+      // Functions are called again when the state they're given changes
+      fireEvent.click(getTab("2"));
+      expect(getTab("2")).toHaveClass("selected-2");
+      expect(left.querySelector("[data-tabset-toolbar]")).toHaveClass(
+        "toolbar-left-2"
+      );
+    });
+
+    test("classNames and styles functions receive tabset data", () => {
+      const { container } = renderWorkspace({
+        classNames: {
+          tabset: (tabset) =>
+            (tabset.data as { compact?: boolean } | undefined)?.compact
+              ? "compact"
+              : undefined
+        },
+        defaultModel: {
+          root: {
+            children: [
+              {
+                data: { compact: true },
+                id: "left",
+                tabs: [tab("1")],
+                type: "tabset"
+              },
+              { id: "right", tabs: [tab("2")], type: "tabset" }
+            ],
+            id: "root",
+            orientation: "horizontal",
+            type: "split"
+          },
+          version: 1
+        }
+      });
+
+      expect(container.querySelector('[data-tabset-id="left"]')).toHaveClass(
+        "compact"
+      );
+      expect(
+        container.querySelector('[data-tabset-id="right"]')
+      ).not.toHaveClass("compact");
+    });
+
     test("renderEmptyTabset is shown in tabsets without tabs", () => {
       renderWorkspace({
         defaultModel: {
@@ -540,6 +639,19 @@ describe("Workspace", () => {
       expect(split).toHaveAttribute("data-group");
       expect(split).toHaveClass("custom-split");
       expect(split.style.columnGap).toBe("4px");
+    });
+
+    test("classNames and styles for splits can be functions of the split", () => {
+      const { container } = renderWorkspace({
+        classNames: { split: (split) => `split-${split.orientation}` },
+        styles: {
+          split: (split) => ({ columnGap: `${split.children.length}px` })
+        }
+      });
+
+      const split = container.querySelector<HTMLElement>("[data-split]")!;
+      expect(split).toHaveClass("split-horizontal");
+      expect(split.style.columnGap).toBe("2px");
     });
 
     test("gaps between tabsets count toward minimum sizes", () => {
@@ -1009,6 +1121,293 @@ describe("Workspace", () => {
       });
     });
 
+    test("addTab adds a tab at a drop target in one change", () => {
+      const { container, onModelChanged, workspaceRef } = renderWorkspace();
+      onModelChanged.mockClear();
+
+      act(() => {
+        workspaceRef.current!.addTab(tab("4"), {
+          target: { region: "bottom", tabsetId: "right" }
+        });
+      });
+      expect(onModelChanged).toHaveBeenCalledTimes(1);
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: false,
+        reason: "add"
+      });
+
+      const root = workspaceRef.current!.getModel().root as SplitNode<TabData>;
+      expect(root.children[1]).toMatchObject({
+        children: [
+          { id: "right" },
+          { selectedId: "4", tabs: [{ id: "4" }], type: "tabset" }
+        ],
+        orientation: "vertical"
+      });
+      expect(
+        container.querySelector('[data-tabset-id="right"]')
+      ).not.toContainElement(getTab("4"));
+    });
+
+    test("addTab converts sizes with other units to percentages of the split", () => {
+      const { container, workspaceRef } = renderWorkspace();
+      container.querySelector<HTMLElement>(
+        "[data-workspace-layout]"
+      )!.getBoundingClientRect = () => new DOMRect(0, 0, 1000, 500);
+
+      act(() => {
+        workspaceRef.current!.addTab(tab("4"), {
+          size: "100px",
+          target: { edge: "bottom" }
+        });
+      });
+
+      const root = workspaceRef.current!.getModel().root as SplitNode<TabData>;
+      expect(root.orientation).toBe("vertical");
+      expect(root.children[1]).toMatchObject({ size: 20, tabs: [{ id: "4" }] });
+      expect(root.children[0].size).toBe(80);
+    });
+
+    test("addTab converts sizes against the parent split when it has the same orientation", () => {
+      const { container, workspaceRef } = renderWorkspace();
+      container.querySelector<HTMLElement>(
+        '[data-split-id="root"]'
+      )!.getBoundingClientRect = () => new DOMRect(0, 0, 1000, 500);
+
+      act(() => {
+        workspaceRef.current!.addTab(tab("4"), {
+          size: "100px",
+          target: { region: "right", tabsetId: "left" }
+        });
+      });
+
+      const root = workspaceRef.current!.getModel().root as SplitNode<TabData>;
+      expect(root.children).toHaveLength(3);
+      expect(root.children[1]).toMatchObject({ size: 10, tabs: [{ id: "4" }] });
+    });
+
+    test("addTab converts sizes against the tabset when the parent split has a different orientation", () => {
+      const { container, workspaceRef } = renderWorkspace();
+      container.querySelector<HTMLElement>(
+        '[data-tabset-id="left"]'
+      )!.getBoundingClientRect = () => new DOMRect(0, 0, 500, 400);
+
+      act(() => {
+        workspaceRef.current!.addTab(tab("4"), {
+          size: "100px",
+          target: { region: "bottom", tabsetId: "left" }
+        });
+      });
+
+      const root = workspaceRef.current!.getModel().root as SplitNode<TabData>;
+      const wrapper = root.children[0] as SplitNode<TabData>;
+      expect(wrapper.orientation).toBe("vertical");
+      expect(wrapper.children[1]).toMatchObject({
+        size: 25,
+        tabs: [{ id: "4" }]
+      });
+    });
+
+    test("addTab converts sizes against the layout's elements when the destination is maximized", () => {
+      const { container, workspaceRef } = renderWorkspace();
+      act(() => {
+        workspaceRef.current!.maximizeTabset("left");
+      });
+
+      const layout = container.querySelector<HTMLElement>(
+        "[data-workspace-layout]"
+      )!;
+      layout.querySelector<HTMLElement>(
+        '[data-split-id="root"]'
+      )!.getBoundingClientRect = () => new DOMRect(0, 0, 1000, 500);
+      layout.querySelector<HTMLElement>("[data-panel]")!.getBoundingClientRect =
+        () => new DOMRect(0, 0, 500, 400);
+
+      act(() => {
+        workspaceRef.current!.addTab(tab("4"), {
+          size: "100px",
+          target: { region: "right", tabsetId: "left" }
+        });
+      });
+      let root = workspaceRef.current!.getModel().root as SplitNode<TabData>;
+      expect(root.children[1]).toMatchObject({ size: 10, tabs: [{ id: "4" }] });
+
+      // Adding a tab restores the maximized tabset
+      act(() => {
+        workspaceRef.current!.maximizeTabset("left");
+      });
+      layout.querySelector<HTMLElement>("[data-panel]")!.getBoundingClientRect =
+        () => new DOMRect(0, 0, 500, 400);
+      act(() => {
+        workspaceRef.current!.addTab(tab("5"), {
+          size: "100px",
+          target: { region: "top", tabsetId: "left" }
+        });
+      });
+      root = workspaceRef.current!.getModel().root as SplitNode<TabData>;
+      const wrapper = root.children[0] as SplitNode<TabData>;
+      expect(wrapper.orientation).toBe("vertical");
+      expect(wrapper.children[0]).toMatchObject({
+        size: 25,
+        tabs: [{ id: "5" }]
+      });
+    });
+
+    test("addTab measures the maximized destination's split, not a nested workspace's split with the same id", () => {
+      const nestedModel: WorkspaceModel<TabData> = {
+        root: {
+          children: [
+            { id: "n1", tabs: [tab("7")], type: "tabset" },
+            { id: "n2", tabs: [tab("8")], type: "tabset" }
+          ],
+          id: "inner",
+          orientation: "vertical",
+          type: "split"
+        },
+        version: 1
+      };
+      const model: WorkspaceModel<TabData> = {
+        root: {
+          children: [
+            { id: "a", tabs: [tab("1")], type: "tabset" },
+            {
+              children: [
+                { id: "dest", tabs: [tab("2")], type: "tabset" },
+                { id: "other", tabs: [tab("3")], type: "tabset" }
+              ],
+              id: "inner",
+              orientation: "vertical",
+              type: "split"
+            }
+          ],
+          id: "root",
+          orientation: "horizontal",
+          type: "split"
+        },
+        version: 1
+      };
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: model,
+        renderTabContent: (tab) =>
+          tab.id === "1" ? (
+            <Workspace<TabData>
+              defaultModel={nestedModel}
+              renderTabContent={(tab) => <Content tab={tab} />}
+            />
+          ) : (
+            <Content tab={tab} />
+          )
+      });
+      act(() => {
+        workspaceRef.current!.maximizeTabset("dest");
+      });
+
+      const groups = container.querySelectorAll<HTMLElement>(
+        '[data-workspace-layout] [data-split-id="inner"]'
+      );
+      expect(groups).toHaveLength(2);
+      // The nested workspace's split comes first in the document
+      groups[0].getBoundingClientRect = () => new DOMRect(0, 0, 200, 200);
+      groups[1].getBoundingClientRect = () => new DOMRect(0, 0, 1000, 500);
+
+      act(() => {
+        workspaceRef.current!.addTab(tab("4"), {
+          size: "100px",
+          target: { region: "bottom", tabsetId: "dest" }
+        });
+      });
+
+      const root = workspaceRef.current!.getModel().root as SplitNode<TabData>;
+      const inner = root.children[1] as SplitNode<TabData>;
+      expect(inner.children[1]).toMatchObject({
+        size: 20,
+        tabs: [{ id: "4" }]
+      });
+    });
+
+    test("addTab adds to a floating tabset rather than converting sizes", () => {
+      const model = createModel();
+      model.floating = [
+        {
+          height: 200,
+          id: "float",
+          selectedId: "5",
+          tabs: [tab("5")],
+          type: "tabset",
+          width: 300,
+          x: 0,
+          y: 0
+        }
+      ];
+      const { workspaceRef } = renderWorkspace({ defaultModel: model });
+
+      act(() => {
+        workspaceRef.current!.addTab(tab("4"), {
+          size: "100px",
+          target: { region: "right", tabsetId: "float" }
+        });
+      });
+
+      expect(
+        workspaceRef.current!.getModel().floating?.[0].tabs.map(({ id }) => id)
+      ).toEqual(["5", "4"]);
+    });
+
+    test("ParentTabset addTab adds to its tabset in the center region, at an index", () => {
+      let parentTabset: ParentTabset<TabData> | null = null;
+      function Capture() {
+        parentTabset = useParentTabset<TabData>();
+        return null;
+      }
+
+      const { workspaceRef } = renderWorkspace({
+        renderTabContent: (tab) => (tab.id === "3" ? <Capture /> : null)
+      });
+
+      act(() => {
+        parentTabset!.addTab(tab("4"), { index: 0, region: "center" });
+      });
+
+      const root = workspaceRef.current!.getModel().root as SplitNode<TabData>;
+      expect(root.children).toHaveLength(2);
+      expect(
+        (root.children[1] as TabsetNode<TabData>).tabs.map(({ id }) => id)
+      ).toEqual(["4", "3"]);
+    });
+
+    test("addTab mirrors left and right targets in a right-to-left layout", () => {
+      const { workspaceRef } = renderWorkspace({
+        style: { direction: "rtl" }
+      });
+
+      act(() => {
+        workspaceRef.current!.addTab(tab("4"), { target: { edge: "left" } });
+      });
+
+      const root = workspaceRef.current!.getModel().root as SplitNode<TabData>;
+      expect(root.children.at(-1)).toMatchObject({ tabs: [{ id: "4" }] });
+    });
+
+    test("ParentTabset addTab adds a tab beside its tabset", () => {
+      let parentTabset: ParentTabset<TabData> | null = null;
+      function Capture() {
+        parentTabset = useParentTabset<TabData>();
+        return null;
+      }
+
+      const { workspaceRef } = renderWorkspace({
+        renderTabContent: (tab) => (tab.id === "3" ? <Capture /> : null)
+      });
+
+      act(() => {
+        parentTabset!.addTab(tab("4"), { region: "right", size: 10 });
+      });
+
+      const root = workspaceRef.current!.getModel().root as SplitNode<TabData>;
+      expect(root.children).toHaveLength(3);
+      expect(root.children[2]).toMatchObject({ size: 10, tabs: [{ id: "4" }] });
+    });
+
     test("splitting a tabset does not remount other tabsets", () => {
       const mountCounts: { [tabsetId: string]: number } = {};
 
@@ -1462,6 +1861,182 @@ describe("Workspace", () => {
       expect(log).toContain("mount 2");
       expect(log).toContain("unmount 1");
       expect(screen.getByTestId("content-1")).toBeInTheDocument();
+    });
+
+    test("mount-on-show", () => {
+      const log: string[] = [];
+      const { workspaceRef } = renderWorkspace({
+        hiddenTabBehavior: "mount-on-show",
+        renderTabContent: (tab) => <EffectLogger id={tab.id} log={log} />
+      });
+
+      // Tabs that are visible in the initial model are mounted right away
+      expect(screen.getByTestId("content-1")).toBeInTheDocument();
+      expect(screen.getByTestId("content-3")).toBeInTheDocument();
+      expect(screen.queryByTestId("content-2")).toBeNull();
+
+      // Others are mounted when they're first selected, and then stay mounted
+      fireEvent.click(getTab("2"));
+      expect(screen.getByTestId("content-2")).toBeInTheDocument();
+      expect(screen.getByTestId("content-1")).toBeInTheDocument();
+
+      fireEvent.click(getTab("One"));
+      expect(screen.getByTestId("content-2")).toBeInTheDocument();
+      expect(log).not.toContain("unmount 2");
+
+      // Moving a tab that has been shown doesn't unmount it, even if it isn't selected where it's moved to
+      act(() => {
+        workspaceRef.current!.moveTab("2", { index: 0, tabsetId: "right" });
+      });
+      act(() => {
+        workspaceRef.current!.selectTab("3");
+      });
+      expect(screen.getByTestId("content-2")).toBeInTheDocument();
+      expect(log).not.toContain("unmount 2");
+
+      // Tabs added without being selected aren't mounted until they are
+      act(() => {
+        workspaceRef.current!.addTab(tab("4"), {
+          select: false,
+          tabsetId: "right"
+        });
+      });
+      expect(screen.queryByTestId("content-4")).toBeNull();
+      act(() => {
+        workspaceRef.current!.selectTab("4");
+      });
+      expect(screen.getByTestId("content-4")).toBeInTheDocument();
+    });
+
+    test("mount-on-show doesn't mount the selected tabs of collapsed tabsets until they're expanded", () => {
+      const model = createModel();
+      const root = model.root as SplitNode<TabData>;
+      const { workspaceRef } = renderWorkspace({
+        defaultModel: {
+          ...model,
+          root: {
+            ...root,
+            children: [
+              {
+                ...(root.children[0] as TabsetNode<TabData>),
+                collapsed: true,
+                collapsible: true
+              },
+              root.children[1]
+            ]
+          }
+        },
+        hiddenTabBehavior: "mount-on-show"
+      });
+
+      expect(screen.queryByTestId("content-1")).toBeNull();
+      expect(screen.getByTestId("content-3")).toBeInTheDocument();
+
+      act(() => workspaceRef.current!.expandTabset("left"));
+      expect(screen.getByTestId("content-1")).toBeInTheDocument();
+
+      // It stays mounted when the tabset is collapsed again
+      act(() => workspaceRef.current!.collapseTabset("left"));
+      expect(screen.getByTestId("content-1")).toBeInTheDocument();
+    });
+
+    test("mount-on-show doesn't mount the selected tabs of tabsets covered by a maximized tabset until they're shown", () => {
+      const { workspaceRef } = renderWorkspace({
+        defaultModel: { ...createModel(), maximizedTabsetId: "right" },
+        hiddenTabBehavior: "mount-on-show"
+      });
+
+      expect(screen.queryByTestId("content-1")).toBeNull();
+      expect(screen.getByTestId("content-3")).toBeInTheDocument();
+
+      act(() => workspaceRef.current!.restoreTabset());
+      expect(screen.getByTestId("content-1")).toBeInTheDocument();
+      expect(screen.getByTestId("content-3")).toBeInTheDocument();
+    });
+
+    test("mount-on-show mounts the selected tab of a floating tabset while another tabset is maximized", () => {
+      const states: Record<string, ParentTabState | null> = {};
+      function TabState() {
+        const tab = useParentTab();
+        states[tab!.id] = useParentTabState();
+        return null;
+      }
+
+      const model = createModel();
+      model.maximizedTabsetId = "right";
+      model.floating = [
+        {
+          height: 200,
+          id: "float",
+          selectedId: "5",
+          tabs: [tab("5")],
+          type: "tabset",
+          width: 300,
+          x: 0,
+          y: 0
+        }
+      ];
+      renderWorkspace({
+        defaultModel: model,
+        hiddenTabBehavior: "mount-on-show",
+        renderTabContent: (tab) => (
+          <>
+            <TabState />
+            <EffectLogger id={tab.id} log={[]} />
+          </>
+        )
+      });
+
+      expect(screen.getByTestId("content-5")).toBeInTheDocument();
+      expect(states["5"]).toMatchObject({ isVisible: true });
+      expect(screen.getByTestId("content-3")).toBeInTheDocument();
+      expect(screen.queryByTestId("content-1")).toBeNull();
+    });
+
+    test("mount-on-show follows the collapsed state shown (e.g. collapsed to fit), not just the model's", () => {
+      let reportCollapseToFit!: (changes: {
+        [tabsetId: string]: boolean | undefined;
+      }) => void;
+      function Reporter() {
+        reportCollapseToFit =
+          useWorkspaceContext("Reporter").reportCollapseToFit;
+        return null;
+      }
+
+      const { workspaceRef } = renderWorkspace({
+        hiddenTabBehavior: "mount-on-show",
+        renderTabContent: (tab) => (
+          <>
+            {tab.id === "3" && <Reporter />}
+            <EffectLogger id={tab.id} log={[]} />
+          </>
+        )
+      });
+
+      // The model has "left" expanded, but it's shown collapsed
+      act(() => reportCollapseToFit({ left: true }));
+      act(() => {
+        workspaceRef.current!.addTab(tab("4"), {
+          select: true,
+          tabsetId: "left"
+        });
+      });
+      expect(screen.queryByTestId("content-4")).toBeNull();
+
+      act(() => reportCollapseToFit({ left: undefined }));
+      expect(screen.getByTestId("content-4")).toBeInTheDocument();
+    });
+
+    test("mount-on-show for some tabs", () => {
+      renderWorkspace({
+        hiddenTabBehavior: (tab) =>
+          tab.id === "2" ? "mount-on-show" : "unmount"
+      });
+
+      expect(screen.queryByTestId("content-2")).toBeNull();
+      fireEvent.click(getTab("2"));
+      fireEvent.click(getTab("One"));
+      expect(screen.getByTestId("content-2")).toBeInTheDocument();
     });
 
     test("function", () => {

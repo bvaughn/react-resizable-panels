@@ -35,8 +35,13 @@ export default function WorkspaceTabContentRoute() {
         By default, the content of tabs that aren't selected stays mounted. The{" "}
         <code>hiddenTabBehavior</code> prop can unmount it instead (e.g. for
         memory-intensive content), or render it within a hidden React{" "}
-        <code>Activity</code> so that its effects are unmounted. It can also be
-        a function, to choose per tab.
+        <code>Activity</code> so that its effects are unmounted. With{" "}
+        <code>"mount-on-show"</code>, content isn't mounted until its tab is
+        first visible (selected, in a tabset that isn't collapsed or covered by
+        a maximized tabset; floating tabsets are never covered), and then stays
+        mounted (e.g. for expensive content in tabsets with many tabs, or in
+        tabsets that start collapsed). It can also be a function, to choose per
+        tab.
       </div>
       <Callout>
         <code>Activity</code> requires React 19.2 or newer; with older versions,{" "}

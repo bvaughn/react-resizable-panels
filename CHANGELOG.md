@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Add the `target` and `size` options to the `Workspace` `addTab` method, which add a tab at any drop target (e.g. in a new tabset below a tabset, or along an edge of the workspace) in one change, and the `region` and `size` options to `ParentTabset.addTab`. - [#811](https://github.com/bvaughn/react-resizable-panels/issues/811)
+- Entries of the `Workspace` `classNames` and `styles` props for the elements of a tabset, tab, or split can be functions of it (and its state), e.g. to style tabsets by their `data`. - [#812](https://github.com/bvaughn/react-resizable-panels/issues/812)
+- Add the `"mount-on-show"` `hiddenTabBehavior`, which mounts a tab's content when it's first visible and then keeps it mounted. - [#817](https://github.com/bvaughn/react-resizable-panels/issues/817)
+
 ## 4.22.1
 
 - Form controls (`input`, `select`, and `textarea` elements, the labels of form controls, editable content, and elements with a form control role such as `role="checkbox"`) within a `Workspace` tab no longer select the tab or start dragging it when pressed, like buttons within a tab (e.g. so a tab can show an input to rename it). Use the `data-tab-ignore` attribute to opt other elements out. - [#822](https://github.com/bvaughn/react-resizable-panels/issues/822)

@@ -112,6 +112,7 @@ export type {
   WorkspaceChangeReason,
   WorkspaceClassNames,
   WorkspaceDropEdge,
+  WorkspaceElementValue,
   WorkspaceImperativeHandle,
   WorkspaceModel,
   WorkspaceModelInput,

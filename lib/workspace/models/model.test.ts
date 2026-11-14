@@ -1046,6 +1046,183 @@ describe("workspace model", () => {
       });
     });
 
+    test("adds a tab in a new tabset beside a tabset", () => {
+      const { added, model: next } = addTab(twoTabsets, tab("4"), {
+        target: { region: "bottom", tabsetId: "b" }
+      });
+      expect(added).toBe(true);
+      expect(shape(next.root)).toEqual({
+        children: [
+          { selected: "1", size: 40, tabs: ["1", "2"] },
+          {
+            children: [
+              { selected: "3", size: 50, tabs: ["3"] },
+              { selected: "4", size: 50, tabs: ["4"] }
+            ],
+            orientation: "vertical",
+            size: 60
+          }
+        ],
+        orientation: "horizontal",
+        size: undefined
+      });
+    });
+
+    test("adds a tab in a new tabset with a size", () => {
+      const { model: next } = addTab(twoTabsets, tab("4"), {
+        size: 20,
+        target: { region: "right", tabsetId: "b" }
+      });
+      expect(shape(next.root)).toEqual({
+        children: [
+          { selected: "1", size: 40, tabs: ["1", "2"] },
+          { selected: "3", size: 40, tabs: ["3"] },
+          { selected: "4", size: 20, tabs: ["4"] }
+        ],
+        orientation: "horizontal",
+        size: undefined
+      });
+
+      // Strings without other units are percentages
+      const { model: wrapped } = addTab(twoTabsets, tab("4"), {
+        size: "30%",
+        target: { region: "top", tabsetId: "a" }
+      });
+      expect(shape((wrapped.root as SplitNode).children[0])).toEqual({
+        children: [
+          { selected: "4", size: 30, tabs: ["4"] },
+          { selected: "1", size: 70, tabs: ["1", "2"] }
+        ],
+        orientation: "vertical",
+        size: 40
+      });
+    });
+
+    test("adds a tab in a new tabset larger than the tabset it splits", () => {
+      // The split tabset doesn't have enough space, so its siblings share the rest in proportion to their sizes
+      const { model: next } = addTab(twoTabsets, tab("4"), {
+        size: 65,
+        target: { region: "right", tabsetId: "b" }
+      });
+      const sizes = (next.root as SplitNode).children.map(({ size }) =>
+        Math.round(size as number)
+      );
+      expect(sizes).toEqual([20, 15, 65]);
+    });
+
+    test("adds a tab in a new tabset with a size in other units", () => {
+      const { model: next } = addTab(twoTabsets, tab("4"), {
+        size: "200px",
+        target: { region: "right", tabsetId: "b" }
+      });
+      expect((next.root as SplitNode).children[2]).toMatchObject({
+        size: "200px",
+        tabs: [{ id: "4" }]
+      });
+    });
+
+    test("ignores invalid sizes, keeping the default share", () => {
+      const spy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      for (const size of [NaN, Infinity, "abc", "30 %"]) {
+        const { model: next } = addTab(twoTabsets, tab("4"), {
+          size,
+          target: { region: "right", tabsetId: "b" }
+        });
+        const children = (next.root as SplitNode).children;
+        expect(children[2]).toMatchObject({ tabs: [{ id: "4" }] });
+        expect(typeof children[2].size).toBe("number");
+        expect(
+          children.reduce((sum, { size }) => sum + (size as number), 0)
+        ).toBeCloseTo(100);
+      }
+      spy.mockRestore();
+    });
+
+    test("adds a tab at an edge of the workspace", () => {
+      const { model: next } = addTab(twoTabsets, tab("4"), {
+        size: 25,
+        target: { edge: "bottom" }
+      });
+      expect(shape(next.root)).toEqual({
+        children: [
+          {
+            children: [
+              { selected: "1", size: 40, tabs: ["1", "2"] },
+              { selected: "3", size: 60, tabs: ["3"] }
+            ],
+            orientation: "horizontal",
+            size: 75
+          },
+          { selected: "4", size: 25, tabs: ["4"] }
+        ],
+        orientation: "vertical",
+        size: undefined
+      });
+    });
+
+    test("adds a tab at index and center targets like the tabsetId and index options", () => {
+      expect(
+        (
+          addTab(twoTabsets, tab("4"), {
+            target: { index: 0, tabsetId: "b" }
+          }).model.root as SplitNode
+        ).children[1]
+      ).toMatchObject({ selectedId: "4", tabs: [{ id: "4" }, { id: "3" }] });
+
+      expect(
+        (
+          addTab(twoTabsets, tab("4"), {
+            select: false,
+            target: { region: "center", tabsetId: "b" }
+          }).model.root as SplitNode
+        ).children[1]
+      ).toMatchObject({ selectedId: "3", tabs: [{ id: "3" }, { id: "4" }] });
+    });
+
+    test("adds a tab to a floating tabset rather than splitting it", () => {
+      const floating: WorkspaceModel = {
+        ...twoTabsets,
+        floating: [
+          {
+            ...tabset("f", ["5"]),
+            height: 100,
+            width: 100,
+            x: 0,
+            y: 0
+          }
+        ]
+      };
+      const { model: next } = addTab(floating, tab("4"), {
+        size: 20,
+        target: { region: "left", tabsetId: "f" }
+      });
+      expect(next.floating?.[0]).toMatchObject({
+        selectedId: "4",
+        tabs: [{ id: "5" }, { id: "4" }]
+      });
+      expect(shape(next.root)).toEqual(shape(twoTabsets.root));
+    });
+
+    test("selects an existing tab rather than adding it at a target", () => {
+      const { added, model: next } = addTab(twoTabsets, tab("1"), {
+        target: { edge: "left" }
+      });
+      expect(added).toBe(false);
+      expect(shape(next.root)).toEqual(shape(twoTabsets.root));
+    });
+
+    test("adds to the first tabset when a target tabset isn't found", () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const { model: next } = addTab(twoTabsets, tab("4"), {
+        target: { region: "bottom", tabsetId: "missing" }
+      });
+      expect((next.root as SplitNode).children[0]).toMatchObject({
+        tabs: [{ id: "1" }, { id: "2" }, { id: "4" }]
+      });
+      expect(warn).toHaveBeenCalled();
+      warn.mockRestore();
+    });
+
     test("adds to an empty root tabset", () => {
       const { model: next } = addTab(model(tabset("a", [])), tab("1"));
       expect(shape(next.root)).toEqual({
