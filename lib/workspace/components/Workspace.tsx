@@ -32,6 +32,7 @@ import {
 } from "../contexts/WorkspaceContext";
 import { WorkspaceStoreContext } from "../contexts/WorkspaceStoreContext";
 import { calculateSizeLimits } from "../utils/calculateSizeLimits";
+import { getRemovedTabs } from "../models/getRemovedTabs";
 import { createDragStore } from "../utils/createDragStore";
 import { createTabListStore } from "../utils/createTabListStore";
 import { getHiddenTabIds } from "../utils/getHiddenTabIds";
@@ -58,6 +59,7 @@ import { maximizeTabset } from "../models/maximizeTabset";
 import { moveTab } from "../models/moveTab";
 import { moveTabset } from "../models/moveTabset";
 import { normalizeModel } from "../models/normalizeModel";
+import { resizeSplit } from "../models/resizeSplit";
 import { restoreTabset } from "../models/restoreTabset";
 import { selectTab } from "../models/selectTab";
 import { updateTab } from "../models/updateTab";
@@ -66,8 +68,10 @@ import { updateTabset } from "../models/updateTabset";
 import { TabContent } from "./TabContent";
 import type {
   AcceptExternalDrop,
+  BeforeModelChangeArgs,
   DisableDropArgs,
   DragNode,
+  DragOrigin,
   DragSource,
   HiddenTabBehavior,
   MinimumSize,
@@ -79,10 +83,12 @@ import type {
   TabRenderProps,
   TabsetNode,
   TearOffArgs,
+  WorkspaceClassNames,
   WorkspaceImperativeHandle,
   WorkspaceModel,
   WorkspaceModelInput,
-  WorkspaceProps
+  WorkspaceProps,
+  WorkspaceStyles
 } from "../types";
 import { useFloatingTabsetGesture } from "../hooks/useFloatingTabsetGesture";
 import { useExternalDrop } from "../hooks/useExternalDrop";
@@ -92,6 +98,8 @@ import { FloatingTabsets } from "./FloatingTabsets";
 import { NodeView } from "./NodeView";
 import { TabsetSlot } from "./TabsetSlot";
 import { isRightToLeft } from "../utils/isRightToLeft";
+import { measureAddedTabsetSize } from "../utils/measureAddedTabsetSize";
+import { measureSplitSizes } from "../utils/measureSplitSizes";
 import { pruneRemovedNodes } from "../utils/pruneRemovedNodes";
 import { updateCollapseOverrides } from "../utils/updateCollapseOverrides";
 import { sizeToPixels } from "../utils/sizeToPixels";
@@ -116,9 +124,12 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   disableDragBetweenApps = false,
   disableDrop,
   dragGroup,
+  dragSourceInfo,
   elementRef: elementRefProp,
   hiddenTabBehavior = "keep-mounted",
   id: idProp,
+  lazyTabContent = false,
+  onBeforeModelChange,
   onModelChanged,
   onTearOff,
   renderDragPreview,
@@ -180,24 +191,68 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     () => tabRemovalSelectionBehavior
   );
 
+  const onBeforeModelChangeStable = useStableCallback(
+    (args: BeforeModelChangeArgs) =>
+      onBeforeModelChange?.(
+        args as BeforeModelChangeArgs<TabData, TabsetData>
+      ) !== false
+  );
+
   const updateModel = useCallback<UpdateModel>(
-    (reason, isUserInteraction, update) => {
+    (reason, isUserInteraction, update, { canBlock = true, origin } = {}) => {
       // Recently selected tabs are recorded around each change (rather than by each change),
       // starting from the current behavior (which may have changed since the previous change)
       const behavior = getTabRemovalSelectionBehavior();
-      const prev = updateRecentTabIds(modelRef.current, behavior);
+      const current = modelRef.current;
+      const prev = updateRecentTabIds(current, behavior);
       const updated = update(prev);
-      if (updated !== prev) {
-        const next = updateRecentTabIds(updated, behavior);
-        modelRef.current = next;
-        setModel(next);
-        onModelChangedStable(next as WorkspaceModel<TabData, TabsetData>, {
-          isUserInteraction,
-          reason
-        });
+      if (updated === prev) {
+        return false;
       }
+
+      const next = updateRecentTabIds(updated, behavior);
+
+      // Tabs (and tabsets) dropped in from another workspace report where they came from
+      const source = origin && {
+        sourceInfo: origin.sourceInfo,
+        sourceWorkspaceId: origin.sourceWorkspaceId
+      };
+
+      // Only changes made by the user can be blocked (the application makes the others itself)
+      if (
+        isUserInteraction &&
+        canBlock &&
+        !onBeforeModelChangeStable({
+          model: next,
+          prevModel: current,
+          reason,
+          removedTabs: getRemovedTabs(current, next),
+          ...source
+        })
+      ) {
+        return false;
+      }
+
+      // The change was made to the model as it was before the callback, so it's dropped if the callback changed the model (e.g. with the imperative API)
+      if (modelRef.current !== current) {
+        return false;
+      }
+
+      modelRef.current = next;
+      setModel(next);
+      onModelChangedStable(next as WorkspaceModel<TabData, TabsetData>, {
+        isUserInteraction,
+        reason,
+        ...source
+      });
+
+      return true;
     },
-    [getTabRemovalSelectionBehavior, onModelChangedStable]
+    [
+      getTabRemovalSelectionBehavior,
+      onBeforeModelChangeStable,
+      onModelChangedStable
+    ]
   );
 
   // Tab lists report their free space here (rather than in React state), so that it can be read synchronously, e.g. from outside the Workspace
@@ -239,9 +294,27 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
     return {
       addTab: (tab, options = {}) => {
+        const target =
+          options.target &&
+          toModelDropTarget(
+            options.target,
+            isRightToLeft(rootElementRef.current)
+          );
+
         const result = addTab(modelRef.current, tab, {
           ...options,
-          tabsetId: options.tabsetId ?? getActiveTabsetId()
+          size:
+            target &&
+            measureAddedTabsetSize(
+              modelRef.current,
+              target,
+              options.size,
+              layoutRef.current,
+              id,
+              (tabsetId) => tabsetElements.get(tabsetId)?.tabset
+            ),
+          tabsetId: options.tabsetId ?? getActiveTabsetId(),
+          target
         });
         updateModel(result.added ? "add" : "select", false, () => result.model);
 
@@ -310,6 +383,20 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
             toModelDropTarget(target, isRightToLeft(rootElementRef.current))
           )
         ),
+      resizeSplit: (splitId, sizes) => {
+        // Splits apply the model's sizes when they change structure (see SplitView), so they're applied again after the sizes change
+        if (
+          updateModel("resize", false, (prev) =>
+            resizeSplit(
+              prev,
+              splitId,
+              measureSplitSizes(prev, splitId, sizes, layoutRef.current, id)
+            )
+          )
+        ) {
+          setSplitGeneration((prev) => prev + 1);
+        }
+      },
       restoreTabset: () => updateModel("restore", false, restoreTabset),
       selectTab: (tabId) =>
         updateModel("select", false, (prev) => selectTab(prev, tabId)),
@@ -347,6 +434,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         )
     };
   }, [
+    id,
     tabListFreeSpaceStore,
     tabListOverflowStore,
     tabsetElements,
@@ -399,8 +487,12 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       let parentTabset = handles.tabsets.get(tabsetId);
       if (!parentTabset) {
         parentTabset = {
-          addTab: (tab, options = {}) =>
-            handle.addTab(tab, { ...options, tabsetId }),
+          addTab: (tab, { region, ...options } = {}) =>
+            handle.addTab(tab, {
+              ...options,
+              tabsetId,
+              target: region === undefined ? undefined : { region, tabsetId }
+            }),
           close: () => handle.closeTabset(tabsetId),
           collapse: () => handle.collapseTabset(tabsetId),
           expand: () => handle.expandTabset(tabsetId),
@@ -514,6 +606,14 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         ? hiddenTabBehavior(tab as TabNode<TabData>)
         : hiddenTabBehavior,
     [hiddenTabBehavior]
+  );
+
+  const isTabContentLazy = useCallback(
+    (tab: TabNode): boolean =>
+      typeof lazyTabContent === "function"
+        ? lazyTabContent(tab as TabNode<TabData>)
+        : lazyTabContent,
+    [lazyTabContent]
   );
 
   const shouldServerRenderTabContent = useCallback(
@@ -721,22 +821,27 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
   // A tabset can't be dropped where any of its tabs couldn't be;
   // when its tabs are moved into a tab list, each tab is inserted after the previous one
+  // The origin is undefined for new tabs (dragged in from outside of any workspace)
   const isDropDisabledByProp = (
     node: DragNode,
     source: DisableDropArgs["source"],
     target: TabDropTarget,
-    isCopy: boolean
+    isCopy: boolean,
+    origin: DragOrigin | undefined
   ) => {
     if (typeof disableDrop !== "function") {
       return !!disableDrop;
     }
 
     const model = modelRef.current as WorkspaceModel<TabData, TabsetData>;
+    const { sourceInfo, sourceWorkspaceId } = origin ?? {};
     if (node.type === "tab") {
       return disableDrop({
         isCopy,
         model,
         source,
+        sourceInfo,
+        sourceWorkspaceId,
         tab: node.tab as TabNode<TabData>,
         tabset: undefined,
         target
@@ -746,12 +851,23 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     const tabset = node.tabset as TabsetNode<TabData, TabsetData>;
 
     return tabset.tabs.length === 0
-      ? disableDrop({ isCopy, model, source, tab: undefined, tabset, target })
+      ? disableDrop({
+          isCopy,
+          model,
+          source,
+          sourceInfo,
+          sourceWorkspaceId,
+          tab: undefined,
+          tabset,
+          target
+        })
       : tabset.tabs.some((tab, index) =>
           disableDrop({
             isCopy,
             model,
             source,
+            sourceInfo,
+            sourceWorkspaceId,
             tab,
             tabset,
             target:
@@ -771,7 +887,12 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       // Sources removed during the drag (e.g. by the imperative API) can't be dropped
       const node = getDragNode(source);
 
-      return node ? isDropDisabledByProp(node, "local", target, isCopy) : true;
+      return node
+        ? isDropDisabledByProp(node, "local", target, isCopy, {
+            sourceInfo: dragSourceInfo,
+            sourceWorkspaceId: id
+          })
+        : true;
     }
   );
 
@@ -779,12 +900,17 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   // tabsets with the keepWhenEmpty flag stay in their own workspaces (like they aren't torn off); disabled workspaces don't accept drops.
   // Copies get their own ids (and leave the dragged tabset where it was), so neither applies to them
   const isExternalDropDisabled = useStableCallback(
-    (node: DragNode, target: TabDropTarget, isCopy: boolean) =>
+    (
+      node: DragNode,
+      target: TabDropTarget,
+      isCopy: boolean,
+      origin: DragOrigin
+    ) =>
       disabled ||
       (!isCopy &&
         ((node.type === "tabset" && !!node.tabset.keepWhenEmpty) ||
           hasConflictingIds(modelRef.current, node, target))) ||
-      isDropDisabledByProp(node, "external", target, isCopy)
+      isDropDisabledByProp(node, "external", target, isCopy, origin)
   );
 
   // Dropping while the copy modifier key is held copies tabs (and tabsets) when there's a prop to copy them with
@@ -801,7 +927,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       return (
         disabled ||
         hasConflictingIds(modelRef.current, node, target) ||
-        isDropDisabledByProp(node, "new", target, false)
+        isDropDisabledByProp(node, "new", target, false, undefined)
       );
     }
   );
@@ -818,11 +944,11 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       isCopy: boolean,
       canMove: boolean
     ) => {
-      // Copies that the application declines (or that can't be added) are moved instead, where they can be
+      // Copies that the application declines (or that can't be added) are moved instead, where they can be (unless they were blocked)
       if (isCopy) {
         const node = getDragNode(source);
         if (
-          (node && insertCopy(node, target)) ||
+          (node && insertCopy(node, target, undefined) !== false) ||
           !canMove ||
           isDropDisabled(source, target, false)
         ) {
@@ -918,46 +1044,63 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         width: rect?.width ?? 0
       };
 
+      // The application has already accepted it (e.g. opened it in a popup window), so its removal can't be blocked
       if (onTearOff(args) === true) {
-        updateModel("tear-off", true, (current) =>
-          source.type === "tab"
-            ? closeTab(current, source.tabId)
-            : closeTabset(current, source.tabsetId)
+        updateModel(
+          "tear-off",
+          true,
+          (current) =>
+            source.type === "tab"
+              ? closeTab(current, source.tabId)
+              : closeTabset(current, source.tabsetId),
+          { canBlock: false }
         );
       }
     }
   );
 
   // Inserts a tab (or tabset) dragged in from another workspace, or a new tab dragged in from outside of any workspace;
-  // returns whether it was inserted (e.g. so that it's only removed from the workspace it was dragged from if it was)
+  // returns whether it was inserted (e.g. so that it's only removed from the workspace it was dragged from if it was),
+  // or "blocked" if it could have been but the application blocked it (see the onBeforeModelChange prop)
   const insertDropped = useStableCallback(
     (
       reason: "add" | "copy" | "transfer",
       node: DragNode,
-      target: TabDropTarget
-    ) => {
-      let isInserted = false;
-      updateModel(reason, true, (prev) => {
-        const modelTarget = toModelDropTarget(
-          target,
-          isRightToLeft(rootElementRef.current)
-        );
-        const next =
-          node.type === "tab"
-            ? insertTab(prev, node.tab, modelTarget)
-            : insertTabset(prev, node.tabset, modelTarget);
-        isInserted = next !== prev;
+      target: TabDropTarget,
+      origin: DragOrigin | undefined
+    ): boolean | "blocked" => {
+      let canInsert = false;
+      const isInserted = updateModel(
+        reason,
+        true,
+        (prev) => {
+          const modelTarget = toModelDropTarget(
+            target,
+            isRightToLeft(rootElementRef.current)
+          );
+          const next =
+            node.type === "tab"
+              ? insertTab(prev, node.tab, modelTarget)
+              : insertTabset(prev, node.tabset, modelTarget);
+          canInsert = next !== prev;
 
-        return next;
-      });
+          return next;
+        },
+        { origin }
+      );
 
-      return isInserted;
+      return isInserted || (canInsert ? "blocked" : false);
     }
   );
 
-  // Inserts a copy of a dragged tab (or tabset) made by the application (see the copyTab and copyTabset props); returns whether it was inserted
+  // Inserts a copy of a dragged tab (or tabset) made by the application (see the copyTab and copyTabset props);
+  // returns whether it was inserted, or "blocked" (see insertDropped)
   const insertCopy = useStableCallback(
-    (node: DragNode, target: TabDropTarget) => {
+    (
+      node: DragNode,
+      target: TabDropTarget,
+      origin: DragOrigin | undefined
+    ): boolean | "blocked" => {
       const copy = createCopiedNode({
         copyTab: copyTab as CopyTab | undefined,
         copyTabset: copyTabset as CopyTabset | undefined,
@@ -966,43 +1109,55 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         target
       });
 
-      return !!copy && insertDropped("copy", copy, target);
+      return !!copy && insertDropped("copy", copy, target, origin);
     }
   );
 
   // Returns whether the tab (or tabset) was moved here, so that it's removed from the workspace it was dragged from (unlike a copy)
   const handleTransferIn = useStableCallback(
-    (node: DragNode, target: TabDropTarget, isCopy: boolean) => {
+    (
+      node: DragNode,
+      target: TabDropTarget,
+      isCopy: boolean,
+      origin: DragOrigin
+    ) => {
       if (isCopy) {
-        if (insertCopy(node, target)) {
+        // Copies that were blocked aren't moved instead
+        if (insertCopy(node, target, origin) !== false) {
           return false;
         }
 
         // Copies that the application declines (or that can't be added) are moved instead, where they can be
-        if (isExternalDropDisabled(node, target, false)) {
+        if (isExternalDropDisabled(node, target, false, origin)) {
           return false;
         }
       }
 
-      return insertDropped("transfer", node, target);
+      return insertDropped("transfer", node, target, origin) === true;
     }
   );
 
   const handleNewTabDrop = useCallback(
     (tab: TabNode, target: TabDropTarget) =>
-      insertDropped("add", { tab, type: "tab" }, target),
+      insertDropped("add", { tab, type: "tab" }, target, undefined) === true,
     [insertDropped]
   );
 
+  // Another workspace has already added it, so its removal can't be blocked
   const handleTransferOut = useStableCallback((source: DragSource) =>
-    updateModel("transfer", true, (prev) =>
-      source.type === "tab"
-        ? closeTab(prev, source.tabId)
-        : closeTabset(prev, source.tabsetId)
+    updateModel(
+      "transfer",
+      true,
+      (prev) =>
+        source.type === "tab"
+          ? closeTab(prev, source.tabId)
+          : closeTabset(prev, source.tabsetId),
+      { canBlock: false }
     )
   );
 
   const getModel = useCallback(() => modelRef.current, []);
+  const getDragSourceInfo = useStableCallback(() => dragSourceInfo);
   const getRootElement = useCallback(() => rootElementRef.current, []);
 
   const {
@@ -1025,6 +1180,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     dragGroup,
     dragStore,
     getDragNode,
+    getDragSourceInfo,
     getModel,
     getRootElement,
     isDropDisabled,
@@ -1036,7 +1192,8 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     onTransferIn: handleTransferIn,
     onTransferOut: handleTransferOut,
     rootElement,
-    tabsetElements
+    tabsetElements,
+    workspaceId: id
   });
   useIsomorphicLayoutEffect(() => {
     startExternalDragRef.current = startExternalDrag;
@@ -1086,12 +1243,13 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       getTabsetHandle,
       id,
       isHydrating,
+      isTabContentLazy,
       maximumSizes,
       minimumSizes,
       model,
       modelIndex,
       outerParents,
-      classNames,
+      classNames: classNames as WorkspaceClassNames | undefined,
       renderEmptyTabset: renderEmptyTabset as
         | ((tabset: TabsetNode) => ReactNode)
         | undefined,
@@ -1116,7 +1274,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       startFloatingGesture,
       startTabDrag,
       startTabsetDrag,
-      styles,
+      styles: styles as WorkspaceStyles | undefined,
       tabListFreeSpaceStore,
       tabListOverflowStore,
       tabPlacement,
@@ -1139,6 +1297,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       getTabsetHandle,
       id,
       isHydrating,
+      isTabContentLazy,
       maximumSizes,
       minimumSizes,
       model,
@@ -1252,6 +1411,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
               ? createPortal(
                   <TabContent
                     hiddenTabBehavior={getHiddenTabBehavior(tab)}
+                    isLazy={isTabContentLazy(tab)}
                     renderTabContent={
                       renderTabContent as (tab: TabNode) => ReactNode
                     }
@@ -1266,6 +1426,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       getHiddenTabBehavior,
       getTabHost,
       isHydrating,
+      isTabContentLazy,
       modelIndex,
       renderTabContent
     ]

@@ -3,6 +3,7 @@ import { html as CollapseButtonHTML } from "../../public/generated/examples/Work
 import { html as CollapsibleModelHTML } from "../../public/generated/examples/WorkspaceCollapsibleModel.json";
 import { html as MaximizeTabsetHTML } from "../../public/generated/examples/WorkspaceMaximizeTabset.json";
 import { html as MaxSizeModelHTML } from "../../public/generated/examples/WorkspaceMaxSizeModel.json";
+import { html as ResizeSplitHTML } from "../../public/generated/examples/WorkspaceResizeSplit.json";
 import { Link } from "../components/Link";
 import { DemoWorkspace } from "../components/workspace/WorkspaceDemo";
 import { collapsibleModel } from "./examples/WorkspaceCollapsibleModel";
@@ -19,6 +20,22 @@ export default function WorkspaceSizingTabsetsRoute() {
         <Link to="/examples/workspace">the basics</Link>). They can also have
         maximum sizes, be collapsed to just their headers, and be maximized to
         cover the rest of the workspace.
+      </div>
+      <SectionHeader>Resizing tabsets programmatically</SectionHeader>
+      <div>
+        The <code>resizeSplit</code> method sets the sizes of a split's children
+        (tabsets and splits), without replacing the model, e.g. to apply a saved
+        preset or to make a sidebar a particular width. It takes sizes keyed by
+        the ids of the children: numbers are percentages, strings can have units
+        (e.g. <code>"250px"</code>, converted to a percentage of the split's
+        current size), and children that aren't listed share the rest of the
+        split. For example, a 30/70 preset, or a sidebar 250 pixels wide:
+      </div>
+      <Code html={ResizeSplitHTML} />
+      <div>
+        Sizes are applied like the model's own sizes, so tabsets' minimum and
+        maximum sizes still apply. The change is reported to{" "}
+        <code>onModelChanged</code> with the <code>"resize"</code> reason.
       </div>
       <SectionHeader>Limiting tabset sizes</SectionHeader>
       <div>

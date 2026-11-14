@@ -1,4 +1,5 @@
-import { Box, Callout, Header, SectionHeader } from "react-lib-tools";
+import { Box, Callout, Code, Header, SectionHeader } from "react-lib-tools";
+import { html as DragSourceInfoHTML } from "../../public/generated/examples/WorkspaceDragSourceInfo.json";
 import { Link } from "../components/Link";
 
 export default function WorkspaceMultipleWindowsRoute() {
@@ -35,6 +36,23 @@ export default function WorkspaceMultipleWindowsRoute() {
         and drop when <code>dragGroup</code> is set. (Touch and pen drags still
         use pointer events and stay within their window.)
       </div>
+      <SectionHeader>Where tabs come from</SectionHeader>
+      <div>
+        The <code>dragSourceInfo</code> prop is sent with the tabs dragged from
+        a workspace, so the workspace they're dropped into can tell where they
+        came from: <code>disableDrop</code> receives it as{" "}
+        <code>sourceInfo</code> (along with the <code>sourceWorkspaceId</code>
+        ), and so does <code>onModelChanged</code> for the{" "}
+        <code>"transfer"</code> (and <code>"copy"</code>) changes it reports.
+        For example, a workspace can only accept tabs from other "reports"
+        workspaces, notify the user when a tab comes from an older version of
+        the app, and migrate that tab's data when it's rendered:
+      </div>
+      <Code html={DragSourceInfoHTML} />
+      <Callout>
+        Like tab data, <code>dragSourceInfo</code> is sent to other copies of
+        your app with the structured clone algorithm, so it must be cloneable.
+      </Callout>
       <SectionHeader>Tab content in other windows</SectionHeader>
       <div>
         Unlike tabs moved within a workspace, a tab that's dropped into another

@@ -56,7 +56,14 @@ export type NativeDrag = {
   removeFromSource: () => void;
 
   source: DragSource;
+
+  /** The `dragSourceInfo` prop of the workspace the drag started in (see DisableDropArgs.sourceInfo) */
+  sourceInfo: unknown;
+
   sourceOwner: object;
+
+  /** The id of the workspace the drag started in (`undefined` for a drag from a page that uses an earlier release) */
+  sourceWorkspaceId: string | undefined;
 };
 
 let current: NativeDrag | null = null;

@@ -43,7 +43,7 @@
     {
       "description": [
         {
-          "content": "<p>The tab is selected, and its tabset is neither collapsed nor covered by another, maximized tabset.</p>\n"
+          "content": "<p>The tab is selected, and its tabset is neither collapsed nor covered by another, maximized tabset (floating tabsets are shown above a maximized tabset, so they're never covered).</p>\n"
         },
         {
           "content": "<p>While a separator is being dragged, this reflects how the tab's tabset is shown (e.g. collapsed as soon as it reaches its collapsed size),\nwhich the model only reflects once the drag ends; it also reflects tabsets that are collapsed to fit (see <code>TabsetNode.collapsible</code>).</p>\n",

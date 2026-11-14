@@ -10,13 +10,17 @@ import {
   useTabsetContext,
   useWorkspaceContext
 } from "../hooks/useWorkspaceContext";
+import type { ParentTabsetState, TabsetNode } from "../types";
+import { getTabsetState } from "../utils/getTabsetState";
 import { isTabsetDragDisabled } from "../utils/isTabsetDragDisabled";
+import { resolveElementValue } from "../utils/resolveElementValue";
 import { getTabListTabElements } from "../utils/getTabListTabElements";
 import { measureTabListFreeSpace } from "../utils/measureTabListFreeSpace";
 import { measureTabListOverflow } from "../utils/measureTabListOverflow";
 import { scrollTabIntoView } from "../utils/scrollTabIntoView";
 
 function TabListComponent({ children }: { children: ReactNode }) {
+  const workspace = useWorkspaceContext("TabList");
   const {
     classNames,
     disabled,
@@ -25,7 +29,7 @@ function TabListComponent({ children }: { children: ReactNode }) {
     styles,
     tabListFreeSpaceStore,
     tabListOverflowStore
-  } = useWorkspaceContext("TabList");
+  } = workspace;
   const { isCollapsed, setTabListElement, tabPlacement, tabset } =
     useTabsetContext("TabList");
 
@@ -249,7 +253,13 @@ function TabListComponent({ children }: { children: ReactNode }) {
   }, [orientation, scrollSelectedTabIntoView, selectedTabId]);
 
   // The list's empty space drags the tabset (see TabsetView), so it handles touch drags itself like tabs do (see Tab)
-  let touchAction = styles?.tabList?.touchAction;
+  const getArgs = (): [TabsetNode, ParentTabsetState] => [
+    tabset,
+    getTabsetState(workspace, tabset)
+  ];
+  const style = resolveElementValue(styles?.tabList, getArgs);
+
+  let touchAction = style?.touchAction;
   if (!isTabsetDragDisabled(model, tabset, disabled, dragGroup)) {
     if (isOverflowing) {
       touchAction = orientation === "horizontal" ? "pan-x" : "pan-y";
@@ -267,14 +277,14 @@ function TabListComponent({ children }: { children: ReactNode }) {
     <TabListContext.Provider value={context}>
       <div
         aria-orientation={orientation}
-        className={classNames?.tabList}
+        className={resolveElementValue(classNames?.tabList, getArgs)}
         data-orientation={orientation}
         data-tab-list
         data-tab-placement={tabPlacement}
         data-tabset-collapsed={isCollapsed || undefined}
         ref={mergedRef}
         role="tablist"
-        style={{ ...styles?.tabList, touchAction }}
+        style={{ ...style, touchAction }}
       >
         {children}
       </div>

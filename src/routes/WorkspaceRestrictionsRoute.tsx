@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Callout, Code, Header } from "react-lib-tools";
+import { Box, Callout, Code, Header, SectionHeader } from "react-lib-tools";
 import {
   type TabNode,
   useWorkspaceRef,
@@ -7,6 +7,7 @@ import {
 } from "react-resizable-panels";
 import { html } from "../../public/generated/examples/WorkspaceRestrictions.json";
 import { html as ModelHTML } from "../../public/generated/examples/WorkspaceRestrictionsModel.json";
+import { html as BeforeModelChangeHTML } from "../../public/generated/examples/WorkspaceBeforeModelChange.json";
 import { Link } from "../components/Link";
 import {
   type DemoTab,
@@ -24,6 +25,7 @@ function getTabs(node: WorkspaceNode<DemoTab>): TabNode<DemoTab>[] {
 export default function WorkspaceRestrictionsRoute() {
   const [isLocked, setIsLocked] = useState(false);
   const [isCloseDisabled, setIsCloseDisabled] = useState(false);
+  const [isSelectOnly, setIsSelectOnly] = useState(false);
   const workspaceRef = useWorkspaceRef<DemoTab>();
 
   // Workspaces are uncontrolled, so each tab's disableClose flag is updated with the imperative API
@@ -123,6 +125,11 @@ export default function WorkspaceRestrictionsRoute() {
           )?.acceptsDrops === false
         }
         disabled={isLocked}
+        onBeforeModelChange={({ reason }) =>
+          !isSelectOnly ||
+          // Selecting a tab in a collapsed tabset is an "expand" change
+          ["select", "expand", "raise", "maximize", "restore"].includes(reason)
+        }
         onModelChanged={(_, { reason }) => {
           // Tabs added while closing is prevented can't be closed either
           if (reason === "add" && isCloseDisabled) {
@@ -153,7 +160,45 @@ export default function WorkspaceRestrictionsRoute() {
           />
           Prevent closing tabs (<code>disableClose</code>)
         </label>
+        <label className="flex items-center gap-2">
+          <input
+            checked={isSelectOnly}
+            id="workspace-restrictions-select-only"
+            onChange={(event) => setIsSelectOnly(event.currentTarget.checked)}
+            type="checkbox"
+          />
+          Only allow selecting (<code>onBeforeModelChange</code>)
+        </label>
       </div>
+      <SectionHeader>Blocking changes</SectionHeader>
+      <div>
+        The <code>onBeforeModelChange</code> prop is called before each change
+        the user makes, with the change's <code>reason</code>, the model before
+        and after it, and the tabs it would remove. Returning <code>false</code>{" "}
+        blocks the change. This covers every way of making it, e.g. closing a
+        tab with its close button or with the Delete key.
+      </div>
+      <div>
+        For example, this workspace keeps tabs with unsaved changes from being
+        closed, and can be locked so that users can only select tabs (selecting
+        a tab in a collapsed tabset is an <code>"expand"</code> change),
+        maximize tabsets, and bring floating tabsets to the front (a{" "}
+        <code>"raise"</code> change):
+      </div>
+      <Code html={BeforeModelChangeHTML} />
+      <div>
+        Blocked resizes are undone (the separator moves back), and blocked drops
+        leave tabs where they were. A tab dropped into another workspace (see{" "}
+        <Link to="/examples/workspace/multiple-windows">multiple windows</Link>)
+        is checked by the workspace it's dropped into, and stays in the one it
+        was dragged from if it's blocked.
+      </div>
+      <Callout>
+        The callback is synchronous. To ask the user first (e.g. "Save changes
+        before closing?"), block the change and then make it with the imperative
+        API (e.g. <code>closeTab</code>) if they confirm; changes made with the
+        imperative API aren't passed to <code>onBeforeModelChange</code>.
+      </Callout>
     </Box>
   );
 }

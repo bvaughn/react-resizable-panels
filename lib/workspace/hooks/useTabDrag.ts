@@ -28,6 +28,7 @@ import { isHTMLElement } from "../../shared/utils/isHTMLElement";
 import { WORKSPACE_DRAG_DATA_TYPE } from "../constants";
 import type {
   DragNode,
+  DragOrigin,
   DragPoint,
   DragSource,
   ExternalDragOptions,
@@ -72,6 +73,7 @@ export function useTabDrag({
   disableDragBetweenApps,
   dragGroup,
   dragStore,
+  getDragSourceInfo,
   getDragNode,
   getModel,
   getRootElement,
@@ -84,7 +86,8 @@ export function useTabDrag({
   onTransferIn,
   onTransferOut,
   rootElement,
-  tabsetElements
+  tabsetElements,
+  workspaceId
 }: {
   /** Whether a tab (or tabset) dropped into this workspace can be copied (see the copyTab and copyTabset props), rather than moved, while the copy modifier key is held */
   canCopy: (node: DragNode) => boolean;
@@ -94,6 +97,8 @@ export function useTabDrag({
   // The drop target is shown by the components that subscribe to this store (rather than being returned), so that the workspace doesn't re-render as it changes
   dragStore: DragStore;
   getDragNode: (source: DragSource) => DragNode | undefined;
+  /** Sent with drags that start in this workspace (see the dragSourceInfo prop); read when a drag starts */
+  getDragSourceInfo: () => unknown;
   getModel: () => WorkspaceModel;
   getRootElement: () => HTMLElement | null;
   isDropDisabled: (
@@ -104,7 +109,8 @@ export function useTabDrag({
   isExternalDropDisabled: (
     node: DragNode,
     target: TabDropTarget,
-    isCopy: boolean
+    isCopy: boolean,
+    origin: DragOrigin
   ) => boolean;
   isNewTabDropDisabled: (tab: TabNode, target: TabDropTarget) => boolean;
   /** Moves (or copies) a tab (or tabset) dropped within this workspace */
@@ -125,11 +131,13 @@ export function useTabDrag({
   onTransferIn: (
     node: DragNode,
     target: TabDropTarget,
-    isCopy: boolean
+    isCopy: boolean,
+    origin: DragOrigin
   ) => boolean;
   onTransferOut: (source: DragSource) => void;
   rootElement: HTMLElement | null;
   tabsetElements: TabsetElementRegistry;
+  workspaceId: string;
 }) {
   // The source is also shared through the store (see Tab), which is updated along with this state
   const [dragSource, setDragSourceState] = useState<DragSource | undefined>();
@@ -255,7 +263,9 @@ export function useTabDrag({
           previewOwners: new Map([[ownerDocument, owner]]),
           removeFromSource: () => onTransferOut(source),
           source,
-          sourceOwner: owner
+          sourceInfo: getDragSourceInfo(),
+          sourceOwner: owner,
+          sourceWorkspaceId: workspaceId
         };
 
         previewPointRef.current = {
@@ -324,10 +334,12 @@ export function useTabDrag({
       canTearOff,
       disableDragBetweenApps,
       getDragNode,
+      getDragSourceInfo,
       onTearOff,
       onTransferOut,
       owner,
-      setDragSource
+      setDragSource,
+      workspaceId
     ]
   );
 
@@ -421,7 +433,7 @@ export function useTabDrag({
           drag,
           isCopy,
           isDisabled: isExternal
-            ? isExternalDropDisabled(drag.node, target, isCopy)
+            ? isExternalDropDisabled(drag.node, target, isCopy, drag)
             : isDropDisabled(drag.source, target, isCopy),
           model,
           target
@@ -546,7 +558,7 @@ export function useTabDrag({
       const { canMove, isCopy, target } = result;
       if (drag.sourceOwner === owner) {
         onDrop(drag.source, target, isCopy, canMove);
-      } else if (onTransferIn(drag.node, target, isCopy)) {
+      } else if (onTransferIn(drag.node, target, isCopy, drag)) {
         drag.removeFromSource();
       }
     };

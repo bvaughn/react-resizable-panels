@@ -806,6 +806,94 @@ test.describe("Workspace", () => {
     expect(leftPercentage).toBeLessThan(58);
   });
 
+  test("moves a separator back when onBeforeModelChange blocks the resize", async ({
+    page: mainPage
+  }) => {
+    const model = createModel();
+    const root = model.root as SplitNode;
+    root.children[1] = {
+      ...(root.children[1] as TabsetNode),
+      collapsible: true
+    };
+    const page = await goToUrl(
+      mainPage,
+      <Workspace
+        defaultModel={model}
+        renderTabContent={() => null}
+        // Props of the test Workspace component (see TestWorkspaceProps)
+        {...({ blockedReasons: ["collapse", "expand", "resize"] } as object)}
+      />
+    );
+
+    const workspaceBox = (await page
+      .locator("[data-workspace]")
+      .boundingBox())!;
+    const getLeftWidth = async () =>
+      (await getTabset(page, "left").boundingBox())!.width;
+    const initialWidth = await getLeftWidth();
+
+    const separator = page.locator("[data-separator]");
+    const box = (await separator.boundingBox())!;
+    const y = box.y + box.height / 2;
+
+    // Resizing
+    await drag(page, separator, {
+      x: workspaceBox.x + workspaceBox.width * 0.3,
+      y
+    });
+    await expect.poll(getLeftWidth).toBeCloseTo(initialWidth, 0);
+
+    // Collapsing
+    await drag(page, separator, {
+      x: workspaceBox.x + workspaceBox.width - 5,
+      y
+    });
+    await expect(getTabset(page, "right")).not.toHaveAttribute(
+      "data-tabset-collapsed"
+    );
+    await expect.poll(getLeftWidth).toBeCloseTo(initialWidth, 0);
+
+    expect(
+      JSON.parse(
+        (await page.getByTestId("workspace-changes").textContent()) ?? "[]"
+      )
+    ).toEqual([]);
+  });
+
+  test("applies the sizes given to resizeSplit", async ({ page: mainPage }) => {
+    const page = await goToUrl(
+      mainPage,
+      <Workspace
+        defaultModel={createModel()}
+        renderTabContent={() => null}
+        // Props of the test Workspace component (see TestWorkspaceProps)
+        {...({
+          resizeSplit: { sizes: { left: "200px" }, splitId: "root" }
+        } as object)}
+      />
+    );
+
+    await page.getByTestId("resize-split").click();
+
+    await expect
+      .poll(async () => (await getTabset(page, "left").boundingBox())!.width)
+      .toBeCloseTo(200, 0);
+    expect(await getLastChange(page)).toMatchObject({
+      meta: { isUserInteraction: false, reason: "resize" },
+      model: {
+        root: { children: [{ id: "left" }, { id: "right" }] }
+      }
+    });
+    // Converted to a percentage of the split
+    const change = (await getLastChange(page)) as {
+      model: { root: { children: { size: number }[] } };
+    };
+    expect(change.model.root.children[0].size).toBeCloseTo(
+      (200 / 808) * 100,
+      0
+    );
+  });
+
   test("reorders tabs within a tab list", async ({ page: mainPage }) => {
     const page = await goToUrl(mainPage, workspace());
 

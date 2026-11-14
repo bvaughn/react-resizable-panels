@@ -216,6 +216,42 @@ describe("Workspace buttons", () => {
     });
   });
 
+  describe("blocked by onBeforeModelChange", () => {
+    test("the collapse button leaves the tabset expanded", () => {
+      const { container, onModelChanged, workspaceRef } = renderWorkspace({
+        onBeforeModelChange: () => false,
+        renderTabsetToolbar: () => (
+          <TabsetCollapseButton data-testid="collapse" />
+        )
+      });
+      const model = workspaceRef.current!.getModel();
+
+      const button = getButton(container, "left", "collapse")!;
+      fireEvent.click(button);
+
+      expect(workspaceRef.current!.getModel()).toBe(model);
+      expect(button).toHaveAttribute("aria-expanded", "true");
+      expect(onModelChanged).not.toHaveBeenCalled();
+    });
+
+    test("the maximize button leaves the tabset unmaximized", () => {
+      const { container, onModelChanged, workspaceRef } = renderWorkspace({
+        onBeforeModelChange: () => false,
+        renderTabsetToolbar: () => (
+          <TabsetMaximizeButton data-testid="maximize" />
+        )
+      });
+      const model = workspaceRef.current!.getModel();
+
+      const button = getButton(container, "left", "maximize")!;
+      fireEvent.click(button);
+
+      expect(workspaceRef.current!.getModel()).toBe(model);
+      expect(button).toHaveAttribute("aria-pressed", "false");
+      expect(onModelChanged).not.toHaveBeenCalled();
+    });
+  });
+
   describe("TabsetMaximizeButton", () => {
     function renderMaximizeButtons(props: Partial<WorkspaceProps> = {}) {
       return renderWorkspace({
