@@ -7,7 +7,7 @@
       "content": "<p>The layout is described by a serializable model (see <code>WorkspaceModel</code>).\nWorkspaces are uncontrolled: provide an initial model with the <code>defaultModel</code> prop, save changes from the <code>onModelChanged</code> callback,\nand make changes using the imperative API (see <code>WorkspaceImperativeHandle</code>).</p>\n"
     },
     {
-      "content": "<p>Tab content is not remounted when a tab is moved.\nIts elements are moved within the document, though, which resets some browser state (e.g. iframes are reloaded).</p>\n",
+      "content": "<p>Tab content is not remounted when a tab is moved, and its browser state (e.g. iframes, playing media, and focus) is preserved where possible;\nbrowsers that don't support <code>moveBefore</code> (e.g. Safari) reset some of that state (e.g. iframes are reloaded).</p>\n",
       "intent": "primary"
     },
     {
@@ -280,7 +280,11 @@
           "intent": "primary"
         },
         {
-          "content": "<p>Its React state is preserved, but its elements are moved within the document, which resets some browser state:\niframes are reloaded, playing media is paused, and focused elements are blurred.</p>\n",
+          "content": "<p>Its React state is preserved, and where possible its elements are moved within the document using <code>moveBefore</code>, which preserves browser state (iframes aren't reloaded, playing media isn't paused, and focused elements stay focused).</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Browsers that don't support <code>moveBefore</code> (e.g. Safari) reset some of that state when a tab moves: iframes are reloaded, playing media is paused, and focused elements are blurred.</p>\n",
           "intent": "warning"
         }
       ],

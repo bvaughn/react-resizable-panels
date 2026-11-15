@@ -31,6 +31,17 @@ export default function PlatformRequirementsRoute() {
         or newer (for <code>Activity</code>); with older versions it behaves
         like the default (<code>"keep-mounted"</code>).
       </div>
+      <div>
+        The <code>Workspace</code> component moves tab content between tabsets
+        using{" "}
+        <ExternalLink href="https://developer.mozilla.org/en-US/docs/Web/API/Element/moveBefore">
+          <code>moveBefore</code>
+        </ExternalLink>{" "}
+        where it's supported, which preserves browser state such as iframes,
+        playing media, and focus. Browsers that don't support it yet (e.g.
+        Safari) move content with <code>appendChild</code>, which{" "}
+        <Link to="/examples/workspace/tab-content">resets that state</Link>.
+      </div>
     </Box>
   );
 }

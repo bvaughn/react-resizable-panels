@@ -6,6 +6,7 @@ import { useMergedRefs } from "../../shared/hooks/useMergedRefs";
 import { TabContent } from "./TabContent";
 import type { ParentTabsetState, TabsetNode } from "../types";
 import { getTabsetState } from "../utils/getTabsetState";
+import { moveElement } from "../utils/moveElement";
 import { resolveElementValue } from "../utils/resolveElementValue";
 import {
   useTabsetContext,
@@ -20,6 +21,7 @@ function TabPanelsComponent() {
     getTabHost,
     isHydrating,
     isTabContentLazy,
+    parkTabHost,
     renderEmptyTabset,
     renderTabContent,
     shouldServerRenderTabContent,
@@ -30,24 +32,41 @@ function TabPanelsComponent() {
 
   const elementRef = useRef<HTMLDivElement | null>(null);
   const mergedRef = useMergedRefs(elementRef, setPanelsElement);
+  const hostsRef = useRef<HTMLElement[]>([]);
 
   // Move this tabset's tab content into the panels and show only the selected tab's
   // (content isn't rendered into these elements until hydration has finished)
   useIsomorphicLayoutEffect(() => {
     const element = elementRef.current;
+    const hosts: HTMLElement[] = [];
     if (element && !isHydrating) {
       for (const tab of tabset.tabs) {
         const { element: host } = getTabHost(tab.id);
         if (host) {
           if (host.parentElement !== element) {
-            element.appendChild(host);
+            moveElement(element, host);
           }
           host.style.display =
             tab.id === tabset.selectedId ? "contents" : "none";
+          hosts.push(host);
         }
       }
     }
+    hostsRef.current = hosts;
   });
+
+  // When the panels unmount (e.g. the tabset's last tab was moved to another tabset, or the tabset was maximized), their hosts are parked rather than removed along with them,
+  // so that they stay in the document until another TabPanels moves them in; layout effects are cleaned up before the elements of an unmounted tree are removed
+  useIsomorphicLayoutEffect(() => {
+    const element = elementRef.current;
+    return () => {
+      for (const host of hostsRef.current) {
+        if (host.parentElement === element) {
+          parkTabHost(host);
+        }
+      }
+    };
+  }, [parkTabHost]);
 
   // Content opted into server rendering is rendered inline until hydration has finished,
   // within a wrapper that matches the host element it's rendered into afterward (see Workspace)
