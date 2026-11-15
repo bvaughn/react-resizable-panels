@@ -44,9 +44,11 @@ export default function WorkspaceDraggingTabsInRoute() {
       <div>
         The drag starts once the pointer moves, so clicking the element still
         works (e.g. to add the tab with <code>addTab</code>; see{" "}
-        <Link to="/examples/workspace/managing-tabs">managing tabs</Link>), and
-        the click that follows a drag is suppressed. Pressing Escape cancels the
-        drag.
+        <Link to="/examples/workspace/opening-and-closing-tabs">
+          opening and closing tabs
+        </Link>
+        ), and the click that follows a drag is suppressed. Pressing Escape
+        cancels the drag.
       </div>
       <div>
         <code>startExternalDrag</code> returns a promise that resolves with

@@ -8,7 +8,7 @@ import { initialModel } from "./examples/WorkspaceModel";
 export default function WorkspacePersistenceRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Workspace" title="Persistent layouts" />
+      <Header section="Workspace" title="Saving layouts" />
       <div>
         A workspace's model is serializable, so it can be saved and restored.
         Save it from the <code>onModelChanged</code> callback, and restore it

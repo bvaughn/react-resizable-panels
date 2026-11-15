@@ -186,43 +186,48 @@ const nav: NavConfig<Path | DefaultPath> = [
         links: [
           { path: "/examples/workspace", title: "The basics" },
           {
-            path: "/examples/workspace/separators",
-            title: "Separators and accessibility"
+            path: "/examples/workspace/saving-layouts",
+            title: "Saving layouts"
           },
           { path: "/examples/workspace/tab-content", title: "Tab content" },
           {
-            path: "/examples/workspace/managing-tabs",
-            title: "Managing tabs",
+            path: "/examples/workspace/opening-and-closing-tabs",
+            title: "Opening and closing tabs"
+          },
+          {
+            path: "/examples/workspace/drag-and-drop",
+            title: "Drag and drop",
             children: [
               {
-                path: "/examples/workspace/managing-tabs/dragging-tabs-in",
+                path: "/examples/workspace/drag-and-drop/dragging-tabs-in",
                 title: "Dragging tabs in"
               },
               {
-                path: "/examples/workspace/managing-tabs/copying-tabs",
+                path: "/examples/workspace/drag-and-drop/copying-tabs",
                 title: "Copying tabs"
-              },
-              {
-                path: "/examples/workspace/managing-tabs/selecting-tabs",
-                title: "Selecting tabs"
-              }
-            ]
-          },
-          {
-            path: "/examples/workspace/managing-tabsets",
-            title: "Managing tabsets",
-            children: [
-              {
-                path: "/examples/workspace/managing-tabsets/sizing-tabsets",
-                title: "Sizing tabsets"
-              },
-              {
-                path: "/examples/workspace/managing-tabsets/floating-tabsets",
-                title: "Floating tabsets"
               }
             ]
           },
           { path: "/examples/workspace/restrictions", title: "Restrictions" },
+          { path: "/examples/workspace/sizing", title: "Sizing tabsets" },
+          {
+            path: "/examples/workspace/collapsing-and-maximizing",
+            title: "Collapsing and maximizing"
+          },
+          {
+            path: "/examples/workspace/floating-tabsets",
+            title: "Floating tabsets"
+          },
+          {
+            path: "/examples/workspace/custom-tabsets",
+            title: "Custom tabsets"
+          },
+          { path: "/examples/workspace/tab-placement", title: "Tab placement" },
+          { path: "/examples/workspace/styling", title: "Styling" },
+          {
+            path: "/examples/workspace/keyboard-and-accessibility",
+            title: "Keyboard and accessibility"
+          },
           {
             path: "/examples/workspace/multiple-windows",
             title: "Multiple windows",
@@ -238,19 +243,9 @@ const nav: NavConfig<Path | DefaultPath> = [
             ]
           },
           {
-            path: "/examples/workspace/persistent-layout",
-            title: "Persistent layouts"
-          },
-          {
             path: "/examples/workspace/server-rendering",
             title: "Server rendering"
-          },
-          { path: "/examples/workspace/tab-placement", title: "Tab placement" },
-          {
-            path: "/examples/workspace/custom-tabsets",
-            title: "Custom tabsets"
-          },
-          { path: "/examples/workspace/styling", title: "Styling" }
+          }
         ]
       },
       {

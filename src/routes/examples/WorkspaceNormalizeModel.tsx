@@ -1,8 +1,4 @@
-import {
-  normalizeWorkspaceModel,
-  type TabNode,
-  type WorkspaceModel
-} from "react-resizable-panels";
+import { type TabNode, type WorkspaceModel } from "react-resizable-panels";
 
 type TabData = { kind: "files" | "search" | "terminal" };
 
@@ -10,6 +6,8 @@ declare const STORAGE_KEY: string;
 declare function createDefaultModel(): WorkspaceModel<TabData>;
 
 // <begin>
+
+import { normalizeWorkspaceModel } from "react-resizable-panels";
 
 const tabsById = new Map<string, TabNode<TabData>>([
   ["files", { id: "files", title: "Files", data: { kind: "files" } }],
