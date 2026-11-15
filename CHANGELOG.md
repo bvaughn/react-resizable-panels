@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.24.0
 
 - `Workspace`:
   - Moving a tab no longer reloads its iframes, pauses its media, or blurs its focused elements, in browsers that support `moveBefore` (see [caniuse](https://caniuse.com/wf-move-before)). - [#818](https://github.com/bvaughn/react-resizable-panels/issues/818)
