@@ -4,17 +4,19 @@ on:
   push:
     branches: [main]
 jobs:
+  # Tests import the library's source (see the "react-resizable-panels" alias in vite.config.ts), so nothing needs to be built first;
+  # the TypeScript workflow checks that the library and docs build
   unit-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           version: 10
+      - uses: actions/setup-node@v7
+        with:
+          cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --recursive
-      - name: Build NPM packages
-        run: pnpm run build
       - name: Run tests
         run: pnpm run test:ci

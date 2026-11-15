@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { afterEach, describe, expect, test } from "vitest";
 import { calculateHitRegions } from "../dom/calculateHitRegions";
 import { onDocumentPointerMove } from "../event-handlers/onDocumentPointerMove";

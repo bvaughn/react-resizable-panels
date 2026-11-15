@@ -7,16 +7,18 @@ jobs:
   pending-changes:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           version: 10
+      - uses: actions/setup-node@v7
+        with:
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --recursive
         env:
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
       - name: Setup Google Chrome
         uses: browser-actions/setup-chrome@v2

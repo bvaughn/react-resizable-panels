@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { describe, expect, test } from "vitest";
 import { mockGroup } from "../test/mockGroup";
 import { calculateAvailableAxisSize } from "./calculateAvailableAxisSize";

@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { InteractionState } from "../mutable-state/types";
 import { updateCursorStyle } from "./updateCursorStyle";

@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { beforeEach, describe, expect, onTestFinished, test } from "vitest";
 import {
   setDefaultElementStyle,

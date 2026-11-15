@@ -28,12 +28,16 @@ To run unit tests locally:
 pnpm test
 ```
 
+Unit tests run in Node by default, which is faster to set up. Tests that need a DOM (e.g. to render components) opt into jsdom by starting with a `// @vitest-environment jsdom` comment; without it, they fail with errors like `document is not defined`.
+
 To run end to end tests locally:
 ```sh
 pnpm prerelease
 pnpm e2e:install
 pnpm dev:integrations & pnpm e2e:test
 ```
+
+Set `E2E_LOG_URLS=1` to log the URL of each test's page (e.g. to open a failing test in a browser). Set `E2E_APPS` to a comma-separated list of integration apps (e.g. `E2E_APPS=vite`) to only start those apps; tests that need the other apps are skipped.
 
 ### Updating assets
 

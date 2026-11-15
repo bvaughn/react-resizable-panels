@@ -1,20 +1,20 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll, beforeEach, expect, vi } from "vitest";
 import failOnConsole from "vitest-fail-on-console";
-import { resetMockGroupIdCounter } from "./lib/global/test/mockGroup";
-import {
-  mockBoundingClientRect,
-  unmockBoundingClientRect
-} from "./lib/shared/utils/test/mockBoundingClientRect";
-import {
-  mockGetComputedStyle,
-  unmockGetComputedStyle
-} from "./lib/shared/utils/test/mockGetComputedStyle";
-import {
-  mockResizeObserver,
-  unmockResizeObserver
-} from "./lib/shared/utils/test/mockResizeObserver";
+
+// Tests run in Node by default, which is faster to set up; tests that need a DOM opt into jsdom (see their @vitest-environment comments).
+// The DOM mocks below only apply to tests that run in jsdom (and are imported dynamically, since they reference DOM globals when they're loaded)
+const hasDOM = typeof document !== "undefined";
+
+const dom = hasDOM
+  ? {
+      ...(await import("@testing-library/react")),
+      ...(await import("./lib/global/test/mockGroup")),
+      ...(await import("./lib/shared/utils/test/mockBoundingClientRect")),
+      ...(await import("./lib/shared/utils/test/mockGetComputedStyle")),
+      ...(await import("./lib/shared/utils/test/mockResizeObserver"))
+    }
+  : undefined;
 
 const PROTOTYPE_PROPS = [
   "clientHeight",
@@ -62,12 +62,14 @@ expect.extend({
 });
 
 beforeAll(() => {
-  PROTOTYPE_PROPS.forEach((propertyKey) => {
-    Object.defineProperty(HTMLElement.prototype, propertyKey, {
-      configurable: true,
-      value: 0
+  if (hasDOM) {
+    PROTOTYPE_PROPS.forEach((propertyKey) => {
+      Object.defineProperty(HTMLElement.prototype, propertyKey, {
+        configurable: true,
+        value: 0
+      });
     });
-  });
+  }
 
   vi.spyOn(console, "warn").mockImplementation(() => {
     throw Error("Unexpected console warning");
@@ -75,25 +77,31 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  PROTOTYPE_PROPS.forEach((propertyKey) => {
-    delete HTMLElement.prototype[
-      propertyKey as keyof typeof HTMLElement.prototype
-    ];
-  });
+  if (hasDOM) {
+    PROTOTYPE_PROPS.forEach((propertyKey) => {
+      delete HTMLElement.prototype[
+        propertyKey as keyof typeof HTMLElement.prototype
+      ];
+    });
+  }
 });
 
 beforeEach(() => {
-  mockBoundingClientRect();
-  mockGetComputedStyle();
-  mockResizeObserver();
+  if (dom) {
+    dom.mockBoundingClientRect();
+    dom.mockGetComputedStyle();
+    dom.mockResizeObserver();
+  }
 });
 
 afterEach(() => {
-  cleanup();
+  if (dom) {
+    dom.cleanup();
 
-  resetMockGroupIdCounter();
+    dom.resetMockGroupIdCounter();
 
-  unmockBoundingClientRect();
-  unmockGetComputedStyle();
-  unmockResizeObserver();
+    dom.unmockBoundingClientRect();
+    dom.unmockGetComputedStyle();
+    dom.unmockResizeObserver();
+  }
 });

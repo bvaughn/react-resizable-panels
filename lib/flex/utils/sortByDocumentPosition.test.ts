@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { describe, expect, test } from "vitest";
 import { createSiblingElements } from "../../global/test/createSiblingElements";
 import { sortByDocumentPosition } from "./sortByDocumentPosition";

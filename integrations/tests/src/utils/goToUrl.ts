@@ -52,7 +52,10 @@ export async function goToUrl(
   );
 
   // Uncomment when testing for easier repro
-  console.log("\n\n" + url.toString());
+  // Set E2E_LOG_URLS to log each test's URL (e.g. to open a failing test's page in a browser)
+  if (process.env.E2E_LOG_URLS) {
+    console.log("\n\n" + url.toString());
+  }
 
   await page.goto(url.toString());
 
