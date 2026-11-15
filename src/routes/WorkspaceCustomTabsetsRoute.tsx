@@ -11,8 +11,8 @@ import {
   useParentTabsetState,
   type WorkspaceModel
 } from "react-resizable-panels";
-import { html as ConfirmCloseHTML } from "../../public/generated/examples/WorkspaceCustomTabConfirmClose.json";
 import { html as CustomTabsetHTML } from "../../public/generated/examples/WorkspaceCustomTabset.json";
+import { html as EventHandlersHTML } from "../../public/generated/examples/WorkspaceTabsetEventHandlers.json";
 import { html as HiddenTabsMenuHTML } from "../../public/generated/examples/WorkspaceHiddenTabsMenu.json";
 import { html as OverflowToolbarHTML } from "../../public/generated/examples/WorkspaceOverflowToolbar.json";
 import { html as RenamableTabHTML } from "../../public/generated/examples/WorkspaceRenamableTab.json";
@@ -47,6 +47,10 @@ export default function WorkspaceCustomTabsetsRoute() {
           tabs.
         </li>
       </ul>
+      <Callout>
+        Like the rest of the library, tabsets are unstyled; see{" "}
+        <Link to="/examples/workspace/styling">styling</Link>.
+      </Callout>
       <Code html={CustomTabsetHTML} />
       <div>
         <code>renderTab</code> receives the props that make an element a tab
@@ -66,11 +70,21 @@ export default function WorkspaceCustomTabsetsRoute() {
         it.
       </Callout>
       <div>
-        Props can be overridden or wrapped. For example, to confirm before
-        closing a tab with unsaved changes (whether by its close button or the
-        Delete or Backspace key):
+        Props can be overridden or wrapped (e.g. calling{" "}
+        <code>props.onKeyDown</code> from a handler of your own), but tabs
+        should keep them so they can still be selected, dragged, and used with
+        the keyboard (see{" "}
+        <Link to="/examples/workspace/keyboard-and-accessibility">
+          keyboard and accessibility
+        </Link>
+        ). Close buttons should use <code>TabCloseButton</code> so that closes
+        are checked by <code>onBeforeModelChange</code>. To confirm before the
+        user closes a tab, see{" "}
+        <Link anchor="blocking-changes" to="/examples/workspace/restrictions">
+          blocking changes
+        </Link>{" "}
+        instead.
       </div>
-      <Code html={ConfirmCloseHTML} />
       <SectionHeader>Renaming tabs</SectionHeader>
       <div>
         A tab can show an input in place of its title, e.g. after it's
@@ -148,10 +162,14 @@ export default function WorkspaceCustomTabsetsRoute() {
         <code>subscribeToTabListOverflow</code> methods of the{" "}
         <Link to="/imperative-api/workspace">imperative API</Link>.
       </Callout>
+      <SectionHeader>Event handlers</SectionHeader>
       <div>
-        Like the rest of the library, tabsets are unstyled; see{" "}
-        <Link to="/examples/workspace/styling">styling</Link>.
+        Event handlers for tabsets (e.g. a context menu for tabset headers) can
+        be attached to the <code>Workspace</code> itself, and find the tabset
+        from the event's target. Workspaces nested within tabs are inside of it
+        too, so their tabsets are skipped:
       </div>
+      <Code html={EventHandlersHTML} />
     </Box>
   );
 }

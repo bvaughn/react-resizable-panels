@@ -66,7 +66,7 @@ export default function WorkspaceRestrictionsRoute() {
           tabset is dragged, the function is called for each of its tabs, so a
           tabset can only be dropped where all of its tabs could be. Tabs
           dragged in from outside of the workspace (see{" "}
-          <Link to="/examples/workspace/managing-tabs/dragging-tabs-in">
+          <Link to="/examples/workspace/drag-and-drop/dragging-tabs-in">
             dragging tabs in
           </Link>
           ) use <code>source: "new"</code>.
@@ -88,24 +88,19 @@ export default function WorkspaceRestrictionsRoute() {
       <Code html={ModelHTML} />
       <Code html={html} />
       <div>
-        Drops at the{" "}
-        <Link
-          anchor="dropping-at-the-edges-of-the-workspace"
-          to="/examples/workspace/managing-tabsets"
-        >
-          edges of the workspace
-        </Link>{" "}
-        (beside all of the tabsets) don't have a <code>tabsetId</code>, so the
-        function checks for an <code>edge</code> before looking up the target
-        tabset. Drops at an edge that a collapsed tabset lines are added to that
-        tabset, so they have an <code>index</code> and <code>tabsetId</code>{" "}
-        like any tab list drop.
+        Drops at the edges of the workspace (beside all of the tabsets) don't
+        have a <code>tabsetId</code>, so the function checks for an{" "}
+        <code>edge</code> before looking up the target tabset (see{" "}
+        <Link anchor="drop-targets" to="/examples/workspace/drag-and-drop">
+          drop targets
+        </Link>
+        ).
       </div>
       <Callout>
         None of these restrict the{" "}
         <Link to="/imperative-api/workspace">imperative API</Link>; it can still
         be used to add, remove, or re-arrange tabs. The exception is{" "}
-        <Link to="/examples/workspace/managing-tabs/dragging-tabs-in">
+        <Link to="/examples/workspace/drag-and-drop/dragging-tabs-in">
           <code>startExternalDrag</code>
         </Link>
         , which starts a user drag and is checked like one.
@@ -181,7 +176,9 @@ export default function WorkspaceRestrictionsRoute() {
         the user makes, with the change's <code>reason</code>, the model before
         and after it, and the tabs it would remove. Returning <code>false</code>{" "}
         blocks the change. This covers every way of making it, e.g. closing a
-        tab with its close button or with the Delete key.
+        tab with a <code>TabCloseButton</code> or with the Delete key (but not
+        with a custom button that calls <code>close</code> or{" "}
+        <code>closeTab</code>, which are imperative changes).
       </div>
       <div>
         For example, this workspace keeps tabs with unsaved changes from being

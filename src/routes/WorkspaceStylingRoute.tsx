@@ -1,7 +1,6 @@
 import { Box, Callout, Code, Header } from "react-lib-tools";
 import { html as ClassNamesHTML } from "../../public/generated/examples/WorkspaceClassNames.json";
 import { html as ClassNamesFunctionsHTML } from "../../public/generated/examples/WorkspaceClassNamesFunctions.json";
-import { html as EventHandlersHTML } from "../../public/generated/examples/WorkspaceTabsetEventHandlers.json";
 import { html as StylesHTML } from "../../public/generated/examples/WorkspaceStyles.json";
 import { Link } from "../components/Link";
 
@@ -52,12 +51,11 @@ export default function WorkspaceStylingRoute() {
         </li>
         <li>
           Separators between tabsets are rendered by the{" "}
-          <code>renderSeparator</code> prop, which should return a{" "}
-          <Link to="/props/separator">
-            <code>Separator</code>
-          </Link>{" "}
-          (or <code>null</code>, in which case tabsets can still be resized by
-          dragging their edges).
+          <code>renderSeparator</code> prop (see{" "}
+          <Link anchor="separators" to="/examples/workspace/sizing">
+            separators
+          </Link>
+          ).
         </li>
         <li>
           Elements within a collapsed tabset have a{" "}
@@ -66,20 +64,17 @@ export default function WorkspaceStylingRoute() {
           while collapsed (e.g. <code>"left"</code> for a sidebar).
         </li>
         <li>
-          The content of the element that follows the pointer while a tab is
-          dragged can be customized with the <code>renderDragPreview</code> prop
-          (and while a tabset is dragged, with the{" "}
-          <code>renderTabsetDragPreview</code> prop). A tabset being dragged has
-          a <code>data-tabset-dragging</code> attribute.
+          While something is dragged, the drag preview, the drop indicator, and
+          the tab or tabset being dragged have data attributes of their own (see{" "}
+          <Link
+            anchor="drag-previews-and-drop-indicators"
+            to="/examples/workspace/drag-and-drop"
+          >
+            drag previews and drop indicators
+          </Link>
+          ).
         </li>
       </ul>
-      <div>
-        Event handlers for tabsets (e.g. a context menu for tabset headers) can
-        be attached to the <code>Workspace</code> itself, and find the tabset
-        from the event's target. Workspaces nested within tabs are inside of it
-        too, so their tabsets are skipped:
-      </div>
-      <Code html={EventHandlersHTML} />
       <Callout intent="warning">
         A maximized tabset is rendered above the rest of the workspace, so it
         should have a background.

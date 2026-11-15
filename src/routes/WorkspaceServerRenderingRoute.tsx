@@ -35,11 +35,11 @@ export default function WorkspaceServerRenderingRoute() {
       </Callout>
       <SectionHeader>Saved models</SectionHeader>
       <div>
-        A <Link to="/examples/workspace/persistent-layout">saved model</Link>{" "}
-        has to be available on the server too, so that the server and client
-        render the same model. Saving it in <code>localStorage</code> doesn't
-        work, since the server can't read it; a cookie (or other storage the
-        server can read) does:
+        A <Link to="/examples/workspace/saving-layouts">saved model</Link> has
+        to be available on the server too, so that the server and client render
+        the same model. Saving it in <code>localStorage</code> doesn't work,
+        since the server can't read it; a cookie (or other storage the server
+        can read) does:
       </div>
       <Code html={SavedModelHTML} />
       <Callout intent="warning">

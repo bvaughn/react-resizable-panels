@@ -69,7 +69,7 @@ export default function WorkspaceFloatingTabsetsRoute() {
         Floating tabsets can't be split or{" "}
         <Link
           anchor="maximizing-tabsets"
-          to="/examples/workspace/managing-tabsets/sizing-tabsets"
+          to="/examples/workspace/collapsing-and-maximizing"
         >
           maximized
         </Link>
@@ -80,11 +80,6 @@ export default function WorkspaceFloatingTabsetsRoute() {
         tabsets have <code>data-tabset-floating</code> attributes), and the{" "}
         <code>floatingTabset</code> and <code>floatingResizeHandle</code> keys
         of the <code>classNames</code> prop style them.
-      </Callout>
-      <Callout>
-        Changes made with the imperative API are reported by{" "}
-        <code>onModelChanged</code> (with <code>isUserInteraction</code> set to{" "}
-        <code>false</code>), so they're saved like any other change.
       </Callout>
     </Box>
   );

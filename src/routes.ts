@@ -55,26 +55,26 @@ export const routes = {
   ),
   "/examples/the-basics": lazy(() => import("./routes/LayoutBasicsRoute")),
   "/examples/workspace": lazy(() => import("./routes/WorkspaceRoute")),
-  "/examples/workspace/managing-tabs": lazy(
-    () => import("./routes/WorkspaceManagingTabsRoute")
+  "/examples/workspace/collapsing-and-maximizing": lazy(
+    () => import("./routes/WorkspaceCollapsingRoute")
   ),
-  "/examples/workspace/managing-tabs/copying-tabs": lazy(
+  "/examples/workspace/custom-tabsets": lazy(
+    () => import("./routes/WorkspaceCustomTabsetsRoute")
+  ),
+  "/examples/workspace/drag-and-drop": lazy(
+    () => import("./routes/WorkspaceDragAndDropRoute")
+  ),
+  "/examples/workspace/drag-and-drop/copying-tabs": lazy(
     () => import("./routes/WorkspaceCopyingTabsRoute")
   ),
-  "/examples/workspace/managing-tabs/dragging-tabs-in": lazy(
+  "/examples/workspace/drag-and-drop/dragging-tabs-in": lazy(
     () => import("./routes/WorkspaceDraggingTabsInRoute")
   ),
-  "/examples/workspace/managing-tabs/selecting-tabs": lazy(
-    () => import("./routes/WorkspaceTabSelectionRoute")
-  ),
-  "/examples/workspace/managing-tabsets": lazy(
-    () => import("./routes/WorkspaceManagingTabsetsRoute")
-  ),
-  "/examples/workspace/managing-tabsets/floating-tabsets": lazy(
+  "/examples/workspace/floating-tabsets": lazy(
     () => import("./routes/WorkspaceFloatingTabsetsRoute")
   ),
-  "/examples/workspace/managing-tabsets/sizing-tabsets": lazy(
-    () => import("./routes/WorkspaceSizingTabsetsRoute")
+  "/examples/workspace/keyboard-and-accessibility": lazy(
+    () => import("./routes/WorkspaceKeyboardRoute")
   ),
   "/examples/workspace/multiple-windows": lazy(
     () => import("./routes/WorkspaceMultipleWindowsRoute")
@@ -85,29 +85,29 @@ export const routes = {
   "/examples/workspace/multiple-windows/popout-windows": lazy(
     () => import("./routes/WorkspacePopoutWindowsRoute")
   ),
-  "/examples/workspace/persistent-layout": lazy(
-    () => import("./routes/WorkspacePersistenceRoute")
+  "/examples/workspace/opening-and-closing-tabs": lazy(
+    () => import("./routes/WorkspaceTabsRoute")
   ),
   "/examples/workspace/restrictions": lazy(
     () => import("./routes/WorkspaceRestrictionsRoute")
   ),
-  "/examples/workspace/separators": lazy(
-    () => import("./routes/WorkspaceSeparatorsRoute")
+  "/examples/workspace/saving-layouts": lazy(
+    () => import("./routes/WorkspacePersistenceRoute")
   ),
   "/examples/workspace/server-rendering": lazy(
     () => import("./routes/WorkspaceServerRenderingRoute")
   ),
+  "/examples/workspace/sizing": lazy(
+    () => import("./routes/WorkspaceSizingRoute")
+  ),
   "/examples/workspace/styling": lazy(
     () => import("./routes/WorkspaceStylingRoute")
   ),
-  "/examples/workspace/tab-placement": lazy(
-    () => import("./routes/WorkspaceTabPlacementRoute")
-  ),
-  "/examples/workspace/custom-tabsets": lazy(
-    () => import("./routes/WorkspaceCustomTabsetsRoute")
-  ),
   "/examples/workspace/tab-content": lazy(
     () => import("./routes/WorkspaceTabContentRoute")
+  ),
+  "/examples/workspace/tab-placement": lazy(
+    () => import("./routes/WorkspaceTabPlacementRoute")
   ),
   "/hooks/use-default-grid-layout": lazy(
     () => import("./routes/UseDefaultGridLayoutRoute")

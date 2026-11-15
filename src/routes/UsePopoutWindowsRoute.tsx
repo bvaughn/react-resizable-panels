@@ -82,7 +82,7 @@ export default function UsePopoutWindowsRoute() {
         reopened later (but are lost if the page is closed again first, since{" "}
         <code>onCloseAll</code> replaces the saved state). The main workspace's
         model must be saved too (see{" "}
-        <Link to="/examples/workspace/persistent-layout">persistence</Link>), or
+        <Link to="/examples/workspace/saving-layouts">saving layouts</Link>), or
         restored popouts will duplicate tabs it shows again. Calling{" "}
         <code>open</code> with a model that has no tabs does nothing:
       </div>
