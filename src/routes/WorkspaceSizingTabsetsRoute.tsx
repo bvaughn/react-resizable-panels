@@ -70,9 +70,13 @@ export default function WorkspaceSizingTabsetsRoute() {
         <Link to="/examples/collapsible-panels">collapsible Panel</Link>, it
         collapses when a separator is dragged past its minimum size, and expands
         when the separator is dragged back. Clicking one of its tabs (or the
-        empty space in its header) also expands it, as does dropping a tab into
-        it from another tabset. Its <code>collapsed</code> flag is part of the
-        model, and its <code>size</code> is the size it expands to:
+        empty space in its header) also expands it (unless the workspace is{" "}
+        <code>disabled</code>), as does dropping a tab into it from another
+        tabset; clicking the selected tab of an expanded tabset (or pressing
+        Enter or Space on it) collapses it again (unless the workspace is{" "}
+        <code>disabled</code>), like the tool windows of an IDE. Its{" "}
+        <code>collapsed</code> flag is part of the model, and its{" "}
+        <code>size</code> is the size it expands to:
       </div>
       <Code html={CollapsibleModelHTML} />
       <div>

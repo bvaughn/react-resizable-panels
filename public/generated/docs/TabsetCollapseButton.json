@@ -17,7 +17,7 @@
       "content": "<p>To keep the tabset as it is, call <code>event.preventDefault()</code> in an <code>onClick</code> handler.</p>\n"
     },
     {
-      "content": "<p>Clicking a tab of a collapsed tabset also expands it.</p>\n",
+      "content": "<p>Clicking a tab of a collapsed tabset also expands it (unless the workspace is <code>disabled</code>, which doesn't restrict this button).</p>\n",
       "intent": "primary"
     }
   ],

@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-- Moving a `Workspace` tab no longer reloads its iframes, pauses its media, or blurs its focused elements, in browsers that support `moveBefore` (see [caniuse](https://caniuse.com/wf-move-before)). - [#818](https://github.com/bvaughn/react-resizable-panels/issues/818)
+- `Workspace`:
+  - Moving a tab no longer reloads its iframes, pauses its media, or blurs its focused elements, in browsers that support `moveBefore` (see [caniuse](https://caniuse.com/wf-move-before)). - [#818](https://github.com/bvaughn/react-resizable-panels/issues/818)
+  - Clicking the selected tab of an expanded collapsible (or floating) tabset, or pressing Enter or Space on it, now collapses the tabset (reported as `"collapse"`), like the tool windows of an IDE, unless the workspace is `disabled`; previously it did nothing. Clicking the selected tab of a floating tabset that's partly covered by another only brings it to the front. - [#814](https://github.com/bvaughn/react-resizable-panels/issues/814)
+  - In a `disabled` workspace, clicking a tab (or the empty space in the header) of a collapsed tabset no longer expands it (clicking a tab only selects it). - [#814](https://github.com/bvaughn/react-resizable-panels/issues/814)
+  - Tabs dropped at an edge of the workspace that a collapsed tabset lines (e.g. a sidebar collapsed to a strip of tabs) are added to that tabset, rather than beside all of the other tabsets. These targets have an `index`, so `disableDrop={({ target }) => "edge" in target}` doesn't reject them. - [#814](https://github.com/bvaughn/react-resizable-panels/issues/814)
 
 ## 4.23.0
 

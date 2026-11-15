@@ -166,7 +166,11 @@
           "content": "<p>The tabset can be collapsed to just its header (its tab list and toolbar), e.g. a bottom panel or a sidebar.</p>\n"
         },
         {
-          "content": "<p>Tabsets are collapsed by dragging a separator past their minimum size (like collapsible Panels),\nor with the imperative API (e.g. a button rendered by <code>renderTabsetToolbar</code>, see <code>useParentTabset</code>);\nclicking a tab (or the empty space in the header) of a collapsed tabset expands it, as does dropping tabs into it from another tabset.</p>\n",
+          "content": "<p>Tabsets are collapsed by dragging a separator past their minimum size (like collapsible Panels),\nor with the imperative API (e.g. a button rendered by <code>renderTabsetToolbar</code>, see <code>useParentTabset</code>);\nclicking a tab (or the empty space in the header) of a collapsed tabset expands it (unless the workspace is <code>disabled</code>), as does dropping tabs into it from another tabset.\nClicking the selected tab of an expanded tabset (or pressing Enter or Space on it) collapses it, unless it's maximized or the workspace is <code>disabled</code>.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Tabs dropped at an edge of the workspace that a collapsed tabset lines (e.g. a sidebar collapsed to a strip of tabs) are added to that tabset,\nrather than beside all of the other tabsets (see <code>TabDropTarget</code>).</p>\n",
           "intent": "primary"
         },
         {

@@ -35,6 +35,8 @@ export type TestWorkspaceProps = Omit<
   // Changes made by the user with these reasons are blocked (see onBeforeModelChange)
   blockedReasons?: string[] | undefined;
   hiddenTabBehavior?: "activity" | "keep-mounted" | "unmount" | undefined;
+  // Records the targets that disableDrop is called with (see the drop-targets test id; none are rejected)
+  recordDropTargets?: boolean | undefined;
   // Renders an iframe within each tab's content (e.g. to check whether moving a tab reloads it)
   showIframes?: boolean | undefined;
   // Renders buttons that call the imperative API (without taking focus), e.g. to change the layout while an element within a tab has focus
@@ -64,6 +66,7 @@ const NARROW_TOOLBAR_WIDTH = 20;
 
 export function Workspace({
   blockedReasons,
+  recordDropTargets,
   resizeSplit,
   showApiButtons,
   showIframes,
@@ -77,6 +80,7 @@ export function Workspace({
   const [changes, setChanges] = useState<
     { meta: WorkspaceChangedMeta; model: WorkspaceModel }[]
   >([]);
+  const [dropTargets, setDropTargets] = useState<unknown[]>([]);
   const [tearOffs, setTearOffs] = useState<TearOffArgs[]>([]);
   const workspaceRef = useWorkspaceRef();
 
@@ -85,6 +89,14 @@ export function Workspace({
       <WorkspaceExternal
         className="bg-slate-950 text-slate-300"
         classNames={{ tabContent: "h-full" }}
+        disableDrop={
+          recordDropTargets
+            ? ({ target }) => {
+                setDropTargets((prev) => [...prev, target]);
+                return false;
+              }
+            : undefined
+        }
         onBeforeModelChange={
           blockedReasons
             ? ({ reason }) => !blockedReasons.includes(reason)
@@ -195,6 +207,9 @@ export function Workspace({
           ))}
         </>
       )}
+      <pre data-testid="drop-targets" hidden>
+        {JSON.stringify(dropTargets)}
+      </pre>
       <pre data-testid="workspace-changes" hidden>
         {JSON.stringify(changes)}
       </pre>

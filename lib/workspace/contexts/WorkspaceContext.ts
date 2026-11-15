@@ -79,6 +79,9 @@ export type WorkspaceContextType = {
   dragGroup: string | undefined;
   // The tab (or tabset) being dragged, and where it would be dropped; kept in a store (rather than in this context), since it changes often during a drag
   dragStore: DragStore;
+  // Set while a pointer is pressed on a floating tabset that another floating tabset was shown over (before the press raised it; see FloatingTabsets),
+  // so that clicking its selected tab only raises it, rather than also collapsing it (see Tab); cleared when the next press starts
+  floatingPress: { coveredTabsetId: string | undefined };
   getHiddenTabBehavior: (tab: TabNode) => HiddenTabBehavior;
   getTabHandle: (tabId: string) => ParentTab;
   getTabHost: (tabId: string) => TabHost;

@@ -526,6 +526,238 @@ test.describe("Workspace", () => {
       expect(Math.abs(added.width - layout.width)).toBeLessThanOrEqual(1);
     });
 
+    // Sidebars collapsed to strips of tabs beside an editor, above a bottom panel (also collapsed) that spans the workspace
+    function createCollapsedStripsModel(
+      editorProps: { keepWhenEmpty?: boolean } = {}
+    ): WorkspaceModel {
+      return {
+        root: {
+          children: [
+            {
+              children: [
+                {
+                  collapsed: true,
+                  collapsible: true,
+                  id: "left",
+                  tabs: [
+                    { data: null, id: "a" },
+                    { data: null, id: "b" }
+                  ],
+                  type: "tabset"
+                },
+                {
+                  ...editorProps,
+                  id: "editor",
+                  tabs: [
+                    { data: null, id: "c" },
+                    { data: null, id: "e" }
+                  ],
+                  type: "tabset"
+                }
+              ],
+              id: "upper",
+              orientation: "horizontal",
+              type: "split"
+            },
+            {
+              collapsed: true,
+              collapsible: true,
+              id: "bottom",
+              tabs: [{ data: null, id: "d" }],
+              type: "tabset"
+            }
+          ],
+          id: "root",
+          orientation: "vertical",
+          type: "split"
+        },
+        version: 1
+      };
+    }
+
+    function collapsedStripsWorkspace(
+      editorProps: { keepWhenEmpty?: boolean } = {},
+      extraProps: object = {}
+    ) {
+      return (
+        <Workspace
+          defaultModel={createCollapsedStripsModel(editorProps)}
+          renderTabContent={() => null}
+          style={{ padding: 20 }}
+          {...extraProps}
+        />
+      );
+    }
+
+    test("adds a tab dropped at an edge lined by a collapsed tabset to that tabset (expanding it, like a drop onto its tab list)", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, collapsedStripsWorkspace());
+      const layout = await getLayoutBox(page);
+      const left = (await getTabset(page, "left").boundingBox())!;
+
+      // Within the root's left padding, beside the left sidebar (which is nested within a split above the bottom panel)
+      await dragTab(page, getTab(page, "c"), {
+        x: layout.x - 10,
+        y: left.y + left.height / 2
+      });
+
+      expect(await getTabIds(getTabset(page, "left"))).toEqual(["a", "b", "c"]);
+      await expect(getTabset(page, "left")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+      await expect(page.locator("[data-tabset]")).toHaveCount(3);
+      expect((await getLastChange(page)).meta.reason).toBe("move");
+
+      // Within the bottom padding, below the bottom panel
+      await dragTab(page, getTab(page, "e"), {
+        x: layout.x + layout.width / 2,
+        y: layout.y + layout.height + 10
+      });
+
+      expect(await getTabIds(getTabset(page, "bottom"))).toEqual(["d", "e"]);
+      await expect(getTabset(page, "bottom")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+      await expect(page.locator("[data-tabset]")).toHaveCount(2);
+    });
+
+    test("still moves a tab dropped at an edge beside all of the tabsets where no collapsed tabset lines it", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, collapsedStripsWorkspace());
+      const layout = await getLayoutBox(page);
+
+      // The editor lines the right edge (and isn't collapsed)
+      await dragTab(page, getTab(page, "c"), {
+        x: layout.x + layout.width + 10,
+        y: layout.y + layout.height / 4
+      });
+
+      await expect(page.locator("[data-tabset]")).toHaveCount(4);
+      const added = (await getTabsetOf(page, "c").boundingBox())!;
+      expect(Math.abs(added.x + added.width - (layout.x + layout.width))).toBe(
+        0
+      );
+      expect(Math.abs(added.height - layout.height)).toBeLessThanOrEqual(1);
+    });
+
+    test("doesn't move a tab dropped at the edge lined by its own collapsed tabset", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, collapsedStripsWorkspace());
+      const layout = await getLayoutBox(page);
+      const left = (await getTabset(page, "left").boundingBox())!;
+      const indicator = page.locator("[data-drop-indicator]");
+
+      const start = await getTabLabelPoint(getTab(page, "a"));
+      await page.mouse.move(start.x, start.y);
+      await page.mouse.down();
+      await page.mouse.move(layout.x - 10, left.y + left.height / 2, {
+        steps: 10
+      });
+      await expect(indicator).toBeHidden();
+      await page.mouse.up();
+
+      expect(await getTabIds(getTabset(page, "left"))).toEqual(["a", "b"]);
+      await expect(page.locator("[data-tabset]")).toHaveCount(3);
+    });
+
+    test("doesn't add a tab dropped beside a collapsed tabset that runs across the edge to it", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, collapsedStripsWorkspace());
+      const layout = await getLayoutBox(page);
+      const bottom = (await getTabset(page, "bottom").boundingBox())!;
+
+      // The collapsed bottom panel spans the workspace, so it touches the left edge at its narrow end
+      await dragTab(page, getTab(page, "c"), {
+        x: layout.x - 10,
+        y: bottom.y + bottom.height / 2
+      });
+
+      expect(await getTabIds(getTabset(page, "bottom"))).toEqual(["d"]);
+      await expect(page.locator("[data-tabset]")).toHaveCount(4);
+      const added = (await getTabsetOf(page, "c").boundingBox())!;
+      expect(Math.abs(added.x - layout.x)).toBeLessThanOrEqual(1);
+      expect(Math.abs(added.height - layout.height)).toBeLessThanOrEqual(1);
+    });
+
+    test("merges a tabset dropped at an edge lined by a collapsed tabset into it", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, collapsedStripsWorkspace());
+      const layout = await getLayoutBox(page);
+      const left = (await getTabset(page, "left").boundingBox())!;
+      const header = (await getTabset(page, "editor")
+        .locator("[data-tabset-header]")
+        .boundingBox())!;
+
+      await drag(
+        page,
+        { x: header.x + header.width - 10, y: header.y + header.height / 2 },
+        { x: layout.x - 10, y: left.y + left.height / 2 }
+      );
+
+      expect(await getTabIds(getTabset(page, "left"))).toEqual([
+        "a",
+        "b",
+        "c",
+        "e"
+      ]);
+      await expect(page.locator("[data-tabset]")).toHaveCount(2);
+    });
+
+    test("still moves a tabset that's kept when empty to the edge, rather than into the collapsed tabset", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(
+        mainPage,
+        collapsedStripsWorkspace({ keepWhenEmpty: true })
+      );
+      const layout = await getLayoutBox(page);
+      const left = (await getTabset(page, "left").boundingBox())!;
+      const header = (await getTabset(page, "editor")
+        .locator("[data-tabset-header]")
+        .boundingBox())!;
+
+      await drag(
+        page,
+        { x: header.x + header.width - 10, y: header.y + header.height / 2 },
+        { x: layout.x - 10, y: left.y + left.height / 2 }
+      );
+
+      expect(await getTabIds(getTabset(page, "left"))).toEqual(["a", "b"]);
+      expect(await getTabIds(getTabset(page, "editor"))).toEqual(["c", "e"]);
+      const moved = (await getTabset(page, "editor").boundingBox())!;
+      expect(Math.abs(moved.x - layout.x)).toBeLessThanOrEqual(1);
+      expect(Math.abs(moved.height - layout.height)).toBeLessThanOrEqual(1);
+    });
+
+    test("calls disableDrop with the tab list target of a collapsed tabset for a drop at the edge it lines", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(
+        mainPage,
+        collapsedStripsWorkspace({}, { recordDropTargets: true })
+      );
+      const layout = await getLayoutBox(page);
+      const left = (await getTabset(page, "left").boundingBox())!;
+
+      const start = await getTabLabelPoint(getTab(page, "c"));
+      await page.mouse.move(start.x, start.y);
+      await page.mouse.down();
+      await page.mouse.move(layout.x - 10, left.y + left.height / 2, {
+        steps: 10
+      });
+      const targets = JSON.parse(
+        (await page.getByTestId("drop-targets").textContent()) ?? "[]"
+      );
+      await page.mouse.up();
+
+      expect(targets).toContainEqual({ index: 2, tabsetId: "left" });
+    });
+
     test("moves a tab dropped near the top of the layout beside all of the tabsets when the tab lists aren't along the top", async ({
       page: mainPage
     }) => {
@@ -772,6 +1004,83 @@ test.describe("Workspace", () => {
       await expect(page.locator("[data-floating-tabset]")).toHaveCount(0);
       expect(await getTabIds(getTabset(page, "right"))).toEqual(["c", "n"]);
       await expect(page.getByTestId("content-n")).toHaveText("n: 1");
+    });
+
+    test("clicking the selected tab of a floating tabset that's behind another only raises it; clicking it again collapses it", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(
+        mainPage,
+        workspace(
+          createFloatingModel([
+            {
+              height: 150,
+              id: "back",
+              tabs: [{ data: null, id: "x" }],
+              type: "tabset",
+              width: 200,
+              x: 100,
+              y: 100
+            },
+            {
+              height: 150,
+              id: "front",
+              tabs: [{ data: null, id: "y" }],
+              type: "tabset",
+              width: 200,
+              x: 150,
+              y: 150
+            }
+          ])
+        )
+      );
+
+      await clickTab(page, getTab(page, "x"));
+      expect((await getLastChange(page)).meta.reason).toBe("raise");
+      await expect(getFloating(page, "back")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+
+      await clickTab(page, getTab(page, "x"));
+      expect((await getLastChange(page)).meta.reason).toBe("collapse");
+      await expect(getFloating(page, "back")).toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+    });
+
+    test("clicking the selected tab of a floating tabset that isn't covered collapses it", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(
+        mainPage,
+        workspace(
+          createFloatingModel([
+            {
+              height: 150,
+              id: "back",
+              tabs: [{ data: null, id: "x" }],
+              type: "tabset",
+              width: 200,
+              x: 20,
+              y: 20
+            },
+            {
+              height: 150,
+              id: "front",
+              tabs: [{ data: null, id: "y" }],
+              type: "tabset",
+              width: 200,
+              x: 400,
+              y: 20
+            }
+          ])
+        )
+      );
+
+      await clickTab(page, getTab(page, "x"));
+      await expect(getFloating(page, "back")).toHaveAttribute(
+        "data-tabset-collapsed"
+      );
     });
 
     test("brings a floating tabset that's behind another to the front when it's pressed", async ({
@@ -2382,6 +2691,41 @@ test.describe("Workspace in a right-to-left layout", () => {
     });
 
     expect(await getTabIds(getTabset(page, "left"))).toEqual(["b", "a"]);
+  });
+
+  test("adds a tab dropped at the edge lined by a collapsed tabset to it (which is on the right)", async ({
+    page: mainPage
+  }) => {
+    const model = createModel();
+    const root = model.root as SplitNode;
+    root.children[0] = {
+      ...(root.children[0] as TabsetNode),
+      collapsed: true,
+      collapsible: true
+    };
+    const page = await goToUrl(
+      mainPage,
+      <Workspace
+        defaultModel={model}
+        renderTabContent={() => null}
+        style={{ padding: 20 }}
+      />
+    );
+    await setRightToLeft(page);
+
+    // The first tabset is on the right, so the right edge is lined by it
+    const layout = (await page
+      .locator("[data-workspace-layout]")
+      .boundingBox())!;
+    const left = (await getTabset(page, "left").boundingBox())!;
+    expect(left.x).toBeGreaterThan(layout.x + layout.width / 2);
+
+    await dragTab(page, getTab(page, "c"), {
+      x: layout.x + layout.width + 10,
+      y: left.y + left.height / 2
+    });
+
+    expect(await getTabIds(getTabset(page, "left"))).toEqual(["a", "b", "c"]);
   });
 
   test("moves focus to the tab on the left with ArrowLeft", async ({

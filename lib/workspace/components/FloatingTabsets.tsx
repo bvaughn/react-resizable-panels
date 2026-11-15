@@ -17,6 +17,7 @@ import type { FloatingTabsetNode, ParentTabsetState } from "../types";
 import { clampFloatingPosition } from "../utils/clampFloatingPosition";
 import { getFloatingTabsetHeaderBox } from "../utils/getFloatingTabsetHeaderBox";
 import { getTabsetState } from "../utils/getTabsetState";
+import { isCoveredByFloatingTabset } from "../utils/isCoveredByFloatingTabset";
 import { resolveElementValue } from "../utils/resolveElementValue";
 import { TabsetSlot } from "./TabsetSlot";
 
@@ -146,6 +147,7 @@ function FloatingTabset({
   const {
     classNames,
     disabled,
+    floatingPress,
     startFloatingGesture,
     styles,
     tabPlacement: defaultTabPlacement,
@@ -201,7 +203,8 @@ function FloatingTabset({
   });
 
   // Pressing a tabset that's behind another brings it to the front (even when the workspace is disabled);
-  // the listener is added to the element (rather than with React), since tab content is rendered through portals that aren't within it in React's tree
+  // the listener is added to the element (rather than with React), since tab content is rendered through portals that aren't within it in React's tree.
+  // Whether another tabset was shown over it is recorded first, since clicking the selected tab of a tabset that was covered only raises it (see Tab)
   const tabsetId = tabset.id;
   useEffect(() => {
     const element = elementRef.current;
@@ -209,14 +212,18 @@ function FloatingTabset({
       return;
     }
 
-    const raise = () =>
+    const raise = () => {
+      if (isCoveredByFloatingTabset(element)) {
+        floatingPress.coveredTabsetId = tabsetId;
+      }
       updateModel("raise", true, (prev) => raiseFloatingTabset(prev, tabsetId));
+    };
     element.addEventListener("pointerdown", raise, true);
 
     return () => {
       element.removeEventListener("pointerdown", raise, true);
     };
-  }, [tabsetId, updateModel]);
+  }, [floatingPress, tabsetId, updateModel]);
 
   let state: ParentTabsetState | undefined;
   const getArgs = (): [FloatingTabsetNode, ParentTabsetState] => {

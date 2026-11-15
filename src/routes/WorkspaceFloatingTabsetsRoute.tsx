@@ -37,7 +37,11 @@ export default function WorkspaceFloatingTabsetsRoute() {
         function of the <code>useParentTabset</code> hook). A collapsed floating
         tabset keeps its <code>width</code> and <code>height</code> to expand
         to; until then, it can only be resized along its header. Clicking one of
-        its tabs (or the empty space in its header) expands it.
+        its tabs (or the empty space in its header) expands it (unless the
+        workspace is <code>disabled</code>), and clicking the selected tab of an
+        expanded floating tabset collapses it. When another floating tabset is
+        shown over part of it, clicking its selected tab only brings it to the
+        front.
       </div>
       <SectionHeader>Floating and docking tabsets</SectionHeader>
       <div>

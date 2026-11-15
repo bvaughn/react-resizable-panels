@@ -1916,6 +1916,173 @@ describe("Workspace", () => {
       );
     });
 
+    test("clicking the selected tab of an expanded collapsible tabset collapses it, and clicking it again expands it", async () => {
+      const { container, onModelChanged } = renderWorkspace({
+        defaultModel: createCollapsibleModel(false)
+      });
+
+      await userEvent.click(getTab("One"));
+
+      expect(getTabset(container, "left")).toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+      expect(onModelChanged).toHaveBeenCalledTimes(1);
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: true,
+        reason: "collapse"
+      });
+
+      await userEvent.click(getTab("One"));
+
+      expect(getTabset(container, "left")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+      expect(getTab("One")).toHaveAttribute("aria-selected", "true");
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: true,
+        reason: "expand"
+      });
+    });
+
+    test("clicking tabs doesn't collapse or expand tabsets while the workspace is disabled (but still selects tabs)", async () => {
+      const { container, onModelChanged } = renderWorkspace({
+        defaultModel: createCollapsibleModel(false),
+        disabled: true
+      });
+
+      // The selected tab of an expanded tabset
+      await userEvent.click(getTab("One"));
+      expect(getTabset(container, "left")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+      expect(onModelChanged).not.toHaveBeenCalled();
+    });
+
+    test("clicking a tab (or the empty space in the header) of a collapsed tabset only selects the tab while the workspace is disabled", async () => {
+      const { container, onModelChanged } = renderWorkspace({
+        defaultModel: createCollapsibleModel(true),
+        disabled: true
+      });
+
+      await userEvent.click(
+        getTabset(container, "left").querySelector("[data-tab-list]")!
+      );
+      expect(onModelChanged).not.toHaveBeenCalled();
+
+      await userEvent.click(getTab("2"));
+      expect(getTabset(container, "left")).toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+      expect(getTab("2")).toHaveAttribute("aria-selected", "true");
+      expect(onModelChanged).toHaveBeenCalledTimes(1);
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: true,
+        reason: "select"
+      });
+    });
+
+    test("clicking a tab that isn't selected selects it, without collapsing the tabset", async () => {
+      const { container, onModelChanged } = renderWorkspace({
+        defaultModel: createCollapsibleModel(false)
+      });
+
+      await userEvent.click(getTab("2"));
+
+      expect(getTabset(container, "left")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: true,
+        reason: "select"
+      });
+    });
+
+    test("Enter and Space on the selected tab of a collapsible tabset toggle it", async () => {
+      const { container } = renderWorkspace({
+        defaultModel: createCollapsibleModel(false)
+      });
+
+      act(() => {
+        getTab("One").focus();
+      });
+      await userEvent.keyboard("{Enter}");
+      expect(getTabset(container, "left")).toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+
+      await userEvent.keyboard(" ");
+      expect(getTabset(container, "left")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+    });
+
+    test("clicking the selected tab of a tabset that isn't collapsible doesn't change the model", async () => {
+      const { onModelChanged } = renderWorkspace();
+
+      await userEvent.click(getTab("One"));
+
+      expect(onModelChanged).not.toHaveBeenCalled();
+    });
+
+    test("clicking the selected tab of a collapsible tabset whose siblings are all collapsed doesn't change the model", async () => {
+      const model = createCollapsibleModel(false);
+      const root = model.root as SplitNode<TabData>;
+      const { onModelChanged } = renderWorkspace({
+        defaultModel: {
+          ...model,
+          root: {
+            ...root,
+            children: [
+              root.children[0],
+              {
+                ...(root.children[1] as TabsetNode<TabData>),
+                collapsed: true,
+                collapsible: true
+              }
+            ]
+          }
+        }
+      });
+
+      await userEvent.click(getTab("One"));
+
+      expect(onModelChanged).not.toHaveBeenCalled();
+    });
+
+    test("clicking the selected tab of a maximized collapsible tabset doesn't collapse it", async () => {
+      const { container, onModelChanged, workspaceRef } = renderWorkspace({
+        defaultModel: createCollapsibleModel(false)
+      });
+
+      act(() => {
+        workspaceRef.current!.maximizeTabset("left");
+      });
+      onModelChanged.mockClear();
+
+      const overlay = container.querySelector<HTMLElement>(
+        "[data-workspace-maximized]"
+      )!;
+      await userEvent.click(
+        overlay.querySelector<HTMLElement>('[data-tab-id="1"]')!
+      );
+
+      expect(onModelChanged).not.toHaveBeenCalled();
+      expect(workspaceRef.current!.getModel().maximizedTabsetId).toBe("left");
+    });
+
+    test("onBeforeModelChange can block collapsing a tabset by clicking its selected tab", async () => {
+      const { container } = renderWorkspace({
+        defaultModel: createCollapsibleModel(false),
+        onBeforeModelChange: ({ reason }) => reason !== "collapse"
+      });
+
+      await userEvent.click(getTab("One"));
+
+      expect(getTabset(container, "left")).not.toHaveAttribute(
+        "data-tabset-collapsed"
+      );
+    });
+
     test("the imperative API collapses and expands collapsible tabsets", () => {
       const { container, onModelChanged, workspaceRef } = renderWorkspace({
         defaultModel: createCollapsibleModel(false)
