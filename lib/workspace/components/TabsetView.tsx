@@ -71,11 +71,12 @@ function TabsetViewComponent() {
       data-tab-placement={tabPlacement}
       data-tabset-collapsed={isCollapsed || undefined}
       data-tabset-header
-      // Clicking the empty space in a collapsed tabset's header (its own element or its tab list's) expands it;
+      // Clicking the empty space in a collapsed tabset's header (its own element or its tab list's) expands it, unless the workspace is disabled;
       // a click after the header is dragged isn't dispatched (see useTabDrag)
       onClick={(event) => {
         if (
           isCollapsed &&
+          !disabled &&
           isHeaderEmptySpace(event.currentTarget, event.target as Element)
         ) {
           updateModel("expand", true, (prev) => expandTabset(prev, tabset.id));

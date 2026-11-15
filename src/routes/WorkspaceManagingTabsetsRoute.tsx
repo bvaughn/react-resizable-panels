@@ -145,6 +145,14 @@ export default function WorkspaceManagingTabsetsRoute() {
         drop indicator has a <code>data-edge</code> attribute (rather than{" "}
         <code>data-region</code>) while it shows one.
       </Callout>
+      <div>
+        Tabs dropped at an edge that a collapsed tabset lines (e.g. a sidebar
+        collapsed to a strip of tabs) are added to that tabset instead, as if
+        they were dropped onto its tab list, which expands it. Those targets
+        have an <code>index</code> and a <code>tabsetId</code>, so{" "}
+        <code>disableDrop</code> checks for an <code>edge</code> don't reject
+        them.
+      </div>
     </Box>
   );
 }

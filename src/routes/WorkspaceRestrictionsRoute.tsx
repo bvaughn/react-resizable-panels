@@ -73,8 +73,11 @@ export default function WorkspaceRestrictionsRoute() {
         </li>
         <li>
           The <code>disabled</code> prop locks the arrangement: tabs can't be
-          resized, dragged, dropped, or closed (but they can still be selected,
-          and tabsets maximized).
+          resized, dragged, dropped, or closed, and tabsets aren't collapsed or
+          expanded by clicking their tabs (but tabs can still be selected, and
+          tabsets maximized). A <code>TabsetCollapseButton</code> isn't
+          restricted by <code>disabled</code>; to keep tabsets from being
+          collapsed or expanded, don't render one.
         </li>
       </ul>
       <div>
@@ -94,7 +97,9 @@ export default function WorkspaceRestrictionsRoute() {
         </Link>{" "}
         (beside all of the tabsets) don't have a <code>tabsetId</code>, so the
         function checks for an <code>edge</code> before looking up the target
-        tabset.
+        tabset. Drops at an edge that a collapsed tabset lines are added to that
+        tabset, so they have an <code>index</code> and <code>tabsetId</code>{" "}
+        like any tab list drop.
       </div>
       <Callout>
         None of these restrict the{" "}

@@ -477,6 +477,175 @@ describe("floating tabsets", () => {
       });
     });
 
+    test("clicking the selected tab of a floating tabset collapses it, and clicking it again expands it", async () => {
+      const { onModelChanged, workspaceRef } = renderWorkspace({
+        defaultModel: createModel([floating("f", ["4", "5"])])
+      });
+      const getTab = () =>
+        document.querySelector<HTMLElement>('[data-tab-id="4"]')!;
+
+      await userEvent.click(getTab());
+      expect(workspaceRef.current!.getModel().floating?.[0]).toMatchObject({
+        collapsed: true
+      });
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: true,
+        reason: "collapse"
+      });
+
+      await userEvent.click(getTab());
+      expect(workspaceRef.current!.getModel().floating?.[0]).not.toHaveProperty(
+        "collapsed"
+      );
+    });
+
+    test("clicking the selected tab of a floating tabset that another is shown over only raises it", async () => {
+      const { container, onModelChanged, workspaceRef } = renderWorkspace({
+        defaultModel: createModel([
+          floating("a", ["4"]),
+          floating("b", ["5"], { x: 100, y: 100 })
+        ])
+      });
+      getFloating(container, "a").getBoundingClientRect = () =>
+        new DOMRect(0, 0, 300, 200);
+      getFloating(container, "b").getBoundingClientRect = () =>
+        new DOMRect(100, 100, 300, 200);
+      const getTab = () =>
+        getFloating(container, "a").querySelector<HTMLElement>(
+          '[data-tab-id="4"]'
+        )!;
+
+      await userEvent.click(getTab());
+      expect(
+        workspaceRef.current!.getModel().floating?.map(({ id }) => id)
+      ).toEqual(["b", "a"]);
+      expect(workspaceRef.current!.getModel().floating?.[1]).not.toHaveProperty(
+        "collapsed"
+      );
+      expect(onModelChanged).toHaveBeenCalledTimes(1);
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: true,
+        reason: "raise"
+      });
+
+      // Now that it's in front, clicking it again collapses it
+      await userEvent.click(getTab());
+      expect(workspaceRef.current!.getModel().floating?.[1]).toMatchObject({
+        collapsed: true,
+        id: "a"
+      });
+    });
+
+    test("a disabled workspace doesn't collapse or expand floating tabsets by clicking their tabs, but still raises them", async () => {
+      const { container, onModelChanged, workspaceRef } = renderWorkspace({
+        defaultModel: createModel([
+          floating("a", ["4"]),
+          floating("b", ["5"], { x: 100, y: 100 }),
+          { ...floating("c", ["6"], { x: 600 }), collapsed: true }
+        ]),
+        disabled: true
+      });
+      const getTab = (id: string, tabId: string) =>
+        getFloating(container, id).querySelector<HTMLElement>(
+          `[data-tab-id="${tabId}"]`
+        )!;
+      getFloating(container, "a").getBoundingClientRect = () =>
+        new DOMRect(0, 0, 300, 200);
+      getFloating(container, "b").getBoundingClientRect = () =>
+        new DOMRect(100, 100, 300, 200);
+
+      await userEvent.click(getTab("c", "6"));
+      expect(onModelChanged).not.toHaveBeenCalled();
+
+      // Pressed behind another, so it's raised (but not collapsed)
+      await userEvent.click(getTab("a", "4"));
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: true,
+        reason: "raise"
+      });
+      await userEvent.click(getTab("a", "4"));
+
+      const floatingNodes = workspaceRef.current!.getModel().floating!;
+      expect(floatingNodes.find(({ id }) => id === "a")).not.toHaveProperty(
+        "collapsed"
+      );
+      expect(floatingNodes.find(({ id }) => id === "c")).toMatchObject({
+        collapsed: true
+      });
+    });
+
+    test("a click without a pointer collapses a floating tabset even if an earlier press on it never became a click", () => {
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: createModel([
+          floating("a", ["4"]),
+          floating("b", ["5"], { x: 100, y: 100 })
+        ])
+      });
+      getFloating(container, "a").getBoundingClientRect = () =>
+        new DOMRect(0, 0, 300, 200);
+      getFloating(container, "b").getBoundingClientRect = () =>
+        new DOMRect(100, 100, 300, 200);
+      const tab = getFloating(container, "a").querySelector<HTMLElement>(
+        '[data-tab-id="4"]'
+      )!;
+
+      fireEvent.pointerDown(tab);
+      fireEvent.click(tab);
+
+      expect(
+        workspaceRef.current!.getModel().floating?.find(({ id }) => id === "a")
+      ).toMatchObject({ collapsed: true });
+    });
+
+    test("clicking the selected tab of a floating tabset behind another that doesn't overlap it raises and collapses it", async () => {
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: createModel([
+          floating("a", ["4"]),
+          floating("b", ["5"], { x: 400 })
+        ])
+      });
+      getFloating(container, "a").getBoundingClientRect = () =>
+        new DOMRect(0, 0, 300, 200);
+      getFloating(container, "b").getBoundingClientRect = () =>
+        new DOMRect(400, 0, 300, 200);
+
+      await userEvent.click(
+        getFloating(container, "a").querySelector<HTMLElement>(
+          '[data-tab-id="4"]'
+        )!
+      );
+
+      expect(workspaceRef.current!.getModel().floating?.[1]).toMatchObject({
+        collapsed: true,
+        id: "a"
+      });
+    });
+
+    test("Enter on the selected tab of a floating tabset that another is shown over collapses it", async () => {
+      const { container, workspaceRef } = renderWorkspace({
+        defaultModel: createModel([
+          floating("a", ["4"]),
+          floating("b", ["5"], { x: 100, y: 100 })
+        ])
+      });
+      getFloating(container, "a").getBoundingClientRect = () =>
+        new DOMRect(0, 0, 300, 200);
+      getFloating(container, "b").getBoundingClientRect = () =>
+        new DOMRect(100, 100, 300, 200);
+
+      act(() => {
+        getFloating(container, "a")
+          .querySelector<HTMLElement>('[data-tab-id="4"]')!
+          .focus();
+      });
+      await userEvent.keyboard("{Enter}");
+
+      expect(workspaceRef.current!.getModel().floating?.[0]).toMatchObject({
+        collapsed: true,
+        id: "a"
+      });
+    });
+
     test("resizing a collapsed floating tabset keeps the height it expands to", async () => {
       const node = {
         ...floating("f", ["4"], { x: 10, y: 20 }),

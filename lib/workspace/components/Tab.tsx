@@ -6,6 +6,7 @@ import { warnOnce } from "../../shared/utils/warnOnce";
 import { ParentTabContext } from "../contexts/ParentTabContext";
 import { TabListContext } from "../contexts/TabListContext";
 import { closeTab } from "../models/closeTab";
+import { collapseTabset } from "../models/collapseTabset";
 import { expandTabset } from "../models/expandTabset";
 import { getReplacementTabId } from "../models/getReplacementTabId";
 import { selectTab } from "../models/selectTab";
@@ -27,8 +28,10 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     classNames,
     disabled,
     dragStore,
+    floatingPress,
     getTabHandle,
     getTabHost,
+    model,
     modelIndex,
     renderTab,
     requestFocus,
@@ -134,13 +137,34 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
 
   // Selecting a tab in a collapsed tabset expands the tabset, if it's collapsed in the model
   // (a maximized tabset is shown expanded, and stays collapsed in the model until it's restored;
-  // a tabset that's only collapsed to fit is expanded once it fits, see TabsetNode.collapsible)
-  const select = () =>
-    isCollapsed && tabset.collapsed
-      ? updateModel("expand", true, (prev) =>
-          expandTabset(selectTab(prev, tab.id), tabset.id)
-        )
-      : updateModel("select", true, (prev) => selectTab(prev, tab.id));
+  // a tabset that's only collapsed to fit is expanded once it fits, see TabsetNode.collapsible).
+  // Selecting the selected tab of an expanded tabset collapses it, if it can be collapsed (see collapseTabset), unless it's maximized;
+  // or, when it's pressed while another floating tabset is shown over it, only raises it (which the press has done; see FloatingTabsets).
+  // A disabled workspace's arrangement is locked, so its tabsets aren't collapsed or expanded by clicking their tabs (tabs are only selected)
+  const select = (isPointer: boolean) => {
+    // The record only applies to the click that follows the press, so it's consumed here (a press that never becomes a click leaves it set)
+    const isCoveredPress =
+      isPointer && floatingPress.coveredTabsetId === tabset.id;
+    floatingPress.coveredTabsetId = undefined;
+
+    if (isCollapsed && tabset.collapsed && !disabled) {
+      updateModel("expand", true, (prev) =>
+        expandTabset(selectTab(prev, tab.id), tabset.id)
+      );
+    } else if (isSelected && !isCollapsed) {
+      if (
+        !disabled &&
+        model.maximizedTabsetId !== tabset.id &&
+        !isCoveredPress
+      ) {
+        updateModel("collapse", true, (prev) =>
+          collapseTabset(prev, tabset.id)
+        );
+      }
+    } else {
+      updateModel("select", true, (prev) => selectTab(prev, tab.id));
+    }
+  };
 
   const onTabKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (event.target !== event.currentTarget) {
@@ -191,7 +215,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
       case "Enter":
       case " ": {
         event.preventDefault();
-        select();
+        select(false);
         break;
       }
       case "Backspace":
@@ -232,7 +256,8 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     id: tabElementId,
     onClick: (event) => {
       if (!isFromInteractiveDescendant(event)) {
-        select();
+        // Clicks without a pointer (e.g. from assistive technology or element.click()) have no detail
+        select(event.detail > 0);
       }
     },
     onKeyDown: (event) => {

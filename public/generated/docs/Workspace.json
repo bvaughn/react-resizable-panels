@@ -173,7 +173,7 @@
     "disabled": {
       "description": [
         {
-          "content": "<p>Locks the arrangement: tabs cannot be resized, dragged, dropped, or closed by the user.\nSelecting tabs and maximizing tabsets still work.</p>\n"
+          "content": "<p>Locks the arrangement: tabs cannot be resized, dragged, dropped, or closed by the user.\nSelecting tabs and maximizing tabsets still work, but tabsets aren't collapsed or expanded by clicking their tabs (or the empty space in their headers);\nclicking a tab of a collapsed tabset only selects it. A <code>TabsetCollapseButton</code> isn't restricted by <code>disabled</code>; to keep tabsets from being collapsed or expanded, don't render one.</p>\n"
         },
         {
           "content": "<p>This prop overrides the <code>disableClose</code> and <code>disableDrag</code> flags of individual tabs.</p>\n",
@@ -210,7 +210,7 @@
           "intent": "primary"
         },
         {
-          "content": "<p>Tabs can also be dropped at the edges of the workspace (beside all of the other tabsets), within a few pixels of the edges of its layout\n(except over tabset headers, where the tab lists are) or within its root element's padding.\nThese targets have an <code>edge</code> rather than a <code>tabsetId</code>; <code>disableDrop={({ target }) =&gt; &quot;edge&quot; in target}</code> turns them off.</p>\n",
+          "content": "<p>Tabs can also be dropped at the edges of the workspace (beside all of the other tabsets), within a few pixels of the edges of its layout\n(except over tabset headers, where the tab lists are) or within its root element's padding.\nThese targets have an <code>edge</code> rather than a <code>tabsetId</code>; <code>disableDrop={({ target }) =&gt; &quot;edge&quot; in target}</code> turns them off.\n(Where a collapsed tabset lines an edge, drops there are added to the end of its tab list, so those targets have an <code>index</code> and <code>tabsetId</code> instead.)</p>\n",
           "intent": "primary"
         }
       ],

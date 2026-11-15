@@ -579,6 +579,26 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     }
   }, []);
 
+  const [floatingPress] = useState<{ coveredTabsetId: string | undefined }>(
+    () => ({ coveredTabsetId: undefined })
+  );
+  // Captured by the root (before the floating tabset a press is within records it), so that a record never outlives its press
+  // (e.g. for a tabset that's docked later, keeping its id)
+  useEffect(() => {
+    if (!rootElement) {
+      return;
+    }
+
+    const clear = () => {
+      floatingPress.coveredTabsetId = undefined;
+    };
+    rootElement.addEventListener("pointerdown", clear, true);
+
+    return () => {
+      rootElement.removeEventListener("pointerdown", clear, true);
+    };
+  }, [floatingPress, rootElement]);
+
   const modelIndex = getModelIndex(model);
 
   // Clean up after removed tabs and tabsets
@@ -1249,6 +1269,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       disabled,
       dragGroup,
       dragStore,
+      floatingPress,
       getTabHandle,
       getTabHost,
       getHiddenTabBehavior,
@@ -1304,6 +1325,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       disabled,
       dragGroup,
       dragStore,
+      floatingPress,
       getTabHandle,
       getTabHost,
       getHiddenTabBehavior,

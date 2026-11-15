@@ -158,7 +158,11 @@ export type TabsetNode<TabData = unknown, TabsetData = unknown> = {
    *
    * ℹ️ Tabsets are collapsed by dragging a separator past their minimum size (like collapsible Panels),
    * or with the imperative API (e.g. a button rendered by `renderTabsetToolbar`, see `useParentTabset`);
-   * clicking a tab (or the empty space in the header) of a collapsed tabset expands it, as does dropping tabs into it from another tabset.
+   * clicking a tab (or the empty space in the header) of a collapsed tabset expands it (unless the workspace is `disabled`), as does dropping tabs into it from another tabset.
+   * Clicking the selected tab of an expanded tabset (or pressing Enter or Space on it) collapses it, unless it's maximized or the workspace is `disabled`.
+   *
+   * ℹ️ Tabs dropped at an edge of the workspace that a collapsed tabset lines (e.g. a sidebar collapsed to a strip of tabs) are added to that tabset,
+   * rather than beside all of the other tabsets (see `TabDropTarget`).
    *
    * ℹ️ The only tabset in a workspace (the root) can't be collapsed, and neither can a tabset whose siblings are all collapsed.
    *
@@ -302,7 +306,9 @@ export type FloatingTabsetRect = {
  *
  * ℹ️ Floating tabsets can always be collapsed (with the imperative API, e.g. `useParentTabset().collapse()`), so they don't have the `collapsible` flag.
  * A collapsed floating tabset is only as large as its header across it (e.g. as tall as its tabs, when they're placed on top), and can only be resized along it;
- * its `width` and `height` are the size it expands to. Like tabsets in the layout, clicking a tab (or the empty space in the header) of a collapsed floating tabset expands it.
+ * its `width` and `height` are the size it expands to. Like tabsets in the layout, clicking a tab (or the empty space in the header) of a collapsed floating tabset expands it (unless the workspace is `disabled`),
+ * and clicking the selected tab of an expanded one (or pressing Enter or Space on it) collapses it (unless the workspace is `disabled`);
+ * but when another floating tabset is shown over part of it, clicking its selected tab only brings it to the front.
  */
 export type FloatingTabsetNode<TabData = unknown, TabsetData = unknown> = Omit<
   TabsetNode<TabData, TabsetData>,
@@ -401,6 +407,9 @@ export type WorkspaceDropEdge = "bottom" | "left" | "right" | "top";
  * - At an `index` within a tabset's tab list (in the order of its `tabs`, which run from right to left in a right-to-left layout)
  * - Within a `region` of a tabset's content area; edges split the tabset, and the center adds the tab to it
  * - At an `edge` of the workspace, beside all of the other tabsets (filling the workspace's height or width)
+ *
+ * ℹ️ A tab dropped at an edge of the workspace that a collapsed tabset lines (where it's dropped) is added to the end of that tabset's tab list instead,
+ * so its target has an `index` (e.g. a sidebar collapsed to a strip of tabs, or a collapsed bottom panel).
  */
 export type TabDropTarget =
   | { index: number; tabsetId: string }
@@ -1567,7 +1576,8 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
 
   /**
    * Locks the arrangement: tabs cannot be resized, dragged, dropped, or closed by the user.
-   * Selecting tabs and maximizing tabsets still work.
+   * Selecting tabs and maximizing tabsets still work, but tabsets aren't collapsed or expanded by clicking their tabs (or the empty space in their headers);
+   * clicking a tab of a collapsed tabset only selects it. A `TabsetCollapseButton` isn't restricted by `disabled`; to keep tabsets from being collapsed or expanded, don't render one.
    *
    * ℹ️ This prop overrides the `disableClose` and `disableDrag` flags of individual tabs.
    */
@@ -1594,6 +1604,7 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * ℹ️ Tabs can also be dropped at the edges of the workspace (beside all of the other tabsets), within a few pixels of the edges of its layout
    * (except over tabset headers, where the tab lists are) or within its root element's padding.
    * These targets have an `edge` rather than a `tabsetId`; `disableDrop={({ target }) => "edge" in target}` turns them off.
+   * (Where a collapsed tabset lines an edge, drops there are added to the end of its tab list, so those targets have an `index` and `tabsetId` instead.)
    */
   disableDrop?:
     | boolean

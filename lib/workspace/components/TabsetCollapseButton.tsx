@@ -107,7 +107,7 @@ function TabsetCollapseButtonComponent({
  *
  * To keep the tabset as it is, call `event.preventDefault()` in an `onClick` handler.
  *
- * ℹ️ Clicking a tab of a collapsed tabset also expands it.
+ * ℹ️ Clicking a tab of a collapsed tabset also expands it (unless the workspace is `disabled`, which doesn't restrict this button).
  */
 export const TabsetCollapseButton = /* @__PURE__ */ Object.assign(
   TabsetCollapseButtonComponent,

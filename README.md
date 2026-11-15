@@ -866,7 +866,7 @@ its default `aria-label` ("Collapse tabset") doesn't change, since `aria-expande
 
 To keep the tabset as it is, call `event.preventDefault()` in an `onClick` handler.
 
-ℹ️ Clicking a tab of a collapsed tabset also expands it.
+ℹ️ Clicking a tab of a collapsed tabset also expands it (unless the workspace is `disabled`, which doesn't restrict this button).
 
 #### Required props
 
@@ -1170,7 +1170,8 @@ leaving the dragged tabset where it was. The change is reported to <code>onModel
     <tr>
       <td>disabled</td>
       <td><p>Locks the arrangement: tabs cannot be resized, dragged, dropped, or closed by the user.
-Selecting tabs and maximizing tabsets still work.</p>
+Selecting tabs and maximizing tabsets still work, but tabsets aren&#39;t collapsed or expanded by clicking their tabs (or the empty space in their headers);
+clicking a tab of a collapsed tabset only selects it. A <code>TabsetCollapseButton</code> isn&#39;t restricted by <code>disabled</code>; to keep tabsets from being collapsed or expanded, don&#39;t render one.</p>
 <p>ℹ️ This prop overrides the <code>disableClose</code> and <code>disableDrag</code> flags of individual tabs.</p>
 </td>
     </tr>
@@ -1191,7 +1192,8 @@ returning <code>true</code> rejects the target.</p>
 so restrictions on where tabs can be dropped apply to dragged tabsets too.</p>
 <p>ℹ️ Tabs can also be dropped at the edges of the workspace (beside all of the other tabsets), within a few pixels of the edges of its layout
 (except over tabset headers, where the tab lists are) or within its root element&#39;s padding.
-These targets have an <code>edge</code> rather than a <code>tabsetId</code>; <code>disableDrop={({ target }) =&gt; &quot;edge&quot; in target}</code> turns them off.</p>
+These targets have an <code>edge</code> rather than a <code>tabsetId</code>; <code>disableDrop={({ target }) =&gt; &quot;edge&quot; in target}</code> turns them off.
+(Where a collapsed tabset lines an edge, drops there are added to the end of its tab list, so those targets have an <code>index</code> and <code>tabsetId</code> instead.)</p>
 </td>
     </tr>
     <tr>

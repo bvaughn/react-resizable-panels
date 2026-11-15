@@ -9,6 +9,7 @@ import type {
 } from "../types";
 import type { TabsetElementRegistry } from "./createTabsetElementRegistry";
 import { getOwnElement } from "./getOwnElement";
+import { getCollapsedTabsetAtEdge } from "./getCollapsedTabsetAtEdge";
 import { getDropRegion } from "./getDropRegion";
 import { getTabListIndex } from "./getTabListIndex";
 import { getWorkspaceDropEdge } from "./getWorkspaceDropEdge";
@@ -56,7 +57,20 @@ export function getDropTarget({
     source
   });
   if (edge) {
-    return { edge };
+    const collapsedTarget = getCollapsedEdgeTabsetTarget({
+      clientX,
+      clientY,
+      edge,
+      isExternal,
+      model,
+      rootElement,
+      source
+    });
+    if (collapsedTarget === undefined) {
+      return { edge };
+    }
+
+    return collapsedTarget ?? undefined;
   }
 
   // Skip tabsets of other workspaces (e.g. one rendered within a tab)
@@ -213,6 +227,72 @@ function getEdgeDropTarget({
   }
 
   return edge;
+}
+
+// Tabs dropped at an edge that a collapsed tabset lines (e.g. a sidebar collapsed to a strip of tabs) are added to the end of its tab list,
+// as if they were dropped onto it (which expands it), rather than beside all of the tabsets (outside of the strip).
+// Returns null if the drop has no target (e.g. a tab dropped at the edge its own collapsed tabset lines), or undefined if there's no such tabset
+function getCollapsedEdgeTabsetTarget({
+  clientX,
+  clientY,
+  edge,
+  isExternal,
+  model,
+  rootElement,
+  source
+}: {
+  clientX: number;
+  clientY: number;
+  edge: WorkspaceDropEdge;
+  isExternal: boolean;
+  model: WorkspaceModel;
+  rootElement: HTMLElement;
+  source: DragSource;
+}): TabDropTarget | null | undefined {
+  const layoutElement = getLayoutElement(rootElement);
+  const modelIndex = getModelIndex(model);
+  // Only tabsets whose collapsed headers run along the edge count (a strip that runs across the edge touches it at its narrow end):
+  // those in horizontal splits (side by side) line the left and right edges, and those in vertical splits line the top and bottom
+  const orientation =
+    edge === "left" || edge === "right" ? "horizontal" : "vertical";
+  const tabsetId = layoutElement
+    ? getCollapsedTabsetAtEdge({
+        clientX,
+        clientY,
+        edge,
+        isEligible: (id) =>
+          modelIndex.parentsById.get(id)?.orientation === orientation,
+        layoutElement,
+        rootElement
+      })
+    : undefined;
+  const tabset =
+    tabsetId !== undefined ? modelIndex.tabsetsById.get(tabsetId) : undefined;
+  // An empty tabset (kept when empty) has no tab to mark the drop, so tabs are dropped beside the tabsets instead
+  if (!tabset || tabset.tabs.length === 0) {
+    return undefined;
+  }
+
+  if (!isExternal) {
+    // Tabsets kept when empty can't be merged into other tabsets (see getTabsetDropTarget), so they're still moved to the edge
+    if (
+      source.type === "tabset" &&
+      modelIndex.tabsetsById.get(source.tabsetId)?.keepWhenEmpty
+    ) {
+      return undefined;
+    }
+
+    // Dropping a tabset (or one of its tabs) into itself would leave it unchanged
+    const isOwnTabset =
+      source.type === "tabset"
+        ? source.tabsetId === tabset.id
+        : tabset.tabs.some(({ id }) => id === source.tabId);
+    if (isOwnTabset) {
+      return null;
+    }
+  }
+
+  return { index: tabset.tabs.length, tabsetId: tabset.id };
 }
 
 // Floating tabsets of other workspaces (e.g. one rendered within a tab) are part of those tabs' content
