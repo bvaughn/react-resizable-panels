@@ -1,4 +1,11 @@
-import { Box, Callout, Code, Header, SectionHeader } from "react-lib-tools";
+import {
+  Box,
+  Callout,
+  Code,
+  ExternalLink,
+  Header,
+  SectionHeader
+} from "react-lib-tools";
 import { html as HiddenTabBehaviorHTML } from "../../public/generated/examples/WorkspaceHiddenTabBehavior.json";
 import { html as TabHooksHTML } from "../../public/generated/examples/WorkspaceTabHooks.json";
 import { Link } from "../components/Link";
@@ -32,10 +39,18 @@ export default function WorkspaceTabContentRoute() {
         <Link to="/imperative-api/workspace">imperative API</Link>.
       </div>
       <Code html={TabHooksHTML} />
+      <Callout intent="success">
+        Moving a tab preserves its content's React state and, where possible,
+        its browser state: iframes aren't reloaded, playing media isn't paused,
+        and focused elements stay focused.
+      </Callout>
       <Callout intent="warning">
-        Moving a tab preserves its content's React state, but its elements are
-        moved within the document, which resets some browser state: iframes are
-        reloaded, playing media is paused, and focused elements are blurred.
+        This relies on{" "}
+        <ExternalLink href="https://developer.mozilla.org/en-US/docs/Web/API/Element/moveBefore">
+          <code>moveBefore</code>
+        </ExternalLink>
+        , which Safari doesn't support yet. There, moving a tab reloads its
+        iframes, pauses its media, and blurs its focused elements.
       </Callout>
       <Callout intent="warning">
         Tabs are rendered using portals so that moving a tab won't cause a

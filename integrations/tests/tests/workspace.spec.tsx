@@ -162,6 +162,172 @@ test.describe("Workspace", () => {
     });
   });
 
+  test.describe("moving tab content without resetting browser state", () => {
+    function workspaceWithIframes() {
+      return (
+        <Workspace
+          defaultModel={createModel()}
+          renderTabContent={() => null}
+          {...({ showApiButtons: true, showIframes: true } as object)}
+        />
+      );
+    }
+
+    // A marker on the iframe's window is lost if the iframe is reloaded
+    async function markIframe(page: Page, id: string) {
+      await expect(
+        page.frameLocator(`[data-testid="iframe-${id}"]`).locator("p")
+      ).toHaveText(id);
+      await page.getByTestId(`iframe-${id}`).evaluate((element) => {
+        (
+          (element as HTMLIFrameElement).contentWindow as unknown as {
+            marker?: boolean;
+          }
+        ).marker = true;
+      });
+    }
+
+    async function isIframeMarked(page: Page, id: string) {
+      return page.getByTestId(`iframe-${id}`).evaluate(
+        (element) =>
+          (
+            (element as HTMLIFrameElement).contentWindow as unknown as {
+              marker?: boolean;
+            }
+          ).marker === true
+      );
+    }
+
+    test("doesn't reload iframes when a tab is moved into another tabset", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, workspaceWithIframes());
+
+      await markIframe(page, "a");
+
+      await dragTab(
+        page,
+        getTab(page, "a"),
+        await getPanelsPoint(getTabset(page, "right"), "center")
+      );
+
+      expect(await getTabIds(getTabset(page, "right"))).toEqual(["c", "a"]);
+      expect(await isIframeMarked(page, "a")).toBe(true);
+    });
+
+    test("doesn't blur a focused element when its tab is moved", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, workspaceWithIframes());
+
+      await page.getByTestId("content-a").focus();
+      await expect(page.getByTestId("content-a")).toBeFocused();
+
+      await page.getByTestId("api-move-a-to-right").click();
+
+      expect(await getTabIds(getTabset(page, "right"))).toEqual(["a", "c"]);
+      await expect(page.getByTestId("content-a")).toBeFocused();
+    });
+
+    test("doesn't reload iframes when a tabset is maximized and restored", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, workspaceWithIframes());
+
+      await markIframe(page, "a");
+      await markIframe(page, "c");
+
+      await page.getByTestId("api-maximize-left").click();
+      expect((await getLastChange(page)).model.maximizedTabsetId).toBe("left");
+      expect(await isIframeMarked(page, "a")).toBe(true);
+
+      await page.getByTestId("api-restore").click();
+      expect((await getLastChange(page)).model.maximizedTabsetId).toBe(
+        undefined
+      );
+      expect(await isIframeMarked(page, "a")).toBe(true);
+      expect(await isIframeMarked(page, "c")).toBe(true);
+    });
+
+    test("doesn't reload iframes when a tab is moved into a floating tabset", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, workspaceWithIframes());
+
+      await markIframe(page, "a");
+
+      await page.getByTestId("api-float-a").click();
+      await expect(page.locator("[data-floating-tabset]")).toHaveCount(1);
+      expect(await isIframeMarked(page, "a")).toBe(true);
+    });
+
+    test("doesn't reload iframes when the last tab of a tabset is moved (removing the tabset)", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, workspaceWithIframes());
+
+      await markIframe(page, "c");
+
+      await dragTab(
+        page,
+        getTab(page, "c"),
+        await getPanelsPoint(getTabset(page, "left"), "center")
+      );
+
+      await expect(getTabset(page, "right")).toHaveCount(0);
+      expect(await getTabIds(getTabset(page, "left"))).toEqual(["a", "b", "c"]);
+      expect(await isIframeMarked(page, "c")).toBe(true);
+    });
+
+    test("doesn't reload iframes when a tabset is split", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, workspaceWithIframes());
+
+      await markIframe(page, "a");
+      await markIframe(page, "c");
+
+      await dragTab(
+        page,
+        getTab(page, "a"),
+        await getPanelsPoint(getTabset(page, "right"), "bottom")
+      );
+
+      expect(await isIframeMarked(page, "a")).toBe(true);
+      expect(await isIframeMarked(page, "c")).toBe(true);
+    });
+
+    test("reloads iframes when a tab is moved in browsers that don't support moveBefore (e.g. Safari)", async ({
+      page: mainPage
+    }) => {
+      const page = await goToUrl(mainPage, workspaceWithIframes());
+
+      // From every window whose prototypes the workspace's elements may have
+      // (in a popup window rendered by its opener, elements created by React have the opener's prototypes)
+      await page.evaluate(() => {
+        for (const ownerWindow of [window, window.opener as Window | null]) {
+          if (ownerWindow) {
+            delete (
+              (ownerWindow as Window & { Element: typeof Element }).Element
+                .prototype as { moveBefore?: unknown }
+            ).moveBefore;
+          }
+        }
+      });
+
+      await markIframe(page, "a");
+
+      await dragTab(
+        page,
+        getTab(page, "a"),
+        await getPanelsPoint(getTabset(page, "right"), "center")
+      );
+
+      expect(await getTabIds(getTabset(page, "right"))).toEqual(["c", "a"]);
+      await expect.poll(() => isIframeMarked(page, "a")).toBe(false);
+    });
+  });
+
   test("splits a tabset when a tab is dropped onto its edge", async ({
     page: mainPage
   }) => {

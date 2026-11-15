@@ -35,6 +35,10 @@ export type TestWorkspaceProps = Omit<
   // Changes made by the user with these reasons are blocked (see onBeforeModelChange)
   blockedReasons?: string[] | undefined;
   hiddenTabBehavior?: "activity" | "keep-mounted" | "unmount" | undefined;
+  // Renders an iframe within each tab's content (e.g. to check whether moving a tab reloads it)
+  showIframes?: boolean | undefined;
+  // Renders buttons that call the imperative API (without taking focus), e.g. to change the layout while an element within a tab has focus
+  showApiButtons?: boolean | undefined;
   // Renders a toolbar that shows each tabset's tab list free space (and makes tab lists fill their headers);
   // a "responsive" toolbar shrinks when there's little free space (like a toolbar that moves items into an overflow menu)
   showTabListFreeSpace?: boolean | "responsive" | undefined;
@@ -61,6 +65,8 @@ const NARROW_TOOLBAR_WIDTH = 20;
 export function Workspace({
   blockedReasons,
   resizeSplit,
+  showApiButtons,
+  showIframes,
   showTabListFreeSpace,
   showTabListOverflow,
   showTabsetState,
@@ -101,7 +107,9 @@ export function Workspace({
             style={{ flexBasis: SEPARATOR_SIZE }}
           />
         )}
-        renderTabContent={(tab) => <TabContent tab={tab} />}
+        renderTabContent={(tab) => (
+          <TabContent showIframe={showIframes} tab={tab} />
+        )}
         renderTabsetToolbar={
           showTabListFreeSpace
             ? (tabset) => (
@@ -158,6 +166,35 @@ export function Workspace({
           Resize split
         </button>
       )}
+      {showApiButtons && (
+        <>
+          {[
+            [
+              "move-a-to-right",
+              () =>
+                workspaceRef.current?.moveTab("a", {
+                  index: 0,
+                  tabsetId: "right"
+                })
+            ],
+            [
+              "maximize-left",
+              () => workspaceRef.current?.maximizeTabset("left")
+            ],
+            ["restore", () => workspaceRef.current?.restoreTabset()],
+            ["float-a", () => workspaceRef.current?.floatTab("a")]
+          ].map(([name, onClick]) => (
+            <button
+              data-testid={`api-${name as string}`}
+              key={name as string}
+              onClick={onClick as () => void}
+              onMouseDown={(event) => event.preventDefault()}
+            >
+              {name as string}
+            </button>
+          ))}
+        </>
+      )}
       <pre data-testid="workspace-changes" hidden>
         {JSON.stringify(changes)}
       </pre>
@@ -169,17 +206,38 @@ export function Workspace({
 }
 
 // Each tab has local state, so tests can verify that it's preserved when tabs are moved
-function TabContent({ tab }: { tab: TabNode }) {
+function TabContent({
+  showIframe,
+  tab
+}: {
+  showIframe: boolean | undefined;
+  tab: TabNode;
+}) {
   const [count, setCount] = useState(0);
 
   return (
-    <button
-      data-testid={`content-${tab.id}`}
-      onClick={() => setCount(count + 1)}
-      style={{ height: "100%", width: "100%" }}
-    >
-      {tab.id}: {count}
-    </button>
+    <div style={{ height: "100%", position: "relative", width: "100%" }}>
+      <button
+        data-testid={`content-${tab.id}`}
+        onClick={() => setCount(count + 1)}
+        style={{ height: "100%", width: "100%" }}
+      >
+        {tab.id}: {count}
+      </button>
+      {showIframe && (
+        <iframe
+          data-testid={`iframe-${tab.id}`}
+          srcDoc={`<p>${tab.id}</p>`}
+          style={{
+            height: 40,
+            left: 0,
+            position: "absolute",
+            top: 0,
+            width: 80
+          }}
+        />
+      )}
+    </div>
   );
 }
 

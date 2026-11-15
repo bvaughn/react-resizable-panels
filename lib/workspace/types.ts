@@ -1650,8 +1650,9 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    *
    * ℹ️ Moving a tab never remounts its content (unless the move hides it and `hiddenTabBehavior` is `"unmount"`).
    *
-   * ⚠️ Its React state is preserved, but its elements are moved within the document, which resets some browser state:
-   * iframes are reloaded, playing media is paused, and focused elements are blurred.
+   * ℹ️ Its React state is preserved, and where possible its elements are moved within the document using `moveBefore`, which preserves browser state (iframes aren't reloaded, playing media isn't paused, and focused elements stay focused).
+   *
+   * ⚠️ Browsers that don't support `moveBefore` (e.g. Safari) reset some of that state when a tab moves: iframes are reloaded, playing media is paused, and focused elements are blurred.
    *
    * @default "keep-mounted"
    */

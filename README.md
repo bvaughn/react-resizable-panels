@@ -1033,8 +1033,8 @@ The layout is described by a serializable model (see `WorkspaceModel`).
 Workspaces are uncontrolled: provide an initial model with the `defaultModel` prop, save changes from the `onModelChanged` callback,
 and make changes using the imperative API (see `WorkspaceImperativeHandle`).
 
-ℹ️ Tab content is not remounted when a tab is moved.
-Its elements are moved within the document, though, which resets some browser state (e.g. iframes are reloaded).
+ℹ️ Tab content is not remounted when a tab is moved, and its browser state (e.g. iframes, playing media, and focus) is preserved where possible;
+browsers that don't support `moveBefore` (e.g. Safari) reset some of that state (e.g. iframes are reloaded).
 
 Workspace elements always include the following attributes:
 
@@ -1239,8 +1239,8 @@ requires React 19.2 (falls back to <code>&quot;keep-mounted&quot;</code> otherwi
 so e.g. collapsing a tabset hides its selected tab&#39;s content, and maximizing one hides the others&#39;.
 Temporary collapsed states (e.g. while dragging a separator, or when collapsed to fit) don&#39;t hide content.</p>
 <p>ℹ️ Moving a tab never remounts its content (unless the move hides it and <code>hiddenTabBehavior</code> is <code>&quot;unmount&quot;</code>).</p>
-<p>⚠️ Its React state is preserved, but its elements are moved within the document, which resets some browser state:
-iframes are reloaded, playing media is paused, and focused elements are blurred.</p>
+<p>ℹ️ Its React state is preserved, and where possible its elements are moved within the document using <code>moveBefore</code>, which preserves browser state (iframes aren&#39;t reloaded, playing media isn&#39;t paused, and focused elements stay focused).</p>
+<p>⚠️ Browsers that don&#39;t support <code>moveBefore</code> (e.g. Safari) reset some of that state when a tab moves: iframes are reloaded, playing media is paused, and focused elements are blurred.</p>
 </td>
     </tr>
     <tr>

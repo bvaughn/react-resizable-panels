@@ -102,7 +102,9 @@ import { measureAddedTabsetSize } from "../utils/measureAddedTabsetSize";
 import { measureSplitSizes } from "../utils/measureSplitSizes";
 import { pruneRemovedNodes } from "../utils/pruneRemovedNodes";
 import { updateCollapseOverrides } from "../utils/updateCollapseOverrides";
+import { moveElement } from "../utils/moveElement";
 import { sizeToPixels } from "../utils/sizeToPixels";
+import { supportsMoveBefore } from "../utils/supportsMoveBefore";
 import { toModelDropTarget } from "../utils/toModelDropTarget";
 import {
   createCopiedNode,
@@ -537,7 +539,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
   // Tab content is rendered (via portals) into these elements, which are moved between tabsets;
   // this lets a tab be moved without remounting its content
-  // (although moving elements resets some browser state, e.g. iframes are reloaded)
+  // (and, in browsers that support moveBefore, without resetting browser state; otherwise e.g. iframes are reloaded; see moveElement)
   // (they're bare wrappers, shown with "display: contents"; TabContent renders the tab panel element within them)
   const [tabHosts] = useState(() => new Map<string, TabHost>());
   const tabHostCountRef = useRef(0);
@@ -566,6 +568,16 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     },
     [id, ownerDocument, tabHosts]
   );
+
+  // Hosts are moved here while no TabPanels shows them (e.g. when a tabset unmounts as its last tab is moved to another), rather than being removed from the document;
+  // this only helps when hosts can be moved without being removed (see moveElement), and otherwise would only move them an extra time
+  const tabHostParkingRef = useRef<HTMLDivElement | null>(null);
+  const parkTabHost = useCallback((element: HTMLElement) => {
+    const parking = tabHostParkingRef.current;
+    if (parking && supportsMoveBefore(parking)) {
+      moveElement(parking, element);
+    }
+  }, []);
 
   const modelIndex = getModelIndex(model);
 
@@ -1249,6 +1261,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       model,
       modelIndex,
       outerParents,
+      parkTabHost,
       classNames: classNames as WorkspaceClassNames | undefined,
       renderEmptyTabset: renderEmptyTabset as
         | ((tabset: TabsetNode) => ReactNode)
@@ -1303,6 +1316,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       model,
       modelIndex,
       outerParents,
+      parkTabHost,
       classNames,
       renderEmptyTabset,
       renderSeparator,
@@ -1506,6 +1520,11 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
             </div>
             {maximizedOverlay}
             {floatingLayer}
+            <div
+              data-workspace-tab-host-parking
+              ref={tabHostParkingRef}
+              style={{ display: "none" }}
+            />
             {/* Shown by every workspace in the document a drag is over (not just the one showing the preview), for the whole drag, so it can be animated between tabsets */}
             {(dragSource !== undefined ||
               newTabPreview !== undefined ||
@@ -1551,8 +1570,8 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
  * Workspaces are uncontrolled: provide an initial model with the `defaultModel` prop, save changes from the `onModelChanged` callback,
  * and make changes using the imperative API (see `WorkspaceImperativeHandle`).
  *
- * ℹ️ Tab content is not remounted when a tab is moved.
- * Its elements are moved within the document, though, which resets some browser state (e.g. iframes are reloaded).
+ * ℹ️ Tab content is not remounted when a tab is moved, and its browser state (e.g. iframes, playing media, and focus) is preserved where possible;
+ * browsers that don't support `moveBefore` (e.g. Safari) reset some of that state (e.g. iframes are reloaded).
  *
  * Workspace elements always include the following attributes:
  *

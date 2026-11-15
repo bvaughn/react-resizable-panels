@@ -103,6 +103,9 @@ export type WorkspaceContextType = {
     panel: ParentPanel | null;
   };
 
+  // Moves a tab's host element out of a TabPanels that's unmounting, so that it isn't removed from the document before it's moved into another one (see TabPanels)
+  parkTabHost: (element: HTMLElement) => void;
+
   classNames: WorkspaceClassNames | undefined;
   renderEmptyTabset: ((tabset: TabsetNode) => ReactNode) | undefined;
   renderSeparator: ((orientation: Orientation) => ReactNode) | undefined;
