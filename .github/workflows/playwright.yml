@@ -1,18 +1,33 @@
 name: "Playwright Tests"
 on:
   pull_request:
-  # Also run on main so the browser cache is saved in a scope PR branches can restore from
+  # Also run on main so the browser and Next.js caches are saved in a scope PR branches can restore from
   push:
     branches: [main]
 jobs:
+  # Most tests only use the vite app, so they're split between two jobs by project (each starts only that app),
+  # and the library is built without type declarations, which these tests don't need
   e2e-tests:
+    name: e2e-tests (${{ matrix.project }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: "chromium"
+            artifact: "chromium"
+          - project: "chromium: popup"
+            artifact: "chromium-popup"
+    env:
+      E2E_APPS: vite
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           version: 10
+      - uses: actions/setup-node@v7
+        with:
+          cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --recursive
 
@@ -22,24 +37,78 @@ jobs:
 
       - name: Cache Playwright browser binaries
         id: playwright-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
-          path: ~/.cache/ms-playwright  # Default Linux path
+          path: ~/.cache/ms-playwright # Default Linux path
           key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
 
       - name: Install Playwright browsers and dependencies (on cache miss)
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm e2e:install
 
+      - name: Build library (without type declarations)
+        run: pnpm prerelease
+        env:
+          SKIP_TYPE_DECLARATIONS: "true"
+      # Without type checking ("tsc -b"), which needs the library's type declarations; the e2e-tests-ssr job checks them
+      - name: Build vite integration
+        run: pnpm -C integrations/vite exec vite build
+      - name: Run Playwright tests
+        run: pnpm e2e:test --project="${{ matrix.project }}"
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-${{ matrix.artifact }}
+          path: integrations/tests/test-results/
+          retention-days: 14
+
+  # Tests that use the next and vike apps (see SSR_SPECS in playwright.config.ts);
+  # this job also builds the library's type declarations and type checks the integrations against them
+  e2e-tests-ssr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10
+      - uses: actions/setup-node@v7
+        with:
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --recursive
+
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(pnpm -C integrations/tests exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browser binaries
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright # Default Linux path
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright browsers and dependencies (on cache miss)
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm e2e:install
+
+      - name: Cache Next.js build
+        uses: actions/cache@v6
+        with:
+          path: integrations/next/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('integrations/next/**/*.js', 'integrations/next/**/*.jsx', 'integrations/next/**/*.ts', 'integrations/next/**/*.tsx', '!integrations/next/.next/**', '!integrations/next/node_modules/**') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
+
       - name: Build library
         run: pnpm prerelease
       - name: Build integrations
         run: pnpm integrations:build
       - name: Run Playwright tests
-        run: pnpm e2e:test
-      - uses: actions/upload-artifact@v4
+        run: pnpm e2e:test tests/default-layout.spec.tsx
+      - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
+          name: playwright-report-ssr
           path: integrations/tests/test-results/
           retention-days: 14

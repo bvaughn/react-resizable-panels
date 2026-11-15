@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { afterEach, describe, expect, test } from "vitest";
 import { getWorkspaceDropEdge } from "./getWorkspaceDropEdge";
 

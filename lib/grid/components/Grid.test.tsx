@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { act, fireEvent, render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRef, type ReactElement } from "react";

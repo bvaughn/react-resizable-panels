@@ -29,7 +29,12 @@ const libraryConfig: UserConfig = {
       }
     }
   },
-  plugins: [react(), dts({ rollupTypes: true }), preserveDirectives()],
+  plugins: [
+    react(),
+    // Type declarations take most of the build's time, so builds that don't need them (e.g. for e2e tests in CI) can skip them
+    ...(process.env.SKIP_TYPE_DECLARATIONS ? [] : [dts({ rollupTypes: true })]),
+    preserveDirectives()
+  ],
   publicDir: false
 };
 

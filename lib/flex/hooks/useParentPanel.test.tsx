@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { act, render } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 import { Group, Panel, useParentPanel } from "../../index";

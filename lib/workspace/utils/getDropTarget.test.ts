@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { afterEach, describe, expect, test } from "vitest";
 import type { DragSource, WorkspaceModel } from "../types";
 import { getDropTarget } from "./getDropTarget";

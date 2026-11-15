@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { beforeEach, describe, expect, test } from "vitest";
 import { setElementBoundsFunction } from "../../shared/utils/test/mockBoundingClientRect";
 import { sortByElementOffset } from "./sortByElementOffset";

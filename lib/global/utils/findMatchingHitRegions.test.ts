@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { describe, expect, test, vi } from "vitest";
 import { mountAxis } from "../mountAxis";
 import { getMountedAxes, type MountedAxes } from "../mutable-state/axes";

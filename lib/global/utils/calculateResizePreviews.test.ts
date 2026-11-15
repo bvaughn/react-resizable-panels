@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { describe, expect, test } from "vitest";
 import { calculateHitRegions } from "../dom/calculateHitRegions";
 import { mockGroup } from "../test/mockGroup";

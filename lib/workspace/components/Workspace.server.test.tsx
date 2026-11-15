@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { act, useEffect, type ReactElement } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";

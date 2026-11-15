@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { act, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 import { Cell, Grid, Group, Panel } from "../../index";
