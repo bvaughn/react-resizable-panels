@@ -208,7 +208,7 @@
       {
         "id": "renaming-tabs",
         "title": "Renaming tabs",
-        "text": "Renaming tabs A tab can show an input in place of its title, e.g. after it's double-clicked or F2 is pressed, and save the new title with the updateTab method of the imperative API. Pressing Enter or moving focus away saves the title, and Escape cancels. Keys typed in the input don't move focus between tabs or close the tab."
+        "text": "Renaming tabs A tab can show an input in place of its title, e.g. after it's double-clicked or F2 is pressed. The useTabRename hook provides the props for the input: it's focused when it's shown, pressing Enter or moving focus away saves the title, and Escape cancels. Keys typed in the input don't move focus between tabs or close the tab. The startRenamingTab method of the imperative API starts renaming a tab from outside of it, e.g. from a context menu."
       },
       {
         "id": "toolbars-that-run-out-of-room",
@@ -799,6 +799,19 @@
     "title": "useTabListOverflow"
   },
   {
+    "headings": [
+      {
+        "id": "return-value",
+        "title": "Return value",
+        "text": "Return value isEditing : boolean The tab's title is being edited. Always false if the component isn't rendered within a tab. startEditing : () => void Start editing the tab's title. inputProps : TabRenameInputProps Props to spread onto the input that's shown in place of the tab's title while isEditing is true. The input is focused (with its text selected) when it's shown. Pressing Enter or moving focus away saves the new title, and Escape cancels; focus returns to the tab after either key. Titles that are empty (or only whitespace) or unchanged aren't saved. A saved title is reported to onModelChanged with the \"update\" reason (and isUserInteraction: true), so onBeforeModelChange can block it."
+      }
+    ],
+    "path": "/hooks/use-tab-rename",
+    "section": "Hooks",
+    "text": "The useTabRename hook edits the title of the nearest tab. Within renderTab, a tab can show an input in place of its title while it's being edited, e.g. after it's double-clicked or F2 is pressed (see custom tabsets for a demo): Only one tab's title is edited at a time. To start editing a tab's title from outside of the tab (e.g. from a context menu), use the startRenamingTab method of the imperative API.",
+    "title": "useTabRename"
+  },
+  {
     "path": "/hooks/use-workspace-callback-ref",
     "section": "Hooks",
     "text": "The useWorkspaceCallbackRef hook returns a ref callback function and value tuple. The value is the imperative Workspace API.",
@@ -1013,6 +1026,11 @@
         "id": "startExternalDrag",
         "title": "startExternalDrag",
         "text": "startExternalDrag Start dragging a tab that isn't in the workspace yet, from an element outside of it (e.g. an item in a palette of widgets);\ncall it from the element's pointerdown handler.\nThe tab is dragged like tabs within the workspace are (with the same drop targets, drop indicator, and disableDrop checks, with the \"new\" source),\nand is added where it's dropped (reported to onModelChanged with the \"add\" reason).\nThe drag starts once the pointer has moved a few pixels, so a press that doesn't move (e.g. a click) does nothing;\nthe click that follows a drag is suppressed. Pressing Escape cancels the drag.\n Unlike other imperative methods, the drop is restricted by disabled and disableDrop, since the user chooses where it goes.\n The element must be in the same document as the workspace.\nLike tabs, it should have touch-action: none (e.g. with CSS), so that touch input drags it rather than scrolling the page.\n \n event The pointerdown event of the pressed element"
+      },
+      {
+        "id": "startRenamingTab",
+        "title": "startRenamingTab",
+        "text": "startRenamingTab Start editing a tab's title, e.g. from a context menu item; the tab shows the input that useTabRename provides (see TabRename).\nOnly one tab's title is edited at a time, so a rename that's in progress is canceled.\n This does nothing for tabs that are not in the workspace, and tabs that don't use useTabRename (e.g. in renderTab) show no input.\nIt doesn't select the tab or scroll it into view."
       },
       {
         "id": "subscribeToTabListFreeSpace",

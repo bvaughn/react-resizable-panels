@@ -1,7 +1,9 @@
 import type {
   ButtonHTMLAttributes,
   CSSProperties,
+  FocusEvent as ReactFocusEvent,
   HTMLAttributes,
+  KeyboardEvent as ReactKeyboardEvent,
   PointerEvent as ReactPointerEvent,
   ReactNode,
   Ref,
@@ -1067,6 +1069,15 @@ export interface WorkspaceImperativeHandle<
   ) => Promise<ExternalDragResult>;
 
   /**
+   * Start editing a tab's title, e.g. from a context menu item; the tab shows the input that `useTabRename` provides (see `TabRename`).
+   * Only one tab's title is edited at a time, so a rename that's in progress is canceled.
+   *
+   * ℹ️ This does nothing for tabs that are not in the workspace, and tabs that don't use `useTabRename` (e.g. in `renderTab`) show no input.
+   * It doesn't select the tab or scroll it into view.
+   */
+  startRenamingTab: (tabId: string) => void;
+
+  /**
    * Subscribe to changes to the free space in a tabset's tab list (see `getTabListFreeSpace`),
    * e.g. from a toolbar rendered outside of the Workspace.
    *
@@ -1259,6 +1270,44 @@ export type TabListOverflowOptions = {
    * By default, only tabs that are entirely out of view are included.
    */
   includePartiallyVisible?: boolean | undefined;
+};
+
+/**
+ * Editing the title of the nearest ancestor tab (returned by `useTabRename`).
+ */
+export type TabRename = {
+  /**
+   * Props to spread onto the `input` that's shown in place of the tab's title while `isEditing` is true.
+   *
+   * The input is focused (with its text selected) when it's shown.
+   * Pressing Enter or moving focus away from the input saves the new title, and Escape cancels; focus returns to the tab after either key.
+   * Titles that are empty (or only whitespace) or unchanged aren't saved.
+   *
+   * ℹ️ A saved title is reported to `onModelChanged` with the `"update"` reason (and `isUserInteraction: true`), so `onBeforeModelChange` can block it.
+   */
+  inputProps: TabRenameInputProps;
+
+  /**
+   * The tab's title is being edited.
+   */
+  isEditing: boolean;
+
+  /**
+   * Start editing the tab's title (e.g. when the tab is double-clicked); see `WorkspaceImperativeHandle.startRenamingTab`.
+   */
+  startEditing: () => void;
+};
+
+/**
+ * Props for the input that edits a tab's title (see `TabRename.inputProps`).
+ *
+ * ℹ️ Inputs within a tab don't select or drag it, and keys typed in them aren't handled by the tab.
+ */
+export type TabRenameInputProps = {
+  defaultValue: string;
+  onBlur: (event: ReactFocusEvent<HTMLInputElement>) => void;
+  onKeyDown: (event: ReactKeyboardEvent<HTMLInputElement>) => void;
+  ref: RefCallback<HTMLInputElement>;
 };
 
 /**

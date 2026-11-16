@@ -6,7 +6,15 @@ import type { WorkspaceState } from "./createWorkspaceStore";
  * The state of a tab within its tabset (see `useParentTabState`), e.g. for the functions in the Workspace's `classNames` and `styles` props.
  */
 export function getTabState(
-  { collapseOverrides, disabled, model, modelIndex }: WorkspaceState,
+  {
+    collapseOverrides,
+    disabled,
+    model,
+    modelIndex
+  }: Pick<
+    WorkspaceState,
+    "collapseOverrides" | "disabled" | "model" | "modelIndex"
+  >,
   tabset: TabsetNode,
   tab: TabNode
 ): ParentTabState {

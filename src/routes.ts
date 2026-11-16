@@ -152,6 +152,7 @@ export const routes = {
   "/hooks/use-tab-list-overflow": lazy(
     () => import("./routes/UseTabListOverflowRoute")
   ),
+  "/hooks/use-tab-rename": lazy(() => import("./routes/UseTabRenameRoute")),
   "/hooks/use-workspace-callback-ref": lazy(
     () => import("./routes/UseWorkspaceCallbackRefRoute")
   ),

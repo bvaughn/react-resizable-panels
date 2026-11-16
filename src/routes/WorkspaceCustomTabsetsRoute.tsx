@@ -88,13 +88,20 @@ export default function WorkspaceCustomTabsetsRoute() {
       <SectionHeader>Renaming tabs</SectionHeader>
       <div>
         A tab can show an input in place of its title, e.g. after it's
-        double-clicked or F2 is pressed, and save the new title with the{" "}
-        <code>updateTab</code> method of the{" "}
-        <Link to="/imperative-api/workspace">imperative API</Link>. Pressing
-        Enter or moving focus away saves the title, and Escape cancels. Keys
-        typed in the input don't move focus between tabs or close the tab.
+        double-clicked or F2 is pressed. The{" "}
+        <Link to="/hooks/use-tab-rename">
+          <code>useTabRename</code>
+        </Link>{" "}
+        hook provides the props for the input: it's focused when it's shown,
+        pressing Enter or moving focus away saves the title, and Escape cancels.
+        Keys typed in the input don't move focus between tabs or close the tab.
       </div>
       <Code html={RenamableTabHTML} />
+      <Callout intent="primary">
+        The <code>startRenamingTab</code> method of the{" "}
+        <Link to="/imperative-api/workspace">imperative API</Link> starts
+        renaming a tab from outside of it, e.g. from a context menu.
+      </Callout>
       <SectionHeader>Toolbars that run out of room</SectionHeader>
       <div>
         A tabset's tab list fills the space its tabs and toolbar don't use, so a

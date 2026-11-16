@@ -1819,6 +1819,14 @@ Like tabs, it should have <code>touch-action: none</code> (e.g. with CSS), so th
 </td>
     </tr>
     <tr>
+      <td>startRenamingTab</td>
+      <td><p>Start editing a tab&#39;s title, e.g. from a context menu item; the tab shows the input that <code>useTabRename</code> provides (see <code>TabRename</code>).
+Only one tab&#39;s title is edited at a time, so a rename that&#39;s in progress is canceled.</p>
+<p>ℹ️ This does nothing for tabs that are not in the workspace, and tabs that don&#39;t use <code>useTabRename</code> (e.g. in <code>renderTab</code>) show no input.
+It doesn&#39;t select the tab or scroll it into view.</p>
+</td>
+    </tr>
+    <tr>
       <td>subscribeToTabListFreeSpace</td>
       <td><p>Subscribe to changes to the free space in a tabset&#39;s tab list (see <code>getTabListFreeSpace</code>),
 e.g. from a toolbar rendered outside of the Workspace.</p>

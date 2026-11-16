@@ -16,7 +16,16 @@ export function getTabsetState(
     dragGroup,
     model,
     modelIndex
-  }: WorkspaceState,
+  }: Pick<
+    WorkspaceState,
+    | "activeTabsetId"
+    | "collapseOverrides"
+    | "collapseToFit"
+    | "disabled"
+    | "dragGroup"
+    | "model"
+    | "modelIndex"
+  >,
   tabset: TabsetNode
 ): ParentTabsetState {
   const isCollapsed = isTabsetCollapsed(tabset, collapseOverrides);

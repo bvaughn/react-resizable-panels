@@ -281,6 +281,7 @@ const nav: NavConfig<Path | DefaultPath> = [
             title: "useTabListFreeSpace"
           },
           { path: "/hooks/use-tab-list-overflow", title: "useTabListOverflow" },
+          { path: "/hooks/use-tab-rename", title: "useTabRename" },
           {
             path: "/hooks/use-workspace-callback-ref",
             title: "useWorkspaceCallbackRef"

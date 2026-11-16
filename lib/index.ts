@@ -28,6 +28,7 @@ export { useParentWorkspace } from "./workspace/hooks/useParentWorkspace";
 export { usePopoutWindows } from "./workspace/hooks/usePopoutWindows";
 export { useTabListFreeSpace } from "./workspace/hooks/useTabListFreeSpace";
 export { useTabListOverflow } from "./workspace/hooks/useTabListOverflow";
+export { useTabRename } from "./workspace/hooks/useTabRename";
 export { useWorkspaceCallbackRef } from "./workspace/hooks/useWorkspaceCallbackRef";
 export { useWorkspaceRef } from "./workspace/hooks/useWorkspaceRef";
 export { Workspace } from "./workspace/components/Workspace";
@@ -97,6 +98,8 @@ export type {
   TabListOverflowOptions,
   TabNode,
   TabRemovalSelectionBehavior,
+  TabRename,
+  TabRenameInputProps,
   TabRenderProps,
   TabsetCollapseButtonProps,
   TabsetCollapseButtonState,

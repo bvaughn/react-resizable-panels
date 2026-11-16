@@ -183,6 +183,9 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     }
   }, []);
 
+  // The tab whose title is being edited (see useTabRename and startRenamingTab)
+  const [renamingTabId, setRenamingTabId] = useState<string>();
+
   const onModelChangedStable = useStableCallback(
     (...args: Parameters<NonNullable<typeof onModelChanged>>) =>
       onModelChanged?.(...args)
@@ -412,6 +415,11 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       },
       startExternalDrag: (event, options) =>
         startExternalDragRef.current?.(event, options) ?? Promise.resolve(null),
+      startRenamingTab: (tabId) => {
+        if (getModelIndex(modelRef.current).tabsetsByTabId.has(tabId)) {
+          setRenamingTabId(tabId);
+        }
+      },
       subscribeToTabListFreeSpace: (tabsetId, listener) =>
         tabListFreeSpaceStore.subscribe(tabsetId, listener),
       subscribeToTabListOverflow: (tabsetId, listener, options) => {
@@ -1368,6 +1376,16 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     ]
   );
 
+  // A tab that's removed (e.g. closed) while its title is being edited stops being edited,
+  // so that a tab added later with the same id doesn't start out editing
+  const isRenamingTabInModel =
+    renamingTabId !== undefined && modelIndex.tabsetsByTabId.has(renamingTabId);
+  useIsomorphicLayoutEffect(() => {
+    if (renamingTabId !== undefined && !isRenamingTabInModel) {
+      setRenamingTabId(undefined);
+    }
+  }, [isRenamingTabInModel, renamingTabId]);
+
   // Hooks like useParentTabState read this state from a store, so that they don't re-render whenever the context changes
   const workspaceState = useMemo<WorkspaceState>(
     () => ({
@@ -1377,7 +1395,8 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       disabled,
       dragGroup,
       model,
-      modelIndex
+      modelIndex,
+      renamingTabId: isRenamingTabInModel ? renamingTabId : undefined
     }),
     [
       activeTabsetId,
@@ -1385,15 +1404,22 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       collapseToFitInSplits,
       disabled,
       dragGroup,
+      isRenamingTabInModel,
       model,
-      modelIndex
+      modelIndex,
+      renamingTabId
     ]
   );
   const getTabPanelId = useStableCallback(
     (tabId: string) => getTabHost(tabId).panelId
   );
   const [store] = useState(() =>
-    createWorkspaceStore(workspaceState, updateModel, getTabPanelId)
+    createWorkspaceStore(
+      workspaceState,
+      updateModel,
+      getTabPanelId,
+      setRenamingTabId
+    )
   );
   // Set while rendering so that children rendered in this pass don't read stale state (see createWorkspaceStore)
   store.setState(workspaceState);

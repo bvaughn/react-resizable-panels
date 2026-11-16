@@ -26,6 +26,7 @@ import type {
   ParentTabState,
   SplitNode,
   TabNode,
+  TabRenderProps,
   TabsetNode,
   WorkspaceImperativeHandle,
   WorkspaceModel,
@@ -39,6 +40,7 @@ import { useParentTabState } from "../hooks/useParentTabState";
 import { useParentWorkspace } from "../hooks/useParentWorkspace";
 import { useTabListFreeSpace } from "../hooks/useTabListFreeSpace";
 import { useTabListOverflow } from "../hooks/useTabListOverflow";
+import { useTabRename } from "../hooks/useTabRename";
 import { getRegisteredAxis } from "../../global/mutable-state/axes";
 import { updateInteractionState } from "../../global/mutable-state/interactions";
 import { emitter } from "../../shared/utils/test/mockBoundingClientRect";
@@ -1040,6 +1042,200 @@ describe("Workspace", () => {
 
       fireEvent.keyDown(getTab("One"), { key: "Delete" });
       expect(getTab("One")).toBeInTheDocument();
+    });
+  });
+
+  describe("renaming tabs (useTabRename)", () => {
+    function RenamableTab({
+      props,
+      tab
+    }: {
+      props: TabRenderProps;
+      tab: TabNode<TabData>;
+    }) {
+      const { inputProps, isEditing, startEditing } = useTabRename();
+
+      return (
+        <div {...props} onDoubleClick={startEditing}>
+          {isEditing ? (
+            <input aria-label={`Rename ${tab.id}`} {...inputProps} />
+          ) : (
+            (tab.title ?? tab.id)
+          )}
+        </div>
+      );
+    }
+
+    function renderRenamableWorkspace(
+      props: Partial<WorkspaceProps<TabData>> = {}
+    ) {
+      return renderWorkspace({
+        renderTab: (tab, tabProps) => (
+          <RenamableTab props={tabProps} tab={tab} />
+        ),
+        ...props
+      });
+    }
+
+    function getInput(tabId: string) {
+      return screen.getByRole<HTMLInputElement>("textbox", {
+        name: `Rename ${tabId}`
+      });
+    }
+
+    test("startEditing shows a focused input, and Enter saves the new title", () => {
+      const { onModelChanged } = renderRenamableWorkspace();
+
+      fireEvent.doubleClick(getTab("One"));
+      const input = getInput("1");
+      expect(input).toHaveFocus();
+      expect(input.value).toBe("One");
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(3);
+
+      fireEvent.change(input, { target: { value: "  Orders  " } });
+      fireEvent.keyDown(input, { key: "Enter" });
+
+      expect(screen.queryByRole("textbox")).toBeNull();
+      expect(getTab("Orders")).toHaveFocus();
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: true,
+        reason: "update"
+      });
+    });
+
+    test("the input shows the tab's id if it has no title", () => {
+      renderRenamableWorkspace();
+
+      fireEvent.doubleClick(getTab("2"));
+      expect(getInput("2").value).toBe("2");
+    });
+
+    test("moving focus away saves the new title", () => {
+      renderRenamableWorkspace();
+
+      fireEvent.doubleClick(getTab("2"));
+      fireEvent.change(getInput("2"), { target: { value: "Two" } });
+      act(() => getTab("One").focus());
+
+      expect(screen.queryByRole("textbox")).toBeNull();
+      expect(getTab("Two")).toBeInTheDocument();
+    });
+
+    test("Escape cancels", () => {
+      const { onModelChanged } = renderRenamableWorkspace();
+
+      fireEvent.doubleClick(getTab("One"));
+      fireEvent.change(getInput("1"), { target: { value: "Orders" } });
+      fireEvent.keyDown(getInput("1"), { key: "Escape" });
+
+      expect(screen.queryByRole("textbox")).toBeNull();
+      expect(getTab("One")).toHaveFocus();
+      expect(onModelChanged).not.toHaveBeenCalled();
+
+      // The next rename isn't canceled
+      fireEvent.doubleClick(getTab("One"));
+      fireEvent.change(getInput("1"), { target: { value: "Orders" } });
+      fireEvent.keyDown(getInput("1"), { key: "Enter" });
+      expect(getTab("Orders")).toBeInTheDocument();
+    });
+
+    test.each([
+      ["empty", ""],
+      ["whitespace", "   "],
+      ["unchanged", "One"]
+    ])("%s titles aren't saved", (_, value) => {
+      const { onModelChanged } = renderRenamableWorkspace();
+
+      fireEvent.doubleClick(getTab("One"));
+      fireEvent.change(getInput("1"), { target: { value } });
+      fireEvent.keyDown(getInput("1"), { key: "Enter" });
+
+      expect(screen.queryByRole("textbox")).toBeNull();
+      expect(getTab("One")).toBeInTheDocument();
+      expect(onModelChanged).not.toHaveBeenCalled();
+    });
+
+    test("Enter is ignored while an input method editor is composing text", () => {
+      renderRenamableWorkspace();
+
+      fireEvent.doubleClick(getTab("One"));
+      fireEvent.change(getInput("1"), { target: { value: "주문" } });
+      fireEvent.keyDown(getInput("1"), { isComposing: true, key: "Enter" });
+      expect(getInput("1")).toHaveFocus();
+
+      fireEvent.keyDown(getInput("1"), { key: "Enter" });
+      expect(getTab("주문")).toBeInTheDocument();
+    });
+
+    test("onBeforeModelChange can block a new title", () => {
+      const onBeforeModelChange = vi.fn(
+        ({ reason }: BeforeModelChangeArgs<TabData>) => reason !== "update"
+      );
+      renderRenamableWorkspace({ onBeforeModelChange });
+
+      fireEvent.doubleClick(getTab("One"));
+      fireEvent.change(getInput("1"), { target: { value: "Orders" } });
+      fireEvent.keyDown(getInput("1"), { key: "Enter" });
+
+      expect(onBeforeModelChange).toHaveBeenCalledWith(
+        expect.objectContaining({ reason: "update" })
+      );
+      expect(screen.queryByRole("textbox")).toBeNull();
+      expect(getTab("One")).toBeInTheDocument();
+    });
+
+    test("startRenamingTab starts editing a tab from outside of it, canceling another rename", () => {
+      const { onModelChanged, workspaceRef } = renderRenamableWorkspace();
+
+      act(() => {
+        workspaceRef.current!.startRenamingTab("3");
+      });
+      expect(getInput("3")).toHaveFocus();
+
+      act(() => {
+        workspaceRef.current!.startRenamingTab("1");
+      });
+      expect(screen.getAllByRole("textbox")).toEqual([getInput("1")]);
+      expect(getInput("1")).toHaveFocus();
+      expect(onModelChanged).not.toHaveBeenCalled();
+
+      // Tabs that aren't in the workspace are ignored
+      act(() => {
+        workspaceRef.current!.startRenamingTab("missing");
+      });
+      expect(getInput("1")).toBeInTheDocument();
+    });
+
+    test("a tab that's closed while being renamed isn't renamed when it's added again", () => {
+      const { workspaceRef } = renderRenamableWorkspace();
+
+      act(() => {
+        workspaceRef.current!.startRenamingTab("2");
+      });
+      act(() => {
+        workspaceRef.current!.closeTab("2");
+      });
+      expect(screen.queryByRole("textbox")).toBeNull();
+
+      act(() => {
+        workspaceRef.current!.addTab(tab("2"), { tabsetId: "left" });
+      });
+      expect(getTab("2")).toBeInTheDocument();
+      expect(screen.queryByRole("textbox")).toBeNull();
+    });
+
+    test("outside of a tab, nothing is edited", () => {
+      let rename: ReturnType<typeof useTabRename> | undefined;
+      function Outside() {
+        rename = useTabRename();
+        return null;
+      }
+      render(<Outside />);
+
+      expect(rename!.isEditing).toBe(false);
+      act(() => rename!.startEditing());
+      expect(rename!.isEditing).toBe(false);
     });
   });
 

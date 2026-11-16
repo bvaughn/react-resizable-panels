@@ -1,7 +1,6 @@
-import { useState } from "react";
 import {
   TabCloseButton,
-  useParentWorkspace,
+  useTabRename,
   Workspace,
   type TabNode,
   type TabRenderProps,
@@ -21,50 +20,24 @@ declare const initialModel: WorkspaceModel<{ path: string }>;
 />
 
 function RenamableTab({ props, tab }: { props: TabRenderProps; tab: TabNode }) {
-  const workspace = useParentWorkspace();
-  const [isEditing, setIsEditing] = useState(false);
-
-  const title = tab.title ?? tab.id;
+  const { inputProps, isEditing, startEditing } = useTabRename();
 
   return (
     <div
       {...props}
-      onDoubleClick={() => setIsEditing(true)}
+      onDoubleClick={startEditing}
       onKeyDown={(event) => {
         if (event.key === "F2" && event.target === event.currentTarget) {
-          setIsEditing(true);
+          startEditing();
         } else {
           props.onKeyDown?.(event);
         }
       }}
     >
       {isEditing ? (
-        // Inputs within a tab don't select or drag it
-        <input
-          aria-label="Tab title"
-          autoFocus
-          defaultValue={title}
-          onBlur={(event) => {
-            setIsEditing(false);
-
-            const newTitle = event.currentTarget.value.trim();
-            if (newTitle && newTitle !== title) {
-              workspace?.updateTab(tab.id, { title: newTitle });
-            }
-          }}
-          onFocus={(event) => event.currentTarget.select()}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              // Blurring the input commits the new title
-              event.currentTarget.closest<HTMLElement>("[data-tab]")?.focus();
-            } else if (event.key === "Escape") {
-              event.currentTarget.value = title;
-              event.currentTarget.closest<HTMLElement>("[data-tab]")?.focus();
-            }
-          }}
-        />
+        <input aria-label="Tab title" {...inputProps} />
       ) : (
-        title
+        (tab.title ?? tab.id)
       )}
       <TabCloseButton />
     </div>

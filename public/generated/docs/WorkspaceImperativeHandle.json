@@ -282,6 +282,19 @@
     {
       "description": [
         {
+          "content": "<p>Start editing a tab's title, e.g. from a context menu item; the tab shows the input that <code>useTabRename</code> provides (see <code>TabRename</code>).\nOnly one tab's title is edited at a time, so a rename that's in progress is canceled.</p>\n"
+        },
+        {
+          "content": "<p>This does nothing for tabs that are not in the workspace, and tabs that don't use <code>useTabRename</code> (e.g. in <code>renderTab</code>) show no input.\nIt doesn't select the tab or scroll it into view.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-labelName\">startRenamingTab</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">tabId</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">string</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-keyword\">void</span><span class=\"tok-punctuation\">;</span></div>",
+      "name": "startRenamingTab"
+    },
+    {
+      "description": [
+        {
           "content": "<p>Subscribe to changes to the free space in a tabset's tab list (see <code>getTabListFreeSpace</code>),\ne.g. from a toolbar rendered outside of the Workspace.</p>\n"
         },
         {

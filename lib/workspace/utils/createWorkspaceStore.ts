@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from "react";
 import { EventEmitter } from "../../shared/utils/EventEmitter";
 import type { UpdateModel } from "../contexts/WorkspaceContext";
 import type { ModelIndex } from "../models/indexModel";
@@ -16,6 +17,8 @@ export type WorkspaceState = {
   dragGroup: string | undefined;
   model: WorkspaceModel;
   modelIndex: ModelIndex;
+  // The tab whose title is being edited (see useTabRename); undefined once that tab is no longer in the model
+  renamingTabId: string | undefined;
 };
 
 export type WorkspaceStore = {
@@ -24,6 +27,8 @@ export type WorkspaceStore = {
   getTabPanelId: (tabId: string) => string;
   // Notifies subscribers if the state has changed since they were last notified
   notify: () => void;
+  // Starts (or stops) editing a tab's title (see useTabRename); stable for the life of the Workspace
+  setRenamingTabId: Dispatch<SetStateAction<string | undefined>>;
   // Updates the state without notifying subscribers (see notify)
   setState: (state: WorkspaceState) => void;
   subscribe: (listener: () => void) => () => void;
@@ -41,7 +46,8 @@ export type WorkspaceStore = {
 export function createWorkspaceStore(
   initialState: WorkspaceState,
   updateModel: UpdateModel,
-  getTabPanelId: (tabId: string) => string
+  getTabPanelId: (tabId: string) => string,
+  setRenamingTabId: Dispatch<SetStateAction<string | undefined>>
 ): WorkspaceStore {
   const eventEmitter = new EventEmitter<{ change: undefined }>();
   let notifiedState = initialState;
@@ -56,6 +62,7 @@ export function createWorkspaceStore(
         eventEmitter.emit("change", undefined);
       }
     },
+    setRenamingTabId,
     setState: (next) => {
       state = next;
     },
