@@ -472,7 +472,7 @@ function renderTabContent(tab: TabNode<DemoTab>) {
       return (
         <textarea
           aria-label={tab.title}
-          className="w-full h-full p-3 text-sm bg-transparent resize-none outline-none"
+          className="block w-full h-full p-3 text-sm bg-transparent resize-none outline-none"
           placeholder="Type something, then drag this tab somewhere else…"
         />
       );
@@ -526,7 +526,7 @@ function SavedNotes({
   return (
     <textarea
       aria-label={title}
-      className="w-full h-full p-3 text-sm bg-transparent resize-none outline-none"
+      className="block w-full h-full p-3 text-sm bg-transparent resize-none outline-none"
       onChange={(event) =>
         workspace?.updateTab(tabId, {
           data: { kind: "saved-notes", text: event.target.value }
