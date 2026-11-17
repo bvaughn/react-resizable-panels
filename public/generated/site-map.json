@@ -438,6 +438,29 @@
   {
     "headings": [
       {
+        "id": "resizing-rows",
+        "title": "Resizing rows",
+        "text": "Resizing rows The separators between rows are the workspace's usual separators (see renderSeparator): they move space between the rows beside them, so the workspace stays the same size. It grows (or shrinks) as rows are added (or removed), and the grow handle after the last row resizes that row, and the workspace with it. While the grow handle is dragged, only the handle moves; the row (and the workspace) is resized when it's released, so what the workspace scrolls within doesn't scroll out from under the pointer. The dragged handle is shown even beyond the edge of what the workspace scrolls within (e.g. below the box around the demo above). The grow handle can be focused and resized with the arrow keys (by 10px, or 50px with Shift), and Home and End resize the last row to its minimum and maximum. Its content comes from the renderGrowHandle prop (e.g. a grip icon), and it's styled with the growHandle entries of the classNames and styles props (or its data-grow-handle attribute, with data-active while it's dragged). Since it doesn't move space between rows, it can look different from the separators, or be hidden (e.g. display: none); the demo above colors it like them, but makes it taller, with an up and down arrow rather than their dots."
+      },
+      {
+        "id": "dragging-tabs",
+        "title": "Dragging tabs",
+        "text": "Dragging tabs Tabs (and tabsets) are dropped as usual, except at the workspace's edges: dropping at its top or bottom edge adds a row there, and its left and right edges (beside every row) don't accept drops. While a tab is dragged near the edge of what the workspace scrolls within (e.g. the page, or the box around the demo above), it's scrolled, so rows that are scrolled out of view can be reached."
+      },
+      {
+        "id": "maximized-tabsets",
+        "title": "Maximized tabsets",
+        "text": "Maximized tabsets A maximized tabset covers the part of the workspace that's visible (rather than the whole workspace), and stays there as it's scrolled. growDirection shouldn't change after the workspace mounts, since the model's sizes mean different things with and without it; render a new workspace (e.g. with a different key) instead. The workspace's root element has a data-grow-direction attribute, e.g. to style it (or the element it scrolls within)."
+      }
+    ],
+    "path": "/examples/workspace/scrolling-layouts",
+    "section": "Workspace",
+    "text": "By default, a workspace fills its container, and its tabsets share the space. With the growDirection prop, it grows instead, like a dashboard: the root split's children are rows (or columns, with \"horizontal\"), each as large as its size, and the workspace is as tall as its rows. Your app decides what scrolls, e.g. the page, or an element around the workspace: Drag the separator between two rows to move space between them, or the grow handle after the last row to make it (and the workspace) taller. Drop a tab at the top or bottom edge of the workspace (or of a row) to add a row. Reset layout Only the root split grows; everything within a row fits it, as usual. Each row's size is a length (e.g. \"300px\"). A tabset moved to a new row keeps its size, and a tab moved out of a tabset takes that tabset's size; other new rows (e.g. tabs dragged in from another workspace) are defaultGrowSize (300px by default).",
+    "title": "Scrolling layouts"
+  },
+  {
+    "headings": [
+      {
         "id": "tab-content",
         "title": "Tab content",
         "text": "Tab content Workspaces render their tabsets and tabs on the server. Tab content isn't server rendered by default, though: it's rendered through portals (so that moving a tab doesn't remount it), which React can't render on the server. Instead, it's rendered once hydration has finished. The serverRenderTabContent prop renders the content of selected tabs on the server. It can be true, or a function to choose per tab: Server-rendered content is rendered inline (within its tabset's tab panels) on the server and while hydrating, then moved into a portal. Moving the content into a portal remounts it once (e.g. resetting its state and re-running its effects), so this is best suited to content that is cheap to mount and benefits from being in the server-rendered HTML. This prop has no effect for workspaces that aren't server rendered."
@@ -1607,6 +1630,11 @@
         "text": "Lets tabsets be copied by dragging them (by their headers), like the copyTab prop does for tabs: a tabset dropped while the copy modifier key is held adds the copy this function returns,\nleaving the dragged tabset where it was. The change is reported to onModelChanged with the \"copy\" reason.\n The copy includes its tabs, which need ids that aren't used by any other node of the workspace too; the copyTab argument copies a tab:\n Returning null (or undefined) moves the dragged tabset instead. If that move isn't allowed either (the disableDrop prop rejects it, the ids conflict, a keepWhenEmpty tabset is dropped into another workspace, or it isn't a valid place to move the tabset), nothing happens.\n The copy's selected tab is the copy of the dragged tabset's selected tab (matched by position), unless the copy selects one of its own tabs.\n A copy dropped into a tab list (or onto the center of another tabset) only adds its tabs; its id and data are only used where it's added as a tabset.\n\n tabset The tabset being dragged\n copyTab Copies a tab with the copyTab prop (and the same drop target); without that prop (or if it returns null), the copy is a shallow copy of the tab with a new id\n target Where the copy will be dropped"
       },
       {
+        "id": "defaultGrowSize",
+        "title": "defaultGrowSize",
+        "text": "Size of a new row (or column) along growDirection, when it doesn't take its size from where it came from (see growDirection).\nDefaults to \"300px\".\n Interpretation rules:\n\nStrings must specify a unit: \"px\", \"em\", \"rem\", \"vh\", or \"vw\" (e.g. defaultGrowSize: \"20rem\")\nPercentages (and strings without units) are not allowed"
+      },
+      {
         "id": "disabled",
         "title": "disabled",
         "text": "Locks the arrangement: tabs cannot be resized, dragged, dropped, or closed by the user.\nSelecting tabs and maximizing tabsets still work, but tabsets aren't collapsed or expanded by clicking their tabs (or the empty space in their headers);\nclicking a tab of a collapsed tabset only selects it. A TabsetCollapseButton isn't restricted by disabled; to keep tabsets from being collapsed or expanded, don't render one.\n This prop overrides the disableClose and disableDrag flags of individual tabs."
@@ -1635,6 +1663,11 @@
         "id": "elementRef",
         "title": "elementRef",
         "text": "Ref attached to the root HTMLDivElement."
+      },
+      {
+        "id": "growDirection",
+        "title": "growDirection",
+        "text": "The workspace grows along this direction (rather than fitting its container), like a dashboard:\nwith \"vertical\", the root split's children are rows, each as tall as its size, and the workspace is as tall as its rows;\nwith \"horizontal\", they're columns, and the workspace is as wide as its columns.\nThe application decides what scrolls (e.g. the page, or an element around the workspace with overflow: auto).\n Only the root split grows, and only when its orientation matches (a root tabset, or a root split in the other direction, is a single row or column).\nEverything within a row (or column) fits it, as usual.\n Each row's size (see TabsetNode.size and SplitNode.size) is a length, e.g. \"300px\".\nRows without one (e.g. in a model saved without this prop) are given one when the model changes:\na tabset moved to its own row keeps the size it had, a tab moved out of a tabset takes that tabset's size,\nand anything else (e.g. a tab dragged in from another workspace) is defaultGrowSize.\n The separators between rows are the workspace's usual separators (see renderSeparator): they move space between the rows beside them,\nand the workspace stays the same size. The workspace grows (or shrinks) as rows are added (or removed),\nand the grow handle after the last row resizes that row, and the workspace with it (see renderGrowHandle).\nWhile the grow handle is dragged, only the handle moves; the row (and the workspace) is resized when it's released.\nDropping at the workspace's start or end along this direction (e.g. its top or bottom edge) adds a row there;\nits edges in the other direction don't accept drops.\n A maximized tabset covers the part of the workspace that is visible (within what it scrolls), and stays there as it's scrolled.\n This should not change after the Workspace mounts (rows' sizes would be stale); give the Workspace a new key to change it."
       },
       {
         "id": "hiddenTabBehavior",
@@ -1675,6 +1708,11 @@
         "id": "renderEmptyTabset",
         "title": "renderEmptyTabset",
         "text": "Content shown in the panels of a tabset that has no tabs (e.g. \"Drag a tab here\"):\nthe root tabset of an empty workspace, or a tabset with the keepWhenEmpty flag."
+      },
+      {
+        "id": "renderGrowHandle",
+        "title": "renderGrowHandle",
+        "text": "Content of the handle after the last row (or column) of a workspace with the growDirection prop, which resizes that row and the workspace with it,\ne.g. a grip icon; it's styled with the growHandle entries of the classNames and styles props.\n Unlike the separators between rows (see renderSeparator), it doesn't move space between rows, so it can be styled differently (or hidden).\n\n orientation The growDirection"
       },
       {
         "id": "renderSeparator",

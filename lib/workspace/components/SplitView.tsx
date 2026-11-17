@@ -17,8 +17,10 @@ import { canCollapseTabset } from "../models/canCollapseTabset";
 import { setSplitLayout } from "../models/setSplitLayout";
 import type { SplitNode } from "../types";
 import { calculateSplitLayout } from "../utils/calculateSplitLayout";
+import { getGrowingShares } from "../utils/getGrowingShares";
 import { resolveElementValue } from "../utils/resolveElementValue";
 import { getResizeReason } from "../utils/getResizeReason";
+import { sizeToPixels } from "../utils/sizeToPixels";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { NodeView } from "./NodeView";
 
@@ -27,7 +29,9 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
     classNames,
     collapsedSizes,
     collapseToFit,
+    defaultGrowSize,
     disabled,
+    growingSplitId,
     id: workspaceId,
     maximumSizes,
     minimumSizes,
@@ -91,7 +95,32 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
     .filter((child) => child.type === "tabset" && child.collapsed)
     .map(({ id }) => `${id}=${collapsedSizes[id] ?? 0}`)
     .join();
-  const structureKey = `${splitGeneration}:${split.orientation}:${childIds}:${collapsedKey}`;
+  // The rows of a workspace that grows (see the growDirection prop) are sized by lengths, and the split is as large as its rows,
+  // so the model's sizes are applied whenever they change (e.g. a row is resized, or one is added and the split grows)
+  const isGrowing = split.id === growingSplitId;
+
+  // The split is as large as its rows' lengths (and its separators), so each expanded row's share of it is its length's share of theirs;
+  // computed from the lengths (rather than from the Panels' default sizes, which the Group converts using its size before it grows)
+  // Lengths with units that need the Group's element (e.g. "20rem") can't be converted before it's mounted, so there are no shares until then
+  const getShares = () => {
+    if (!isGrowing) {
+      return undefined;
+    }
+    let isComplete = true;
+    const shares = getGrowingShares(split, defaultGrowSize, (value) => {
+      const pixels = sizeToPixels(value, groupElementRef.current);
+      if (pixels === undefined) {
+        isComplete = false;
+      }
+      return pixels ?? 0;
+    });
+    return isComplete ? shares : undefined;
+  };
+  const growingShares = getShares();
+  const sizesKey = isGrowing
+    ? split.children.map(({ size }) => size ?? "").join()
+    : "";
+  const structureKey = `${splitGeneration}:${split.orientation}:${childIds}:${collapsedKey}:${sizesKey}`;
 
   // Collapsed sizes are converted to percentages by the Group, which change when it's resized,
   // so they're part of the applied key (applied again so that collapsed tabsets stay the size of their headers);
@@ -121,8 +150,9 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
   // The model's sizes, keyed by Panel id
   const getPanelSizes = () => {
     const sizes: { [panelId: string]: number | string | undefined } = {};
+    const shares = getShares();
     for (const child of split.children) {
-      sizes[getPanelId(child.id)] = child.size;
+      sizes[getPanelId(child.id)] = shares?.[child.id] ?? child.size;
     }
 
     return sizes;
@@ -239,7 +269,7 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
       return (
         (child.type === "tabset" &&
           collapsedIds.has(child.id) !== !!child.collapsed) ||
-        (typeof child.size === "number" &&
+        ((isGrowing || typeof child.size === "number") &&
           !layoutNumbersEqual(layout[panelId], modelLayout[panelId], 0.01))
       );
     });
@@ -536,7 +566,11 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
                 (!!child.collapsed || canCollapseTabset(split, child))
               }
               defaultSize={
-                typeof child.size === "number" ? `${child.size}%` : child.size
+                growingShares?.[child.id] !== undefined
+                  ? `${growingShares[child.id]}%`
+                  : typeof child.size === "number"
+                    ? `${child.size}%`
+                    : child.size
               }
               id={getPanelId(child.id)}
               maxSize={

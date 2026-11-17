@@ -219,6 +219,10 @@ const nav: NavConfig<Path | DefaultPath> = [
             title: "Floating tabsets"
           },
           {
+            path: "/examples/workspace/scrolling-layouts",
+            title: "Scrolling layouts"
+          },
+          {
             path: "/examples/workspace/custom-tabsets",
             title: "Custom tabsets"
           },

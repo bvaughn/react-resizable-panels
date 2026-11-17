@@ -66,11 +66,21 @@ export function getDropTarget({
       rootElement,
       source
     });
-    if (collapsedTarget === undefined) {
-      return { edge };
+    if (collapsedTarget !== undefined) {
+      return collapsedTarget ?? undefined;
     }
 
-    return collapsedTarget ?? undefined;
+    // A workspace that grows (see the growDirection prop) adds rows at its start or end along that direction;
+    // its edges in the other direction (beside every row) only accept drops onto a collapsed tabset that lines them,
+    // so elsewhere along them the tabset beneath the pointer is targeted
+    const growDirection = rootElement.dataset.growDirection;
+    const isCrossAxis =
+      !!growDirection &&
+      (edge === "left" || edge === "right") !==
+        (growDirection === "horizontal");
+    if (!isCrossAxis) {
+      return { edge };
+    }
   }
 
   // Skip tabsets of other workspaces (e.g. one rendered within a tab)

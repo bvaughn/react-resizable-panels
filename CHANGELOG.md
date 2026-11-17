@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- `Workspace`:
+  - Add the `growDirection` prop, for layouts that grow (like a dashboard) rather than fitting their container: the root split's children are rows (or columns) sized by lengths, and a handle after the last row resizes it (see `renderGrowHandle`). New rows are sized by `defaultGrowSize`. - [#829](https://github.com/bvaughn/react-resizable-panels/issues/829)
+
 ## 4.24.0
 
 - `Workspace`:
