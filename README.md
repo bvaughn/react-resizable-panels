@@ -1223,6 +1223,39 @@ It&#39;s read when a drag starts, so changes during a drag don&#39;t apply to it
 </td>
     </tr>
     <tr>
+      <td>growDirection</td>
+      <td><p>The workspace grows along this direction (rather than fitting its container), like a dashboard:
+with <code>&quot;vertical&quot;</code>, the root split&#39;s children are rows, each as tall as its size, and the workspace is as tall as its rows;
+with <code>&quot;horizontal&quot;</code>, they&#39;re columns, and the workspace is as wide as its columns.
+The application decides what scrolls (e.g. the page, or an element around the workspace with <code>overflow: auto</code>).</p>
+<p>ℹ️ Only the root split grows, and only when its orientation matches (a root tabset, or a root split in the other direction, is a single row or column).
+Everything within a row (or column) fits it, as usual.</p>
+<p>ℹ️ Each row&#39;s size (see <code>TabsetNode.size</code> and <code>SplitNode.size</code>) is a length, e.g. &quot;300px&quot;.
+Rows without one (e.g. in a model saved without this prop) are given one when the model changes:
+a tabset moved to its own row keeps the size it had, a tab moved out of a tabset takes that tabset&#39;s size,
+and anything else (e.g. a tab dragged in from another workspace) is <code>defaultGrowSize</code>.</p>
+<p>ℹ️ The separators between rows are the workspace&#39;s usual separators (see <code>renderSeparator</code>): they move space between the rows beside them,
+and the workspace stays the same size. The workspace grows (or shrinks) as rows are added (or removed),
+and the grow handle after the last row resizes that row, and the workspace with it (see <code>renderGrowHandle</code>).
+While the grow handle is dragged, only the handle moves; the row (and the workspace) is resized when it&#39;s released.
+Dropping at the workspace&#39;s start or end along this direction (e.g. its top or bottom edge) adds a row there;
+its edges in the other direction don&#39;t accept drops.</p>
+<p>ℹ️ A maximized tabset covers the part of the workspace that is visible (within what it scrolls), and stays there as it&#39;s scrolled.</p>
+<p>⚠️ This should not change after the Workspace mounts (rows&#39; sizes would be stale); give the Workspace a new <code>key</code> to change it.</p>
+</td>
+    </tr>
+    <tr>
+      <td>defaultGrowSize</td>
+      <td><p>Size of a new row (or column) along <code>growDirection</code>, when it doesn&#39;t take its size from where it came from (see <code>growDirection</code>).
+Defaults to &quot;300px&quot;.</p>
+<p>ℹ️ Interpretation rules:</p>
+<ul>
+<li>Strings must specify a unit: &quot;px&quot;, &quot;em&quot;, &quot;rem&quot;, &quot;vh&quot;, or &quot;vw&quot; (e.g. <code>defaultGrowSize: &quot;20rem&quot;</code>)</li>
+<li>Percentages (and strings without units) are not allowed</li>
+</ul>
+</td>
+    </tr>
+    <tr>
       <td>elementRef</td>
       <td><p>Ref attached to the root <code>HTMLDivElement</code>.</p>
 </td>
@@ -1308,6 +1341,16 @@ Defaults to the tab&#39;s title (or id).</p>
 Defaults to the title (or id) of its selected tab followed by the number of other tabs being dragged (e.g. &quot;One (+2)&quot;), or the selected tab&#39;s <code>renderDragPreview</code> when that prop is set, or the tabset&#39;s id if it has no tabs.</p>
 <p>ℹ️ The element has a <code>data-drag-type</code> attribute: <code>&quot;tabset&quot;</code> while a tabset is dragged, and <code>&quot;tab&quot;</code> while a tab is.
 It also has a <code>data-tear-off</code> attribute while releasing the pointer would tear off the tabset (see the deprecated <code>onTearOff</code> prop).</p>
+</td>
+    </tr>
+    <tr>
+      <td>renderGrowHandle</td>
+      <td><p>Content of the handle after the last row (or column) of a workspace with the <code>growDirection</code> prop, which resizes that row and the workspace with it,
+e.g. a grip icon; it&#39;s styled with the <code>growHandle</code> entries of the <code>classNames</code> and <code>styles</code> props.</p>
+<p>ℹ️ Unlike the separators between rows (see <code>renderSeparator</code>), it doesn&#39;t move space between rows, so it can be styled differently (or hidden).</p>
+<ul>
+<li><code>orientation</code> The <code>growDirection</code></li>
+</ul>
 </td>
     </tr>
     <tr>

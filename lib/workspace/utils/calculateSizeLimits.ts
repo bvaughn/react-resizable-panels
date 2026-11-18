@@ -24,6 +24,7 @@ type Size = { height: number; width: number };
  * - In the other direction, if the split's own maximum is applied by its parent
  *
  * The root fills the workspace, so its maximum is never applied.
+ * Except along `growDirection` (see the Workspace prop), where rows don't have to fill anything: every maximum along it applies.
  *
  * ℹ️ A collapsed tabset's own minimum (and maximum) is the one it expands to (which collapsible Panels use to decide when to collapse and expand).
  */
@@ -34,13 +35,15 @@ export function calculateSizeLimits(
     getCollapsedSize,
     getContentMaximumSize,
     getContentMinimumSize,
-    getSeparatorsSize
+    getSeparatorsSize,
+    growDirection
   }: {
     getChromeSize: (tabsetId: string) => MinimumSize | undefined;
     getCollapsedSize: (tabsetId: string) => number | undefined;
     getContentMaximumSize: (tabset: TabsetNode) => MaximumSize;
     getContentMinimumSize: (tabset: TabsetNode) => MinimumSize;
     getSeparatorsSize: (splitId: string) => number | undefined;
+    growDirection?: "horizontal" | "vertical" | undefined;
   }
 ): {
   maximumSizes: Map<string, MaximumSize>;
@@ -151,7 +154,10 @@ export function calculateSizeLimits(
   };
 
   visit(root);
-  apply(root, { height: false, width: false });
+  apply(root, {
+    height: growDirection === "vertical",
+    width: growDirection === "horizontal"
+  });
 
   return { maximumSizes, minimumSizes };
 }

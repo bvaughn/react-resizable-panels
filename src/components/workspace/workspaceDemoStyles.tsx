@@ -33,6 +33,14 @@ export const CLASS_NAMES: WorkspaceClassNames = {
     // (logical properties, since tabs placed on the "left" are at the start of the tabset: on the right, in a right-to-left layout)
     "border-ink/10 data-[tab-placement=top]:border-b data-[tab-placement=bottom]:border-t data-[tab-placement=left]:border-e data-[tab-placement=right]:border-s"
   ),
+  // The handle after the last row of a workspace that grows (see the growDirection prop) is colored like the separators between rows,
+  // but taller (with room for its icon), since it works differently (it resizes the last row, and the workspace with it);
+  // it's spaced from the last row like the rows are from each other (see split)
+  growHandle: cn(
+    "flex shrink-0 items-center justify-center h-4 mt-2 sm:mt-1 rounded-xs outline-none!",
+    "bg-separator hover:bg-separator-hover data-[active]:bg-separator-active focus-visible:bg-sky-400!",
+    "text-white/50 hover:text-white/70 data-[active]:text-white/70"
+  ),
   // Spaced like the VS Code demo's panels
   split: "gap-2 sm:gap-1",
   tab: cn(

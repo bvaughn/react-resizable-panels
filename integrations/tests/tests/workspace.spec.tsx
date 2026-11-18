@@ -2665,6 +2665,112 @@ test.describe("Workspace", () => {
   });
 });
 
+test.describe("Workspace that grows (growDirection)", () => {
+  // Three rows, each 400px tall; the page (rather than the workspace) scrolls
+  function growingWorkspace() {
+    const model: WorkspaceModel = {
+      root: {
+        children: [
+          {
+            id: "left",
+            size: "400px",
+            tabs: [
+              { data: null, id: "a" },
+              { data: null, id: "b" }
+            ],
+            type: "tabset"
+          },
+          {
+            id: "right",
+            size: "400px",
+            tabs: [{ data: null, id: "c" }],
+            type: "tabset"
+          },
+          {
+            id: "last",
+            size: "400px",
+            tabs: [{ data: null, id: "d" }],
+            type: "tabset"
+          }
+        ],
+        id: "root",
+        orientation: "vertical",
+        type: "split"
+      },
+      version: 1
+    };
+
+    return (
+      <Workspace
+        defaultModel={model}
+        growDirection="vertical"
+        renderTabContent={() => null}
+        style={{ height: "auto" }}
+        {...({ showApiButtons: true } as object)}
+      />
+    );
+  }
+
+  test("dragging the grow handle resizes the last row", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(mainPage, growingWorkspace());
+
+    const handle = page.locator("[data-grow-handle]");
+    await handle.scrollIntoViewIfNeeded();
+    const box = (await handle.boundingBox())!;
+
+    await drag(
+      page,
+      { x: box.x + box.width / 2, y: box.y + box.height / 2 },
+      { x: box.x + box.width / 2, y: box.y + box.height / 2 - 40 }
+    );
+
+    const { meta, model } = await getLastChange(page);
+    expect(meta).toEqual({ isUserInteraction: true, reason: "resize" });
+    expect((model.root as SplitNode).children.map(({ size }) => size)).toEqual([
+      "400px",
+      "400px",
+      "360px"
+    ]);
+  });
+
+  test("scrolls the page while a tab is dragged near its edge", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(mainPage, growingWorkspace());
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+
+    const { x, y } = await getTabLabelPoint(getTab(page, "a"));
+    const viewport = page.viewportSize()!;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + 20, viewport.height - 10, { steps: 10 });
+    await expect
+      .poll(() => page.evaluate(() => window.scrollY), { timeout: 5000 })
+      .toBeGreaterThan(0);
+    await page.keyboard.press("Escape");
+    await page.mouse.up();
+  });
+
+  test("a maximized tabset is visible when the workspace is scrolled", async ({
+    page: mainPage
+  }) => {
+    const page = await goToUrl(mainPage, growingWorkspace());
+    await page.evaluate(() => window.scrollTo(0, 600));
+
+    await page.getByTestId("api-maximize-left").dispatchEvent("click");
+
+    const viewport = page.viewportSize()!;
+    await expect(async () => {
+      const box = (await getTabset(page, "left").boundingBox())!;
+      expect(box.height).toBeGreaterThan(0);
+      expect(box.y).toBeGreaterThanOrEqual(-1);
+      expect(box.y + box.height).toBeLessThanOrEqual(viewport.height + 1);
+    }).toPass();
+  });
+});
+
 test.describe("Workspace in a right-to-left layout", () => {
   // The direction is read from computed styles when it's needed, so it can be set after the Workspace renders
   async function setRightToLeft(page: Page) {

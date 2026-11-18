@@ -281,6 +281,7 @@ describe("getDropTarget at the edges of the workspace", () => {
   // Two tabsets side by side, filling an 800x600 workspace
   function setup({
     dir = "ltr",
+    growDirection,
     root = {
       children: [
         {
@@ -306,6 +307,7 @@ describe("getDropTarget at the edges of the workspace", () => {
     maximizedTabsetId
   }: {
     dir?: "ltr" | "rtl";
+    growDirection?: "horizontal" | "vertical";
     maximizedTabsetId?: string;
     root?: WorkspaceModel["root"];
   } = {}) {
@@ -333,6 +335,9 @@ describe("getDropTarget at the edges of the workspace", () => {
     const layoutElement = container.querySelector<HTMLElement>(
       "[data-workspace-layout]"
     )!;
+    if (growDirection) {
+      rootElement.dataset.growDirection = growDirection;
+    }
     rootElement.getBoundingClientRect = () => new DOMRect(0, 0, 800, 600);
     layoutElement.getBoundingClientRect = () => new DOMRect(0, 0, 800, 600);
 
@@ -356,7 +361,10 @@ describe("getDropTarget at the edges of the workspace", () => {
     const getTarget = (
       source: DragSource,
       clientX: number,
-      { isExternal = false }: { isExternal?: boolean } = {}
+      {
+        clientY = 300,
+        isExternal = false
+      }: { clientY?: number; isExternal?: boolean } = {}
     ) => {
       elementAtPoint = container.querySelector(
         `[data-tabset-id="${clientX < 400 ? left : right}"] [data-tab-panels]`
@@ -364,7 +372,7 @@ describe("getDropTarget at the edges of the workspace", () => {
 
       return getDropTarget({
         clientX,
-        clientY: 300,
+        clientY,
         isExternal,
         model,
         rootElement,
@@ -374,6 +382,91 @@ describe("getDropTarget at the edges of the workspace", () => {
 
     return { getTarget };
   }
+
+  test("only targets the edges along the grow direction of a workspace that grows", () => {
+    const source: DragSource = { tabId: "3", type: "tab" };
+
+    const vertical = setup({ growDirection: "vertical" });
+    expect(vertical.getTarget(source, 5)).toEqual({
+      region: "left",
+      tabsetId: "a"
+    });
+    expect(vertical.getTarget(source, 795)).toEqual({
+      region: "right",
+      tabsetId: "b"
+    });
+    expect(vertical.getTarget(source, 100, { clientY: 5 })).toEqual({
+      edge: "top"
+    });
+    expect(vertical.getTarget(source, 100, { clientY: 595 })).toEqual({
+      edge: "bottom"
+    });
+    cleanup?.();
+
+    const horizontal = setup({ growDirection: "horizontal" });
+    expect(horizontal.getTarget(source, 5)).toEqual({ edge: "left" });
+    expect(horizontal.getTarget(source, 100, { clientY: 595 })).toEqual({
+      region: "bottom",
+      tabsetId: "a"
+    });
+  });
+
+  test("tabs dropped at a cross-axis edge of a workspace that grows are added to the collapsed tabset lining it", () => {
+    const source: DragSource = { tabId: "3", type: "tab" };
+    const { getTarget } = setup({
+      growDirection: "vertical",
+      root: {
+        children: [
+          {
+            children: [
+              {
+                collapsed: true,
+                collapsible: true,
+                id: "a",
+                selectedId: "1",
+                tabs: [{ data: undefined, id: "1" }],
+                type: "tabset"
+              },
+              {
+                id: "b",
+                selectedId: "2",
+                tabs: [
+                  { data: undefined, id: "2" },
+                  { data: undefined, id: "3" }
+                ],
+                type: "tabset"
+              }
+            ],
+            id: "row",
+            orientation: "horizontal",
+            type: "split"
+          },
+          {
+            id: "c",
+            tabs: [{ data: undefined, id: "4" }],
+            type: "tabset"
+          }
+        ],
+        id: "root",
+        orientation: "vertical",
+        type: "split"
+      }
+    });
+    const collapsed = document.querySelector<HTMLElement>(
+      '[data-tabset-id="a"]'
+    )!;
+    collapsed.setAttribute("data-tabset-collapsed", "");
+    collapsed.getBoundingClientRect = () => new DOMRect(0, 0, 40, 300);
+
+    expect(getTarget(source, 5, { clientY: 100 })).toEqual({
+      index: 1,
+      tabsetId: "a"
+    });
+    expect(getTarget(source, 5, { clientY: 400 })).toEqual({
+      region: "left",
+      tabsetId: "a"
+    });
+  });
 
   test("targets the edges of the workspace before the edges of the tabsets beneath them", () => {
     const { getTarget } = setup();

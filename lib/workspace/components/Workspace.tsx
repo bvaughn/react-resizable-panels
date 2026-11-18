@@ -50,6 +50,8 @@ import { createTearOffModel } from "../models/createTearOffModel";
 import { expandTabset } from "../models/expandTabset";
 import { floatTab } from "../models/floatTab";
 import { floatTabset } from "../models/floatTabset";
+import { assignGrowSizes } from "../models/assignGrowSizes";
+import { setNodeSize } from "../models/setNodeSize";
 import { getModelIndex } from "../models/getModelIndex";
 import { getValidModelInput } from "../models/getValidModelInput";
 import { hasConflictingIds } from "../models/hasConflictingIds";
@@ -93,6 +95,7 @@ import type {
 import { useFloatingTabsetGesture } from "../hooks/useFloatingTabsetGesture";
 import { useExternalDrop } from "../hooks/useExternalDrop";
 import { useTabDrag } from "../hooks/useTabDrag";
+import { VisibleTabsetSlot } from "./VisibleTabsetSlot";
 import { getDefaultFloatingRect } from "../utils/getDefaultFloatingRect";
 import { FloatingTabsets } from "./FloatingTabsets";
 import { NodeView } from "./NodeView";
@@ -113,7 +116,12 @@ import {
 } from "../utils/createCopiedNode";
 import { subscribeToNothing } from "../../shared/utils/subscribeToNothing";
 import { DragPreview } from "./DragPreview";
+import { GrowHandle } from "./GrowHandle";
+import { isHTMLElement } from "../../shared/utils/isHTMLElement";
+import { isLengthSize } from "../utils/isLengthSize";
 import { DropIndicator } from "./DropIndicator";
+
+const DEFAULT_GROW_SIZE = "300px";
 
 function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   acceptExternalDrop,
@@ -121,6 +129,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   classNames,
   copyTab,
   copyTabset,
+  defaultGrowSize: defaultGrowSizeProp = DEFAULT_GROW_SIZE,
   defaultModel,
   disabled = false,
   disableDragBetweenApps = false,
@@ -128,6 +137,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   dragGroup,
   dragSourceInfo,
   elementRef: elementRefProp,
+  growDirection,
   hiddenTabBehavior = "keep-mounted",
   id: idProp,
   lazyTabContent = false,
@@ -136,6 +146,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   onTearOff,
   renderDragPreview,
   renderEmptyTabset,
+  renderGrowHandle,
   renderSeparator,
   renderTab,
   renderTabContent,
@@ -154,6 +165,34 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 }: WorkspaceProps<TabData, TabsetData>) {
   const id = useId(idProp);
 
+  // Sizes of rows are lengths, so that rows can be added without changing the others (see the growDirection prop)
+  const isDefaultGrowSizeValid = isLengthSize(defaultGrowSizeProp);
+  const defaultGrowSize = isDefaultGrowSizeValid
+    ? defaultGrowSizeProp
+    : DEFAULT_GROW_SIZE;
+  if (
+    process.env.NODE_ENV !== "production" &&
+    growDirection &&
+    !isDefaultGrowSizeValid
+  ) {
+    warnOnce(
+      `The Workspace defaultGrowSize prop must be a length (e.g. "300px"), not "${String(defaultGrowSizeProp)}"; using "${DEFAULT_GROW_SIZE}"`
+    );
+  }
+
+  // The direction a workspace grows can't change after it mounts: the sizes of its rows would be stale (see the growDirection prop)
+  const initialGrowDirectionRef = useRef(growDirection);
+  useEffect(() => {
+    if (
+      process.env.NODE_ENV !== "production" &&
+      initialGrowDirectionRef.current !== growDirection
+    ) {
+      warnOnce(
+        "The Workspace growDirection prop should not change after the Workspace mounts; its rows' sizes would be stale (render a new Workspace with a different key instead)"
+      );
+    }
+  }, [growDirection]);
+
   const outerGrid = useContext(ParentGridContext);
   const outerGroup = useContext(ParentGroupContext);
   const outerPanel = useContext(ParentPanelContext);
@@ -163,12 +202,17 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   );
 
   // The model is typed generically only at the public boundary
-  const [model, setModel] = useState<WorkspaceModel>(() =>
-    updateRecentTabIds(
+  const [model, setModel] = useState<WorkspaceModel>(() => {
+    const initialModel = updateRecentTabIds(
       normalizeModel(getValidModelInput(defaultModel as WorkspaceModelInput)),
       tabRemovalSelectionBehavior
-    )
-  );
+    );
+
+    // Nothing has been rendered yet, so rows without sizes get the default size
+    return growDirection
+      ? assignGrowSizes(initialModel, growDirection, () => defaultGrowSize)
+      : initialModel;
+  });
   const modelRef = useRef(model);
 
   // Incremented when the model is replaced, so that splits re-apply its sizes
@@ -200,6 +244,96 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       ) !== false
   );
 
+  // In a workspace that grows (see the growDirection prop), rows without lengths (e.g. a tabset moved to a new row) are given sizes
+  // from where they were before the change: a tabset keeps its size, and a new tabset takes the size of the tabset its tab came from;
+  // anything else (e.g. a tab from another workspace) gets the default size
+  const assignGrowSizesFromLayout = useStableCallback(
+    (prev: WorkspaceModel, next: WorkspaceModel) => {
+      if (!growDirection) {
+        return next;
+      }
+
+      // Nothing to measure when every row already has a length (the common case)
+      const nextRows =
+        next.root.type === "split" && next.root.orientation === growDirection
+          ? next.root.children
+          : [next.root];
+      if (nextRows.every(({ size }) => isLengthSize(size))) {
+        return next;
+      }
+
+      const isVertical = growDirection === "vertical";
+      const measure = (element: Element | null | undefined) => {
+        const size =
+          element && isHTMLElement(element)
+            ? isVertical
+              ? element.offsetHeight
+              : element.offsetWidth
+            : 0;
+        return size > 0 ? `${Math.round(size)}px` : undefined;
+      };
+
+      // Splits of nested workspaces aren't this workspace's
+      const findSplitElement = (splitId: string) =>
+        Array.from(
+          rootElementRef.current?.querySelectorAll("[data-split-id]") ?? []
+        ).find(
+          (element) =>
+            element.getAttribute("data-split-id") === splitId &&
+            element.closest("[data-workspace]") === rootElementRef.current
+        );
+
+      // Rows resized by the user (with the separators between them) have percentage sizes, of the root split's size less its separators
+      const prevRowIds = new Set(
+        (prev.root.type === "split" && prev.root.orientation === growDirection
+          ? prev.root.children
+          : []
+        ).map(({ id }) => id)
+      );
+      const rootSplitElement = findSplitElement(next.root.id);
+      const rootSplitSize =
+        rootSplitElement && isHTMLElement(rootSplitElement)
+          ? (isVertical
+              ? rootSplitElement.offsetHeight
+              : rootSplitElement.offsetWidth) -
+            (separatorsSizesRef.current[next.root.id] ?? 0)
+          : 0;
+
+      const prevIndex = getModelIndex(prev);
+      // A collapsed tabset is only as large as its header, so its size isn't taken
+      const measureTabset = (tabsetId: string | undefined) =>
+        tabsetId !== undefined &&
+        !prevIndex.tabsetsById.get(tabsetId)?.collapsed
+          ? measure(tabsetElements.get(tabsetId)?.tabset)
+          : undefined;
+
+      return assignGrowSizes(next, growDirection, (node) => {
+        if (
+          typeof node.size === "number" &&
+          prevRowIds.has(node.id) &&
+          rootSplitSize > 0
+        ) {
+          return `${Math.round((node.size / 100) * rootSplitSize)}px`;
+        }
+
+        if (node.type === "tabset") {
+          const firstTabId = node.tabs[0]?.id;
+          return (
+            measureTabset(node.id) ??
+            measureTabset(
+              firstTabId !== undefined
+                ? prevIndex.tabsetsByTabId.get(firstTabId)?.id
+                : undefined
+            ) ??
+            defaultGrowSize
+          );
+        }
+
+        return measure(findSplitElement(node.id)) ?? defaultGrowSize;
+      });
+    }
+  );
+
   const updateModel = useCallback<UpdateModel>(
     (reason, isUserInteraction, update, { canBlock = true, origin } = {}) => {
       // Recently selected tabs are recorded around each change (rather than by each change),
@@ -212,7 +346,11 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         return false;
       }
 
-      const next = updateRecentTabIds(updated, behavior);
+      // Rows of a workspace that grows are given sizes, so the callbacks below see the model as it will be (see assignGrowSizesFromLayout)
+      const next = assignGrowSizesFromLayout(
+        prev,
+        updateRecentTabIds(updated, behavior)
+      );
 
       // Tabs (and tabsets) dropped in from another workspace report where they came from
       const source = origin && {
@@ -251,6 +389,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       return true;
     },
     [
+      assignGrowSizesFromLayout,
       getTabRemovalSelectionBehavior,
       onBeforeModelChangeStable,
       onModelChangedStable
@@ -663,6 +802,11 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   const [separatorsSizes, setSeparatorsSizes] = useState<{
     [splitId: string]: number;
   }>({});
+  // Read when the model changes (see assignGrowSizesFromLayout), rather than captured
+  const separatorsSizesRef = useRef(separatorsSizes);
+  useIsomorphicLayoutEffect(() => {
+    separatorsSizesRef.current = separatorsSizes;
+  });
 
   // Collapsible tabsets collapse to their headers, which are measured (along their splits) after rendering
   const [collapsedSizes, setCollapsedSizes] = useState<{
@@ -705,10 +849,24 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
 
   // Only tabsets within splits (those with parents) can be collapsed to fit; e.g. a tabset left as the root (when the rest of its split is closed)
   // isn't shown collapsed, even before its entry is removed (below), since no split reports it anymore
-  const tabsetsInSplitsIds = useMemo(
-    () => new Set(modelIndex.parentsById.keys()),
-    [modelIndex]
-  );
+  // In a workspace that grows (see the growDirection prop), the root's children are rows that don't have to fit anything, so they never collapse to fit
+  const tabsetsInSplitsIds = useMemo(() => {
+    const root = model.root;
+    const growingRootId =
+      growDirection &&
+      root.type === "split" &&
+      root.orientation === growDirection
+        ? root.id
+        : undefined;
+
+    const ids = new Set<string>();
+    for (const [childId, parent] of modelIndex.parentsById) {
+      if (parent.id !== growingRootId) {
+        ids.add(childId);
+      }
+    }
+    return ids;
+  }, [growDirection, model.root, modelIndex]);
   const collapseToFitInSplits = useMemo(
     () => pruneRemovedNodes(collapseToFit, tabsetsInSplitsIds),
     [collapseToFit, tabsetsInSplitsIds]
@@ -801,12 +959,14 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         width:
           sizeToPixels(tabset.minWidth ?? tabsetMinWidth, unitsElement) ?? 0
       }),
-      getSeparatorsSize: (splitId) => separatorsSizes[splitId]
+      getSeparatorsSize: (splitId) => separatorsSizes[splitId],
+      growDirection
     });
   }, [
     chromeSizes,
     collapsedSizes,
     model.root,
+    growDirection,
     separatorsSizes,
     tabsetMinHeight,
     tabsetMinWidth,
@@ -1259,6 +1419,13 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     return false;
   }, []);
 
+  const growingSplitId =
+    growDirection &&
+    model.root.type === "split" &&
+    model.root.orientation === growDirection
+      ? model.root.id
+      : undefined;
+
   const context = useMemo<WorkspaceContextType>(
     () => ({
       activeTabsetId,
@@ -1266,10 +1433,12 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       collapseOverrides,
       collapsePreview,
       collapseToFit: collapseToFitInSplits,
+      defaultGrowSize,
       disabled,
       dragGroup,
       dragStore,
       floatingPress,
+      growingSplitId,
       getTabHandle,
       getTabHost,
       getHiddenTabBehavior,
@@ -1322,10 +1491,12 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       collapseOverrides,
       collapsePreview,
       collapseToFitInSplits,
+      defaultGrowSize,
       disabled,
       dragGroup,
       dragStore,
       floatingPress,
+      growingSplitId,
       getTabHandle,
       getTabHost,
       getHiddenTabBehavior,
@@ -1413,6 +1584,29 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   // The layout, the maximized tabset, and tab content are memoized, so that they aren't re-rendered when only the Workspace's own state changes
   // (e.g. when a drag starts or ends); parts of the layout re-render when the context changes, or when the state they subscribe to does (see createDragStore)
   const layout = useMemo(() => <NodeView node={model.root} />, [model.root]);
+
+  // In a workspace that grows, the rows (the root split's children, or the root itself if it isn't a split in the same direction)
+  // are as large as their sizes, and the layout is as large as its rows and the separators between them
+  const growRows = growDirection
+    ? model.root.type === "split" && model.root.orientation === growDirection
+      ? model.root.children
+      : [model.root]
+    : [];
+  const lastGrowRow = growRows[growRows.length - 1];
+  // The last row is a Panel when the root is a split along growDirection; otherwise it's the root, which is shown by the grow content
+  const growContentId = `${id}:grow-content`;
+  const growLayoutSize = growDirection
+    ? `calc(${[
+        ...growRows.map((row) =>
+          row.type === "tabset" && row.collapsed
+            ? `${collapsedSizes[row.id] ?? 0}px`
+            : isLengthSize(row.size)
+              ? row.size
+              : defaultGrowSize
+        ),
+        `${growRows.length > 1 ? (separatorsSizes[model.root.id] ?? 0) : 0}px`
+      ].join(" + ")})`
+    : undefined;
   const maximizedOverlay = useMemo(
     () =>
       maximizedTabset && (
@@ -1420,10 +1614,18 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
           data-workspace-maximized
           style={{ inset: 0, position: "absolute", zIndex: 1 }}
         >
-          <TabsetSlot isMaximizedOverlay tabset={maximizedTabset} />
+          {growDirection ? (
+            <VisibleTabsetSlot
+              growDirection={growDirection}
+              rootElement={rootElement}
+              tabset={maximizedTabset}
+            />
+          ) : (
+            <TabsetSlot isMaximizedOverlay tabset={maximizedTabset} />
+          )}
         </div>
       ),
-    [maximizedTabset]
+    [growDirection, maximizedTabset, rootElement]
   );
   // Floating tabsets are shown above the layout (and a maximized tabset), and below the drop indicator
   const floatingLayer = useMemo(
@@ -1520,6 +1722,23 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     }
   }
 
+  // The last row's size and minimum size (in layout pixels) along the growDirection, for the grow handle
+  const getGrowRowSize = (nodeId: string) => {
+    // The row is the root split's Panel (or the root itself, the only row, which fills the layout)
+    const element =
+      rootElementRef.current?.ownerDocument.getElementById(`${id}:${nodeId}`) ??
+      rootElementRef.current?.querySelector("[data-workspace-grow-content]");
+    return element && isHTMLElement(element)
+      ? growDirection === "vertical"
+        ? element.offsetHeight
+        : element.offsetWidth
+      : 0;
+  };
+  const getGrowRowMinSize = (nodeId: string) =>
+    (growDirection === "vertical"
+      ? minimumSizes.get(nodeId)?.height
+      : minimumSizes.get(nodeId)?.width) ?? 0;
+
   return (
     <ParentWorkspaceContext.Provider value={parentWorkspace}>
       <WorkspaceStoreContext.Provider value={store}>
@@ -1528,18 +1747,86 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
             {...rest}
             className={className}
             data-testid={getTestId(rest, idProp)}
+            data-drag-group={dragGroup}
+            data-grow-direction={growDirection}
             data-workspace
             id={id}
             ref={mergedRef}
             style={{ position: "relative", ...style }}
           >
-            <div
-              data-workspace-layout
-              ref={layoutRef}
-              style={{ height: "100%", width: "100%" }}
-            >
-              {layout}
-            </div>
+            {growDirection ? (
+              <div
+                data-workspace-layout
+                ref={layoutRef}
+                style={{
+                  // A workspace that grows is as large as its layout (and the grow handle after it) along its growDirection
+                  display: "flex",
+                  flexDirection:
+                    growDirection === "vertical" ? "column" : "row",
+                  ...(growDirection === "vertical"
+                    ? { width: "100%" }
+                    : {
+                        height: "100%",
+                        minWidth: "100%",
+                        width: "max-content"
+                      })
+                }}
+              >
+                <div
+                  data-workspace-grow-content
+                  id={growContentId}
+                  style={{
+                    flex: "none",
+                    [growDirection === "vertical" ? "height" : "width"]:
+                      growLayoutSize,
+                    [growDirection === "vertical" ? "width" : "height"]: "100%"
+                  }}
+                >
+                  {layout}
+                </div>
+                {lastGrowRow &&
+                  !(lastGrowRow.type === "tabset" && lastGrowRow.collapsed) && (
+                    <GrowHandle
+                      controlsId={
+                        model.root.type === "split" &&
+                        model.root.orientation === growDirection
+                          ? `${id}:${lastGrowRow.id}`
+                          : growContentId
+                      }
+                      getSize={() => getGrowRowSize(lastGrowRow.id)}
+                      maxSize={Math.max(
+                        getGrowRowMinSize(lastGrowRow.id),
+                        (growDirection === "vertical"
+                          ? maximumSizes.get(lastGrowRow.id)?.height
+                          : maximumSizes.get(lastGrowRow.id)?.width) ?? Infinity
+                      )}
+                      minSize={getGrowRowMinSize(lastGrowRow.id)}
+                      onCommit={(size) =>
+                        updateModel("resize", true, (prev) =>
+                          setNodeSize(prev, lastGrowRow.id, `${size}px`)
+                        )
+                      }
+                      orientation={growDirection}
+                      valueNow={
+                        isLengthSize(lastGrowRow.size) &&
+                        lastGrowRow.size.endsWith("px")
+                          ? parseFloat(lastGrowRow.size)
+                          : undefined
+                      }
+                    >
+                      {renderGrowHandle?.(growDirection)}
+                    </GrowHandle>
+                  )}
+              </div>
+            ) : (
+              <div
+                data-workspace-layout
+                ref={layoutRef}
+                style={{ height: "100%", width: "100%" }}
+              >
+                {layout}
+              </div>
+            )}
             {maximizedOverlay}
             {floatingLayer}
             <div

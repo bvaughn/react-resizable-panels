@@ -94,6 +94,9 @@ export const routes = {
   "/examples/workspace/saving-layouts": lazy(
     () => import("./routes/WorkspacePersistenceRoute")
   ),
+  "/examples/workspace/scrolling-layouts": lazy(
+    () => import("./routes/WorkspaceScrollingLayoutsRoute")
+  ),
   "/examples/workspace/server-rendering": lazy(
     () => import("./routes/WorkspaceServerRenderingRoute")
   ),
