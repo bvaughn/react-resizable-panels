@@ -8,6 +8,7 @@ import type {
 } from "react-resizable-panels";
 import type { ContainerProps } from "../../../src/components/Container";
 import type { DialogProps } from "../../components/Dialog";
+import type { PopoverProps } from "../../components/Popover";
 import type { DisplayModeToggleProps } from "../../../src/components/DisplayModeToggle";
 import type { PopupWindowProps } from "../../../src/components/PopupWindow";
 import type { ClickableProps } from "../../../src/components/Clickable";
@@ -37,6 +38,11 @@ export interface EncodedContainerElement {
 export interface EncodedDialogElement {
   props: EncodedElementWithChildren<DialogProps>;
   type: "Dialog";
+}
+
+export interface EncodedPopoverElement {
+  props: EncodedElementWithChildren<PopoverProps>;
+  type: "Popover";
 }
 
 export interface EncodedDisplayModeToggleElement {
@@ -104,6 +110,7 @@ export type EncodedElement =
   | EncodedClickableElement
   | EncodedContainerElement
   | EncodedDialogElement
+  | EncodedPopoverElement
   | EncodedDisplayModeToggleElement
   | EncodedGridElement
   | EncodedGridlineElement

@@ -2,6 +2,7 @@ import { isHTMLElement } from "../../shared/utils/isHTMLElement";
 import { compare } from "../../vendor/stacking-order";
 import { doRectsIntersect } from "./doRectsIntersect";
 import { isModal } from "./isModal";
+import { isOpenPopover } from "./isOpenPopover";
 
 // This library adds pointer event handlers to the Window for two reasons:
 // 1. It allows detecting when the pointer is "near" to a panel border or separator element,
@@ -27,6 +28,13 @@ export function isViableHitTarget({
     // Stacking order comparison can't detect this, so check for it explicitly.
     const dialog = pointerEventTarget.closest("dialog");
     if (dialog && !dialog.contains(axisElement) && isModal(dialog)) {
+      return false;
+    }
+
+    // An open popover is also rendered in the top layer (above everything else, regardless of its DOM position or z-index);
+    // unlike a modal dialog it doesn't make other elements inert, but any pointer event targeting it is not meant for the separator
+    const popover = pointerEventTarget.closest("[popover]");
+    if (popover && !popover.contains(axisElement) && isOpenPopover(popover)) {
       return false;
     }
   }

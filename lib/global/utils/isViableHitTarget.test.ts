@@ -153,4 +153,116 @@ describe("isViableHitTarget", () => {
       })
     ).toBe(true);
   });
+
+  describe("popovers", () => {
+    function createPopover({ open = true }: { open?: boolean } = {}) {
+      const popover = document.createElement("div");
+      popover.setAttribute("popover", "auto");
+
+      // JSDom supports neither showPopover() nor the ":popover-open" pseudo-class
+      const matches = popover.matches.bind(popover);
+      vi.spyOn(popover, "matches").mockImplementation((selector) =>
+        selector === ":popover-open" ? open : matches(selector)
+      );
+
+      return popover;
+    }
+
+    test("ignores targets inside of an open popover that is inside of the group", () => {
+      const groupElement = document.createElement("div");
+      const popover = createPopover();
+      const target = document.createElement("div");
+      popover.appendChild(target);
+      groupElement.appendChild(popover);
+      document.body.appendChild(groupElement);
+
+      expect(
+        isViableHitTarget({
+          axisElement: groupElement,
+          hitRegion,
+          pointerEventTarget: target
+        })
+      ).toBe(false);
+
+      expect(
+        isViableHitTarget({
+          axisElement: groupElement,
+          hitRegion,
+          pointerEventTarget: popover
+        })
+      ).toBe(false);
+    });
+
+    test("ignores targets inside of an open popover that is outside of (and before) the group", () => {
+      const groupElement = document.createElement("div");
+      const popover = createPopover();
+      const target = document.createElement("div");
+      popover.appendChild(target);
+      document.body.appendChild(popover);
+      document.body.appendChild(groupElement);
+
+      expect(
+        isViableHitTarget({
+          axisElement: groupElement,
+          hitRegion,
+          pointerEventTarget: target
+        })
+      ).toBe(false);
+    });
+
+    test("allows targets inside of a closed popover", () => {
+      const groupElement = document.createElement("div");
+      const popover = createPopover({ open: false });
+      const target = document.createElement("div");
+      popover.appendChild(target);
+      groupElement.appendChild(popover);
+      document.body.appendChild(groupElement);
+
+      expect(
+        isViableHitTarget({
+          axisElement: groupElement,
+          hitRegion,
+          pointerEventTarget: target
+        })
+      ).toBe(true);
+    });
+
+    test("allows targets inside of an open popover that contains the group", () => {
+      const popover = createPopover();
+      const groupElement = document.createElement("div");
+      const target = document.createElement("div");
+      groupElement.appendChild(target);
+      popover.appendChild(groupElement);
+      document.body.appendChild(popover);
+
+      expect(
+        isViableHitTarget({
+          axisElement: groupElement,
+          hitRegion,
+          pointerEventTarget: target
+        })
+      ).toBe(true);
+    });
+
+    test("falls back to previous behavior if the :popover-open pseudo-class is not supported", () => {
+      const groupElement = document.createElement("div");
+      const popover = document.createElement("div");
+      popover.setAttribute("popover", "auto");
+      const target = document.createElement("div");
+      popover.appendChild(target);
+      groupElement.appendChild(popover);
+      document.body.appendChild(groupElement);
+
+      // JSDom throws for ":popover-open" (no mock)
+      expect(() => popover.matches(":popover-open")).toThrow();
+
+      expect(
+        isViableHitTarget({
+          axisElement: groupElement,
+          hitRegion,
+          pointerEventTarget: target
+        })
+      ).toBe(true);
+    });
+  });
 });
