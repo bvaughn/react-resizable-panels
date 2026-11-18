@@ -24,6 +24,7 @@ import {
   type ContainerProps
 } from "../../../src/components/Container";
 import { Dialog, type DialogProps } from "../../components/Dialog";
+import { Popover, type PopoverProps } from "../../components/Popover";
 import {
   DisplayModeToggle,
   type DisplayModeToggleProps
@@ -37,6 +38,7 @@ import type {
   EncodedClickableElement,
   EncodedContainerElement,
   EncodedDialogElement,
+  EncodedPopoverElement,
   EncodedDisplayModeToggleElement,
   EncodedElement,
   EncodedGridElement,
@@ -90,6 +92,10 @@ function encodeChildren(children: ReactElement<unknown>[]): EncodedElement[] {
       }
       case Container: {
         elements.push(encodeContainer(current as ReactElement<ContainerProps>));
+        break;
+      }
+      case Popover: {
+        elements.push(encodePopover(current as ReactElement<PopoverProps>));
         break;
       }
       case Dialog: {
@@ -214,6 +220,24 @@ function encodeContainer(
       children: encodedChildren.length > 0 ? encodedChildren : undefined
     },
     type: "Container"
+  };
+}
+
+function encodePopover(
+  element: ReactElement<PopoverProps>
+): EncodedPopoverElement {
+  const { children, ...props } = element.props;
+
+  const encodedChildren = encodeChildren(
+    Array.isArray(children) ? children : [children]
+  );
+
+  return {
+    props: {
+      ...props,
+      children: encodedChildren.length > 0 ? encodedChildren : undefined
+    },
+    type: "Popover"
   };
 }
 

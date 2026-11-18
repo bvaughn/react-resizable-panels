@@ -14,6 +14,7 @@ import { Gridline } from "../../components/Gridline";
 import { Clickable } from "../../../src/components/Clickable";
 import { Container } from "../../../src/components/Container";
 import { Dialog } from "../../components/Dialog";
+import { Popover } from "../../components/Popover";
 import { DisplayModeToggle } from "../../../src/components/DisplayModeToggle";
 import { Group } from "../../../src/components/Group";
 import { Panel } from "../../../src/components/Panel";
@@ -24,6 +25,7 @@ import type {
   EncodedClickableElement,
   EncodedContainerElement,
   EncodedDialogElement,
+  EncodedPopoverElement,
   EncodedDisplayModeToggleElement,
   EncodedElement,
   EncodedGridElement,
@@ -87,6 +89,10 @@ function decodeChildren(
       }
       case "Container": {
         elements.push(decodeContainer(current, config));
+        break;
+      }
+      case "Popover": {
+        elements.push(decodePopover(current, config));
         break;
       }
       case "Dialog": {
@@ -180,6 +186,19 @@ function decodeContainer(
   const { children, ...props } = json.props;
 
   return createElement(Container, {
+    key: ++key,
+    ...props,
+    children: children ? decodeChildren(children, config) : undefined
+  });
+}
+
+function decodePopover(
+  json: EncodedPopoverElement,
+  config: Config
+): ReactElement<unknown> {
+  const { children, ...props } = json.props;
+
+  return createElement(Popover, {
     key: ++key,
     ...props,
     children: children ? decodeChildren(children, config) : undefined

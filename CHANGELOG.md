@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix a `Separator` behind an open popover (e.g. `<div popover>`) being draggable, including popovers rendered inside of the `Group`. - [#845](https://github.com/bvaughn/react-resizable-panels/issues/845)
+
 ## 4.24.0
 
 - `Workspace`:
