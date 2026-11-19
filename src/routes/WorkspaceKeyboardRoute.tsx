@@ -37,7 +37,22 @@ export default function WorkspaceKeyboardRoute() {
           <kbd>Delete</kbd> or <kbd>Backspace</kbd> closes the focused tab
           (unless closing is disabled) and moves focus to its neighbor
         </li>
+        <li>
+          <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>PageUp</kbd> and <kbd>Ctrl</kbd>
+          +<kbd>Shift</kbd>+<kbd>PageDown</kbd> move the focused tab one place
+          earlier or later in its tab list (unless it can't be dragged), keeping
+          focus on it without changing which tab is selected; nothing happens at
+          either end
+        </li>
       </ul>
+      <Callout>
+        Moving a tab from the keyboard is checked like dropping it at the same
+        place: <code>disableDrop</code> can reject it, and it's reported to{" "}
+        <code>onBeforeModelChange</code> and <code>onModelChanged</code> with
+        the <code>"move"</code> reason (and <code>isUserInteraction: true</code>
+        ). Tabs that can be moved have an <code>aria-keyshortcuts</code>{" "}
+        attribute, so screen readers can announce these keys.
+      </Callout>
       <Callout>
         Tabs use manual activation: moving focus doesn't select a tab, so
         arrowing past a tab doesn't mount its content.

@@ -115,6 +115,9 @@ export type WorkspaceContextType = {
   renderTab: ((tab: TabNode, props: TabRenderProps) => ReactNode) | undefined;
   renderTabContent: (tab: TabNode) => ReactNode;
   renderTabsetToolbar: ((tabset: TabsetNode) => ReactNode) | undefined;
+  // Moves a tab one place earlier (-1) or later (1) in its tab list, from the keyboard (checked by disableDrop and onBeforeModelChange);
+  // returns whether it moved
+  reorderTab: (tabId: string, offset: -1 | 1) => boolean;
   reportChromeSize: (tabsetId: string, size: MinimumSize) => void;
   // Previews of a split's tabsets (by id), or undefined for tabsets shown as the model has them
   reportCollapsePreview: (previews: {

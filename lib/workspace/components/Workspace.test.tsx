@@ -1041,6 +1041,165 @@ describe("Workspace", () => {
       fireEvent.keyDown(getTab("One"), { key: "Delete" });
       expect(getTab("One")).toBeInTheDocument();
     });
+
+    describe("moving tabs (Ctrl+Shift+PageUp and PageDown)", () => {
+      const moveKeys = (key: "PageDown" | "PageUp") => ({
+        ctrlKey: true,
+        key,
+        shiftKey: true
+      });
+
+      function getLeftTabIds(
+        workspaceRef: ReturnType<typeof renderWorkspace>["workspaceRef"]
+      ) {
+        const left = (
+          workspaceRef.current!.getModel().root as SplitNode<TabData>
+        ).children[0] as TabsetNode<TabData>;
+
+        return {
+          selectedId: left.selectedId,
+          tabIds: left.tabs.map(({ id }) => id)
+        };
+      }
+
+      test("move the focused tab within its tab list, keeping focus and the selected tab", () => {
+        const { onModelChanged, workspaceRef } = renderWorkspace();
+
+        act(() => getTab("2").focus());
+        expect(fireEvent.keyDown(getTab("2"), moveKeys("PageUp"))).toBe(false);
+
+        expect(getLeftTabIds(workspaceRef)).toEqual({
+          selectedId: "1",
+          tabIds: ["2", "1"]
+        });
+        expect(getTab("2")).toHaveFocus();
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: true,
+          reason: "move"
+        });
+
+        fireEvent.keyDown(getTab("2"), moveKeys("PageDown"));
+        expect(getLeftTabIds(workspaceRef).tabIds).toEqual(["1", "2"]);
+        expect(getTab("2")).toHaveFocus();
+      });
+
+      test("nothing happens at either end of the tab list", () => {
+        const { onModelChanged, workspaceRef } = renderWorkspace();
+
+        expect(fireEvent.keyDown(getTab("One"), moveKeys("PageUp"))).toBe(
+          false
+        );
+        fireEvent.keyDown(getTab("2"), moveKeys("PageDown"));
+        fireEvent.keyDown(getTab("3"), moveKeys("PageUp"));
+
+        expect(getLeftTabIds(workspaceRef).tabIds).toEqual(["1", "2"]);
+        expect(onModelChanged).not.toHaveBeenCalled();
+      });
+
+      test.each([
+        ["without modifiers", { key: "PageUp" }],
+        ["with only Ctrl", { ctrlKey: true, key: "PageUp" }],
+        ["with only Shift", { key: "PageUp", shiftKey: true }],
+        ["with Alt", { ...moveKeys("PageUp"), altKey: true }],
+        ["with Meta", { ...moveKeys("PageUp"), metaKey: true }]
+      ])("PageUp %s doesn't move the tab", (_, init) => {
+        const { onModelChanged } = renderWorkspace();
+
+        expect(fireEvent.keyDown(getTab("2"), init)).toBe(true);
+        expect(onModelChanged).not.toHaveBeenCalled();
+      });
+
+      test.each(["disableDrag", "disabled"])(
+        "tabs that can't be dragged (%s) don't move",
+        (name) => {
+          const model = createModel();
+          const left = (model.root as SplitNode<TabData>)
+            .children[0] as TabsetNode<TabData>;
+          left.tabs[1] = tab("2", { disableDrag: name === "disableDrag" });
+
+          const { onModelChanged } = renderWorkspace({
+            defaultModel: model,
+            disabled: name === "disabled"
+          });
+
+          expect(getTab("2")).not.toHaveAttribute("aria-keyshortcuts");
+          expect(fireEvent.keyDown(getTab("2"), moveKeys("PageUp"))).toBe(true);
+          expect(onModelChanged).not.toHaveBeenCalled();
+
+          // Other tabs can still be moved (unless the workspace is disabled)
+          expect(getTab("One").hasAttribute("aria-keyshortcuts")).toBe(
+            name === "disableDrag"
+          );
+        }
+      );
+
+      test("movable tabs announce the keys", () => {
+        renderWorkspace();
+
+        expect(getTab("One")).toHaveAttribute(
+          "aria-keyshortcuts",
+          "Control+Shift+PageUp Control+Shift+PageDown"
+        );
+      });
+
+      test("disableDrop is checked with the target the tab would be dropped at", () => {
+        const disableDrop = vi.fn((_args: DisableDropArgs<TabData>) => true);
+        const { onModelChanged, workspaceRef } = renderWorkspace({
+          disableDrop
+        });
+
+        fireEvent.keyDown(getTab("One"), moveKeys("PageDown"));
+        expect(disableDrop).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            isCopy: false,
+            source: "local",
+            tab: expect.objectContaining({ id: "1" }),
+            target: { index: 2, tabsetId: "left" }
+          })
+        );
+
+        fireEvent.keyDown(getTab("2"), moveKeys("PageUp"));
+        expect(disableDrop).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            tab: expect.objectContaining({ id: "2" }),
+            target: { index: 0, tabsetId: "left" }
+          })
+        );
+
+        expect(getLeftTabIds(workspaceRef).tabIds).toEqual(["1", "2"]);
+        expect(onModelChanged).not.toHaveBeenCalled();
+      });
+
+      test("onBeforeModelChange can block a move", () => {
+        const onBeforeModelChange = vi.fn(
+          ({ reason }: BeforeModelChangeArgs<TabData>) => reason !== "move"
+        );
+        const { workspaceRef } = renderWorkspace({ onBeforeModelChange });
+
+        act(() => getTab("2").focus());
+        fireEvent.keyDown(getTab("2"), moveKeys("PageUp"));
+
+        expect(onBeforeModelChange).toHaveBeenCalledWith(
+          expect.objectContaining({ reason: "move" })
+        );
+        expect(getLeftTabIds(workspaceRef).tabIds).toEqual(["1", "2"]);
+        expect(getTab("2")).toHaveFocus();
+      });
+
+      test("keys within descendants of a tab are ignored", () => {
+        const { onModelChanged } = renderWorkspace({
+          renderTab: (tab, props) => (
+            <div {...props}>
+              {tab.id}
+              <input data-testid={`input-${tab.id}`} />
+            </div>
+          )
+        });
+
+        fireEvent.keyDown(screen.getByTestId("input-2"), moveKeys("PageUp"));
+        expect(onModelChanged).not.toHaveBeenCalled();
+      });
+    });
   });
 
   describe("imperative API", () => {
