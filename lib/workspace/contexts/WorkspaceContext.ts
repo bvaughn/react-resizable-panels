@@ -76,6 +76,8 @@ export type WorkspaceContextType = {
   collapseToFit: { [tabsetId: string]: boolean };
 
   disabled: boolean;
+  // The disableDrop prop is true, so no tab can be dropped (or moved from the keyboard) anywhere
+  disableAllDrops: boolean;
   dragGroup: string | undefined;
   // The tab (or tabset) being dragged, and where it would be dropped; kept in a store (rather than in this context), since it changes often during a drag
   dragStore: DragStore;
@@ -115,6 +117,9 @@ export type WorkspaceContextType = {
   renderTab: ((tab: TabNode, props: TabRenderProps) => ReactNode) | undefined;
   renderTabContent: (tab: TabNode) => ReactNode;
   renderTabsetToolbar: ((tabset: TabsetNode) => ReactNode) | undefined;
+  // Moves a tab one place earlier (-1) or later (1) in its tab list, from the keyboard (checked by disableDrop and onBeforeModelChange);
+  // returns whether it moved
+  reorderTab: (tabId: string, offset: -1 | 1) => boolean;
   reportChromeSize: (tabsetId: string, size: MinimumSize) => void;
   // Previews of a split's tabsets (by id), or undefined for tabsets shown as the model has them
   reportCollapsePreview: (previews: {

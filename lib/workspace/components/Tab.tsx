@@ -26,6 +26,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
   const workspace = useWorkspaceContext("Tab");
   const {
     classNames,
+    disableAllDrops,
     disabled,
     dragStore,
     floatingPress,
@@ -34,6 +35,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     model,
     modelIndex,
     renderTab,
+    reorderTab,
     requestFocus,
     startTabDrag,
     styles,
@@ -59,6 +61,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
   const isSelected = tabset.selectedId === tab.id;
   const isCloseDisabled = disabled || !!tab.disableClose;
   const isDragDisabled = disabled || !!tab.disableDrag;
+  const isMoveDisabled = isDragDisabled || disableAllDrops;
 
   const getArgs = (): [TabNode, ParentTabState] => [
     tab,
@@ -195,6 +198,26 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
       [previousKey, nextKey] = [nextKey, previousKey];
     }
 
+    // Ctrl+Shift+PageUp and PageDown move the tab one place earlier or later in its tab list (as in browsers and editors),
+    // in the list's order (also in right-to-left layouts); nothing happens at either end
+    if (
+      (event.key === "PageUp" || event.key === "PageDown") &&
+      event.ctrlKey &&
+      event.shiftKey &&
+      !event.altKey &&
+      !event.metaKey
+    ) {
+      if (!isMoveDisabled) {
+        event.preventDefault();
+
+        // The tab keeps focus (it may be re-rendered elsewhere in the list); only requested if it moved
+        if (reorderTab(tab.id, event.key === "PageUp" ? -1 : 1)) {
+          requestFocus(tab.id);
+        }
+      }
+      return;
+    }
+
     switch (event.key) {
       case previousKey: {
         focusAt(currentIndex - 1);
@@ -243,6 +266,10 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
 
   const props: TabRenderProps = {
     "aria-controls": panelId,
+    // Announced by screen readers (see onTabKeyDown)
+    "aria-keyshortcuts": isMoveDisabled
+      ? undefined
+      : "Control+Shift+PageUp Control+Shift+PageDown",
     "aria-selected": isSelected,
     className,
     "data-drop-after": dropPosition === "after" || undefined,

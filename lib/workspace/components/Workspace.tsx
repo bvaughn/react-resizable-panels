@@ -59,6 +59,7 @@ import { maximizeTabset } from "../models/maximizeTabset";
 import { moveTab } from "../models/moveTab";
 import { moveTabset } from "../models/moveTabset";
 import { normalizeModel } from "../models/normalizeModel";
+import { reorderTab as reorderTabInModel } from "../models/reorderTab";
 import { resizeSplit } from "../models/resizeSplit";
 import { restoreTabset } from "../models/restoreTabset";
 import { selectTab } from "../models/selectTab";
@@ -928,6 +929,36 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     }
   );
 
+  // Moving a tab from the keyboard is checked like dropping it at the same place in its tab list would be
+  // (before the tab it moves past, or after it), and is reported like a drop is
+  const reorderTab = useStableCallback(
+    (tabId: string, offset: -1 | 1): boolean => {
+      const tabset = getModelIndex(modelRef.current).tabsetsByTabId.get(tabId);
+      const index = tabset?.tabs.findIndex((tab) => tab.id === tabId) ?? -1;
+      const nextIndex = index + offset;
+      if (
+        !tabset ||
+        index < 0 ||
+        nextIndex < 0 ||
+        nextIndex >= tabset.tabs.length
+      ) {
+        return false;
+      }
+
+      const target: TabDropTarget = {
+        index: offset < 0 ? nextIndex : nextIndex + 1,
+        tabsetId: tabset.id
+      };
+      if (isDropDisabled({ tabId, type: "tab" }, target, false)) {
+        return false;
+      }
+
+      return updateModel("move", true, (prev) =>
+        reorderTabInModel(prev, tabId, offset)
+      );
+    }
+  );
+
   // Tabs (and tabsets) dragged from other workspaces in the group (see the dragGroup prop) keep their ids, so they can't be dropped beside nodes with the same ids;
   // tabsets with the keepWhenEmpty flag stay in their own workspaces (like they aren't torn off); disabled workspaces don't accept drops.
   // Copies get their own ids (and leave the dragged tabset where it was), so neither applies to them
@@ -964,9 +995,11 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     }
   );
 
+  const disableAllDrops = disableDrop === true;
+
   // Whether every tab dragged in from outside of any workspace would be rejected, before the tab is known (see useExternalDrop)
   const areNewTabDropsDisabled = useStableCallback(
-    () => disabled || disableDrop === true
+    () => disabled || disableAllDrops
   );
 
   const onDrop = useStableCallback(
@@ -1266,6 +1299,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       collapseOverrides,
       collapsePreview,
       collapseToFit: collapseToFitInSplits,
+      disableAllDrops,
       disabled,
       dragGroup,
       dragStore,
@@ -1295,6 +1329,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       renderTabsetToolbar: renderTabsetToolbar as
         | ((tabset: TabsetNode) => ReactNode)
         | undefined,
+      reorderTab,
       reportChromeSize,
       reportCollapsePreview,
       reportCollapseToFit,
@@ -1322,6 +1357,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       collapseOverrides,
       collapsePreview,
       collapseToFitInSplits,
+      disableAllDrops,
       disabled,
       dragGroup,
       dragStore,
@@ -1345,6 +1381,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       renderTab,
       renderTabContent,
       renderTabsetToolbar,
+      reorderTab,
       reportChromeSize,
       reportCollapsePreview,
       reportCollapseToFit,

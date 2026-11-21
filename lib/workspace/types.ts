@@ -2080,6 +2080,7 @@ type TabElementValue<Value, TabData> =
 export type TabRenderProps = Pick<
   HTMLAttributes<HTMLElement>,
   | "aria-controls"
+  | "aria-keyshortcuts"
   | "aria-selected"
   | "className"
   | "id"
