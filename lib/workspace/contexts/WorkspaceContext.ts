@@ -76,6 +76,8 @@ export type WorkspaceContextType = {
   collapseToFit: { [tabsetId: string]: boolean };
 
   disabled: boolean;
+  // The disableDrop prop is true, so no tab can be dropped (or moved from the keyboard) anywhere
+  disableAllDrops: boolean;
   dragGroup: string | undefined;
   // The tab (or tabset) being dragged, and where it would be dropped; kept in a store (rather than in this context), since it changes often during a drag
   dragStore: DragStore;

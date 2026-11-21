@@ -26,6 +26,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
   const workspace = useWorkspaceContext("Tab");
   const {
     classNames,
+    disableAllDrops,
     disabled,
     dragStore,
     floatingPress,
@@ -60,6 +61,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
   const isSelected = tabset.selectedId === tab.id;
   const isCloseDisabled = disabled || !!tab.disableClose;
   const isDragDisabled = disabled || !!tab.disableDrag;
+  const isMoveDisabled = isDragDisabled || disableAllDrops;
 
   const getArgs = (): [TabNode, ParentTabState] => [
     tab,
@@ -205,7 +207,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
       !event.altKey &&
       !event.metaKey
     ) {
-      if (!isDragDisabled) {
+      if (!isMoveDisabled) {
         event.preventDefault();
 
         // The tab keeps focus (it may be re-rendered elsewhere in the list); only requested if it moved
@@ -265,7 +267,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
   const props: TabRenderProps = {
     "aria-controls": panelId,
     // Announced by screen readers (see onTabKeyDown)
-    "aria-keyshortcuts": isDragDisabled
+    "aria-keyshortcuts": isMoveDisabled
       ? undefined
       : "Control+Shift+PageUp Control+Shift+PageDown",
     "aria-selected": isSelected,

@@ -1133,6 +1133,14 @@ describe("Workspace", () => {
         }
       );
 
+      test("tabs don't move (or announce the keys) when disableDrop is true", () => {
+        const { onModelChanged } = renderWorkspace({ disableDrop: true });
+
+        expect(getTab("2")).not.toHaveAttribute("aria-keyshortcuts");
+        expect(fireEvent.keyDown(getTab("2"), moveKeys("PageUp"))).toBe(true);
+        expect(onModelChanged).not.toHaveBeenCalled();
+      });
+
       test("movable tabs announce the keys", () => {
         renderWorkspace();
 

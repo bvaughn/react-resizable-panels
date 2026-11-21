@@ -995,9 +995,11 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     }
   );
 
+  const disableAllDrops = disableDrop === true;
+
   // Whether every tab dragged in from outside of any workspace would be rejected, before the tab is known (see useExternalDrop)
   const areNewTabDropsDisabled = useStableCallback(
-    () => disabled || disableDrop === true
+    () => disabled || disableAllDrops
   );
 
   const onDrop = useStableCallback(
@@ -1297,6 +1299,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       collapseOverrides,
       collapsePreview,
       collapseToFit: collapseToFitInSplits,
+      disableAllDrops,
       disabled,
       dragGroup,
       dragStore,
@@ -1354,6 +1357,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       collapseOverrides,
       collapsePreview,
       collapseToFitInSplits,
+      disableAllDrops,
       disabled,
       dragGroup,
       dragStore,
