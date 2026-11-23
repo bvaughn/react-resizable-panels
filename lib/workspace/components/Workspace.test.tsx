@@ -41,7 +41,10 @@ import { useTabListFreeSpace } from "../hooks/useTabListFreeSpace";
 import { useTabListOverflow } from "../hooks/useTabListOverflow";
 import { getRegisteredAxis } from "../../global/mutable-state/axes";
 import { updateInteractionState } from "../../global/mutable-state/interactions";
-import { emitter } from "../../shared/utils/test/mockBoundingClientRect";
+import {
+  emitter,
+  setElementBounds
+} from "../../shared/utils/test/mockBoundingClientRect";
 import { Workspace } from "./Workspace";
 
 type TabData = { label: string };
@@ -3507,10 +3510,159 @@ describe("Workspace", () => {
       delete document.elementFromPoint;
     });
 
+    function prepareFloat(props: Partial<WorkspaceProps<TabData>> = {}) {
+      const result = renderWorkspace({ floatOnDrop: "modifier", ...props });
+      const { container } = result;
+      setElementBounds(
+        container.querySelector<HTMLElement>("[data-workspace]")!,
+        new DOMRect(0, 0, 800, 600)
+      );
+      setElementBounds(
+        container.querySelector<HTMLElement>("[data-workspace-layout]")!,
+        new DOMRect(0, 0, 800, 600)
+      );
+      for (const id of ["left", "right"]) {
+        setElementBounds(
+          container.querySelector<HTMLElement>(`[data-tabset-id="${id}"]`)!,
+          new DOMRect(0, 0, 400, 300)
+        );
+        setElementBounds(getPanels(container, id), new DOMRect(0, 0, 300, 300));
+      }
+      return result;
+    }
+
+    test("Shift-drag previews a floating tabset and preserves its content on drop", async () => {
+      const user = userEvent.setup();
+      const { container, workspaceRef, onModelChanged } = prepareFloat();
+      const content = screen.getByTestId("content-2");
+      const panels = getPanels(container, "right");
+      await user.keyboard("{Shift>}");
+      await user.pointer([
+        {
+          coords: { clientX: 100, clientY: 100 },
+          keys: "[MouseLeft>]",
+          target: getTab("2")
+        },
+        { coords: { clientX: 150, clientY: 150 }, target: panels }
+      ]);
+      expect(
+        container.querySelector("[data-drop-floating]")
+      ).toBeInTheDocument();
+      await user.pointer({ keys: "[/MouseLeft]", target: panels });
+      await user.keyboard("{/Shift}");
+      expect(workspaceRef.current!.getModel().floating?.at(-1)).toMatchObject({
+        tabs: [{ id: "2" }],
+        x: 0,
+        y: 134,
+        width: 400,
+        height: 300
+      });
+      expect(screen.getByTestId("content-2")).toBe(content);
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: true,
+        reason: "float"
+      });
+    });
+
+    test("Shift switches between docking and floating without pointer movement", async () => {
+      const user = userEvent.setup();
+      const { container, workspaceRef } = prepareFloat();
+      const panels = getPanels(container, "right");
+      await user.pointer([
+        {
+          coords: { clientX: 100, clientY: 100 },
+          keys: "[MouseLeft>]",
+          target: getTab("2")
+        },
+        { coords: { clientX: 150, clientY: 150 }, target: panels }
+      ]);
+      expect(container.querySelector("[data-drop-floating]")).toBeNull();
+      await user.keyboard("{Shift>}");
+      expect(
+        container.querySelector("[data-drop-floating]")
+      ).toBeInTheDocument();
+      await user.keyboard("{/Shift}");
+      expect(container.querySelector("[data-drop-floating]")).toBeNull();
+      await user.pointer({ keys: "[/MouseLeft]", target: panels });
+      expect(workspaceRef.current!.getModel().floating).toBeUndefined();
+      expect(
+        getPanels(container, "right").closest("[data-tabset]")
+      ).toContainElement(getTab("2"));
+    });
+
+    test("Shift-drag can float a whole tabset", async () => {
+      const user = userEvent.setup();
+      const { container, workspaceRef } = prepareFloat({
+        renderTabsetToolbar: () => <TabsetDragHandle />
+      });
+      const handle = container.querySelector<HTMLElement>(
+        '[data-tabset-id="left"] [data-tabset-drag-handle]'
+      )!;
+      await user.keyboard("{Shift>}");
+      await drag(handle, getPanels(container, "right"), user);
+      await user.keyboard("{/Shift}");
+      expect(workspaceRef.current!.getModel().floating?.at(-1)).toMatchObject({
+        id: "left",
+        tabs: [{ id: "1" }, { id: "2" }]
+      });
+    });
+
+    test.each(["drop", "model"])(
+      "floating moves respect %s restrictions",
+      async (restriction) => {
+        const user = userEvent.setup();
+        const { container, workspaceRef } = prepareFloat(
+          restriction === "drop"
+            ? { disableDrop: ({ target }) => "float" in target }
+            : { onBeforeModelChange: ({ reason }) => reason !== "float" }
+        );
+        await user.keyboard("{Shift>}");
+        await drag(getTab("2"), getPanels(container, "right"), user);
+        await user.keyboard("{/Shift}");
+        expect(workspaceRef.current!.getModel().floating).toBeUndefined();
+        expect(getTab("2").closest("[data-tabset]")).toHaveAttribute(
+          "data-tabset-id",
+          "left"
+        );
+      }
+    );
+
+    test("outside-targets floats over the source content and Escape cancels a float preview", async () => {
+      const user = userEvent.setup();
+      const { container, workspaceRef } = prepareFloat({
+        floatOnDrop: "outside-targets"
+      });
+      const panels = getPanels(container, "left");
+      await user.pointer([
+        {
+          coords: { clientX: 100, clientY: 100 },
+          keys: "[MouseLeft>]",
+          target: getTab("2")
+        },
+        { coords: { clientX: 150, clientY: 150 }, target: panels }
+      ]);
+      expect(
+        container.querySelector("[data-drop-floating]")
+      ).toBeInTheDocument();
+      await user.keyboard("{Escape}");
+      await user.pointer({ keys: "[/MouseLeft]", target: panels });
+      expect(workspaceRef.current!.getModel().floating).toBeUndefined();
+      await drag(getTab("2"), getPanels(container, "left"), user);
+      expect(
+        workspaceRef.current!.getModel().floating?.at(-1)?.tabs[0].id
+      ).toBe("2");
+    });
+
     // Pointers are pressed away from the origin: jsdom has no layout, so every edge between tabsets is at (0, 0),
     // and pressing there would start resizing rather than dragging a tab
-    async function drag(from: HTMLElement, to: HTMLElement) {
-      await userEvent.pointer([
+    async function drag(
+      from: HTMLElement,
+      to: HTMLElement,
+      user:
+        | Pick<typeof userEvent, "pointer">
+        | Pick<ReturnType<typeof userEvent.setup>, "pointer"> = userEvent
+    ) {
+      await user.pointer([
         {
           coords: { clientX: 100, clientY: 100 },
           keys: "[MouseLeft>]",
@@ -4344,6 +4496,33 @@ describe("Workspace", () => {
 
         return dataTransfer;
       }
+
+      test.each([false, true])(
+        "HTML mouse drags float and recheck drop restrictions (%s)",
+        async (blocked) => {
+          const disableDrop = vi.fn(() => false);
+          const { container, workspaceRef } = prepareFloat({
+            dragGroup: "group",
+            disableDrop
+          });
+          const source = getTab("2");
+          const dataTransfer = await startDrag(source);
+          const panels = getPanels(container, "right");
+          fireDragEvent("dragover", panels, { shiftKey: true }, dataTransfer);
+          expect(
+            container.querySelector("[data-drop-floating]")
+          ).toBeInTheDocument();
+          disableDrop.mockReturnValue(blocked);
+          fireDragEvent("drop", panels, { shiftKey: true }, dataTransfer);
+          fireDragEvent("dragend", source, {}, dataTransfer);
+          if (blocked)
+            expect(workspaceRef.current!.getModel().floating).toBeUndefined();
+          else
+            expect(
+              workspaceRef.current!.getModel().floating?.at(-1)?.tabs[0].id
+            ).toBe("2");
+        }
+      );
 
       // Drops onto an element (which is also returned by elementFromPoint)
       function dropOnto(element: HTMLElement) {

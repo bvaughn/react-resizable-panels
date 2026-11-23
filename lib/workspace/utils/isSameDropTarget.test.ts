@@ -2,6 +2,16 @@ import { describe, expect, test } from "vitest";
 import { isSameDropTarget } from "./isSameDropTarget";
 
 describe("isSameDropTarget", () => {
+  test("compares floating rectangles by value", () => {
+    const float = { x: 1, y: 2, width: 300, height: 200 };
+    expect(isSameDropTarget({ float }, { float: { ...float } })).toBe(true);
+    expect(isSameDropTarget({ float }, { float: { ...float, x: 2 } })).toBe(
+      false
+    );
+    expect(
+      isSameDropTarget({ float }, { region: "center", tabsetId: "a" })
+    ).toBe(false);
+  });
   test("compares edges of the workspace", () => {
     expect(isSameDropTarget({ edge: "left" }, { edge: "left" })).toBe(true);
     expect(isSameDropTarget({ edge: "left" }, { edge: "right" })).toBe(false);

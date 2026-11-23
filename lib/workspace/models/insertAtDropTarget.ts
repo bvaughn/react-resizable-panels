@@ -1,12 +1,7 @@
 import { expandCopiedTabset } from "./expandCopiedTabset";
 import { normalizeCopiedModel } from "./normalizeCopiedModel";
 import { splitTabset } from "./splitTabset";
-import type {
-  TabDropTarget,
-  TabsetNode,
-  WorkspaceDropEdge,
-  WorkspaceModel
-} from "../types";
+import type { TabDropTarget, TabsetNode, WorkspaceModel } from "../types";
 
 /**
  * Inserts a dropped tabset into a model whose tree has already been copied (see copyModel), and normalizes it;
@@ -21,7 +16,7 @@ export function insertAtDropTarget<TabData, TabsetData>(
   destination: TabsetNode<TabData, TabsetData>,
   inserted: TabsetNode<TabData, TabsetData>,
   // Edges of the workspace have no destination tabset (see insertAtWorkspaceEdge)
-  target: Exclude<TabDropTarget, { edge: WorkspaceDropEdge }>,
+  target: Extract<TabDropTarget, { tabsetId: string }>,
   {
     expandCollapsedDestination = true
   }: {

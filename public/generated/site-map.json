@@ -320,7 +320,7 @@
       {
         "id": "floating-and-docking-tabsets",
         "title": "Floating and docking tabsets",
-        "text": "Floating and docking tabsets The floatTab and floatTabset methods (and the float functions of the useParentTab and useParentTabset hooks) move a tab or tabset into a new floating tabset; moving a floating tabset beside the others (e.g. with moveTabset) docks it. The only tabset in a workspace fills it, so it can't float, which is why the button below renders nothing for it: In the workspace below, drag the notepad by its header, or use the buttons in each tabset's toolbar to float, collapse, and dock it. Notes Reset layout Floating tabsets can't be split or maximized: tabs dropped anywhere on one are added to it, and they're shown above a maximized tabset. Their elements have data-floating-tabset attributes (and data-tabset-collapsed attributes while collapsed; their tabsets have data-tabset-floating attributes), and the floatingTabset and floatingResizeHandle keys of the classNames prop style them."
+        "text": "Floating and docking tabsets Set floatOnDrop=\"modifier\" to let users hold Shift while dragging a tab or tabset to create a floating tabset. The preview follows the pointer; releasing Shift returns to docking. Alternatively, floatOnDrop=\"outside-targets\" floats over space within the layout that has no docking target. Floating is disabled by default, and drops outside the workspace do not float. Floating drops use { float: { x, y, width, height } } targets. disableDrop can reject them, and moves within the workspace report \"float\" with isUserInteraction: true. Copies and transfers keep their existing change reasons. The same target also works with moveTab, moveTabset, and addTab in the imperative API. Coordinates remain physical left/top offsets in right-to-left layouts. The floatTab and floatTabset methods (and the float functions of the useParentTab and useParentTabset hooks) move a tab or tabset into a new floating tabset; moving a floating tabset beside the others (e.g. with moveTabset) docks it. The only tabset in a workspace fills it, so it can't float, which is why the button below renders nothing for it: In the workspace below, drag the notepad by its header, or use the buttons in each tabset's toolbar to float, collapse, and dock it. Notes Reset layout Floating tabsets can't be split or maximized: tabs dropped anywhere on one are added to it, and they're shown above a maximized tabset. Their elements have data-floating-tabset attributes (and data-tabset-collapsed attributes while collapsed; their tabsets have data-tabset-floating attributes), and the floatingTabset and floatingResizeHandle keys of the classNames prop style them."
       }
     ],
     "path": "/examples/workspace/floating-tabsets",
@@ -1635,6 +1635,11 @@
         "id": "elementRef",
         "title": "elementRef",
         "text": "Ref attached to the root HTMLDivElement."
+      },
+      {
+        "id": "floatOnDrop",
+        "title": "floatOnDrop",
+        "text": "Allows dragging tabs or tabsets into new floating tabsets.\n\"modifier\" floats while Shift is held; \"outside-targets\" floats within\nthe workspace when no docking target is under the pointer. Defaults to false.\nFloating targets are checked by disableDrop and report the \"float\" reason."
       },
       {
         "id": "hiddenTabBehavior",

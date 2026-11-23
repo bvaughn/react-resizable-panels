@@ -184,6 +184,16 @@
       "name": "disabled",
       "required": false
     },
+    "floatOnDrop": {
+      "description": [
+        {
+          "content": "<p>Allows dragging tabs or tabsets into new floating tabsets.\n<code>&quot;modifier&quot;</code> floats while Shift is held; <code>&quot;outside-targets&quot;</code> floats within\nthe workspace when no docking target is under the pointer. Defaults to false.\nFloating targets are checked by <code>disableDrop</code> and report the <code>&quot;float&quot;</code> reason.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">floatOnDrop</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-bool\">false</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"modifier\"</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-string\">\"outside-targets\"</span></div>",
+      "name": "floatOnDrop",
+      "required": false
+    },
     "disableDragBetweenApps": {
       "description": [
         {

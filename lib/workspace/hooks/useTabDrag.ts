@@ -73,6 +73,7 @@ export function useTabDrag({
   disableDragBetweenApps,
   dragGroup,
   dragStore,
+  floatOnDrop,
   getDragSourceInfo,
   getDragNode,
   getModel,
@@ -96,6 +97,7 @@ export function useTabDrag({
   dragGroup: string | undefined;
   // The drop target is shown by the components that subscribe to this store (rather than being returned), so that the workspace doesn't re-render as it changes
   dragStore: DragStore;
+  floatOnDrop: false | "modifier" | "outside-targets";
   getDragNode: (source: DragSource) => DragNode | undefined;
   /** Sent with drags that start in this workspace (see the dragSourceInfo prop); read when a drag starts */
   getDragSourceInfo: () => unknown;
@@ -413,6 +415,8 @@ export function useTabDrag({
       const target = getDropTarget({
         clientX: event.clientX,
         clientY: event.clientY,
+        floatOnDrop,
+        shiftKey: event.shiftKey,
         model,
         isExternal: isExternal || isCopy,
         rootElement,
@@ -424,6 +428,7 @@ export function useTabDrag({
       }
 
       if (
+        "float" in target ||
         lastTarget?.drag !== drag ||
         lastTarget.isCopy !== isCopy ||
         lastTarget.model !== model ||
@@ -450,6 +455,8 @@ export function useTabDrag({
           ? getDropTarget({
               clientX: event.clientX,
               clientY: event.clientY,
+              floatOnDrop,
+              shiftKey: event.shiftKey,
               model,
               rootElement,
               source: drag.source,
@@ -601,6 +608,7 @@ export function useTabDrag({
     canCopy,
     disableDragBetweenApps,
     dragGroup,
+    floatOnDrop,
     getModel,
     isDropDisabled,
     isExternalDropDisabled,
@@ -665,6 +673,7 @@ export function useTabDrag({
 
       // Whether the copy modifier key is held, and whether the drop would be a copy (see updateTarget)
       let isCopyKeyPressed = false;
+      let isFloatKeyPressed = false;
       let isCopyTarget = false;
       let canMoveTarget = true;
       let lastPoint = { clientX: startX, clientY: startY };
@@ -708,6 +717,7 @@ export function useTabDrag({
 
         lastPoint = { clientX, clientY };
         isCopyKeyPressed = isCopyModifierPressed(moveEvent, ownerWindow);
+        isFloatKeyPressed = moveEvent.shiftKey;
         updateTarget();
       };
 
@@ -732,6 +742,8 @@ export function useTabDrag({
           : getDropTarget({
               clientX,
               clientY,
+              floatOnDrop,
+              shiftKey: isFloatKeyPressed,
               // New tabs (and copies) are inserted like tabs from other workspaces are
               isExternal: !!newTab || isCopy,
               model: getModel(),
@@ -755,6 +767,8 @@ export function useTabDrag({
                 getDropTarget({
                   clientX,
                   clientY,
+                  floatOnDrop,
+                  shiftKey: isFloatKeyPressed,
                   model: getModel(),
                   rootElement,
                   source,
@@ -890,6 +904,10 @@ export function useTabDrag({
       // Pressing (or releasing) the copy modifier key switches between moving and copying, without moving the pointer
       const copyModifierKey = getCopyModifierKey(ownerDocument.defaultView);
       const onCopyKeyChange = (keyEvent: KeyboardEvent, isPressed: boolean) => {
+        if (keyEvent.key === "Shift" && isFloatKeyPressed !== isPressed) {
+          isFloatKeyPressed = isPressed;
+          if (isDragging) updateTarget();
+        }
         if (
           keyEvent.key === copyModifierKey &&
           isCopyKeyPressed !== isPressed
@@ -931,6 +949,7 @@ export function useTabDrag({
       canCopy,
       canTearOff,
       dragGroup,
+      floatOnDrop,
       getDragNode,
       getModel,
       getRootElement,

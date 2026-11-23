@@ -407,6 +407,7 @@ export type WorkspaceDropEdge = "bottom" | "left" | "right" | "top";
  * - At an `index` within a tabset's tab list (in the order of its `tabs`, which run from right to left in a right-to-left layout)
  * - Within a `region` of a tabset's content area; edges split the tabset, and the center adds the tab to it
  * - At an `edge` of the workspace, beside all of the other tabsets (filling the workspace's height or width)
+ * - At a `float` rectangle relative to the workspace layout, creating a floating tabset
  *
  * ℹ️ A tab dropped at an edge of the workspace that a collapsed tabset lines (where it's dropped) is added to the end of that tabset's tab list instead,
  * so its target has an `index` (e.g. a sidebar collapsed to a strip of tabs, or a collapsed bottom panel).
@@ -414,7 +415,8 @@ export type WorkspaceDropEdge = "bottom" | "left" | "right" | "top";
 export type TabDropTarget =
   | { index: number; tabsetId: string }
   | { region: TabDropRegion; tabsetId: string }
-  | { edge: WorkspaceDropEdge };
+  | { edge: WorkspaceDropEdge }
+  | { float: FloatingTabsetRect };
 
 /**
  * Which change caused `onModelChanged` to be called.
@@ -1582,6 +1584,14 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * ℹ️ This prop overrides the `disableClose` and `disableDrag` flags of individual tabs.
    */
   disabled?: boolean | undefined;
+
+  /**
+   * Allows dragging tabs or tabsets into new floating tabsets.
+   * `"modifier"` floats while Shift is held; `"outside-targets"` floats within
+   * the workspace when no docking target is under the pointer. Defaults to false.
+   * Floating targets are checked by `disableDrop` and report the `"float"` reason.
+   */
+  floatOnDrop?: "modifier" | "outside-targets" | false | undefined;
 
   /**
    * Keeps drags between workspaces (see `dragGroup`) within this copy of the application:

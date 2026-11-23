@@ -1,5 +1,28 @@
 import { getClientScale } from "../../global/dom/getClientScale";
-import type { TabDropRegion } from "../types";
+import type { FloatingTabsetRect, TabDropRegion } from "../types";
+
+export function measureFloatingDropIndicatorInsets(
+  container: HTMLElement,
+  layout: HTMLElement,
+  floating: FloatingTabsetRect
+): DropIndicatorInsets {
+  const layoutRect = layout.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  const left =
+    (layoutRect.left - containerRect.left) /
+      getClientScale(container, "horizontal") +
+    floating.x;
+  const top =
+    (layoutRect.top - containerRect.top) /
+      getClientScale(container, "vertical") +
+    floating.y;
+  return {
+    left,
+    top,
+    right: container.offsetWidth - left - floating.width,
+    bottom: container.offsetHeight - top - floating.height
+  };
+}
 
 export type DropIndicatorInsets = {
   bottom: number;

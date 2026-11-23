@@ -45,6 +45,24 @@ export default function WorkspaceFloatingTabsetsRoute() {
       </div>
       <SectionHeader>Floating and docking tabsets</SectionHeader>
       <div>
+        Set <code>{'floatOnDrop="modifier"'}</code> to let users hold{" "}
+        <kbd>Shift</kbd> while dragging a tab or tabset to create a floating
+        tabset. The preview follows the pointer; releasing Shift returns to
+        docking. Alternatively, <code>{'floatOnDrop="outside-targets"'}</code>{" "}
+        floats over space within the layout that has no docking target. Floating
+        is disabled by default, and drops outside the workspace do not float.
+      </div>
+      <div>
+        Floating drops use <code>{"{ float: { x, y, width, height } }"}</code>{" "}
+        targets. <code>disableDrop</code> can reject them, and moves within the
+        workspace report <code>"float"</code> with{" "}
+        <code>isUserInteraction: true</code>. Copies and transfers keep their
+        existing change reasons. The same target also works with{" "}
+        <code>moveTab</code>, <code>moveTabset</code>, and <code>addTab</code>{" "}
+        in the imperative API. Coordinates remain physical left/top offsets in
+        right-to-left layouts.
+      </div>
+      <div>
         The <code>floatTab</code> and <code>floatTabset</code> methods (and the{" "}
         <code>float</code> functions of the <code>useParentTab</code> and{" "}
         <code>useParentTabset</code> hooks) move a tab or tabset into a new
@@ -61,6 +79,7 @@ export default function WorkspaceFloatingTabsetsRoute() {
       <DemoWorkspace
         className="h-96"
         defaultModel={floatingModel}
+        floatOnDrop="modifier"
         showFloatButtons
         showMaximizeButtons={false}
         showResetButton

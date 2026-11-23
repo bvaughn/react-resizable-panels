@@ -2,6 +2,10 @@ import { describe, expect, test } from "vitest";
 import { toModelDropTarget } from "./toModelDropTarget";
 
 describe("toModelDropTarget", () => {
+  test("floating rectangles retain physical coordinates in RTL", () => {
+    const target = { float: { x: 1, y: 2, width: 300, height: 200 } };
+    expect(toModelDropTarget(target, true)).toBe(target);
+  });
   test("left to right layouts are unchanged", () => {
     const target = { region: "left", tabsetId: "a" } as const;
     expect(toModelDropTarget(target, false)).toBe(target);

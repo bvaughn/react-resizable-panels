@@ -5,7 +5,8 @@ import type {
   DragSource,
   TabDropTarget,
   WorkspaceDropEdge,
-  WorkspaceModel
+  WorkspaceModel,
+  WorkspaceProps
 } from "../types";
 import type { TabsetElementRegistry } from "./createTabsetElementRegistry";
 import { getOwnElement } from "./getOwnElement";
@@ -15,8 +16,35 @@ import { getTabListIndex } from "./getTabListIndex";
 import { getWorkspaceDropEdge } from "./getWorkspaceDropEdge";
 import { isRightToLeft } from "./isRightToLeft";
 import { toModelDropTarget } from "./toModelDropTarget";
+import { getFloatingDropTarget } from "./getFloatingDropTarget";
 
-export function getDropTarget({
+export type DropTargetOptions = {
+  clientX: number;
+  clientY: number;
+  /** The source belongs to another workspace, so its ids do not refer to this model. */
+  isExternal?: boolean;
+  model: WorkspaceModel;
+  rootElement: HTMLElement;
+  source: DragSource;
+  /** Registered tabset elements; docking can also search the DOM when omitted. */
+  tabsetElements?: TabsetElementRegistry | undefined;
+  floatOnDrop?: WorkspaceProps["floatOnDrop"];
+  shiftKey?: boolean;
+};
+
+export function getDropTarget(
+  options: DropTargetOptions
+): TabDropTarget | undefined {
+  const target = getDockDropTarget(options);
+  if (
+    (options.floatOnDrop === "modifier" && options.shiftKey) ||
+    (options.floatOnDrop === "outside-targets" && !target)
+  )
+    return getFloatingDropTarget(options) ?? target;
+  return target;
+}
+
+function getDockDropTarget({
   clientX,
   clientY,
   isExternal = false,
@@ -24,17 +52,7 @@ export function getDropTarget({
   rootElement,
   source,
   tabsetElements
-}: {
-  clientX: number;
-  clientY: number;
-  /** Set if the source is in another workspace, so its ids don't refer to nodes of this one's model (and the nodes' own tabsets don't apply) */
-  isExternal?: boolean;
-  model: WorkspaceModel;
-  rootElement: HTMLElement;
-  source: DragSource;
-  /** The workspace's tabset elements; tabsets that aren't registered are searched for their elements instead */
-  tabsetElements?: TabsetElementRegistry | undefined;
-}): TabDropTarget | undefined {
+}: DropTargetOptions): TabDropTarget | undefined {
   // Hit test within the workspace's own root, since for a workspace in a shadow root the document only reports the shadow host
   const root = rootElement.getRootNode();
   const element = (

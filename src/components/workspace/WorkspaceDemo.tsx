@@ -128,6 +128,7 @@ export function DemoWorkspace({
   | "disabled"
   | "disableDrop"
   | "dragGroup"
+  | "floatOnDrop"
   | "onBeforeModelChange"
   | "onModelChanged"
   | "renderDragPreview"

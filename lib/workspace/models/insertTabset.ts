@@ -3,6 +3,7 @@ import { copyStructure } from "./copyStructure";
 import { findTabset } from "./findTabset";
 import { insertAtDropTarget } from "./insertAtDropTarget";
 import { insertAtWorkspaceEdge } from "./insertAtWorkspaceEdge";
+import { insertFloatingTabset } from "./insertFloatingTabset";
 import { toFloatingDropTarget } from "./toFloatingDropTarget";
 import type { TabDropTarget, TabsetNode, WorkspaceModel } from "../types";
 
@@ -18,6 +19,9 @@ export function insertTabset<TabData, TabsetData>(
   // The tabset fills the space it's given at an edge (like a tabset moved within a workspace; see moveTabset)
   const inserted = copyStructure(tabset);
   delete inserted.size;
+
+  if ("float" in target)
+    return insertFloatingTabset(next, inserted, target.float);
 
   if ("edge" in target) {
     return insertAtWorkspaceEdge(next, inserted, target.edge);
