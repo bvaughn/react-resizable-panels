@@ -986,6 +986,199 @@ describe("Workspace", () => {
   });
 
   describe("keyboard", () => {
+    test.each(["region", "edge"])(
+      "keyboard docking can split at a %s",
+      (target) => {
+        const { workspaceRef } = renderWorkspace();
+        act(() => getTab("One").focus());
+        fireEvent.keyDown(getTab("One"), { key: "m", ctrlKey: true });
+        fireEvent.keyDown(getTab("One"), {
+          key: target === "region" ? "ArrowRight" : "ArrowLeft"
+        });
+        expect(screen.getByRole("status")).toHaveTextContent(
+          target === "region"
+            ? "left of tabset left"
+            : "bottom edge of workspace"
+        );
+        fireEvent.keyDown(getTab("One"), { key: "Enter" });
+        expect(getTab("One").closest("[data-tabset]")).not.toHaveAttribute(
+          "data-tabset-id",
+          "left"
+        );
+        expect(getTab("One")).toHaveFocus();
+        if (target === "edge") {
+          expect(workspaceRef.current!.getModel().root).toMatchObject({
+            orientation: "vertical",
+            children: [expect.anything(), { tabs: [{ id: "1" }] }]
+          });
+        }
+      }
+    );
+
+    test("docking does not select or close a tab while choosing a destination", () => {
+      const { onModelChanged, unmount } = renderWorkspace();
+      act(() => getTab("One").focus());
+      fireEvent.keyDown(getTab("One"), { key: "m", ctrlKey: true });
+      for (const key of [" ", "Delete", "Home", "PageDown"]) {
+        fireEvent.keyDown(getTab("One"), {
+          key,
+          ctrlKey: true,
+          shiftKey: true
+        });
+      }
+      expect(onModelChanged).not.toHaveBeenCalled();
+      unmount();
+      fireEvent.keyDown(document, { key: "Enter" });
+      expect(onModelChanged).not.toHaveBeenCalled();
+    });
+
+    test("docking mode previews, moves and focuses a tab without remounting its content", () => {
+      const { container, onModelChanged, workspaceRef } = renderWorkspace();
+      const content = screen.getByTestId("content-1");
+      act(() => getTab("One").focus());
+      fireEvent.keyDown(getTab("One"), { key: "m", ctrlKey: true });
+      expect(getTab("One")).toHaveAttribute("data-tab-dragging");
+      expect(container.querySelector("[data-drop-indicator]")).toHaveAttribute(
+        "data-region",
+        "center"
+      );
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "Moving One to center of tabset right"
+      );
+      expect(onModelChanged).not.toHaveBeenCalled();
+
+      fireEvent.keyDown(getTab("One"), { key: "ArrowRight" });
+      expect(container.querySelector("[data-drop-indicator]")).toHaveAttribute(
+        "data-region",
+        "left"
+      );
+      fireEvent.keyDown(getTab("One"), { key: "ArrowLeft" });
+      fireEvent.keyDown(getTab("One"), { key: "Enter" });
+      expect(getTab("One")).toHaveFocus();
+      expect(getTab("One")).not.toHaveAttribute("data-tab-dragging");
+      expect(screen.getByTestId("content-1")).toBe(content);
+      expect(workspaceRef.current!.getModel().root).toMatchObject({
+        children: [
+          { tabs: [{ id: "2" }] },
+          { tabs: [{ id: "3" }, { id: "1" }] }
+        ]
+      });
+      expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+        isUserInteraction: true,
+        reason: "move"
+      });
+      expect(screen.getByRole("status")).toHaveTextContent("Moved One");
+      expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+    });
+
+    test.each(["Escape", "Tab"])(
+      "%s cancels docking without changing the model",
+      (key) => {
+        const { container, onModelChanged } = renderWorkspace();
+        act(() => getTab("One").focus());
+        fireEvent.keyDown(getTab("One"), { key: "m", metaKey: true });
+        fireEvent.keyDown(getTab("One"), { key: "ArrowDown" });
+        fireEvent.keyDown(getTab("One"), { key });
+        expect(onModelChanged).not.toHaveBeenCalled();
+        expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+        expect(screen.getByRole("status")).toHaveTextContent(
+          "Cancelled moving One"
+        );
+      }
+    );
+
+    test("docking skips rejected targets and rechecks restrictions before moving", () => {
+      const disableDrop = vi.fn(
+        ({ target }: DisableDropArgs<TabData>) =>
+          "tabsetId" in target && target.tabsetId === "right"
+      );
+      const { container, onModelChanged } = renderWorkspace({ disableDrop });
+      act(() => getTab("One").focus());
+      fireEvent.keyDown(getTab("One"), { key: "m", ctrlKey: true });
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "left of tabset left"
+      );
+      disableDrop.mockReturnValue(true);
+      fireEvent.keyDown(getTab("One"), { key: "Enter" });
+      expect(onModelChanged).not.toHaveBeenCalled();
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "Could not move One"
+      );
+      expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+      expect(getTab("One")).toHaveFocus();
+    });
+
+    test("onBeforeModelChange can veto keyboard docking", () => {
+      const onBeforeModelChange = vi.fn(() => false);
+      const { onModelChanged } = renderWorkspace({ onBeforeModelChange });
+      act(() => getTab("One").focus());
+      fireEvent.keyDown(getTab("One"), { key: "m", ctrlKey: true });
+      fireEvent.keyDown(getTab("One"), { key: "Enter" });
+      expect(onBeforeModelChange).toHaveBeenCalledWith(
+        expect.objectContaining({ reason: "move" })
+      );
+      expect(onModelChanged).not.toHaveBeenCalled();
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "Could not move One"
+      );
+    });
+
+    test.each([
+      { disabled: true },
+      { keyboardMove: false },
+      { disableDrop: true }
+    ])("keyboard movement can be disabled (%j)", (props) => {
+      const { container, onModelChanged } = renderWorkspace(props);
+      fireEvent.keyDown(getTab("One"), { key: "m", ctrlKey: true });
+      fireEvent.keyDown(getTab("One"), {
+        key: "PageDown",
+        ctrlKey: true,
+        shiftKey: true
+      });
+      expect(getTab("One")).not.toHaveAttribute("aria-keyshortcuts");
+      expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+      expect(onModelChanged).not.toHaveBeenCalled();
+    });
+
+    test("locked tabs cannot enter docking mode", () => {
+      const model = createModel();
+      (model.root as SplitNode<TabData>).children[0] = {
+        id: "left",
+        type: "tabset",
+        selectedId: "1",
+        tabs: [tab("1", { title: "One", disableDrag: true })]
+      };
+      const { container } = renderWorkspace({ defaultModel: model });
+      fireEvent.keyDown(getTab("One"), { key: "m", ctrlKey: true });
+      expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+    });
+
+    test("announcements can be localized and model replacement cancels docking", () => {
+      const { container, onModelChanged, workspaceRef } = renderWorkspace({
+        getKeyboardMoveAnnouncement: ({ phase, tab }) => `${phase}: ${tab.id}`
+      });
+      act(() => getTab("One").focus());
+      fireEvent.keyDown(getTab("One"), { key: "m", ctrlKey: true });
+      expect(screen.getByRole("status")).toHaveTextContent("start: 1");
+      act(() => workspaceRef.current!.setModel(createModel()));
+      onModelChanged.mockClear();
+      expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+      fireEvent.keyDown(getTab("One"), { key: "Enter" });
+      expect(screen.getByRole("status")).toHaveTextContent("cancel: 1");
+      expect(onModelChanged).not.toHaveBeenCalled();
+    });
+
+    test("losing focus or starting a pointer interaction cancels docking", () => {
+      const { container } = renderWorkspace();
+      act(() => getTab("One").focus());
+      fireEvent.keyDown(getTab("One"), { key: "m", ctrlKey: true });
+      act(() => getTab("3").focus());
+      expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+      fireEvent.keyDown(getTab("3"), { key: "m", ctrlKey: true });
+      fireEvent.pointerDown(document.body);
+      expect(container.querySelector("[data-drop-indicator]")).toBeNull();
+    });
+
     test("arrow keys move focus, and Enter or Space selects", () => {
       renderWorkspace();
 
@@ -1146,7 +1339,7 @@ describe("Workspace", () => {
 
         expect(getTab("One")).toHaveAttribute(
           "aria-keyshortcuts",
-          "Control+Shift+PageUp Control+Shift+PageDown"
+          "Control+Shift+PageUp Control+Shift+PageDown Control+m Meta+m"
         );
       });
 

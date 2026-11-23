@@ -44,6 +44,13 @@ export default function WorkspaceKeyboardRoute() {
           focus on it without changing which tab is selected; nothing happens at
           either end
         </li>
+        <li>
+          <kbd>Ctrl</kbd>+<kbd>M</kbd> (or <kbd>Cmd</kbd>+<kbd>M</kbd>) starts
+          docking the focused tab. Arrow keys cycle through available tabsets,
+          split regions, and workspace edges, using the same drop indicator as
+          dragging. <kbd>Enter</kbd> moves the tab; <kbd>Escape</kbd> cancels.
+          Moving focus elsewhere or pressing <kbd>Tab</kbd> also cancels.
+        </li>
       </ul>
       <Callout>
         Moving a tab from the keyboard is checked like dropping it at the same
@@ -53,6 +60,20 @@ export default function WorkspaceKeyboardRoute() {
         ). Tabs that can be moved have an <code>aria-keyshortcuts</code>{" "}
         attribute, so screen readers can announce these keys.
       </Callout>
+      <div>
+        Docking destinations and results are announced in a live region. Use{" "}
+        <code>getKeyboardMoveAnnouncement</code> to localize these messages; its
+        argument contains the <code>phase</code>, <code>tab</code>, and{" "}
+        <code>target</code>. Set <code>{"keyboardMove={false}"}</code> to
+        disable both docking shortcuts and keyboard reordering.
+      </div>
+      <div>
+        Applications can also provide a “Move to…” menu using the workspace's{" "}
+        <code>moveTab</code> imperative method. A menu offers destinations to
+        screen reader and switch users without requiring a keyboard shortcut.
+        Apply your application's movement restrictions when building that menu:
+        imperative methods are not restricted by <code>disableDrop</code>.
+      </div>
       <Callout>
         Tabs use manual activation: moving focus doesn't select a tab, so
         arrowing past a tab doesn't mount its content.

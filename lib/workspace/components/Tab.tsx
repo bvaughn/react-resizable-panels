@@ -34,10 +34,12 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     getTabHost,
     model,
     modelIndex,
+    keyboardMove,
     renderTab,
     reorderTab,
     requestFocus,
     startTabDrag,
+    startKeyboardMove,
     styles,
     takeFocusRequest,
     updateModel
@@ -61,7 +63,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
   const isSelected = tabset.selectedId === tab.id;
   const isCloseDisabled = disabled || !!tab.disableClose;
   const isDragDisabled = disabled || !!tab.disableDrag;
-  const isMoveDisabled = isDragDisabled || disableAllDrops;
+  const isMoveDisabled = isDragDisabled || disableAllDrops || !keyboardMove;
 
   const getArgs = (): [TabNode, ParentTabState] => [
     tab,
@@ -174,6 +176,18 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
       return;
     }
 
+    if (
+      event.key.toLowerCase() === "m" &&
+      (event.ctrlKey || event.metaKey) &&
+      !event.altKey &&
+      !event.shiftKey &&
+      !isMoveDisabled &&
+      startKeyboardMove(tab.id, event.currentTarget)
+    ) {
+      event.preventDefault();
+      return;
+    }
+
     const tabList = event.currentTarget.closest("[data-tab-list]");
     const tabElements = tabList
       ? Array.from(tabList.querySelectorAll<HTMLElement>("[data-tab]")).filter(
@@ -269,7 +283,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     // Announced by screen readers (see onTabKeyDown)
     "aria-keyshortcuts": isMoveDisabled
       ? undefined
-      : "Control+Shift+PageUp Control+Shift+PageDown",
+      : "Control+Shift+PageUp Control+Shift+PageDown Control+m Meta+m",
     "aria-selected": isSelected,
     className,
     "data-drop-after": dropPosition === "after" || undefined,

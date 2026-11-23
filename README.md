@@ -1176,6 +1176,18 @@ clicking a tab of a collapsed tabset only selects it. A <code>TabsetCollapseButt
 </td>
     </tr>
     <tr>
+      <td>keyboardMove</td>
+      <td><p>Enables keyboard tab movement (defaults to true): Ctrl+Shift+PageUp/PageDown
+reorders tabs; Ctrl/Cmd+M starts docking mode, arrows cycle destinations,
+Enter moves the tab, and Escape cancels. All moves respect drag/drop restrictions.</p>
+</td>
+    </tr>
+    <tr>
+      <td>getKeyboardMoveAnnouncement</td>
+      <td><p>Localizes the live announcements made while docking a tab with the keyboard.</p>
+</td>
+    </tr>
+    <tr>
       <td>disableDragBetweenApps</td>
       <td><p>Keeps drags between workspaces (see <code>dragGroup</code>) within this copy of the application:
 tabs dragged from this workspace can&#39;t be dropped into other copies of the application (e.g. the application loaded in another browser window or tab), and tabs dragged from other copies can&#39;t be dropped into this workspace.

@@ -523,6 +523,13 @@ export type BeforeModelChangeArgs<TabData = unknown, TabsetData = unknown> = {
  */
 export type HiddenTabBehavior = "activity" | "keep-mounted" | "unmount";
 
+/** A keyboard docking update, used to localize the workspace's live announcements. */
+export type KeyboardMoveAnnouncement<TabData = unknown> = {
+  phase: "start" | "target" | "move" | "cancel" | "blocked";
+  tab: TabNode<TabData>;
+  target: TabDropTarget;
+};
+
 /**
  * Which tab is selected when a tabset's selected tab is removed (closed, or dragged to another tabset):
  * - `"adjacent"`: the tab after it (or before it, if it was the last tab)
@@ -1582,6 +1589,18 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
    * ℹ️ This prop overrides the `disableClose` and `disableDrag` flags of individual tabs.
    */
   disabled?: boolean | undefined;
+
+  /**
+   * Enables keyboard tab movement (defaults to true): Ctrl+Shift+PageUp/PageDown
+   * reorders tabs; Ctrl/Cmd+M starts docking mode, arrows cycle destinations,
+   * Enter moves the tab, and Escape cancels. All moves respect drag/drop restrictions.
+   */
+  keyboardMove?: boolean | undefined;
+
+  /** Localizes the live announcements made while docking a tab with the keyboard. */
+  getKeyboardMoveAnnouncement?:
+    | ((event: KeyboardMoveAnnouncement<TabData>) => string)
+    | undefined;
 
   /**
    * Keeps drags between workspaces (see `dragGroup`) within this copy of the application:

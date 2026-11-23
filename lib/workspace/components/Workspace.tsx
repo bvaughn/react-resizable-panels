@@ -75,6 +75,7 @@ import type {
   DragOrigin,
   DragSource,
   HiddenTabBehavior,
+  KeyboardMoveAnnouncement,
   MinimumSize,
   ParentTab,
   ParentTabset,
@@ -94,6 +95,7 @@ import type {
 import { useFloatingTabsetGesture } from "../hooks/useFloatingTabsetGesture";
 import { useExternalDrop } from "../hooks/useExternalDrop";
 import { useTabDrag } from "../hooks/useTabDrag";
+import { useKeyboardTabMove } from "../hooks/useKeyboardTabMove";
 import { getDefaultFloatingRect } from "../utils/getDefaultFloatingRect";
 import { FloatingTabsets } from "./FloatingTabsets";
 import { NodeView } from "./NodeView";
@@ -130,7 +132,9 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   dragSourceInfo,
   elementRef: elementRefProp,
   hiddenTabBehavior = "keep-mounted",
+  getKeyboardMoveAnnouncement,
   id: idProp,
+  keyboardMove = true,
   lazyTabContent = false,
   onBeforeModelChange,
   onModelChanged,
@@ -1292,6 +1296,34 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     return false;
   }, []);
 
+  const moveKeyboardTab = useStableCallback(
+    (tabId: string, target: TabDropTarget) =>
+      updateModel("move", true, (prev) =>
+        moveTab(
+          prev,
+          tabId,
+          toModelDropTarget(target, isRightToLeft(rootElementRef.current))
+        )
+      )
+  );
+  const {
+    announcement,
+    isMoving: isKeyboardMoving,
+    startKeyboardMove
+  } = useKeyboardTabMove({
+    dragStore,
+    enabled: keyboardMove && !disabled && !disableAllDrops,
+    getAnnouncement: (event) =>
+      getKeyboardMoveAnnouncement?.(event as KeyboardMoveAnnouncement<TabData>),
+    getModel,
+    isDropDisabled,
+    model,
+    moveTab: moveKeyboardTab,
+    requestFocus,
+    rootElement,
+    tabsetElements
+  });
+
   const context = useMemo<WorkspaceContextType>(
     () => ({
       activeTabsetId,
@@ -1310,6 +1342,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       getTabsetHandle,
       id,
       isHydrating,
+      keyboardMove,
       isTabContentLazy,
       maximumSizes,
       minimumSizes,
@@ -1342,6 +1375,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       splitGeneration,
       startFloatingGesture,
       startTabDrag,
+      startKeyboardMove,
       startTabsetDrag,
       styles: styles as WorkspaceStyles | undefined,
       tabListFreeSpaceStore,
@@ -1368,6 +1402,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       getTabsetHandle,
       id,
       isHydrating,
+      keyboardMove,
       isTabContentLazy,
       maximumSizes,
       minimumSizes,
@@ -1394,6 +1429,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       splitGeneration,
       startFloatingGesture,
       startTabDrag,
+      startKeyboardMove,
       startTabsetDrag,
       styles,
       tabListFreeSpaceStore,
@@ -1584,8 +1620,26 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
               ref={tabHostParkingRef}
               style={{ display: "none" }}
             />
+            <div
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: 1,
+                height: 1,
+                overflow: "hidden",
+                clipPath: "inset(50%)",
+                whiteSpace: "nowrap"
+              }}
+            >
+              {announcement}
+            </div>
             {/* Shown by every workspace in the document a drag is over (not just the one showing the preview), for the whole drag, so it can be animated between tabsets */}
             {(dragSource !== undefined ||
+              isKeyboardMoving ||
               newTabPreview !== undefined ||
               isNativeDragOver ||
               isExternalDragOver) && (

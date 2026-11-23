@@ -77,6 +77,7 @@ export type {
   FloatingTabsetNodeInput,
   FloatingTabsetRect,
   HiddenTabBehavior,
+  KeyboardMoveAnnouncement,
   ParentTab,
   ParentTabset,
   ParentTabsetState,

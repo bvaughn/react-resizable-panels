@@ -184,6 +184,26 @@
       "name": "disabled",
       "required": false
     },
+    "keyboardMove": {
+      "description": [
+        {
+          "content": "<p>Enables keyboard tab movement (defaults to true): Ctrl+Shift+PageUp/PageDown\nreorders tabs; Ctrl/Cmd+M starts docking mode, arrows cycle destinations,\nEnter moves the tab, and Escape cancels. All moves respect drag/drop restrictions.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">keyboardMove</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">boolean</span></div>",
+      "name": "keyboardMove",
+      "required": false
+    },
+    "getKeyboardMoveAnnouncement": {
+      "description": [
+        {
+          "content": "<p>Localizes the live announcements made while docking a tab with the keyboard.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">getKeyboardMoveAnnouncement</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">event</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">KeyboardMoveAnnouncement</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "getKeyboardMoveAnnouncement",
+      "required": false
+    },
     "disableDragBetweenApps": {
       "description": [
         {

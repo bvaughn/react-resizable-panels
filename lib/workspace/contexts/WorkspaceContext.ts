@@ -94,6 +94,7 @@ export type WorkspaceContextType = {
 
   // True while server rendering and hydrating (when portals can't be rendered)
   isHydrating: boolean;
+  keyboardMove: boolean;
 
   maximumSizes: Map<string, MaximumSize>;
   minimumSizes: Map<string, MinimumSize>;
@@ -143,6 +144,7 @@ export type WorkspaceContextType = {
     event: ReactPointerEvent<HTMLElement>
   ) => void;
   startTabDrag: (tabId: string, event: ReactPointerEvent<HTMLElement>) => void;
+  startKeyboardMove: (tabId: string, element: HTMLElement) => boolean;
   startTabsetDrag: (
     tabsetId: string,
     event: ReactPointerEvent<HTMLElement>
