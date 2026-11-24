@@ -22,8 +22,10 @@ export function getImperativeItemMethods({
   itemId
 }: {
   axisId: string;
-  // Set by separator double-clicks, which reset a panel's size as a user interaction (see #851)
+
+  /** Report changes as user interactions (e.g. a separator double-click); the public imperative API does not */
   isUserInteraction?: boolean;
+
   itemId: string;
 }): PanelImperativeHandle {
   const find = () => {

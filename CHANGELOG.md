@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fix `onLayoutChanged` reporting `isUserInteraction: false` when a `Separator` is double-clicked to reset a panel to its default size. - [#851](https://github.com/bvaughn/react-resizable-panels/issues/851)
+- Fix double-click resets of a `Separator` or `Gridline` not being reported as user interactions (so `onlySaveAfterUserInteractions` didn't save them). - [#851](https://github.com/bvaughn/react-resizable-panels/issues/851)
 
 ## 4.24.1
 
