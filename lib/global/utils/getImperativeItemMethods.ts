@@ -18,9 +18,14 @@ import { validateItemSize } from "./validateItemSize";
 
 export function getImperativeItemMethods({
   axisId,
+  isUserInteraction = false,
   itemId
 }: {
   axisId: string;
+
+  /** Report changes as user interactions (e.g. a separator double-click); the public imperative API does not */
+  isUserInteraction?: boolean;
+
   itemId: string;
 }): PanelImperativeHandle {
   const find = () => {
@@ -313,12 +318,16 @@ export function getImperativeItemMethods({
       itemConstraints: derivedItemConstraints
     });
     if (changed || !layoutsEqual(prevLayout, nextLayout)) {
-      updateMountedAxis(axis, {
-        ...state,
-        layout: nextLayout,
-        requestedAxisSize: axisSize,
-        requestedLayout: nextLayout
-      });
+      updateMountedAxis(
+        axis,
+        {
+          ...state,
+          layout: nextLayout,
+          requestedAxisSize: axisSize,
+          requestedLayout: nextLayout
+        },
+        { isUserInteraction }
+      );
     }
   };
 

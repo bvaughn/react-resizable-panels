@@ -22,6 +22,7 @@ export function onDocumentDoubleClick(event: MouseEvent) {
         const defaultSize = itemWithDefaultSize.constraintProps.defaultSize;
         const api = getImperativeItemMethods({
           axisId: current.axis.id,
+          isUserInteraction: true,
           itemId: itemWithDefaultSize.id
         });
         if (api && defaultSize !== undefined) {

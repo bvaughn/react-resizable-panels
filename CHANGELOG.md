@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix double-click resets of a `Separator` or `Gridline` not being reported as user interactions (so `onlySaveAfterUserInteractions` didn't save them). - [#851](https://github.com/bvaughn/react-resizable-panels/issues/851)
+
 ## 4.24.1
 
 - Fix a `Separator` behind an open popover (e.g. `<div popover>`) being draggable, including popovers rendered inside of the `Group`. - [#845](https://github.com/bvaughn/react-resizable-panels/issues/845)

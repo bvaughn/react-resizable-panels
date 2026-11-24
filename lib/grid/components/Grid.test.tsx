@@ -805,6 +805,42 @@ describe("Grid", () => {
       expect(rowGridlineRef.current!.style.gridRow).toBe("4 / span 1");
     });
 
+    // See github.com/bvaughn/react-resizable-panels/issues/851
+    test("resets a track to its default size on double-click as a user interaction", () => {
+      const gridRef = createRef<GridImperativeHandle>();
+      const gridlineRef = createRef<HTMLDivElement>();
+      const onLayoutChanged = vi.fn();
+      mockGridLayout({ gridRef, height: 100, gridlineSize: 10, width: 110 });
+
+      render(
+        <Grid
+          columns={[{ defaultSize: "30%" }, {}]}
+          defaultLayout={{ columns: { "0": 60, "1": 40 } }}
+          gridRef={gridRef}
+          onLayoutChanged={onLayoutChanged}
+          rows={1}
+        >
+          <TestCell row={0} column={0} />
+          <Gridline type="column" column={1} elementRef={gridlineRef} />
+          <TestCell row={0} column={1} />
+        </Grid>
+      );
+
+      expect(onLayoutChanged).toHaveBeenCalledTimes(1);
+      expect(onLayoutChanged).toHaveBeenLastCalledWith(
+        { columns: { "0": 60, "1": 40 }, rows: { "0": 100 } },
+        expect.objectContaining({ isUserInteraction: false })
+      );
+
+      fireEvent.dblClick(gridlineRef.current!, { clientX: 65, clientY: 50 });
+
+      expect(onLayoutChanged).toHaveBeenCalledTimes(2);
+      expect(onLayoutChanged).toHaveBeenLastCalledWith(
+        { columns: { "0": 30, "1": 70 }, rows: { "0": 100 } },
+        expect.objectContaining({ isUserInteraction: true })
+      );
+    });
+
     test("renders children, className, and style", () => {
       const elementRef = createRef<HTMLDivElement>();
       render(
