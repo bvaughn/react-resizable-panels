@@ -18,9 +18,12 @@ import { validateItemSize } from "./validateItemSize";
 
 export function getImperativeItemMethods({
   axisId,
+  isUserInteraction = false,
   itemId
 }: {
   axisId: string;
+  // Set by separator double-clicks, which reset a panel's size as a user interaction (see #851)
+  isUserInteraction?: boolean;
   itemId: string;
 }): PanelImperativeHandle {
   const find = () => {
@@ -313,12 +316,16 @@ export function getImperativeItemMethods({
       itemConstraints: derivedItemConstraints
     });
     if (changed || !layoutsEqual(prevLayout, nextLayout)) {
-      updateMountedAxis(axis, {
-        ...state,
-        layout: nextLayout,
-        requestedAxisSize: axisSize,
-        requestedLayout: nextLayout
-      });
+      updateMountedAxis(
+        axis,
+        {
+          ...state,
+          layout: nextLayout,
+          requestedAxisSize: axisSize,
+          requestedLayout: nextLayout
+        },
+        { isUserInteraction }
+      );
     }
   };
 

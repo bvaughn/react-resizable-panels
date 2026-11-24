@@ -2120,6 +2120,60 @@ describe("Group", () => {
       expect(onLayoutChanged).not.toHaveBeenCalled();
     });
 
+    // See github.com/bvaughn/react-resizable-panels/issues/851
+    test("should report a double-click reset as a user interaction", () => {
+      setElementBoundsFunction((element) => {
+        switch (element.id) {
+          case "a": {
+            return new DOMRect(0, 0, 50, 50);
+          }
+          case "separator": {
+            return new DOMRect(50, 0, 0, 50);
+          }
+          case "b": {
+            return new DOMRect(50, 0, 50, 50);
+          }
+        }
+        if (element.hasAttribute("data-group")) {
+          return new DOMRect(0, 0, 100, 50);
+        }
+      });
+
+      const onLayoutChanged = vi.fn();
+
+      const { container } = render(
+        <Group
+          defaultLayout={{ a: 50, b: 50 }}
+          onLayoutChanged={onLayoutChanged}
+        >
+          <Panel defaultSize="30%" id="a" />
+          <Separator id="separator" />
+          <Panel id="b" />
+        </Group>
+      );
+
+      expect(onLayoutChanged).toHaveBeenCalledTimes(1);
+      expect(onLayoutChanged).toHaveBeenCalledWith(
+        {
+          a: 50,
+          b: 50
+        },
+        expect.objectContaining({ isUserInteraction: false })
+      );
+
+      const separator = container.querySelector("#separator")!;
+      fireEvent.dblClick(separator, { clientX: 50, clientY: 25 });
+
+      expect(onLayoutChanged).toHaveBeenCalledTimes(2);
+      expect(onLayoutChanged).toHaveBeenLastCalledWith(
+        {
+          a: 30,
+          b: 70
+        },
+        expect.objectContaining({ isUserInteraction: true })
+      );
+    });
+
     test("should be called in response to imperative API", async () => {
       const onLayoutChange = vi.fn();
       const onLayoutChanged = vi.fn();

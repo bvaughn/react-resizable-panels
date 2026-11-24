@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix `onLayoutChanged` reporting `isUserInteraction: false` when a `Separator` is double-clicked to reset a panel to its default size. - [#851](https://github.com/bvaughn/react-resizable-panels/issues/851)
+
 ## 4.24.1
 
 - Fix a `Separator` behind an open popover (e.g. `<div popover>`) being draggable, including popovers rendered inside of the `Group`. - [#845](https://github.com/bvaughn/react-resizable-panels/issues/845)
