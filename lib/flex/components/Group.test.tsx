@@ -1781,7 +1781,7 @@ describe("Group", () => {
 
       const left = container.querySelector("#left") as HTMLDivElement;
       expect(left.style.flexGrow).toBe("0");
-      expect(left.style.flexBasis).not.toBe("25%");
+      expect(left.style.flexBasis).toBe("0px");
 
       const right = container.querySelector("#right") as HTMLDivElement;
       expect(right.style.flexGrow).toBe("100");
