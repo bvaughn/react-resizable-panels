@@ -1766,6 +1766,26 @@ describe("Group", () => {
       expect(onLayoutChange).toHaveBeenCalledTimes(1);
       expect(onLayoutChange).toHaveBeenCalledWith({ foo: 40, bar: 60 });
     });
+
+    test("should size panels before mount (e.g. when server rendering), including panels with a size of 0", async () => {
+      const { renderToString } = await import("react-dom/server");
+
+      const container = document.createElement("div");
+      container.innerHTML = renderToString(
+        <Group defaultLayout={{ left: 0, right: 100 }}>
+          <Panel collapsible defaultSize="25%" id="left" />
+          <Separator />
+          <Panel id="right" />
+        </Group>
+      );
+
+      const left = container.querySelector("#left") as HTMLDivElement;
+      expect(left.style.flexGrow).toBe("0");
+      expect(left.style.flexBasis).not.toBe("25%");
+
+      const right = container.querySelector("#right") as HTMLDivElement;
+      expect(right.style.flexGrow).toBe("100");
+    });
   });
 
   describe("groupRef", () => {

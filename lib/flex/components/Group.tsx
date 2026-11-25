@@ -130,7 +130,7 @@ function GroupComponent({
       }
 
       // This is unexpected except for the initial mount (before the group has registered with the global store)
-      if (defaultLayout?.[panelId]) {
+      if (defaultLayout?.[panelId] !== undefined) {
         return {
           flexGrow: defaultLayout?.[panelId]
         } satisfies CSSProperties;
