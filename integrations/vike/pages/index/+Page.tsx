@@ -30,6 +30,11 @@ export default function Page() {
     storage
   });
 
+  const groupThreeProps = useDefaultLayout({
+    id: "group-three",
+    storage
+  });
+
   return (
     <div className="p-2 flex flex-col gap-2">
       <LayoutShiftDetecter />
@@ -76,6 +81,21 @@ export default function Page() {
           minSize={30}
         >
           id: bottom
+        </Panel>
+      </Group>
+      <div className="text-lg">Group: Collapsed panel</div>
+      <Group className="h-25 gap-2" {...groupThreeProps}>
+        <Panel
+          className="bg-slate-800 rounded rounded-md p-2"
+          collapsible
+          defaultSize="25%"
+          id="sidebar"
+          minSize="10%"
+        >
+          id: sidebar
+        </Panel>
+        <Panel className="bg-slate-800 rounded rounded-md p-2" id="main">
+          id: main
         </Panel>
       </Group>
       <div className="text-lg">Panel: Default sizes</div>

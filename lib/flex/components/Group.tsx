@@ -130,9 +130,10 @@ function GroupComponent({
       }
 
       // This is unexpected except for the initial mount (before the group has registered with the global store)
-      if (defaultLayout?.[panelId]) {
+      const defaultFlexGrow = defaultLayout?.[panelId];
+      if (defaultFlexGrow !== undefined) {
         return {
-          flexGrow: defaultLayout?.[panelId]
+          flexGrow: defaultFlexGrow
         } satisfies CSSProperties;
       }
     }

@@ -10,10 +10,12 @@ test.describe("default layouts", () => {
     await expect(page.getByText("No layout shift")).toBeVisible();
 
     await resizeHelper(page, ["top", "bottom"], 0, -25);
+    await resizeHelper(page, ["sidebar", "main"], -500, 0);
     await page.waitForTimeout(1000); // Wait for saved layout to be flushed
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page.getByText("No layout shift")).toBeVisible();
+    expect((await page.locator("#sidebar").boundingBox())!.width).toBe(0);
   });
 
   test("should not cause layout shift for server-rendered client components", async ({
@@ -23,10 +25,12 @@ test.describe("default layouts", () => {
     await expect(page.getByText("No layout shift")).toBeVisible();
 
     await resizeHelper(page, ["top", "bottom"], 0, -25);
+    await resizeHelper(page, ["sidebar", "main"], -500, 0);
     await page.waitForTimeout(1000); // Wait for saved layout to be flushed
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page.getByText("No layout shift")).toBeVisible();
+    expect((await page.locator("#sidebar").boundingBox())!.width).toBe(0);
   });
 
   test("should not cause layout shift for server components", async ({
@@ -36,9 +40,11 @@ test.describe("default layouts", () => {
     await expect(page.getByText("No layout shift")).toBeVisible();
 
     await resizeHelper(page, ["top", "bottom"], 0, -25);
+    await resizeHelper(page, ["sidebar", "main"], -500, 0);
     await page.waitForTimeout(1000); // Wait for saved layout to be flushed
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page.getByText("No layout shift")).toBeVisible();
+    expect((await page.locator("#sidebar").boundingBox())!.width).toBe(0);
   });
 });

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix panels with a `defaultLayout` size of 0 (e.g. a saved collapsed panel) rendering expanded before the `Group` mounts, causing layout shift when server rendering. - [#853](https://github.com/bvaughn/react-resizable-panels/pull/853)
+
 ## 4.24.2
 
 - Fix double-click resets of a `Separator` or `Gridline` not being reported as user interactions (so `onlySaveAfterUserInteractions` didn't save them). - [#851](https://github.com/bvaughn/react-resizable-panels/issues/851)

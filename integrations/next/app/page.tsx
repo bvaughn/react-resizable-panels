@@ -6,6 +6,7 @@ import { LayoutShiftDetecter } from "../../tests";
 export default async function Home() {
   const defaultLayoutOne = await getDefaultLayout("group-one");
   const defaultLayoutTwo = await getDefaultLayout("group-two");
+  const defaultLayoutThree = await getDefaultLayout("group-three");
 
   return (
     <div className="p-2 flex flex-col gap-2">
@@ -58,6 +59,25 @@ export default async function Home() {
           minSize={30}
         >
           id: bottom
+        </Panel>
+      </Group>
+      <div className="text-lg">Group: Collapsed panel</div>
+      <Group
+        className="h-25 gap-2"
+        defaultLayout={defaultLayoutThree}
+        id="group-three"
+      >
+        <Panel
+          className="bg-slate-800 rounded rounded-md p-2"
+          collapsible
+          defaultSize="25%"
+          id="sidebar"
+          minSize="10%"
+        >
+          id: sidebar
+        </Panel>
+        <Panel className="bg-slate-800 rounded rounded-md p-2" id="main">
+          id: main
         </Panel>
       </Group>
       <div className="text-lg">Panel: Default sizes</div>
