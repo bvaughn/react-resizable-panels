@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.24.3
 
 - Fix panels with a `defaultLayout` size of 0 (e.g. a saved collapsed panel) rendering expanded before the `Group` mounts, causing layout shift when server rendering. - [#853](https://github.com/bvaughn/react-resizable-panels/pull/853)
 
