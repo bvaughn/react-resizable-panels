@@ -1,5 +1,9 @@
 import type { CSSProperties, HTMLAttributes, ReactNode, Ref } from "react";
-import type { Layout, RegisteredSeparator } from "../global/types";
+import type {
+  Layout,
+  RegisteredSeparator,
+  SnapBehavior
+} from "../global/types";
 import type { LayoutChangedMeta, PanelConstraintProps } from "../flex/types";
 
 /**
@@ -252,6 +256,15 @@ export type GridProps = HTMLAttributes<HTMLDivElement> & {
    * Grid rows; either the number of rows or an array of size constraints (one per row).
    */
   rows: number | GridTrackProps[];
+
+  /**
+   * When dragged gridlines snap to the `snapSizes` of their neighboring tracks.
+   *
+   * ℹ️ Refer to the `Group` prop of the same name for more information.
+   *
+   * @default "on-drag"
+   */
+  snapBehavior?: SnapBehavior | undefined;
 
   /**
    * CSS properties.

@@ -29,6 +29,7 @@ export const routes = {
   "/examples/grid-persistent-layout": lazy(
     () => import("./routes/GridPersistentLayoutRoute")
   ),
+  "/examples/grid-snapping": lazy(() => import("./routes/GridSnappingRoute")),
   "/examples/gridlines": lazy(() => import("./routes/GridlinesRoute")),
   "/examples/group-resize-behavior": lazy(
     () => import("./routes/GroupResizeBehaviorRoute")
@@ -53,6 +54,7 @@ export const routes = {
   "/examples/persistent-layout/server-rendering": lazy(
     () => import("./routes/PersistentLayoutsServerRenderingRoute")
   ),
+  "/examples/snap-sizes": lazy(() => import("./routes/SnapSizesRoute")),
   "/examples/the-basics": lazy(() => import("./routes/LayoutBasicsRoute")),
   "/examples/workspace": lazy(() => import("./routes/WorkspaceRoute")),
   "/examples/workspace/collapsing-and-maximizing": lazy(
@@ -99,6 +101,12 @@ export const routes = {
   ),
   "/examples/workspace/sizing": lazy(
     () => import("./routes/WorkspaceSizingRoute")
+  ),
+  "/examples/workspace/sizing/min-max-sizes": lazy(
+    () => import("./routes/WorkspaceMinMaxSizesRoute")
+  ),
+  "/examples/workspace/sizing/snapping": lazy(
+    () => import("./routes/WorkspaceSnappingRoute")
   ),
   "/examples/workspace/styling": lazy(
     () => import("./routes/WorkspaceStylingRoute")

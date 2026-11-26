@@ -226,6 +226,28 @@
       "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">panelRef</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">Ref</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">PanelImperativeHandle</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-keyword\">null</span><span class=\"\">&#62;</span></div>",
       "name": "panelRef",
       "required": false
+    },
+    "snapSizes": {
+      "description": [
+        {
+          "content": "<p>Sizes this Panel can be resized to (it can also be collapsed, if it's collapsible).\nDragged separators snap to the nearest one (see the parent Group's or Grid's <code>snapBehavior</code> prop),\narrow keys move to the next one, and the imperative <code>resize</code> API resizes to the nearest one.\nA collapsed panel expands to the smallest one (unless it's restoring a previous size).</p>\n"
+        },
+        {
+          "content": "<p>Default layouts and layouts set with the imperative <code>setLayout</code> API are also snapped (as closely as other constraints allow),\nas are fixed snap sizes (e.g. pixels) when the parent is resized.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Panels are only snapped by the separators next to them;\na panel that is pushed by a separator it isn't adjacent to may be resized to any size,\nunless a snap size would prevent the separator from moving that far.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Interpretation rules are the same as for <code>minSize</code> and <code>maxSize</code>;\nsizes outside of those constraints are ignored.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">snapSizes</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">readonly</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName\">string</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"tok-punctuation\">)</span><span class=\"tok-punctuation\">[</span><span class=\"tok-punctuation\">]</span></div>",
+      "name": "snapSizes",
+      "required": false
     }
   }
 }

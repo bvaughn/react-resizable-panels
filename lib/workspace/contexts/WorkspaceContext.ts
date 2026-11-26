@@ -4,7 +4,11 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode
 } from "react";
-import type { Orientation, ResizePreviewMode } from "../../global/types";
+import type {
+  Orientation,
+  ResizePreviewMode,
+  SnapBehavior
+} from "../../global/types";
 import type { ParentGroup, ParentPanel } from "../../flex/types";
 import type { ParentGrid } from "../../grid/types";
 import type { ModelIndex } from "../models/indexModel";
@@ -135,6 +139,7 @@ export type WorkspaceContextType = {
   resizePreviewMode: ResizePreviewMode | undefined;
   setActiveTabsetId: (tabsetId: string) => void;
   shouldServerRenderTabContent: (tab: TabNode) => boolean;
+  snapBehavior: SnapBehavior;
   splitGeneration: number;
   // Moves (or resizes) a floating tabset (see useFloatingTabsetGesture)
   startFloatingGesture: (

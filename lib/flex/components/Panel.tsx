@@ -10,6 +10,7 @@ import {
 } from "react";
 import { subscribeToMountedAxis } from "../../global/mutable-state/axes";
 import type { RegisteredResizeItem } from "../../global/types";
+import { useCustomMemo } from "../../shared/hooks/useCustomMemo";
 import { useId } from "../../shared/hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
 import { useMergedRefs } from "../../shared/hooks/useMergedRefs";
@@ -37,10 +38,18 @@ function PanelComponent({
   minSize = "0%",
   onResize: onResizeUnstable,
   panelRef,
+  snapSizes: snapSizesUnstable,
   style,
   ...rest
 }: PanelProps) {
   const idIsStable = isExplicitId(idProp);
+
+  // Snap sizes are expected to be defined inline, so compare them by value
+  const snapSizes = useCustomMemo(
+    () => snapSizesUnstable,
+    [snapSizesUnstable],
+    ([prev], [next]) => JSON.stringify(prev) === JSON.stringify(next)
+  );
 
   const id = useId(idProp);
 
@@ -92,7 +101,8 @@ function PanelComponent({
           defaultSize,
           disabled: stableProps.disabled,
           maxSize,
-          minSize
+          minSize,
+          snapSizes
         }
       };
 
@@ -111,6 +121,7 @@ function PanelComponent({
     minSize,
     onResizeStable,
     registerPanel,
+    snapSizes,
     stableProps
   ]);
 

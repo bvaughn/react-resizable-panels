@@ -195,6 +195,20 @@
       "html": "<div><span class=\"tok-labelName\"><span class=\"tok-propertyName\">rows</span></span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">number</span><span class=\"\"> </span><span class=\"tok-operator\">|</span><span class=\"\"> </span><span class=\"tok-variableName\">GridTrackProps</span><span class=\"tok-punctuation\">[</span><span class=\"tok-punctuation\">]</span></div>",
       "name": "rows",
       "required": true
+    },
+    "snapBehavior": {
+      "description": [
+        {
+          "content": "<p>When dragged gridlines snap to the <code>snapSizes</code> of their neighboring tracks.</p>\n"
+        },
+        {
+          "content": "<p>Refer to the <code>Group</code> prop of the same name for more information.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">snapBehavior</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-variableName\">SnapBehavior</span><span class=\"\"> </span><span class=\"tok-operator\">=</span><span class=\"\"> </span><span class=\"tok-string\">\"on-drag\"</span></div>",
+      "name": "snapBehavior",
+      "required": false
     }
   }
 }

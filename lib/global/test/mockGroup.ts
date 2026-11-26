@@ -65,6 +65,7 @@ export function mockGroup(
       coarse: 20,
       fine: 10
     },
+    snapBehavior: "on-drag" as const,
     ...config,
 
     get items() {

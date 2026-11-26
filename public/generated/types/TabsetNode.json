@@ -127,6 +127,38 @@
     {
       "description": [
         {
+          "content": "<p>Widths the tabset can be resized to within a horizontal split (see the Workspace's <code>snapBehavior</code> prop).\nDragged separators snap to the nearest one, and arrow keys move a focused separator to the next one;\ncollapsible tabsets can also be collapsed.</p>\n"
+        },
+        {
+          "content": "<p>Interpretation rules (the same as <code>size</code>):</p>\n<ul>\n<li>Numbers are percentages of the parent split (e.g. <code>snapWidths: [25, 50]</code>)</li>\n<li>Strings may specify other units (e.g. <code>snapWidths: [&quot;250px&quot;]</code>); strings without units are percentages</li>\n</ul>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Like <code>size</code>, these include the tabset's header and are ignored if they're outside of its minimum and maximum sizes.\nThe tabset's <code>size</code> isn't changed when it's shown at a snapped size (e.g. when the workspace is resized), only when the user resizes it.</p>\n",
+          "intent": "primary"
+        },
+        {
+          "content": "<p>Snap sizes don't apply to floating tabsets.</p>\n",
+          "intent": "primary"
+        }
+      ],
+      "name": "snapWidths",
+      "optional": true,
+      "type": "readonly (number | string)[] | undefined"
+    },
+    {
+      "description": [
+        {
+          "content": "<p>Heights the tabset can be resized to within a vertical split (see <code>snapWidths</code>).</p>\n"
+        }
+      ],
+      "name": "snapHeights",
+      "optional": true,
+      "type": "readonly (number | string)[] | undefined"
+    },
+    {
+      "description": [
+        {
           "content": "<p>Where the tabset's tabs are placed relative to its content.\nOverrides the Workspace's <code>tabPlacement</code> prop.</p>\n"
         },
         {

@@ -4,6 +4,9 @@ import { adjustLayoutForSeparator } from "../utils/adjustLayoutForSeparator";
 import { findSeparatorAxis } from "../utils/findSeparatorAxis";
 import { getEnabledSeparators } from "../utils/getEnabledSeparators";
 import { getExpandedItemSize } from "../utils/getExpandedItemSize";
+import { getMinimumExpandedSize } from "../utils/getMinimumExpandedSize";
+import { getKeyboardEdgeDelta } from "../utils/getKeyboardEdgeDelta";
+import { getKeyboardStepDelta } from "../utils/getKeyboardStepDelta";
 
 export function onDocumentKeyDown(event: KeyboardEvent) {
   if (event.defaultPrevented) {
@@ -34,12 +37,38 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
       separator
     });
 
+  // Arrow keys move the separator to the next snap size (if there is one)
+  const step = (direction: -1 | 1) => {
+    const delta = getKeyboardStepDelta({
+      axis,
+      axisState: getMountedAxisState(axis.id, true),
+      direction,
+      separator
+    });
+    if (delta !== undefined) {
+      adjustLayout(delta);
+    }
+  };
+
+  // Home/End move the separator to the furthest snap size (if there is one)
+  const edge = (direction: -1 | 1) => {
+    const delta = getKeyboardEdgeDelta({
+      axis,
+      axisState: getMountedAxisState(axis.id, true),
+      direction,
+      separator
+    });
+    if (delta !== undefined) {
+      adjustLayout(delta);
+    }
+  };
+
   switch (event.key) {
     case "ArrowDown": {
       event.preventDefault();
 
       if (axis.orientation === "vertical") {
-        adjustLayout(5);
+        step(1);
       }
       break;
     }
@@ -47,7 +76,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
       event.preventDefault();
 
       if (axis.orientation === "horizontal") {
-        adjustLayout(-5);
+        step(-1);
       }
       break;
     }
@@ -55,7 +84,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
       event.preventDefault();
 
       if (axis.orientation === "horizontal") {
-        adjustLayout(5);
+        step(1);
       }
       break;
     }
@@ -63,7 +92,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
       event.preventDefault();
 
       if (axis.orientation === "vertical") {
-        adjustLayout(-5);
+        step(-1);
       }
       break;
     }
@@ -73,7 +102,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
       // Moves splitter to the position that gives the primary pane its largest allowed size.
       // This may completely collapse the secondary pane.
 
-      adjustLayout(100);
+      edge(1);
       break;
     }
     case "Enter": {
@@ -107,7 +136,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
                   groupResizeBehavior:
                     primaryItem.constraintProps.groupResizeBehavior
                 })
-              : constraints.minSize
+              : getMinimumExpandedSize(constraints)
             : constraints.collapsedSize;
 
         adjustLayoutForSeparator({
@@ -153,7 +182,7 @@ export function onDocumentKeyDown(event: KeyboardEvent) {
       // Moves splitter to the position that gives the primary pane its smallest allowed size.
       // This may completely collapse the primary pane.
 
-      adjustLayout(-100);
+      edge(-1);
       break;
     }
   }

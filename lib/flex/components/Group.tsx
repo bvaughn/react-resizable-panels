@@ -64,6 +64,7 @@ function GroupComponent({
     coarse: 20,
     fine: 10
   },
+  snapBehavior = "on-drag",
   style,
   ...rest
 }: GroupProps) {
@@ -142,7 +143,8 @@ function GroupComponent({
   const stableProps = useStableObject({
     defaultLayout,
     disableCursor,
-    resizeTargetMinimumSize
+    resizeTargetMinimumSize,
+    snapBehavior
   });
 
   const context = useMemo(
@@ -299,7 +301,10 @@ function GroupComponent({
       get resizeTargetMinimumSize() {
         return stableProps.resizeTargetMinimumSize;
       },
-      separators: inMemoryValues.separators
+      separators: inMemoryValues.separators,
+      get snapBehavior() {
+        return stableProps.snapBehavior;
+      }
     };
 
     registeredGroupRef.current = group;

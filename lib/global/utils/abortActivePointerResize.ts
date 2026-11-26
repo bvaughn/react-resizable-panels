@@ -7,7 +7,9 @@ import {
 import { getInteractionState } from "../mutable-state/interactions";
 import { finishActivePointerResize } from "./finishActivePointerResize";
 import { isActivePointerEvent } from "./isActivePointerEvent";
+import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { layoutsEqual } from "./layoutsEqual";
+import { snapSeparatorDelta } from "./snapSeparatorDelta";
 
 /**
  * Ends an active pointer resize when the pointer-up event was missed or the browser cancelled the gesture
@@ -47,6 +49,54 @@ export function abortActivePointerResize(
           layout,
           requestedAxisSize: axisState.axisSize,
           requestedLayout: layout
+        });
+      }
+    });
+
+    // Layouts that snap on release are unsnapped while dragging, so they still need to snap
+    interactionState.hitRegions.forEach(({ axis, items }) => {
+      const initialLayout = interactionState.initialLayoutMap.get(axis);
+      const axisState = mountedAxes.get(axis);
+      if (
+        axis.snapBehavior !== "on-release" ||
+        axis.resizePreviewMode === "separator" ||
+        !initialLayout ||
+        !axisState?.derivedItemConstraints ||
+        !axisState.layout ||
+        !axisState.derivedItemConstraints.some(
+          (constraints) => constraints.snapSizes?.length
+        )
+      ) {
+        return;
+      }
+
+      const { derivedItemConstraints, layout } = axisState;
+      const pivotIndices = items.map((item) => axis.items.indexOf(item));
+      const [first, second] = items;
+      const firstChange = layout[first.id] - initialLayout[first.id];
+      const secondChange = layout[second.id] - initialLayout[second.id];
+      const delta = snapSeparatorDelta({
+        delta: firstChange !== 0 ? firstChange : -secondChange,
+        initialLayout,
+        itemConstraints: derivedItemConstraints,
+        pivotIndices,
+        released: true,
+        snapBehavior: axis.snapBehavior
+      });
+      const nextLayout = adjustLayoutByDelta({
+        delta,
+        initialLayout,
+        itemConstraints: derivedItemConstraints,
+        pivotIndices,
+        prevLayout: layout,
+        trigger: "mouse-or-touch"
+      });
+      if (!layoutsEqual(nextLayout, layout)) {
+        updateMountedAxis(axis, {
+          ...axisState,
+          layout: nextLayout,
+          requestedAxisSize: axisState.axisSize,
+          requestedLayout: nextLayout
         });
       }
     });

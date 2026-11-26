@@ -67,7 +67,8 @@ function createGroup({
     ),
     resizePreviewMode: "panel",
     resizeTargetMinimumSize: { coarse: 0, fine: 0 },
-    separators
+    separators,
+    snapBehavior: "on-drag"
   };
 }
 

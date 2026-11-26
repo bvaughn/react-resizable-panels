@@ -36,6 +36,7 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
     reportCollapseToFit,
     reportSeparatorsSize,
     resizePreviewMode,
+    snapBehavior,
     splitGeneration,
     styles,
     updateModel
@@ -502,6 +503,7 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
       }}
       orientation={split.orientation}
       resizePreviewMode={resizePreviewMode}
+      snapBehavior={snapBehavior}
       style={style}
     >
       {split.children.map((child, index) => {
@@ -516,6 +518,14 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
           split.orientation === "horizontal"
             ? maximumSize?.width
             : maximumSize?.height;
+        // Model sizes are percentages when they're numbers (like TabsetNode.size)
+        const snapSizes =
+          child.type === "tabset"
+            ? (split.orientation === "horizontal"
+                ? child.snapWidths
+                : child.snapHeights
+              )?.map((size) => (typeof size === "number" ? `${size}%` : size))
+            : undefined;
 
         return (
           <Fragment key={child.id}>
@@ -545,6 +555,7 @@ function SplitViewComponent({ split }: { split: SplitNode }) {
                   : undefined
               }
               minSize={minSize ? minSize : undefined}
+              snapSizes={snapSizes}
             >
               <NodeView node={child} />
             </Panel>

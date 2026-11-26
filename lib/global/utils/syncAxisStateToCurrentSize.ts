@@ -7,6 +7,7 @@ import { itemConstraintsEqual } from "./itemConstraintsEqual";
 import { layoutsEqual } from "./layoutsEqual";
 import { normalizeLayout } from "./normalizeLayout";
 import { preserveFixedItemSizes } from "./preserveFixedItemSizes";
+import { snapAxisLayout } from "./snapAxisLayout";
 import { validateAxisLayout } from "./validateAxisLayout";
 
 /**
@@ -59,9 +60,14 @@ export function syncAxisStateToCurrentSize({
     prevAxisSize: requestedAxisSize,
     prevLayout: requestedLayout
   });
-  const layout = validateAxisLayout({
-    layout: unsafeLayout,
-    itemConstraints: derivedItemConstraints
+  // Snap sizes may be fixed sizes (e.g. pixels) so items are re-snapped when the axis is resized;
+  // the requested layout is not, so that resizing the axis back restores the same layout
+  const layout = snapAxisLayout({
+    itemConstraints: derivedItemConstraints,
+    layout: validateAxisLayout({
+      layout: unsafeLayout,
+      itemConstraints: derivedItemConstraints
+    })
   });
 
   const changed =

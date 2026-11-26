@@ -27,6 +27,7 @@ import { getClientScale } from "../../global/dom/getClientScale";
 import { getImperativeAxisMethods } from "../../global/utils/getImperativeAxisMethods";
 import { getImperativeItemMethods } from "../../global/utils/getImperativeItemMethods";
 import { recordAxisLayoutChange } from "../../global/utils/recordAxisLayoutChange";
+import { useCustomMemo } from "../../shared/hooks/useCustomMemo";
 import { useForceUpdate } from "../../shared/hooks/useForceUpdate";
 import { useId } from "../../shared/hooks/useId";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
@@ -89,6 +90,7 @@ function GridComponent({
     fine: 10
   },
   rows,
+  snapBehavior = "on-drag",
   style,
   ...rest
 }: GridProps) {
@@ -144,7 +146,8 @@ function GridComponent({
   const stableProps = useStableObject({
     defaultLayout,
     disableCursor,
-    resizeTargetMinimumSize
+    resizeTargetMinimumSize,
+    snapBehavior
   });
 
   const getDisableCursor = useStableCallback(() => !!stableProps.disableCursor);
@@ -448,7 +451,10 @@ function GridComponent({
         get resizeTargetMinimumSize() {
           return stableProps.resizeTargetMinimumSize;
         },
-        separators
+        separators,
+        get snapBehavior() {
+          return stableProps.snapBehavior;
+        }
       };
     };
 
@@ -785,24 +791,24 @@ function useNormalizedTracks(
   propName: string
 ): NormalizedTrack[] {
   // Track props are expected to be defined inline, so compare them by value
-  const key = JSON.stringify(tracks);
+  return useCustomMemo(
+    () => {
+      const normalized: NormalizedTrack[] =
+        typeof tracks === "number"
+          ? Array.from({ length: tracks }, (_, index) => ({ id: `${index}` }))
+          : tracks.map((track, index) => ({
+              ...track,
+              id: `${track.id ?? index}`
+            }));
 
-  return useMemo(() => {
-    const normalized: NormalizedTrack[] =
-      typeof tracks === "number"
-        ? Array.from({ length: tracks }, (_, index) => ({ id: `${index}` }))
-        : tracks.map((track, index) => ({
-            ...track,
-            id: `${track.id ?? index}`
-          }));
+      assert(
+        normalized.length > 0,
+        `Grid must have at least one track; "${propName}" is ${JSON.stringify(tracks)}`
+      );
 
-    assert(
-      normalized.length > 0,
-      `Grid must have at least one track; "${propName}" is ${key}`
-    );
-
-    return normalized;
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+      return normalized;
+    },
+    [tracks, propName],
+    (prev, next) => JSON.stringify(prev) === JSON.stringify(next)
+  );
 }

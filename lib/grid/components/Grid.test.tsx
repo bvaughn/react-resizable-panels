@@ -16,6 +16,7 @@ import { Panel } from "../../flex/components/Panel";
 import { Cell } from "./Cell";
 import { Grid } from "./Grid";
 import { Gridline } from "./Gridline";
+import type { SnapBehavior } from "../../global/types";
 import type {
   GridImperativeHandle,
   GridLayout,
@@ -169,9 +170,11 @@ async function drag(
 
 function renderTwoByTwoGrid({
   columns = 2,
+  defaultLayout,
   onLayoutChange,
   onLayoutChanged,
   rows = 2,
+  snapBehavior,
   spanBottomRow = false
 }: {
   columns?: number | GridTrackProps[];
@@ -180,7 +183,9 @@ function renderTwoByTwoGrid({
     layout: GridLayout,
     meta: LayoutChangedMeta<GridLayout>
   ) => void;
+  defaultLayout?: Partial<GridLayout>;
   rows?: number | GridTrackProps[];
+  snapBehavior?: SnapBehavior;
   spanBottomRow?: boolean;
 } = {}) {
   const gridRef = createRef<GridImperativeHandle>();
@@ -190,11 +195,13 @@ function renderTwoByTwoGrid({
   const result = render(
     <Grid
       columns={columns}
+      defaultLayout={defaultLayout}
       gridRef={gridRef}
       id="grid"
       onLayoutChange={onLayoutChange}
       onLayoutChanged={onLayoutChanged}
       rows={rows}
+      snapBehavior={snapBehavior}
     >
       <TestCell row={0} column={0} />
       <TestCell row={0} column={1} />
@@ -304,6 +311,100 @@ describe("Grid", () => {
     expect(grid.style.gridTemplateColumns).toBe(
       "minmax(0, 60fr) minmax(0, 40fr)"
     );
+  });
+
+  describe("snapSizes", () => {
+    const snapSizes = ["25%", "50%", "75%"];
+
+    test("snaps tracks to their snap sizes while dragging", async () => {
+      const { gridRef } = renderTwoByTwoGrid({
+        columns: [{ snapSizes }, {}]
+      });
+
+      await drag({ x: 50, y: 25 }, { x: 30, y: 25 });
+
+      expect(gridRef.current!.getLayout().columns).toEqual({
+        "0": 25,
+        "1": 75
+      });
+    });
+
+    test("snaps both axes when dragging an intersection", async () => {
+      const { gridRef } = renderTwoByTwoGrid({
+        columns: [{ snapSizes }, {}],
+        rows: [{ snapSizes }, {}]
+      });
+
+      await drag({ x: 50, y: 50 }, { x: 70, y: 30 });
+
+      expect(gridRef.current!.getLayout()).toEqual({
+        columns: { "0": 75, "1": 25 },
+        rows: { "0": 25, "1": 75 }
+      });
+    });
+
+    test('moves freely until released when snapBehavior is "on-release"', async () => {
+      const user = userEvent.setup();
+      const { gridRef } = renderTwoByTwoGrid({
+        columns: [{ snapSizes }, {}],
+        snapBehavior: "on-release"
+      });
+
+      await user.pointer({
+        keys: "[MouseLeft>]",
+        coords: { clientX: 50, clientY: 25 }
+      });
+      await user.pointer({ coords: { clientX: 65, clientY: 25 } });
+      expect(gridRef.current!.getLayout().columns).toEqual({
+        "0": 65,
+        "1": 35
+      });
+
+      await user.pointer({ keys: "[/MouseLeft]" });
+      expect(gridRef.current!.getLayout().columns).toEqual({
+        "0": 75,
+        "1": 25
+      });
+    });
+
+    test("snaps the default layout", () => {
+      const { gridRef } = renderTwoByTwoGrid({
+        columns: [{ snapSizes }, {}],
+        defaultLayout: { columns: { "0": 30, "1": 70 } }
+      });
+
+      expect(gridRef.current!.getLayout().columns).toEqual({
+        "0": 25,
+        "1": 75
+      });
+    });
+
+    test("snaps layouts set with the imperative API", () => {
+      const { gridRef } = renderTwoByTwoGrid({
+        rows: [{ snapSizes }, {}]
+      });
+
+      act(() => {
+        gridRef.current!.setLayout({ rows: { "0": 70, "1": 30 } });
+      });
+
+      expect(gridRef.current!.getLayout().rows).toEqual({ "0": 75, "1": 25 });
+    });
+
+    test("snaps tracks resized with the imperative API", () => {
+      const { gridRef } = renderTwoByTwoGrid({
+        columns: [{ snapSizes }, {}]
+      });
+
+      act(() => {
+        gridRef.current!.getTrackByIndex("column", 0).resize("60%");
+      });
+
+      expect(gridRef.current!.getLayout().columns).toEqual({
+        "0": 50,
+        "1": 50
+      });
+    });
   });
 
   test("resizes rows by dragging a row boundary", async () => {
@@ -839,6 +940,44 @@ describe("Grid", () => {
         { columns: { "0": 30, "1": 70 }, rows: { "0": 100 } },
         expect.objectContaining({ isUserInteraction: true })
       );
+    });
+
+    test("arrow keys move gridlines to the next snap size", async () => {
+      const gridRef = createRef<GridImperativeHandle>();
+      const gridlineRef = createRef<HTMLDivElement>();
+      mockGridLayout({ gridRef, height: 100, gridlineSize: 10, width: 110 });
+
+      render(
+        <Grid
+          columns={[{ snapSizes: ["25%", "50%", "75%"] }, {}]}
+          gridRef={gridRef}
+          rows={1}
+        >
+          <TestCell row={0} column={0} />
+          <Gridline type="column" column={1} elementRef={gridlineRef} />
+          <TestCell row={0} column={1} />
+        </Grid>
+      );
+
+      act(() => gridlineRef.current!.focus());
+
+      await userEvent.keyboard("{ArrowRight}");
+      expect(gridRef.current!.getLayout().columns).toEqual({
+        "0": 75,
+        "1": 25
+      });
+
+      await userEvent.keyboard("{ArrowRight}");
+      expect(gridRef.current!.getLayout().columns).toEqual({
+        "0": 75,
+        "1": 25
+      });
+
+      await userEvent.keyboard("{ArrowLeft}");
+      expect(gridRef.current!.getLayout().columns).toEqual({
+        "0": 50,
+        "1": 50
+      });
     });
 
     test("renders children, className, and style", () => {

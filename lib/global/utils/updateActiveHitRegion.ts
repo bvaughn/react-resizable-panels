@@ -20,6 +20,7 @@ import {
 import type { HitRegion, Layout, RegisteredResizeAxis } from "../types";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { layoutsEqual } from "./layoutsEqual";
+import { snapSeparatorDelta } from "./snapSeparatorDelta";
 
 type Options = {
   commit: boolean;
@@ -67,8 +68,14 @@ function updateActiveHitRegionsImpl({
   // Modify the Group layouts for all matching HitRegions though
   hitRegions.forEach((current) => {
     const { axis, axisSize } = current;
-    const { orientation, items } = axis;
-    if (commit && axis.resizePreviewMode !== "separator") {
+    const { orientation, items, snapBehavior } = axis;
+    // Layouts are updated while the pointer moves (unless they are previewed);
+    // the only thing left to do on release is to snap to the nearest snap size
+    if (
+      commit &&
+      axis.resizePreviewMode !== "separator" &&
+      snapBehavior !== "on-release"
+    ) {
       return;
     }
     const { disableCursor } = axis.mutableState;
@@ -108,11 +115,21 @@ function updateActiveHitRegionsImpl({
         axis.resizePreviewMode === "separator"
           ? (previewLayoutMap.get(axis) ?? mountedLayout)
           : mountedLayout;
-      const nextLayout = adjustLayoutByDelta({
+      const pivotIndices = current.items.map((item) => items.indexOf(item));
+      const delta = snapSeparatorDelta({
         delta: deltaAsPercentage,
         initialLayout,
         itemConstraints: derivedItemConstraints,
-        pivotIndices: current.items.map((item) => items.indexOf(item)),
+        pivotIndices,
+        // Previews show where the separator will be once the pointer is released
+        released: commit || axis.resizePreviewMode === "separator",
+        snapBehavior
+      });
+      const nextLayout = adjustLayoutByDelta({
+        delta,
+        initialLayout,
+        itemConstraints: derivedItemConstraints,
+        pivotIndices,
         prevLayout,
         trigger: "mouse-or-touch"
       });
@@ -141,7 +158,23 @@ function updateActiveHitRegionsImpl({
         });
       }
 
-      if (layoutsEqual(nextLayout, prevLayout)) {
+      // A snapped layout may be unchanged even though the pointer is within the allowed bounds
+      // (it has only exceeded them if the pointer's own position wouldn't have moved the layout either)
+      if (
+        layoutsEqual(nextLayout, prevLayout) &&
+        (delta === deltaAsPercentage ||
+          layoutsEqual(
+            adjustLayoutByDelta({
+              delta: deltaAsPercentage,
+              initialLayout,
+              itemConstraints: derivedItemConstraints,
+              pivotIndices,
+              prevLayout,
+              trigger: "mouse-or-touch"
+            }),
+            prevLayout
+          ))
+      ) {
         if (deltaAsPercentage !== 0 && !disableCursor) {
           // An unchanged layout means the cursor has exceeded the allowed bounds
           switch (orientation) {

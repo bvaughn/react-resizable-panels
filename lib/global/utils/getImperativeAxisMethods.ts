@@ -3,6 +3,7 @@ import { getMountedAxes, updateMountedAxis } from "../mutable-state/axes";
 import type { Layout } from "../types";
 import { layoutsEqual } from "./layoutsEqual";
 import { syncAxisStateToCurrentSize } from "./syncAxisStateToCurrentSize";
+import { snapAxisLayout } from "./snapAxisLayout";
 import { validateAxisLayout } from "./validateAxisLayout";
 
 export function getImperativeAxisMethods({
@@ -48,9 +49,12 @@ export function getImperativeAxisMethods({
         layout: prevLayout
       } = state;
 
-      const nextLayout = validateAxisLayout({
-        layout: unsafeLayout,
-        itemConstraints: derivedItemConstraints
+      const nextLayout = snapAxisLayout({
+        itemConstraints: derivedItemConstraints,
+        layout: validateAxisLayout({
+          layout: unsafeLayout,
+          itemConstraints: derivedItemConstraints
+        })
       });
 
       if (defaultLayoutDeferred) {

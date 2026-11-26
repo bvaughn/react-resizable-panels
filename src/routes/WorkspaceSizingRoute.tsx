@@ -1,13 +1,8 @@
 import { Box, Callout, Code, Header, SectionHeader } from "react-lib-tools";
-import { html as MaxSizeModelHTML } from "../../public/generated/examples/WorkspaceMaxSizeModel.json";
 import { html as ResizeSplitHTML } from "../../public/generated/examples/WorkspaceResizeSplit.json";
 import { html as SeparatorsHTML } from "../../public/generated/examples/WorkspaceSeparators.json";
 import { Link } from "../components/Link";
-import {
-  DemoWorkspace,
-  WorkspaceDemo
-} from "../components/workspace/WorkspaceDemo";
-import { maxSizeModel } from "./examples/WorkspaceMaxSizeModel";
+import { WorkspaceDemo } from "../components/workspace/WorkspaceDemo";
 
 export default function WorkspaceSizingRoute() {
   return (
@@ -29,41 +24,14 @@ export default function WorkspaceSizingRoute() {
         </Link>
         .
       </div>
-      <SectionHeader>Minimum and maximum sizes</SectionHeader>
       <div>
-        The <code>tabsetMinWidth</code> and <code>tabsetMinHeight</code> props
-        set a minimum size for the content of every tabset (not including its
-        tabs), and a tabset can override them with the <code>minWidth</code> and{" "}
-        <code>minHeight</code> fields of its model node. The{" "}
-        <code>maxWidth</code> and <code>maxHeight</code> fields limit how large
-        a tabset's content can be resized, e.g. a sidebar that can only grow so
-        wide. All of them must use absolute units (e.g. <code>"300px"</code> or{" "}
-        <code>"20rem"</code>):
+        Tabsets can be limited to{" "}
+        <Link to="/examples/workspace/sizing/min-max-sizes">
+          minimum and maximum sizes
+        </Link>
+        , or to a set of{" "}
+        <Link to="/examples/workspace/sizing/snapping">snap sizes</Link>.
       </div>
-      <Code html={MaxSizeModelHTML} />
-      <div>
-        The sidebar below can be resized between 150 and 300 pixels wide, but
-        its tab can't be dragged or closed.
-      </div>
-      <DemoWorkspace
-        className="h-80"
-        defaultModel={maxSizeModel}
-        defaultSeparators
-        showResetButton
-      />
-      <Callout>
-        A split always fills its space, so a maximum only applies if something
-        else can take up the rest of it, e.g. another tabset in the same split
-        without a maximum. Maximums are ignored (with a warning in development)
-        if every tabset in a split has one, or if the tabset fills the
-        workspace.
-      </Callout>
-      <Callout>
-        A tabset is shown within its minimum and maximum sizes even if its{" "}
-        <code>size</code> is outside of them (e.g. a model saved in a wider
-        window); its size isn't changed, so it's shown at its size again once
-        that fits.
-      </Callout>
       <SectionHeader>Resizing tabsets programmatically</SectionHeader>
       <div>
         The <code>resizeSplit</code> method sets the sizes of a split's children
@@ -76,8 +44,8 @@ export default function WorkspaceSizingRoute() {
       </div>
       <Code html={ResizeSplitHTML} />
       <div>
-        Sizes are applied like the model's own sizes, so tabsets' minimum and
-        maximum sizes still apply. The change is reported to{" "}
+        Sizes are applied like the model's own sizes, so tabsets' minimum,
+        maximum, and snap sizes still apply. The change is reported to{" "}
         <code>onModelChanged</code> with the <code>"resize"</code> reason.
       </div>
       <SectionHeader>Separators</SectionHeader>

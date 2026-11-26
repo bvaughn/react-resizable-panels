@@ -59,6 +59,7 @@ const nav: NavConfig<Path | DefaultPath> = [
         links: [
           { path: "/examples/the-basics", title: "The basics" },
           { path: "/examples/min-max-sizes", title: "Min/max sizes" },
+          { path: "/examples/snap-sizes", title: "Snapping" },
           { path: "/examples/collapsible-panels", title: "Collapsible panels" },
           { path: "/examples/accordion", title: "Accordion" },
           {
@@ -138,6 +139,7 @@ const nav: NavConfig<Path | DefaultPath> = [
         links: [
           { path: "/examples/grid-basics", title: "The basics" },
           { path: "/examples/grid-constraints", title: "Min/max sizes" },
+          { path: "/examples/grid-snapping", title: "Snapping" },
           { path: "/examples/gridlines", title: "Gridlines" },
           {
             path: "/examples/collapsible-grid-cells",
@@ -209,7 +211,20 @@ const nav: NavConfig<Path | DefaultPath> = [
             ]
           },
           { path: "/examples/workspace/restrictions", title: "Restrictions" },
-          { path: "/examples/workspace/sizing", title: "Sizing tabsets" },
+          {
+            path: "/examples/workspace/sizing",
+            title: "Sizing tabsets",
+            children: [
+              {
+                path: "/examples/workspace/sizing/min-max-sizes",
+                title: "Min/max sizes"
+              },
+              {
+                path: "/examples/workspace/sizing/snapping",
+                title: "Snapping"
+              }
+            ]
+          },
           {
             path: "/examples/workspace/collapsing-and-maximizing",
             title: "Collapsing and maximizing"
