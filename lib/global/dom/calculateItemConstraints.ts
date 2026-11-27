@@ -21,7 +21,8 @@ export function calculateItemConstraints(
       disabled: current.constraintProps.disabled,
       minSize: 0,
       maxSize: 100,
-      itemId: current.id
+      itemId: current.id,
+      snapSizes: []
     }));
   }
 
@@ -83,6 +84,17 @@ export function calculateItemConstraints(
       maxSize = formatLayoutNumber((pixels / axisSize) * 100);
     }
 
+    const snapSizes =
+      itemConstraints.snapSizes?.map((styleProp) => {
+        const pixels = sizeStyleToPixels({
+          axisSize,
+          itemElement: element,
+          styleProp
+        });
+
+        return formatLayoutNumber((pixels / axisSize) * 100);
+      }) ?? [];
+
     return {
       groupResizeBehavior: itemConstraints.groupResizeBehavior,
       collapsedSize,
@@ -92,7 +104,8 @@ export function calculateItemConstraints(
       disabled: itemConstraints.disabled,
       minSize,
       maxSize,
-      itemId: item.id
+      itemId: item.id,
+      snapSizes
     };
   });
 }

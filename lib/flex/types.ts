@@ -4,14 +4,16 @@ import type {
   Orientation,
   RegisteredResizeItem,
   RegisteredSeparator,
-  ResizePreviewMode
+  ResizePreviewMode,
+  SnapBehavior
 } from "../global/types";
 
 export type {
   Layout,
   Orientation,
   ResizePreviewMode,
-  ResizeTargetMinimumSize
+  ResizeTargetMinimumSize,
+  SnapBehavior
 } from "../global/types";
 
 export type LayoutStorage = Pick<Storage, "getItem" | "setItem">;
@@ -198,6 +200,15 @@ export type GroupProps = HTMLAttributes<HTMLDivElement> & {
     coarse: number;
     fine: number;
   };
+
+  /**
+   * When dragged separators snap to the `snapSizes` of their neighboring panels:
+   * - "on-drag": separators snap to the nearest snap size while they're dragged
+   * - "on-release": separators move freely, then snap to the nearest snap size when the pointer is released
+   *
+   * @default "on-drag"
+   */
+  snapBehavior?: SnapBehavior | undefined;
 
   /**
    * Specifies the resizable orientation ("horizontal" or "vertical"); defaults to "horizontal"
@@ -444,6 +455,24 @@ export type PanelProps = BasePanelAttributes & {
   panelRef?: Ref<PanelImperativeHandle | null> | undefined;
 
   /**
+   * Sizes this Panel can be resized to (it can also be collapsed, if it's collapsible).
+   * Dragged separators snap to the nearest one (see the parent Group's or Grid's `snapBehavior` prop),
+   * arrow keys move to the next one, and the imperative `resize` API resizes to the nearest one.
+   * A collapsed panel expands to the smallest one (unless it's restoring a previous size).
+   *
+   * ℹ️ Default layouts and layouts set with the imperative `setLayout` API are also snapped (as closely as other constraints allow),
+   * as are fixed snap sizes (e.g. pixels) when the parent is resized.
+   *
+   * ℹ️ Panels are only snapped by the separators next to them;
+   * a panel that is pushed by a separator it isn't adjacent to may be resized to any size,
+   * unless a snap size would prevent the separator from moving that far.
+   *
+   * ℹ️ Interpretation rules are the same as for `minSize` and `maxSize`;
+   * sizes outside of those constraints are ignored.
+   */
+  snapSizes?: readonly (number | string)[] | undefined;
+
+  /**
    * CSS properties.
    *
    * ⚠️ The default inline styles cannot be overridden, except for [`overflow`](https://react-resizable-panels.vercel.app/examples/overflow).
@@ -478,6 +507,7 @@ export type PanelConstraintProps = Pick<
   | "groupResizeBehavior"
   | "maxSize"
   | "minSize"
+  | "snapSizes"
 >;
 
 /**

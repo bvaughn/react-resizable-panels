@@ -34,6 +34,7 @@ import { normalizeLayout } from "./utils/normalizeLayout";
 import { notifyItemOnResize } from "./utils/notifyItemOnResize";
 import { preserveFixedItemSizes } from "./utils/preserveFixedItemSizes";
 import { syncAxisStateToCurrentSize } from "./utils/syncAxisStateToCurrentSize";
+import { snapAxisLayout } from "./utils/snapAxisLayout";
 import { validateAxisLayout } from "./utils/validateAxisLayout";
 
 const ownerDocumentReferenceCounts = new Map<Document, number>();
@@ -126,14 +127,17 @@ export function mountAxis(axis: RegisteredResizeAxis) {
       axisSize,
       itemConstraints: derivedItemConstraints
     });
-  const defaultLayoutSafe = validateAxisLayout({
-    layout: preserveFixedItemSizes({
-      axis,
-      nextAxisSize: axisSize,
-      prevAxisSize: requestedAxisSize,
-      prevLayout: defaultLayoutUnsafe
-    }),
-    itemConstraints: derivedItemConstraints
+  const defaultLayoutSafe = snapAxisLayout({
+    itemConstraints: derivedItemConstraints,
+    layout: validateAxisLayout({
+      layout: preserveFixedItemSizes({
+        axis,
+        nextAxisSize: axisSize,
+        prevAxisSize: requestedAxisSize,
+        prevLayout: defaultLayoutUnsafe
+      }),
+      itemConstraints: derivedItemConstraints
+    })
   });
 
   const ownerDocument = axis.element.ownerDocument;

@@ -254,6 +254,12 @@ This threshold ensures targets are large enough to avoid mis-clicks.</p>
 <p>ℹ️ Refer to the <code>Group</code> prop of the same name for more information.</p>
 </td>
     </tr>
+    <tr>
+      <td>snapBehavior</td>
+      <td><p>When dragged gridlines snap to the <code>snapSizes</code> of their neighboring tracks.</p>
+<p>ℹ️ Refer to the <code>Group</code> prop of the same name for more information.</p>
+</td>
+    </tr>
   </tbody>
 </table>
 
@@ -518,6 +524,15 @@ In practice this seems to be much larger than many of their own applications use
 </td>
     </tr>
     <tr>
+      <td>snapBehavior</td>
+      <td><p>When dragged separators snap to the <code>snapSizes</code> of their neighboring panels:</p>
+<ul>
+<li>&quot;on-drag&quot;: separators snap to the nearest snap size while they&#39;re dragged</li>
+<li>&quot;on-release&quot;: separators move freely, then snap to the nearest snap size when the pointer is released</li>
+</ul>
+</td>
+    </tr>
+    <tr>
       <td>orientation</td>
       <td><p>Specifies the resizable orientation (&quot;horizontal&quot; or &quot;vertical&quot;); defaults to &quot;horizontal&quot;</p>
 </td>
@@ -689,6 +704,21 @@ Defaults to <code>preserve-relative-size</code>.</p>
 <li><code>resize(size: number | string): void</code></li>
 </ul>
 <p>ℹ️ The <code>usePanelRef</code> and <code>usePanelCallbackRef</code> hooks are exported for convenience in TypeScript projects.</p>
+</td>
+    </tr>
+    <tr>
+      <td>snapSizes</td>
+      <td><p>Sizes this Panel can be resized to (it can also be collapsed, if it&#39;s collapsible).
+Dragged separators snap to the nearest one (see the parent Group&#39;s or Grid&#39;s <code>snapBehavior</code> prop),
+arrow keys move to the next one, and the imperative <code>resize</code> API resizes to the nearest one.
+A collapsed panel expands to the smallest one (unless it&#39;s restoring a previous size).</p>
+<p>ℹ️ Default layouts and layouts set with the imperative <code>setLayout</code> API are also snapped (as closely as other constraints allow),
+as are fixed snap sizes (e.g. pixels) when the parent is resized.</p>
+<p>ℹ️ Panels are only snapped by the separators next to them;
+a panel that is pushed by a separator it isn&#39;t adjacent to may be resized to any size,
+unless a snap size would prevent the separator from moving that far.</p>
+<p>ℹ️ Interpretation rules are the same as for <code>minSize</code> and <code>maxSize</code>;
+sizes outside of those constraints are ignored.</p>
 </td>
     </tr>
   </tbody>
@@ -1372,6 +1402,15 @@ so this is best suited to content that is cheap to mount and benefits from being
 </td>
     </tr>
     <tr>
+      <td>snapBehavior</td>
+      <td><p>When dragged separators snap to the <code>snapWidths</code> and <code>snapHeights</code> of tabsets:</p>
+<ul>
+<li>&quot;on-drag&quot;: while they are dragged</li>
+<li>&quot;on-release&quot;: once they are released (they move freely while dragged)</li>
+</ul>
+</td>
+    </tr>
+    <tr>
       <td>styles</td>
       <td><p>CSS properties for the elements the workspace renders within its root element (see <code>classNames</code>).</p>
 </td>
@@ -1847,7 +1886,7 @@ before the browser paints, except while the user scrolls the list (it&#39;s repo
       <td><p>Update a tabset; fields that are not specified are not changed.</p>
 <p>ℹ️ <code>data</code> is replaced rather than merged.</p>
 <p>ℹ️ Setting <code>minHeight</code>, <code>minWidth</code>, or <code>tabPlacement</code> to <code>undefined</code> removes the tabset&#39;s override,
-so the corresponding Workspace prop is used; setting <code>maxHeight</code> or <code>maxWidth</code> to <code>undefined</code> removes the maximum.</p>
+so the corresponding Workspace prop is used; setting <code>maxHeight</code>, <code>maxWidth</code>, <code>snapHeights</code>, or <code>snapWidths</code> to <code>undefined</code> removes them.</p>
 <p>ℹ️ The position and size (<code>x</code>, <code>y</code>, <code>width</code>, and <code>height</code>) of a floating tabset can be changed too (and are ignored for other tabsets),
 as can be its <code>collapsible</code> flag (which is ignored for floating tabsets).</p>
 </td>

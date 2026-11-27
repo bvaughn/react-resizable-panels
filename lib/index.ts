@@ -63,7 +63,8 @@ export type {
   ParentPanel,
   SeparatorOverlayProps,
   SeparatorProps,
-  SizeUnit
+  SizeUnit,
+  SnapBehavior
 } from "./flex/types";
 
 export type {

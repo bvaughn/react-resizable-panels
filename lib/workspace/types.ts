@@ -8,7 +8,11 @@ import type {
   RefCallback,
   RefObject
 } from "react";
-import type { Orientation, ResizePreviewMode } from "../global/types";
+import type {
+  Orientation,
+  ResizePreviewMode,
+  SnapBehavior
+} from "../global/types";
 
 /**
  * A tab within a tabset.
@@ -132,6 +136,27 @@ export type TabsetNode<TabData = unknown, TabsetData = unknown> = {
    * ℹ️ Maximums don't apply to floating tabsets, which can be resized to any size larger than their minimums.
    */
   maxHeight?: string | undefined;
+
+  /**
+   * Widths the tabset can be resized to within a horizontal split (see the Workspace's `snapBehavior` prop).
+   * Dragged separators snap to the nearest one, and arrow keys move a focused separator to the next one;
+   * collapsible tabsets can also be collapsed.
+   *
+   * ℹ️ Interpretation rules (the same as `size`):
+   * - Numbers are percentages of the parent split (e.g. `snapWidths: [25, 50]`)
+   * - Strings may specify other units (e.g. `snapWidths: ["250px"]`); strings without units are percentages
+   *
+   * ℹ️ Like `size`, these include the tabset's header and are ignored if they're outside of its minimum and maximum sizes.
+   * The tabset's `size` isn't changed when it's shown at a snapped size (e.g. when the workspace is resized), only when the user resizes it.
+   *
+   * ℹ️ Snap sizes don't apply to floating tabsets.
+   */
+  snapWidths?: readonly (number | string)[] | undefined;
+
+  /**
+   * Heights the tabset can be resized to within a vertical split (see `snapWidths`).
+   */
+  snapHeights?: readonly (number | string)[] | undefined;
 
   /**
    * Where the tabset's tabs are placed relative to its content.
@@ -1120,7 +1145,7 @@ export interface WorkspaceImperativeHandle<
    * ℹ️ `data` is replaced rather than merged.
    *
    * ℹ️ Setting `minHeight`, `minWidth`, or `tabPlacement` to `undefined` removes the tabset's override,
-   * so the corresponding Workspace prop is used; setting `maxHeight` or `maxWidth` to `undefined` removes the maximum.
+   * so the corresponding Workspace prop is used; setting `maxHeight`, `maxWidth`, `snapHeights`, or `snapWidths` to `undefined` removes them.
    *
    * ℹ️ The position and size (`x`, `y`, `width`, and `height`) of a floating tabset can be changed too (and are ignored for other tabsets),
    * as can be its `collapsible` flag (which is ignored for floating tabsets).
@@ -1137,6 +1162,8 @@ export interface WorkspaceImperativeHandle<
       maxWidth?: string | undefined;
       minHeight?: string | undefined;
       minWidth?: string | undefined;
+      snapHeights?: readonly (number | string)[] | undefined;
+      snapWidths?: readonly (number | string)[] | undefined;
       tabPlacement?: TabsetNode["tabPlacement"];
       width?: number | undefined;
       x?: number | undefined;
@@ -1867,6 +1894,15 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
     | boolean
     | ((tab: TabNode<TabData>) => boolean)
     | undefined;
+
+  /**
+   * When dragged separators snap to the `snapWidths` and `snapHeights` of tabsets:
+   * - "on-drag": while they are dragged
+   * - "on-release": once they are released (they move freely while dragged)
+   *
+   * @default "on-drag"
+   */
+  snapBehavior?: SnapBehavior | undefined;
 
   /**
    * CSS properties.

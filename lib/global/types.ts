@@ -31,6 +31,13 @@ export type Layout = {
 
 export type ResizePreviewMode = "panel" | "separator";
 
+/**
+ * When a dragged separator snaps to the snap sizes of the items on either side of it (see `snapSizes`):
+ * - "on-drag": the separator snaps to the nearest snap size while it's dragged
+ * - "on-release": the separator moves freely, then snaps to the nearest snap size when the pointer is released
+ */
+export type SnapBehavior = "on-drag" | "on-release";
+
 export type ResizeTargetMinimumSize = {
   coarse: number;
   fine: number;
@@ -50,6 +57,7 @@ export type ResizeItemConstraints = {
   maxSize: number;
   minSize: number;
   itemId: string;
+  snapSizes?: number[] | undefined;
 };
 
 export type RegisteredResizeItem = {
@@ -147,4 +155,5 @@ export type RegisteredResizeAxis = Readonly<{
   resizePreviewMode: ResizePreviewMode;
   resizeTargetMinimumSize: ResizeTargetMinimumSize;
   separators: RegisteredSeparator[];
+  snapBehavior: SnapBehavior;
 }>;

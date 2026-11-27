@@ -134,6 +134,7 @@ export function DemoWorkspace({
   | "renderEmptyTabset"
   | "renderTabsetDragPreview"
   | "renderTabsetToolbar"
+  | "snapBehavior"
   | "tabRemovalSelectionBehavior"
 > & {
   canAddTabs?: (tabset: TabsetNode<DemoTab>) => boolean;

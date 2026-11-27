@@ -8,8 +8,10 @@ import type {
 } from "../types";
 import { adjustLayoutByDelta } from "./adjustLayoutByDelta";
 import { compareLayoutNumbers } from "./compareLayoutNumbers";
+import { findNearestValue } from "./findNearestValue";
 import { formatLayoutNumber } from "./formatLayoutNumber";
 import { getExpandedItemSize } from "./getExpandedItemSize";
+import { getMinimumExpandedSize } from "./getMinimumExpandedSize";
 import { layoutNumbersEqual } from "./layoutNumbersEqual";
 import { layoutsEqual } from "./layoutsEqual";
 import { syncAxisStateToCurrentSize } from "./syncAxisStateToCurrentSize";
@@ -347,12 +349,12 @@ export function getImperativeItemMethods({
     },
     expand: () => {
       const synced = findSynced();
-      const { collapsible, collapsedSize, minSize } = synced.itemConstraints;
+      const { collapsible, collapsedSize } = synced.itemConstraints;
       const { mutableValues } = getItem();
       const size = synced.itemSize;
 
       if (collapsible && size === collapsedSize) {
-        // Restore pre-collapse size, fallback to minSize
+        // Restore pre-collapse size, fallback to minSize (or the smallest snap size)
         const { expandToSize } = mutableValues;
         let nextSize = expandToSize
           ? getExpandedItemSize({
@@ -360,7 +362,7 @@ export function getImperativeItemMethods({
               expanded: expandToSize,
               groupResizeBehavior: getItem().constraintProps.groupResizeBehavior
             })
-          : minSize;
+          : getMinimumExpandedSize(synced.itemConstraints);
 
         // Edge case: if minSize is 0, pick something meaningful to expand the panel to
         if (nextSize === 0) {
@@ -407,9 +409,41 @@ export function getImperativeItemMethods({
 
       const asPercentage = formatLayoutNumber((asPixels / axisSize) * 100);
 
-      setItemSize(asPercentage, synced);
+      setItemSize(
+        snapImperativeSize(
+          asPercentage,
+          synced.state.derivedItemConstraints.find(
+            (current) => current.itemId === itemId
+          )
+        ),
+        synced
+      );
     }
   } satisfies PanelImperativeHandle;
+}
+
+// Items with snap sizes can only be resized to one of them (or collapsed); snap sizes outside of min/max are ignored
+function snapImperativeSize(
+  size: number,
+  constraints: ResizeItemConstraints | undefined
+) {
+  if (!constraints?.snapSizes?.length) {
+    return size;
+  }
+
+  const { collapsedSize, collapsible, maxSize, minSize, snapSizes } =
+    constraints;
+  const reachable = snapSizes.filter(
+    (snapSize) =>
+      compareLayoutNumbers(snapSize, minSize) >= 0 &&
+      compareLayoutNumbers(snapSize, maxSize) <= 0
+  );
+  const sizes = collapsible ? [...reachable, collapsedSize] : reachable;
+  if (sizes.length === 0) {
+    return size;
+  }
+
+  return findNearestValue(sizes, size) ?? size;
 }
 
 function isItemCollapsed(
