@@ -1,8 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Fix `useDefaultLayout` throwing during render when the value saved in storage isn't a valid layout (e.g. invalid JSON, or `null`). The value is now ignored, as if no layout had been saved. - [#856](https://github.com/bvaughn/react-resizable-panels/pull/856)
+
 ## 4.25.0
 
-- Add snap points: sizes that panels, tracks, and tabsets can be resized to. Dragged separators snap to the nearest one and arrow keys move to the next one. - [#854)](https://github.com/bvaughn/react-resizable-panels/pull/854)
+- Add snap points: sizes that panels, tracks, and tabsets can be resized to. Dragged separators snap to the nearest one and arrow keys move to the next one. - [#854](https://github.com/bvaughn/react-resizable-panels/pull/854)
   - `Panel` and `Grid` tracks: add the `snapSizes` prop.
   - `Group` and `Grid`: add the `snapBehavior` prop, which snaps while dragging (`"on-drag"`, the default) or once released (`"on-release"`).
   - `Workspace`: add the `snapWidths` and `snapHeights` tabset fields, and the `snapBehavior` prop.
