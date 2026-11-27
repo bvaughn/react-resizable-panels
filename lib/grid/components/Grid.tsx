@@ -302,7 +302,6 @@ function GridComponent({
           id: trackIds[index],
           idIsStable: true,
           mutableValues: {
-            expandToSize: undefined,
             prevSize: undefined
           },
           onResize: undefined,

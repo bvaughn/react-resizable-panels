@@ -108,7 +108,6 @@ export function mockGroup(
         id: panelId,
         idIsStable: true,
         mutableValues: {
-          expandToSize: undefined,
           prevSize: undefined
         },
         constraintProps: constraints,

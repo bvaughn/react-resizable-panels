@@ -60,7 +60,7 @@ function createGroup({
         element,
         id: `${index}`,
         idIsStable: true,
-        mutableValues: { expandToSize: undefined, prevSize: undefined },
+        mutableValues: { prevSize: undefined },
         onResize: undefined,
         constraintProps: { disabled: disabledTracks.includes(index) }
       })

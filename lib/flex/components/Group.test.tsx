@@ -1534,6 +1534,124 @@ describe("Group", () => {
     });
   });
 
+  // See github.com/bvaughn/react-resizable-panels/issues/524
+  describe("imperative expand", () => {
+    beforeEach(() => {
+      setElementBoundsFunction((element: HTMLElement) => {
+        switch (element.id) {
+          case "group": {
+            return new DOMRect(0, 0, 400, 50);
+          }
+          case "left": {
+            return new DOMRect(0, 0, 200, 50);
+          }
+          case "separator": {
+            return new DOMRect(200, 0, 0, 50);
+          }
+          case "right": {
+            return new DOMRect(200, 0, 200, 50);
+          }
+        }
+      });
+    });
+
+    function renderGroup() {
+      const groupRef = createRef<GroupImperativeHandle>();
+      const panelRef = createRef<PanelImperativeHandle>();
+      const separatorRef = createRef<HTMLDivElement>();
+      render(
+        <Group groupRef={groupRef} id="group">
+          <Panel
+            collapsible
+            defaultSize="50%"
+            id="left"
+            minSize="10%"
+            panelRef={panelRef}
+          />
+          <Separator elementRef={separatorRef} id="separator" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      return {
+        groupRef: groupRef as RefObject<GroupImperativeHandle>,
+        panelRef: panelRef as RefObject<PanelImperativeHandle>,
+        separatorRef: separatorRef as RefObject<HTMLDivElement>
+      };
+    }
+
+    test.each(["keyboard", "pointer", "setLayout"] as const)(
+      "restores the pre-collapse size of a panel collapsed by %s",
+      async (trigger) => {
+        const { groupRef, panelRef, separatorRef } = renderGroup();
+        expect(groupRef.current.getLayout()).toEqual({ left: 50, right: 50 });
+
+        switch (trigger) {
+          case "keyboard": {
+            act(() => {
+              fireEvent.keyDown(separatorRef.current, { key: "Enter" });
+            });
+            break;
+          }
+          case "pointer": {
+            await moveSeparator(-190);
+            break;
+          }
+          case "setLayout": {
+            act(() => groupRef.current.setLayout({ left: 0, right: 100 }));
+            break;
+          }
+        }
+        expect(groupRef.current.getLayout()).toEqual({ left: 0, right: 100 });
+
+        act(() => panelRef.current.expand());
+        expect(groupRef.current.getLayout()).toEqual({ left: 50, right: 50 });
+      }
+    );
+
+    test("restores the most recent pre-collapse size", () => {
+      const { groupRef, panelRef, separatorRef } = renderGroup();
+
+      act(() => panelRef.current.collapse());
+      act(() => panelRef.current.expand());
+      expect(groupRef.current.getLayout()).toEqual({ left: 50, right: 50 });
+
+      act(() => panelRef.current.resize("30%"));
+      act(() => {
+        fireEvent.keyDown(separatorRef.current, { key: "Enter" });
+      });
+      expect(groupRef.current.getLayout()).toEqual({ left: 0, right: 100 });
+
+      act(() => panelRef.current.expand());
+      expect(groupRef.current.getLayout()).toEqual({ left: 30, right: 70 });
+    });
+
+    test("restores the pre-collapse size after the panel's props change", () => {
+      const groupRef = createRef<GroupImperativeHandle>();
+      const panelRef = createRef<PanelImperativeHandle>();
+      const ui = (maxSize: string) => (
+        <Group groupRef={groupRef} id="group">
+          <Panel
+            collapsible
+            defaultSize="50%"
+            id="left"
+            maxSize={maxSize}
+            minSize="10%"
+            panelRef={panelRef}
+          />
+          <Panel id="right" />
+        </Group>
+      );
+      const { rerender } = render(ui("90%"));
+
+      act(() => panelRef.current!.collapse());
+      rerender(ui("80%"));
+
+      act(() => panelRef.current!.expand());
+      expect(groupRef.current!.getLayout()).toEqual({ left: 50, right: 50 });
+    });
+  });
+
   describe("defaultLayout", () => {
     test("should be ignored if it does not match Panel ids", () => {
       const onLayoutChange = vi.fn();
