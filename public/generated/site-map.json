@@ -94,7 +94,7 @@
   {
     "path": "/examples/grid-snapping",
     "section": "Grid",
-    "text": "Columns and rows support the same snap sizes as panels. Dragging a track boundary (or the point where two boundaries meet) snaps each track to its nearest snap size. left50% × 100% top50% × 50% bottom50% × 50% As with groups, snapBehavior=\"on-release\" lets track boundaries move freely and then snap once they are released. left50% × 100% top50% × 50% bottom50% × 50% Arrow keys move a focused gridline to the next snap size.",
+    "text": "Columns and rows support the same snap sizes as panels. Dragging a track boundary (or the point where two boundaries meet) snaps each track to its nearest snap size. 25% 50% 75% left50% × 100% top50% × 50% bottom50% × 50% 25% 50% 75% As with groups, snapBehavior=\"on-release\" lets track boundaries move freely and then snap once they are released. 25% 50% 75% left50% × 100% top50% × 50% bottom50% × 50% 25% 50% 75% Arrow keys move a focused gridline to the next snap size.",
     "title": "Snapping"
   },
   {
@@ -492,7 +492,7 @@
   {
     "path": "/examples/workspace/sizing/snapping",
     "section": "Workspace",
-    "text": "The snapWidths and snapHeights fields of a tabset limit it to a set of sizes within horizontal and vertical splits. They use the same units as size. Dragging a separator snaps it to the nearest snap size, and arrow keys move a focused separator to the next one (see snapping panels): The sidebar below can be resized to a quarter, half, or three quarters of the workspace's width. Reset layout By default, separators snap while they are dragged. With snapBehavior=\"on-release\", they move freely and then snap once they are released. Reset layout Like minimum and maximum sizes, a tabset is shown at its nearest snap size without changing its size (e.g. when the workspace is resized). The model is only updated when the user resizes the tabset. Snap sizes don't apply to floating tabsets.",
+    "text": "The snapWidths and snapHeights fields of a tabset limit it to a set of sizes within horizontal and vertical splits. They use the same units as size. Dragging a separator snaps it to the nearest snap size, and arrow keys move a focused separator to the next one (see snapping panels): The sidebar below can be resized to a quarter, half, or three quarters of the workspace's width. 25% 50% 75% Reset layout By default, separators snap while they are dragged. With snapBehavior=\"on-release\", they move freely and then snap once they are released. 25% 50% 75% Reset layout Like minimum and maximum sizes, a tabset is shown at its nearest snap size without changing its size (e.g. when the workspace is resized). The model is only updated when the user resizes the tabset. Snap sizes don't apply to floating tabsets.",
     "title": "Snapping"
   },
   {

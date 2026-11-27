@@ -65,7 +65,6 @@ export type RegisteredResizeItem = {
   idIsStable: boolean;
   element: HTMLElement;
   mutableValues: {
-    expandToSize: { axisSize: number; size: number } | undefined;
     prevSize: PanelSize | undefined;
   };
   onResize: OnPanelResize | undefined;

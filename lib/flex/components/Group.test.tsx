@@ -1534,6 +1534,131 @@ describe("Group", () => {
     });
   });
 
+  // See github.com/bvaughn/react-resizable-panels/issues/524
+  describe("imperative expand", () => {
+    beforeEach(() => {
+      setElementBoundsFunction((element: HTMLElement) => {
+        switch (element.id) {
+          case "group": {
+            return new DOMRect(0, 0, 400, 50);
+          }
+          case "left": {
+            return new DOMRect(0, 0, 200, 50);
+          }
+          case "separator": {
+            return new DOMRect(200, 0, 0, 50);
+          }
+          case "right": {
+            return new DOMRect(200, 0, 200, 50);
+          }
+        }
+      });
+    });
+
+    function renderGroup() {
+      const groupRef = createRef<GroupImperativeHandle>();
+      const panelRef = createRef<PanelImperativeHandle>();
+      const separatorRef = createRef<HTMLDivElement>();
+      const ui = (maxSize?: string) => (
+        <Group groupRef={groupRef} id="group">
+          <Panel
+            collapsible
+            defaultSize="50%"
+            id="left"
+            maxSize={maxSize}
+            minSize="10%"
+            panelRef={panelRef}
+          />
+          <Separator elementRef={separatorRef} id="separator" />
+          <Panel id="right" />
+        </Group>
+      );
+      const { rerender } = render(ui());
+
+      return {
+        groupRef: groupRef as RefObject<GroupImperativeHandle>,
+        panelRef: panelRef as RefObject<PanelImperativeHandle>,
+        rerender: (maxSize: string) => rerender(ui(maxSize)),
+        separatorRef: separatorRef as RefObject<HTMLDivElement>
+      };
+    }
+
+    test.each(["keyboard", "pointer", "setLayout"] as const)(
+      "restores the pre-collapse size of a panel collapsed by %s",
+      async (trigger) => {
+        const { groupRef, panelRef, separatorRef } = renderGroup();
+        expect(groupRef.current.getLayout()).toEqual({ left: 50, right: 50 });
+
+        switch (trigger) {
+          case "keyboard": {
+            act(() => {
+              fireEvent.keyDown(separatorRef.current, { key: "Enter" });
+            });
+            break;
+          }
+          case "pointer": {
+            await moveSeparator(-190);
+            break;
+          }
+          case "setLayout": {
+            act(() => groupRef.current.setLayout({ left: 0, right: 100 }));
+            break;
+          }
+        }
+        expect(groupRef.current.getLayout()).toEqual({ left: 0, right: 100 });
+
+        act(() => panelRef.current.expand());
+        expect(groupRef.current.getLayout()).toEqual({ left: 50, right: 50 });
+      }
+    );
+
+    test("restores the most recent pre-collapse size", () => {
+      const { groupRef, panelRef, separatorRef } = renderGroup();
+
+      act(() => panelRef.current.collapse());
+      act(() => panelRef.current.expand());
+      expect(groupRef.current.getLayout()).toEqual({ left: 50, right: 50 });
+
+      act(() => panelRef.current.resize("30%"));
+      act(() => {
+        fireEvent.keyDown(separatorRef.current, { key: "Enter" });
+      });
+      expect(groupRef.current.getLayout()).toEqual({ left: 0, right: 100 });
+
+      act(() => panelRef.current.expand());
+      expect(groupRef.current.getLayout()).toEqual({ left: 30, right: 70 });
+    });
+
+    // Each pointer move updates the layout, so the size before the move that collapsed the panel is restored
+    // (not the size it had when the drag started)
+    test("restores the size from just before a drag collapsed the panel", async () => {
+      const { groupRef, panelRef, separatorRef } = renderGroup();
+
+      const clientX = separatorRef.current.offsetLeft;
+      const clientY = separatorRef.current.offsetHeight / 2;
+      await userEvent.pointer([
+        { keys: "[MouseLeft>]", coords: { clientX, clientY } },
+        { coords: { clientX: clientX - 150, clientY } },
+        { coords: { clientX: clientX - 190, clientY } },
+        { keys: "[/MouseLeft]", coords: { clientX: clientX - 190, clientY } }
+      ]);
+      expect(groupRef.current.getLayout()).toEqual({ left: 0, right: 100 });
+
+      act(() => panelRef.current.expand());
+      expect(groupRef.current.getLayout()).toEqual({ left: 12.5, right: 87.5 });
+    });
+
+    test("restores the pre-collapse size after the panel's props change", () => {
+      const { groupRef, panelRef, rerender } = renderGroup();
+
+      act(() => panelRef.current.collapse());
+      rerender("80%");
+
+      act(() => panelRef.current.expand());
+      expect(groupRef.current.getLayout()).toEqual({ left: 50, right: 50 });
+    });
+  });
+
   describe("defaultLayout", () => {
     test("should be ignored if it does not match Panel ids", () => {
       const onLayoutChange = vi.fn();

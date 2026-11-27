@@ -407,6 +407,25 @@ describe("Grid", () => {
     });
   });
 
+  test("expands a track collapsed with setLayout to its pre-collapse size", () => {
+    const { gridRef } = renderTwoByTwoGrid({
+      columns: [{ collapsible: true, minSize: "10%" }, {}]
+    });
+
+    act(() => {
+      gridRef.current!.setLayout({ columns: { "0": 30, "1": 70 } });
+    });
+    act(() => {
+      gridRef.current!.setLayout({ columns: { "0": 0, "1": 100 } });
+    });
+    expect(gridRef.current!.getLayout().columns).toEqual({ "0": 0, "1": 100 });
+
+    act(() => {
+      gridRef.current!.getTrackByIndex("column", 0).expand();
+    });
+    expect(gridRef.current!.getLayout().columns).toEqual({ "0": 30, "1": 70 });
+  });
+
   test("resizes rows by dragging a row boundary", async () => {
     const { gridRef } = renderTwoByTwoGrid();
 

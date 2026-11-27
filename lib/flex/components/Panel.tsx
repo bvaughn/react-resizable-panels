@@ -89,7 +89,6 @@ function PanelComponent({
         id,
         idIsStable,
         mutableValues: {
-          expandToSize: undefined,
           prevSize: undefined
         },
         onResize: hasOnResize ? onResizeStable : undefined,

@@ -337,12 +337,16 @@ export function getImperativeItemMethods({
     collapse: () => {
       const synced = findSynced();
       const { collapsible, collapsedSize } = synced.itemConstraints;
-      const { mutableValues } = getItem();
       const size = synced.itemSize;
 
       if (collapsible && size !== collapsedSize) {
-        // Store previous size in order to restore it if expand() is called
-        mutableValues.expandToSize = { axisSize: synced.state.axisSize, size };
+        // Store the pre-collapse size so expand() can restore it.
+        // Groups and Grids also record it (in recordAxisLayoutChange) for items collapsed in other ways (e.g. by the keyboard or a drag),
+        // but this doesn't depend on them doing so.
+        synced.axis.mutableState.expandedItemSizes[itemId] = {
+          axisSize: synced.state.axisSize,
+          size
+        };
 
         setItemSize(collapsedSize, synced);
       }
@@ -350,12 +354,11 @@ export function getImperativeItemMethods({
     expand: () => {
       const synced = findSynced();
       const { collapsible, collapsedSize } = synced.itemConstraints;
-      const { mutableValues } = getItem();
       const size = synced.itemSize;
 
       if (collapsible && size === collapsedSize) {
         // Restore pre-collapse size, fallback to minSize (or the smallest snap size)
-        const { expandToSize } = mutableValues;
+        const expandToSize = synced.axis.mutableState.expandedItemSizes[itemId];
         let nextSize = expandToSize
           ? getExpandedItemSize({
               axisSize: synced.state.axisSize,
