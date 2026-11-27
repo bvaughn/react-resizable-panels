@@ -25,7 +25,10 @@ import { layoutsEqual } from "../../global/utils/layoutsEqual";
 import { recordAxisLayoutChange } from "../../global/utils/recordAxisLayoutChange";
 import { useForceUpdate } from "../../shared/hooks/useForceUpdate";
 import { useId } from "../../shared/hooks/useId";
+import { useIsAxisResizing } from "../../shared/hooks/useIsAxisResizing";
+import { useIsLayoutPending } from "../../shared/hooks/useIsLayoutPending";
 import { useIsomorphicLayoutEffect } from "../../shared/hooks/useIsomorphicLayoutEffect";
+import { ResizeAxesContext } from "../../shared/contexts/ResizeAxesContext";
 import { useMergedRefs } from "../../shared/hooks/useMergedRefs";
 import { useMemoizedLayoutCallbacks } from "../../shared/hooks/useMemoizedLayoutCallbacks";
 import { useStableCallback } from "../../shared/hooks/useStableCallback";
@@ -40,6 +43,7 @@ import type {
 } from "../types";
 import { GroupContext } from "../contexts/GroupContext";
 import { isInDocumentOrder } from "../utils/isInDocumentOrder";
+import { toFlexGrow } from "../utils/toFlexGrow";
 import { ResizePreview } from "./ResizePreview";
 import { sortByDocumentPosition } from "../utils/sortByDocumentPosition";
 import { sortByElementOffset } from "../utils/sortByElementOffset";
@@ -85,6 +89,10 @@ function GroupComponent({
     resizePreviewMode
   });
 
+  const resizeAxisIds = useMemo(() => [id], [id]);
+  const isResizing = useIsAxisResizing(resizeAxisIds);
+  const isLayoutPending = useIsLayoutPending(resizeAxisIds);
+
   const elementRef = useRef<HTMLDivElement | null>(null);
 
   const [panelOrSeparatorChangeSigil, forceUpdate] = useForceUpdate();
@@ -125,17 +133,21 @@ function GroupComponent({
     (groupId: string, panelId: string) => {
       const groupState = getMountedAxisState(groupId);
       if (groupState) {
-        return {
-          flexGrow: groupState.layout[panelId] ?? 1
-        } satisfies CSSProperties;
+        const size = groupState.layout[panelId];
+        if (size !== undefined) {
+          return { flexGrow: toFlexGrow(size) } satisfies CSSProperties;
+        }
+
+        // A panel that was just added isn't part of the layout yet; it starts out empty and grows once the layout is updated
+        // (unless none of the panels have been laid out yet, in which case they share the group equally)
+        const isLaidOut = Object.keys(groupState.layout).length > 0;
+        return { flexGrow: isLaidOut ? 0 : 1 } satisfies CSSProperties;
       }
 
       // This is unexpected except for the initial mount (before the group has registered with the global store)
-      const defaultFlexGrow = defaultLayout?.[panelId];
-      if (defaultFlexGrow !== undefined) {
-        return {
-          flexGrow: defaultFlexGrow
-        } satisfies CSSProperties;
+      const defaultSize = defaultLayout?.[panelId];
+      if (defaultSize !== undefined) {
+        return { flexGrow: toFlexGrow(defaultSize) } satisfies CSSProperties;
       }
     }
   );
@@ -422,44 +434,47 @@ function GroupComponent({
 
   return (
     <ParentGroupContext.Provider value={parentGroup}>
-      <GroupContext.Provider value={context}>
-        <div
-          {...rest}
-          className={className}
-          data-group
-          data-testid={getTestId(rest, idProp)}
-          id={id}
-          ref={mergedRef}
-          style={{
-            height: "100%",
-            width: "100%",
-            overflow: "hidden",
-            position:
-              resizePreviewMode === "separator" ? "relative" : undefined,
+      <ResizeAxesContext.Provider value={resizeAxisIds}>
+        <GroupContext.Provider value={context}>
+          <div
+            {...rest}
+            className={className}
+            data-group
+            data-resizing={isResizing || isLayoutPending || undefined}
+            data-testid={getTestId(rest, idProp)}
+            id={id}
+            ref={mergedRef}
+            style={{
+              height: "100%",
+              width: "100%",
+              overflow: "hidden",
+              position:
+                resizePreviewMode === "separator" ? "relative" : undefined,
 
-            ...style,
+              ...style,
 
-            display: "flex",
-            flexDirection: orientation === "horizontal" ? "row" : "column",
-            flexWrap: "nowrap",
+              display: "flex",
+              flexDirection: orientation === "horizontal" ? "row" : "column",
+              flexWrap: "nowrap",
 
-            // Inform the browser that the library is handling touch events for this element
-            // but still allow users to scroll content within panels in the non-resizing direction
-            // NOTE This is not an inherited style
-            // See github.com/bvaughn/react-resizable-panels/issues/662
-            touchAction: orientation === "horizontal" ? "pan-y" : "pan-x"
-          }}
-        >
-          {children}
-          {previews.map((preview) => (
-            <ResizePreview
-              key={preview.key}
-              overlay={overlay}
-              preview={preview}
-            />
-          ))}
-        </div>
-      </GroupContext.Provider>
+              // Inform the browser that the library is handling touch events for this element
+              // but still allow users to scroll content within panels in the non-resizing direction
+              // NOTE This is not an inherited style
+              // See github.com/bvaughn/react-resizable-panels/issues/662
+              touchAction: orientation === "horizontal" ? "pan-y" : "pan-x"
+            }}
+          >
+            {children}
+            {previews.map((preview) => (
+              <ResizePreview
+                key={preview.key}
+                overlay={overlay}
+                preview={preview}
+              />
+            ))}
+          </div>
+        </GroupContext.Provider>
+      </ResizeAxesContext.Provider>
     </ParentGroupContext.Provider>
   );
 }
@@ -475,6 +490,17 @@ function GroupComponent({
  * ```
  *
  * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+ *
+ * While one of its separators (or panel edges) is being dragged, a Group also includes a `data-resizing` attribute
+ * (as it does until its initial layout has been applied, e.g. while panels are sized by their default sizes).
+ * This can be used to animate other layout changes (e.g. snapping on release, the keyboard, or the imperative API)
+ * without making panels lag behind the pointer during a drag, or grow from nothing when the page loads:
+ *
+ * ```css
+ * [data-group]:not([data-resizing]) > [data-panel] {
+ *   transition: flex-grow 200ms ease-out;
+ * }
+ * ```
  */
 export const Group = /* @__PURE__ */ Object.assign(GroupComponent, {
   displayName: "Group"

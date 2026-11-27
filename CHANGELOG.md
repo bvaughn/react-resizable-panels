@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- `Group` and `Grid`: add a `data-resizing` attribute while one of their separators (or track boundaries) is being dragged (and until their initial layout has been applied), so other layout changes (e.g. snapping on release, the keyboard, or the imperative API) can be animated with a CSS transition. See the animation guides for [groups](https://react-resizable-panels.vercel.app/examples/animation) and [grids](https://react-resizable-panels.vercel.app/examples/grid-animation).
+- Add the `useIsResizing` hook, which returns `true` while a `Group` or `Grid` is being dragged.
+- Panel sizes are now set as fractional `flex-grow` values (e.g. about `0.4` rather than `40`), so that adding and removing panels can be animated too. A newly added panel now starts at `flex-grow: 0` (previously `1`), which may affect tests that assert on `style.flexGrow`. Layouts (including saved layouts) are still percentages; only the inline style changes.
+
 ## 4.25.1
 
 - Fix `useDefaultLayout` throwing during render when the value saved in storage isn't a valid layout (e.g. invalid JSON, or `null`). The value is now ignored, as if no layout had been saved. - [#856](https://github.com/bvaughn/react-resizable-panels/pull/856)

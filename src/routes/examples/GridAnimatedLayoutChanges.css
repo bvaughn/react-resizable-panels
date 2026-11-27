@@ -1,0 +1,7 @@
+@media (prefers-reduced-motion: no-preference) {
+  [data-grid]:not([data-resizing]) {
+    transition:
+      grid-template-columns 200ms ease-out,
+      grid-template-rows 200ms ease-out;
+  }
+}

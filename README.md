@@ -142,6 +142,17 @@ Grid elements always include the following attributes:
 
 ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
 
+While one of its track boundaries is being dragged, a Grid also includes a `data-resizing` attribute
+(as it does until its initial layout has been applied).
+This can be used to animate other layout changes (e.g. snapping on release, the keyboard, or the imperative API)
+without making tracks lag behind the pointer during a drag, or change size when the page loads:
+
+```css
+[data-grid]:not([data-resizing]) {
+  transition: grid-template-columns 200ms ease-out, grid-template-rows 200ms ease-out;
+}
+```
+
 #### Required props
 
 <table>
@@ -410,6 +421,17 @@ Group elements always include the following attributes:
 ```
 
 ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+
+While one of its separators (or panel edges) is being dragged, a Group also includes a `data-resizing` attribute
+(as it does until its initial layout has been applied, e.g. while panels are sized by their default sizes).
+This can be used to animate other layout changes (e.g. snapping on release, the keyboard, or the imperative API)
+without making panels lag behind the pointer during a drag, or grow from nothing when the page loads:
+
+```css
+[data-group]:not([data-resizing]) > [data-panel] {
+  transition: flex-grow 200ms ease-out;
+}
+```
 
 #### Required props
 

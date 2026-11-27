@@ -42,6 +42,10 @@ import { GroupContext } from "../../flex/contexts/GroupContext";
 import { AXES } from "../constants";
 import { GridContext } from "../contexts/GridContext";
 import { ParentGridContext } from "../contexts/ParentGridContext";
+import { getGridResizeAxisId } from "../utils/getGridResizeAxisId";
+import { ResizeAxesContext } from "../../shared/contexts/ResizeAxesContext";
+import { useIsAxisResizing } from "../../shared/hooks/useIsAxisResizing";
+import { useIsLayoutPending } from "../../shared/hooks/useIsLayoutPending";
 import { getAxisLayoutKey } from "../utils/getAxisLayoutKey";
 import { getCellRange } from "../utils/getCellRange";
 import { getGridSlots } from "../utils/getGridSlots";
@@ -97,9 +101,15 @@ function GridComponent({
   const id = useId(idProp);
 
   const getResizeAxisId = useCallback(
-    (axis: GridAxis) => `${id}:${getAxisLayoutKey(axis)}`,
+    (axis: GridAxis) => getGridResizeAxisId(id, axis),
     [id]
   );
+  const resizeAxisIds = useMemo(
+    () => [getGridResizeAxisId(id, "column"), getGridResizeAxisId(id, "row")],
+    [id]
+  );
+  const isResizing = useIsAxisResizing(resizeAxisIds);
+  const isLayoutPending = useIsLayoutPending(resizeAxisIds);
 
   const columnTracks = useNormalizedTracks(columns, "columns");
   const rowTracks = useNormalizedTracks(rows, "rows");
@@ -732,6 +742,7 @@ function GridComponent({
         {...rest}
         className={className}
         data-grid
+        data-resizing={isResizing || isLayoutPending || undefined}
         data-testid={getTestId(rest, idProp)}
         id={id}
         ref={mergedRef}
@@ -754,7 +765,9 @@ function GridComponent({
         {/* Cells should not inherit context from a parent Group (if this Grid is nested within one) */}
         <GroupContext.Provider value={null}>
           <ParentGridContext.Provider value={parentGrid}>
-            {children}
+            <ResizeAxesContext.Provider value={resizeAxisIds}>
+              {children}
+            </ResizeAxesContext.Provider>
           </ParentGridContext.Provider>
         </GroupContext.Provider>
       </div>
@@ -780,6 +793,17 @@ function GridComponent({
  * ```
  *
  * ℹ️ [Test id](https://testing-library.com/docs/queries/bytestid/) can be used to narrow selection when unit testing.
+ *
+ * While one of its track boundaries is being dragged, a Grid also includes a `data-resizing` attribute
+ * (as it does until its initial layout has been applied).
+ * This can be used to animate other layout changes (e.g. snapping on release, the keyboard, or the imperative API)
+ * without making tracks lag behind the pointer during a drag, or change size when the page loads:
+ *
+ * ```css
+ * [data-grid]:not([data-resizing]) {
+ *   transition: grid-template-columns 200ms ease-out, grid-template-rows 200ms ease-out;
+ * }
+ * ```
  */
 export const Grid = /* @__PURE__ */ Object.assign(GridComponent, {
   displayName: "Grid"

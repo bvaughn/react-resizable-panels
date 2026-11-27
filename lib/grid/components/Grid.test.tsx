@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { act, fireEvent, render } from "@testing-library/react";
+import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRef, type ReactElement } from "react";
 import { describe, expect, test, vi } from "vitest";
@@ -13,6 +13,7 @@ import {
 import { Group } from "../../flex/components/Group";
 import type { LayoutChangedMeta } from "../../flex/types";
 import { Panel } from "../../flex/components/Panel";
+import { useIsResizing } from "../../shared/hooks/useIsResizing";
 import { Cell } from "./Cell";
 import { Grid } from "./Grid";
 import { Gridline } from "./Gridline";
@@ -1773,5 +1774,122 @@ describe("Grid layout change callbacks that throw", () => {
 
     expect(onLayoutChanged).toHaveBeenCalled();
     expect(getMountedAxes().size).toBe(0);
+  });
+});
+
+describe("data-resizing and useIsResizing", () => {
+  function Status({ id, testId }: { id?: string; testId: string }) {
+    const isResizing = useIsResizing(id);
+
+    return <div data-testid={testId}>{isResizing ? "resizing" : "idle"}</div>;
+  }
+
+  function renderGrid(children?: ReactElement) {
+    const gridRef = createRef<GridImperativeHandle>();
+    mockGridLayout({ gridRef });
+
+    return render(
+      <>
+        {children}
+        <Grid columns={2} gridRef={gridRef} id="grid" rows={2}>
+          <Cell
+            column={0}
+            data-column={0}
+            data-column-span={1}
+            data-row={0}
+            data-row-span={2}
+            row={0}
+            rowSpan={2}
+          >
+            <Status testId="in-cell" />
+          </Cell>
+          <Cell
+            column={1}
+            data-column={1}
+            data-column-span={1}
+            data-row={0}
+            data-row-span={1}
+            row={0}
+          >
+            <Group id="nested-group">
+              <Panel id="nested-panel">
+                <Status testId="in-nested-group" />
+              </Panel>
+            </Group>
+          </Cell>
+          <Cell
+            column={1}
+            data-column={1}
+            data-column-span={1}
+            data-row={1}
+            data-row-span={1}
+            row={1}
+          />
+        </Grid>
+      </>
+    );
+  }
+
+  async function startDrag() {
+    const user = userEvent.setup();
+    await user.pointer({
+      keys: "[MouseLeft>]",
+      target: document.querySelector<HTMLElement>("[data-grid]")!,
+      coords: { clientX: 50, clientY: 25 }
+    });
+    await user.pointer({ coords: { clientX: 60, clientY: 25 } });
+
+    return () => user.pointer({ keys: "[/MouseLeft]" });
+  }
+
+  test("sets data-resizing on the Grid while a track boundary is dragged", async () => {
+    const { getByTestId } = renderGrid();
+    const grid = getByTestId("grid");
+
+    // The attribute is also set until the initial layout has been applied
+    expect(grid.hasAttribute("data-resizing")).toBe(true);
+    await waitFor(() => expect(grid.hasAttribute("data-resizing")).toBe(false));
+
+    const endDrag = await startDrag();
+    expect(grid.hasAttribute("data-resizing")).toBe(true);
+
+    await endDrag();
+    expect(grid.hasAttribute("data-resizing")).toBe(false);
+  });
+
+  test("useIsResizing follows the nearest Group or Grid", async () => {
+    const { getByTestId } = renderGrid();
+
+    const endDrag = await startDrag();
+    expect(getByTestId("in-cell").textContent).toBe("resizing");
+    // The nearest ancestor of this one is a Group (that isn't being dragged), not the Grid
+    expect(getByTestId("in-nested-group").textContent).toBe("idle");
+
+    await endDrag();
+    expect(getByTestId("in-cell").textContent).toBe("idle");
+  });
+
+  test("useIsResizing accepts the id of a Grid", async () => {
+    const { getByTestId } = renderGrid(<Status id="grid" testId="outside" />);
+    expect(getByTestId("outside").textContent).toBe("idle");
+
+    const endDrag = await startDrag();
+    expect(getByTestId("outside").textContent).toBe("resizing");
+
+    await endDrag();
+    expect(getByTestId("outside").textContent).toBe("idle");
+  });
+
+  test("data-resizing stays set while the layout is deferred (e.g. the grid is hidden)", async () => {
+    setElementBoundsFunction(() => new DOMRect(0, 0, 0, 0));
+
+    const { getByTestId } = render(
+      <Grid columns={2} id="grid" rows={2}>
+        <Cell column={0} row={0} />
+      </Grid>
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(getByTestId("grid").hasAttribute("data-resizing")).toBe(true);
   });
 });

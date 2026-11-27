@@ -15,11 +15,12 @@ export default function SnapSizesRoute() {
     <Box direction="column" gap={4}>
       <Header section="Flex" title="Snapping" />
       <div>
-        Panels can be limited to a set of sizes. Snap sizes use the same units
-        as <Link to="/examples/min-max-sizes">min/max sizes</Link>. Dragging a
+        Panels can be limited to a set of sizes. Snap sizes use the same{" "}
+        <Link to="/examples/sizing">units</Link> as other sizes. Dragging a
         separator snaps it to the nearest snap size, and arrow keys move a
-        focused separator to the next one. Collapsible panels can also be
-        collapsed.
+        focused separator to the next one.{" "}
+        <Link to="/examples/collapsible-panels">Collapsible panels</Link> can
+        also be collapsed.
       </div>
       <Code html={SnapSizesHTML} />
       <SnapRuler horizontal={SNAP_SIZES}>
@@ -73,6 +74,10 @@ export default function SnapSizesRoute() {
         <code>setLayout</code> APIs are snapped too, as are pixel-based snap
         sizes when the group is resized.
       </Callout>
+      <div>
+        Snapping (and other layout changes) can be{" "}
+        <Link to="/examples/animation">animated</Link> with CSS.
+      </div>
     </Box>
   );
 }

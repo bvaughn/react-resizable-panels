@@ -1,6 +1,7 @@
-import { Box, Callout, Code, ExternalLink, Header } from "react-lib-tools";
+import { Box, Code, Header } from "react-lib-tools";
 import { html as MinMaxExampleHTML } from "../../public/generated/examples/SizeConstraintsMinMax.json";
 import { html as PercentageExampleHTML } from "../../public/generated/examples/SizeConstraintsPercentage.json";
+import { Link } from "../components/Link";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
@@ -10,19 +11,9 @@ export default function SizeConstraintsRoute() {
     <Box direction="column" gap={4}>
       <Header section="Flex" title="Min/max sizes" />
       <div>
-        Panels can be configured with minimum/maximum allowed sizes. Size can be
-        specified using the following{" "}
-        <ExternalLink href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Values_and_units">
-          CSS units
-        </ExternalLink>
-        :
+        Panels can be configured with minimum/maximum allowed sizes, using any
+        of the <Link to="/examples/sizing">size units</Link>.
       </div>
-      <ul className="pl-8">
-        <li className="list-disc">Pixels</li>
-        <li className="list-disc">Percentages</li>
-        <li className="list-disc">Font sizes (em, rem)</li>
-        <li className="list-disc">Viewport sizes (vh, vw)</li>
-      </ul>
       <div>
         For example, the left panel below only allows itself to be resized
         between 100-200 pixels.
@@ -53,36 +44,6 @@ export default function SizeConstraintsRoute() {
           right
         </Panel>
       </Group>
-      <Callout intent="primary">
-        <div>When specifying sizes, remember:</div>
-        <ul className="pl-8 mt-1 mb-1">
-          <li className="list-disc">Numbers are evaluated as pixels.</li>
-          <li className="list-disc">
-            Strings are evaluated as percentages (0..100%) unless otherwise
-            specified.
-          </li>
-        </ul>
-        <div>
-          You can always include the unit, even for pixels (e.g. {CODE_A}) or
-          percentages (e.g. {CODE_B})
-        </div>
-      </Callout>
     </Box>
   );
 }
-
-const CODE_A = (
-  <code>
-    <span className="tok-propertyName">minSize</span>
-    <span className="tok-operator">=</span>
-    <span className="tok-string">"100px"</span>
-  </code>
-);
-
-const CODE_B = (
-  <code>
-    <span className="tok-propertyName">minSize</span>
-    <span className="tok-operator">=</span>
-    <span className="tok-string">"10%"</span>
-  </code>
-);

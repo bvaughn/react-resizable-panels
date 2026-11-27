@@ -54,7 +54,7 @@ export function mountAxis(axis: RegisteredResizeAxis) {
   const itemIds = new Set<string>();
   const separatorIds = new Set<string>();
 
-  // Add Panels with onResize callbacks to ResizeObserver
+  // Add Panels to ResizeObserver to notify onResize callbacks (and to apply deferred layouts; see below)
   // Add Group to ResizeObserver also in order to sync % based constraints
   const resizeObserver = new ResizeObserver((entries) => {
     // Panel onResize and layout change callbacks may throw;
@@ -86,6 +86,19 @@ export function mountAxis(axis: RegisteredResizeAxis) {
             updateMountedAxis(axis, synced.state);
           }
         } else {
+          // A layout is deferred while the group's items have no size (e.g. it's hidden);
+          // it's usually applied when the group is resized, but the group can also be measured while its items are empty
+          // (e.g. while they're animated from nothing), so it's also applied once they have a size
+          if (isMounted) {
+            const axisState = getMountedAxisState(axis.id);
+            if (axisState?.defaultLayoutDeferred) {
+              const synced = syncAxisStateToCurrentSize({ axis, axisState });
+              if (synced?.changed) {
+                updateMountedAxis(axis, synced.state);
+              }
+            }
+          }
+
           try {
             notifyItemOnResize(axis, target as HTMLElement, borderBoxSize);
           } catch (error) {
@@ -112,9 +125,7 @@ export function mountAxis(axis: RegisteredResizeAxis) {
 
     itemIds.add(item.id);
 
-    if (item.onResize) {
-      resizeObserver.observe(item.element);
-    }
+    resizeObserver.observe(item.element);
   });
 
   const axisSize = calculateAvailableAxisSize({ axis });

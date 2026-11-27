@@ -9,6 +9,7 @@ export { Group } from "./flex/components/Group";
 export { useDefaultLayout } from "./flex/hooks/useDefaultLayout";
 export { useGroupCallbackRef } from "./flex/hooks/useGroupCallbackRef";
 export { useGroupRef } from "./flex/hooks/useGroupRef";
+export { useIsResizing } from "./shared/hooks/useIsResizing";
 export { useParentGroup } from "./flex/hooks/useParentGroup";
 export { Panel } from "./flex/components/Panel";
 export { usePanelCallbackRef } from "./flex/hooks/usePanelCallbackRef";

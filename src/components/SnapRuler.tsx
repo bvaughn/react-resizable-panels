@@ -102,7 +102,7 @@ export function SnapRuler({
 
   return (
     <div
-      className="grid gap-2"
+      className="grid gap-1"
       style={{ gridTemplateColumns: vertical ? "1fr auto" : "1fr" }}
     >
       {horizontal && (
@@ -123,7 +123,7 @@ export function SnapRuler({
               <span className="leading-none">{size}%</span>
               <span
                 className={cn(
-                  "mt-0.5 h-1.5 w-0.5 rounded-t-xs",
+                  "mt-1 h-2 w-2 rounded-t-xs",
                   getTickClassName(active)
                 )}
               />
@@ -152,7 +152,7 @@ export function SnapRuler({
             >
               <span
                 className={cn(
-                  "mr-1 h-0.5 w-1.5 rounded-r-xs",
+                  "mr-1 h-2 w-2 rounded-r-xs",
                   getTickClassName(active)
                 )}
               />

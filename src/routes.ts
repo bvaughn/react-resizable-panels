@@ -4,6 +4,7 @@ export type Route = LazyExoticComponent<ComponentType<unknown>>;
 
 export const routes = {
   "/examples/accordion": lazy(() => import("./routes/AccordionRoute")),
+  "/examples/animation": lazy(() => import("./routes/AnimationRoute")),
   "/examples/collapsible-grid-cells": lazy(
     () => import("./routes/CollapsibleGridCellsRoute")
   ),
@@ -22,6 +23,7 @@ export const routes = {
   "/examples/fixed-size-panels": lazy(
     () => import("./routes/FixedSizePanelsRoute")
   ),
+  "/examples/grid-animation": lazy(() => import("./routes/GridAnimationRoute")),
   "/examples/grid-basics": lazy(() => import("./routes/GridBasicsRoute")),
   "/examples/grid-constraints": lazy(
     () => import("./routes/GridConstraintsRoute")
@@ -54,6 +56,7 @@ export const routes = {
   "/examples/persistent-layout/server-rendering": lazy(
     () => import("./routes/PersistentLayoutsServerRenderingRoute")
   ),
+  "/examples/sizing": lazy(() => import("./routes/SizingPanelsRoute")),
   "/examples/snap-sizes": lazy(() => import("./routes/SnapSizesRoute")),
   "/examples/the-basics": lazy(() => import("./routes/LayoutBasicsRoute")),
   "/examples/workspace": lazy(() => import("./routes/WorkspaceRoute")),
@@ -131,6 +134,10 @@ export const routes = {
     () => import("./routes/UseGroupCallbackRefRoute")
   ),
   "/hooks/use-group-ref": lazy(() => import("./routes/UseGroupRefRoute")),
+  "/hooks/use-is-resizing": lazy(() => import("./routes/UseIsResizingRoute")),
+  "/hooks/use-is-resizing-grid": lazy(
+    () => import("./routes/UseIsResizingGridRoute")
+  ),
   "/hooks/use-panel-callback-ref": lazy(
     () => import("./routes/UsePanelCallbackRefRoute")
   ),

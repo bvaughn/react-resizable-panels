@@ -38,10 +38,23 @@
     "title": "Accordion"
   },
   {
+    "headings": [
+      {
+        "id": "adding-and-removing-panels",
+        "title": "Adding and removing panels",
+        "text": "Adding and removing panels Conditionally rendered panels are animated too. A panel that's added grows from nothing as the other panels make room for it, and when a panel is removed, the other panels grow to fill its space: Remove right panel The Workspace component's splits are groups too, but animating them isn't recommended. Most changes to a workspace (e.g. dragging a tab to a new place) change its structure, which can't be animated. Grids can be animated too (see animating grids)."
+      }
+    ],
+    "path": "/examples/animation",
+    "section": "Flex",
+    "text": "Panels are sized using the flex-grow style, so layout changes can be animated with a CSS transition. A group has a data-resizing attribute while one of its separators is being dragged, and until its initial layout has been applied; leaving the transition off then keeps panels from lagging behind the pointer, or growing from nothing as the page loads. Every other layout change is animated, including snapping once a separator is released, the keyboard (focus the separator and press the arrow keys or Enter), double-clicking a separator, and the imperative API: 25% 50% 75% Collapse Expand Resize to 75% Reset layout The onLayoutChange and onLayoutChanged callbacks report the final sizes right away, rather than while panels are animating. A panel's onResize callback follows its rendered size, so it is called throughout the transition. Panels whose sizes depend on their group's size (those with groupResizeBehavior=\"preserve-pixel-size\" or snap sizes) also animate when the group is resized, so they may lag behind while (for example) the window is being resized.",
+    "title": "Animation"
+  },
+  {
     "path": "/examples/collapsible-grid-cells",
     "section": "Grid",
     "text": "As with panels, a grid's columns and rows can be configured to collapse when they're resized below their minimum size. This works well for things like dashboards, where a sidebar can collapse down to just its icons and secondary content can be hidden entirely. Try dragging the gridlines below. Overview Reports Customers Settings Revenue $48.2K +12% vs last month Active users 2,431 +4% vs last month Response time 320 ms +18 ms vs last month Recent activity MC Maya Chen upgraded to the Team plan 2m ago JP Jordan Patel exported the Q3 report 18m ago PR Priya Raman invited 3 teammates 1h ago SO Sam Okafor updated billing details 3h ago In the example above, the sidebar column collapses to a width of 44 pixels (its collapsedSize), which leaves room for its icons, and the activity row collapses all the way. The row gridline only spans the second column because the sidebar spans both rows.",
-    "title": "Collapsible cells"
+    "title": "Collapsible columns and rows"
   },
   {
     "path": "/examples/collapsible-panels",
@@ -58,7 +71,7 @@
   {
     "path": "/examples/custom-css-styles",
     "section": "Flex",
-    "text": "className and style props can be used to customize styles, but there are a few limitations to remember: Certain style properties cannot be overridden; (refer to component documentation for a list of specific styles) Panel styles are applied to a nested HTMLDivElement to prevent interfering with the Flex layout When styling a Separator, use the data-separator attribute rather than :hover or :active pseudo-classes. This attribute is updated when the pointer is near enough to a separator element to be interactive, even if it is not directly on top of the element. An example using Tailwind CSS might look something like this. If you want to differentiate between keyboard-initiated focus and pointer-initiated focus, you can use the :focus and :focus-visible CSS pseudo-classes instead.",
+    "text": "className and style props can be used to customize styles, but there are a few limitations to remember: Certain style properties cannot be overridden; (refer to component documentation for a list of specific styles) Panel styles are applied to a nested HTMLDivElement to prevent interfering with the Flex layout When styling a Separator, use the data-separator attribute rather than :hover or :active pseudo-classes. This attribute is updated when the pointer is near enough to a separator element to be interactive, even if it is not directly on top of the element. An example using Tailwind CSS might look something like this. If you want to differentiate between keyboard-initiated focus and pointer-initiated focus, you can use the :focus and :focus-visible CSS pseudo-classes instead. See also overflow styles (e.g. for shadows and focus outlines) and animating layout changes.",
     "title": "Styling"
   },
   {
@@ -71,7 +84,13 @@
     "path": "/examples/fixed-size-panels",
     "section": "Flex",
     "text": "You can also render non-interactive elements inside of a group if you need fixed-size content. Non-interactive elements can also be rendered between panels. As with other types of groups, separators are optional (but recommended).",
-    "title": "Fixed size panels"
+    "title": "Non-resizable content"
+  },
+  {
+    "path": "/examples/grid-animation",
+    "section": "Grid",
+    "text": "Like groups, grids can animate layout changes with a CSS transition. A grid is sized using the grid-template-columns and grid-template-rows styles, and has a data-resizing attribute while one of its track boundaries is being dragged (and until its initial layout has been applied). Every other layout change is animated, including snapping once a boundary is released, the keyboard, and the imperative API: 25% 50% 75% left50% × 100% top50% × 50% bottom50% × 50% 25% 50% 75% Collapse left Expand left 75% × 25% Reset layout Browsers can only animate between grid templates with the same tracks, so adding or removing columns and rows isn't animated. As with groups, layout change callbacks report the final sizes right away. Tracks whose sizes depend on the grid's size (e.g. those with snap sizes) also animate when the grid is resized, so they may lag behind while (for example) the window is being resized.",
+    "title": "Animation"
   },
   {
     "path": "/examples/grid-basics",
@@ -112,7 +131,7 @@
   {
     "path": "/examples/min-max-sizes",
     "section": "Flex",
-    "text": "Panels can be configured with minimum/maximum allowed sizes. Size can be specified using the following CSS units: Pixels Percentages Font sizes (em, rem) Viewport sizes (vh, vw) For example, the left panel below only allows itself to be resized between 100-200 pixels. As another example, this panel group will not allow any individual panel to be smaller than 10% of the group's width. When specifying sizes, remember: Numbers are evaluated as pixels. Strings are evaluated as percentages (0..100%) unless otherwise specified. You can always include the unit, even for pixels (e.g. minSize=\"100px\") or percentages (e.g. minSize=\"10%\")",
+    "text": "Panels can be configured with minimum/maximum allowed sizes, using any of the size units. For example, the left panel below only allows itself to be resized between 100-200 pixels. As another example, this panel group will not allow any individual panel to be smaller than 10% of the group's width.",
     "title": "Min/max sizes"
   },
   {
@@ -131,7 +150,7 @@
     "path": "/examples/panel-resize-behavior",
     "section": "Flex",
     "text": "Dragging a resize separator causes panels to re-render with updated sizes. In most cases, this is what you want, but if re-rendering the contents of a panel is too slow, the resizePreviewMode prop can be used to defer the re-render until the resize is finished. In place of a panel update, an overlay separator will be rendered instead. In the group below, the panels (and their sizes) only update once the separator is released. By default, this overlay separator is just a partially transparent copy of the separator element being dragged. The SeparatorOverlay component allows users to customize the overlay. Resize preview mode works even for groups with implicit separators. The data-separator-overlay attribute can be used to differentiate between a separator that's being actively dragged and one that's being moved as a result of min/max size constraints.",
-    "title": "Panel resize behavior"
+    "title": "Resize previews"
   },
   {
     "path": "/examples/persistent-layout",
@@ -158,9 +177,32 @@
     "title": "Persistent layouts with server rendering"
   },
   {
+    "headings": [
+      {
+        "id": "units",
+        "title": "Units",
+        "text": "Units Sizes (including min/max, collapsed, and snap sizes) can be specified using the following CSS units: Pixels Percentages Font sizes (em, rem) Viewport sizes (vh, vw) When specifying sizes, remember: Numbers are evaluated as pixels. Strings are evaluated as percentages (0..100%) unless otherwise specified. You can always include the unit, even for pixels (e.g. minSize=\"100px\") or percentages (e.g. minSize=\"10%\")"
+      },
+      {
+        "id": "resizing-panels",
+        "title": "Resizing panels",
+        "text": "Resizing panels Users resize panels by dragging the separators (or borders) between them. Double-clicking a separator resets the panel next to it to its defaultSize. Separators can also be focused and moved with the keyboard: the arrow keys move a separator in steps, Home and End move it as far as it can go, and Enter collapses or expands a collapsible panel. Panels can also be resized programmatically, using the Panel and Group imperative APIs: sidebar 200px reset"
+      },
+      {
+        "id": "limiting-sizes",
+        "title": "Limiting sizes",
+        "text": "Limiting sizes Min/max sizes keep panels within a range of sizes. Collapsible panels can be collapsed when they're resized below their minimum size. Snap sizes limit panels to a set of sizes. Group resize behavior keeps panels at their pixel sizes when their group is resized."
+      }
+    ],
+    "path": "/examples/sizing",
+    "section": "Flex",
+    "text": "A group's layout is the size of each of its panels, as a percentage of the group. The defaultSize prop sets a panel's initial size; panels without one share the rest of the group.",
+    "title": "Sizing panels"
+  },
+  {
     "path": "/examples/snap-sizes",
     "section": "Flex",
-    "text": "Panels can be limited to a set of sizes. Snap sizes use the same units as min/max sizes. Dragging a separator snaps it to the nearest snap size, and arrow keys move a focused separator to the next one. Collapsible panels can also be collapsed. 25% 50% 75% By default, separators snap while they are dragged. With snapBehavior=\"on-release\", separators move freely and then snap once they are released. 25% 50% 75% This behavior can also be combined with the resize preview feature, which shows where the separator will snap to while it is dragged. 25% 50% 75% Snap sizes outside of a panel's min/max sizes are ignored. Default layouts and the imperative resize and setLayout APIs are snapped too, as are pixel-based snap sizes when the group is resized.",
+    "text": "Panels can be limited to a set of sizes. Snap sizes use the same units as other sizes. Dragging a separator snaps it to the nearest snap size, and arrow keys move a focused separator to the next one. Collapsible panels can also be collapsed. 25% 50% 75% By default, separators snap while they are dragged. With snapBehavior=\"on-release\", separators move freely and then snap once they are released. 25% 50% 75% This behavior can also be combined with the resize preview feature, which shows where the separator will snap to while it is dragged. 25% 50% 75% Snap sizes outside of a panel's min/max sizes are ignored. Default layouts and the imperative resize and setLayout APIs are snapped too, as are pixel-based snap sizes when the group is resized. Snapping (and other layout changes) can be animated with CSS.",
     "title": "Snapping"
   },
   {
@@ -576,6 +618,32 @@
     "section": "Hooks",
     "text": "The useGroupRef hook returns a mutable ref object. The example code above has been simplified to highlight usage of the ref. This hook is useful for situations where you only need a local (to your component) reference to the imperative Group API. If you need to share the ref with another component or hook, use the callback ref hook instead.",
     "title": "useGroupRef"
+  },
+  {
+    "headings": [
+      {
+        "id": "signature",
+        "title": "Signature",
+        "text": "Signature useIsResizing : (id?: string) => boolean Checks the nearest Group or Grid (whichever is closer) unless an id is specified, e.g. for a component rendered outside of the Group or Grid. Returns false if the component isn't rendered within a Group or Grid and no id is specified."
+      }
+    ],
+    "path": "/hooks/use-is-resizing",
+    "section": "Hooks",
+    "text": "The useIsResizing hook returns true while a Group's separators (or a Grid's track boundaries) are being dragged. Components rendered within a Group or Grid can use it to avoid expensive work during a drag, such as rendering a lightweight placeholder in place of a chart: Layout changes made with the keyboard or the imperative API (e.g. Group API), and container size changes, aren't included. The same hook works within Grids. Content within a Grid that's nested in a Panel follows the Grid, since it's closer.",
+    "title": "useIsResizing"
+  },
+  {
+    "headings": [
+      {
+        "id": "signature",
+        "title": "Signature",
+        "text": "Signature useIsResizing : (id?: string) => boolean Checks the nearest Grid or Group (whichever is closer) unless an id is specified, e.g. for a component rendered outside of the Grid. Returns false if the component isn't rendered within a Grid or Group and no id is specified."
+      }
+    ],
+    "path": "/hooks/use-is-resizing-grid",
+    "section": "Hooks",
+    "text": "The useIsResizing hook returns true while a Grid's track boundaries are being dragged. Components rendered within a Grid can use it to avoid expensive work during a drag, such as rendering a lightweight placeholder in place of a chart: idle idle idle Layout changes made with the keyboard or the imperative API, and changes to the Grid's size, aren't included. The same hook works within Groups. Content within a Group that's nested in a Cell follows the Group, since it's closer.",
+    "title": "useIsResizing"
   },
   {
     "path": "/hooks/use-panel-callback-ref",
@@ -1221,7 +1289,7 @@
     ],
     "path": "/props/grid",
     "section": "Props",
-    "text": "A Grid arranges resizable Cells in two dimensions.\nColumns can be resized horizontally and rows can be resized vertically;\ndragging the point where a column boundary and a row boundary intersect resizes both.\n Size constraints (e.g. min/max size, collapsible) are specified per track (column or row),\nusing the same format as Panel props.\n Cells can span multiple columns and/or rows.\nTrack boundaries cannot be resized alongside of a cell that spans across them.\n Grid elements always include the following attributes:\n Test id can be used to narrow selection when unit testing.",
+    "text": "A Grid arranges resizable Cells in two dimensions.\nColumns can be resized horizontally and rows can be resized vertically;\ndragging the point where a column boundary and a row boundary intersect resizes both.\n Size constraints (e.g. min/max size, collapsible) are specified per track (column or row),\nusing the same format as Panel props.\n Cells can span multiple columns and/or rows.\nTrack boundaries cannot be resized alongside of a cell that spans across them.\n Grid elements always include the following attributes:\n Test id can be used to narrow selection when unit testing.\n While one of its track boundaries is being dragged, a Grid also includes a data-resizing attribute\n(as it does until its initial layout has been applied).\nThis can be used to animate other layout changes (e.g. snapping on release, the keyboard, or the imperative API)\nwithout making tracks lag behind the pointer during a drag, or change size when the page loads:",
     "title": "Grid component props"
   },
   {
@@ -1362,7 +1430,7 @@
     ],
     "path": "/props/group",
     "section": "Props",
-    "text": "A Group wraps a set of resizable Panel components.\nGroup content can be resized horizontally or vertically.\n Group elements always include the following attributes:\n Test id can be used to narrow selection when unit testing.",
+    "text": "A Group wraps a set of resizable Panel components.\nGroup content can be resized horizontally or vertically.\n Group elements always include the following attributes:\n Test id can be used to narrow selection when unit testing.\n While one of its separators (or panel edges) is being dragged, a Group also includes a data-resizing attribute\n(as it does until its initial layout has been applied, e.g. while panels are sized by their default sizes).\nThis can be used to animate other layout changes (e.g. snapping on release, the keyboard, or the imperative API)\nwithout making panels lag behind the pointer during a drag, or grow from nothing when the page loads:",
     "title": "Group component props"
   },
   {
