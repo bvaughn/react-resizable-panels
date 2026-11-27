@@ -1559,12 +1559,13 @@ describe("Group", () => {
       const groupRef = createRef<GroupImperativeHandle>();
       const panelRef = createRef<PanelImperativeHandle>();
       const separatorRef = createRef<HTMLDivElement>();
-      render(
+      const ui = (maxSize?: string) => (
         <Group groupRef={groupRef} id="group">
           <Panel
             collapsible
             defaultSize="50%"
             id="left"
+            maxSize={maxSize}
             minSize="10%"
             panelRef={panelRef}
           />
@@ -1572,10 +1573,12 @@ describe("Group", () => {
           <Panel id="right" />
         </Group>
       );
+      const { rerender } = render(ui());
 
       return {
         groupRef: groupRef as RefObject<GroupImperativeHandle>,
         panelRef: panelRef as RefObject<PanelImperativeHandle>,
+        rerender: (maxSize: string) => rerender(ui(maxSize)),
         separatorRef: separatorRef as RefObject<HTMLDivElement>
       };
     }
@@ -1626,29 +1629,33 @@ describe("Group", () => {
       expect(groupRef.current.getLayout()).toEqual({ left: 30, right: 70 });
     });
 
+    // Each pointer move updates the layout, so the size before the move that collapsed the panel is restored
+    // (not the size it had when the drag started)
+    test("restores the size from just before a drag collapsed the panel", async () => {
+      const { groupRef, panelRef, separatorRef } = renderGroup();
+
+      const clientX = separatorRef.current.offsetLeft;
+      const clientY = separatorRef.current.offsetHeight / 2;
+      await userEvent.pointer([
+        { keys: "[MouseLeft>]", coords: { clientX, clientY } },
+        { coords: { clientX: clientX - 150, clientY } },
+        { coords: { clientX: clientX - 190, clientY } },
+        { keys: "[/MouseLeft]", coords: { clientX: clientX - 190, clientY } }
+      ]);
+      expect(groupRef.current.getLayout()).toEqual({ left: 0, right: 100 });
+
+      act(() => panelRef.current.expand());
+      expect(groupRef.current.getLayout()).toEqual({ left: 12.5, right: 87.5 });
+    });
+
     test("restores the pre-collapse size after the panel's props change", () => {
-      const groupRef = createRef<GroupImperativeHandle>();
-      const panelRef = createRef<PanelImperativeHandle>();
-      const ui = (maxSize: string) => (
-        <Group groupRef={groupRef} id="group">
-          <Panel
-            collapsible
-            defaultSize="50%"
-            id="left"
-            maxSize={maxSize}
-            minSize="10%"
-            panelRef={panelRef}
-          />
-          <Panel id="right" />
-        </Group>
-      );
-      const { rerender } = render(ui("90%"));
+      const { groupRef, panelRef, rerender } = renderGroup();
 
-      act(() => panelRef.current!.collapse());
-      rerender(ui("80%"));
+      act(() => panelRef.current.collapse());
+      rerender("80%");
 
-      act(() => panelRef.current!.expand());
-      expect(groupRef.current!.getLayout()).toEqual({ left: 50, right: 50 });
+      act(() => panelRef.current.expand());
+      expect(groupRef.current.getLayout()).toEqual({ left: 50, right: 50 });
     });
   });
 

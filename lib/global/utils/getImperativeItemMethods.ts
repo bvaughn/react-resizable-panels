@@ -340,8 +340,9 @@ export function getImperativeItemMethods({
       const size = synced.itemSize;
 
       if (collapsible && size !== collapsedSize) {
-        // Store previous size in order to restore it if expand() is called
-        // (recordAxisLayoutChange stores it for panels collapsed in other ways, e.g. by the keyboard or a drag)
+        // Store the pre-collapse size so expand() can restore it.
+        // Groups and Grids also record it (in recordAxisLayoutChange) for items collapsed in other ways (e.g. by the keyboard or a drag),
+        // but this doesn't depend on them doing so.
         synced.axis.mutableState.expandedItemSizes[itemId] = {
           axisSize: synced.state.axisSize,
           size

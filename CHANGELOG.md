@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Fix `useDefaultLayout` throwing during render when the value saved in storage isn't a valid layout (e.g. invalid JSON, or `null`). The value is now ignored, as if no layout had been saved. - [#856](https://github.com/bvaughn/react-resizable-panels/pull/856)
-- Fix the `expand()` method of a `Panel` (or `Grid` track) restoring its `minSize`, or an outdated size, instead of its most recent size when it was collapsed some other way (e.g. by the keyboard, by dragging, or with `setLayout`).
+- Fix the `expand()` method of a `Panel` (or `Grid` track) restoring its `minSize`, or an outdated size, instead of its most recent size when it was collapsed some other way (e.g. by the keyboard, by dragging, or with `setLayout`). The size is also no longer forgotten when the panel's props change. - [#855](https://github.com/bvaughn/react-resizable-panels/pull/855)
 
 ## 4.25.0
 
