@@ -98,7 +98,9 @@ export default function GridAnimationRoute() {
       </Callout>
       <Callout>
         As with groups, layout change callbacks report the final sizes right
-        away, and container size changes are animated too.
+        away. Tracks whose sizes depend on the grid's size (e.g. those with snap
+        sizes) also animate when the grid is resized, so they may lag behind
+        while (for example) the window is being resized.
       </Callout>
     </Box>
   );

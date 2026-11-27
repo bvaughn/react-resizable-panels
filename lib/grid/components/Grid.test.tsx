@@ -1879,4 +1879,17 @@ describe("data-resizing and useIsResizing", () => {
     await endDrag();
     expect(getByTestId("outside").textContent).toBe("idle");
   });
+
+  test("data-resizing stays set while the layout is deferred (e.g. the grid is hidden)", async () => {
+    setElementBoundsFunction(() => new DOMRect(0, 0, 0, 0));
+
+    const { getByTestId } = render(
+      <Grid columns={2} id="grid" rows={2}>
+        <Cell column={0} row={0} />
+      </Grid>
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(getByTestId("grid").hasAttribute("data-resizing")).toBe(true);
+  });
 });

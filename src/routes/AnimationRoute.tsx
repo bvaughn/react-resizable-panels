@@ -47,6 +47,7 @@ export default function AnimationRoute() {
         >
           <Panel
             collapsible
+            defaultSize="50%"
             id="left"
             minSize="10%"
             panelRef={panelRef}
@@ -78,17 +79,18 @@ export default function AnimationRoute() {
         </DemoButton>
       </div>
       <Callout intent="primary">
-        Layout change callbacks (e.g. <code>onLayoutChange</code> and{" "}
-        <code>onResize</code>) report the final sizes right away, rather than
-        while panels are animating.
+        The <code>onLayoutChange</code> and <code>onLayoutChanged</code>{" "}
+        callbacks report the final sizes right away, rather than while panels
+        are animating. A panel's <code>onResize</code> callback follows its
+        rendered size, so it is called throughout the transition.
       </Callout>
       <Callout>
-        Container size changes are animated too. Panels with{" "}
+        Panels whose sizes depend on their group's size (those with{" "}
         <Link to="/examples/group-resize-behavior">
           <code>groupResizeBehavior="preserve-pixel-size"</code>
         </Link>{" "}
-        and panels with snap sizes change size along with their group, so they
-        may lag behind while (for example) the window is being resized.
+        or snap sizes) also animate when the group is resized, so they may lag
+        behind while (for example) the window is being resized.
       </Callout>
       <SectionHeader>Adding and removing panels</SectionHeader>
       <div>
