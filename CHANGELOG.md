@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.26.0
 
 - `Group` and `Grid`: add a `data-resizing` attribute while one of their separators (or track boundaries) is being dragged (and until their initial layout has been applied), so other layout changes (e.g. snapping on release, the keyboard, or the imperative API) can be animated with a CSS transition. See the animation guides for [groups](https://react-resizable-panels.vercel.app/examples/animation) and [grids](https://react-resizable-panels.vercel.app/examples/grid-animation).
 - Add the `useIsResizing` hook, which returns `true` while a `Group` or `Grid` is being dragged.
