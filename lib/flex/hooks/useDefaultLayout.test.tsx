@@ -778,7 +778,9 @@ describe("useDefaultLayout", () => {
     ["null", "null"],
     ["a number", "5"],
     ["an array", "[25,75]"],
-    ["an object with non-numeric sizes", '{"left":"25","right":75}']
+    ["an object with non-numeric sizes", '{"left":"25","right":75}'],
+    ["an empty object", "{}"],
+    ["an object with non-finite sizes", '{"left":1e999,"right":75}']
   ])("should ignore a stored value that is %s", (_, value) => {
     const storage: LayoutStorage = {
       getItem: vi.fn(() => value),

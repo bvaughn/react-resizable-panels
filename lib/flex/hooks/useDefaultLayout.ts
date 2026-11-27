@@ -89,15 +89,22 @@ export function useDefaultLayout({
       try {
         const parsed = JSON.parse(defaultLayoutString);
 
-        // Ignore values that aren't Layout objects (e.g. null, a number, or an array)
-        // and rule out false positive for legacy layout format
+        // Only accept Layout objects (ignore e.g. null, numbers, arrays, or empty objects).
+        // The numeric-values check also rules out the legacy v3 format, which can share this key.
         if (
           parsed !== null &&
           typeof parsed === "object" &&
-          !Array.isArray(parsed) &&
-          Object.values(parsed).every((value) => typeof value === "number")
+          !Array.isArray(parsed)
         ) {
-          return parsed as Layout;
+          const values = Object.values(parsed);
+          if (
+            values.length > 0 &&
+            values.every(
+              (value) => typeof value === "number" && Number.isFinite(value)
+            )
+          ) {
+            return parsed as Layout;
+          }
         }
       } catch {
         // Ignore invalid layouts
