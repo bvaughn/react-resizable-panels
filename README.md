@@ -1228,6 +1228,14 @@ clicking a tab of a collapsed tabset only selects it. A <code>TabsetCollapseButt
 </td>
     </tr>
     <tr>
+      <td>floatOnDrop</td>
+      <td><p>Allows dragging tabs or tabsets into new floating tabsets.
+<code>&quot;modifier&quot;</code> floats while Shift is held; <code>&quot;outside-targets&quot;</code> floats within
+the workspace when no docking target is under the pointer. Defaults to false.
+Floating targets are checked by <code>disableDrop</code> and report the <code>&quot;float&quot;</code> reason.</p>
+</td>
+    </tr>
+    <tr>
       <td>disableDragBetweenApps</td>
       <td><p>Keeps drags between workspaces (see <code>dragGroup</code>) within this copy of the application:
 tabs dragged from this workspace can&#39;t be dropped into other copies of the application (e.g. the application loaded in another browser window or tab), and tabs dragged from other copies can&#39;t be dropped into this workspace.

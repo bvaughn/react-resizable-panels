@@ -25,6 +25,7 @@ export function measureAddedTabsetSize(
   workspaceId: string,
   getTabsetElement: (tabsetId: string) => HTMLElement | null | undefined
 ): number | string | undefined {
+  if ("float" in target) return size;
   if (
     size === undefined ||
     toPercentage(size) !== undefined ||

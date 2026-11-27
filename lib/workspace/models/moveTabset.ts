@@ -1,4 +1,5 @@
 import { copyModel } from "./copyModel";
+import { floatTabset } from "./floatTabset";
 import { detachFloatingTabset } from "./detachFloatingTabset";
 import { findParent } from "./findParent";
 import { findTabset } from "./findTabset";
@@ -15,6 +16,7 @@ export function moveTabset<TabData, TabsetData>(
   tabsetId: string,
   target: TabDropTarget
 ): WorkspaceModel<TabData, TabsetData> {
+  if ("float" in target) return floatTabset(model, tabsetId, target.float);
   const next = copyModel(model);
   const source = findTabset(next, tabsetId);
   if (!source) {

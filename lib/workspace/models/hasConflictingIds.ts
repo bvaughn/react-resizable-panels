@@ -21,7 +21,9 @@ export function hasConflictingIds(
   }
 
   const isInsertedWhole =
-    "edge" in target || ("region" in target && target.region !== "center");
+    "float" in target ||
+    "edge" in target ||
+    ("region" in target && target.region !== "center");
 
   return (
     (isInsertedWhole && isTaken(node.tabset.id)) ||

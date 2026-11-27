@@ -6,7 +6,7 @@ export function toModelDropTarget(
   target: TabDropTarget,
   isRightToLeft: boolean
 ): TabDropTarget {
-  if (!isRightToLeft || "index" in target) {
+  if (!isRightToLeft || "index" in target || "float" in target) {
     return target;
   }
 

@@ -128,6 +128,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   disableDrop,
   dragGroup,
   dragSourceInfo,
+  floatOnDrop = false,
   elementRef: elementRefProp,
   hiddenTabBehavior = "keep-mounted",
   id: idProp,
@@ -372,7 +373,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
           maximizeTabset(prev, tabsetId)
         ),
       moveTab: (tabId, target) =>
-        updateModel("move", false, (prev) =>
+        updateModel("float" in target ? "float" : "move", false, (prev) =>
           moveTab(
             prev,
             tabId,
@@ -380,7 +381,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
           )
         ),
       moveTabset: (tabsetId, target) =>
-        updateModel("move", false, (prev) =>
+        updateModel("float" in target ? "float" : "move", false, (prev) =>
           moveTabset(
             prev,
             tabsetId,
@@ -1010,6 +1011,11 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       isCopy: boolean,
       canMove: boolean
     ) => {
+      if (
+        "float" in target &&
+        (disabled || isDropDisabled(source, target, isCopy))
+      )
+        return;
       // Copies that the application declines (or that can't be added) are moved instead, where they can be (unless they were blocked)
       if (isCopy) {
         const node = getDragNode(source);
@@ -1022,7 +1028,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
         }
       }
 
-      updateModel("move", true, (prev) => {
+      updateModel("float" in target ? "float" : "move", true, (prev) => {
         const modelTarget = toModelDropTarget(
           target,
           isRightToLeft(rootElementRef.current)
@@ -1245,6 +1251,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     disableDragBetweenApps,
     dragGroup,
     dragStore,
+    floatOnDrop,
     getDragNode,
     getDragSourceInfo,
     getModel,

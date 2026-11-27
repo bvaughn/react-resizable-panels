@@ -11,6 +11,7 @@ import { floatTabset } from "./floatTabset";
 import { getModelIndex } from "./getModelIndex";
 import { hasConflictingIds } from "./hasConflictingIds";
 import { insertTab } from "./insertTab";
+import { insertTabset } from "./insertTabset";
 import { maximizeTabset } from "./maximizeTabset";
 import { moveTab } from "./moveTab";
 import { moveTabset } from "./moveTabset";
@@ -68,6 +69,62 @@ function createModel(): WorkspaceModel {
 }
 
 describe("floating tabsets", () => {
+  describe("floating drop targets", () => {
+    test("moveTab floats into a new tabset without mutating the input", () => {
+      const model = createModel();
+      const next = moveTab(model, "a1", { float: rect });
+      expect(next.floating?.at(-1)).toMatchObject({
+        ...rect,
+        tabs: [{ id: "a1" }],
+        selectedId: "a1"
+      });
+      expect(getModelIndex(next).tabsetsByTabId.get("a2")?.tabs).toHaveLength(
+        1
+      );
+      expect(getModelIndex(model).tabsetsByTabId.get("a1")?.tabs).toHaveLength(
+        2
+      );
+      expect(model.floating).toHaveLength(1);
+    });
+
+    test("moveTabset retains the group's identity and floats it expanded", () => {
+      const model = createModel();
+      const next = moveTabset(model, "a", { float: rect });
+      expect(next.floating?.at(-1)).toMatchObject({
+        ...rect,
+        id: "a",
+        tabs: [{ id: "a1" }, { id: "a2" }]
+      });
+      expect(next.floating?.at(-1)).not.toHaveProperty("size");
+      expect(next.root).toMatchObject({ id: "b", type: "tabset" });
+    });
+
+    test("new, copied and transferred tabs and groups can use a floating target", () => {
+      const model = createModel();
+      const target = { float: rect };
+      expect(
+        insertTab(model, tab("new"), target).floating?.at(-1)
+      ).toMatchObject({ ...rect, tabs: [{ id: "new" }] });
+      const added = addTab(model, tab("new"), { target });
+      expect(added.added).toBe(true);
+      expect(added.model.floating?.at(-1)).toMatchObject({
+        ...rect,
+        tabs: [{ id: "new" }]
+      });
+      expect(
+        insertTabset(model, tabset("external", ["new"]), target).floating?.at(
+          -1
+        )
+      ).toMatchObject({ ...rect, id: "external", tabs: [{ id: "new" }] });
+      expect(
+        hasConflictingIds(
+          model,
+          { type: "tabset", tabset: tabset("a", ["new"]) },
+          target
+        )
+      ).toBe(true);
+    });
+  });
   beforeEach(() => {
     resetWarnOnceForTest();
   });

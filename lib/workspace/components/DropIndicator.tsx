@@ -9,6 +9,7 @@ import { isRightToLeft } from "../utils/isRightToLeft";
 import { isSameDropIndicatorInsets } from "../utils/isSameDropIndicatorInsets";
 import {
   measureDropIndicatorInsets,
+  measureFloatingDropIndicatorInsets,
   type DropIndicatorInsets
 } from "../utils/measureDropIndicatorInsets";
 
@@ -46,6 +47,8 @@ function DropIndicatorComponent({
   const tabsetId =
     dropTarget && "tabsetId" in dropTarget ? dropTarget.tabsetId : undefined;
   const edge = dropTarget && "edge" in dropTarget ? dropTarget.edge : undefined;
+  const floating =
+    dropTarget && "float" in dropTarget ? dropTarget.float : undefined;
 
   // Measured when the target or the model changes (the panels can be replaced or moved, e.g. by a maximized tabset),
   // and again if the layout changes during the drag (e.g. the window is resized);
@@ -54,13 +57,14 @@ function DropIndicatorComponent({
     const containerElement = containerRef.current;
 
     // Drops at an edge of the workspace are shown over the part of its layout that the tabset would fill
-    const element = edge
-      ? layoutElementRef.current
-      : region && tabsetId
-        ? tabsetElements.get(tabsetId)?.panels
-        : undefined;
+    const element =
+      edge || floating
+        ? layoutElementRef.current
+        : region && tabsetId
+          ? tabsetElements.get(tabsetId)?.panels
+          : undefined;
     const elementRegion = edge ?? region;
-    if (!containerElement || !element || !elementRegion) {
+    if (!containerElement || !element || (!elementRegion && !floating)) {
       return;
     }
 
@@ -79,12 +83,18 @@ function DropIndicatorComponent({
         return;
       }
 
-      const next = measureDropIndicatorInsets(
-        containerElement,
-        element,
-        elementRegion,
-        fraction
-      );
+      const next = floating
+        ? measureFloatingDropIndicatorInsets(
+            containerElement,
+            element,
+            floating
+          )
+        : measureDropIndicatorInsets(
+            containerElement,
+            element,
+            elementRegion!,
+            fraction
+          );
       setInsets((prev) =>
         isSameDropIndicatorInsets(prev, next) ? prev : next
       );
@@ -106,6 +116,7 @@ function DropIndicatorComponent({
   }, [
     dragSource,
     edge,
+    floating,
     isCopy,
     layoutElementRef,
     model,
@@ -129,12 +140,13 @@ function DropIndicatorComponent({
         className={className}
         data-drag-copy={isCopy || undefined}
         data-drop-indicator
+        data-drop-floating={floating ? "" : undefined}
         data-edge={edge}
         data-region={region}
         style={{
           ...style,
           ...insets,
-          ...(!region && !edge && { opacity: 0 }),
+          ...(!region && !edge && !floating && { opacity: 0 }),
           pointerEvents: "none",
           position: "absolute"
         }}

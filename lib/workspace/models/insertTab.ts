@@ -3,6 +3,7 @@ import { createTabset } from "./createTabset";
 import { findTabset } from "./findTabset";
 import { insertAtDropTarget } from "./insertAtDropTarget";
 import { insertAtWorkspaceEdge } from "./insertAtWorkspaceEdge";
+import { insertFloatingTabset } from "./insertFloatingTabset";
 import { toFloatingDropTarget } from "./toFloatingDropTarget";
 import type { TabDropTarget, TabNode, WorkspaceModel } from "../types";
 
@@ -13,6 +14,9 @@ export function insertTab<TabData, TabsetData>(
   target: TabDropTarget
 ): WorkspaceModel<TabData, TabsetData> {
   const next = copyModel(model);
+  if ("float" in target) {
+    return insertFloatingTabset(next, createTabset([{ ...tab }]), target.float);
+  }
   if ("edge" in target) {
     return insertAtWorkspaceEdge(next, createTabset([{ ...tab }]), target.edge);
   }

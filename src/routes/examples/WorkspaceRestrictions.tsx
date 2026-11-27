@@ -11,7 +11,7 @@ declare const isLocked: boolean;
   defaultModel={initialModel}
   disabled={isLocked}
   disableDrop={({ model, target }) => {
-    if ("edge" in target) {
+    if ("edge" in target || "float" in target) {
       return false;
     }
 
