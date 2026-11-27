@@ -3,9 +3,12 @@ import { html as SnapBehaviorOnReleaseHTML } from "../../public/generated/exampl
 import { html as SnapBehaviorOnReleasePreviewHTML } from "../../public/generated/examples/SnapBehaviorOnReleasePreview.json";
 import { html as SnapSizesHTML } from "../../public/generated/examples/SnapSizes.json";
 import { Link } from "../components/Link";
+import { SnapRuler } from "../components/SnapRuler";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
+
+const SNAP_SIZES = [25, 50, 75];
 
 export default function SnapSizesRoute() {
   return (
@@ -19,31 +22,35 @@ export default function SnapSizesRoute() {
         collapsed.
       </div>
       <Code html={SnapSizesHTML} />
-      <Group>
-        <Panel
-          collapsible
-          minSize="25%"
-          showSizeAsPercentage
-          snapSizes={["25%", "50%", "75%"]}
-        >
-          left
-        </Panel>
-        <Separator />
-        <Panel showSizeAsPercentage>right</Panel>
-      </Group>
+      <SnapRuler horizontal={SNAP_SIZES}>
+        <Group>
+          <Panel
+            collapsible
+            minSize="25%"
+            showSizeAsPercentage
+            snapSizes={["25%", "50%", "75%"]}
+          >
+            left
+          </Panel>
+          <Separator />
+          <Panel showSizeAsPercentage>right</Panel>
+        </Group>
+      </SnapRuler>
       <div>
         By default, separators snap while they are dragged. With{" "}
         <code>snapBehavior="on-release"</code>, separators move freely and then
         snap once they are released.
       </div>
       <Code html={SnapBehaviorOnReleaseHTML} />
-      <Group snapBehavior="on-release">
-        <Panel showSizeAsPercentage snapSizes={["25%", "50%", "75%"]}>
-          left
-        </Panel>
-        <Separator />
-        <Panel showSizeAsPercentage>right</Panel>
-      </Group>
+      <SnapRuler horizontal={SNAP_SIZES}>
+        <Group snapBehavior="on-release">
+          <Panel showSizeAsPercentage snapSizes={["25%", "50%", "75%"]}>
+            left
+          </Panel>
+          <Separator />
+          <Panel showSizeAsPercentage>right</Panel>
+        </Group>
+      </SnapRuler>
       <div>
         This behavior can also be combined with the{" "}
         <Link to="/examples/panel-resize-behavior">resize preview</Link>{" "}
@@ -51,13 +58,15 @@ export default function SnapSizesRoute() {
         dragged.
       </div>
       <Code html={SnapBehaviorOnReleasePreviewHTML} />
-      <Group resizePreviewMode="separator" snapBehavior="on-release">
-        <Panel showSizeAsPercentage snapSizes={["25%", "50%", "75%"]}>
-          left
-        </Panel>
-        <Separator />
-        <Panel showSizeAsPercentage>right</Panel>
-      </Group>
+      <SnapRuler horizontal={SNAP_SIZES}>
+        <Group resizePreviewMode="separator" snapBehavior="on-release">
+          <Panel showSizeAsPercentage snapSizes={["25%", "50%", "75%"]}>
+            left
+          </Panel>
+          <Separator />
+          <Panel showSizeAsPercentage>right</Panel>
+        </Group>
+      </SnapRuler>
       <Callout intent="primary">
         Snap sizes outside of a panel's min/max sizes are ignored. Default
         layouts and the imperative <code>resize</code> and{" "}

@@ -1,8 +1,11 @@
 import { Box, Callout, Code, Header } from "react-lib-tools";
 import { html as SnapSizesModelHTML } from "../../public/generated/examples/WorkspaceSnapSizesModel.json";
 import { Link } from "../components/Link";
+import { SnapRuler } from "../components/SnapRuler";
 import { DemoWorkspace } from "../components/workspace/WorkspaceDemo";
 import { snapSizesModel } from "./examples/WorkspaceSnapSizesModel";
+
+const SNAP_SIZES = [25, 50, 75];
 
 export default function WorkspaceSnappingRoute() {
   return (
@@ -21,22 +24,26 @@ export default function WorkspaceSnappingRoute() {
         The sidebar below can be resized to a quarter, half, or three quarters
         of the workspace's width.
       </div>
-      <DemoWorkspace
-        className="h-80"
-        defaultModel={snapSizesModel}
-        showResetButton
-      />
+      <SnapRuler horizontal={SNAP_SIZES}>
+        <DemoWorkspace
+          className="h-80"
+          defaultModel={snapSizesModel}
+          showResetButton
+        />
+      </SnapRuler>
       <div>
         By default, separators snap while they are dragged. With{" "}
         <code>snapBehavior="on-release"</code>, they move freely and then snap
         once they are released.
       </div>
-      <DemoWorkspace
-        className="h-80"
-        defaultModel={snapSizesModel}
-        showResetButton
-        snapBehavior="on-release"
-      />
+      <SnapRuler horizontal={SNAP_SIZES}>
+        <DemoWorkspace
+          className="h-80"
+          defaultModel={snapSizesModel}
+          showResetButton
+          snapBehavior="on-release"
+        />
+      </SnapRuler>
       <Callout>
         Like{" "}
         <Link to="/examples/workspace/sizing/min-max-sizes">

@@ -160,7 +160,7 @@
   {
     "path": "/examples/snap-sizes",
     "section": "Flex",
-    "text": "Panels can be limited to a set of sizes. Snap sizes use the same units as min/max sizes. Dragging a separator snaps it to the nearest snap size, and arrow keys move a focused separator to the next one. Collapsible panels can also be collapsed. By default, separators snap while they are dragged. With snapBehavior=\"on-release\", separators move freely and then snap once they are released. This behavior can also be combined with the resize preview feature, which shows where the separator will snap to while it is dragged. Snap sizes outside of a panel's min/max sizes are ignored. Default layouts and the imperative resize and setLayout APIs are snapped too, as are pixel-based snap sizes when the group is resized.",
+    "text": "Panels can be limited to a set of sizes. Snap sizes use the same units as min/max sizes. Dragging a separator snaps it to the nearest snap size, and arrow keys move a focused separator to the next one. Collapsible panels can also be collapsed. 25% 50% 75% By default, separators snap while they are dragged. With snapBehavior=\"on-release\", separators move freely and then snap once they are released. 25% 50% 75% This behavior can also be combined with the resize preview feature, which shows where the separator will snap to while it is dragged. 25% 50% 75% Snap sizes outside of a panel's min/max sizes are ignored. Default layouts and the imperative resize and setLayout APIs are snapped too, as are pixel-based snap sizes when the group is resized.",
     "title": "Snapping"
   },
   {
