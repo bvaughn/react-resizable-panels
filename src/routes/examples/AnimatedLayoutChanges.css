@@ -1,0 +1,5 @@
+@media (prefers-reduced-motion: no-preference) {
+  [data-group]:not([data-resizing]) > [data-panel] {
+    transition: flex-grow 200ms ease-out;
+  }
+}

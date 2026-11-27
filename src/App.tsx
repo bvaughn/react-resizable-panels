@@ -58,10 +58,29 @@ const nav: NavConfig<Path | DefaultPath> = [
         title: "Guides",
         links: [
           { path: "/examples/the-basics", title: "The basics" },
-          { path: "/examples/min-max-sizes", title: "Min/max sizes" },
-          { path: "/examples/snap-sizes", title: "Snapping" },
-          { path: "/examples/collapsible-panels", title: "Collapsible panels" },
-          { path: "/examples/accordion", title: "Accordion" },
+          {
+            path: "/examples/sizing",
+            title: "Sizing panels",
+            children: [
+              { path: "/examples/min-max-sizes", title: "Min/max sizes" },
+              {
+                path: "/examples/collapsible-panels",
+                title: "Collapsible panels"
+              },
+              { path: "/examples/snap-sizes", title: "Snapping" },
+              {
+                path: "/examples/group-resize-behavior",
+                title: "Group resize behavior"
+              }
+            ]
+          },
+          { path: "/examples/nested-groups", title: "Nested groups" },
+          { path: "/examples/conditional-panels", title: "Conditional panels" },
+          {
+            path: "/examples/fixed-size-panels",
+            title: "Non-resizable content"
+          },
+          { path: "/examples/disabled-panels", title: "Disabled panels" },
           {
             path: "/examples/persistent-layout",
             title: "Persistent layouts",
@@ -80,20 +99,19 @@ const nav: NavConfig<Path | DefaultPath> = [
               }
             ]
           },
-          { path: "/examples/nested-groups", title: "Nested groups" },
-          { path: "/examples/conditional-panels", title: "Conditional panels" },
-          { path: "/examples/fixed-size-panels", title: "Fixed size panels" },
-          { path: "/examples/disabled-panels", title: "Disabled panels" },
           {
             path: "/examples/panel-resize-behavior",
-            title: "Panel resize behavior"
+            title: "Resize previews"
           },
           {
-            path: "/examples/group-resize-behavior",
-            title: "Group resize behavior"
+            path: "/examples/custom-css-styles",
+            title: "Styling",
+            children: [
+              { path: "/examples/overflow", title: "Overflow" },
+              { path: "/examples/animation", title: "Animation" }
+            ]
           },
-          { path: "/examples/overflow", title: "Overflow" },
-          { path: "/examples/custom-css-styles", title: "Styling" }
+          { path: "/examples/accordion", title: "Accordion" }
         ]
       },
       {
@@ -113,6 +131,7 @@ const nav: NavConfig<Path | DefaultPath> = [
             title: "useGroupCallbackRef"
           },
           { path: "/hooks/use-group-ref", title: "useGroupRef" },
+          { path: "/hooks/use-is-resizing", title: "useIsResizing" },
           {
             path: "/hooks/use-panel-callback-ref",
             title: "usePanelCallbackRef"
@@ -138,17 +157,18 @@ const nav: NavConfig<Path | DefaultPath> = [
         title: "Guides",
         links: [
           { path: "/examples/grid-basics", title: "The basics" },
-          { path: "/examples/grid-constraints", title: "Min/max sizes" },
-          { path: "/examples/grid-snapping", title: "Snapping" },
           { path: "/examples/gridlines", title: "Gridlines" },
+          { path: "/examples/grid-constraints", title: "Min/max sizes" },
           {
             path: "/examples/collapsible-grid-cells",
-            title: "Collapsible cells"
+            title: "Collapsible columns and rows"
           },
+          { path: "/examples/grid-snapping", title: "Snapping" },
           {
             path: "/examples/grid-persistent-layout",
             title: "Persistent layouts"
-          }
+          },
+          { path: "/examples/grid-animation", title: "Animation" }
         ]
       },
       {
@@ -168,6 +188,7 @@ const nav: NavConfig<Path | DefaultPath> = [
           },
           { path: "/hooks/use-grid-callback-ref", title: "useGridCallbackRef" },
           { path: "/hooks/use-grid-ref", title: "useGridRef" },
+          { path: "/hooks/use-is-resizing-grid", title: "useIsResizing" },
           { path: "/hooks/use-parent-grid", title: "useParentGrid" }
         ]
       },

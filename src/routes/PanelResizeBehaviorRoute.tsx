@@ -17,7 +17,7 @@ import { Separator } from "../components/styled-panels/Separator";
 export default function PanelResizeBehaviorRoute() {
   return (
     <Box direction="column" gap={4}>
-      <Header section="Flex" title="Panel resize behavior" />
+      <Header section="Flex" title="Resize previews" />
       <div>
         Dragging a resize separator causes panels to re-render with updated
         sizes. In most cases, this is what you want, but if re-rendering the

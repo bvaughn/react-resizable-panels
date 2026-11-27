@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { act, fireEvent, render } from "@testing-library/react";
+import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   createRef,
@@ -12,11 +12,15 @@ import {
   type RefObject
 } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { subscribeToMountedAxis } from "../../global/mutable-state/axes";
+import {
+  getMountedAxisState,
+  subscribeToMountedAxis
+} from "../../global/mutable-state/axes";
 import { moveSeparator } from "../../global/test/moveSeparator";
 import { assert } from "../../shared/utils/assert";
 import {
   setDefaultElementBounds,
+  setElementBounds,
   setElementBoundsFunction,
   setOffsetSizeTransform
 } from "../../shared/utils/test/mockBoundingClientRect";
@@ -113,6 +117,31 @@ describe("Group", () => {
       expect(groupRef.current!.getLayout()).toEqual({ a, b: 100 - a });
     }
   );
+
+  // e.g. a group that re-registers while its panels are animating from nothing
+  test("applies a deferred layout once its panels have a size, even if the group wasn't resized", () => {
+    setElementBoundsFunction((element) =>
+      element.hasAttribute("data-group")
+        ? new DOMRect(0, 0, 100, 50)
+        : new DOMRect(0, 0, 0, 0)
+    );
+
+    const groupRef = createRef<GroupImperativeHandle>();
+    const { container } = render(
+      <Group groupRef={groupRef} defaultLayout={{ a: 20, b: 80 }}>
+        <Panel id="a" />
+        <Panel id="b" />
+      </Group>
+    );
+    expect(groupRef.current!.getLayout()).toEqual({});
+
+    const [a, b] = container.querySelectorAll<HTMLElement>("[data-panel]");
+    act(() => {
+      setElementBounds(a, new DOMRect(0, 0, 20, 50));
+      setElementBounds(b, new DOMRect(20, 0, 80, 50));
+    });
+    expect(groupRef.current!.getLayout()).toEqual({ a: 20, b: 80 });
+  });
 
   test("ordinary pointer presses do not suppress layout commit callbacks", async () => {
     setDefaultElementBounds(new DOMRect(0, 0, 50, 50));
@@ -1659,6 +1688,138 @@ describe("Group", () => {
     });
   });
 
+  describe("data-resizing", () => {
+    beforeEach(() => {
+      setElementBoundsFunction((element) => {
+        switch (element.id) {
+          case "group": {
+            return new DOMRect(0, 0, 100, 50);
+          }
+          case "other-group": {
+            return new DOMRect(0, 100, 100, 50);
+          }
+          case "separator": {
+            return new DOMRect(50, 0, 0, 50);
+          }
+          default: {
+            return new DOMRect(
+              element.id.endsWith("right") ? 50 : 0,
+              element.id.startsWith("other") ? 100 : 0,
+              50,
+              50
+            );
+          }
+        }
+      });
+    });
+
+    // The attribute is also set until the initial layout has been applied (see below)
+    async function waitForLayout(...groups: HTMLElement[]) {
+      await waitFor(() => {
+        for (const group of groups) {
+          expect(group.hasAttribute("data-resizing")).toBe(false);
+        }
+      });
+    }
+
+    async function renderGroup() {
+      const result = render(
+        <Group id="group">
+          <Panel id="left" />
+          <Separator id="separator" />
+          <Panel id="right" />
+        </Group>
+      );
+      await waitForLayout(result.getByTestId("group"));
+
+      return result;
+    }
+
+    test("is set until the initial layout has been applied", async () => {
+      const { getByTestId } = render(
+        <Group id="group">
+          <Panel defaultSize="25%" id="left" />
+          <Separator id="separator" />
+          <Panel id="right" />
+        </Group>
+      );
+      expect(getByTestId("group").hasAttribute("data-resizing")).toBe(true);
+
+      await waitForLayout(getByTestId("group"));
+    });
+
+    test("stays set while the layout is deferred (e.g. the group is hidden)", async () => {
+      setElementBoundsFunction(() => new DOMRect(0, 0, 0, 0));
+
+      const { getByTestId } = render(
+        <Group id="group">
+          <Panel id="left" />
+          <Panel id="right" />
+        </Group>
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(getByTestId("group").hasAttribute("data-resizing")).toBe(true);
+    });
+
+    test("is set while a separator is dragged by a pointer", async () => {
+      const { getByTestId } = await renderGroup();
+      const group = getByTestId("group");
+      expect(group.hasAttribute("data-resizing")).toBe(false);
+
+      const user = userEvent.setup();
+      await user.pointer({
+        keys: "[MouseLeft>]",
+        target: getByTestId("separator"),
+        coords: { clientX: 50, clientY: 25 }
+      });
+      await user.pointer({ coords: { clientX: 60, clientY: 25 } });
+      expect(group.hasAttribute("data-resizing")).toBe(true);
+
+      await user.pointer({ keys: "[/MouseLeft]" });
+      expect(group.hasAttribute("data-resizing")).toBe(false);
+    });
+
+    test("is not set for keyboard resizes", async () => {
+      const { getByTestId } = await renderGroup();
+
+      act(() => getByTestId("separator").focus());
+      await userEvent.keyboard("{ArrowRight}");
+
+      expect(getByTestId("group").hasAttribute("data-resizing")).toBe(false);
+    });
+
+    test("is not set on a group whose separators aren't being dragged", async () => {
+      const { getByTestId } = render(
+        <>
+          <Group id="group">
+            <Panel id="left" />
+            <Separator id="separator" />
+            <Panel id="right" />
+          </Group>
+          <Group id="other-group">
+            <Panel id="other-left" />
+            <Panel id="other-right" />
+          </Group>
+        </>
+      );
+      await waitForLayout(getByTestId("group"), getByTestId("other-group"));
+
+      const user = userEvent.setup();
+      await user.pointer({
+        keys: "[MouseLeft>]",
+        target: getByTestId("separator"),
+        coords: { clientX: 50, clientY: 25 }
+      });
+      await user.pointer({ coords: { clientX: 60, clientY: 25 } });
+
+      expect(getByTestId("group").hasAttribute("data-resizing")).toBe(true);
+      expect(getByTestId("other-group").hasAttribute("data-resizing")).toBe(
+        false
+      );
+    });
+  });
+
   describe("defaultLayout", () => {
     test("should be ignored if it does not match Panel ids", () => {
       const onLayoutChange = vi.fn();
@@ -1860,10 +2021,10 @@ describe("Group", () => {
           assert(element);
 
           const fooPanel = element.querySelector('[data-testid="foo"]');
-          expect((fooPanel as HTMLDivElement).style.flexGrow).toEqual("40");
+          expect((fooPanel as HTMLDivElement).style.flexGrow).toEqual("0.4004");
 
           const barPanel = element.querySelector('[data-testid="bar"]');
-          expect((barPanel as HTMLDivElement).style.flexGrow).toEqual("60");
+          expect((barPanel as HTMLDivElement).style.flexGrow).toEqual("0.6006");
         });
 
         return <div ref={ref}>{children}</div>;
@@ -1909,7 +2070,45 @@ describe("Group", () => {
       expect(left.style.flexBasis).toBe("0px");
 
       const right = container.querySelector("#right") as HTMLDivElement;
-      expect(right.style.flexGrow).toBe("100");
+      expect(right.style.flexGrow).toBe("1.001");
+    });
+  });
+
+  // Panels are sized with fractional flex-grow values (see toFlexGrow), so values that add up to less than 1 leave a gap
+  describe("panel flex-grow styles", () => {
+    function getFlexGrows(container: HTMLElement) {
+      return Array.from(
+        container.querySelectorAll<HTMLElement>("[data-panel]"),
+        (panel) => parseFloat(panel.style.flexGrow)
+      );
+    }
+
+    function sum(values: number[]) {
+      return values.reduce((total, value) => total + value, 0);
+    }
+
+    test("add up to 1 when panels are added or removed", () => {
+      setDefaultElementBounds(new DOMRect(0, 0, 100, 50));
+
+      const ui = (showRight: boolean) => (
+        <Group>
+          <Panel id="left" />
+          <Panel id="center" />
+          {showRight && <Panel id="right" />}
+        </Group>
+      );
+
+      const { container, rerender } = render(ui(true));
+      expect(getFlexGrows(container)).toHaveLength(3);
+      expect(sum(getFlexGrows(container))).toBeGreaterThanOrEqual(1);
+
+      rerender(ui(false));
+      expect(getFlexGrows(container)).toHaveLength(2);
+      expect(sum(getFlexGrows(container))).toBeGreaterThanOrEqual(1);
+
+      rerender(ui(true));
+      expect(getFlexGrows(container)).toHaveLength(3);
+      expect(sum(getFlexGrows(container))).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -2473,6 +2672,103 @@ describe("Group", () => {
       expect(group.style.display).toBe("flex");
       expect(group.style.flexDirection).toBe("row");
       expect(group.style.flexWrap).toBe("nowrap");
+    });
+  });
+
+  describe("fractional flex-grow", () => {
+    function mockFlexGrowSizes(groupSize: number) {
+      setElementBoundsFunction((element: HTMLElement) => {
+        if (element.id === "group") {
+          return new DOMRect(0, 0, groupSize, 50);
+        } else if (element.hasAttribute("data-panel")) {
+          // Like flex items: a basis (if any), plus a share of the space left over by flex-grow
+          // (which is only the fraction of it that the flex-grow values add up to, if they add up to less than 1)
+          const panels = Array.from(
+            element.parentElement!.querySelectorAll<HTMLElement>(
+              ":scope > [data-panel]"
+            )
+          );
+          const basis = (panel: HTMLElement) =>
+            parseFloat(panel.style.flexBasis) || 0;
+          const grow = (panel: HTMLElement) =>
+            parseFloat(panel.style.flexGrow) || 0;
+          const free =
+            groupSize - panels.reduce((sum, panel) => sum + basis(panel), 0);
+          const total = Math.max(
+            1,
+            panels.reduce((sum, panel) => sum + grow(panel), 0)
+          );
+          const size = basis(element) + (grow(element) / total) * free;
+          return new DOMRect(0, 0, size, 50);
+        }
+      });
+    }
+
+    test("measures the group's size after a panel is removed (while the others still fill a fraction of it)", () => {
+      mockFlexGrowSizes(600);
+
+      const groupRef = createRef<GroupImperativeHandle>();
+      const ui = (panelIds: string[]) => (
+        <Group groupRef={groupRef} id="group">
+          {panelIds.map((id) => (
+            <Panel id={id} key={id} maxSize={id === "a" ? 220 : undefined} />
+          ))}
+        </Group>
+      );
+
+      const { rerender } = render(ui(["a", "b", "c"]));
+      expect(groupRef.current!.getLayout()).toEqual({
+        a: 33.333,
+        b: 33.334,
+        c: 33.333
+      });
+
+      rerender(ui(["a", "b"]));
+      expect(groupRef.current!.getLayout()).toEqual({ a: 36.667, b: 63.333 });
+    });
+
+    test("doesn't scale a pixel sized panel's size when the default layout doesn't match the panels", () => {
+      mockFlexGrowSizes(1000);
+
+      // jsdom has no default for flex-grow (which is 0 in browsers)
+      const getComputedStyle = window.getComputedStyle.bind(window);
+      const spy = vi
+        .spyOn(window, "getComputedStyle")
+        .mockImplementation((element, pseudo) => {
+          const style = getComputedStyle(element, pseudo);
+          return new Proxy(style, {
+            get: (target, property) =>
+              property === "flexGrow"
+                ? target.flexGrow || "0"
+                : Reflect.get(target, property)
+          });
+        });
+
+      const groupRef = createRef<GroupImperativeHandle>();
+      const axisSizes: number[] = [];
+      const unsubscribe = subscribeToMountedAxis("group", () => {
+        axisSizes.push(getMountedAxisState("group")!.axisSize);
+      });
+
+      try {
+        render(
+          <Group
+            defaultLayout={{ a: 30, b: 20, x: 50 }}
+            groupRef={groupRef}
+            id="group"
+          >
+            <Panel id="a" />
+            <Panel id="b" />
+            <Panel defaultSize={200} id="c" />
+          </Group>
+        );
+      } finally {
+        unsubscribe();
+        spy.mockRestore();
+      }
+
+      // The first measurement is of the panels' sizes (the basis of c, and the fraction of the rest that a and b fill)
+      expect(axisSizes[0]).toBeCloseTo(600.4, 1);
     });
   });
 });

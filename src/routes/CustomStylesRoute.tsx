@@ -2,6 +2,7 @@ import { Box, Callout, Code, Header } from "react-lib-tools";
 import { html as CustomStylesExampleHTML } from "../../public/generated/examples/SeparatorCustomStyles.json";
 import { html as SeparatorCustomStylesFocusVisibleHTML } from "../../public/generated/examples/SeparatorCustomStylesFocusVisible.json";
 import { html as DataAttributesExampleHTML } from "../../public/generated/examples/SeparatorDataAttributes.json";
+import { Link } from "../components/Link";
 import { Group } from "../components/styled-panels/Group";
 import { Panel } from "../components/styled-panels/Panel";
 import { Separator } from "../components/styled-panels/Separator";
@@ -53,6 +54,11 @@ export default function CustomStylesRoute() {
         />
         <Panel defaultSize="50%">right</Panel>
       </Group>
+      <div>
+        See also <Link to="/examples/overflow">overflow</Link> styles (e.g. for
+        shadows and focus outlines) and{" "}
+        <Link to="/examples/animation">animating layout changes</Link>.
+      </div>
     </Box>
   );
 }

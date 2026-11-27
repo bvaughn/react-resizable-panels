@@ -26,7 +26,7 @@ export function calculateAvailableAxisSize({
 
   const scale = getClientScale(element, orientation);
 
-  return items.reduce((totalSize, item) => {
+  const measuredSize = items.reduce((totalSize, item) => {
     const rect = item.element.getBoundingClientRect();
     const exactSize =
       (orientation === "horizontal" ? rect.width : rect.height) / scale;
@@ -39,4 +39,31 @@ export function calculateAvailableAxisSize({
 
     return totalSize;
   }, 0);
+
+  // Flex-grow values are fractions of the group, so items whose values add up to less than 1 only fill that fraction of it.
+  // That's the case when an item has been removed but the others haven't been resized yet (e.g. while a CSS transition on flex-grow runs),
+  // so scale the measured size up to the whole group (computed values include the current state of any transition).
+  const fillFraction = getFlexGrowSum(items);
+  if (measuredSize > 0 && fillFraction > 0 && fillFraction < 1) {
+    return measuredSize / fillFraction;
+  }
+
+  return measuredSize;
+}
+
+function getFlexGrowSum(items: RegisteredResizeAxis["items"]) {
+  let sum = 0;
+  for (const item of items) {
+    const view = item.element.ownerDocument.defaultView;
+    const style = view?.getComputedStyle(item.element);
+    const flexGrow = parseFloat(style?.flexGrow ?? "");
+    // Only items with no flex-basis are sized purely by flex-grow
+    // (e.g. not panels that are sized by their default sizes before their group has registered)
+    const flexBasis = parseFloat(style?.flexBasis ?? "");
+    if (!Number.isFinite(flexGrow) || flexBasis !== 0) {
+      return 0;
+    }
+    sum += flexGrow;
+  }
+  return sum;
 }
