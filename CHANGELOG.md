@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix `useDefaultLayout` throwing during render when the value saved in storage isn't a valid layout (e.g. invalid JSON, or `null`). The value is now ignored, as if no layout had been saved.
+
 ## 4.25.0
 
 - Add snap points: sizes that panels, tracks, and tabsets can be resized to. Dragged separators snap to the nearest one and arrow keys move to the next one. - [#854)](https://github.com/bvaughn/react-resizable-panels/pull/854)

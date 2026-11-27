@@ -86,11 +86,21 @@ export function useDefaultLayout({
   );
   const defaultLayoutModern = useMemo(() => {
     if (defaultLayoutString) {
-      // Rule out false positive for legacy layout format
-      const parsed = JSON.parse(defaultLayoutString);
-      const values = Object.values(parsed);
-      if (Array.from(values).every((value) => typeof value === "number")) {
-        return parsed as Layout;
+      try {
+        const parsed = JSON.parse(defaultLayoutString);
+
+        // Ignore values that aren't Layout objects (e.g. null, a number, or an array)
+        // and rule out false positive for legacy layout format
+        if (
+          parsed !== null &&
+          typeof parsed === "object" &&
+          !Array.isArray(parsed) &&
+          Object.values(parsed).every((value) => typeof value === "number")
+        ) {
+          return parsed as Layout;
+        }
+      } catch {
+        // Ignore invalid layouts
       }
     }
   }, [defaultLayoutString]);
