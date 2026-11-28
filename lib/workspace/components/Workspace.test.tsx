@@ -20,6 +20,7 @@ import { TabsetDragHandle } from "./TabsetDragHandle";
 import type {
   BeforeModelChangeArgs,
   DisableDropArgs,
+  KeyboardMoveAnnouncementArgs,
   ParentTab,
   ParentTabset,
   ParentTabsetState,
@@ -1146,7 +1147,7 @@ describe("Workspace", () => {
 
         expect(getTab("One")).toHaveAttribute(
           "aria-keyshortcuts",
-          "Control+Shift+PageUp Control+Shift+PageDown"
+          "Control+Shift+PageUp Control+Shift+PageDown Control+M"
         );
       });
 
@@ -1206,6 +1207,337 @@ describe("Workspace", () => {
 
         fireEvent.keyDown(screen.getByTestId("input-2"), moveKeys("PageUp"));
         expect(onModelChanged).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("move mode (Ctrl+M)", () => {
+      const startKeys = { ctrlKey: true, key: "m" };
+
+      function getAnnouncement(container: HTMLElement) {
+        return container.querySelector("[data-workspace-announcer]")!
+          .textContent;
+      }
+
+      function getDropIndicator(container: HTMLElement) {
+        return container.querySelector<HTMLElement>("[data-drop-indicator]");
+      }
+
+      function press(element: HTMLElement, key: string, times = 1) {
+        for (let index = 0; index < times; index++) {
+          fireEvent.keyDown(element, { key });
+        }
+      }
+
+      // Tab "2" (in the left tabset, with "One") can split its own tabset (4 targets), move into or beside the right tabset (5), or to an edge (4)
+      const TARGET_COUNT = 13;
+
+      test("arrow keys choose a target, shown by the drop indicator and announced", () => {
+        const { container } = renderWorkspace();
+
+        act(() => getTab("2").focus());
+        expect(fireEvent.keyDown(getTab("2"), startKeys)).toBe(false);
+        expect(getAnnouncement(container)).toBe(
+          "Moving 2. Use the arrow keys to choose where to move it, then press Enter to move it there, or Escape to cancel."
+        );
+        expect(getTab("2")).toHaveAttribute("data-tab-dragging");
+
+        expect(fireEvent.keyDown(getTab("2"), { key: "ArrowRight" })).toBe(
+          false
+        );
+        expect(getAnnouncement(container)).toBe(
+          `Left side of the tabset with One, 1 of ${TARGET_COUNT}`
+        );
+        expect(getDropIndicator(container)).toHaveAttribute(
+          "data-region",
+          "left"
+        );
+
+        press(getTab("2"), "ArrowDown", 4);
+        expect(getAnnouncement(container)).toBe(
+          `Into the tabset with 3, 5 of ${TARGET_COUNT}`
+        );
+        expect(getDropIndicator(container)).toHaveAttribute(
+          "data-region",
+          "center"
+        );
+
+        // Wraps at the ends
+        press(getTab("2"), "Home");
+        press(getTab("2"), "ArrowUp");
+        expect(getAnnouncement(container)).toBe(
+          `Bottom edge of the workspace, ${TARGET_COUNT} of ${TARGET_COUNT}`
+        );
+        expect(getDropIndicator(container)).toHaveAttribute(
+          "data-edge",
+          "bottom"
+        );
+
+        // Focus stays on the tab, and the model doesn't change until Enter is pressed
+        expect(getTab("2")).toHaveFocus();
+      });
+
+      test("Enter moves the tab to the chosen target, keeping focus on it", () => {
+        const { container, onModelChanged, workspaceRef } = renderWorkspace();
+
+        act(() => getTab("2").focus());
+        fireEvent.keyDown(getTab("2"), startKeys);
+        press(getTab("2"), "ArrowRight", 5);
+        expect(fireEvent.keyDown(getTab("2"), { key: "Enter" })).toBe(false);
+
+        const right = (
+          workspaceRef.current!.getModel().root as SplitNode<TabData>
+        ).children[1] as TabsetNode<TabData>;
+        expect(right.tabs.map(({ id }) => id)).toEqual(["3", "2"]);
+        expect(right.selectedId).toBe("2");
+        expect(onModelChanged).toHaveBeenCalledTimes(1);
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: true,
+          reason: "move"
+        });
+
+        expect(getTab("2")).toHaveFocus();
+        expect(getTab("2")).not.toHaveAttribute("data-tab-dragging");
+        expect(getDropIndicator(container)).toBeNull();
+        expect(getAnnouncement(container)).toBe(
+          "Moved 2: into the tabset with 3."
+        );
+
+        // Move mode has ended, so the arrow keys move focus again
+        press(getTab("2"), "ArrowLeft");
+        expect(getTab("3")).toHaveFocus();
+      });
+
+      test("Enter can split a tabset or move the tab to an edge of the workspace", () => {
+        const { workspaceRef } = renderWorkspace();
+
+        act(() => getTab("2").focus());
+        fireEvent.keyDown(getTab("2"), startKeys);
+        press(getTab("2"), "End");
+        press(getTab("2"), "Enter");
+
+        // The bottom edge, below the left and right tabsets
+        const root = workspaceRef.current!.getModel()
+          .root as SplitNode<TabData>;
+        expect(root.orientation).toBe("vertical");
+        expect((root.children[1] as TabsetNode<TabData>).tabs).toEqual([
+          expect.objectContaining({ id: "2" })
+        ]);
+        expect(getTab("2")).toHaveFocus();
+      });
+
+      test("Escape cancels without moving the tab, and doesn't reach the rest of the page", () => {
+        const onKeyDown = vi.fn();
+        const onModelChanged = vi.fn();
+        const { container } = render(
+          <div onKeyDown={onKeyDown}>
+            <Workspace<TabData>
+              defaultModel={createModel()}
+              onModelChanged={onModelChanged}
+              renderTabContent={(tab) => <Content tab={tab} />}
+            />
+          </div>
+        );
+
+        act(() => getTab("2").focus());
+        fireEvent.keyDown(getTab("2"), startKeys);
+        press(getTab("2"), "ArrowRight", 2);
+        onKeyDown.mockClear();
+
+        expect(fireEvent.keyDown(getTab("2"), { key: "Escape" })).toBe(false);
+        expect(onKeyDown).not.toHaveBeenCalled();
+        expect(onModelChanged).not.toHaveBeenCalled();
+        expect(getAnnouncement(container)).toBe("Canceled moving 2.");
+        expect(getTab("2")).not.toHaveAttribute("data-tab-dragging");
+        expect(getDropIndicator(container)).toBeNull();
+
+        // Escape isn't handled outside of move mode
+        expect(fireEvent.keyDown(getTab("2"), { key: "Escape" })).toBe(true);
+        expect(onKeyDown).toHaveBeenCalledTimes(1);
+      });
+
+      test("Enter before a target is chosen cancels", () => {
+        const { container, onModelChanged } = renderWorkspace();
+
+        act(() => getTab("2").focus());
+        fireEvent.keyDown(getTab("2"), startKeys);
+        press(getTab("2"), "Enter");
+
+        expect(onModelChanged).not.toHaveBeenCalled();
+        expect(getAnnouncement(container)).toBe("Canceled moving 2.");
+        expect(getTab("2")).not.toHaveAttribute("data-tab-dragging");
+      });
+
+      test("moving focus away from the tab cancels", () => {
+        const { container, onModelChanged } = renderWorkspace();
+
+        act(() => getTab("2").focus());
+        fireEvent.keyDown(getTab("2"), startKeys);
+        press(getTab("2"), "ArrowRight");
+
+        act(() => getTab("One").focus());
+        expect(getAnnouncement(container)).toBe("Canceled moving 2.");
+        expect(getDropIndicator(container)).toBeNull();
+
+        press(getTab("2"), "Enter");
+        expect(onModelChanged).toHaveBeenLastCalledWith(expect.anything(), {
+          isUserInteraction: true,
+          reason: "select"
+        });
+      });
+
+      test("pressing a pointer cancels", () => {
+        const { container } = renderWorkspace();
+
+        act(() => getTab("2").focus());
+        fireEvent.keyDown(getTab("2"), startKeys);
+        fireEvent.pointerDown(getTab("3"), { button: 0 });
+
+        expect(getAnnouncement(container)).toBe("Canceled moving 2.");
+        expect(getTab("2")).not.toHaveAttribute("data-tab-dragging");
+      });
+
+      test("changes to the model (e.g. by the imperative API) cancel", () => {
+        const { container, workspaceRef } = renderWorkspace();
+
+        act(() => getTab("2").focus());
+        fireEvent.keyDown(getTab("2"), startKeys);
+        press(getTab("2"), "ArrowRight");
+
+        act(() => {
+          workspaceRef.current!.updateTab("3", { title: "Three" });
+        });
+        expect(getAnnouncement(container)).toBe("Canceled moving 2.");
+        expect(getDropIndicator(container)).toBeNull();
+      });
+
+      test("other tab keys don't apply while the tab is being moved", () => {
+        const { onModelChanged } = renderWorkspace();
+
+        act(() => getTab("2").focus());
+        fireEvent.keyDown(getTab("2"), startKeys);
+        press(getTab("2"), "Delete");
+        press(getTab("2"), " ");
+        fireEvent.keyDown(getTab("2"), {
+          ctrlKey: true,
+          key: "PageUp",
+          shiftKey: true
+        });
+
+        expect(onModelChanged).not.toHaveBeenCalled();
+        expect(getTab("2")).toHaveAttribute("data-tab-dragging");
+      });
+
+      test("disableDrop removes targets, and onBeforeModelChange can block the move", () => {
+        const onBeforeModelChange = vi.fn(() => false);
+        const { container, onModelChanged } = renderWorkspace({
+          disableDrop: ({ target }) => "edge" in target,
+          onBeforeModelChange
+        });
+
+        act(() => getTab("2").focus());
+        fireEvent.keyDown(getTab("2"), startKeys);
+        press(getTab("2"), "ArrowLeft");
+        expect(getAnnouncement(container)).toBe(
+          "Bottom side of the tabset with 3, 9 of 9"
+        );
+
+        press(getTab("2"), "Enter");
+        expect(onBeforeModelChange).toHaveBeenCalledWith(
+          expect.objectContaining({ reason: "move" })
+        );
+        expect(onModelChanged).not.toHaveBeenCalled();
+        expect(getAnnouncement(container)).toBe("Canceled moving 2.");
+        expect(getTab("2")).toHaveFocus();
+      });
+
+      test("tabs that can't be moved anywhere say so, without starting move mode", () => {
+        const { container } = renderWorkspace({ disableDrop: () => true });
+
+        act(() => getTab("2").focus());
+        fireEvent.keyDown(getTab("2"), startKeys);
+
+        expect(getAnnouncement(container)).toBe("2 can't be moved anywhere.");
+        expect(getTab("2")).not.toHaveAttribute("data-tab-dragging");
+
+        // The arrow keys still move focus
+        press(getTab("2"), "ArrowLeft");
+        expect(getTab("One")).toHaveFocus();
+      });
+
+      test.each(["disableDrag", "disabled", "disableDrop"])(
+        "tabs that can't be moved (%s) don't start move mode",
+        (name) => {
+          const model = createModel();
+          const left = (model.root as SplitNode<TabData>)
+            .children[0] as TabsetNode<TabData>;
+          left.tabs[1] = tab("2", { disableDrag: name === "disableDrag" });
+
+          const { container } = renderWorkspace({
+            defaultModel: model,
+            disableDrop: name === "disableDrop",
+            disabled: name === "disabled"
+          });
+
+          expect(fireEvent.keyDown(getTab("2"), startKeys)).toBe(true);
+          expect(getAnnouncement(container)).toBe("");
+          expect(getTab("2")).not.toHaveAttribute("data-tab-dragging");
+        }
+      );
+
+      test.each([
+        ["with Shift", { ...startKeys, shiftKey: true }],
+        ["with Alt", { ...startKeys, altKey: true }],
+        ["with Meta instead of Ctrl", { key: "m", metaKey: true }],
+        ["without Ctrl", { key: "m" }]
+      ])("M %s doesn't start move mode", (_, init) => {
+        const { container } = renderWorkspace();
+
+        expect(fireEvent.keyDown(getTab("2"), init)).toBe(true);
+        expect(getAnnouncement(container)).toBe("");
+      });
+
+      test("getKeyboardMoveAnnouncement can replace the announcements", () => {
+        const getKeyboardMoveAnnouncement = vi.fn(
+          ({ defaultAnnouncement, type }: KeyboardMoveAnnouncementArgs) =>
+            type === "target" ? `[${defaultAnnouncement}]` : type
+        );
+        const { container } = renderWorkspace({ getKeyboardMoveAnnouncement });
+
+        act(() => getTab("2").focus());
+        fireEvent.keyDown(getTab("2"), startKeys);
+        expect(getAnnouncement(container)).toBe("start");
+
+        press(getTab("2"), "ArrowRight", 5);
+        expect(getAnnouncement(container)).toBe(
+          `[Into the tabset with 3, 5 of ${TARGET_COUNT}]`
+        );
+        expect(getKeyboardMoveAnnouncement).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            tab: expect.objectContaining({ id: "2" }),
+            target: { region: "center", tabsetId: "right" },
+            targetCount: TARGET_COUNT,
+            targetIndex: 4,
+            targetTabset: expect.objectContaining({ id: "right" }),
+            type: "target"
+          })
+        );
+
+        press(getTab("2"), "Enter");
+        expect(getAnnouncement(container)).toBe("drop");
+      });
+
+      test("keys within descendants of a tab are ignored", () => {
+        const { container } = renderWorkspace({
+          renderTab: (tab, props) => (
+            <div {...props}>
+              {tab.id}
+              <input data-testid={`input-${tab.id}`} />
+            </div>
+          )
+        });
+
+        fireEvent.keyDown(screen.getByTestId("input-2"), startKeys);
+        expect(getAnnouncement(container)).toBe("");
       });
     });
   });

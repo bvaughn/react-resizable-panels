@@ -1280,6 +1280,14 @@ It&#39;s read when a drag starts, so changes during a drag don&#39;t apply to it
 </td>
     </tr>
     <tr>
+      <td>getKeyboardMoveAnnouncement</td>
+      <td><p>Returns the text that screen readers announce (with a polite live region) while a tab is moved from the keyboard with Ctrl+M (see <code>KeyboardMoveAnnouncementArgs</code>),
+e.g. to translate it; return <code>args.defaultAnnouncement</code> to keep the default (English) text.</p>
+<p>It&#39;s called when move mode starts (<code>type: &quot;start&quot;</code>), when the arrow keys choose a <code>target</code> (<code>&quot;target&quot;</code>), and when the tab is moved there (<code>&quot;drop&quot;</code>) or move mode ends without moving it (<code>&quot;cancel&quot;</code>),
+e.g. <code>getKeyboardMoveAnnouncement={(args) =&gt; (args.type === &quot;cancel&quot; ? &quot;Annulé&quot; : args.defaultAnnouncement)}</code>.</p>
+</td>
+    </tr>
+    <tr>
       <td>hiddenTabBehavior</td>
       <td><p>What happens to the content of tabs that aren&#39;t visible, once it has been mounted (see <code>lazyTabContent</code>).
 Can be a function to choose per tab (e.g. based on its data).</p>

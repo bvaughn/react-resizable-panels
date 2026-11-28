@@ -44,6 +44,15 @@ export default function WorkspaceKeyboardRoute() {
           focus on it without changing which tab is selected; nothing happens at
           either end
         </li>
+        <li>
+          <kbd>Ctrl</kbd>+<kbd>M</kbd> starts moving the focused tab elsewhere
+          (unless it can't be dragged): the arrow keys cycle through the places
+          it can be moved to (into or beside another tabset, beside its own
+          tabset, or at an edge of the workspace), shown by the drop indicator;{" "}
+          <kbd>Home</kbd> and <kbd>End</kbd> choose the first and last of them.{" "}
+          <kbd>Enter</kbd> moves the tab there, keeping focus on it, and{" "}
+          <kbd>Escape</kbd> (or moving focus away from the tab) cancels
+        </li>
       </ul>
       <Callout>
         Moving a tab from the keyboard is checked like dropping it at the same
@@ -52,6 +61,14 @@ export default function WorkspaceKeyboardRoute() {
         the <code>"move"</code> reason (and <code>isUserInteraction: true</code>
         ). Tabs that can be moved have an <code>aria-keyshortcuts</code>{" "}
         attribute, so screen readers can announce these keys.
+      </Callout>
+      <Callout>
+        Move mode only offers the places a drag could drop the tab at (and that{" "}
+        <code>disableDrop</code> accepts). Each step is announced by a visually
+        hidden <code>aria-live</code> region in the workspace; the{" "}
+        <code>getKeyboardMoveAnnouncement</code> prop can replace the default
+        (English) text, e.g. to translate it. <kbd>Cmd</kbd>+<kbd>M</kbd> isn't
+        used on macOS, since it minimizes the window.
       </Callout>
       <Callout>
         Tabs use manual activation: moving focus doesn't select a tab, so

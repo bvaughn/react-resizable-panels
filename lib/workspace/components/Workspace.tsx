@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  type CSSProperties,
   type ReactNode,
   type Ref
 } from "react";
@@ -75,6 +76,7 @@ import type {
   DragOrigin,
   DragSource,
   HiddenTabBehavior,
+  KeyboardMoveAnnouncementArgs,
   MinimumSize,
   ParentTab,
   ParentTabset,
@@ -95,6 +97,9 @@ import { useFloatingTabsetGesture } from "../hooks/useFloatingTabsetGesture";
 import { useExternalDrop } from "../hooks/useExternalDrop";
 import { useTabDrag } from "../hooks/useTabDrag";
 import { getDefaultFloatingRect } from "../utils/getDefaultFloatingRect";
+import { getDefaultKeyboardMoveAnnouncement } from "../utils/getDefaultKeyboardMoveAnnouncement";
+import { getKeyboardMoveTargets } from "../utils/getKeyboardMoveTargets";
+import { isTabsetCollapsed } from "../utils/isTabsetCollapsed";
 import { FloatingTabsets } from "./FloatingTabsets";
 import { NodeView } from "./NodeView";
 import { TabsetSlot } from "./TabsetSlot";
@@ -116,6 +121,26 @@ import { subscribeToNothing } from "../../shared/utils/subscribeToNothing";
 import { DragPreview } from "./DragPreview";
 import { DropIndicator } from "./DropIndicator";
 
+type KeyboardMoveState = {
+  tabId: string;
+  // -1 until a target has been chosen
+  targetIndex: number;
+  targets: TabDropTarget[];
+};
+
+// Hidden visually, but still read by screen readers
+const VISUALLY_HIDDEN: CSSProperties = {
+  border: 0,
+  clipPath: "inset(50%)",
+  height: 1,
+  margin: -1,
+  overflow: "hidden",
+  padding: 0,
+  position: "absolute",
+  whiteSpace: "nowrap",
+  width: 1
+};
+
 function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   acceptExternalDrop,
   className,
@@ -129,6 +154,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
   dragGroup,
   dragSourceInfo,
   elementRef: elementRefProp,
+  getKeyboardMoveAnnouncement,
   hiddenTabBehavior = "keep-mounted",
   id: idProp,
   lazyTabContent = false,
@@ -1293,6 +1319,216 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
     return false;
   }, []);
 
+  // Move mode (see WorkspaceContextType.keyboardMove): the targets are chosen when it starts (and it's canceled if the model changes);
+  // the tab is shown as the drag source and the chosen target as the drop target, so they're shown like a drag's (see DropIndicator)
+  const keyboardMoveRef = useRef<KeyboardMoveState | undefined>(undefined);
+  const [isKeyboardMoving, setIsKeyboardMoving] = useState(false);
+  const [keyboardMoveAnnouncement, setKeyboardMoveAnnouncement] = useState("");
+
+  // Described with the model the targets were chosen from (e.g. a tabset that a drop splits, as it was before the drop)
+  const announceKeyboardMove = useStableCallback(
+    (
+      type: KeyboardMoveAnnouncementArgs["type"],
+      { tabId, targetIndex, targets }: KeyboardMoveState,
+      model: WorkspaceModel
+    ) => {
+      const { tabsById, tabsetsById } = getModelIndex(model);
+      const tab = tabsById.get(tabId);
+      if (!tab) {
+        return;
+      }
+
+      const target = targets[targetIndex];
+      const args = {
+        model,
+        tab,
+        target,
+        targetCount: targets.length,
+        targetIndex,
+        targetTabset:
+          target && "tabsetId" in target
+            ? tabsetsById.get(target.tabsetId)
+            : undefined,
+        type
+      };
+      const defaultAnnouncement = getDefaultKeyboardMoveAnnouncement(args);
+
+      setKeyboardMoveAnnouncement(
+        getKeyboardMoveAnnouncement
+          ? getKeyboardMoveAnnouncement({
+              ...args,
+              defaultAnnouncement
+            } as KeyboardMoveAnnouncementArgs<TabData, TabsetData>)
+          : defaultAnnouncement
+      );
+    }
+  );
+
+  const endKeyboardMove = useStableCallback(() => {
+    keyboardMoveRef.current = undefined;
+    dragStore.setDragSource(undefined);
+    dragStore.setDropTarget(undefined);
+    setIsKeyboardMoving(false);
+  });
+
+  const cancelKeyboardMove = useStableCallback((tabId: string) => {
+    const state = keyboardMoveRef.current;
+    if (state?.tabId === tabId) {
+      endKeyboardMove();
+      announceKeyboardMove("cancel", state, modelRef.current);
+    }
+  });
+
+  // Targets are checked by disableDrop (like a drag's) when move mode starts, so the arrow keys only choose targets that accept the tab
+  const startKeyboardMove = useStableCallback((tabId: string) => {
+    const current = keyboardMoveRef.current;
+    if (current) {
+      cancelKeyboardMove(current.tabId);
+    } else if (dragStore.getState().dragSource !== undefined) {
+      // A drag is in progress
+      return;
+    }
+
+    const model = modelRef.current;
+    const source: DragSource = { tabId, type: "tab" };
+    const targets = getKeyboardMoveTargets({
+      isCollapsed: (tabset) => isTabsetCollapsed(tabset, collapseOverrides),
+      isRightToLeft: isRightToLeft(rootElementRef.current),
+      model,
+      tabId
+    }).filter((target) => !isDropDisabled(source, target, false));
+
+    const state: KeyboardMoveState = { tabId, targetIndex: -1, targets };
+    if (targets.length > 0) {
+      keyboardMoveRef.current = state;
+      dragStore.setDragSource(source);
+      setIsKeyboardMoving(true);
+    }
+
+    announceKeyboardMove("start", state, model);
+  });
+
+  // Moves the tab like dropping it at the chosen target would; it keeps focus (in its new place)
+  const dropKeyboardMove = useStableCallback((state: KeyboardMoveState) => {
+    const target = state.targets[state.targetIndex];
+    const model = modelRef.current;
+    endKeyboardMove();
+
+    if (
+      target &&
+      updateModel("move", true, (prev) =>
+        moveTab(
+          prev,
+          state.tabId,
+          toModelDropTarget(target, isRightToLeft(rootElementRef.current))
+        )
+      )
+    ) {
+      requestFocus(state.tabId);
+      announceKeyboardMove("drop", state, model);
+    } else {
+      announceKeyboardMove("cancel", state, model);
+    }
+  });
+
+  // The arrow keys cycle through the targets (wrapping at the ends), and Home and End choose the first and last ones
+  const handleKeyboardMoveKey = useStableCallback(
+    (tabId: string, key: string) => {
+      const state = keyboardMoveRef.current;
+      if (state?.tabId !== tabId) {
+        return false;
+      }
+
+      const { targetIndex, targets } = state;
+      let nextIndex: number;
+      switch (key) {
+        case "ArrowDown":
+        case "ArrowRight": {
+          nextIndex = (targetIndex + 1) % targets.length;
+          break;
+        }
+        case "ArrowLeft":
+        case "ArrowUp": {
+          nextIndex = targetIndex <= 0 ? targets.length - 1 : targetIndex - 1;
+          break;
+        }
+        case "End": {
+          nextIndex = targets.length - 1;
+          break;
+        }
+        case "Enter": {
+          dropKeyboardMove(state);
+          return true;
+        }
+        case "Escape": {
+          cancelKeyboardMove(tabId);
+          return true;
+        }
+        case "Home": {
+          nextIndex = 0;
+          break;
+        }
+        default: {
+          return false;
+        }
+      }
+
+      const next = { ...state, targetIndex: nextIndex };
+      keyboardMoveRef.current = next;
+      dragStore.setDropTarget(targets[nextIndex]);
+      announceKeyboardMove("target", next, modelRef.current);
+
+      return true;
+    }
+  );
+
+  const isKeyboardMovingTab = useCallback(
+    (tabId: string) => keyboardMoveRef.current?.tabId === tabId,
+    []
+  );
+
+  const keyboardMove = useMemo(
+    () => ({
+      cancel: cancelKeyboardMove,
+      handleKey: handleKeyboardMoveKey,
+      isMoving: isKeyboardMovingTab,
+      start: startKeyboardMove
+    }),
+    [
+      cancelKeyboardMove,
+      handleKeyboardMoveKey,
+      isKeyboardMovingTab,
+      startKeyboardMove
+    ]
+  );
+
+  // The targets were chosen for the model as it was when move mode started
+  useEffect(() => {
+    const state = keyboardMoveRef.current;
+    if (state) {
+      cancelKeyboardMove(state.tabId);
+    }
+  }, [cancelKeyboardMove, model]);
+
+  // Pressing a pointer (e.g. to start dragging) ends move mode
+  useEffect(() => {
+    if (!rootElement) {
+      return;
+    }
+
+    const cancel = () => {
+      const state = keyboardMoveRef.current;
+      if (state) {
+        cancelKeyboardMove(state.tabId);
+      }
+    };
+    rootElement.addEventListener("pointerdown", cancel, true);
+
+    return () => {
+      rootElement.removeEventListener("pointerdown", cancel, true);
+    };
+  }, [cancelKeyboardMove, rootElement]);
+
   const context = useMemo<WorkspaceContextType>(
     () => ({
       activeTabsetId,
@@ -1312,6 +1548,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       id,
       isHydrating,
       isTabContentLazy,
+      keyboardMove,
       maximumSizes,
       minimumSizes,
       model,
@@ -1371,6 +1608,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
       id,
       isHydrating,
       isTabContentLazy,
+      keyboardMove,
       maximumSizes,
       minimumSizes,
       model,
@@ -1582,6 +1820,15 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
             </div>
             {maximizedOverlay}
             {floatingLayer}
+            {/* Announces the steps of moving a tab from the keyboard; rendered from the start, since screen readers only announce changes to live regions that are already in the document */}
+            <div
+              aria-atomic
+              aria-live="polite"
+              data-workspace-announcer
+              style={VISUALLY_HIDDEN}
+            >
+              {keyboardMoveAnnouncement}
+            </div>
             <div
               data-workspace-tab-host-parking
               ref={tabHostParkingRef}
@@ -1590,6 +1837,7 @@ function WorkspaceComponent<TabData = unknown, TabsetData = unknown>({
             {/* Shown by every workspace in the document a drag is over (not just the one showing the preview), for the whole drag, so it can be animated between tabsets */}
             {(dragSource !== undefined ||
               newTabPreview !== undefined ||
+              isKeyboardMoving ||
               isNativeDragOver ||
               isExternalDragOver) && (
               <DropIndicator

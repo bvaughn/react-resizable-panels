@@ -263,6 +263,19 @@
       "name": "elementRef",
       "required": false
     },
+    "getKeyboardMoveAnnouncement": {
+      "description": [
+        {
+          "content": "<p>Returns the text that screen readers announce (with a polite live region) while a tab is moved from the keyboard with Ctrl+M (see <code>KeyboardMoveAnnouncementArgs</code>),\ne.g. to translate it; return <code>args.defaultAnnouncement</code> to keep the default (English) text.</p>\n"
+        },
+        {
+          "content": "<p>It's called when move mode starts (<code>type: &quot;start&quot;</code>), when the arrow keys choose a <code>target</code> (<code>&quot;target&quot;</code>), and when the tab is moved there (<code>&quot;drop&quot;</code>) or move mode ends without moving it (<code>&quot;cancel&quot;</code>),\ne.g. <code>getKeyboardMoveAnnouncement={(args) =&gt; (args.type === &quot;cancel&quot; ? &quot;Annulé&quot; : args.defaultAnnouncement)}</code>.</p>\n"
+        }
+      ],
+      "html": "<div><span class=\"tok-variableName\"><span class=\"tok-propertyName\">getKeyboardMoveAnnouncement</span></span><span class=\"tok-operator\">?</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-punctuation\">(</span><span class=\"tok-punctuation\">(</span><span class=\"tok-variableName tok-definition\">args</span><span class=\"tok-punctuation\">:</span><span class=\"\"> </span><span class=\"tok-typeName\">KeyboardMoveAnnouncementArgs</span><span class=\"\">&#60;</span><span class=\"tok-typeName\">TabData</span><span class=\"tok-punctuation\">,</span><span class=\"\"> </span><span class=\"tok-typeName\">TabsetData</span><span class=\"\">&#62;</span><span class=\"tok-punctuation\">)</span><span class=\"\"> </span><span class=\"tok-punctuation\">=&#62;</span><span class=\"\"> </span><span class=\"tok-variableName\">string</span><span class=\"tok-punctuation\">)</span></div>",
+      "name": "getKeyboardMoveAnnouncement",
+      "required": false
+    },
     "hiddenTabBehavior": {
       "description": [
         {

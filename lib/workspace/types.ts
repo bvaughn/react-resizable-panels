@@ -556,6 +556,56 @@ export type HiddenTabBehavior = "activity" | "keep-mounted" | "unmount";
 export type TabRemovalSelectionBehavior = "adjacent" | "recent";
 
 /**
+ * Arguments passed to the Workspace's `getKeyboardMoveAnnouncement` prop, for each step of moving a tab from the keyboard
+ * (see "Keyboard and accessibility" in the documentation):
+ * - `"start"`: move mode started (or, if `targetCount` is `0`, couldn't start, since the tab can't be moved anywhere)
+ * - `"target"`: the arrow keys chose a `target`
+ * - `"drop"`: the tab was moved to the `target`
+ * - `"cancel"`: move mode ended without moving the tab (e.g. Escape was pressed, focus left the tab, or the move was blocked)
+ */
+export type KeyboardMoveAnnouncementArgs<
+  TabData = unknown,
+  TabsetData = unknown
+> = {
+  /**
+   * The text announced unless the prop returns something else, in English, e.g. "Right side of the tabset with Files, 3 of 9".
+   */
+  defaultAnnouncement: string;
+
+  /**
+   * The model the targets were chosen from; for `"drop"`, the model as it was before the move.
+   */
+  model: WorkspaceModel<TabData, TabsetData>;
+
+  /**
+   * The tab being moved.
+   */
+  tab: TabNode<TabData>;
+
+  /**
+   * Where the tab would be (or was) moved, for `"target"` and `"drop"`; edges and regions are sides of the screen (as for drags, see `TabDropTarget`).
+   */
+  target: TabDropTarget | undefined;
+
+  /**
+   * The number of places the tab can be moved to (which the arrow keys cycle through).
+   */
+  targetCount: number;
+
+  /**
+   * The position of `target` among those places (starting at `0`), or `-1` before one has been chosen.
+   */
+  targetIndex: number;
+
+  /**
+   * The tabset that `target` is within (as it was before the move); `undefined` for edges of the workspace.
+   */
+  targetTabset: TabsetNode<TabData, TabsetData> | undefined;
+
+  type: "cancel" | "drop" | "start" | "target";
+};
+
+/**
  * Arguments passed to the Workspace's `disableDrop` prop.
  *
  * While a tabset is dragged, `disableDrop` is called once for each of its tabs (with the target that tab would be dropped at),
@@ -1674,6 +1724,17 @@ export type WorkspaceProps<TabData = unknown, TabsetData = unknown> = Omit<
   elementRef?: Ref<HTMLDivElement | null> | undefined;
 
   /**
+   * Returns the text that screen readers announce (with a polite live region) while a tab is moved from the keyboard with Ctrl+M (see `KeyboardMoveAnnouncementArgs`),
+   * e.g. to translate it; return `args.defaultAnnouncement` to keep the default (English) text.
+   *
+   * It's called when move mode starts (`type: "start"`), when the arrow keys choose a `target` (`"target"`), and when the tab is moved there (`"drop"`) or move mode ends without moving it (`"cancel"`),
+   * e.g. `getKeyboardMoveAnnouncement={(args) => (args.type === "cancel" ? "Annulé" : args.defaultAnnouncement)}`.
+   */
+  getKeyboardMoveAnnouncement?:
+    | ((args: KeyboardMoveAnnouncementArgs<TabData, TabsetData>) => string)
+    | undefined;
+
+  /**
    * What happens to the content of tabs that aren't visible, once it has been mounted (see `lazyTabContent`).
    * Can be a function to choose per tab (e.g. based on its data).
    *
@@ -2120,6 +2181,7 @@ export type TabRenderProps = Pick<
   | "aria-selected"
   | "className"
   | "id"
+  | "onBlur"
   | "onClick"
   | "onKeyDown"
   | "onPointerDown"
