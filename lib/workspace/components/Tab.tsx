@@ -32,6 +32,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     floatingPress,
     getTabHandle,
     getTabHost,
+    keyboardMove,
     model,
     modelIndex,
     renderTab,
@@ -174,6 +175,16 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
       return;
     }
 
+    // While the tab is being moved (see below), the keys choose where it's moved (handled keys don't reach the rest of the page, e.g. Escape doesn't close a dialog);
+    // other keys (e.g. Delete) don't apply to it, and Tab moves focus away, which cancels the move
+    if (keyboardMove.isMoving(tab.id)) {
+      if (keyboardMove.handleKey(tab.id, event.key)) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      return;
+    }
+
     const tabList = event.currentTarget.closest("[data-tab-list]");
     const tabElements = tabList
       ? Array.from(tabList.querySelectorAll<HTMLElement>("[data-tab]")).filter(
@@ -214,6 +225,22 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
         if (reorderTab(tab.id, event.key === "PageUp" ? -1 : 1)) {
           requestFocus(tab.id);
         }
+      }
+      return;
+    }
+
+    // Ctrl+M starts move mode: the arrow keys choose where to move the tab (shown by the drop indicator), Enter moves it, and Escape cancels
+    // (not Cmd+M, which minimizes the window on macOS)
+    if (
+      (event.key === "m" || event.key === "M") &&
+      event.ctrlKey &&
+      !event.shiftKey &&
+      !event.altKey &&
+      !event.metaKey
+    ) {
+      if (!isMoveDisabled) {
+        event.preventDefault();
+        keyboardMove.start(tab.id);
       }
       return;
     }
@@ -269,7 +296,7 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     // Announced by screen readers (see onTabKeyDown)
     "aria-keyshortcuts": isMoveDisabled
       ? undefined
-      : "Control+Shift+PageUp Control+Shift+PageDown",
+      : "Control+Shift+PageUp Control+Shift+PageDown Control+M",
     "aria-selected": isSelected,
     className,
     "data-drop-after": dropPosition === "after" || undefined,
@@ -281,6 +308,10 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
     "data-tabset-collapsed": isCollapsed || undefined,
     "data-tab-selected": isSelected || undefined,
     id: tabElementId,
+    // Move mode ends when focus leaves the tab
+    onBlur: () => {
+      keyboardMove.cancel(tab.id);
+    },
     onClick: (event) => {
       if (!isFromInteractiveDescendant(event)) {
         // Clicks without a pointer (e.g. from assistive technology or element.click()) have no detail
@@ -335,6 +366,8 @@ function TabComponent({ tab: tabProp }: { tab: TabNode }) {
  * - Arrow keys move focus between tabs (wrapping at the ends); Home and End move focus to the first and last tabs
  * - Enter or Space selects the focused tab
  * - Delete or Backspace closes the focused tab (unless closing is disabled)
+ * - Ctrl+Shift+PageUp and PageDown move the focused tab within its tab list
+ * - Ctrl+M starts moving the focused tab elsewhere: the arrow keys choose where, Enter moves it there, and Escape cancels
  */
 export const Tab = /* @__PURE__ */ Object.assign(TabComponent, {
   displayName: "Workspace.Tab"

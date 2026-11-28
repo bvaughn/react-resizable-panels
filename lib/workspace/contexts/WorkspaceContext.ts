@@ -96,6 +96,17 @@ export type WorkspaceContextType = {
   // Whether a tab's content isn't mounted until the tab is first visible (see the lazyTabContent prop)
   isTabContentLazy: (tab: TabNode) => boolean;
 
+  // Move mode (Ctrl+M on a focused tab): the arrow keys choose where the tab would be moved (shown by the drop indicator), Enter moves it there, and Escape cancels;
+  // the focused tab's key handler passes keys here while it's being moved (see Tab)
+  keyboardMove: {
+    // Ends move mode without moving the tab (e.g. when focus leaves it)
+    cancel: (tabId: string) => void;
+    // Returns whether the key was handled
+    handleKey: (tabId: string, key: string) => boolean;
+    isMoving: (tabId: string) => boolean;
+    start: (tabId: string) => void;
+  };
+
   // True while server rendering and hydrating (when portals can't be rendered)
   isHydrating: boolean;
 
